@@ -2,24 +2,95 @@
 
 use super::CardRecord;
 use super::PrintingRecord;
+use crate::AdditionalCostIndex;
+use crate::TargetIndex;
 use crate::card::AbilityDef;
+use crate::card::AbilityPredicateDef;
+use crate::card::AbilityTargetDef;
+use crate::card::AbilityTargetPredicate;
+use crate::card::ActivationTimingDef;
 use crate::card::AddManaEffectDef;
+use crate::card::AggregateOperationDef;
+use crate::card::AlternativeCastKindDef;
 use crate::card::AppliedEffectDef;
+use crate::card::AppliedRuleDef;
+use crate::card::BattlefieldArrivalDef;
 use crate::card::BattlefieldEntryModificationDef;
 use crate::card::BattlefieldEntryScalarChoiceDef;
+use crate::card::BindObjectsDef;
+use crate::card::BlockRestrictionDef;
 use crate::card::CardRules;
+use crate::card::CardSupertype;
 use crate::card::CardType;
+use crate::card::CardTypeSet;
+use crate::card::ChoiceVisibilityDef;
+use crate::card::ChooseCardsFromCollectionDef;
+use crate::card::ChooseDef;
+use crate::card::ChooseForEachPlayerDef;
+use crate::card::ChooseObjectOrderDef;
+use crate::card::CollectionInspectionDef;
+use crate::card::ColorSet;
+use crate::card::ComparisonDef;
+use crate::card::CopyExceptionsDef;
+use crate::card::CopyStackObjectDef;
 use crate::card::CostDef;
+use crate::card::CostModificationDef;
+use crate::card::CostQuantityDef;
+use crate::card::CountConditionDef;
+use crate::card::CounterKind;
+use crate::card::CreatedTokensDef;
+use crate::card::CreatureTypeSetDef;
+use crate::card::DamageAssignmentDef;
+use crate::card::DamageEventMatcherDef;
+use crate::card::DamageKindDef;
+use crate::card::DamageRecipientMatcherDef;
+use crate::card::DamageSourceMatcherDef;
+use crate::card::DiscardFollowUpDef;
+use crate::card::DiscardSelectionDef;
+use crate::card::EffectChoiceDef;
 use crate::card::EffectDef;
 use crate::card::EffectPaymentDef;
 use crate::card::EffectRecipientDef;
+use crate::card::InstalledTriggerDef;
+use crate::card::KeywordAbility;
 use crate::card::ManaColor;
+use crate::card::ObjectChoiceBindingDef;
+use crate::card::ObjectCollectionSourceDef;
+use crate::card::ObjectPredicateDef;
+use crate::card::ObjectQueryDef;
+use crate::card::ObjectRefDef;
+use crate::card::ObjectSetCountConditionDef;
+use crate::card::ObjectSetDef;
+use crate::card::ObjectSetFilterDef;
+use crate::card::ObjectSetPredicateDef;
+use crate::card::ObjectValueAggregateDef;
+use crate::card::ObjectValueDef;
+use crate::card::PayOrDef;
+use crate::card::PerPlayerSelectionDef;
+use crate::card::PlayActionMatcherDef;
+use crate::card::PlayRestrictionDef;
+use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
 use crate::card::PlayerSetDef;
+use crate::card::RandomizeObjectOrderDef;
 use crate::card::ReplacementChoiceDef;
 use crate::card::ReplacementEffectDef;
+use crate::card::ReplacementEventDef;
+use crate::card::ResolvedEffectDurationDef;
+use crate::card::RevealObjectsDef;
+use crate::card::SpellCastQueryDef;
+use crate::card::SubtypeDef;
+use crate::card::TokenCopyDef;
+use crate::card::TopOfLibraryCostDef;
+use crate::card::TriggerConditionDef;
+use crate::card::TriggerEventDef;
+use crate::card::TurnStepDef;
+use crate::card::ValueComparisonDef;
 use crate::card::ValueDef;
+use crate::card::ZoneKind;
+use crate::card::ZonePlacement;
 use crate::card::abilities;
+use crate::card::tokens;
 use crate::mana_cost;
 
 use crate::card::sets::y1993::alpha as catalog_lea;
@@ -34,787 +105,2545 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
+pub const WEB_SLINGING: crate::card::MechanicId =
+    crate::card::MechanicId::from_name("mtg:web-slinging");
+pub const fn web_slinging(text: &'static str, costs: &'static [CostDef]) -> AbilityDef {
+    AbilityDef::alternative_cast(
+        costs,
+        AlternativeCastKindDef::AlternativeCost,
+        Some(text),
+        EffectDef::None,
+    )
+    .with_alternative_cost_binding(crate::Binding!("web-slinging"))
+    .labeled(WEB_SLINGING)
+}
+
 // SPM 1 — Anti-Venom, Horrifying Healer
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a static damage-prevention replacement with an immediate counter-placement consequence using the amount actually prevented; prevention follow-ups currently support life gain, not counters.
 pub(in crate::card::sets) static ANTI_VENOM_HORRIFYING_HEALER: CardRecord = CardRecord::new(
     "Anti-Venom, Horrifying Healer",
     "560384fe-7be0-4b93-a515-2fe687ab2492",
     "Néstor Ossandón Leal",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 2 — Arachne, Psionic Weaver
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs an as-entry opponent-hand inspection followed by a durable noncreature card-type choice, and a cost modifier keyed to that chosen type; existing scalar entry choices do not include card types.
 pub(in crate::card::sets) static ARACHNE_PSIONIC_WEAVER: CardRecord = CardRecord::new(
     "Arachne, Psionic Weaver",
     "7c1f871a-bd85-402e-b474-1deb64c18a52",
     "Steve Argyle",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 3 — Aunt May
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AUNT_MAY: CardRecord = CardRecord::new(
     "Aunt May",
     "ad96343b-baac-428c-8270-fcffbbbe9fb8",
     "Randy Gallegos",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{W}"), &["Human", "Citizen"], 0, 2)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[AbilityDef::triggered(
+            "Whenever another creature you control enters, you gain 1 \
+             life. If it's a Spider, put a +1/+1 counter on it.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    ]),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            EffectDef::Sequence(&[
+                EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::ObjectSetCount(&ObjectSetCountConditionDef {
+                        objects: &ObjectSetDef::One(ObjectRefDef::TriggeringObject),
+                        predicate: ObjectSetPredicateDef::contains(&ObjectPredicateDef::Subtype(
+                            SubtypeDef::Literal("Spider"),
+                        )),
+                    }),
+                    then: &EffectDef::AddCounters {
+                        object: EffectRecipientDef::TriggeringObject,
+                        kind: CounterKind::PlusOnePlusOne,
+                        amount: ValueDef::Constant(1),
+                    },
+                },
+            ]),
+        )]),
 );
 
 // SPM 4 — City Pigeon
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CITY_PIGEON: CardRecord = CardRecord::new(
     "City Pigeon",
     "56d67fb4-5b23-432c-9ffb-39545035c117",
     "David Szabo",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{W}"), &["Bird"], 1, 1).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::triggered(
+            "When this creature leaves the battlefield, create a Food \
+             token. (It's an artifact with \"{2}, {T}, Sacrifice this \
+             token: You gain 3 life.\")",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                Some(ZoneKind::Battlefield),
+                None,
+            ),
+            EffectDef::create_token(tokens::food()).with_count(ValueDef::Constant(1)),
+        ),
+    ]),
 );
 
 // SPM 5 — Costume Closet
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a complete modified predicate, including Equipment attached to the creature and Auras controlled by its controller; the available counter and enchanted predicates cannot identify all three modifications with their required controller scope.
 pub(in crate::card::sets) static COSTUME_CLOSET: CardRecord = CardRecord::new(
     "Costume Closet",
     "cc641f4a-ddbe-4f7d-bb55-eabf11f8b7fb",
     "Bastien Grivet",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 6 — Daily Bugle Reporters
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DAILY_BUGLE_REPORTERS: CardRecord = CardRecord::new(
     "Daily Bugle Reporters",
     "530dbeb0-b0cd-473e-a43e-7b23c88650a3",
     "Zoltan Boros",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{W}"), &["Human", "Citizen"], 2, 3).with_abilities(&[
+        AbilityDef::modal_triggered(
+            "When this creature enters, choose one —",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            &[
+                AbilityDef::spell_with_targets(
+                    "Puff Piece — Put a +1/+1 counter on each of up to two target \
+                     creatures.",
+                    &[AbilityTargetDef::up_to(
+                        AbilityTargetPredicate::Object {
+                            object: ObjectPredicateDef::HasType(CardType::Creature),
+                            zones: &[ZoneKind::Battlefield],
+                            controller: None,
+                            owner: None,
+                        },
+                        2,
+                    )],
+                    EffectDef::AddCounters {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        kind: CounterKind::PlusOnePlusOne,
+                        amount: ValueDef::Constant(1),
+                    },
+                ),
+                AbilityDef::spell_with_targets(
+                    "Investigative Journalism — Return target creature card with \
+                     mana value 2 or less from your graveyard to your hand.",
+                    &[AbilityTargetDef::exactly_one(
+                        AbilityTargetPredicate::Object {
+                            object: ObjectPredicateDef::All(&[
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                ObjectPredicateDef::ManaValueAtMost(2),
+                            ]),
+                            zones: &[ZoneKind::Graveyard],
+                            controller: None,
+                            owner: Some(PlayerRelation::You),
+                        },
+                    )],
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ZoneKind::Hand,
+                        ZonePlacement::Top,
+                    ),
+                ),
+            ],
+        ),
+    ]),
 );
 
 // SPM 7 — Flash Thompson, Spider-Fan
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs selecting and executing both modes of one triggered ability, including both target slots; current triggered-mode placement offers a maximum of one mode even though modal spells support larger selections.
 pub(in crate::card::sets) static FLASH_THOMPSON_SPIDER_FAN: CardRecord = CardRecord::new(
     "Flash Thompson, Spider-Fan",
     "44cf372b-f668-45e9-981e-4533295dcc74",
     "Gal Or",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 8 — Friendly Neighborhood
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FRIENDLY_NEIGHBORHOOD: CardRecord = CardRecord::new(
     "Friendly Neighborhood",
     "17a18e2f-221f-4fc2-8dab-25bf12fb8756",
     "Pablo Mendoza",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{3}{W}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_land(),
+            abilities::enters_trigger(
+                "When this Aura enters, create three 1/1 green and white Human \
+                 Citizen creature tokens.",
+                EffectDef::create_creature_token(
+                    &["Human", "Citizen"],
+                    &[ManaColor::Green, ManaColor::White],
+                    1,
+                    1,
+                )
+                .with_count(ValueDef::Constant(3)),
+            ),
+            AbilityDef::static_ability(
+                "Enchanted land has \"{1}, {T}: Target creature gets +1/+1 \
+                 until end of turn for each creature you control. Activate \
+                 only as a sorcery.\"",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::add_ability(
+                        &AbilityDef::activated_with_targets(
+                            "{1}, {T}: Target creature gets +1/+1 until end of turn for \
+                             each creature you control. Activate only as a sorcery.",
+                            &[CostDef::Mana(mana_cost!("{1}")), CostDef::TapSource],
+                            &[AbilityTargetDef::exactly_one_permanent(
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                            )],
+                            EffectDef::Apply {
+                                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                effect: AppliedEffectDef::modify_power_toughness(
+                                    ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                                        ObjectPredicateDef::HasType(CardType::Creature),
+                                        &[ZoneKind::Battlefield],
+                                        PlayerRelation::You,
+                                    )),
+                                    ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                                        ObjectPredicateDef::HasType(CardType::Creature),
+                                        &[ZoneKind::Battlefield],
+                                        PlayerRelation::You,
+                                    )),
+                                ),
+                                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                            },
+                        )
+                        .with_activation_timing(ActivationTimingDef::SorcerySpeed),
+                    ),
+                },
+            ),
+        ]),
 );
 
 // SPM 9 — Origin of Spider-Man
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ORIGIN_OF_SPIDER_MAN: CardRecord = CardRecord::new(
     "Origin of Spider-Man",
     "a10a7da7-d9cb-495a-9c9f-205d355c390d",
     "Bill Sienkiewicz",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{W}"))
+        .with_subtypes(&["Saga"])
+        .with_abilities(&[
+            abilities::saga_chapter(
+                1,
+                "I — Create a 2/1 green Spider creature token with reach.",
+                EffectDef::create_creature_token(&["Spider"], &[ManaColor::Green], 2, 1)
+                    .with_abilities(&[abilities::reach()]),
+            ),
+            abilities::saga_chapter_with_targets(
+                2,
+                "II — Put a +1/+1 counter on target creature you control. It \
+                 becomes a legendary Spider Hero in addition to its other \
+                 types.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::You),
+                        owner: None,
+                    },
+                )],
+                EffectDef::Sequence(&[
+                    EffectDef::AddCounters {
+                        object: EffectRecipientDef::Source,
+                        kind: CounterKind::PlusOnePlusOne,
+                        amount: ValueDef::Constant(1),
+                    },
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        effect: AppliedEffectDef::Composite(&[
+                            AppliedEffectDef::add_creature_types(CreatureTypeSetDef::named(&[
+                                "Spider", "Hero",
+                            ])),
+                            AppliedEffectDef::add_supertype(CardSupertype::Legendary),
+                        ]),
+                        duration: ResolvedEffectDurationDef::Permanent,
+                    },
+                ]),
+            ),
+            abilities::saga_chapter_with_targets(
+                3,
+                "III — Target creature you control gains double strike until \
+                 end of turn.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::You),
+                        owner: None,
+                    },
+                )],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::add_ability(&abilities::double_strike()),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ]),
 );
 
 // SPM 10 — Peter Parker // Amazing Spider-Man
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a battlefield static rule granting a complete web-slinging alternative cost to matching colored legendary spells in all castable zones; current alternative-cost grants are restricted to particular graveyard casts.
 pub(in crate::card::sets) static PETER_PARKER: CardRecord = CardRecord::new(
     "Peter Parker // Amazing Spider-Man",
     "3ce33422-5dba-4a42-8375-dd8ccc692a7b",
     "Thanh Tuấn",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 11 — Rent Is Due
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RENT_IS_DUE: CardRecord = CardRecord::new(
     "Rent Is Due",
     "b3f8d221-081f-49f5-a501-07e5eb21a840",
     "Gal Or",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{W}")).with_abilities(&[AbilityDef::triggered(
+        "At the beginning of your end step, you may tap two untapped \
+         creatures and/or Treasures you control. If you do, draw a \
+         card. Otherwise, sacrifice this enchantment.",
+        TriggerEventDef::StepBegins {
+            step: TurnStepDef::End,
+            player: PlayerRelation::You,
+        },
+        EffectDef::IfElseCondition {
+            condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                left: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Treasure")),
+                        ]),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Tapped),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                )),
+                comparison: ComparisonDef::GreaterOrEqual,
+                right: ValueDef::Constant(2),
+            }),
+            then: &EffectDef::ChooseEffect {
+                player: EffectRecipientDef::Controller,
+                choices: &[
+                    EffectChoiceDef {
+                        label: "Tap two permanents",
+                        effect: EffectDef::Choose(ChooseDef {
+                            binding: ObjectChoiceBindingDef::Objects(crate::Binding!("chosen")),
+                            unchosen: None,
+                            chooser: PlayerRefDef::EffectController,
+                            candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
+                                ObjectPredicateDef::All(&[
+                                    ObjectPredicateDef::AnyOf(&[
+                                        ObjectPredicateDef::HasType(CardType::Creature),
+                                        ObjectPredicateDef::Subtype(SubtypeDef::Literal(
+                                            "Treasure",
+                                        )),
+                                    ]),
+                                    ObjectPredicateDef::Not(&ObjectPredicateDef::Tapped),
+                                ]),
+                                &[ZoneKind::Battlefield],
+                                PlayerRelation::You,
+                            )),
+                            exclude: None,
+                            minimum: 2,
+                            maximum: 2,
+                            visibility: ChoiceVisibilityDef::Public,
+                            then: &EffectDef::Sequence(&[
+                                EffectDef::Tap {
+                                    object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                        crate::Binding!("chosen"),
+                                    )),
+                                },
+                                abilities::draw_cards(ValueDef::Constant(1)),
+                            ]),
+                        }),
+                    },
+                    EffectChoiceDef {
+                        label: "Sacrifice this enchantment",
+                        effect: EffectDef::sacrifice(EffectRecipientDef::Source),
+                    },
+                ],
+            },
+            otherwise: &EffectDef::sacrifice(EffectRecipientDef::Source),
+        },
+    )]),
 );
 
 // SPM 12 — Selfless Police Captain
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SELFLESS_POLICE_CAPTAIN: CardRecord = CardRecord::new(
     "Selfless Police Captain",
     "fb0fd7bd-10d0-4d29-af88-387d1e07f3b7",
     "Aniekan Udofia",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Detective"], 1, 1).with_abilities(&[
+        AbilityDef::as_enters(
+            "This creature enters with a +1/+1 counter on it.",
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCounters {
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: 1,
+                },
+            ),
+        ),
+        AbilityDef::triggered_with_targets(
+            "When this creature leaves the battlefield, put its +1/+1 \
+             counters on target creature you control.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                Some(ZoneKind::Battlefield),
+                None,
+            ),
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                },
+            )],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::CountersOnSource(CounterKind::PlusOnePlusOne),
+            },
+        ),
+    ]),
 );
 
 // SPM 13 — Silver Sable, Mercenary Leader
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a complete modified predicate, including Equipment attached to the creature and Auras controlled by its controller; the available counter and enchanted predicates cannot identify all three modifications with their required controller scope.
 pub(in crate::card::sets) static SILVER_SABLE_MERCENARY_LEADER: CardRecord = CardRecord::new(
     "Silver Sable, Mercenary Leader",
     "cf0d4116-acee-4d9a-985c-396d10e03838",
     "JB Casacop",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 14 — Spectacular Spider-Man
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPECTACULAR_SPIDER_MAN: CardRecord = CardRecord::new(
     "Spectacular Spider-Man",
     "32bff506-efc0-42ef-8286-ed939bf853d7",
     "Roberta Ingranata",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Spider", "Human", "Hero"], 3, 2)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::flash(),
+            AbilityDef::activated(
+                "{1}: Spectacular Spider-Man gains flying until end of turn.",
+                &[CostDef::Mana(mana_cost!("{1}"))],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::add_ability(&abilities::flying()),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+            AbilityDef::activated(
+                "{1}, Sacrifice Spectacular Spider-Man: Creatures you control \
+                 gain hexproof and indestructible until end of turn.",
+                &[CostDef::Mana(mana_cost!("{1}")), CostDef::SacrificeSource],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                        ObjectQueryDef::matching(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        ),
+                    )),
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::add_ability(&abilities::hexproof()),
+                        AppliedEffectDef::add_ability(&abilities::indestructible()),
+                    ]),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ]),
 );
 
 // SPM 15 — Spectacular Tactics
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPECTACULAR_TACTICS: CardRecord = CardRecord::new(
     "Spectacular Tactics",
     "836b4246-f1f2-4495-8664-650dda70ed4f",
     "Zoltan Boros",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{W}")).with_abilities(&[AbilityDef::modal_spell(
+        "Choose one —",
+        &[
+            AbilityDef::spell_with_targets(
+                "Put a +1/+1 counter on target creature you control. It gains \
+                 hexproof until end of turn.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::You),
+                        owner: None,
+                    },
+                )],
+                EffectDef::Sequence(&[
+                    EffectDef::AddCounters {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        kind: CounterKind::PlusOnePlusOne,
+                        amount: ValueDef::Constant(1),
+                    },
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        effect: AppliedEffectDef::add_ability(&abilities::hexproof()),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                ]),
+            ),
+            AbilityDef::spell_with_targets(
+                "Destroy target creature with power 4 or greater.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::PowerAtLeast(4),
+                    ]),
+                )],
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    then: None,
+                },
+            ),
+        ],
+    )]),
 );
 
 // SPM 16 — Spider-Man, Web-Slinger
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPIDER_MAN_WEB_SLINGER: CardRecord = CardRecord::new(
     "Spider-Man, Web-Slinger",
     "897418bc-df8c-4c97-b6bf-7c9133a8a577",
     "Ryan Pancoast",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Spider", "Human", "Hero"], 3, 3)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[web_slinging(
+            "Web-slinging {W} (You may cast this spell for {W} if you also \
+             return a tapped creature you control to its owner's hand.)",
+            &[
+                CostDef::Mana(mana_cost!("{W}")),
+                CostDef::return_to_hand(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Tapped,
+                    ]),
+                    CostQuantityDef::Fixed(1),
+                ),
+            ],
+        )]),
 );
 
 // SPM 17 — Spider-UK
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a per-controller count of creatures that entered this turn, retaining entries after those creatures leave; counting live EnteredThisTurn permanents loses the required history.
 pub(in crate::card::sets) static SPIDER_UK: CardRecord = CardRecord::new(
     "Spider-UK",
     "6beb4548-1fab-4b9e-bf24-f7b9aadecc87",
     "Allen Morris",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 18 — Starling, Aerial Ally
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STARLING_AERIAL_ALLY: CardRecord = CardRecord::new(
     "Starling, Aerial Ally",
     "babbf53d-3e10-4110-8725-91f766c8cdad",
     "Aniekan Udofia",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{W}"), &["Human", "Hero"], 3, 4)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::flying(),
+            abilities::enters_trigger_with_targets(
+                "When Starling enters, another target creature you control \
+                 gains flying until end of turn.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::You),
+                        owner: None,
+                    },
+                )],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::add_ability(&abilities::flying()),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ]),
 );
 
 // SPM 19 — Sudden Strike
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SUDDEN_STRIKE: CardRecord = CardRecord::new(
     "Sudden Strike",
     "6eea2718-93d2-4d83-9b5d-eb943a0f1d11",
     "Le Vuong",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{W}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Destroy target attacking or blocking creature.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::Attacking,
+                    ObjectPredicateDef::Blocking,
+                ]),
+            ]),
+        )],
+        EffectDef::Destroy {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            then: None,
+        },
+    )]),
 );
 
 // SPM 20 — Thwip!
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static THWIP: CardRecord = CardRecord::new(
     "Thwip!",
     "b2dac88e-1204-4640-94ce-e1aff434ea06",
     "Lordigan",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{W}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Target creature gets +2/+2 and gains flying until end of \
+         turn. If it's a Spider, you gain 2 life.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(2),
+                    ),
+                    AppliedEffectDef::add_ability(&abilities::flying()),
+                ]),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::TargetMatches {
+                    slot: TargetIndex::PRIMARY,
+                    object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Spider")),
+                },
+                then: &EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(2),
+                },
+            },
+        ]),
+    )]),
 );
 
 // SPM 21 — Web Up
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs immediate return when the exile-until-source-leaves duration ends; the current linked-exile implementation returns through a separate leaves trigger that can be responded to or countered.
 pub(in crate::card::sets) static WEB_UP: CardRecord = CardRecord::new(
     "Web Up",
     "1ab7c1e6-54af-4002-8a81-23a1ccafa3ff",
     "David Palumbo",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 22 — Web-Shooters
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WEB_SHOOTERS: CardRecord = CardRecord::new(
     "Web-Shooters",
     "a0ca1108-6d99-4dc2-96ab-7728d65b0c06",
     "Javier Charro",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{1}{W}"))
+        .with_subtypes(&["Equipment"])
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Equipped creature gets +1/+1 and has reach and \"Whenever \
+                 this creature attacks, tap target creature an opponent \
+                 controls.\"",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(1),
+                            ValueDef::Constant(1),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::reach()),
+                        AppliedEffectDef::add_ability(&AbilityDef::triggered_with_targets(
+                            "Whenever this creature attacks, tap target creature an \
+                             opponent controls.",
+                            TriggerEventDef::attacks(ObjectPredicateDef::Source),
+                            &[AbilityTargetDef::exactly_one(
+                                AbilityTargetPredicate::Object {
+                                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                                    zones: &[ZoneKind::Battlefield],
+                                    controller: Some(PlayerRelation::Opponent),
+                                    owner: None,
+                                },
+                            )],
+                            EffectDef::Tap {
+                                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            },
+                        )),
+                    ]),
+                },
+            ),
+            abilities::equip(
+                &[CostDef::Mana(mana_cost!("{2}"))],
+                "Equip {2} ({2}: Attach to target creature you control. Equip \
+                 only as a sorcery.)",
+            ),
+        ]),
 );
 
 // SPM 23 — Wild Pack Squad
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WILD_PACK_SQUAD: CardRecord = CardRecord::new(
     "Wild Pack Squad",
     "7b0eda7c-e44d-4d9b-9042-4a1eb8c4ed4a",
     "John Tyler Christopher",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Mercenary"], 2, 3).with_abilities(&[
+        AbilityDef::triggered_with_targets(
+            "At the beginning of combat on your turn, up to one target \
+             creature gains first strike and vigilance until end of turn.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::BeginningOfCombat,
+                player: PlayerRelation::You,
+            },
+            &[AbilityTargetDef::up_to(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+                1,
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::add_ability(&abilities::first_strike()),
+                    AppliedEffectDef::add_ability(&abilities::vigilance()),
+                ]),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // SPM 24 — With Great Power . . .
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs static redirection of all damage from this Aura's controller to its enchanted creature; RedirectPlayerDamageToThis only supports predefined source groups, and the general RedirectDamageFromTo rule is a resolving effect rather than a static rule.
 pub(in crate::card::sets) static WITH_GREAT_POWER: CardRecord = CardRecord::new(
     "With Great Power . . .",
     "f717c096-e161-426e-a8d7-c93b117e16b9",
     "E. M. Gist",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 25 — Amazing Acrobatics
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AMAZING_ACROBATICS: CardRecord = CardRecord::new(
     "Amazing Acrobatics",
     "9a2f6d84-3d83-4f48-9906-11f681171930",
     "Justyna Dura",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{U}{U}")).with_abilities(&[AbilityDef::modal_spell(
+        "Choose one —",
+        &[
+            AbilityDef::spell_with_targets(
+                "Counter target spell.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::Spell,
+                        zones: &[ZoneKind::Stack],
+                        controller: None,
+                        owner: None,
+                    },
+                )],
+                EffectDef::counter_target(TargetIndex::PRIMARY),
+            ),
+            AbilityDef::spell_with_targets(
+                "Tap one or two target creatures.",
+                &[AbilityTargetDef {
+                    minimum: 1,
+                    maximum: 2,
+                    ..AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
+                        CardType::Creature,
+                    ))
+                }],
+                EffectDef::Tap {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                },
+            ),
+        ],
+    )
+    .with_mode_selection(1, 2, false)]),
 );
 
 // SPM 26 — Beetle, Legacy Criminal
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BEETLE_LEGACY_CRIMINAL: CardRecord = CardRecord::new(
     "Beetle, Legacy Criminal",
     "a194f930-c99f-4915-8a62-e20ab2b4ad1f",
     "Carlos Dattoli",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{U}"), &["Human", "Rogue", "Villain"], 3, 3)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::flying(),
+            AbilityDef::activated_with_targets(
+                "{1}{U}, Exile this card from your graveyard: Put a +1/+1 \
+                 counter on target creature. It gains flying until end of \
+                 turn. Activate only as a sorcery.",
+                &[CostDef::Mana(mana_cost!("{1}{U}")), CostDef::ExileSource],
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )],
+                EffectDef::Sequence(&[
+                    EffectDef::AddCounters {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        kind: CounterKind::PlusOnePlusOne,
+                        amount: ValueDef::Constant(1),
+                    },
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        effect: AppliedEffectDef::add_ability(&abilities::flying()),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                ]),
+            )
+            .with_activation_timing(ActivationTimingDef::SorcerySpeed)
+            .with_source_zones(&[ZoneKind::Graveyard]),
+        ]),
 );
 
 // SPM 27 — Chameleon, Master of Disguise
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs per-card discard provenance for the current turn and a graveyard casting or land-play permission conditional on that exact discard; the current graveyard permissions and turn histories cannot express mayhem.
 pub(in crate::card::sets) static CHAMELEON_MASTER_OF_DISGUISE: CardRecord = CardRecord::new(
     "Chameleon, Master of Disguise",
     "43892ce7-f63a-4294-922b-8f879f684033",
     "Javier Charro",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 28 — The Clone Saga
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a delayed trigger combining next-occurrence consumption with end-of-turn expiry, plus a nonlegendary exception on a creature spell copy; installed Once and ThisTurn lifetimes cannot be combined, and stack-copy exceptions only include color.
 pub(in crate::card::sets) static THE_CLONE_SAGA: CardRecord = CardRecord::new(
     "The Clone Saga",
     "976432b3-bc17-4edb-86d6-00fd1baf9670",
     "Bill Sienkiewicz",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 29 — Doc Ock, Sinister Scientist
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DOC_OCK_SINISTER_SCIENTIST: CardRecord = CardRecord::new(
     "Doc Ock, Sinister Scientist",
     "de16ad65-c8c3-48c0-9d13-5af91b4e6f01",
     "Piotr Dura",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(
+        mana_cost!("{4}{U}"),
+        &["Human", "Scientist", "Villain"],
+        4,
+        5,
+    )
+    .with_supertype(CardSupertype::Legendary)
+    .with_abilities(&[
+        AbilityDef::static_ability(
+            "As long as there are eight or more cards in your graveyard, \
+             Doc Ock has base power and toughness 8/8.",
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                    left: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::Any,
+                        &[ZoneKind::Graveyard],
+                        PlayerRelation::You,
+                    )),
+                    comparison: ComparisonDef::GreaterOrEqual,
+                    right: ValueDef::Constant(8),
+                }),
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::set_base_power_toughness(
+                        ValueDef::Constant(8),
+                        ValueDef::Constant(8),
+                    ),
+                },
+            },
+        ),
+        AbilityDef::static_ability(
+            "As long as you control another Villain, Doc Ock has hexproof. \
+             (He can't be the target of spells or abilities your opponents \
+             control.)",
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::ObjectCount {
+                    query: ObjectQueryDef::matching(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Villain")),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    comparison: ComparisonDef::GreaterOrEqual,
+                    amount: 1,
+                },
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::add_ability(&abilities::hexproof()),
+                },
+            },
+        ),
+    ]),
 );
 
 // SPM 30 — Doc Ock's Henchmen
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DOC_OCK_S_HENCHMEN: CardRecord = CardRecord::new(
     "Doc Ock's Henchmen",
     "a383c442-3f4a-4115-97e4-23f0eb88465b",
     "Nathaniel Himawan",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Human", "Villain"], 2, 1).with_abilities(&[
+        abilities::flash(),
+        AbilityDef::triggered(
+            "Whenever this creature attacks, it connives. (Draw a card, \
+             then discard a card. If you discarded a nonland card, put a \
+             +1/+1 counter on this creature.)",
+            TriggerEventDef::attacks(ObjectPredicateDef::Source),
+            EffectDef::Sequence(&[
+                abilities::draw_cards(ValueDef::Constant(1)),
+                EffectDef::Discard {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                    selection: DiscardSelectionDef::RecipientChooses,
+                    then: Some(DiscardFollowUpDef {
+                        counted: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(
+                            CardType::Land,
+                        )),
+                        bound: Some(crate::Binding!("connived")),
+                        effect: &EffectDef::AddCounters {
+                            object: EffectRecipientDef::Source,
+                            kind: CounterKind::PlusOnePlusOne,
+                            amount: ValueDef::CountObjects(&ObjectSetDef::Binding(
+                                crate::Binding!("connived"),
+                            )),
+                        },
+                    }),
+                },
+            ]),
+        ),
+    ]),
 );
 
 // SPM 31 — Flying Octobot
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FLYING_OCTOBOT: CardRecord = CardRecord::new(
     "Flying Octobot",
     "ebadcd4a-f58f-4328-a765-0ea8d8028417",
     "John Tyler Christopher",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{1}{U}"), &["Robot", "Villain"], 1, 1)
+        .with_abilities(&[
+            abilities::flying(),
+            AbilityDef::triggered(
+                "Whenever another Villain you control enters, put a +1/+1 \
+                 counter on this creature. This ability triggers only once \
+                 each turn.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Villain")),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ]),
+                    None,
+                    Some(ZoneKind::Battlefield),
+                ),
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::Source,
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::Constant(1),
+                },
+            )
+            .triggering_at_most(1),
+        ]),
 );
 
 // SPM 32 — Hide on the Ceiling
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HIDE_ON_THE_CEILING: CardRecord = CardRecord::new(
     "Hide on the Ceiling",
     "7977e448-01fa-4fa5-a275-0d6a1357b35c",
     "Fariba Khamseh",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{X}{U}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Exile X target artifacts and/or creatures. Return the exiled \
+         cards to the battlefield under their owners' control at the \
+         beginning of the next end step.",
+        &[AbilityTargetDef {
+            minimum: AbilityTargetDef::CHOSEN_X,
+            maximum: AbilityTargetDef::CHOSEN_X,
+            ..AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::AnyOf(&[
+                ObjectPredicateDef::HasType(CardType::Artifact),
+                ObjectPredicateDef::HasType(CardType::Creature),
+            ]))
+        }],
+        EffectDef::WithZoneMoveResult {
+            effect: &EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Exile,
+                ZonePlacement::Top,
+            ),
+            binding: crate::Binding!("exiled"),
+            then: &EffectDef::BindObjects(BindObjectsDef {
+                source: ObjectCollectionSourceDef::ObjectSet(
+                    ObjectSetDef::ZoneChangeSuccessorsOfBinding(crate::Binding!("exiled")),
+                ),
+                binding: crate::Binding!("returning"),
+                then: &EffectDef::InstallTrigger(InstalledTriggerDef::once(
+                    &AbilityDef::triggered(
+                        "At the beginning of the next end step, return the exiled \
+                         cards to the battlefield under their owners' control.",
+                        TriggerEventDef::StepBegins {
+                            step: TurnStepDef::End,
+                            player: PlayerRelation::Any,
+                        },
+                        EffectDef::move_to_zone(
+                            EffectRecipientDef::objects(ObjectSetDef::Binding(crate::Binding!(
+                                "returning"
+                            ))),
+                            ZoneKind::Battlefield,
+                            ZonePlacement::Top,
+                        ),
+                    ),
+                )),
+            }),
+        },
+    )]),
 );
 
 // SPM 33 — Hydro-Man, Fluid Felon
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HYDRO_MAN_FLUID_FELON: CardRecord = CardRecord::new(
     "Hydro-Man, Fluid Felon",
     "e53115a4-8959-40fa-b763-931504a1c5a2",
     "Borja Pindado",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{U}{U}"), &["Elemental", "Villain"], 2, 2)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::triggered_if(
+                "Whenever you cast a blue spell, if Hydro-Man is a creature, \
+                 he gets +1/+1 until end of turn.",
+                TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Color(ManaColor::Blue),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ])),
+                &TriggerConditionDef::SourceMatches {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                },
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(1),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+            AbilityDef::triggered(
+                "At the beginning of your end step, untap Hydro-Man. Until \
+                 your next turn, he becomes a land and gains \"{T}: Add {U}.\" \
+                 (He's not a creature during that time.)",
+                TriggerEventDef::StepBegins {
+                    step: TurnStepDef::End,
+                    player: PlayerRelation::You,
+                },
+                EffectDef::Sequence(&[
+                    EffectDef::Untap {
+                        object: EffectRecipientDef::Source,
+                    },
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::Source,
+                        effect: AppliedEffectDef::Composite(&[
+                            AppliedEffectDef::set_card_types(CardTypeSet::single(CardType::Land)),
+                            AppliedEffectDef::add_ability(&abilities::tap_for(ManaColor::Blue)),
+                        ]),
+                        duration: ResolvedEffectDurationDef::UntilYourNextTurn,
+                    },
+                ]),
+            ),
+        ]),
 );
 
 // SPM 34 — Impostor Syndrome
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static IMPOSTOR_SYNDROME: CardRecord = CardRecord::new(
     "Impostor Syndrome",
     "08da9f92-0e25-4f39-aaa4-d8974af81a41",
     "Javier Charro",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{4}{U}{U}")).with_abilities(&[AbilityDef::triggered(
+        "Whenever a nontoken creature you control deals combat damage \
+         to a player, create a token that's a copy of it, except it \
+         isn't legendary.",
+        TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::All(&[
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
+            ]),
+            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+        ])),
+        EffectDef::create_token_from_copy(&TokenCopyDef {
+            object: &EffectRecipientDef::TriggeringObject,
+            exceptions: CopyExceptionsDef {
+                removed_supertypes: &[CardSupertype::Legendary],
+                ..CopyExceptionsDef::NONE
+            },
+        }),
+    )]),
 );
 
 // SPM 35 — Lady Octopus, Inspired Inventor
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs an immediate free-cast offer for a selected artifact card in hand; MayPlayWithoutPaying currently offers only exiled cards, and first exiling the hand card would add an unprinted zone change.
 pub(in crate::card::sets) static LADY_OCTOPUS_INSPIRED_INVENTOR: CardRecord = CardRecord::new(
     "Lady Octopus, Inspired Inventor",
     "8c5f360b-f9a0-46e0-9e8b-58e5b4b0389e",
     "Fariba Khamseh",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 36 — Madame Web, Clairvoyant
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MADAME_WEB_CLAIRVOYANT: CardRecord = CardRecord::new(
     "Madame Web, Clairvoyant",
     "a16ca3fc-3cdf-4333-93e0-524afafe367b",
     "Pavel Kolomeyets",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{U}{U}"), &["Mutant", "Advisor"], 4, 4)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "You may look at the top card of your library any time.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Controller,
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::MayLookAtTopOfLibrary),
+                },
+            ),
+            AbilityDef::static_ability(
+                "You may cast Spider spells and noncreature spells from the \
+                 top of your library.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Controller,
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlayFromTopOfLibrary {
+                        restriction: PlayRestrictionDef::new(
+                            PlayActionMatcherDef::CastSpell,
+                            ObjectPredicateDef::AnyOf(&[
+                                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Spider")),
+                                ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(
+                                    CardType::Creature,
+                                )),
+                            ]),
+                        ),
+                        cost: TopOfLibraryCostDef::Printed,
+                    }),
+                },
+            ),
+            AbilityDef::triggered(
+                "Whenever you attack, you may mill a card. (You may put the \
+                 top card of your library into your graveyard.)",
+                TriggerEventDef::attack_declared(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ]),
+                    1,
+                    None,
+                ),
+                EffectDef::May {
+                    player: EffectRecipientDef::Controller,
+                    effect: &EffectDef::Mill {
+                        player: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    },
+                },
+            ),
+        ]),
 );
 
 // SPM 37 — Mysterio, Master of Illusion
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MYSTERIO_MASTER_OF_ILLUSION: CardRecord = CardRecord::new(
     "Mysterio, Master of Illusion",
     "facbd96f-c088-4377-b740-5e0fe99102bb",
     "Alexander Gering",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{U}"), &["Human", "Villain"], 3, 3)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[abilities::enters_trigger(
+            "When Mysterio enters, create a 3/3 blue Illusion Villain \
+             creature token for each nontoken Villain you control. Exile \
+             those tokens when Mysterio leaves the battlefield.",
+            EffectDef::create_creature_token(&["Illusion", "Villain"], &[ManaColor::Blue], 3, 3)
+                .with_count(ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Villain")),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                )))
+                .with_created_tokens(CreatedTokensDef {
+                    binding: crate::Binding!("illusions"),
+                    then: &EffectDef::InstallTrigger(InstalledTriggerDef::once(
+                        &AbilityDef::triggered(
+                            "When Mysterio leaves the battlefield, exile those tokens.",
+                            TriggerEventDef::zone_changed(
+                                ObjectPredicateDef::Source,
+                                Some(ZoneKind::Battlefield),
+                                None,
+                            ),
+                            EffectDef::move_to_zone(
+                                EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                    crate::Binding!("illusions"),
+                                )),
+                                ZoneKind::Exile,
+                                ZonePlacement::Top,
+                            ),
+                        ),
+                    )),
+                }),
+        )]),
 );
 
 // SPM 38 — Mysterio's Phantasm
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MYSTERIO_S_PHANTASM: CardRecord = CardRecord::new(
     "Mysterio's Phantasm",
     "79aa0a78-80a2-44be-8a79-92bcba9c040f",
     "Piotr Dura",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{U}"), &["Illusion", "Villain"], 1, 3).with_abilities(
+        &[
+            abilities::flying(),
+            abilities::vigilance(),
+            AbilityDef::triggered(
+                "Whenever this creature attacks, mill a card. (Put the top \
+                 card of your library into your graveyard.)",
+                TriggerEventDef::attacks(ObjectPredicateDef::Source),
+                EffectDef::Mill {
+                    player: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+        ],
+    ),
 );
 
 // SPM 39 — Norman Osborn // Green Goblin
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs per-card discard provenance for the current turn and a graveyard casting or land-play permission conditional on that exact discard; the current graveyard permissions and turn histories cannot express mayhem.
 pub(in crate::card::sets) static NORMAN_OSBORN: CardRecord = CardRecord::new(
     "Norman Osborn // Green Goblin",
     "d5c53af9-7150-4e78-8771-2de7980aa307",
     "Scott M. Fischer",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 40 — Oscorp Research Team
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static OSCORP_RESEARCH_TEAM: CardRecord = CardRecord::new(
     "Oscorp Research Team",
     "a800ffb4-0c48-41eb-b221-cf1d855131d9",
     "Gal Or",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{U}"), &["Human", "Scientist"], 1, 5).with_abilities(&[
+        AbilityDef::activated(
+            "{6}{U}: Draw two cards.",
+            &[CostDef::Mana(mana_cost!("{6}{U}"))],
+            abilities::draw_cards(ValueDef::Constant(2)),
+        ),
+    ]),
 );
 
 // SPM 41 — Robotics Mastery
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ROBOTICS_MASTERY: CardRecord = CardRecord::new(
     "Robotics Mastery",
     "d0e92939-6d86-44b4-8a43-1963e97a2bb3",
     "Domenico Cava",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{4}{U}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::flash(),
+            abilities::enchant_creature(),
+            abilities::enters_trigger(
+                "When this Aura enters, create two 1/1 colorless Robot \
+                 artifact creature tokens with flying.",
+                EffectDef::create_artifact_creature_token(&["Robot"], &[], 1, 1)
+                    .with_count(ValueDef::Constant(2))
+                    .with_abilities(&[abilities::flying()]),
+            ),
+            AbilityDef::static_ability(
+                "Enchanted creature gets +2/+2.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(2),
+                    ),
+                },
+            ),
+        ]),
 );
 
 // SPM 42 — School Daze
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SCHOOL_DAZE: CardRecord = CardRecord::new(
     "School Daze",
     "e5b61b9d-31a2-4e09-9612-4980bf8de708",
     "Domenico Cava",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{3}{U}{U}")).with_abilities(&[AbilityDef::modal_spell(
+        "Choose one —",
+        &[
+            AbilityDef::spell(
+                "Do Homework — Draw three cards.",
+                abilities::draw_cards(ValueDef::Constant(3)),
+            ),
+            AbilityDef::spell_with_targets(
+                "Fight Crime — Counter target spell. Draw a card.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::Spell,
+                        zones: &[ZoneKind::Stack],
+                        controller: None,
+                        owner: None,
+                    },
+                )],
+                EffectDef::Sequence(&[
+                    EffectDef::counter_target(TargetIndex::PRIMARY),
+                    abilities::draw_cards(ValueDef::Constant(1)),
+                ]),
+            ),
+        ],
+    )]),
 );
 
 // SPM 43 — Secret Identity
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SECRET_IDENTITY: CardRecord = CardRecord::new(
     "Secret Identity",
     "37a31d84-e87b-406e-9249-fae1b5e23e72",
     "rk post",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{U}")).with_abilities(&[AbilityDef::modal_spell(
+        "Choose one —",
+        &[
+            AbilityDef::spell_with_targets(
+                "Conceal — Until end of turn, target creature you control \
+                 becomes a Citizen with base power and toughness 1/1 and gains \
+                 hexproof.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::You),
+                        owner: None,
+                    },
+                )],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::set_base_power_toughness(
+                            ValueDef::Constant(1),
+                            ValueDef::Constant(1),
+                        ),
+                        AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&[
+                            "Citizen",
+                        ])),
+                        AppliedEffectDef::add_ability(&abilities::hexproof()),
+                    ]),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+            AbilityDef::spell_with_targets(
+                "Reveal — Until end of turn, target creature you control \
+                 becomes a Hero with base power and toughness 3/4 and gains \
+                 flying and vigilance.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::You),
+                        owner: None,
+                    },
+                )],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::set_base_power_toughness(
+                            ValueDef::Constant(3),
+                            ValueDef::Constant(4),
+                        ),
+                        AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&["Hero"])),
+                        AppliedEffectDef::add_ability(&abilities::flying()),
+                        AppliedEffectDef::add_ability(&abilities::vigilance()),
+                    ]),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ],
+    )]),
 );
 
 // SPM 44 — Spider-Byte, Web Warden
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPIDER_BYTE_WEB_WARDEN: CardRecord = CardRecord::new(
     "Spider-Byte, Web Warden",
     "210ae606-12a4-453b-bfb4-73ca9c22b8b5",
     "Thanh Tuấn",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Spider", "Avatar", "Hero"], 2, 2)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[abilities::enters_trigger_with_targets(
+            "When Spider-Byte enters, return up to one target nonland \
+             permanent to its owner's hand.",
+            &[AbilityTargetDef::up_to(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+                1,
+            )],
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
+        )]),
 );
 
 // SPM 45 — Spider-Man No More
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPIDER_MAN_NO_MORE: CardRecord = CardRecord::new(
     "Spider-Man No More",
     "72dbab11-96ed-43db-8b59-ceca47c8cd22",
     "Aniekan Udofia",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{U}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature is a Citizen with base power and toughness \
+                 1/1. It has defender and loses all other abilities. (It also \
+                 loses all other creature types.)",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::set_base_power_toughness(
+                            ValueDef::Constant(1),
+                            ValueDef::Constant(1),
+                        ),
+                        AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&[
+                            "Citizen",
+                        ])),
+                        AppliedEffectDef::remove_abilities(AbilityPredicateDef::Any),
+                        AppliedEffectDef::add_ability(&abilities::defender()),
+                    ]),
+                },
+            ),
+        ]),
 );
 
 // SPM 46 — Spider-Sense
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPIDER_SENSE: CardRecord = CardRecord::new(
     "Spider-Sense",
     "4499a25b-f4a5-4f2c-9ebd-bc68c7840b39",
     "Borja Pindado",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{U}")).with_abilities(&[
+        web_slinging(
+            "Web-slinging {U} (You may cast this spell for {U} if you also \
+             return a tapped creature you control to its owner's hand.)",
+            &[
+                CostDef::Mana(mana_cost!("{U}")),
+                CostDef::return_to_hand(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Tapped,
+                    ]),
+                    CostQuantityDef::Fixed(1),
+                ),
+            ],
+        ),
+        AbilityDef::spell_with_targets(
+            "Counter target instant spell, sorcery spell, or triggered \
+             ability.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::TriggeredAbility,
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::Spell,
+                            ObjectPredicateDef::AnyOf(&[
+                                ObjectPredicateDef::HasType(CardType::Instant),
+                                ObjectPredicateDef::HasType(CardType::Sorcery),
+                            ]),
+                        ]),
+                    ]),
+                    zones: &[ZoneKind::Stack],
+                    controller: None,
+                    owner: None,
+                },
+            )],
+            EffectDef::counter_target(TargetIndex::PRIMARY),
+        ),
+    ]),
 );
 
 // SPM 47 — Unstable Experiment
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static UNSTABLE_EXPERIMENT: CardRecord = CardRecord::new(
     "Unstable Experiment",
     "be9d5985-0a39-4ee3-80de-30d17d08f404",
     "David Palumbo",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{U}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Target player draws a card, then up to one target creature \
+         you control connives. (Draw a card, then discard a card. If \
+         you discarded a nonland card, put a +1/+1 counter on that \
+         creature.)",
+        &[
+            AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(PlayerRelation::Any)),
+            AbilityTargetDef::up_to(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                },
+                1,
+            ),
+        ],
+        EffectDef::Sequence(&[
+            abilities::draw_cards(ValueDef::Constant(1)),
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::ObjectSetCount(&ObjectSetCountConditionDef {
+                    objects: &ObjectSetDef::LegalTargets(TargetIndex(1)),
+                    predicate: ObjectSetPredicateDef {
+                        filter: None,
+                        comparison: ComparisonDef::Greater,
+                        amount: 0,
+                    },
+                }),
+                then: &EffectDef::Sequence(&[
+                    abilities::draw_cards(ValueDef::Constant(1)),
+                    EffectDef::Discard {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                        selection: DiscardSelectionDef::RecipientChooses,
+                        then: Some(DiscardFollowUpDef {
+                            counted: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(
+                                CardType::Land,
+                            )),
+                            bound: Some(crate::Binding!("connived")),
+                            effect: &EffectDef::AddCounters {
+                                object: EffectRecipientDef::Target(TargetIndex(1)),
+                                kind: CounterKind::PlusOnePlusOne,
+                                amount: ValueDef::CountObjects(&ObjectSetDef::Binding(
+                                    crate::Binding!("connived"),
+                                )),
+                            },
+                        }),
+                    },
+                ]),
+            },
+        ]),
+    )]),
 );
 
 // SPM 48 — Whoosh!
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WHOOSH: CardRecord = CardRecord::new(
     "Whoosh!",
     "ccc05deb-ad8d-4fae-a7a4-2b2a118fc696",
     "Nathaniel Himawan",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{U}")).with_abilities(&[
+        abilities::kicker(&[CostDef::Mana(mana_cost!("{1}{U}"))]),
+        AbilityDef::spell_with_targets(
+            "Return target nonland permanent to its owner's hand. If this \
+             spell was kicked, draw a card.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::SourcePaidAdditionalCost(
+                        AdditionalCostIndex::PRIMARY,
+                    ),
+                    then: &abilities::draw_cards(ValueDef::Constant(1)),
+                },
+            ]),
+        ),
+    ]),
 );
 
 // SPM 49 — Agent Venom
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AGENT_VENOM: CardRecord = CardRecord::new(
     "Agent Venom",
     "f5f80d82-d64c-466f-8874-9cfb00469f02",
     "Kevin Sidharta",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{B}"), &["Symbiote", "Soldier", "Hero"], 2, 3)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::flash(),
+            abilities::menace(),
+            AbilityDef::triggered(
+                "Whenever another nontoken creature you control dies, you draw \
+                 a card and lose 1 life.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
+                        ]),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ]),
+                    Some(ZoneKind::Battlefield),
+                    Some(ZoneKind::Graveyard),
+                ),
+                EffectDef::Sequence(&[
+                    abilities::draw_cards(ValueDef::Constant(1)),
+                    EffectDef::LoseLife {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    },
+                ]),
+            ),
+        ]),
 );
 
 // SPM 50 — Alien Symbiosis
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a graveyard casting permission with a mandatory discard additional cost that composes with other alternative costs; an AlternativeCast clause replaces the mana cost and is not equivalent.
 pub(in crate::card::sets) static ALIEN_SYMBIOSIS: CardRecord = CardRecord::new(
     "Alien Symbiosis",
     "b898ccb7-758e-4f11-95e0-b412721d8bf9",
     "JB Casacop",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 51 — Behold the Sinister Six!
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a distinct-card-name constraint across the selected graveyard targets; current target distinctness compares object identities, not card names.
 pub(in crate::card::sets) static BEHOLD_THE_SINISTER_SIX: CardRecord = CardRecord::new(
     "Behold the Sinister Six!",
     "1919bfec-1906-4178-ad32-d4589842e563",
     "Nathaniel Himawan",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 52 — Black Cat, Cunning Thief
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs selected cards from an inspected opponent library to be exiled face down with enduring play permission and unrestricted mana spending; the combined exile-permission operation only takes the top N cards, not a selected subset.
 pub(in crate::card::sets) static BLACK_CAT_CUNNING_THIEF: CardRecord = CardRecord::new(
     "Black Cat, Cunning Thief",
     "0ed36ada-22c8-4e40-86c5-c116a0bee1c2",
     "Alessandra Pisano",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 53 — Common Crook
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static COMMON_CROOK: CardRecord = CardRecord::new(
     "Common Crook",
     "6f5872df-e692-44aa-b18d-22447f5f274c",
     "Ben Harvey",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{B}"), &["Human", "Rogue", "Villain"], 2, 2)
+        .with_abilities(&[abilities::dies_trigger(
+            "When this creature dies, create a Treasure token. (It's an \
+             artifact with \"{T}, Sacrifice this token: Add one mana of \
+             any color.\")",
+            EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(1)),
+        )]),
 );
 
 // SPM 54 — The Death of Gwen Stacy
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static THE_DEATH_OF_GWEN_STACY: CardRecord = CardRecord::new(
     "The Death of Gwen Stacy",
     "690f1f31-f8c5-4336-9ec9-72ff761e3adc",
     "Bill Sienkiewicz",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{2}{B}"))
+        .with_subtypes(&["Saga"])
+        .with_abilities(&[
+            abilities::saga_chapter_with_targets(
+                1,
+                "I — Destroy target creature.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )],
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    then: None,
+                },
+            ),
+            abilities::saga_chapter(
+                2,
+                "II — Each player may discard a card. Each player who doesn't \
+                 loses 3 life.",
+                EffectDef::IfElseCondition {
+                    condition: &TriggerConditionDef::ActivePlayer(PlayerRelation::You),
+                    then: &EffectDef::Sequence(&[
+                        EffectDef::PayOr(
+                            PayOrDef::optional_or(
+                                &[CostDef::discard(ObjectPredicateDef::Any)],
+                                &EffectDef::None,
+                                &EffectDef::LoseLife {
+                                    recipient: EffectRecipientDef::player(
+                                        PlayerRefDef::EffectController,
+                                    ),
+                                    amount: ValueDef::Constant(3),
+                                },
+                            )
+                            .with_payer(PlayerSetDef::One(PlayerRefDef::EffectController)),
+                        ),
+                        EffectDef::PayOr(
+                            PayOrDef::optional_or(
+                                &[CostDef::discard(ObjectPredicateDef::Any)],
+                                &EffectDef::None,
+                                &EffectDef::LoseLife {
+                                    recipient: EffectRecipientDef::player(PlayerRefDef::Opponent),
+                                    amount: ValueDef::Constant(3),
+                                },
+                            )
+                            .with_payer(PlayerSetDef::One(PlayerRefDef::Opponent)),
+                        ),
+                    ]),
+                    otherwise: &EffectDef::Sequence(&[
+                        EffectDef::PayOr(
+                            PayOrDef::optional_or(
+                                &[CostDef::discard(ObjectPredicateDef::Any)],
+                                &EffectDef::None,
+                                &EffectDef::LoseLife {
+                                    recipient: EffectRecipientDef::player(PlayerRefDef::Opponent),
+                                    amount: ValueDef::Constant(3),
+                                },
+                            )
+                            .with_payer(PlayerSetDef::One(PlayerRefDef::Opponent)),
+                        ),
+                        EffectDef::PayOr(
+                            PayOrDef::optional_or(
+                                &[CostDef::discard(ObjectPredicateDef::Any)],
+                                &EffectDef::None,
+                                &EffectDef::LoseLife {
+                                    recipient: EffectRecipientDef::player(
+                                        PlayerRefDef::EffectController,
+                                    ),
+                                    amount: ValueDef::Constant(3),
+                                },
+                            )
+                            .with_payer(PlayerSetDef::One(PlayerRefDef::EffectController)),
+                        ),
+                    ]),
+                },
+            ),
+            abilities::saga_chapter_with_targets(
+                3,
+                "III — Exile any number of target players' graveyards.",
+                &[AbilityTargetDef::up_to(
+                    AbilityTargetPredicate::Player(PlayerRelation::Any),
+                    AbilityTargetDef::UNLIMITED,
+                )],
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::owned_by(
+                        ObjectPredicateDef::Any,
+                        &[ZoneKind::Graveyard],
+                        PlayerSetDef::LegalTargets(TargetIndex::PRIMARY),
+                    ))),
+                    ZoneKind::Exile,
+                    ZonePlacement::Top,
+                ),
+            ),
+        ]),
 );
 
 // SPM 55 — Eddie Brock // Venom, Lethal Protector
-// Audit: unsupported — Card rules have not been implemented.
-pub(in crate::card::sets) static EDDIE_BROCK: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static EDDIE_BROCK: CardRecord = CardRecord::new_dfc(
     "Eddie Brock // Venom, Lethal Protector",
     "f3455651-e643-445e-9489-51e4e24fca4c",
     "Greg Staples",
-    crate::card::CardRules::unsupported(),
+    &[
+        (
+            "Eddie Brock",
+            CardRules::new_creature(mana_cost!("{2}{B}"), &["Human", "Hero", "Villain"], 3, 3)
+                .with_supertype(CardSupertype::Legendary)
+                .with_abilities(&[
+                    abilities::enters_trigger_with_targets(
+                        "When Eddie Brock enters, return target creature card with \
+                         mana value 1 or less from your graveyard to the battlefield.",
+                        &[AbilityTargetDef::exactly_one(
+                            AbilityTargetPredicate::Object {
+                                object: ObjectPredicateDef::All(&[
+                                    ObjectPredicateDef::HasType(CardType::Creature),
+                                    ObjectPredicateDef::ManaValueAtMost(1),
+                                ]),
+                                zones: &[ZoneKind::Graveyard],
+                                controller: None,
+                                owner: Some(PlayerRelation::You),
+                            },
+                        )],
+                        EffectDef::move_to_zone(
+                            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            ZoneKind::Battlefield,
+                            ZonePlacement::Top,
+                        ),
+                    ),
+                    AbilityDef::activated(
+                        "{3}{B}{R}{G}: Transform Eddie Brock. Activate only as a sorcery.",
+                        &[CostDef::Mana(mana_cost!("{3}{B}{R}{G}"))],
+                        EffectDef::Transform {
+                            object: EffectRecipientDef::Source,
+                        },
+                    )
+                    .with_activation_timing(ActivationTimingDef::SorcerySpeed),
+                ]),
+        ),
+        (
+            "Venom, Lethal Protector",
+            CardRules::new_creature(
+                mana_cost!("{3}{B}{R}{G}"),
+                &["Symbiote", "Hero", "Villain"],
+                5,
+                5,
+            )
+            .with_supertype(CardSupertype::Legendary)
+            .with_abilities(&[
+                abilities::menace(),
+                abilities::trample(),
+                abilities::haste(),
+                AbilityDef::triggered(
+                    "Whenever Venom attacks, you may sacrifice another creature. \
+                     If you do, draw X cards, then you may put a permanent card \
+                     with mana value X or less from your hand onto the \
+                     battlefield, where X is the sacrificed creature's mana value.",
+                    TriggerEventDef::attacks(ObjectPredicateDef::Source),
+                    EffectDef::Choose(ChooseDef {
+                        binding: ObjectChoiceBindingDef::Objects(crate::Binding!("victim")),
+                        unchosen: None,
+                        chooser: PlayerRefDef::EffectController,
+                        candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
+                            ObjectPredicateDef::All(&[
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                            ]),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        )),
+                        exclude: None,
+                        minimum: 0,
+                        maximum: 1,
+                        visibility: ChoiceVisibilityDef::Public,
+                        then: &EffectDef::IfCondition {
+                            condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                                left: ValueDef::CountObjects(&ObjectSetDef::Binding(
+                                    crate::Binding!("victim"),
+                                )),
+                                comparison: ComparisonDef::Greater,
+                                right: ValueDef::Constant(0),
+                            }),
+                            then: &EffectDef::Sequence(&[
+                                EffectDef::sacrifice(EffectRecipientDef::objects(
+                                    ObjectSetDef::Binding(crate::Binding!("victim")),
+                                )),
+                                abilities::draw_cards(ValueDef::AggregateObjectValues(
+                                    &ObjectValueAggregateDef {
+                                        objects: ObjectSetDef::Binding(crate::Binding!("victim")),
+                                        select: ObjectValueDef::ManaValue,
+                                        operation: AggregateOperationDef::Sum,
+                                    },
+                                )),
+                                EffectDef::Choose(ChooseDef {
+                                    binding: ObjectChoiceBindingDef::Objects(crate::Binding!(
+                                        "chosen"
+                                    )),
+                                    unchosen: None,
+                                    chooser: PlayerRefDef::EffectController,
+                                    candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
+                                        ObjectPredicateDef::All(&[
+                                            ObjectPredicateDef::AnyOf(&[
+                                                ObjectPredicateDef::HasType(CardType::Creature),
+                                                ObjectPredicateDef::HasType(CardType::Artifact),
+                                                ObjectPredicateDef::HasType(CardType::Enchantment),
+                                                ObjectPredicateDef::HasType(CardType::Land),
+                                                ObjectPredicateDef::HasType(CardType::Planeswalker),
+                                            ]),
+                                            ObjectPredicateDef::ManaValueAtMostValue(
+                                                ValueDef::AggregateObjectValues(
+                                                    &ObjectValueAggregateDef {
+                                                        objects: ObjectSetDef::Binding(
+                                                            crate::Binding!("victim"),
+                                                        ),
+                                                        select: ObjectValueDef::ManaValue,
+                                                        operation: AggregateOperationDef::Sum,
+                                                    },
+                                                ),
+                                            ),
+                                        ]),
+                                        &[ZoneKind::Hand],
+                                        PlayerRelation::You,
+                                    )),
+                                    exclude: None,
+                                    minimum: 0,
+                                    maximum: 1,
+                                    visibility: ChoiceVisibilityDef::Private,
+                                    then: &EffectDef::move_to_zone(
+                                        EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                            crate::Binding!("chosen"),
+                                        )),
+                                        ZoneKind::Battlefield,
+                                        ZonePlacement::Top,
+                                    ),
+                                }),
+                            ]),
+                        },
+                    }),
+                ),
+            ]),
+        ),
+    ],
 );
 
 // SPM 56 — Gwenom, Remorseless
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a resolving, expiring permission to look at the top library card at any time; top-card play permission already supports life payment, but MayLookAtTopOfLibrary is only implemented as a battlefield static rule.
 pub(in crate::card::sets) static GWENOM_REMORSELESS: CardRecord = CardRecord::new(
     "Gwenom, Remorseless",
     "46b6cc5d-7a37-4e8b-a1a5-9a573056610c",
     "Lordigan",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 57 — Inner Demons Gangsters
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static INNER_DEMONS_GANGSTERS: CardRecord = CardRecord::new(
     "Inner Demons Gangsters",
     "f0252819-4eda-457d-9688-b08b83b1edc9",
     "Nathaniel Himawan",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{B}"), &["Human", "Rogue", "Villain"], 3, 4)
+        .with_abilities(&[AbilityDef::activated(
+            "Discard a card: This creature gets +1/+0 and gains menace \
+             until end of turn. Activate only as a sorcery. (It can't be \
+             blocked except by two or more creatures.)",
+            &[CostDef::discard(ObjectPredicateDef::Any)],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(0),
+                    ),
+                    AppliedEffectDef::add_ability(&abilities::menace()),
+                ]),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        )
+        .with_activation_timing(ActivationTimingDef::SorcerySpeed)]),
 );
 
 // SPM 58 — Merciless Enforcers
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MERCILESS_ENFORCERS: CardRecord = CardRecord::new(
     "Merciless Enforcers",
     "fba9c76c-1432-4554-88bd-3f5e8709a963",
     "Alex Horley-Orlandelli",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(
+        mana_cost!("{1}{B}"),
+        &["Human", "Mercenary", "Villain"],
+        2,
+        1,
+    )
+    .with_abilities(&[
+        abilities::lifelink(),
+        AbilityDef::activated(
+            "{3}{B}: This creature deals 1 damage to each opponent.",
+            &[CostDef::Mana(mana_cost!("{3}{B}"))],
+            EffectDef::damage(EffectRecipientDef::Opponent, ValueDef::Constant(1)),
+        ),
+    ]),
 );
 
 // SPM 59 — Morlun, Devourer of Spiders
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs retained cast X for the enters trigger after Morlun leaves the battlefield; SourceCastX currently reads the live permanent, so it loses X when the source departs before resolution.
 pub(in crate::card::sets) static MORLUN_DEVOURER_OF_SPIDERS: CardRecord = CardRecord::new(
     "Morlun, Devourer of Spiders",
     "1beb2eb9-90b5-43ba-8b04-cfce7dcb744b",
     "Randy Gallegos",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 60 — Parker Luck
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs distinctness enforced across separately addressable player-target slots on a triggered ability; current trigger placement ignores another across slots, while a single two-player slot has no indexed-member reference to pair each reveal with the other player.
 pub(in crate::card::sets) static PARKER_LUCK: CardRecord = CardRecord::new(
     "Parker Luck",
     "e375bcf0-7fcb-4fe4-a7e8-a4cbf9b23e3c",
     "Raoul Vitale",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 61 — Prison Break
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs per-card discard provenance for the current turn and a graveyard casting or land-play permission conditional on that exact discard; the current graveyard permissions and turn histories cannot express mayhem.
 pub(in crate::card::sets) static PRISON_BREAK: CardRecord = CardRecord::new(
     "Prison Break",
     "6c45a5df-048e-4b73-89c6-5cdaa330319e",
     "John Tyler Christopher",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 62 — Risky Research
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RISKY_RESEARCH: CardRecord = CardRecord::new(
     "Risky Research",
     "1f8aa705-6177-42e9-95cb-e7f880c186e3",
     "Rafater",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{2}{B}")).with_abilities(&[AbilityDef::spell(
+        "Surveil 2, then draw two cards. You lose 2 life. (To surveil \
+         2, look at the top two cards of your library, then put any \
+         number of them into your graveyard and the rest on top of \
+         your library in any order.)",
+        EffectDef::Sequence(&[
+            abilities::surveil(ValueDef::Constant(2)),
+            abilities::draw_cards(ValueDef::Constant(2)),
+            EffectDef::LoseLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(2),
+            },
+        ]),
+    )]),
 );
 
 // SPM 63 — Sandman's Quicksand
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs per-card discard provenance for the current turn and a graveyard casting or land-play permission conditional on that exact discard; the current graveyard permissions and turn histories cannot express mayhem.
 pub(in crate::card::sets) static SANDMAN_S_QUICKSAND: CardRecord = CardRecord::new(
     "Sandman's Quicksand",
     "b7795e17-6717-464c-9ae3-20da52ba005a",
     "Michele Giorgi",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 64 — Scorpion, Seething Striker
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SCORPION_SEETHING_STRIKER: CardRecord = CardRecord::new(
     "Scorpion, Seething Striker",
     "cf407e08-b27f-42ba-b824-75846a80e238",
     "Simon Dominic",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(
+        mana_cost!("{3}{B}"),
+        &["Scorpion", "Human", "Villain"],
+        3,
+        3,
+    )
+    .with_supertype(CardSupertype::Legendary)
+    .with_abilities(&[
+        abilities::deathtouch(),
+        AbilityDef::triggered_if_with_targets(
+            "At the beginning of your end step, if a creature died this \
+             turn, target creature you control connives. (Draw a card, \
+             then discard a card. If you discarded a nonland card, put a \
+             +1/+1 counter on that creature.)",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::End,
+                player: PlayerRelation::You,
+            },
+            &TriggerConditionDef::CreatureDiedThisTurn,
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                },
+            )],
+            EffectDef::Sequence(&[
+                abilities::draw_cards(ValueDef::Constant(1)),
+                EffectDef::Discard {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                    selection: DiscardSelectionDef::RecipientChooses,
+                    then: Some(DiscardFollowUpDef {
+                        counted: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(
+                            CardType::Land,
+                        )),
+                        bound: Some(crate::Binding!("connived")),
+                        effect: &EffectDef::AddCounters {
+                            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            kind: CounterKind::PlusOnePlusOne,
+                            amount: ValueDef::CountObjects(&ObjectSetDef::Binding(
+                                crate::Binding!("connived"),
+                            )),
+                        },
+                    }),
+                },
+            ]),
+        ),
+    ]),
 );
 
 // SPM 65 — Scorpion's Sting
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SCORPION_S_STING: CardRecord = CardRecord::new(
     "Scorpion's Sting",
     "0fb03437-32cf-4c97-bf91-ea8b2ad3f964",
     "Lee Woo-chul",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{B}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Target creature gets -3/-3 until end of turn.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            effect: AppliedEffectDef::modify_power_toughness(
+                ValueDef::Constant(-3),
+                ValueDef::Constant(-3),
+            ),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )]),
 );
 
 // SPM 66 — The Soul Stone
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a durable harnessed designation and the infinity ability enabled by that designation; this is not a removable counter, an activated-ability use limit, or a gained ability.
 pub(in crate::card::sets) static THE_SOUL_STONE: CardRecord = CardRecord::new(
     "The Soul Stone",
     "1982f910-a9bd-4e94-a187-84381b22aacc",
     "Volkan Baǵa",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 67 — Spider-Man Noir
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a scalar counting every kind of counter on the triggering creature; existing counter projections require one specific CounterKind and cannot total an arbitrary inventory.
 pub(in crate::card::sets) static SPIDER_MAN_NOIR: CardRecord = CardRecord::new(
     "Spider-Man Noir",
     "bc64366c-2691-48cd-bb4b-a4b088c6f16b",
     "Xabi Gaztelua",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 68 — The Spot's Portal
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static THE_SPOT_S_PORTAL: CardRecord = CardRecord::new(
     "The Spot's Portal",
     "67a8bf52-7562-4cdd-b970-106717a0aad6",
     "Carlos Dattoli",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{2}{B}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Put target creature on the bottom of its owner's library. You \
+         lose 2 life unless you control a Villain.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Library,
+                ZonePlacement::Bottom,
+            ),
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::Not(&TriggerConditionDef::ObjectCount {
+                    query: ObjectQueryDef::matching(
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Villain")),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    comparison: ComparisonDef::GreaterOrEqual,
+                    amount: 1,
+                }),
+                then: &EffectDef::LoseLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(2),
+                },
+            },
+        ]),
+    )]),
 );
 
 // SPM 69 — Swarm, Being of Bees
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs per-card discard provenance for the current turn and a graveyard casting or land-play permission conditional on that exact discard; the current graveyard permissions and turn histories cannot express mayhem.
 pub(in crate::card::sets) static SWARM_BEING_OF_BEES: CardRecord = CardRecord::new(
     "Swarm, Being of Bees",
     "cb83d54e-6641-4929-99ad-c0ba5b610902",
     "Alex Horley-Orlandelli",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 70 — Tombstone, Career Criminal
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TOMBSTONE_CAREER_CRIMINAL: CardRecord = CardRecord::new(
     "Tombstone, Career Criminal",
     "313189ef-fe6e-4511-9386-920a88a49a88",
     "Bartek Fedyczak",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{B}"), &["Human", "Villain"], 2, 2)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::enters_trigger_with_targets(
+                "When Tombstone enters, return target Villain card from your \
+                 graveyard to your hand.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Villain")),
+                        zones: &[ZoneKind::Graveyard],
+                        controller: None,
+                        owner: Some(PlayerRelation::You),
+                    },
+                )],
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
+            ),
+            AbilityDef::static_ability(
+                "Villain spells you cast cost {1} less to cast.",
+                EffectDef::ModifyCost(CostModificationDef::reduce_spell(
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Villain")),
+                    PlayerRelation::You,
+                    ValueDef::Constant(1),
+                )),
+            ),
+        ]),
 );
 
 // SPM 71 — Venom, Evil Unleashed
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VENOM_EVIL_UNLEASHED: CardRecord = CardRecord::new(
     "Venom, Evil Unleashed",
     "ab3d51a4-40f0-4606-b5f9-2686c12fd54b",
     "Jesper Ejsing",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{B}"), &["Symbiote", "Villain"], 4, 5)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::deathtouch(),
+            AbilityDef::activated_with_targets(
+                "{2}{B}, Exile this card from your graveyard: Put two +1/+1 \
+                 counters on target creature. It gains deathtouch until end of \
+                 turn. Activate only as a sorcery.",
+                &[CostDef::Mana(mana_cost!("{2}{B}")), CostDef::ExileSource],
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )],
+                EffectDef::Sequence(&[
+                    EffectDef::AddCounters {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        kind: CounterKind::PlusOnePlusOne,
+                        amount: ValueDef::Constant(2),
+                    },
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        effect: AppliedEffectDef::add_ability(&abilities::deathtouch()),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                ]),
+            )
+            .with_activation_timing(ActivationTimingDef::SorcerySpeed)
+            .with_source_zones(&[ZoneKind::Graveyard]),
+        ]),
 );
 
 // SPM 72 — Venomized Cat
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VENOMIZED_CAT: CardRecord = CardRecord::new(
     "Venomized Cat",
     "6330f3e9-e031-4d55-b5d8-536c16bba063",
     "Jessica Fong",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{B}"), &["Symbiote", "Cat", "Villain"], 2, 3)
+        .with_abilities(&[
+            abilities::deathtouch(),
+            abilities::enters_trigger(
+                "When this creature enters, mill two cards. (Put the top two \
+                 cards of your library into your graveyard.)",
+                EffectDef::Mill {
+                    player: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(2),
+                },
+            ),
+        ]),
 );
 
 // SPM 73 — Venom's Hunger
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VENOM_S_HUNGER: CardRecord = CardRecord::new(
     "Venom's Hunger",
     "01d276cd-e4ad-488f-8447-004aefad1ebb",
     "Dave DeVries",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{4}{B}")).with_abilities(&[
+        AbilityDef::static_ability(
+            "This spell costs {2} less to cast if you control a Villain.",
+            EffectDef::ReduceGenericCostBy(ValueDef::IfMatchingObjectCount(&CountConditionDef {
+                query: ObjectQueryDef::matching(
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Villain")),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                comparison: ComparisonDef::Greater,
+                amount: 0,
+                then: ValueDef::Constant(2),
+                otherwise: ValueDef::Constant(0),
+            })),
+        )
+        .with_source_zones(&[ZoneKind::Hand]),
+        AbilityDef::spell_with_targets(
+            "Destroy target creature. You gain 2 life.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    then: None,
+                },
+                EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(2),
+                },
+            ]),
+        ),
+    ]),
 );
 
 // SPM 74 — Villainous Wrath
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VILLAINOUS_WRATH: CardRecord = CardRecord::new(
     "Villainous Wrath",
     "d78e36fd-5817-4c4a-8880-dabe6dd4ba81",
     "InHyuk Lee",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{3}{B}{B}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Target opponent loses life equal to the number of creatures \
+             they control. Then destroy all creatures.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::LoseLife {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Opponent,
+                    )),
+                },
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::objects(ObjectSetDef::Query(
+                        ObjectQueryDef::matching(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::Any,
+                        ),
+                    )),
+                    then: None,
+                },
+            ]),
+        ),
+    ]),
 );
 
 // SPM 75 — Angry Rabble
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ANGRY_RABBLE: CardRecord = CardRecord::new(
     "Angry Rabble",
     "938730fa-496f-4871-80ec-3e9843ecb219",
     "Bartek Fedyczak",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Human", "Citizen"], 2, 2).with_abilities(&[
+        abilities::trample(),
+        AbilityDef::triggered(
+            "Whenever you cast a spell with mana value 4 or greater, this \
+             creature deals 1 damage to each opponent.",
+            TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                ObjectPredicateDef::Not(&ObjectPredicateDef::ManaValueAtMost(3)),
+                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+            ])),
+            EffectDef::damage(EffectRecipientDef::Opponent, ValueDef::Constant(1)),
+        ),
+        AbilityDef::activated(
+            "{5}{R}: Put two +1/+1 counters on this creature. Activate \
+             only as a sorcery.",
+            &[CostDef::Mana(mana_cost!("{5}{R}"))],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(2),
+            },
+        )
+        .with_activation_timing(ActivationTimingDef::SorcerySpeed),
+    ]),
 );
 
 // SPM 76 — Electro, Assaulting Battery
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a resolving optional X-mana payment followed by a reflexive targeted trigger after the source has left; OptionalEffectTaken listeners require a live battlefield source and do not retain a selected resolving X.
 pub(in crate::card::sets) static ELECTRO_ASSAULTING_BATTERY: CardRecord = CardRecord::new(
     "Electro, Assaulting Battery",
     "d672cfad-e656-47f8-bf93-64f262aff33e",
     "Piotr Dura",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 77 — Electro's Bolt
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs per-card discard provenance for the current turn and a graveyard casting or land-play permission conditional on that exact discard; the current graveyard permissions and turn histories cannot express mayhem.
 pub(in crate::card::sets) static ELECTRO_S_BOLT: CardRecord = CardRecord::new(
     "Electro's Bolt",
     "25fe063f-35e4-4fca-9889-06834a8ef9b9",
     "JB Casacop",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 78 — Gwen Stacy // Ghost-Spider
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs exile-play permission lasting only while this exact creature remains continuously under your control, including termination on control changes; existing permissions have no source-control lifetime.
 pub(in crate::card::sets) static GWEN_STACY: CardRecord = CardRecord::new(
     "Gwen Stacy // Ghost-Spider",
     "b0f1597f-1dc7-465e-8fcb-0afe61bcca46",
     "Victor Adame Minguez",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 79 — Heroes' Hangout
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs play permission granted to a chosen already-exiled card until the end of your next turn; current duration-bearing exile permissions operate on the top-card exile move itself.
 pub(in crate::card::sets) static HEROES_HANGOUT: CardRecord = CardRecord::new(
     "Heroes' Hangout",
     "4148d7e8-6371-468c-858b-35254995409a",
     "Smirtouille",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 80 — Hobgoblin, Mantled Marauder
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HOBGOBLIN_MANTLED_MARAUDER: CardRecord = CardRecord::new(
     "Hobgoblin, Mantled Marauder",
     "50716fe3-7a19-431e-8758-984fc48d714e",
     "Dave DeVries",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Goblin", "Human", "Villain"], 1, 2)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::flying(),
+            abilities::haste(),
+            AbilityDef::triggered(
+                "Whenever you discard a card, Hobgoblin gets +2/+0 until end \
+                 of turn.",
+                TriggerEventDef::Discarded(PlayerRelation::You),
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(0),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ]),
 );
 
 // SPM 81 — J. Jonah Jameson
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs durable suspected status, including its inherent menace and cannot-block rules; granting these abilities does not model status independently of ability removal.
 pub(in crate::card::sets) static J_JONAH_JAMESON: CardRecord = CardRecord::new(
     "J. Jonah Jameson",
     "9ee905d6-b647-4eb1-a8d9-89add9bafc31",
     "Paolo Rivera",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 82 — Masked Meower
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MASKED_MEOWER: CardRecord = CardRecord::new(
     "Masked Meower",
     "6aa0dc1f-6c83-4ac9-b4f2-428e0e0bbf88",
     "Narendra Bintara Adi",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{R}"), &["Spider", "Cat", "Hero"], 1, 1).with_abilities(&[
+        abilities::haste(),
+        AbilityDef::activated(
+            "Discard a card, Sacrifice this creature: Draw a card.",
+            &[
+                CostDef::discard(ObjectPredicateDef::Any),
+                CostDef::SacrificeSource,
+            ],
+            abilities::draw_cards(ValueDef::Constant(1)),
+        ),
+    ]),
 );
 
 // SPM 83 — Maximum Carnage
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs an attack requirement preferring a player other than the effect controller when able; existing attack restrictions cannot express this second, independently satisfiable requirement.
 pub(in crate::card::sets) static MAXIMUM_CARNAGE: CardRecord = CardRecord::new(
     "Maximum Carnage",
     "7d72d867-6ed2-4900-a8ae-9d86f581ce32",
     "Bill Sienkiewicz",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 84 — Molten Man, Inferno Incarnate
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MOLTEN_MAN_INFERNO_INCARNATE: CardRecord = CardRecord::new(
     "Molten Man, Inferno Incarnate",
     "f469d621-25d0-4d8e-909f-47dac0b9c5b0",
     "Lie Setiawan",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Elemental", "Villain"], 0, 0)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::enters_trigger(
+                "When Molten Man enters, search your library for a basic \
+                 Mountain card, put it onto the battlefield tapped, then \
+                 shuffle.",
+                EffectDef::SearchZone {
+                    player: EffectRecipientDef::Controller,
+                    source: ZoneKind::Library,
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Mountain")),
+                        ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                    ]),
+                    minimum: 0,
+                    maximum: ValueDef::Constant(1),
+                    reveal: true,
+                    destination: ZoneKind::Battlefield,
+                    placement: ZonePlacement::Top,
+                    shuffle: true,
+                    enters_tapped: true,
+                    attachment: None,
+                    binding: None,
+                    then: None,
+                },
+            ),
+            AbilityDef::static_ability(
+                "Molten Man gets +1/+1 for each Mountain you control.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Mountain")),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        )),
+                        ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Mountain")),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        )),
+                    ),
+                },
+            ),
+            AbilityDef::triggered(
+                "When Molten Man leaves the battlefield, sacrifice a land.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::Source,
+                    Some(ZoneKind::Battlefield),
+                    None,
+                ),
+                EffectDef::ChooseForEachPlayer(ChooseForEachPlayerDef {
+                    player: EffectRecipientDef::Controller,
+                    zone: ZoneKind::Battlefield,
+                    candidates: ObjectPredicateDef::HasType(CardType::Land),
+                    selection: PerPlayerSelectionDef::Count(ValueDef::Constant(1)),
+                    chosen: crate::Binding!("sacrifices"),
+                    unchosen: crate::Binding!("unchosen_sacrifices"),
+                    visibility: ChoiceVisibilityDef::Public,
+                    then: &EffectDef::sacrifice(EffectRecipientDef::objects(
+                        ObjectSetDef::Binding(crate::Binding!("sacrifices")),
+                    )),
+                }),
+            ),
+        ]),
 );
 
 // SPM 85 — Raging Goblinoids
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs per-card discard provenance for the current turn and a graveyard casting or land-play permission conditional on that exact discard; the current graveyard permissions and turn histories cannot express mayhem.
 pub(in crate::card::sets) static RAGING_GOBLINOIDS: CardRecord = CardRecord::new(
     "Raging Goblinoids",
     "8519598f-ab7f-49b0-90cc-c0b6422ebdf8",
     "Filipe Pagliuso",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 86 — Romantic Rendezvous
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ROMANTIC_RENDEZVOUS: CardRecord = CardRecord::new(
     "Romantic Rendezvous",
     "38120361-153f-414e-8a45-f86bb2e35a17",
     "Nereida",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{1}{R}")).with_abilities(&[AbilityDef::spell(
+        "Discard a card, then draw two cards.",
+        EffectDef::Sequence(&[
+            EffectDef::Discard {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+                selection: DiscardSelectionDef::RecipientChooses,
+                then: None,
+            },
+            abilities::draw_cards(ValueDef::Constant(2)),
+        ]),
+    )]),
 );
 
 // SPM 87 — Shadow of the Goblin
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs land-play events that retain the zone from which the land was played; ordinary enters events also include lands put onto the battlefield and cannot substitute for a play event.
 pub(in crate::card::sets) static SHADOW_OF_THE_GOBLIN: CardRecord = CardRecord::new(
     "Shadow of the Goblin",
     "854b6898-c480-435b-8952-a077c7977cec",
     "Pavel Kolomeyets",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 88 — Shock (reprint)
@@ -825,43 +2654,92 @@ const SHOCK_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // SPM 89 — Shocker, Unshakable
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SHOCKER_UNSHAKABLE: CardRecord = CardRecord::new(
     "Shocker, Unshakable",
     "8b2c0d9a-364a-4823-aa4c-fe473d4463f0",
     "Kevin Glint",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(
+        mana_cost!("{4}{R}{R}"),
+        &["Human", "Rogue", "Villain"],
+        5,
+        5,
+    )
+    .with_supertype(CardSupertype::Legendary)
+    .with_abilities(&[
+        AbilityDef::static_ability(
+            "During your turn, Shocker has first strike.",
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::ActivePlayer(PlayerRelation::You),
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::add_ability(&abilities::first_strike()),
+                },
+            },
+        ),
+        abilities::enters_trigger_with_targets(
+            "Vibro-Shock Gauntlets — When Shocker enters, he deals 2 \
+             damage to target creature and 2 damage to that creature's \
+             controller.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::damage_simultaneously(&[
+                DamageAssignmentDef::from_effect(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(2),
+                ),
+                DamageAssignmentDef::from_effect(
+                    EffectRecipientDef::player(PlayerRefDef::ControllerOf(ObjectRefDef::Target(
+                        TargetIndex::PRIMARY,
+                    ))),
+                    ValueDef::Constant(2),
+                ),
+            ]),
+        ),
+    ]),
 );
 
 // SPM 90 — Spider-Gwen, Free Spirit
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPIDER_GWEN_FREE_SPIRIT: CardRecord = CardRecord::new(
     "Spider-Gwen, Free Spirit",
     "3bc04fa7-6265-4549-91f6-eebdcd67398a",
     "Lie Setiawan",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Spider", "Human", "Hero"], 2, 3)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::reach(),
+            AbilityDef::triggered(
+                "Whenever Spider-Gwen becomes tapped, you may discard a card. \
+                 If you do, draw a card.",
+                TriggerEventDef::tapped(ObjectPredicateDef::Source),
+                EffectDef::PayOr(PayOrDef::optional(
+                    &[CostDef::discard(ObjectPredicateDef::Any)],
+                    &abilities::draw_cards(ValueDef::Constant(1)),
+                )),
+            ),
+        ]),
 );
 
 // SPM 91 — Spider-Islanders
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs per-card discard provenance for the current turn and a graveyard casting or land-play permission conditional on that exact discard; the current graveyard permissions and turn histories cannot express mayhem.
 pub(in crate::card::sets) static SPIDER_ISLANDERS: CardRecord = CardRecord::new(
     "Spider-Islanders",
     "c9132e45-4ddb-4565-ac45-86f1ecc6230d",
     "Helge C. Balzer",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 92 — Spider-Punk
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a static grant of riot applied during other Spiders' prospective entries, including their counter-or-haste choice; a battlefield ability grant begins after the entry replacement must run.
 pub(in crate::card::sets) static SPIDER_PUNK: CardRecord = CardRecord::new(
     "Spider-Punk",
     "0bd41879-fcd4-4211-9b98-47e7cdba5399",
     "Forrest Imel",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 93 — Spider-Verse
-// Audit: unsupported — Needs a once-each-turn trigger for spells cast outside hand whose optional stack copy can grant haste specifically when it copies a permanent spell.
+// Audit: unsupported — Needs copied permanent spells to carry haste into their resulting permanents and an optional once-per-turn limit consumed only on acceptance; stack-copy effects lack this arrival rider, and trigger limits count the trigger itself.
 pub(in crate::card::sets) static SPIDER_VERSE: CardRecord = CardRecord::new(
     "Spider-Verse",
     "f8779eb2-1210-430d-8d42-3077053441ee",
@@ -870,430 +2748,1488 @@ pub(in crate::card::sets) static SPIDER_VERSE: CardRecord = CardRecord::new(
 );
 
 // SPM 94 — Spinneret and Spiderling
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a source damage-event matcher for a single simultaneous event totaling four or more damage across recipients; current damage triggers are captured per recipient and lose the event-wide total.
 pub(in crate::card::sets) static SPINNERET_AND_SPIDERLING: CardRecord = CardRecord::new(
     "Spinneret and Spiderling",
     "a27834b7-e763-48ac-845e-ed49f2fa6c6d",
     "Le Vuong",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 95 — Stegron the Dinosaur Man
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STEGRON_THE_DINOSAUR_MAN: CardRecord = CardRecord::new(
     "Stegron the Dinosaur Man",
     "485ceacb-fa76-4517-8466-c3c6bf6bcd6e",
     "John Tyler Christopher",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{R}"), &["Dinosaur", "Villain"], 5, 4)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::menace(),
+            AbilityDef::activated_with_targets(
+                "Dinosaur Formula — {1}{R}, Discard this card: Until end of \
+                 turn, target creature you control gets +3/+1 and becomes a \
+                 Dinosaur in addition to its other types.",
+                &[CostDef::Mana(mana_cost!("{1}{R}")), CostDef::DiscardSource],
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::You),
+                        owner: None,
+                    },
+                )],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(3),
+                            ValueDef::Constant(1),
+                        ),
+                        AppliedEffectDef::add_creature_types(CreatureTypeSetDef::named(&[
+                            "Dinosaur",
+                        ])),
+                    ]),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            )
+            .with_source_zones(&[ZoneKind::Hand]),
+        ]),
 );
 
 // SPM 96 — Superior Foes of Spider-Man
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a source-bound exile-play permission group that replaces and expires the previous permission only after another card is successfully exiled with that source.
 pub(in crate::card::sets) static SUPERIOR_FOES_OF_SPIDER_MAN: CardRecord = CardRecord::new(
     "Superior Foes of Spider-Man",
     "28e7bf86-5791-4412-8184-fa63fb292be4",
     "Ben Harvey",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 97 — Taxi Driver
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TAXI_DRIVER: CardRecord = CardRecord::new(
     "Taxi Driver",
     "a80d3ed9-5e81-41b7-bb74-ab86cba841c8",
     "Néstor Ossandón Leal",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Human", "Pilot"], 3, 1).with_abilities(&[
+        AbilityDef::activated_with_targets(
+            "{1}, {T}: Target creature gains haste until end of turn.",
+            &[CostDef::Mana(mana_cost!("{1}")), CostDef::TapSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::add_ability(&abilities::haste()),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // SPM 98 — Wisecrack
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WISECRACK: CardRecord = CardRecord::new(
     "Wisecrack",
     "8f452dac-bf22-4010-8a10-3c1cfa7d4df6",
     "Wayne Reynolds",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{2}{R}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Target creature deals damage equal to its power to itself. If \
+         that creature is attacking, Wisecrack deals 2 damage to that \
+         creature's controller.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::damage_from(
+                ObjectRefDef::Target(TargetIndex::PRIMARY),
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::TargetPower(TargetIndex::PRIMARY),
+            ),
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::TargetMatches {
+                    slot: TargetIndex::PRIMARY,
+                    object: ObjectPredicateDef::Attacking,
+                },
+                then: &EffectDef::damage(
+                    EffectRecipientDef::player(PlayerRefDef::ControllerOf(ObjectRefDef::Target(
+                        TargetIndex::PRIMARY,
+                    ))),
+                    ValueDef::Constant(2),
+                ),
+            },
+        ]),
+    )]),
 );
 
 // SPM 99 — Damage Control Crew
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DAMAGE_CONTROL_CREW: CardRecord = CardRecord::new(
     "Damage Control Crew",
     "ad2cab87-691d-44fe-ab2f-33760b1feb0f",
     "Borja Pindado",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{G}"), &["Human", "Citizen"], 3, 3).with_abilities(&[
+        AbilityDef::modal_triggered(
+            "When this creature enters, choose one —",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            &[
+                AbilityDef::spell_with_targets(
+                    "Repair — Return target card with mana value 4 or greater from \
+                     your graveyard to your hand.",
+                    &[AbilityTargetDef::exactly_one(
+                        AbilityTargetPredicate::Object {
+                            object: ObjectPredicateDef::Not(&ObjectPredicateDef::ManaValueAtMost(
+                                3,
+                            )),
+                            zones: &[ZoneKind::Graveyard],
+                            controller: None,
+                            owner: Some(PlayerRelation::You),
+                        },
+                    )],
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ZoneKind::Hand,
+                        ZonePlacement::Top,
+                    ),
+                ),
+                AbilityDef::spell_with_targets(
+                    "Impound — Exile target artifact or enchantment.",
+                    &[AbilityTargetDef::exactly_one_permanent(
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Artifact),
+                            ObjectPredicateDef::HasType(CardType::Enchantment),
+                        ]),
+                    )],
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ZoneKind::Exile,
+                        ZonePlacement::Top,
+                    ),
+                ),
+            ],
+        ),
+    ]),
 );
 
 // SPM 100 — Ezekiel Sims, Spider-Totem
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static EZEKIEL_SIMS_SPIDER_TOTEM: CardRecord = CardRecord::new(
     "Ezekiel Sims, Spider-Totem",
     "bb7c3ae2-6b01-4472-8bd1-9a7456401ddc",
     "Wei Guan",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{G}"), &["Spider", "Human", "Advisor"], 3, 5)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::reach(),
+            AbilityDef::triggered_with_targets(
+                "At the beginning of combat on your turn, target Spider you \
+                 control gets +2/+2 until end of turn.",
+                TriggerEventDef::StepBegins {
+                    step: TurnStepDef::BeginningOfCombat,
+                    player: PlayerRelation::You,
+                },
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Spider")),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::You),
+                        owner: None,
+                    },
+                )],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(2),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ]),
 );
 
 // SPM 101 — Grow Extra Arms
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a self casting-cost reduction based on the chosen target's Spider subtype; current self-cost predicates cannot inspect the pending target selection.
 pub(in crate::card::sets) static GROW_EXTRA_ARMS: CardRecord = CardRecord::new(
     "Grow Extra Arms",
     "63fab399-00db-4398-922e-c3ca3356731a",
     "Kevin Sidharta",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 102 — Guy in the Chair
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GUY_IN_THE_CHAIR: CardRecord = CardRecord::new(
     "Guy in the Chair",
     "65e97c06-55a6-4841-be0f-055c015df90a",
     "Zoltan Boros",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Human", "Advisor"], 2, 3).with_abilities(&[
+        AbilityDef::activated_mana(
+            "{T}: Add one mana of any color.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::any_color()),
+        ),
+        AbilityDef::activated_with_targets(
+            "Web Support — {2}{G}, {T}: Put a +1/+1 counter on target \
+             Spider. Activate only as a sorcery.",
+            &[CostDef::Mana(mana_cost!("{2}{G}")), CostDef::TapSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Spider")),
+            )],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(1),
+            },
+        )
+        .with_activation_timing(ActivationTimingDef::SorcerySpeed),
+    ]),
 );
 
 // SPM 103 — Kapow!
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KAPOW: CardRecord = CardRecord::new(
     "Kapow!",
     "cec575f6-43c9-41c6-a996-bb806bf82185",
     "Jessica Fong",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{2}{G}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Put a +1/+1 counter on target creature you control. It fights \
+         target creature an opponent controls. (Each deals damage \
+         equal to its power to the other.)",
+        &[
+            AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                zones: &[ZoneKind::Battlefield],
+                controller: Some(PlayerRelation::You),
+                owner: None,
+            }),
+            AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                zones: &[ZoneKind::Battlefield],
+                controller: Some(PlayerRelation::Opponent),
+                owner: None,
+            }),
+        ],
+        EffectDef::Sequence(&[
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(1),
+            },
+            EffectDef::Fight {
+                first: ObjectRefDef::Target(TargetIndex::PRIMARY),
+                second: ObjectRefDef::Target(TargetIndex(1)),
+                excess: None,
+            },
+        ]),
+    )]),
 );
 
 // SPM 104 — Kraven's Cats
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KRAVEN_S_CATS: CardRecord = CardRecord::new(
     "Kraven's Cats",
     "86c415d8-1d2d-4339-955b-0f2aebeb3c95",
     "Kevin Glint",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Cat", "Villain"], 2, 2).with_abilities(&[
+        AbilityDef::activated(
+            "{2}{G}: This creature gets +2/+2 until end of turn. Activate \
+             only once each turn.",
+            &[CostDef::Mana(mana_cost!("{2}{G}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(2),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        )
+        .once_each_turn(),
+    ]),
 );
 
 // SPM 105 — Kraven's Last Hunt
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a reflexive targeted trigger after milling that survives the Saga leaving in response to its chapter ability; OptionalEffectTaken listeners require a live battlefield source.
 pub(in crate::card::sets) static KRAVEN_S_LAST_HUNT: CardRecord = CardRecord::new(
     "Kraven's Last Hunt",
     "d0c18ffe-a2b9-40df-a6b4-a9381e6dc467",
     "Bill Sienkiewicz",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 106 — Lizard, Connors's Curse
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LIZARD_CONNORS_S_CURSE: CardRecord = CardRecord::new(
     "Lizard, Connors's Curse",
     "6add5d2a-950e-4bee-9850-e68f5f6d6142",
     "Steve Prescott",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{G}{G}"), &["Lizard", "Villain"], 5, 5)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::trample(),
+            abilities::enters_trigger_with_targets(
+                "Lizard Formula — When Lizard, Connors's Curse enters, up to \
+                 one other target creature loses all abilities and becomes a \
+                 green Lizard creature with base power and toughness 4/4.",
+                &[AbilityTargetDef::up_to(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: None,
+                        owner: None,
+                    },
+                    1,
+                )],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::remove_abilities(AbilityPredicateDef::Any),
+                        AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&[
+                            "Lizard",
+                        ])),
+                        AppliedEffectDef::set_card_types(CardTypeSet::single(CardType::Creature)),
+                        AppliedEffectDef::set_colors(ColorSet::from_colors(&[ManaColor::Green])),
+                        AppliedEffectDef::set_base_power_toughness(
+                            ValueDef::Constant(4),
+                            ValueDef::Constant(4),
+                        ),
+                    ]),
+                    duration: ResolvedEffectDurationDef::Permanent,
+                },
+            ),
+        ]),
 );
 
 // SPM 107 — Lurking Lizards
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LURKING_LIZARDS: CardRecord = CardRecord::new(
     "Lurking Lizards",
     "58b5b49c-ddd6-4d1b-9b61-6e02d8fc55ad",
     "Rafater",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Lizard", "Villain"], 1, 3).with_abilities(&[
+        abilities::trample(),
+        AbilityDef::triggered(
+            "Whenever you cast a spell with mana value 4 or greater, put a \
+             +1/+1 counter on this creature.",
+            TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                ObjectPredicateDef::Not(&ObjectPredicateDef::ManaValueAtMost(3)),
+                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+            ])),
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // SPM 108 — Miles Morales // Ultimate Spider-Man
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs doubling of every counter kind on a dynamically selected permanent group; DoubleCounters and counter projections require an explicitly named kind.
 pub(in crate::card::sets) static MILES_MORALES: CardRecord = CardRecord::new(
     "Miles Morales // Ultimate Spider-Man",
     "9f8b4d9b-208a-4673-a617-5e3edd069c33",
     "L.A. Draws",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 109 — Pictures of Spider-Man
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PICTURES_OF_SPIDER_MAN: CardRecord = CardRecord::new(
     "Pictures of Spider-Man",
     "e1ec41d4-0180-42f7-9c54-f3c39b4ffb8d",
     "Rafater",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{2}{G}")).with_abilities(&[
+        abilities::enters_trigger(
+            "When this artifact enters, look at the top five cards of your \
+             library. You may reveal up to two creature cards from among \
+             them and put them into your hand. Put the rest on the bottom \
+             of your library in a random order.",
+            EffectDef::ChooseCardsFromCollection(ChooseCardsFromCollectionDef {
+                source: ObjectCollectionSourceDef::TopCards {
+                    player: PlayerRefDef::EffectController,
+                    count: ValueDef::Constant(5),
+                },
+                actor: PlayerRefDef::EffectController,
+                inspection: CollectionInspectionDef::Look,
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                minimum: 0,
+                maximum: 2,
+                chosen: crate::Binding!("chosen"),
+                remainder: crate::Binding!("rest"),
+                then: &EffectDef::Sequence(&[
+                    EffectDef::RevealObjects(RevealObjectsDef {
+                        input: ObjectSetDef::Binding(crate::Binding!("chosen")),
+                        then: &EffectDef::None,
+                    }),
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::objects(ObjectSetDef::Binding(crate::Binding!(
+                            "chosen"
+                        ))),
+                        ZoneKind::Hand,
+                        ZonePlacement::Top,
+                    ),
+                    EffectDef::RandomizeObjectOrder(RandomizeObjectOrderDef {
+                        input: ObjectSetDef::Binding(crate::Binding!("rest")),
+                        randomized: crate::Binding!("random_bottom"),
+                        then: &EffectDef::move_to_zone(
+                            EffectRecipientDef::objects(ObjectSetDef::Binding(crate::Binding!(
+                                "random_bottom"
+                            ))),
+                            ZoneKind::Library,
+                            ZonePlacement::Bottom,
+                        ),
+                    }),
+                ]),
+            }),
+        ),
+        AbilityDef::activated(
+            "{1}, {T}, Sacrifice this artifact: Create a Treasure token. \
+             (It's an artifact with \"{T}, Sacrifice this token: Add one \
+             mana of any color.\")",
+            &[
+                CostDef::Mana(mana_cost!("{1}")),
+                CostDef::TapSource,
+                CostDef::SacrificeSource,
+            ],
+            EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(1)),
+        ),
+    ]),
 );
 
 // SPM 110 — Professional Wrestler
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PROFESSIONAL_WRESTLER: CardRecord = CardRecord::new(
     "Professional Wrestler",
     "8a5381e7-ddda-47e7-886d-812250ffb745",
     "Kevin Sidharta",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(
+        mana_cost!("{3}{G}"),
+        &["Human", "Warrior", "Performer"],
+        4,
+        4,
+    )
+    .with_abilities(&[
+        abilities::enters_trigger(
+            "When this creature enters, create a Treasure token. (It's an \
+             artifact with \"{T}, Sacrifice this token: Add one mana of \
+             any color.\")",
+            EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(1)),
+        ),
+        AbilityDef::static_ability(
+            "This creature can't be blocked by more than one creature.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::BlockRestriction(
+                    BlockRestrictionDef::MaximumBlockers(1),
+                )),
+            },
+        ),
+    ]),
 );
 
 // SPM 111 — Radioactive Spider
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RADIOACTIVE_SPIDER: CardRecord = CardRecord::new(
     "Radioactive Spider",
     "f2d267f5-7f12-45f8-8fcb-e0ba3fbdeddc",
     "Pavel Kolomeyets",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{G}"), &["Spider"], 1, 1).with_abilities(&[
+        abilities::reach(),
+        abilities::deathtouch(),
+        AbilityDef::activated(
+            "Fateful Bite — {2}, Sacrifice this creature: Search your \
+             library for a Spider Hero card, reveal it, put it into your \
+             hand, then shuffle. Activate only as a sorcery.",
+            &[CostDef::Mana(mana_cost!("{2}")), CostDef::SacrificeSource],
+            EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Spider")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Hero")),
+                ]),
+                minimum: 0,
+                maximum: ValueDef::Constant(1),
+                reveal: true,
+                destination: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+                shuffle: true,
+                enters_tapped: false,
+                attachment: None,
+                binding: None,
+                then: None,
+            },
+        )
+        .with_activation_timing(ActivationTimingDef::SorcerySpeed),
+    ]),
 );
 
 // SPM 112 — Sandman, Shifting Scoundrel
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SANDMAN_SHIFTING_SCOUNDREL: CardRecord = CardRecord::new(
     "Sandman, Shifting Scoundrel",
     "609ac18c-ec58-4fa7-bbee-3912a69d0ec6",
     "Bartek Fedyczak",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(
+        mana_cost!("{1}{G}{G}"),
+        &["Sand", "Elemental", "Villain"],
+        0,
+        0,
+    )
+    .with_supertype(CardSupertype::Legendary)
+    .with_abilities(&[
+        AbilityDef::static_ability(
+            "Sandman's power and toughness are each equal to the number of \
+             lands you control.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::define_power_toughness(
+                    ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    )),
+                    ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    )),
+                ),
+            },
+        ),
+        AbilityDef::static_ability(
+            "Sandman can't be blocked by creatures with power 2 or less.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::PowerAtLeast(3)),
+                )),
+            },
+        ),
+        AbilityDef::activated_with_targets(
+            "{3}{G}{G}: Return this card and target land card from your \
+             graveyard to the battlefield tapped.",
+            &[CostDef::Mana(mana_cost!("{3}{G}{G}"))],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Land),
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: Some(PlayerRelation::You),
+                },
+            )],
+            EffectDef::WithBattlefieldArrival {
+                effect: &EffectDef::move_to_zone(
+                    EffectRecipientDef::objects(ObjectSetDef::Union(&[
+                        ObjectSetDef::One(ObjectRefDef::Source),
+                        ObjectSetDef::LegalTargets(TargetIndex::PRIMARY),
+                    ])),
+                    ZoneKind::Battlefield,
+                    ZonePlacement::Top,
+                ),
+                arrival: BattlefieldArrivalDef {
+                    modifications: &[BattlefieldEntryModificationDef::Tapped],
+                    ..BattlefieldArrivalDef::DEFAULT
+                },
+            },
+        )
+        .with_source_zones(&[ZoneKind::Graveyard]),
+    ]),
 );
 
 // SPM 113 — Scout the City
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SCOUT_THE_CITY: CardRecord = CardRecord::new(
     "Scout the City",
     "90b9504d-d23d-402f-8b16-1964ebd8f6b9",
     "Rafater",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{1}{G}")).with_abilities(&[AbilityDef::modal_spell(
+        "Choose one —",
+        &[
+            AbilityDef::spell(
+                "Look Around — Mill three cards. You may put a permanent card \
+                 from among them into your hand. You gain 3 life. (To mill \
+                 three cards, put the top three cards of your library into \
+                 your graveyard.)",
+                EffectDef::Sequence(&[
+                    EffectDef::Sequence(&[
+                        EffectDef::BindOutput {
+                            binding: crate::Binding!("milled"),
+                            effect: &EffectDef::Mill {
+                                player: EffectRecipientDef::Controller,
+                                amount: ValueDef::Constant(3),
+                            },
+                        },
+                        EffectDef::Choose(ChooseDef {
+                            binding: ObjectChoiceBindingDef::Objects(crate::Binding!("chosen")),
+                            unchosen: None,
+                            chooser: PlayerRefDef::EffectController,
+                            candidates: ObjectSetDef::Matching {
+                                objects: &ObjectSetDef::Binding(crate::Binding!("milled")),
+                                object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::AnyOf(
+                                    &[
+                                        ObjectPredicateDef::HasType(CardType::Creature),
+                                        ObjectPredicateDef::HasType(CardType::Artifact),
+                                        ObjectPredicateDef::HasType(CardType::Enchantment),
+                                        ObjectPredicateDef::HasType(CardType::Land),
+                                        ObjectPredicateDef::HasType(CardType::Planeswalker),
+                                    ],
+                                )),
+                            },
+                            exclude: None,
+                            minimum: 0,
+                            maximum: 1,
+                            visibility: ChoiceVisibilityDef::Public,
+                            then: &EffectDef::move_to_zone(
+                                EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                    crate::Binding!("chosen"),
+                                )),
+                                ZoneKind::Hand,
+                                ZonePlacement::Top,
+                            ),
+                        }),
+                    ]),
+                    EffectDef::GainLife {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(3),
+                    },
+                ]),
+            ),
+            AbilityDef::spell_with_targets(
+                "Bring Down — Destroy target creature with flying.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
+                    ]),
+                )],
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    then: None,
+                },
+            ),
+        ],
+    )]),
 );
 
 // SPM 114 — Spider-Ham, Peter Porker
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPIDER_HAM_PETER_PORKER: CardRecord = CardRecord::new(
     "Spider-Ham, Peter Porker",
     "41f18f42-b86b-4a12-9f0d-76b761571195",
     "Filipe Pagliuso",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Spider", "Boar", "Hero"], 2, 2)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::enters_trigger(
+                "When Spider-Ham enters, create a Food token. (It's an \
+                 artifact with \"{2}, {T}, Sacrifice this token: You gain 3 \
+                 life.\")",
+                EffectDef::create_token(tokens::food()).with_count(ValueDef::Constant(1)),
+            ),
+            AbilityDef::static_ability(
+                "Animal May-Ham — Other Spiders, Boars, Bats, Bears, Birds, \
+                 Cats, Dogs, Frogs, Jackals, Lizards, Mice, Otters, Rabbits, \
+                 Raccoons, Rats, Squirrels, Turtles, and Wolves you control \
+                 get +1/+1.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                        ObjectQueryDef::matching(
+                            ObjectPredicateDef::All(&[
+                                ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                                ObjectPredicateDef::AnyOf(&[
+                                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Spider")),
+                                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Boar")),
+                                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Bat")),
+                                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Bear")),
+                                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Bird")),
+                                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Cat")),
+                                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Dog")),
+                                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Frog")),
+                                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Jackal")),
+                                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Lizard")),
+                                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Mouse")),
+                                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Otter")),
+                                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Rabbit")),
+                                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Raccoon")),
+                                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Rat")),
+                                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Squirrel")),
+                                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Turtle")),
+                                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Wolf")),
+                                ]),
+                            ]),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        ),
+                    )),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(1),
+                    ),
+                },
+            ),
+        ]),
 );
 
 // SPM 115 — Spider-Man, Brooklyn Visionary
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPIDER_MAN_BROOKLYN_VISIONARY: CardRecord = CardRecord::new(
     "Spider-Man, Brooklyn Visionary",
     "e19929bc-cbe1-4970-952d-8e9d0193ddce",
     "Aniekan Udofia",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{G}"), &["Spider", "Human", "Hero"], 4, 3)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            web_slinging(
+                "Web-slinging {2}{G} (You may cast this spell for {2}{G} if \
+                 you also return a tapped creature you control to its owner's \
+                 hand.)",
+                &[
+                    CostDef::Mana(mana_cost!("{2}{G}")),
+                    CostDef::return_to_hand(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Tapped,
+                        ]),
+                        CostQuantityDef::Fixed(1),
+                    ),
+                ],
+            ),
+            abilities::enters_trigger(
+                "When Spider-Man enters, search your library for a basic land \
+                 card, put it onto the battlefield tapped, then shuffle.",
+                EffectDef::SearchZone {
+                    player: EffectRecipientDef::Controller,
+                    source: ZoneKind::Library,
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                    ]),
+                    minimum: 0,
+                    maximum: ValueDef::Constant(1),
+                    reveal: true,
+                    destination: ZoneKind::Battlefield,
+                    placement: ZonePlacement::Top,
+                    shuffle: true,
+                    enters_tapped: true,
+                    attachment: None,
+                    binding: None,
+                    then: None,
+                },
+            ),
+        ]),
 );
 
 // SPM 116 — Spider-Rex, Daring Dino
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPIDER_REX_DARING_DINO: CardRecord = CardRecord::new(
     "Spider-Rex, Daring Dino",
     "5b6e0bea-f126-4adb-8808-901950a77c7b",
     "Narendra Bintara Adi",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(
+        mana_cost!("{4}{G}{G}"),
+        &["Spider", "Dinosaur", "Hero"],
+        6,
+        6,
+    )
+    .with_supertype(CardSupertype::Legendary)
+    .with_abilities(&[
+        abilities::reach(),
+        abilities::trample(),
+        abilities::ward(&[CostDef::Mana(mana_cost!("{2}"))], "Ward {2}"),
+    ]),
 );
 
 // SPM 117 — Spiders-Man, Heroic Horde
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPIDERS_MAN_HEROIC_HORDE: CardRecord = CardRecord::new(
     "Spiders-Man, Heroic Horde",
     "1183262e-1f02-46b3-8cfa-fe30e0016c11",
     "Lars Grant-West",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Spider", "Hero"], 2, 3)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            web_slinging(
+                "Web-slinging {4}{G}{G} (You may cast this spell for {4}{G}{G} \
+                 if you also return a tapped creature you control to its \
+                 owner's hand.)",
+                &[
+                    CostDef::Mana(mana_cost!("{4}{G}{G}")),
+                    CostDef::return_to_hand(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Tapped,
+                        ]),
+                        CostQuantityDef::Fixed(1),
+                    ),
+                ],
+            ),
+            AbilityDef::triggered_if(
+                "When Spiders-Man enters, if they were cast using \
+                 web-slinging, you gain 3 life and create two 2/1 green Spider \
+                 creature tokens with reach.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::Source,
+                    None,
+                    Some(ZoneKind::Battlefield),
+                ),
+                &TriggerConditionDef::SourcePaidAlternativeCost(crate::Binding!("web-slinging")),
+                EffectDef::Sequence(&[
+                    EffectDef::GainLife {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(3),
+                    },
+                    EffectDef::create_creature_token(&["Spider"], &[ManaColor::Green], 2, 1)
+                        .with_count(ValueDef::Constant(2))
+                        .with_abilities(&[abilities::reach()]),
+                ]),
+            ),
+        ]),
 );
 
 // SPM 118 — Strength of Will
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STRENGTH_OF_WILL: CardRecord = CardRecord::new(
     "Strength of Will",
     "68f985c7-7765-46c3-ad31-edae3abb9fbf",
     "Ryan Pancoast",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{G}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Until end of turn, target creature you control gains \
+         indestructible and \"Whenever this creature is dealt damage, \
+         put that many +1/+1 counters on it.\"",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                zones: &[ZoneKind::Battlefield],
+                controller: Some(PlayerRelation::You),
+                owner: None,
+            },
+        )],
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            effect: AppliedEffectDef::Composite(&[
+                AppliedEffectDef::add_ability(&abilities::indestructible()),
+                AppliedEffectDef::add_ability(&AbilityDef::triggered(
+                    "Whenever this creature is dealt damage, put that many +1/+1 \
+                     counters on it.",
+                    TriggerEventDef::damage_to_source(),
+                    EffectDef::AddCounters {
+                        object: EffectRecipientDef::Source,
+                        kind: CounterKind::PlusOnePlusOne,
+                        amount: ValueDef::TriggerEventAmount,
+                    },
+                )),
+            ]),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )]),
 );
 
 // SPM 119 — Supportive Parents
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a mana-ability payment that selects and taps two untapped controlled creatures; multi-permanent tap costs work for ordinary activations but the immediate mana-ability payment path does not support them.
 pub(in crate::card::sets) static SUPPORTIVE_PARENTS: CardRecord = CardRecord::new(
     "Supportive Parents",
     "d3fe8a5b-4166-46cc-b910-71cd1a19ae1b",
     "Kim Sokol",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 120 — Terrific Team-Up
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TERRIFIC_TEAM_UP: CardRecord = CardRecord::new(
     "Terrific Team-Up",
     "f3c587b0-66b9-46bf-90ee-a6163c006c9e",
     "InHyuk Lee",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{3}{G}")).with_abilities(&[
+        AbilityDef::static_ability(
+            "This spell costs {2} less to cast if you control a permanent \
+             with mana value 4 or greater.",
+            EffectDef::ReduceGenericCostBy(ValueDef::IfMatchingObjectCount(&CountConditionDef {
+                query: ObjectQueryDef::matching(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::HasType(CardType::Artifact),
+                            ObjectPredicateDef::HasType(CardType::Enchantment),
+                            ObjectPredicateDef::HasType(CardType::Land),
+                            ObjectPredicateDef::HasType(CardType::Planeswalker),
+                        ]),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::ManaValueAtMost(3)),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                comparison: ComparisonDef::Greater,
+                amount: 0,
+                then: ValueDef::Constant(2),
+                otherwise: ValueDef::Constant(0),
+            })),
+        )
+        .with_source_zones(&[ZoneKind::Hand]),
+        AbilityDef::spell_with_targets(
+            "One or two target creatures you control each get +1/+0 until \
+             end of turn. They each deal damage equal to their power to \
+             target creature an opponent controls.",
+            &[
+                AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                }),
+                AbilityTargetDef::up_to(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::You),
+                        owner: None,
+                    },
+                    1,
+                )
+                .another(),
+                AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::Opponent),
+                    owner: None,
+                }),
+            ],
+            EffectDef::Sequence(&[
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::objects(ObjectSetDef::Union(&[
+                        ObjectSetDef::LegalTargets(TargetIndex::PRIMARY),
+                        ObjectSetDef::LegalTargets(TargetIndex(1)),
+                    ])),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(0),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+                EffectDef::damage_simultaneously(&[
+                    DamageAssignmentDef::from(
+                        ObjectRefDef::Target(TargetIndex::PRIMARY),
+                        EffectRecipientDef::Target(TargetIndex(2)),
+                        ValueDef::TargetPower(TargetIndex::PRIMARY),
+                    ),
+                    DamageAssignmentDef::from(
+                        ObjectRefDef::Target(TargetIndex(1)),
+                        EffectRecipientDef::Target(TargetIndex(2)),
+                        ValueDef::TargetPower(TargetIndex(1)),
+                    ),
+                ]),
+            ]),
+        ),
+    ]),
 );
 
 // SPM 121 — Wall Crawl
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WALL_CRAWL: CardRecord = CardRecord::new(
     "Wall Crawl",
     "97a2a1ab-57ec-4210-9412-765ae4f02db0",
     "Alexander Gering",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{3}{G}")).with_abilities(&[
+        abilities::enters_trigger(
+            "When this enchantment enters, create a 2/1 green Spider \
+             creature token with reach, then you gain 1 life for each \
+             Spider you control.",
+            EffectDef::Sequence(&[
+                EffectDef::create_creature_token(&["Spider"], &[ManaColor::Green], 2, 1)
+                    .with_abilities(&[abilities::reach()]),
+                EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Spider")),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    )),
+                },
+            ]),
+        ),
+        AbilityDef::static_ability(
+            "Spiders you control get +1/+1 and can't be blocked by \
+             creatures with defender.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                    ObjectQueryDef::matching(
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Spider")),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                )),
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(1),
+                    ),
+                    AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
+                        ObjectPredicateDef::HasKeyword(KeywordAbility::Defender),
+                    )),
+                ]),
+            },
+        ),
+    ]),
 );
 
 // SPM 122 — Web of Life and Destiny
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WEB_OF_LIFE_AND_DESTINY: CardRecord = CardRecord::new(
     "Web of Life and Destiny",
     "3b3c609e-f7c9-4fe5-84d9-4f4c76020a4b",
     "Jonas De Ro",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{6}{G}{G}")).with_abilities(&[
+        abilities::convoke(),
+        AbilityDef::triggered(
+            "At the beginning of combat on your turn, look at the top five \
+             cards of your library. You may put a creature card from among \
+             them onto the battlefield. Put the rest on the bottom of your \
+             library in a random order.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::BeginningOfCombat,
+                player: PlayerRelation::You,
+            },
+            EffectDef::ChooseCardsFromCollection(ChooseCardsFromCollectionDef {
+                source: ObjectCollectionSourceDef::TopCards {
+                    player: PlayerRefDef::EffectController,
+                    count: ValueDef::Constant(5),
+                },
+                actor: PlayerRefDef::EffectController,
+                inspection: CollectionInspectionDef::Look,
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                minimum: 0,
+                maximum: 1,
+                chosen: crate::Binding!("chosen"),
+                remainder: crate::Binding!("rest"),
+                then: &EffectDef::Sequence(&[
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::objects(ObjectSetDef::Binding(crate::Binding!(
+                            "chosen"
+                        ))),
+                        ZoneKind::Battlefield,
+                        ZonePlacement::Top,
+                    ),
+                    EffectDef::RandomizeObjectOrder(RandomizeObjectOrderDef {
+                        input: ObjectSetDef::Binding(crate::Binding!("rest")),
+                        randomized: crate::Binding!("random_bottom"),
+                        then: &EffectDef::move_to_zone(
+                            EffectRecipientDef::objects(ObjectSetDef::Binding(crate::Binding!(
+                                "random_bottom"
+                            ))),
+                            ZoneKind::Library,
+                            ZonePlacement::Bottom,
+                        ),
+                    }),
+                ]),
+            }),
+        ),
+    ]),
 );
 
 // SPM 123 — Araña, Heart of the Spider
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a complete modified predicate, including Equipment attached to the creature and Auras controlled by its controller; the available counter and enchanted predicates cannot identify all three modifications with their required controller scope.
 pub(in crate::card::sets) static ARANA_HEART_OF_THE_SPIDER: CardRecord = CardRecord::new(
     "Araña, Heart of the Spider",
     "b02bfa0e-f761-45e1-b35c-f44ff7c5d0e8",
     "Kevin Glint",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 124 — Biorganic Carapace
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a complete modified predicate, including Equipment attached to the creature and Auras controlled by its controller; the available counter and enchanted predicates cannot identify all three modifications with their required controller scope.
 pub(in crate::card::sets) static BIORGANIC_CARAPACE: CardRecord = CardRecord::new(
     "Biorganic Carapace",
     "9658fdab-9702-4e13-bc53-01a25a2ed41a",
     "David Álvarez",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 125 — Carnage, Crimson Chaos
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs per-card discard provenance for the current turn and a graveyard casting or land-play permission conditional on that exact discard; the current graveyard permissions and turn histories cannot express mayhem.
 pub(in crate::card::sets) static CARNAGE_CRIMSON_CHAOS: CardRecord = CardRecord::new(
     "Carnage, Crimson Chaos",
     "930befba-6068-493e-baa2-e9371cd99e93",
     "Lordigan",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 126 — Cheering Crowd
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs resolving mana addition to the active player who accepted the optional counter placement; AddManaEffectDef has a recipient field, but nonmana stack resolution ignores it and always credits the ability controller.
 pub(in crate::card::sets) static CHEERING_CROWD: CardRecord = CardRecord::new(
     "Cheering Crowd",
     "5fbce72f-e9a1-4d9f-b9b3-24dbafeef841",
     "Kim Sokol",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 127 — Cosmic Spider-Man
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static COSMIC_SPIDER_MAN: CardRecord = CardRecord::new(
     "Cosmic Spider-Man",
     "f82f4013-7308-4917-9042-19a5909f2134",
     "Zoltan Boros",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(
+        mana_cost!("{W}{U}{B}{R}{G}"),
+        &["Spider", "Human", "Hero"],
+        5,
+        5,
+    )
+    .with_supertype(CardSupertype::Legendary)
+    .with_abilities(&[
+        abilities::flying(),
+        abilities::first_strike(),
+        abilities::trample(),
+        abilities::lifelink(),
+        abilities::haste(),
+        AbilityDef::triggered(
+            "At the beginning of combat on your turn, other Spiders you \
+             control gain flying, first strike, trample, lifelink, and \
+             haste until end of turn.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::BeginningOfCombat,
+                player: PlayerRelation::You,
+            },
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                    ObjectQueryDef::matching(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Spider")),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                )),
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::add_ability(&abilities::flying()),
+                    AppliedEffectDef::add_ability(&abilities::first_strike()),
+                    AppliedEffectDef::add_ability(&abilities::trample()),
+                    AppliedEffectDef::add_ability(&abilities::lifelink()),
+                    AppliedEffectDef::add_ability(&abilities::haste()),
+                ]),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // SPM 128 — Doctor Octopus, Master Planner
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a maximum-hand-size setting operation with timestamp interactions against other settings and modifiers; the current player rules only remove the limit or add a numeric modifier.
 pub(in crate::card::sets) static DOCTOR_OCTOPUS_MASTER_PLANNER: CardRecord = CardRecord::new(
     "Doctor Octopus, Master Planner",
     "76e1d361-18a1-4dec-a203-f83bf0014e02",
     "Xabi Gaztelua",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 129 — Gallant Citizen
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GALLANT_CITIZEN: CardRecord = CardRecord::new(
     "Gallant Citizen",
     "43790471-6ec8-4c1d-b6d3-74c6cdf8ce43",
     "Allen Morris",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{G/W}{G/W}"), &["Human", "Citizen"], 1, 1).with_abilities(
+        &[abilities::enters_trigger(
+            "When this creature enters, draw a card.",
+            abilities::draw_cards(ValueDef::Constant(1)),
+        )],
+    ),
 );
 
 // SPM 130 — Green Goblin, Revenant
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the controller's complete discarded-card count for the current turn, including prior resolving effects and costs; the discard continuation only exposes its own batch.
 pub(in crate::card::sets) static GREEN_GOBLIN_REVENANT: CardRecord = CardRecord::new(
     "Green Goblin, Revenant",
     "218ef931-46f5-4a4d-9f26-898a1ff8f70f",
     "Chris Rahn",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 131 — Jackal, Genius Geneticist
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a nonlegendary copy-process exception on the copied creature spell; CopyStackObject currently supports only a color override, while token-copy exceptions do not copy a spell.
 pub(in crate::card::sets) static JACKAL_GENIUS_GENETICIST: CardRecord = CardRecord::new(
     "Jackal, Genius Geneticist",
     "c0ab07d6-b7c3-4129-9aef-cfdcfabec4b2",
     "Pavel Kolomeyets",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 132 — Kraven, Proud Predator
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KRAVEN_PROUD_PREDATOR: CardRecord = CardRecord::new(
     "Kraven, Proud Predator",
     "af7c63e1-eccc-40a2-ba14-ce0d2a6123fc",
     "Alexander Mokhov",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(
+        mana_cost!("{1}{R}{G}"),
+        &["Human", "Warrior", "Villain"],
+        0,
+        4,
+    )
+    .with_supertype(CardSupertype::Legendary)
+    .with_abilities(&[
+        abilities::vigilance(),
+        AbilityDef::static_ability(
+            "Top of the Food Chain — Kraven's power is equal to the \
+             greatest mana value among permanents you control.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::define_power(ValueDef::AggregateObjectValues(
+                    &ObjectValueAggregateDef {
+                        objects: ObjectSetDef::Query(ObjectQueryDef::matching(
+                            ObjectPredicateDef::AnyOf(&[
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                ObjectPredicateDef::HasType(CardType::Artifact),
+                                ObjectPredicateDef::HasType(CardType::Enchantment),
+                                ObjectPredicateDef::HasType(CardType::Land),
+                                ObjectPredicateDef::HasType(CardType::Planeswalker),
+                            ]),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        )),
+                        select: ObjectValueDef::ManaValue,
+                        operation: AggregateOperationDef::Maximum,
+                    },
+                )),
+            },
+        ),
+    ]),
 );
 
 // SPM 133 — Kraven the Hunter
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a death matcher comparing the dying creature's power with the maximum among its controller's creatures immediately before the event, including simultaneous departures.
 pub(in crate::card::sets) static KRAVEN_THE_HUNTER: CardRecord = CardRecord::new(
     "Kraven the Hunter",
     "afdab464-3674-449b-be01-1cbd21fced23",
     "Greg Staples",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 134 — Mary Jane Watson
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MARY_JANE_WATSON: CardRecord = CardRecord::new(
     "Mary Jane Watson",
     "178345f7-8ccd-4e47-80f4-5bd31bab6655",
     "Steve Argyle",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{G/W}"), &["Human", "Performer"], 2, 2)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[AbilityDef::triggered(
+            "Whenever a Spider you control enters, draw a card. This \
+             ability triggers only once each turn.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Spider")),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            abilities::draw_cards(ValueDef::Constant(1)),
+        )
+        .triggering_at_most(1)]),
 );
 
 // SPM 135 — Mister Negative
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs an atomic exchange of player life totals and an actual life-loss result for the draw; two SetLifeTotal effects do not enforce the exchange's all-or-nothing rule or retain that result.
 pub(in crate::card::sets) static MISTER_NEGATIVE: CardRecord = CardRecord::new(
     "Mister Negative",
     "2c9cb13d-55ff-4e26-aa49-755f8bcebc11",
     "Thanh Tuấn",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 136 — Mob Lookout
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MOB_LOOKOUT: CardRecord = CardRecord::new(
     "Mob Lookout",
     "e0e3b660-d391-454b-ba57-bff4ddcf27b7",
     "David Palumbo",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{U/B}"), &["Human", "Rogue", "Villain"], 0, 3)
+        .with_abilities(&[abilities::enters_trigger_with_targets(
+            "When this creature enters, target creature you control \
+             connives. (Draw a card, then discard a card. If you discarded \
+             a nonland card, put a +1/+1 counter on that creature.)",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                },
+            )],
+            EffectDef::Sequence(&[
+                abilities::draw_cards(ValueDef::Constant(1)),
+                EffectDef::Discard {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                    selection: DiscardSelectionDef::RecipientChooses,
+                    then: Some(DiscardFollowUpDef {
+                        counted: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(
+                            CardType::Land,
+                        )),
+                        bound: Some(crate::Binding!("connived")),
+                        effect: &EffectDef::AddCounters {
+                            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            kind: CounterKind::PlusOnePlusOne,
+                            amount: ValueDef::CountObjects(&ObjectSetDef::Binding(
+                                crate::Binding!("connived"),
+                            )),
+                        },
+                    }),
+                },
+            ]),
+        )]),
 );
 
 // SPM 137 — Morbius the Living Vampire
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MORBIUS_THE_LIVING_VAMPIRE: CardRecord = CardRecord::new(
     "Morbius the Living Vampire",
     "b978d0e2-f5a7-4ade-befc-11b406e84477",
     "Borja Pindado",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(
+        mana_cost!("{2}{U}{B}"),
+        &["Vampire", "Scientist", "Villain"],
+        3,
+        1,
+    )
+    .with_supertype(CardSupertype::Legendary)
+    .with_abilities(&[
+        abilities::flying(),
+        abilities::vigilance(),
+        abilities::lifelink(),
+        AbilityDef::activated(
+            "{U}{B}, Exile this card from your graveyard: Look at the top \
+             three cards of your library. Put one of them into your hand \
+             and the rest on the bottom of your library in any order.",
+            &[CostDef::Mana(mana_cost!("{U}{B}")), CostDef::ExileSource],
+            EffectDef::ChooseCardsFromCollection(ChooseCardsFromCollectionDef {
+                source: ObjectCollectionSourceDef::TopCards {
+                    player: PlayerRefDef::EffectController,
+                    count: ValueDef::Constant(3),
+                },
+                actor: PlayerRefDef::EffectController,
+                inspection: CollectionInspectionDef::Look,
+                object: ObjectPredicateDef::Any,
+                minimum: 1,
+                maximum: 1,
+                chosen: crate::Binding!("chosen"),
+                remainder: crate::Binding!("rest"),
+                then: &EffectDef::Sequence(&[
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::objects(ObjectSetDef::Binding(crate::Binding!(
+                            "chosen"
+                        ))),
+                        ZoneKind::Hand,
+                        ZonePlacement::Top,
+                    ),
+                    EffectDef::ChooseObjectOrder(ChooseObjectOrderDef {
+                        input: ObjectSetDef::Binding(crate::Binding!("rest")),
+                        actor: PlayerRefDef::EffectController,
+                        ordered: crate::Binding!("ordered"),
+                        placement: ZonePlacement::Bottom,
+                        visibility: ChoiceVisibilityDef::Private,
+                        then: &EffectDef::move_to_zone(
+                            EffectRecipientDef::objects(ObjectSetDef::Binding(crate::Binding!(
+                                "ordered"
+                            ))),
+                            ZoneKind::Library,
+                            ZonePlacement::Bottom,
+                        ),
+                    }),
+                ]),
+            }),
+        )
+        .with_source_zones(&[ZoneKind::Graveyard]),
+    ]),
 );
 
 // SPM 138 — Prowler, Clawed Thief
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PROWLER_CLAWED_THIEF: CardRecord = CardRecord::new(
     "Prowler, Clawed Thief",
     "bd31953a-7259-44e3-a94f-013bda68006d",
     "Anthony Devine",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(
+        mana_cost!("{1}{U}{B}"),
+        &["Human", "Rogue", "Villain"],
+        2,
+        3,
+    )
+    .with_supertype(CardSupertype::Legendary)
+    .with_abilities(&[
+        abilities::menace(),
+        AbilityDef::triggered(
+            "Whenever another Villain you control enters, Prowler \
+             connives. (Draw a card, then discard a card. If you discarded \
+             a nonland card, put a +1/+1 counter on this creature.)",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Villain")),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    ]),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            EffectDef::Sequence(&[
+                abilities::draw_cards(ValueDef::Constant(1)),
+                EffectDef::Discard {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                    selection: DiscardSelectionDef::RecipientChooses,
+                    then: Some(DiscardFollowUpDef {
+                        counted: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(
+                            CardType::Land,
+                        )),
+                        bound: Some(crate::Binding!("connived")),
+                        effect: &EffectDef::AddCounters {
+                            object: EffectRecipientDef::Source,
+                            kind: CounterKind::PlusOnePlusOne,
+                            amount: ValueDef::CountObjects(&ObjectSetDef::Binding(
+                                crate::Binding!("connived"),
+                            )),
+                        },
+                    }),
+                },
+            ]),
+        ),
+    ]),
 );
 
 // SPM 139 — Pumpkin Bombardment
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PUMPKIN_BOMBARDMENT: CardRecord = CardRecord::new(
     "Pumpkin Bombardment",
     "a268ad73-9a1f-47d9-9a85-a4669a769c3d",
     "Leon Tukker",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{B/R}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Pumpkin Bombardment deals 3 damage to target creature.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::damage(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ValueDef::Constant(3),
+        ),
+    )
+    .with_spell_additional_cost(&CostDef::Choice(&[
+        CostDef::discard(ObjectPredicateDef::Any),
+        CostDef::Mana(mana_cost!("{2}")),
+    ]))]),
 );
 
 // SPM 140 — Rhino, Barreling Brute
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RHINO_BARRELING_BRUTE: CardRecord = CardRecord::new(
     "Rhino, Barreling Brute",
     "4b8ac400-1e98-49fc-94be-00386d15f2ae",
     "Filipe Pagliuso",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{R}{R}{G}{G}"), &["Human", "Villain"], 6, 7)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::vigilance(),
+            abilities::trample(),
+            abilities::haste(),
+            AbilityDef::triggered_if(
+                "Whenever Rhino attacks, if you've cast a spell with mana \
+                 value 4 or greater this turn, draw a card.",
+                TriggerEventDef::attacks(ObjectPredicateDef::Source),
+                &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                    left: ValueDef::CountSpellsCastThisTurn(&SpellCastQueryDef {
+                        player: PlayerRelation::You,
+                        spell: ObjectPredicateDef::Not(&ObjectPredicateDef::ManaValueAtMost(3)),
+                    }),
+                    comparison: ComparisonDef::Greater,
+                    right: ValueDef::Constant(0),
+                }),
+                abilities::draw_cards(ValueDef::Constant(1)),
+            ),
+        ]),
 );
 
 // SPM 141 — Rhino's Rampage
-// Audit: unsupported — Needs a reflexive excess-damage trigger that chooses its artifact target after the fight.
+// Audit: unsupported — Needs excess fight damage to open a reflexive targeted trigger whose artifact target is chosen after the fight; the current fight excess continuation resolves directly rather than creating that independent trigger.
 pub(in crate::card::sets) static RHINOS_RAMPAGE: CardRecord = CardRecord::new(
     "Rhino's Rampage",
     "f668817c-1cab-44c5-b6a8-95113e480d5e",
@@ -1302,345 +4238,1113 @@ pub(in crate::card::sets) static RHINOS_RAMPAGE: CardRecord = CardRecord::new(
 );
 
 // SPM 142 — Scarlet Spider, Ben Reilly
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs prospective-entry evaluation of the returned web-slinging cost object's mana value; entry value evaluation cannot project a characteristic from the alternative-cost object receipt.
 pub(in crate::card::sets) static SCARLET_SPIDER_BEN_REILLY: CardRecord = CardRecord::new(
     "Scarlet Spider, Ben Reilly",
     "ee771581-f867-48d7-9ddb-897a1ffcdf0a",
     "Javier Charro",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 143 — Scarlet Spider, Kaine
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs per-card discard provenance for the current turn and a graveyard casting or land-play permission conditional on that exact discard; the current graveyard permissions and turn histories cannot express mayhem.
 pub(in crate::card::sets) static SCARLET_SPIDER_KAINE: CardRecord = CardRecord::new(
     "Scarlet Spider, Kaine",
     "2cb00060-8cc5-42dc-bcbf-affd9e59f8fd",
     "Forrest Imel",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 144 — Shriek, Treblemaker
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a reflexive trigger after optional discard that remains valid if Shriek leaves before its first-main-phase trigger resolves; current optional-effect listeners require a live battlefield source.
 pub(in crate::card::sets) static SHRIEK_TREBLEMAKER: CardRecord = CardRecord::new(
     "Shriek, Treblemaker",
     "01f1900e-b10f-47dd-8b3d-6913fa661186",
     "Borja Pindado",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 145 — Silk, Web Weaver
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SILK_WEB_WEAVER: CardRecord = CardRecord::new(
     "Silk, Web Weaver",
     "588dc8d9-6ce0-4bd7-afbd-84bb251fdcb1",
     "Carissa Susilo",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{G}{W}"), &["Spider", "Human", "Hero"], 3, 5)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            web_slinging(
+                "Web-slinging {1}{G}{W} (You may cast this spell for {1}{G}{W} \
+                 if you also return a tapped creature you control to its \
+                 owner's hand.)",
+                &[
+                    CostDef::Mana(mana_cost!("{1}{G}{W}")),
+                    CostDef::return_to_hand(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Tapped,
+                        ]),
+                        CostQuantityDef::Fixed(1),
+                    ),
+                ],
+            ),
+            AbilityDef::triggered(
+                "Whenever you cast a creature spell, create a 1/1 green and \
+                 white Human Citizen creature token.",
+                TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ])),
+                EffectDef::create_creature_token(
+                    &["Human", "Citizen"],
+                    &[ManaColor::Green, ManaColor::White],
+                    1,
+                    1,
+                ),
+            ),
+            AbilityDef::activated(
+                "{3}{G}{W}: Creatures you control get +2/+2 and gain vigilance \
+                 until end of turn.",
+                &[CostDef::Mana(mana_cost!("{3}{G}{W}"))],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                        ObjectQueryDef::matching(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        ),
+                    )),
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(2),
+                            ValueDef::Constant(2),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::vigilance()),
+                    ]),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ]),
 );
 
 // SPM 146 — Skyward Spider
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a complete modified predicate, including Equipment attached to the creature and Auras controlled by its controller; the available counter and enchanted predicates cannot identify all three modifications with their required controller scope.
 pub(in crate::card::sets) static SKYWARD_SPIDER: CardRecord = CardRecord::new(
     "Skyward Spider",
     "f5cbb580-cd02-4c60-acb7-b7ed1f1fce59",
     "Bachzim",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 147 — SP//dr, Piloted by Peni
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a complete modified predicate, including Equipment attached to the creature and Auras controlled by its controller; the available counter and enchanted predicates cannot identify all three modifications with their required controller scope.
 pub(in crate::card::sets) static SP_DR_PILOTED_BY_PENI: CardRecord = CardRecord::new(
     "SP//dr, Piloted by Peni",
     "c47c1d83-e76d-4939-9ed6-05a9e709dea1",
     "Toni Infante",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 148 — Spider Manifestation
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPIDER_MANIFESTATION: CardRecord = CardRecord::new(
     "Spider Manifestation",
     "99223677-b8a5-48f1-8009-e8475eada7db",
     "Helge C. Balzer",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{R/G}"), &["Spider", "Avatar"], 2, 2).with_abilities(&[
+        abilities::reach(),
+        AbilityDef::activated_mana(
+            "{T}: Add {R} or {G}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::Red,
+                ManaColor::Green,
+            ])),
+        ),
+        AbilityDef::triggered(
+            "Whenever you cast a spell with mana value 4 or greater, untap \
+             this creature.",
+            TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                ObjectPredicateDef::Not(&ObjectPredicateDef::ManaValueAtMost(3)),
+                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+            ])),
+            EffectDef::Untap {
+                object: EffectRecipientDef::Source,
+            },
+        ),
+    ]),
 );
 
 // SPM 149 — Spider-Girl, Legacy Hero
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPIDER_GIRL_LEGACY_HERO: CardRecord = CardRecord::new(
     "Spider-Girl, Legacy Hero",
     "d1f3196a-fe48-446f-ab07-00c66b7816c8",
     "Lixin Yin",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{G}{W}"), &["Spider", "Human", "Hero"], 2, 2)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "During your turn, Spider-Girl has flying.",
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::ActivePlayer(PlayerRelation::You),
+                    then: &EffectDef::StaticApply {
+                        recipient: EffectRecipientDef::Source,
+                        effect: AppliedEffectDef::add_ability(&abilities::flying()),
+                    },
+                },
+            ),
+            AbilityDef::triggered(
+                "When Spider-Girl leaves the battlefield, create a 1/1 green \
+                 and white Human Citizen creature token.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::Source,
+                    Some(ZoneKind::Battlefield),
+                    None,
+                ),
+                EffectDef::create_creature_token(
+                    &["Human", "Citizen"],
+                    &[ManaColor::Green, ManaColor::White],
+                    1,
+                    1,
+                ),
+            ),
+        ]),
 );
 
 // SPM 150 — Spider-Man 2099
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs this-turn history of lands played and spells cast from outside the hand; spell-source history alone misses qualifying land plays, and enters history also counts non-play arrivals.
 pub(in crate::card::sets) static SPIDER_MAN_2099: CardRecord = CardRecord::new(
     "Spider-Man 2099",
     "2a72c7e7-34f5-4cb0-9959-35516e398e49",
     "Toni Infante",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 151 — Spider-Man India
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPIDER_MAN_INDIA: CardRecord = CardRecord::new(
     "Spider-Man India",
     "65b8af30-559b-43a9-8526-62c28c378339",
     "Lie Setiawan",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{G}{W}"), &["Spider", "Human", "Hero"], 4, 4)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            web_slinging(
+                "Web-slinging {1}{G}{W} (You may cast this spell for {1}{G}{W} \
+                 if you also return a tapped creature you control to its \
+                 owner's hand.)",
+                &[
+                    CostDef::Mana(mana_cost!("{1}{G}{W}")),
+                    CostDef::return_to_hand(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Tapped,
+                        ]),
+                        CostQuantityDef::Fixed(1),
+                    ),
+                ],
+            ),
+            AbilityDef::triggered_with_targets(
+                "Pavitr's Sevā — Whenever you cast a creature spell, put a \
+                 +1/+1 counter on target creature you control. It gains flying \
+                 until end of turn.",
+                TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ])),
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::You),
+                        owner: None,
+                    },
+                )],
+                EffectDef::Sequence(&[
+                    EffectDef::AddCounters {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        kind: CounterKind::PlusOnePlusOne,
+                        amount: ValueDef::Constant(1),
+                    },
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        effect: AppliedEffectDef::add_ability(&abilities::flying()),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                ]),
+            ),
+        ]),
 );
 
 // SPM 152 — Spider-Woman, Stunning Savior
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPIDER_WOMAN_STUNNING_SAVIOR: CardRecord = CardRecord::new(
     "Spider-Woman, Stunning Savior",
     "bc9b2a76-3cce-4fd0-a4ef-932747cb11b2",
     "Justyna Dura",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{W/U}"), &["Spider", "Human", "Hero"], 2, 2)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::flying(),
+            AbilityDef::replacement_for(
+                "Venom Blast — Artifacts and creatures your opponents control \
+                 enter tapped.",
+                ReplacementEventDef::ObjectEntersBattlefield {
+                    object: ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                    ]),
+                    controller: PlayerRelation::Opponent,
+                    cast: None,
+                },
+                ReplacementEffectDef::ModifyBattlefieldEntry(
+                    BattlefieldEntryModificationDef::Tapped,
+                ),
+            ),
+        ]),
 );
 
 // SPM 153 — The Spot, Living Portal
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static THE_SPOT_LIVING_PORTAL: CardRecord = CardRecord::new(
     "The Spot, Living Portal",
     "09081740-1180-48ea-b50b-e016d9c3828a",
     "Bastien Grivet",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(
+        mana_cost!("{3}{W}{B}"),
+        &["Human", "Scientist", "Villain"],
+        4,
+        4,
+    )
+    .with_supertype(CardSupertype::Legendary)
+    .with_abilities(&[
+        abilities::enters_trigger_with_targets(
+            "When The Spot enters, exile up to one target nonland \
+             permanent and up to one target nonland permanent card from a \
+             graveyard.",
+            &[
+                AbilityTargetDef::up_to(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(
+                            CardType::Land,
+                        )),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: None,
+                        owner: None,
+                    },
+                    1,
+                ),
+                AbilityTargetDef::up_to(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::AnyOf(&[
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                ObjectPredicateDef::HasType(CardType::Artifact),
+                                ObjectPredicateDef::HasType(CardType::Enchantment),
+                                ObjectPredicateDef::HasType(CardType::Land),
+                                ObjectPredicateDef::HasType(CardType::Planeswalker),
+                            ]),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                        ]),
+                        zones: &[ZoneKind::Graveyard],
+                        controller: None,
+                        owner: Some(PlayerRelation::Any),
+                    },
+                    1,
+                ),
+            ],
+            EffectDef::ExileLinkedToSource {
+                object: EffectRecipientDef::objects(ObjectSetDef::Union(&[
+                    ObjectSetDef::LegalTargets(TargetIndex::PRIMARY),
+                    ObjectSetDef::LegalTargets(TargetIndex(1)),
+                ])),
+                face_down: false,
+                until_source_leaves: false,
+                then: None,
+            },
+        ),
+        abilities::dies_trigger(
+            "When The Spot dies, put him on the bottom of his owner's \
+             library. If you do, return the exiled cards to their owners' \
+             hands.",
+            EffectDef::WithZoneMoveResult {
+                effect: &EffectDef::move_to_zone(
+                    EffectRecipientDef::TriggeringZoneChangeResult,
+                    ZoneKind::Library,
+                    ZonePlacement::Bottom,
+                ),
+                binding: crate::Binding!("returned_spot"),
+                then: &EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                        left: ValueDef::CountObjects(&ObjectSetDef::ZoneChangeSuccessorsOfBinding(
+                            crate::Binding!("returned_spot"),
+                        )),
+                        comparison: ComparisonDef::Greater,
+                        right: ValueDef::Constant(0),
+                    }),
+                    then: &EffectDef::ReturnLinkedExiles {
+                        object: ObjectPredicateDef::Any,
+                        counters: None,
+                        zone: ZoneKind::Hand,
+                        grant: None,
+                        controller: None,
+                        transformed: false,
+                    },
+                },
+            },
+        ),
+    ]),
 );
 
 // SPM 154 — Sun-Spider, Nimble Webber
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SUN_SPIDER_NIMBLE_WEBBER: CardRecord = CardRecord::new(
     "Sun-Spider, Nimble Webber",
     "2b54d4a5-634f-4ae3-b592-0dc527f60d56",
     "Justyna Dura",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{W/U}"), &["Spider", "Human", "Hero"], 3, 2)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "During your turn, Sun-Spider has flying.",
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::ActivePlayer(PlayerRelation::You),
+                    then: &EffectDef::StaticApply {
+                        recipient: EffectRecipientDef::Source,
+                        effect: AppliedEffectDef::add_ability(&abilities::flying()),
+                    },
+                },
+            ),
+            abilities::enters_trigger(
+                "When Sun-Spider enters, search your library for an Aura or \
+                 Equipment card, reveal it, put it into your hand, then \
+                 shuffle.",
+                EffectDef::SearchZone {
+                    player: EffectRecipientDef::Controller,
+                    source: ZoneKind::Library,
+                    object: ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Aura")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Equipment")),
+                    ]),
+                    minimum: 0,
+                    maximum: ValueDef::Constant(1),
+                    reveal: true,
+                    destination: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                    shuffle: true,
+                    enters_tapped: false,
+                    attachment: None,
+                    binding: None,
+                    then: None,
+                },
+            ),
+        ]),
 );
 
 // SPM 155 — Superior Spider-Man
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a reflexive trigger carrying the graveyard card chosen during copy entry so that exact card is exiled after entry; copy-entry exceptions do not expose that selected card to a later trigger.
 pub(in crate::card::sets) static SUPERIOR_SPIDER_MAN: CardRecord = CardRecord::new(
     "Superior Spider-Man",
     "ad4adc3e-ec41-4406-8ff2-59ba8067cf4e",
     "Carlos Dattoli",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 156 — Symbiote Spider-Man
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a grant of this graveyard card's actual other abilities, excluding the activated Find New Host ability, with current text and granted abilities preserved; the existing grant vocabulary takes explicit ability definitions or activated abilities from linked exile, not this source-card projection.
 pub(in crate::card::sets) static SYMBIOTE_SPIDER_MAN: CardRecord = CardRecord::new(
     "Symbiote Spider-Man",
     "6a21c0ff-b51a-4946-9737-7872a7eef97b",
     "Paolo Rivera",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 157 — Ultimate Green Goblin
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs per-card discard provenance for the current turn and a graveyard casting or land-play permission conditional on that exact discard; the current graveyard permissions and turn histories cannot express mayhem.
 pub(in crate::card::sets) static ULTIMATE_GREEN_GOBLIN: CardRecord = CardRecord::new(
     "Ultimate Green Goblin",
     "e82d3f71-8404-40e7-b7fa-35713d1b384e",
     "Jesper Ejsing",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 158 — Vulture, Scheming Scavenger
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VULTURE_SCHEMING_SCAVENGER: CardRecord = CardRecord::new(
     "Vulture, Scheming Scavenger",
     "e29281be-e722-4149-93a0-6dd3f0f64253",
     "Kevin Sidharta",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(
+        mana_cost!("{5}{U/B}"),
+        &["Human", "Artificer", "Villain"],
+        4,
+        6,
+    )
+    .with_supertype(CardSupertype::Legendary)
+    .with_abilities(&[
+        abilities::flying(),
+        AbilityDef::triggered(
+            "Whenever Vulture attacks, other Villains you control gain \
+             flying until end of turn.",
+            TriggerEventDef::attacks(ObjectPredicateDef::Source),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                    ObjectQueryDef::matching(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Villain")),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                )),
+                effect: AppliedEffectDef::add_ability(&abilities::flying()),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // SPM 159 — Web-Warriors
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WEB_WARRIORS: CardRecord = CardRecord::new(
     "Web-Warriors",
     "741f5373-b51a-421a-9a74-326f0575c99b",
     "Thanh Tuấn",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{G/W}"), &["Spider", "Hero"], 4, 3).with_abilities(&[
+        abilities::enters_trigger(
+            "When this creature enters, put a +1/+1 counter on each other \
+             creature you control.",
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::matching(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ))),
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // SPM 160 — Wraith, Vicious Vigilante
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WRAITH_VICIOUS_VIGILANTE: CardRecord = CardRecord::new(
     "Wraith, Vicious Vigilante",
     "5f46ed93-de6d-4180-9018-26ee07f75464",
     "Nereida",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(
+        mana_cost!("{1}{W}{U}"),
+        &["Human", "Detective", "Hero"],
+        1,
+        1,
+    )
+    .with_supertype(CardSupertype::Legendary)
+    .with_abilities(&[
+        abilities::double_strike(),
+        AbilityDef::static_ability(
+            "Fear Gas — Wraith can't be blocked.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
+                    ObjectPredicateDef::Any,
+                )),
+            },
+        ),
+    ]),
 );
 
 // SPM 161 — Bagel and Schmear
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BAGEL_AND_SCHMEAR: CardRecord = CardRecord::new(
     "Bagel and Schmear",
     "7f927f72-fc9b-444f-9e0e-78a5e8e7bcaa",
     "Javier Charro",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{1}"))
+        .with_subtypes(&["Food"])
+        .with_abilities(&[
+            AbilityDef::activated_with_targets(
+                "Share — {W}, {T}, Sacrifice this artifact: Put a +1/+1 \
+                 counter on up to one target creature. Draw a card. Activate \
+                 only as a sorcery.",
+                &[
+                    CostDef::Mana(mana_cost!("{W}")),
+                    CostDef::TapSource,
+                    CostDef::SacrificeSource,
+                ],
+                &[AbilityTargetDef::up_to(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: None,
+                        owner: None,
+                    },
+                    1,
+                )],
+                EffectDef::Sequence(&[
+                    EffectDef::AddCounters {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        kind: CounterKind::PlusOnePlusOne,
+                        amount: ValueDef::Constant(1),
+                    },
+                    abilities::draw_cards(ValueDef::Constant(1)),
+                ]),
+            )
+            .with_activation_timing(ActivationTimingDef::SorcerySpeed),
+            AbilityDef::activated(
+                "Nosh — {2}, {T}, Sacrifice this artifact: You gain 3 life and \
+                 draw a card.",
+                &[
+                    CostDef::Mana(mana_cost!("{2}")),
+                    CostDef::TapSource,
+                    CostDef::SacrificeSource,
+                ],
+                EffectDef::Sequence(&[
+                    EffectDef::GainLife {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(3),
+                    },
+                    abilities::draw_cards(ValueDef::Constant(1)),
+                ]),
+            ),
+        ]),
 );
 
 // SPM 162 — Doc Ock's Tentacles
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DOC_OCK_S_TENTACLES: CardRecord = CardRecord::new(
     "Doc Ock's Tentacles",
     "fed9547c-9d0d-4e62-9639-887ed09231a2",
     "David Álvarez",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{1}"))
+        .with_subtypes(&["Equipment"])
+        .with_abilities(&[
+            AbilityDef::triggered(
+                "Whenever a creature you control with mana value 5 or greater \
+                 enters, you may attach this Equipment to it.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::ManaValueAtMost(4)),
+                        ]),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ]),
+                    None,
+                    Some(ZoneKind::Battlefield),
+                ),
+                EffectDef::May {
+                    player: EffectRecipientDef::Controller,
+                    effect: &EffectDef::Attach {
+                        object: EffectRecipientDef::TriggeringObject,
+                    },
+                },
+            ),
+            AbilityDef::static_ability(
+                "Equipped creature gets +4/+4.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(4),
+                        ValueDef::Constant(4),
+                    ),
+                },
+            ),
+            abilities::equip(&[CostDef::Mana(mana_cost!("{5}"))], "Equip {5}"),
+        ]),
 );
 
 // SPM 163 — Eerie Gravestone
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static EERIE_GRAVESTONE: CardRecord = CardRecord::new(
     "Eerie Gravestone",
     "7675e91f-dba7-4e64-a7ff-1dd56665a4cc",
     "Lordigan",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
+        abilities::enters_trigger(
+            "When this artifact enters, draw a card.",
+            abilities::draw_cards(ValueDef::Constant(1)),
+        ),
+        AbilityDef::activated(
+            "{1}{B}, Sacrifice this artifact: Mill four cards. You may put \
+             a creature card from among them into your hand. (To mill four \
+             cards, put the top four cards of your library into your \
+             graveyard.)",
+            &[
+                CostDef::Mana(mana_cost!("{1}{B}")),
+                CostDef::SacrificeSource,
+            ],
+            EffectDef::Sequence(&[
+                EffectDef::BindOutput {
+                    binding: crate::Binding!("milled"),
+                    effect: &EffectDef::Mill {
+                        player: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(4),
+                    },
+                },
+                EffectDef::Choose(ChooseDef {
+                    binding: ObjectChoiceBindingDef::Objects(crate::Binding!("chosen")),
+                    unchosen: None,
+                    chooser: PlayerRefDef::EffectController,
+                    candidates: ObjectSetDef::Matching {
+                        objects: &ObjectSetDef::Binding(crate::Binding!("milled")),
+                        object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::HasType(
+                            CardType::Creature,
+                        )),
+                    },
+                    exclude: None,
+                    minimum: 0,
+                    maximum: 1,
+                    visibility: ChoiceVisibilityDef::Public,
+                    then: &EffectDef::move_to_zone(
+                        EffectRecipientDef::objects(ObjectSetDef::Binding(crate::Binding!(
+                            "chosen"
+                        ))),
+                        ZoneKind::Hand,
+                        ZonePlacement::Top,
+                    ),
+                }),
+            ]),
+        ),
+    ]),
 );
 
 // SPM 164 — Hot Dog Cart
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HOT_DOG_CART: CardRecord = CardRecord::new(
     "Hot Dog Cart",
     "6ee3b883-e9f5-426f-a2ea-96fe9ff3aba9",
     "David Álvarez",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
+        abilities::enters_trigger(
+            "When this artifact enters, create a Food token. (It's an \
+             artifact with \"{2}, {T}, Sacrifice this token: You gain 3 \
+             life.\")",
+            EffectDef::create_token(tokens::food()).with_count(ValueDef::Constant(1)),
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add one mana of any color.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::any_color()),
+        ),
+    ]),
 );
 
 // SPM 165 — Interdimensional Web Watch
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a mana-spending restriction that tests the zone a spell is cast from; CastSpell accepts characteristic predicates, which cannot inspect cast origin.
 pub(in crate::card::sets) static INTERDIMENSIONAL_WEB_WATCH: CardRecord = CardRecord::new(
     "Interdimensional Web Watch",
     "87a8e112-e72f-413f-88a3-e7ce72c2ec53",
     "Toni Infante",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 166 — Iron Spider, Stark Upgrade
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs payment by removing a total of two counters distributed among multiple artifacts; existing activation costs remove counters only from a specified source or one chosen object.
 pub(in crate::card::sets) static IRON_SPIDER_STARK_UPGRADE: CardRecord = CardRecord::new(
     "Iron Spider, Stark Upgrade",
     "8da5f34e-7f40-406a-88d2-bb1e3ed25200",
     "Kevin Glint",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 167 — Living Brain, Mechanical Marvel
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LIVING_BRAIN_MECHANICAL_MARVEL: CardRecord = CardRecord::new(
     "Living Brain, Mechanical Marvel",
     "26833b64-2e6d-4977-9a6e-6fe73c54d671",
     "Nathaniel Himawan",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{4}"), &["Robot", "Villain"], 3, 3)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[AbilityDef::triggered_with_targets(
+            "At the beginning of combat on your turn, target non-Equipment \
+             artifact you control becomes an artifact creature with base \
+             power and toughness 3/3 until end of turn. Untap it.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::BeginningOfCombat,
+                player: PlayerRelation::You,
+            },
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::Literal(
+                            "Equipment",
+                        ))),
+                    ]),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                },
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::add_card_types(
+                            CardTypeSet::single(CardType::Artifact).with(CardType::Creature),
+                        ),
+                        AppliedEffectDef::set_base_power_toughness(
+                            ValueDef::Constant(3),
+                            ValueDef::Constant(3),
+                        ),
+                    ]),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+                EffectDef::Untap {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                },
+            ]),
+        )]),
 );
 
 // SPM 168 — Mechanical Mobster
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MECHANICAL_MOBSTER: CardRecord = CardRecord::new(
     "Mechanical Mobster",
     "6c6d9ecc-2dd1-471a-8678-a2461b1084fa",
     "David Szabo",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{3}"), &["Human", "Robot", "Villain"], 2, 1)
+        .with_abilities(&[abilities::enters_trigger_with_targets(
+            "When this creature enters, exile up to one target card from a \
+             graveyard. Target creature you control connives. (Draw a \
+             card, then discard a card. If you discarded a nonland card, \
+             put a +1/+1 counter on that creature.)",
+            &[
+                AbilityTargetDef::up_to(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::Any,
+                        zones: &[ZoneKind::Graveyard],
+                        controller: None,
+                        owner: Some(PlayerRelation::Any),
+                    },
+                    1,
+                ),
+                AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                }),
+            ],
+            EffectDef::Sequence(&[
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Exile,
+                    ZonePlacement::Top,
+                ),
+                EffectDef::Sequence(&[
+                    abilities::draw_cards(ValueDef::Constant(1)),
+                    EffectDef::Discard {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                        selection: DiscardSelectionDef::RecipientChooses,
+                        then: Some(DiscardFollowUpDef {
+                            counted: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(
+                                CardType::Land,
+                            )),
+                            bound: Some(crate::Binding!("connived")),
+                            effect: &EffectDef::AddCounters {
+                                object: EffectRecipientDef::Target(TargetIndex(1)),
+                                kind: CounterKind::PlusOnePlusOne,
+                                amount: ValueDef::CountObjects(&ObjectSetDef::Binding(
+                                    crate::Binding!("connived"),
+                                )),
+                            },
+                        }),
+                    },
+                ]),
+            ]),
+        )]),
 );
 
 // SPM 169 — News Helicopter
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NEWS_HELICOPTER: CardRecord = CardRecord::new(
     "News Helicopter",
     "15717af0-30cd-4417-947a-c27cca06d93a",
     "Lee Woo-chul",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{3}"), &["Construct"], 1, 1).with_abilities(&[
+        abilities::flying(),
+        abilities::enters_trigger(
+            "When this creature enters, create a 1/1 green and white Human \
+             Citizen creature token.",
+            EffectDef::create_creature_token(
+                &["Human", "Citizen"],
+                &[ManaColor::Green, ManaColor::White],
+                1,
+                1,
+            ),
+        ),
+    ]),
 );
 
 // SPM 170 — Passenger Ferry
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a reflexive trigger created after the optional mana payment and retained if the Vehicle has left; current optional-effect listeners require the original source on the battlefield.
 pub(in crate::card::sets) static PASSENGER_FERRY: CardRecord = CardRecord::new(
     "Passenger Ferry",
     "2495f477-b88c-4938-a86a-f72c3c861188",
     "Leon Tukker",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 171 — Peter Parker's Camera
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PETER_PARKER_S_CAMERA: CardRecord = CardRecord::new(
     "Peter Parker's Camera",
     "47875dff-c046-4cb0-b1e3-f926cbe25b59",
     "Lixin Yin",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
+        AbilityDef::as_enters(
+            "This artifact enters with three film counters on it.",
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCounters {
+                    kind: CounterKind::named("film"),
+                    amount: 3,
+                },
+            ),
+        ),
+        AbilityDef::activated_with_targets(
+            "{2}, {T}, Remove a film counter from this artifact: Copy \
+             target activated or triggered ability you control. You may \
+             choose new targets for the copy.",
+            &[
+                CostDef::Mana(mana_cost!("{2}")),
+                CostDef::TapSource,
+                CostDef::RemoveCountersFromSource {
+                    kind: CounterKind::named("film"),
+                    amount: 1,
+                },
+            ],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::ActivatedAbility,
+                        ObjectPredicateDef::TriggeredAbility,
+                    ]),
+                    zones: &[ZoneKind::Stack],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                },
+            )],
+            EffectDef::CopyStackObject(&CopyStackObjectDef {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                controller: PlayerRefDef::EffectController,
+                count: ValueDef::Constant(1),
+                retarget: true,
+                colors: None,
+            }),
+        ),
+    ]),
 );
 
 // SPM 172 — Rocket-Powered Goblin Glider
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs per-card discard provenance for the current turn and a graveyard casting or land-play permission conditional on that exact discard; the current graveyard permissions and turn histories cannot express mayhem.
 pub(in crate::card::sets) static ROCKET_POWERED_GOBLIN_GLIDER: CardRecord = CardRecord::new(
     "Rocket-Powered Goblin Glider",
     "c6c39232-72cc-4363-83d0-b5873f14f231",
     "Pavel Kolomeyets",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 173 — Spider-Bot
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPIDER_BOT: CardRecord = CardRecord::new(
     "Spider-Bot",
     "24df824a-c1d6-4f09-b866-313b31fec5fb",
     "Carlos Dattoli",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{2}"), &["Spider", "Robot", "Scout"], 2, 1)
+        .with_abilities(&[
+            abilities::reach(),
+            abilities::enters_trigger(
+                "When this creature enters, you may search your library for a \
+                 basic land card, reveal it, then shuffle and put that card on \
+                 top.",
+                EffectDef::May {
+                    player: EffectRecipientDef::Controller,
+                    effect: &EffectDef::SearchZone {
+                        player: EffectRecipientDef::Controller,
+                        source: ZoneKind::Library,
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Land),
+                            ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                        ]),
+                        minimum: 0,
+                        maximum: ValueDef::Constant(1),
+                        reveal: true,
+                        destination: ZoneKind::Library,
+                        placement: ZonePlacement::Top,
+                        shuffle: true,
+                        enters_tapped: false,
+                        attachment: None,
+                        binding: None,
+                        then: None,
+                    },
+                },
+            ),
+        ]),
 );
 
 // SPM 174 — Spider-Mobile
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a blocks trigger that fires once for the blocking declaration even when this Vehicle can block multiple attackers; the current Blocks matcher fires separately for each blocked creature.
 pub(in crate::card::sets) static SPIDER_MOBILE: CardRecord = CardRecord::new(
     "Spider-Mobile",
     "f12664c0-d7cd-4acb-87db-cfa3c85f32a9",
     "Bastien Grivet",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 175 — Spider-Slayer, Hatred Honed
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPIDER_SLAYER_HATRED_HONED: CardRecord = CardRecord::new(
     "Spider-Slayer, Hatred Honed",
     "ac37ca6f-a6ee-4dfb-949f-2562f98d09d0",
     "David Álvarez",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{2}"), &["Human", "Villain"], 2, 1)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::triggered(
+                "Whenever Spider-Slayer deals damage to a Spider, destroy that \
+                 creature.",
+                TriggerEventDef::DamageDealt(DamageEventMatcherDef {
+                    kind: DamageKindDef::Any,
+                    source: DamageSourceMatcherDef::Matching(ObjectPredicateDef::Source),
+                    recipient: DamageRecipientMatcherDef::MatchingObject(
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Spider")),
+                    ),
+                }),
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::DamagedObject,
+                    then: None,
+                },
+            ),
+            AbilityDef::activated(
+                "{6}, Exile this card from your graveyard: Create two tapped \
+                 1/1 colorless Robot artifact creature tokens with flying.",
+                &[CostDef::Mana(mana_cost!("{6}")), CostDef::ExileSource],
+                EffectDef::create_artifact_creature_token(&["Robot"], &[], 1, 1)
+                    .with_count(ValueDef::Constant(2))
+                    .with_abilities(&[abilities::flying()])
+                    .entering_tapped(),
+            )
+            .with_source_zones(&[ZoneKind::Graveyard]),
+        ]),
 );
 
 // SPM 176 — Spider-Suit
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPIDER_SUIT: CardRecord = CardRecord::new(
     "Spider-Suit",
     "436527ec-5af4-4b6d-a5a0-d21fc466a625",
     "Alex Horley-Orlandelli",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{1}"))
+        .with_subtypes(&["Equipment"])
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Equipped creature gets +2/+2 and is a Spider Hero in addition \
+                 to its other types.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(2),
+                            ValueDef::Constant(2),
+                        ),
+                        AppliedEffectDef::add_creature_types(CreatureTypeSetDef::named(&[
+                            "Spider", "Hero",
+                        ])),
+                    ]),
+                },
+            ),
+            abilities::equip(
+                &[CostDef::Mana(mana_cost!("{3}"))],
+                "Equip {3} ({3}: Attach to target creature you control. Equip \
+                 only as a sorcery.)",
+            ),
+        ]),
 );
 
 // SPM 177 — Steel Wrecking Ball
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STEEL_WRECKING_BALL: CardRecord = CardRecord::new(
     "Steel Wrecking Ball",
     "7f2c74f5-1cfe-4918-a86b-0d58ac8b7469",
     "Michele Giorgi",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{5}")).with_abilities(&[
+        abilities::enters_trigger_with_targets(
+            "When this artifact enters, it deals 5 damage to target creature.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(5),
+            ),
+        ),
+        AbilityDef::activated_with_targets(
+            "{1}{R}, Discard this card: Destroy target artifact.",
+            &[CostDef::Mana(mana_cost!("{1}{R}")), CostDef::DiscardSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Artifact),
+            )],
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        )
+        .with_source_zones(&[ZoneKind::Hand]),
+    ]),
 );
 
 // SPM 178 — Subway Train
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SUBWAY_TRAIN: CardRecord = CardRecord::new(
     "Subway Train",
     "96f869f7-db88-4580-82b7-8749a55e525c",
     "Jonas De Ro",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_vehicle(mana_cost!("{2}"), 3, 1).with_abilities(&[
+        abilities::enters_trigger(
+            "When this Vehicle enters, you may pay {G}. If you do, search \
+             your library for a basic land card, reveal it, put it into \
+             your hand, then shuffle.",
+            EffectDef::PayOr(PayOrDef::optional(
+                &[CostDef::Mana(mana_cost!("{G}"))],
+                &EffectDef::SearchZone {
+                    player: EffectRecipientDef::Controller,
+                    source: ZoneKind::Library,
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                    ]),
+                    minimum: 0,
+                    maximum: ValueDef::Constant(1),
+                    reveal: true,
+                    destination: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                    shuffle: true,
+                    enters_tapped: false,
+                    attachment: None,
+                    binding: None,
+                    then: None,
+                },
+            )),
+        ),
+        abilities::crew("Crew 2", 2),
+    ]),
 );
 
 // SPM 179 — Daily Bugle Building
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DAILY_BUGLE_BUILDING: CardRecord = CardRecord::new(
     "Daily Bugle Building",
     "669bbcb1-0981-40e7-905e-b94e74bc4861",
     "David Álvarez",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated_mana(
+            "{1}, {T}: Add one mana of any color.",
+            &[CostDef::Mana(mana_cost!("{1}")), CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::any_color()),
+        ),
+        AbilityDef::activated_with_targets(
+            "Smear Campaign — {1}, {T}: Target legendary creature gains \
+             menace until end of turn. Activate only as a sorcery.",
+            &[CostDef::Mana(mana_cost!("{1}")), CostDef::TapSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Supertype(CardSupertype::Legendary),
+                ]),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::add_ability(&abilities::menace()),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        )
+        .with_activation_timing(ActivationTimingDef::SorcerySpeed),
+    ]),
 );
 
 // SPM 180 — Multiversal Passage
@@ -1704,8 +5408,8 @@ const fn surveilling_dual_land(mana_text: &'static str, colors: &'static [ManaCo
             EffectDef::AddMana(AddManaEffectDef::choice(colors)),
         ))
         .with_ability(AbilityDef::activated(
-            "{4}, {T}: Surveil 1. (Look at the top card of your library. You may put it into \
-             your graveyard.)",
+            "{4}, {T}: Surveil 1. (Look at the top card of your library. \
+             You may put it into your graveyard.)",
             &[CostDef::Mana(mana_cost!("{4}")), CostDef::TapSource],
             abilities::surveil(ValueDef::Constant(1)),
         ))
@@ -1720,12 +5424,12 @@ pub(in crate::card::sets) static OMINOUS_ASYLUM: CardRecord = CardRecord::new(
 );
 
 // SPM 182 — Oscorp Industries
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs per-card discard provenance for the current turn and a graveyard casting or land-play permission conditional on that exact discard; the current graveyard permissions and turn histories cannot express mayhem.
 pub(in crate::card::sets) static OSCORP_INDUSTRIES: CardRecord = CardRecord::new(
     "Oscorp Industries",
     "1e609d6e-9e37-45d2-87de-8c76675f7cec",
     "Bastien Grivet",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 183 — Savage Mansion
@@ -1781,21 +5485,42 @@ pub(in crate::card::sets) static UNIVERSITY_CAMPUS: CardRecord = CardRecord::new
 );
 
 // SPM 187 — Urban Retreat
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a hand-zone activation cost selecting and returning a tapped controlled creature; current hand activation payment support does not implement ReturnToHand object costs.
 pub(in crate::card::sets) static URBAN_RETREAT: CardRecord = CardRecord::new(
     "Urban Retreat",
     "2581f320-8238-413d-ab04-d5535da55630",
     "Jonas De Ro",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SPM 188 — Vibrant Cityscape
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VIBRANT_CITYSCAPE: CardRecord = CardRecord::new(
     "Vibrant Cityscape",
     "9c110fa1-2320-4652-b282-ed064a9ec9a9",
     "Wei Guan",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[AbilityDef::activated(
+        "{T}, Sacrifice this land: Search your library for a basic \
+         land card, put it onto the battlefield tapped, then shuffle.",
+        &[CostDef::TapSource, CostDef::SacrificeSource],
+        EffectDef::SearchZone {
+            player: EffectRecipientDef::Controller,
+            source: ZoneKind::Library,
+            object: ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Land),
+                ObjectPredicateDef::Supertype(CardSupertype::Basic),
+            ]),
+            minimum: 0,
+            maximum: ValueDef::Constant(1),
+            reveal: true,
+            destination: ZoneKind::Battlefield,
+            placement: ZonePlacement::Top,
+            shuffle: true,
+            enters_tapped: true,
+            attachment: None,
+            binding: None,
+            then: None,
+        },
+    )]),
 );
 
 // SPM 189 — Plains (reprint)

@@ -951,3 +951,5 @@ mod big_score;
 mod foundations;
 mod karlov_manor;
 mod thunder_junction;
+
+mod aetherdrift;

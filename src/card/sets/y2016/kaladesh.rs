@@ -8,6 +8,7 @@ use crate::card::AbilityTargetDef;
 use crate::card::AbilityTargetPredicate;
 use crate::card::AddManaEffectDef;
 use crate::card::AppliedEffectDef;
+use crate::card::AppliedRuleDef;
 use crate::card::AttackEventMatcherDef;
 use crate::card::BattlefieldEntryModificationDef;
 use crate::card::CardRules;
@@ -20,6 +21,7 @@ use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::ManaColor;
 use crate::card::ObjectPredicateDef;
+use crate::card::ObjectQueryDef;
 use crate::card::ObjectSetDef;
 use crate::card::PayOrDef;
 use crate::card::PlayerRelation;
@@ -87,12 +89,33 @@ pub(in crate::card::sets) static FUMIGATE: CardRecord = CardRecord::new(
 );
 
 // KLD 48 — Gearseeker Serpent
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GEARSEEKER_SERPENT: CardRecord = CardRecord::new(
     "Gearseeker Serpent",
     "d32d8327-6ec2-4d43-b254-b04407612715",
     "Filip Burburan",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{5}{U}{U}"), &["Serpent"], 5, 6).with_abilities(&[
+        AbilityDef::static_ability(
+            "Affinity for artifacts (This spell costs {1} less to cast for \
+             each artifact you control.)",
+            EffectDef::ReduceGenericCostBy(ValueDef::CountMatchingObjects(
+                &ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+            )),
+        )
+        .with_source_zones(&[ZoneKind::Hand]),
+        AbilityDef::activated(
+            "{5}{U}: This creature can't be blocked this turn.",
+            &[CostDef::Mana(mana_cost!("{5}{U}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BE_BLOCKED),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // KLD 60 — Paradoxical Outcome

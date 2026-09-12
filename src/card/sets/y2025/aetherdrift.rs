@@ -2,33 +2,82 @@
 
 use super::CardRecord;
 use super::PrintingRecord;
+use crate::AdditionalCostObjectIndex;
 use crate::TargetIndex;
 use crate::card::AbilityDef;
+use crate::card::AbilityPredicateDef;
 use crate::card::AbilityTargetDef;
 use crate::card::AbilityTargetPredicate;
+use crate::card::ActivationTimingDef;
 use crate::card::AddManaEffectDef;
+use crate::card::AggregateOperationDef;
 use crate::card::AppliedEffectDef;
+use crate::card::AppliedRuleDef;
 use crate::card::BasicLandType;
+use crate::card::BattlefieldArrivalDef;
+use crate::card::BattlefieldEntryChoiceDestinationDef;
+use crate::card::BattlefieldEntryModificationDef;
 use crate::card::BattlefieldEntryScalarChoiceDef;
+use crate::card::BindObjectsDef;
 use crate::card::CardRules;
+use crate::card::CardSupertype;
 use crate::card::CardType;
+use crate::card::CardTypeSet;
+use crate::card::ChoiceVisibilityDef;
+use crate::card::ChooseCardsFromCollectionDef;
+use crate::card::ChooseDef;
+use crate::card::CollectionInspectionDef;
 use crate::card::ComparisonDef;
+use crate::card::CopyExceptionsDef;
 use crate::card::CostDef;
+use crate::card::CostModificationDef;
+use crate::card::CostQuantityDef;
+use crate::card::CounterKind;
+use crate::card::CreatureStats;
+use crate::card::CreatureTypeSetDef;
+use crate::card::DiscardSelectionDef;
+use crate::card::DrawEventMatcherDef;
+use crate::card::EffectChoiceDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
+use crate::card::EmblemCharacteristics;
+use crate::card::InstalledTriggerDef;
+use crate::card::KeywordAbility;
 use crate::card::ManaColor;
+use crate::card::ManaRestrictionDef;
 use crate::card::ManaTypeDef;
+use crate::card::MoveToZoneCostDef;
+use crate::card::ObjectChoiceBindingDef;
+use crate::card::ObjectCollectionSourceDef;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
+use crate::card::ObjectRefDef;
+use crate::card::ObjectSetCountConditionDef;
+use crate::card::ObjectSetDef;
+use crate::card::ObjectSetFilterDef;
+use crate::card::ObjectSetPredicateDef;
+use crate::card::ObjectValueAggregateDef;
+use crate::card::ObjectValueDef;
+use crate::card::PayOrDef;
+use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
+use crate::card::PlayerSetDef;
 use crate::card::ReplacementChoiceDef;
 use crate::card::ReplacementEffectDef;
+use crate::card::ReplacementEventDef;
 use crate::card::ResolvedEffectDurationDef;
+use crate::card::SubtypeDef;
+use crate::card::SumValueDef;
+use crate::card::TokenCharacteristics;
 use crate::card::TriggerConditionDef;
+use crate::card::TriggerEventDef;
+use crate::card::TurnStepDef;
+use crate::card::ValueComparisonDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
 use crate::card::ZonePlacement;
 use crate::card::abilities;
+use crate::card::tokens;
 use crate::mana_cost;
 
 use crate::card::sets::y1993::alpha as catalog_lea;
@@ -60,381 +109,1060 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // DFT 1 — Air Response Unit
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AIR_RESPONSE_UNIT: CardRecord = CardRecord::new(
     "Air Response Unit",
     "d77c8e29-de24-4664-baf8-959608dd99ca",
     "Brock Grossman",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_vehicle(mana_cost!("{2}{W}"), 3, 3).with_abilities(&[
+        abilities::flying(),
+        abilities::vigilance(),
+        abilities::crew(
+            "Crew 1 (Tap any number of creatures you control with total \
+             power 1 or more: This Vehicle becomes an artifact creature \
+             until end of turn.)",
+            1,
+        ),
+    ]),
 );
 
 // DFT 2 — Alacrian Armory
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ALACRIAN_ARMORY: CardRecord = CardRecord::new(
     "Alacrian Armory",
     "d39f7f98-ad5e-4e5e-9f7b-abe0984ffe17",
     "Artur Nakhodkin",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{3}{W}")).with_abilities(&[
+        AbilityDef::static_ability(
+            "Creatures you control get +0/+1 and have vigilance.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                    ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                )),
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(0),
+                        ValueDef::Constant(1),
+                    ),
+                    AppliedEffectDef::add_ability(&abilities::vigilance()),
+                ]),
+            },
+        ),
+        AbilityDef::triggered_with_targets(
+            "At the beginning of combat on your turn, choose up to one \
+             target Mount or Vehicle you control. Until end of turn, that \
+             permanent becomes saddled if it's a Mount and becomes an \
+             artifact creature if it's a Vehicle.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::BeginningOfCombat,
+                player: PlayerRelation::You,
+            },
+            &[AbilityTargetDef::up_to(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Mount")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                    ]),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                },
+                1,
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::TargetMatches {
+                        slot: TargetIndex::PRIMARY,
+                        object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Mount")),
+                    },
+                    then: &EffectDef::Saddle {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    },
+                },
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::TargetMatches {
+                        slot: TargetIndex::PRIMARY,
+                        object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                    },
+                    then: &EffectDef::Apply {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        effect: AppliedEffectDef::add_card_types(
+                            CardTypeSet::single(CardType::Artifact)
+                                .union(CardTypeSet::single(CardType::Creature)),
+                        ),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                },
+            ]),
+        ),
+    ]),
 );
 
 // DFT 3 — Basri, Tomorrow's Champion
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BASRI_TOMORROW_S_CHAMPION: CardRecord = CardRecord::new(
     "Basri, Tomorrow's Champion",
     "991270fa-a391-4c2e-bd9a-19151386fb67",
     "Kai Carpenter",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{W}"), &["Human", "Knight"], 2, 1)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::activated(
+                "{W}, {T}, Exert Basri: Create a 1/1 white Cat creature token \
+                 with lifelink. (An exerted creature won't untap during your \
+                 next untap step.)",
+                &[
+                    CostDef::Mana(mana_cost!("{W}")),
+                    CostDef::TapSource,
+                    CostDef::ExertSource,
+                ],
+                EffectDef::create_creature_token(&["Cat"], &[ManaColor::White], 1, 1)
+                    .with_abilities(&[abilities::lifelink()]),
+            ),
+            abilities::cycling!(
+                "Cycling {2}{W} ({2}{W}, Discard this card: Draw a card.)",
+                &[CostDef::Mana(mana_cost!("{2}{W}"))]
+            ),
+            AbilityDef::triggered(
+                "When you cycle this card, Cats you control gain hexproof and \
+                 indestructible until end of turn.",
+                TriggerEventDef::DiscardedToActivate(abilities::CYCLING),
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                        ObjectQueryDef::matching(
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Cat")),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        ),
+                    )),
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::add_ability(&abilities::hexproof()),
+                        AppliedEffectDef::add_ability(&abilities::indestructible()),
+                    ]),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ]),
 );
 
 // DFT 4 — Brightfield Glider
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BRIGHTFIELD_GLIDER: CardRecord = CardRecord::new(
     "Brightfield Glider",
     "7eb819eb-ba5c-4449-87b5-3894380558bc",
     "Andreia Ugrai",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{W}"), &["Possum", "Mount"], 1, 1).with_abilities(&[
+        abilities::vigilance(),
+        AbilityDef::triggered(
+            "Whenever this creature attacks while saddled, it gets +1/+2 \
+             and gains flying until end of turn.",
+            TriggerEventDef::While {
+                event: &TriggerEventDef::attacks(ObjectPredicateDef::Source),
+                condition: &TriggerConditionDef::SourceMatches {
+                    object: ObjectPredicateDef::Saddled,
+                },
+            },
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(2),
+                    ),
+                    AppliedEffectDef::add_ability(&abilities::flying()),
+                ]),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+        abilities::saddle(
+            &[CostDef::TapCreaturesWithTotalPower { minimum: 3 }],
+            "Saddle 3 (Tap any number of other creatures you control with \
+             total power 3 or more: This Mount becomes saddled until end \
+             of turn. Saddle only as a sorcery.)",
+        ),
+    ]),
 );
 
 // DFT 5 — Brightfield Mustang
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BRIGHTFIELD_MUSTANG: CardRecord = CardRecord::new(
     "Brightfield Mustang",
     "b2c7cacc-f15e-46c1-9c25-b567bb3e8680",
     "Slawomir Maniak",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{W}"), &["Horse", "Mount"], 3, 3).with_abilities(&[
+        AbilityDef::triggered(
+            "Whenever this creature attacks while saddled, untap it and \
+             put a +1/+1 counter on it.",
+            TriggerEventDef::While {
+                event: &TriggerEventDef::attacks(ObjectPredicateDef::Source),
+                condition: &TriggerConditionDef::SourceMatches {
+                    object: ObjectPredicateDef::Saddled,
+                },
+            },
+            EffectDef::Sequence(&[
+                EffectDef::Untap {
+                    object: EffectRecipientDef::Source,
+                },
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::Source,
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::Constant(1),
+                },
+            ]),
+        ),
+        abilities::saddle(
+            &[CostDef::TapCreaturesWithTotalPower { minimum: 1 }],
+            "Saddle 1 (Tap any number of other creatures you control with \
+             total power 1 or more: This Mount becomes saddled until end \
+             of turn. Saddle only as a sorcery.)",
+        ),
+    ]),
 );
 
 // DFT 6 — Broadcast Rambler
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BROADCAST_RAMBLER: CardRecord = CardRecord::new(
     "Broadcast Rambler",
     "89ce2385-e33d-47b3-96c8-5a4672d9df7c",
     "Ioannis Fiore",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_vehicle(mana_cost!("{4}{W}"), 5, 4).with_abilities(&[
+        abilities::enters_trigger(
+            "When this Vehicle enters, create a 1/1 colorless Thopter \
+             artifact creature token with flying.",
+            EffectDef::create_artifact_creature_token(&["Thopter"], &[], 1, 1)
+                .with_abilities(&[abilities::flying()])
+                .with_count(ValueDef::Constant(1)),
+        ),
+        abilities::crew(
+            "Crew 1 (Tap any number of creatures you control with total \
+             power 1 or more: This Vehicle becomes an artifact creature \
+             until end of turn.)",
+            1,
+        ),
+    ]),
 );
 
 // DFT 7 — Bulwark Ox
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BULWARK_OX: CardRecord = CardRecord::new(
     "Bulwark Ox",
     "106944b2-f3ae-4350-be33-61b9f92fc92f",
     "Brent Hollowell",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Ox", "Mount"], 2, 2).with_abilities(&[
+        AbilityDef::triggered_with_targets(
+            "Whenever this creature attacks while saddled, put a +1/+1 \
+             counter on target creature.",
+            TriggerEventDef::While {
+                event: &TriggerEventDef::attacks(ObjectPredicateDef::Source),
+                condition: &TriggerConditionDef::SourceMatches {
+                    object: ObjectPredicateDef::Saddled,
+                },
+            },
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        AbilityDef::activated(
+            "Sacrifice this creature: Creatures you control with counters \
+             on them gain hexproof and indestructible until end of turn.",
+            &[CostDef::SacrificeSource],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                    ObjectQueryDef::matching(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::HasAnyCounter,
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                )),
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::add_ability(&abilities::hexproof()),
+                    AppliedEffectDef::add_ability(&abilities::indestructible()),
+                ]),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+        abilities::saddle(
+            &[CostDef::TapCreaturesWithTotalPower { minimum: 1 }],
+            "Saddle 1 (Tap any number of other creatures you control with \
+             total power 1 or more: This Mount becomes saddled until end \
+             of turn. Saddle only as a sorcery.)",
+        ),
+    ]),
 );
 
 // DFT 8 — Canyon Vaulter
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a committed crew/saddle contribution event naming the paying creature and the Mount or Vehicle during the main phase; the current total-power tap payment only emits ordinary tapped events and does not retain that relationship.
 pub(in crate::card::sets) static CANYON_VAULTER: CardRecord = CardRecord::new(
     "Canyon Vaulter",
     "cc0b15da-a45c-42f5-aafc-20ad9e38bf24",
     "David Astruga",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 9 — Cloudspire Captain
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the printed power contribution bonus for both saddling Mounts and crewing Vehicles; CrewsAsThoughPowerGreater is deliberately limited to Vehicles and does not increase saddle payment contributions.
 pub(in crate::card::sets) static CLOUDSPIRE_CAPTAIN: CardRecord = CardRecord::new(
     "Cloudspire Captain",
     "3380d87a-c460-409c-8d47-9b2fc5ddd2ea",
     "Manny Edeko",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 10 — Collision Course
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static COLLISION_COURSE: CardRecord = CardRecord::new(
     "Collision Course",
     "6b60da34-b622-42de-a249-79545bcbf30d",
     "Konstantin Porubov",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{1}{W}")).with_abilities(&[AbilityDef::modal_spell(
+        "Choose one —",
+        &[
+            AbilityDef::spell_with_targets(
+                "Collision Course deals X damage to target creature, where X \
+                 is the number of permanents you control that are creatures \
+                 and/or Vehicles.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )],
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    )),
+                ),
+            ),
+            AbilityDef::spell_with_targets(
+                "Destroy target artifact.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                )],
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    then: None,
+                },
+            ),
+        ],
+    )]),
 );
 
 // DFT 11 — Daring Mechanic
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DARING_MECHANIC: CardRecord = CardRecord::new(
     "Daring Mechanic",
     "3382552c-2740-409a-83a1-80b60627beb8",
     "Elizabeth Peiró",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Artificer"], 3, 3).with_abilities(&[
+        AbilityDef::activated_with_targets(
+            "{3}{W}: Put a +1/+1 counter on target Mount or Vehicle.",
+            &[CostDef::Mana(mana_cost!("{3}{W}"))],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Mount")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                ]),
+            )],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // DFT 12 — Detention Chariot
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs an exile-until-source-leaves duration that returns the card immediately when the duration ends (CR 610.3); an ordinary leaves trigger would return it later through the stack.
 pub(in crate::card::sets) static DETENTION_CHARIOT: CardRecord = CardRecord::new(
     "Detention Chariot",
     "75d5e64f-7af2-4cb4-abd1-23992e346bee",
     "Adrián Rodríguez Pérez",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 13 — Gallant Strike
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GALLANT_STRIKE: CardRecord = CardRecord::new(
     "Gallant Strike",
     "9bdb58b7-e1ef-496b-b8dd-d1fabf3d2e7a",
     "Brent Hollowell",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{W}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Destroy target creature with toughness 4 or greater.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::ToughnessGreaterThan(ValueDef::Constant(3)),
+                ]),
+            )],
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        ),
+        abilities::cycling!(
+            "Cycling {2} ({2}, Discard this card: Draw a card.)",
+            &[CostDef::Mana(mana_cost!("{2}"))]
+        ),
+    ]),
 );
 
 // DFT 14 — Gloryheath Lynx
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GLORYHEATH_LYNX: CardRecord = CardRecord::new(
     "Gloryheath Lynx",
     "ea3ac678-8b74-4865-a896-c42692c02341",
     "Deruchenko Alexander",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Cat", "Mount"], 2, 3).with_abilities(&[
+        abilities::lifelink(),
+        AbilityDef::triggered(
+            "Whenever this creature attacks while saddled, search your \
+             library for a basic Plains card, reveal it, put it into your \
+             hand, then shuffle.",
+            TriggerEventDef::While {
+                event: &TriggerEventDef::attacks(ObjectPredicateDef::Source),
+                condition: &TriggerConditionDef::SourceMatches {
+                    object: ObjectPredicateDef::Saddled,
+                },
+            },
+            EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Plains")),
+                    ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                ]),
+                minimum: 0,
+                maximum: ValueDef::Constant(1),
+                reveal: true,
+                destination: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+                shuffle: true,
+                enters_tapped: false,
+                attachment: None,
+                binding: None,
+                then: None,
+            },
+        ),
+        abilities::saddle(
+            &[CostDef::TapCreaturesWithTotalPower { minimum: 2 }],
+            "Saddle 2 (Tap any number of other creatures you control with \
+             total power 2 or more: This Mount becomes saddled until end \
+             of turn. Saddle only as a sorcery.)",
+        ),
+    ]),
 );
 
 // DFT 15 — Guardian Sunmare
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GUARDIAN_SUNMARE: CardRecord = CardRecord::new(
     "Guardian Sunmare",
     "7c274595-94e2-4587-9cef-b38639d6429a",
     "Christina Kraus",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{W}{W}"), &["Horse", "Mount"], 5, 5).with_abilities(&[
+        abilities::ward(&[CostDef::Mana(mana_cost!("{2}"))], "Ward {2}"),
+        AbilityDef::triggered(
+            "Whenever this creature attacks while saddled, search your \
+             library for a nonland permanent card with mana value 3 or \
+             less, put it onto the battlefield, then shuffle.",
+            TriggerEventDef::While {
+                event: &TriggerEventDef::attacks(ObjectPredicateDef::Source),
+                condition: &TriggerConditionDef::SourceMatches {
+                    object: ObjectPredicateDef::Saddled,
+                },
+            },
+            EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        ObjectPredicateDef::HasType(CardType::Enchantment),
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::HasType(CardType::Planeswalker),
+                    ]),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                    ObjectPredicateDef::ManaValueAtMost(3),
+                ]),
+                minimum: 0,
+                maximum: ValueDef::Constant(1),
+                reveal: true,
+                destination: ZoneKind::Battlefield,
+                placement: ZonePlacement::Top,
+                shuffle: true,
+                enters_tapped: false,
+                attachment: None,
+                binding: None,
+                then: None,
+            },
+        ),
+        abilities::saddle(
+            &[CostDef::TapCreaturesWithTotalPower { minimum: 4 }],
+            "Saddle 4",
+        ),
+    ]),
 );
 
 // DFT 16 — Guidelight Synergist
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GUIDELIGHT_SYNERGIST: CardRecord = CardRecord::new(
     "Guidelight Synergist",
     "fdaeea2c-d8aa-416f-95d6-6af888591fdf",
     "Camille Alquier",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{3}{W}"), &["Robot", "Artificer"], 0, 4)
+        .with_abilities(&[
+            abilities::flying(),
+            AbilityDef::static_ability(
+                "This creature gets +1/+0 for each artifact you control.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                            ObjectPredicateDef::HasType(CardType::Artifact),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        )),
+                        ValueDef::Constant(0),
+                    ),
+                },
+            ),
+        ]),
 );
 
 // DFT 17 — Interface Ace
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a toughness-based contribution rule for both crew and saddle payments; current total-power tap payments read power plus Vehicle-only power bonuses.
 pub(in crate::card::sets) static INTERFACE_ACE: CardRecord = CardRecord::new(
     "Interface Ace",
     "fcfd487a-a9e6-44e3-80af-bc384316106f",
     "Wonchun Choi",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 18 — Leonin Surveyor
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static LEONIN_SURVEYOR: CardRecord = CardRecord::new(
     "Leonin Surveyor",
     "e08e4107-213f-491b-a032-8e3367009ba8",
     "Valera Lutfullina",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 19 — Lightshield Parry
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LIGHTSHIELD_PARRY: CardRecord = CardRecord::new(
     "Lightshield Parry",
     "dcf6a0e7-1fd4-425f-b634-c93236daea35",
     "Leanna Crossan",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{W}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Target creature gets +2/+2 until end of turn.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(2),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+        abilities::cycling!(
+            "Cycling {2} ({2}, Discard this card: Draw a card.)",
+            &[CostDef::Mana(mana_cost!("{2}"))]
+        ),
+    ]),
 );
 
 // DFT 20 — Lightwheel Enhancements
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static LIGHTWHEEL_ENHANCEMENTS: CardRecord = CardRecord::new(
     "Lightwheel Enhancements",
     "9ab169c1-4e25-4a5d-8961-4f06298c3781",
     "Yeong-Hao Han",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 21 — Lotusguard Disciple
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LOTUSGUARD_DISCIPLE: CardRecord = CardRecord::new(
     "Lotusguard Disciple",
     "80645651-3804-481f-8f8f-ade762a011e1",
     "Josiah \"Jo\" Cameron",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Bird", "Cleric"], 2, 2).with_abilities(&[
+        abilities::flying(),
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, target creature or Vehicle gains \
+             lifelink and indestructible until end of turn.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                ]),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::add_ability(&abilities::lifelink()),
+                    AppliedEffectDef::add_ability(&abilities::indestructible()),
+                ]),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // DFT 22 — Nesting Bot
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static NESTING_BOT: CardRecord = CardRecord::new(
     "Nesting Bot",
     "7829c0ae-f72f-4195-ad43-775d7218565c",
     "Racrufi",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 23 — Perilous Snare
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed. Also needs the exile-until-source-leaves duration returning its exiled card immediately when that duration ends.
 pub(in crate::card::sets) static PERILOUS_SNARE: CardRecord = CardRecord::new(
     "Perilous Snare",
     "47f7e468-2196-4960-a612-37ab326e2a17",
     "Chris Seaman",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 24 — Pride of the Road
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static PRIDE_OF_THE_ROAD: CardRecord = CardRecord::new(
     "Pride of the Road",
     "4172222f-d871-4354-9a02-7af0001d8956",
     "Alfonso Santano",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 25 — Ride's End
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a self spell-cost condition inspecting whether any declared target is tapped; existing spell-cost predicates only test targeting the external cost source.
 pub(in crate::card::sets) static RIDE_S_END: CardRecord = CardRecord::new(
     "Ride's End",
     "2f96b33b-c952-45ac-9626-40169b2bd4ef",
     "Dmitry Burmak",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 26 — Roadside Assistance
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the printed power contribution bonus for both saddling Mounts and crewing Vehicles; CrewsAsThoughPowerGreater is deliberately limited to Vehicles and does not increase saddle payment contributions.
 pub(in crate::card::sets) static ROADSIDE_ASSISTANCE: CardRecord = CardRecord::new(
     "Roadside Assistance",
     "8f2a9154-7b43-4b8d-9d81-d11cfda5d597",
     "Artur Nakhodkin",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 27 — Salvation Engine
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SALVATION_ENGINE: CardRecord = CardRecord::new(
     "Salvation Engine",
     "34ed1bf2-0f3c-4528-b570-e5bdcd7ffda9",
     "Ben Wootten",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_vehicle(mana_cost!("{4}{W}"), 6, 10).with_abilities(&[
+        AbilityDef::static_ability(
+            "Other artifact creatures you control get +2/+2.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                    ObjectQueryDef::matching(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Artifact),
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                )),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(2),
+                ),
+            },
+        ),
+        AbilityDef::triggered_with_targets(
+            "Whenever this Vehicle attacks, return up to one target \
+             artifact card from your graveyard to the battlefield.",
+            TriggerEventDef::attacks(ObjectPredicateDef::Source),
+            &[AbilityTargetDef::up_to(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Artifact),
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: Some(PlayerRelation::You),
+                },
+                1,
+            )],
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Battlefield,
+                ZonePlacement::Top,
+            ),
+        ),
+        abilities::crew("Crew 6", 6),
+    ]),
 );
 
 // DFT 28 — Skyseer's Chariot
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a generic activation-cost increase applying to matching named sources in every zone and to mana abilities; existing cost modification structures do not cover that activation family.
 pub(in crate::card::sets) static SKYSEER_S_CHARIOT: CardRecord = CardRecord::new(
     "Skyseer's Chariot",
     "96ed5b66-8e74-4a90-ad4e-c39d15993994",
     "Carl Critchlow",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 29 — Spectacular Pileup
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPECTACULAR_PILEUP: CardRecord = CardRecord::new(
     "Spectacular Pileup",
     "a24a6309-0e69-45f0-a9ff-44d4997e7e4d",
     "Zezhou Chen",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{3}{W}{W}")).with_abilities(&[
+        AbilityDef::spell(
+            "All creatures and Vehicles lose indestructible until end of \
+             turn, then destroy all creatures and Vehicles.",
+            EffectDef::Sequence(&[
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                        ObjectQueryDef::matching(
+                            ObjectPredicateDef::AnyOf(&[
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                            ]),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::Any,
+                        ),
+                    )),
+                    effect: AppliedEffectDef::remove_abilities(AbilityPredicateDef::Keyword(
+                        KeywordAbility::Indestructible,
+                    )),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::objects(ObjectSetDef::Query(
+                        ObjectQueryDef::matching(
+                            ObjectPredicateDef::AnyOf(&[
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                            ]),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::Any,
+                        ),
+                    )),
+                    then: None,
+                },
+            ]),
+        ),
+        abilities::cycling!(
+            "Cycling {2} ({2}, Discard this card: Draw a card.)",
+            &[CostDef::Mana(mana_cost!("{2}"))]
+        ),
+    ]),
 );
 
 // DFT 30 — Spotcycle Scouter
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPOTCYCLE_SCOUTER: CardRecord = CardRecord::new(
     "Spotcycle Scouter",
     "f0489108-75b7-441c-888d-12987c0c1080",
     "Josiah \"Jo\" Cameron",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_vehicle(mana_cost!("{1}{W}"), 3, 2).with_abilities(&[
+        abilities::enters_trigger(
+            "When this Vehicle enters, scry 2. (Look at the top two cards \
+             of your library, then put any number of them on the bottom \
+             and the rest on top in any order.)",
+            abilities::scry(ValueDef::Constant(2)),
+        ),
+        abilities::crew(
+            "Crew 1 (Tap any number of creatures you control with total \
+             power 1 or more: This Vehicle becomes an artifact creature \
+             until end of turn.)",
+            1,
+        ),
+    ]),
 );
 
 // DFT 31 — Sundial, Dawn Tyrant
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SUNDIAL_DAWN_TYRANT: CardRecord = CardRecord::new(
     "Sundial, Dawn Tyrant",
     "b2e5435c-52f3-42d7-bcee-5aa13afd6626",
     "Bruce Brenneise",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{1}{W}"), &["Construct"], 3, 3)
+        .with_supertype(CardSupertype::Legendary),
 );
 
 // DFT 32 — Swiftwing Assailant
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static SWIFTWING_ASSAILANT: CardRecord = CardRecord::new(
     "Swiftwing Assailant",
     "72db9bb9-d930-40e5-b144-01ebfd377996",
     "Pig Hands",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 33 — Tune Up
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TUNE_UP: CardRecord = CardRecord::new(
     "Tune Up",
     "f8bddc5f-8f25-4313-b5bb-e5eae2923878",
     "Chris Rallis",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{3}{W}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Return target artifact card from your graveyard to the \
+         battlefield. If it's a Vehicle, it becomes an artifact \
+         creature.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Artifact),
+                zones: &[ZoneKind::Graveyard],
+                controller: None,
+                owner: Some(PlayerRelation::You),
+            },
+        )],
+        EffectDef::WithZoneMoveResult {
+            effect: &EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Battlefield,
+                ZonePlacement::Top,
+            ),
+            binding: crate::Binding!("returned"),
+            then: &EffectDef::Apply {
+                recipient: EffectRecipientDef::objects(ObjectSetDef::Matching {
+                    objects: &ObjectSetDef::ZoneChangeSuccessorsOfBinding(crate::Binding!(
+                        "returned"
+                    )),
+                    object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::Subtype(
+                        SubtypeDef::Literal("Vehicle"),
+                    )),
+                }),
+                effect: AppliedEffectDef::add_card_types(
+                    CardTypeSet::single(CardType::Artifact)
+                        .union(CardTypeSet::single(CardType::Creature)),
+                ),
+                duration: ResolvedEffectDurationDef::Permanent,
+            },
+        },
+    )]),
 );
 
 // DFT 34 — Unswerving Sloth
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static UNSWERVING_SLOTH: CardRecord = CardRecord::new(
     "Unswerving Sloth",
     "12296a74-5d60-4ee3-aa53-2289f84da776",
     "Daren Bader",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{W}{W}"), &["Sloth", "Mount"], 5, 5).with_abilities(&[
+        AbilityDef::triggered(
+            "Whenever this creature attacks while saddled, it gains \
+             indestructible until end of turn. Untap all creatures you \
+             control.",
+            TriggerEventDef::While {
+                event: &TriggerEventDef::attacks(ObjectPredicateDef::Source),
+                condition: &TriggerConditionDef::SourceMatches {
+                    object: ObjectPredicateDef::Saddled,
+                },
+            },
+            EffectDef::Sequence(&[
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::add_ability(&abilities::indestructible()),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+                EffectDef::Untap {
+                    object: EffectRecipientDef::objects(ObjectSetDef::Query(
+                        ObjectQueryDef::matching(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        ),
+                    )),
+                },
+            ]),
+        ),
+        abilities::saddle(
+            &[CostDef::TapCreaturesWithTotalPower { minimum: 4 }],
+            "Saddle 4 (Tap any number of other creatures you control with \
+             total power 4 or more: This Mount becomes saddled until end \
+             of turn. Saddle only as a sorcery.)",
+        ),
+    ]),
 );
 
 // DFT 35 — Valor's Flagship
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the printed power contribution bonus for both saddling Mounts and crewing Vehicles; CrewsAsThoughPowerGreater is deliberately limited to Vehicles and does not increase saddle payment contributions.
 pub(in crate::card::sets) static VALOR_S_FLAGSHIP: CardRecord = CardRecord::new(
     "Valor's Flagship",
     "8af1dddf-6c95-448b-acc8-df5a99202e9a",
     "Stephan Martiniere",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 36 — Voyager Glidecar
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VOYAGER_GLIDECAR: CardRecord = CardRecord::new(
     "Voyager Glidecar",
     "13eb445a-dd41-4760-8299-9ba5d6de6aaf",
     "Eduardo Francisco",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_vehicle(mana_cost!("{W}"), 2, 3).with_abilities(&[
+        abilities::enters_trigger(
+            "When this Vehicle enters, scry 1.",
+            abilities::scry(ValueDef::Constant(1)),
+        ),
+        AbilityDef::activated(
+            "Tap three other untapped creatures you control: Until end of \
+             turn, this Vehicle becomes an artifact creature and gains \
+             flying. Put a +1/+1 counter on it.",
+            &[CostDef::TapPermanents {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                ]),
+                controller: PlayerRelation::You,
+                count: 3,
+            }],
+            EffectDef::Sequence(&[
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::add_card_types(
+                        CardTypeSet::single(CardType::Artifact)
+                            .union(CardTypeSet::single(CardType::Creature)),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::add_ability(&abilities::flying()),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::Source,
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::Constant(1),
+                },
+            ]),
+        ),
+        abilities::crew("Crew 1", 1),
+    ]),
 );
 
 // DFT 37 — Voyager Quickwelder
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VOYAGER_QUICKWELDER: CardRecord = CardRecord::new(
     "Voyager Quickwelder",
     "f6dcdc8c-fba1-4ea1-bf93-65072d10f0da",
     "Kenn Yap",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{2}{W}"), &["Robot", "Artificer"], 2, 4)
+        .with_abilities(&[AbilityDef::static_ability(
+            "Artifact spells you cast cost {1} less to cast.",
+            EffectDef::ModifyCost(CostModificationDef::reduce_spell(
+                ObjectPredicateDef::HasType(CardType::Artifact),
+                PlayerRelation::You,
+                ValueDef::Constant(1),
+            )),
+        )]),
 );
 
 // DFT 38 — Aether Syphon
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static AETHER_SYPHON: CardRecord = CardRecord::new(
     "Aether Syphon",
     "d7033739-4cd8-4727-b9b5-099fb597006b",
     "Martin de Diego Sádaba",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 39 — Bounce Off
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BOUNCE_OFF: CardRecord = CardRecord::new(
     "Bounce Off",
     "7b3c8dda-2405-4879-8dd1-e790a833c42d",
     "Deruchenko Alexander",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{U}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Return target creature or Vehicle to its owner's hand.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::AnyOf(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+            ]),
+        )],
+        EffectDef::move_to_zone(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ZoneKind::Hand,
+            ZonePlacement::Top,
+        ),
+    )]),
 );
 
 // DFT 40 — Caelorna, Coral Tyrant
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CAELORNA_CORAL_TYRANT: CardRecord = CardRecord::new(
     "Caelorna, Coral Tyrant",
     "e8654e38-4230-4094-b815-778bfb5d06f2",
     "Deruchenko Alexander",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{U}"), &["Octopus"], 0, 8)
+        .with_supertype(CardSupertype::Legendary),
 );
 
 // DFT 41 — Diversion Unit
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DIVERSION_UNIT: CardRecord = CardRecord::new(
     "Diversion Unit",
     "e04d4fa6-1fa3-4bfd-a462-47c23ccf9124",
     "Xabi Gaztelua",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{1}{U}"), &["Robot"], 2, 1).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::activated_with_targets(
+            "{U}, Sacrifice this creature: Counter target instant or \
+             sorcery spell unless its controller pays {3}.",
+            &[CostDef::Mana(mana_cost!("{U}")), CostDef::SacrificeSource],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Instant),
+                        ObjectPredicateDef::HasType(CardType::Sorcery),
+                    ]),
+                    zones: &[ZoneKind::Stack],
+                    controller: None,
+                    owner: None,
+                },
+            )],
+            abilities::counter_target_unless_paid(&[CostDef::Mana(mana_cost!("{3}"))]),
+        ),
+    ]),
 );
 
 // DFT 42 — Flood the Engine
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FLOOD_THE_ENGINE: CardRecord = CardRecord::new(
     "Flood the Engine",
     "57402f7c-5d4c-4f1e-8bce-a2328a297111",
     "Eric Wilkerson",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{2}{U}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::aura_spell(
+                "Enchant creature or Vehicle",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                    ]),
+                )],
+            ),
+            AbilityDef::static_ability(
+                "Enchanted permanent loses all abilities and doesn't untap \
+                 during its controller's untap step.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::remove_abilities(AbilityPredicateDef::Any),
+                        AppliedEffectDef::Rule(AppliedRuleDef::DoesNotUntapDuringUntapStep),
+                    ]),
+                },
+            ),
+            abilities::enters_trigger(
+                "When this Aura enters, tap enchanted permanent.",
+                EffectDef::Tap {
+                    object: EffectRecipientDef::AttachedPermanent,
+                },
+            ),
+        ]),
 );
 
 // DFT 43 — Gearseeker Serpent (reprint)
@@ -445,183 +1173,441 @@ const GEARSEEKER_SERPENT_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // DFT 44 — Glitch Ghost Surveyor
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static GLITCH_GHOST_SURVEYOR: CardRecord = CardRecord::new(
     "Glitch Ghost Surveyor",
     "b9bb89b9-50dd-4b36-aa10-aba585e50246",
     "Johan Grenier",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 45 — Guidelight Optimizer
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a union of mana spending permissions: cast an artifact spell or activate any ability; current mana restrictions allow one use family, while CannotCastSpell would also allow unrelated resolving payments.
 pub(in crate::card::sets) static GUIDELIGHT_OPTIMIZER: CardRecord = CardRecord::new(
     "Guidelight Optimizer",
     "e9fc07dd-05b1-49ed-a3ee-46c31b8e0a3d",
     "Mirko Failoni",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 46 — Howler's Heavy
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HOWLER_S_HEAVY: CardRecord = CardRecord::new(
     "Howler's Heavy",
     "8bbd7758-59c7-4ae1-9af8-c3580f4aa958",
     "Borja Pindado",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{U}"), &["Seal", "Pirate"], 3, 4).with_abilities(&[
+        abilities::cycling!(
+            "Cycling {1}{U} ({1}{U}, Discard this card: Draw a card.)",
+            &[CostDef::Mana(mana_cost!("{1}{U}"))]
+        ),
+        AbilityDef::triggered_with_targets(
+            "When you cycle this card, target creature or Vehicle an \
+             opponent controls gets -3/-0 until end of turn.",
+            TriggerEventDef::DiscardedToActivate(abilities::CYCLING),
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                    ]),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::Opponent),
+                    owner: None,
+                },
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(-3),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // DFT 47 — Hulldrifter
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HULLDRIFTER: CardRecord = CardRecord::new(
     "Hulldrifter",
     "402666f8-c9cc-4e8f-abaa-6c38be90cdd2",
     "Alexandre Honoré",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_vehicle(mana_cost!("{3}{U}{U}"), 3, 2).with_abilities(&[
+        abilities::flying(),
+        abilities::enters_trigger(
+            "When this Vehicle enters, draw two cards.",
+            abilities::draw_cards(ValueDef::Constant(2)),
+        ),
+        abilities::crew(
+            "Crew 3 (Tap any number of creatures you control with total \
+             power 3 or more: This Vehicle becomes an artifact creature \
+             until end of turn.)",
+            3,
+        ),
+    ]),
 );
 
 // DFT 48 — Keen Buccaneer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KEEN_BUCCANEER: CardRecord = CardRecord::new(
     "Keen Buccaneer",
     "0ed90a63-5aca-470a-8e1e-518d8aeb6d91",
     "Mirko Failoni",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Octopus", "Pirate"], 2, 3).with_abilities(&[
+        abilities::vigilance(),
+        exhaust(AbilityDef::activated(
+            "Exhaust — {1}{U}: Draw a card, then discard a card. Put a \
+             +1/+1 counter on this creature. (Activate each exhaust \
+             ability only once.)",
+            &[CostDef::Mana(mana_cost!("{1}{U}"))],
+            EffectDef::Sequence(&[
+                abilities::draw_cards(ValueDef::Constant(1)),
+                EffectDef::Discard {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                    selection: DiscardSelectionDef::RecipientChooses,
+                    then: None,
+                },
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::Source,
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::Constant(1),
+                },
+            ]),
+        )),
+    ]),
 );
 
 // DFT 49 — Memory Guardian
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MEMORY_GUARDIAN: CardRecord = CardRecord::new(
     "Memory Guardian",
     "6b199ce2-0ea0-47e5-a36c-36373be53fec",
     "Hardy Fowler",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{4}{U}"), &["Robot", "Artificer"], 3, 4)
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Affinity for artifacts (This spell costs {1} less to cast for \
+                 each artifact you control.)",
+                EffectDef::ReduceGenericCostBy(ValueDef::CountMatchingObjects(
+                    &ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                )),
+            )
+            .with_source_zones(&[ZoneKind::Hand]),
+            abilities::flying(),
+        ]),
 );
 
 // DFT 50 — Midnight Mangler
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MIDNIGHT_MANGLER: CardRecord = CardRecord::new(
     "Midnight Mangler",
     "237568e3-7331-4bbb-a091-a766723134fc",
     "Villarrte",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_vehicle(mana_cost!("{1}{U}"), 3, 3).with_abilities(&[
+        AbilityDef::static_ability(
+            "During turns other than yours, this Vehicle is an artifact \
+             creature.",
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::ActivePlayer(PlayerRelation::Opponent),
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::add_card_types(
+                        CardTypeSet::single(CardType::Artifact)
+                            .union(CardTypeSet::single(CardType::Creature)),
+                    ),
+                },
+            },
+        ),
+        abilities::crew(
+            "Crew 2 (Tap any number of creatures you control with total \
+             power 2 or more: This Vehicle becomes an artifact creature \
+             until end of turn.)",
+            2,
+        ),
+    ]),
 );
 
 // DFT 51 — Mindspring Merfolk
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MINDSPRING_MERFOLK: CardRecord = CardRecord::new(
     "Mindspring Merfolk",
     "b6250b8b-1943-445f-ada9-30b41eb6d29b",
     "Andreia Ugrai",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{U}"), &["Merfolk", "Wizard"], 1, 1).with_abilities(&[
+        exhaust(AbilityDef::activated(
+            "Exhaust — {X}{U}{U}, {T}: Draw X cards. Put a +1/+1 counter \
+             on each Merfolk creature you control. (Activate each exhaust \
+             ability only once.)",
+            &[CostDef::Mana(mana_cost!("{X}{U}{U}")), CostDef::TapSource],
+            EffectDef::Sequence(&[
+                abilities::draw_cards(ValueDef::ChosenX),
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::objects(ObjectSetDef::Query(
+                        ObjectQueryDef::matching(
+                            ObjectPredicateDef::All(&[
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Merfolk")),
+                            ]),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        ),
+                    )),
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::Constant(1),
+                },
+            ]),
+        )),
+    ]),
 );
 
 // DFT 52 — Mu Yanling, Wind Rider
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a single trigger per damaged player for a simultaneous batch from one or more controlled flying creatures; current damage grouping coalesces only an unfiltered Any-source matcher and cannot group this source predicate.
 pub(in crate::card::sets) static MU_YANLING_WIND_RIDER: CardRecord = CardRecord::new(
     "Mu Yanling, Wind Rider",
     "76423446-d62f-4cc5-a23a-3175be88bd73",
     "Justyna Dura",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 53 — Nimble Thopterist
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NIMBLE_THOPTERIST: CardRecord = CardRecord::new(
     "Nimble Thopterist",
     "47717312-f6c6-4e86-ba6a-a30698962430",
     "Ioannis Fiore",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{U}"), &["Vedalken", "Artificer"], 3, 2).with_abilities(
+        &[abilities::enters_trigger(
+            "When this creature enters, create a 1/1 colorless Thopter \
+             artifact creature token with flying.",
+            EffectDef::create_artifact_creature_token(&["Thopter"], &[], 1, 1)
+                .with_abilities(&[abilities::flying()])
+                .with_count(ValueDef::Constant(1)),
+        )],
+    ),
 );
 
 // DFT 54 — Possession Engine
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs control and attack/block restriction durations ending when this player stops controlling the source Vehicle; current continuous duration vocabulary tracks source existence or tapping, not that control relationship.
 pub(in crate::card::sets) static POSSESSION_ENGINE: CardRecord = CardRecord::new(
     "Possession Engine",
     "f206b0a1-50d8-4d53-850d-fb15fd328267",
     "Leroy Steinmann",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 55 — Rangers' Refueler
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a committed activation event filtered by the exhaust mechanic label, including mana abilities; current trigger events do not observe labeled ability activations.
 pub(in crate::card::sets) static RANGERS_REFUELER: CardRecord = CardRecord::new(
     "Rangers' Refueler",
     "67d2d713-8acb-4e3d-bd1d-0416fe9b9ef6",
     "Samuel Perin",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 56 — Repurposing Bay
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static REPURPOSING_BAY: CardRecord = CardRecord::new(
     "Repurposing Bay",
     "0cf1ace1-b7f5-4bd9-a494-ee7cb6c1f854",
     "William Tempest",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{2}{U}")).with_abilities(&[AbilityDef::activated(
+        "{2}, {T}, Sacrifice another artifact: Search your library for \
+         an artifact card with mana value equal to 1 plus the \
+         sacrificed artifact's mana value, put that card onto the \
+         battlefield, then shuffle. Activate only as a sorcery.",
+        &[
+            CostDef::Mana(mana_cost!("{2}")),
+            CostDef::TapSource,
+            CostDef::sacrifice_permanent(ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Artifact),
+                ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+            ])),
+        ],
+        EffectDef::SearchZone {
+            player: EffectRecipientDef::Controller,
+            source: ZoneKind::Library,
+            object: ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Artifact),
+                ObjectPredicateDef::ManaValueEqualTo(ValueDef::Sum(&SumValueDef::new(
+                    ValueDef::Constant(1),
+                    ValueDef::SacrificedManaValue,
+                ))),
+            ]),
+            minimum: 0,
+            maximum: ValueDef::Constant(1),
+            reveal: true,
+            destination: ZoneKind::Battlefield,
+            placement: ZonePlacement::Top,
+            shuffle: true,
+            enters_tapped: false,
+            attachment: None,
+            binding: None,
+            then: None,
+        },
+    )
+    .with_activation_timing(ActivationTimingDef::SorcerySpeed)]),
 );
 
 // DFT 57 — Riverchurn Monument
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RIVERCHURN_MONUMENT: CardRecord = CardRecord::new(
     "Riverchurn Monument",
     "e66ff696-fd39-49ad-9ee5-c0868167df37",
     "Anthony Devine",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{1}{U}")).with_abilities(&[
+        AbilityDef::activated_with_targets(
+            "{1}, {T}: Any number of target players each mill two cards. \
+             (Each of them puts the top two cards of their library into \
+             their graveyard.)",
+            &[CostDef::Mana(mana_cost!("{1}")), CostDef::TapSource],
+            &[
+                AbilityTargetDef::up_to(AbilityTargetPredicate::Player(PlayerRelation::Any), 1),
+                AbilityTargetDef {
+                    another: true,
+                    ..AbilityTargetDef::up_to(
+                        AbilityTargetPredicate::Player(PlayerRelation::Any),
+                        1,
+                    )
+                },
+            ],
+            EffectDef::Sequence(&[
+                EffectDef::Mill {
+                    player: EffectRecipientDef::Target(TargetIndex(0)),
+                    amount: ValueDef::Constant(2),
+                },
+                EffectDef::Mill {
+                    player: EffectRecipientDef::Target(TargetIndex(1)),
+                    amount: ValueDef::Constant(2),
+                },
+            ]),
+        ),
+        exhaust(AbilityDef::activated_with_targets(
+            "Exhaust — {2}{U}{U}, {T}: Any number of target players each \
+             mill cards equal to the number of cards in their graveyard. \
+             (Activate each exhaust ability only once.)",
+            &[CostDef::Mana(mana_cost!("{2}{U}{U}")), CostDef::TapSource],
+            &[
+                AbilityTargetDef::up_to(AbilityTargetPredicate::Player(PlayerRelation::Any), 1),
+                AbilityTargetDef {
+                    another: true,
+                    ..AbilityTargetDef::up_to(
+                        AbilityTargetPredicate::Player(PlayerRelation::Any),
+                        1,
+                    )
+                },
+            ],
+            EffectDef::Sequence(&[
+                EffectDef::Mill {
+                    player: EffectRecipientDef::Target(TargetIndex(0)),
+                    amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::owned_by(
+                        ObjectPredicateDef::Any,
+                        &[ZoneKind::Graveyard],
+                        PlayerSetDef::One(PlayerRefDef::Target(TargetIndex(0))),
+                    )),
+                },
+                EffectDef::Mill {
+                    player: EffectRecipientDef::Target(TargetIndex(1)),
+                    amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::owned_by(
+                        ObjectPredicateDef::Any,
+                        &[ZoneKind::Graveyard],
+                        PlayerSetDef::One(PlayerRefDef::Target(TargetIndex(1))),
+                    )),
+                },
+            ]),
+        )),
+    ]),
 );
 
 // DFT 58 — Roadside Blowout
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a self spell-cost condition inspecting whether a declared target has mana value 1; existing spell-cost predicates only test targeting the external cost source.
 pub(in crate::card::sets) static ROADSIDE_BLOWOUT: CardRecord = CardRecord::new(
     "Roadside Blowout",
     "d6153a76-56f7-46ee-bba5-b62c0143388a",
     "Michele Giorgi",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 59 — Sabotage Strategist
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a grouped attack declaration event carrying exactly the creatures attacking this player, with a bound set retained for resolution; current attack events do not publish that filtered attacker group.
 pub(in crate::card::sets) static SABOTAGE_STRATEGIST: CardRecord = CardRecord::new(
     "Sabotage Strategist",
     "c8bb15e2-e1ad-4645-aab0-df4a1a68563d",
     "Darren Tan",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 60 — Scrounging Skyray
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SCROUNGING_SKYRAY: CardRecord = CardRecord::new(
     "Scrounging Skyray",
     "d60bece3-6f63-4d9e-bca0-cef2d38f1472",
     "Ron Spears",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{U}"), &["Fish", "Pirate"], 1, 2).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::triggered(
+            "Whenever you discard one or more cards, put that many +1/+1 \
+             counters on this creature.",
+            TriggerEventDef::DiscardedCards(PlayerRelation::You),
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::TriggerEventAmount,
+            },
+        ),
+        abilities::cycling!(
+            "Cycling {2} ({2}, Discard this card: Draw a card.)",
+            &[CostDef::Mana(mana_cost!("{2}"))]
+        ),
+    ]),
 );
 
 // DFT 61 — Skystreak Engineer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SKYSTREAK_ENGINEER: CardRecord = CardRecord::new(
     "Skystreak Engineer",
     "5bc9c501-098d-4560-9826-329b05689e0f",
     "Elizabeth Peiró",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{U}"), &["Human", "Pilot"], 1, 3).with_abilities(&[
+        abilities::flying(),
+        exhaust(AbilityDef::activated(
+            "Exhaust — {4}{U}: Put two +1/+1 counters on this creature. \
+             (Activate each exhaust ability only once.)",
+            &[CostDef::Mana(mana_cost!("{4}{U}"))],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(2),
+            },
+        )),
+    ]),
 );
 
 // DFT 62 — Slick Imitator
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static SLICK_IMITATOR: CardRecord = CardRecord::new(
     "Slick Imitator",
     "3e86ef50-4939-4e7c-853d-438f0f3e0411",
     "Xabi Gaztelua",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 63 — Spectral Interference
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPECTRAL_INTERFERENCE: CardRecord = CardRecord::new(
     "Spectral Interference",
     "860cb8af-a5f6-47e7-a34b-7b9f11ddc8c6",
     "Steve Ellis",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{U}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Counter target artifact or creature spell unless its \
+         controller pays {4}.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                ]),
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            },
+        )],
+        abilities::counter_target_unless_paid(&[CostDef::Mana(mana_cost!("{4}"))]),
+    )]),
 );
 
 // DFT 64 — Spell Pierce (reprint)
@@ -632,21 +1618,46 @@ const SPELL_PIERCE_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // DFT 65 — Spikeshell Harrier
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static SPIKESHELL_HARRIER: CardRecord = CardRecord::new(
     "Spikeshell Harrier",
     "8f1ece22-ca32-45bb-b5f4-480f9b366cb5",
     "Alfonso Santano",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 66 — Stall Out
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STALL_OUT: CardRecord = CardRecord::new(
     "Stall Out",
     "4ea0e0d3-833f-4353-b648-57b0b657cc1c",
     "Inkognit",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{1}{U}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Tap target creature or Vehicle, then put three stun counters \
+             on it. (If a permanent with a stun counter would become \
+             untapped, remove one from it instead.)",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                ]),
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::Tap {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                },
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    kind: CounterKind::Stun,
+                    amount: ValueDef::Constant(3),
+                },
+            ]),
+        ),
+        abilities::cycling!(
+            "Cycling {2} ({2}, Discard this card: Draw a card.)",
+            &[CostDef::Mana(mana_cost!("{2}"))]
+        ),
+    ]),
 );
 
 // DFT 67 — Stock Up
@@ -668,84 +1679,222 @@ pub(in crate::card::sets) static STOCK_UP: CardRecord = CardRecord::new(
 );
 
 // DFT 68 — Thopter Fabricator
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static THOPTER_FABRICATOR: CardRecord = CardRecord::new(
     "Thopter Fabricator",
     "8924b785-b140-4212-a1eb-a10340e09fea",
     "Racrufi",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_vehicle(mana_cost!("{2}{U}"), 4, 4).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::triggered(
+            "Whenever you draw your second card each turn, create a 1/1 \
+             colorless Thopter artifact creature token with flying.",
+            TriggerEventDef::DrewCard(DrawEventMatcherDef::nth_each_turn(PlayerRelation::You, 2)),
+            EffectDef::create_artifact_creature_token(&["Thopter"], &[], 1, 1)
+                .with_abilities(&[abilities::flying()])
+                .with_count(ValueDef::Constant(1)),
+        ),
+        abilities::crew("Crew 2", 2),
+    ]),
 );
 
 // DFT 69 — Trade the Helm
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TRADE_THE_HELM: CardRecord = CardRecord::new(
     "Trade the Helm",
     "eb0b5c09-6c21-4080-81c4-a8376deb729f",
     "Lius Lasahido",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{4}{U}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Exchange control of target artifact or creature you control \
+             and target artifact or creature an opponent controls.",
+            &[
+                AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                    ]),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                }),
+                AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                    ]),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::Opponent),
+                    owner: None,
+                }),
+            ],
+            EffectDef::ExchangeControl {
+                first: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                second: EffectRecipientDef::Target(TargetIndex(1)),
+                otherwise: None,
+            },
+        ),
+        abilities::cycling!(
+            "Cycling {2} ({2}, Discard this card: Draw a card.)",
+            &[CostDef::Mana(mana_cost!("{2}"))]
+        ),
+    ]),
 );
 
 // DFT 70 — Transit Mage
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TRANSIT_MAGE: CardRecord = CardRecord::new(
     "Transit Mage",
     "6727169f-c33a-4ca5-889d-a63bcfc5a3f0",
     "Mark Poole",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Human", "Wizard"], 2, 2).with_abilities(&[
+        abilities::enters_trigger(
+            "When this creature enters, you may search your library for an \
+             artifact card with mana value 4 or 5, reveal it, put it into \
+             your hand, then shuffle.",
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::SearchZone {
+                    player: EffectRecipientDef::Controller,
+                    source: ZoneKind::Library,
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::ManaValueEqualTo(ValueDef::Constant(4)),
+                            ObjectPredicateDef::ManaValueEqualTo(ValueDef::Constant(5)),
+                        ]),
+                    ]),
+                    minimum: 0,
+                    maximum: ValueDef::Constant(1),
+                    reveal: true,
+                    destination: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                    shuffle: true,
+                    enters_tapped: false,
+                    attachment: None,
+                    binding: None,
+                    then: None,
+                },
+            },
+        ),
+    ]),
 );
 
 // DFT 71 — Trip Up
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TRIP_UP: CardRecord = CardRecord::new(
     "Trip Up",
     "273061f3-7aa7-4cb0-afd6-616252b88948",
     "Josiah \"Jo\" Cameron",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{3}{U}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Target nonland permanent's owner puts it on their choice of \
+             the top or bottom of their library.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+            )],
+            EffectDef::ChooseEffect {
+                player: EffectRecipientDef::player(PlayerRefDef::OwnerOf(ObjectRefDef::Target(
+                    TargetIndex::PRIMARY,
+                ))),
+                choices: &[
+                    EffectChoiceDef {
+                        label: "Top",
+                        effect: EffectDef::move_to_zone(
+                            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            ZoneKind::Library,
+                            ZonePlacement::Top,
+                        ),
+                    },
+                    EffectChoiceDef {
+                        label: "Bottom",
+                        effect: EffectDef::move_to_zone(
+                            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            ZoneKind::Library,
+                            ZonePlacement::Bottom,
+                        ),
+                    },
+                ],
+            },
+        ),
+        abilities::cycling!(
+            "Cycling {2} ({2}, Discard this card: Draw a card.)",
+            &[CostDef::Mana(mana_cost!("{2}"))]
+        ),
+    ]),
 );
 
 // DFT 72 — Unstoppable Plan
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static UNSTOPPABLE_PLAN: CardRecord = CardRecord::new(
     "Unstoppable Plan",
     "aaeb5981-7e6a-4ffd-bb02-4757b2e92f08",
     "Borja Pindado",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{2}{U}")).with_abilities(&[AbilityDef::triggered(
+        "At the beginning of your end step, untap all nonland \
+         permanents you control.",
+        TriggerEventDef::StepBegins {
+            step: TurnStepDef::End,
+            player: PlayerRelation::You,
+        },
+        EffectDef::Untap {
+            object: EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::matching(
+                ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
+            ))),
+        },
+    )]),
 );
 
 // DFT 73 — Vnwxt, Verbose Host
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static VNWXT_VERBOSE_HOST: CardRecord = CardRecord::new(
     "Vnwxt, Verbose Host",
     "893254c7-64cc-4cb9-b79f-2c41a8935ea0",
     "Izzy",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 74 — Waxen Shapethief
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WAXEN_SHAPETHIEF: CardRecord = CardRecord::new(
     "Waxen Shapethief",
     "412aaa30-b9cd-4cf8-beb8-1c1229667b31",
     "Helge C. Balzer",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{U}"), &["Shapeshifter"], 0, 0).with_abilities(&[
+        abilities::flash(),
+        AbilityDef::replacement(
+            "You may have this creature enter as a copy of an artifact or \
+             creature you control.",
+            ReplacementEffectDef::CopyEntering {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                    ]),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
+                exceptions: CopyExceptionsDef::NONE,
+            },
+        ),
+        abilities::cycling!(
+            "Cycling {2} ({2}, Discard this card: Draw a card.)",
+            &[CostDef::Mana(mana_cost!("{2}"))]
+        ),
+    ]),
 );
 
 // DFT 75 — Ancient Vendetta
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs one bounded search selecting up to four named cards across a target opponent's graveyard, hand, and library; current zone searches do not share one combined selection limit across those zones.
 pub(in crate::card::sets) static ANCIENT_VENDETTA: CardRecord = CardRecord::new(
     "Ancient Vendetta",
     "230301f2-f288-4b13-9f62-e649ad8357bb",
     "Tianxing Xu",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 76 — Back on Track
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the printed power contribution bonus for both saddling Mounts and crewing Vehicles; CrewsAsThoughPowerGreater is deliberately limited to Vehicles and does not increase saddle payment contributions.
 pub(in crate::card::sets) static BACK_ON_TRACK: CardRecord = CardRecord::new(
     "Back on Track",
     "884c0032-9c62-4028-a55f-6a3da2545654",
     "Raoul Vitale",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 77 — Bloodghast (reprint)
@@ -756,12 +1905,54 @@ const BLOODGHAST_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // DFT 78 — Carrion Cruiser
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CARRION_CRUISER: CardRecord = CardRecord::new(
     "Carrion Cruiser",
     "dc00fdee-3d24-4360-a4d2-ffd3c08a462d",
     "Mathias Kollros",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_vehicle(mana_cost!("{2}{B}"), 3, 2).with_abilities(&[
+        abilities::enters_trigger(
+            "When this Vehicle enters, mill two cards. Then return a \
+             creature or Vehicle card from your graveyard to your hand. \
+             (To mill two cards, put the top two cards of your library \
+             into your graveyard.)",
+            EffectDef::Sequence(&[
+                EffectDef::Mill {
+                    player: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(2),
+                },
+                EffectDef::Choose(ChooseDef {
+                    binding: ObjectChoiceBindingDef::Objects(crate::Binding!("chosen")),
+                    unchosen: None,
+                    chooser: PlayerRefDef::EffectController,
+                    candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                        ]),
+                        &[ZoneKind::Graveyard],
+                        PlayerRelation::You,
+                    )),
+                    exclude: None,
+                    minimum: 1,
+                    maximum: 1,
+                    visibility: ChoiceVisibilityDef::Public,
+                    then: &EffectDef::move_to_zone(
+                        EffectRecipientDef::objects(ObjectSetDef::Binding(crate::Binding!(
+                            "chosen"
+                        ))),
+                        ZoneKind::Hand,
+                        ZonePlacement::Top,
+                    ),
+                }),
+            ]),
+        ),
+        abilities::crew(
+            "Crew 1 (Tap any number of creatures you control with total \
+             power 1 or more: This Vehicle becomes an artifact creature \
+             until end of turn.)",
+            1,
+        ),
+    ]),
 );
 
 // DFT 79 — Chitin Gravestalker
@@ -795,75 +1986,94 @@ pub(in crate::card::sets) static CHITIN_GRAVESTALKER: CardRecord = CardRecord::n
 );
 
 // DFT 80 — Cryptcaller Chariot
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CRYPTCALLER_CHARIOT: CardRecord = CardRecord::new(
     "Cryptcaller Chariot",
     "a0c8259c-055e-4bff-b945-c0ecb057a8f0",
     "Aaron Miller",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_vehicle(mana_cost!("{3}{B}"), 5, 5).with_abilities(&[
+        abilities::menace(),
+        AbilityDef::triggered(
+            "Whenever you discard one or more cards, create that many \
+             tapped 2/2 black Zombie creature tokens.",
+            TriggerEventDef::DiscardedCards(PlayerRelation::You),
+            EffectDef::create_creature_token(&["Zombie"], &[ManaColor::Black], 2, 2)
+                .with_count(ValueDef::TriggerEventAmount)
+                .entering_tapped(),
+        ),
+        abilities::crew("Crew 2", 2),
+    ]),
 );
 
 // DFT 81 — Cursecloth Wrappings
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs granting a graveyard card an embalm activation with costs derived from its mana cost and the complete embalm copy exceptions; current static ability grants do not expose that computed-cost graveyard activation.
 pub(in crate::card::sets) static CURSECLOTH_WRAPPINGS: CardRecord = CardRecord::new(
     "Cursecloth Wrappings",
     "d5803b32-4a81-46c2-9b10-3198a709611d",
     "Dominik Mayer",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 82 — Deathless Pilot
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the printed power contribution bonus for both saddling Mounts and crewing Vehicles; CrewsAsThoughPowerGreater is deliberately limited to Vehicles and does not increase saddle payment contributions.
 pub(in crate::card::sets) static DEATHLESS_PILOT: CardRecord = CardRecord::new(
     "Deathless Pilot",
     "e704fb95-17b7-432a-831c-18abe7d9cc73",
     "Justin Cornell",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 83 — Demonic Junker
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a destruction result retaining which destroyed creatures this player controlled, including destruction whose graveyard move is replaced; WithZoneMoveResult does not wrap destruction, and DestroyFollowUp binds only resulting graveyard cards without their former controllers.
 pub(in crate::card::sets) static DEMONIC_JUNKER: CardRecord = CardRecord::new(
     "Demonic Junker",
     "4aad569e-4acb-4416-9d4f-64e6991de3ed",
     "Stephan Martiniere",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 84 — Engine Rat
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ENGINE_RAT: CardRecord = CardRecord::new(
     "Engine Rat",
     "949d6137-98d3-4f46-ab1e-08d7492af307",
     "Camille Alquier",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{B}"), &["Zombie", "Rat"], 1, 1).with_abilities(&[
+        abilities::deathtouch(),
+        AbilityDef::activated(
+            "{5}{B}: Each opponent loses 2 life.",
+            &[CostDef::Mana(mana_cost!("{5}{B}"))],
+            EffectDef::LoseLife {
+                recipient: EffectRecipientDef::Opponent,
+                amount: ValueDef::Constant(2),
+            },
+        ),
+    ]),
 );
 
 // DFT 85 — Gas Guzzler
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static GAS_GUZZLER: CardRecord = CardRecord::new(
     "Gas Guzzler",
     "4db3a28c-e4b4-4b18-8d56-e3842184d105",
     "Yohann Schepacz",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 86 — Gastal Raider
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static GASTAL_RAIDER: CardRecord = CardRecord::new(
     "Gastal Raider",
     "6e4877b5-4ce5-466a-810f-6501f2a0f217",
     "Lorenzo Mastroianni",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 87 — Gonti, Night Minister
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs hidden exile-play permission assigned to the damaging creature's controller with mana of any type and lasting while the card remains exiled; current exile grants assume the resolving ability's controller or a bounded turn duration.
 pub(in crate::card::sets) static GONTI_NIGHT_MINISTER: CardRecord = CardRecord::new(
     "Gonti, Night Minister",
     "d79ca40a-e5c0-4956-8df0-ecbd2a25656f",
     "Scott M. Fischer",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 88 — Grim Bauble
@@ -909,426 +2119,1076 @@ pub(in crate::card::sets) static GRIM_BAUBLE: CardRecord = CardRecord::new(
 );
 
 // DFT 89 — Grim Javelineer
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a delayed death trigger tied to the chosen object that survives losing its abilities and expires this turn; installed event predicates cannot refer to an object binding, and granting a dies ability is not equivalent.
 pub(in crate::card::sets) static GRIM_JAVELINEER: CardRecord = CardRecord::new(
     "Grim Javelineer",
     "87154116-e306-4e15-bd5a-dcdb5ddbcd36",
     "Bartek Fedyczak",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 90 — Hellish Sideswipe
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HELLISH_SIDESWIPE: CardRecord = CardRecord::new(
     "Hellish Sideswipe",
     "7a9db650-47f9-46d7-ac17-8d19fef6d6b0",
     "Diana Franco",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{B}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "As an additional cost to cast this spell, sacrifice an \
+         artifact or creature.\nDestroy target creature or Vehicle. If \
+         the sacrificed permanent was a Vehicle, draw a card.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::AnyOf(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+            ]),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::ObjectSetCount(&ObjectSetCountConditionDef {
+                    objects: &ObjectSetDef::One(ObjectRefDef::AdditionalCostObject(
+                        AdditionalCostObjectIndex::PRIMARY,
+                    )),
+                    predicate: ObjectSetPredicateDef::contains(&ObjectPredicateDef::Subtype(
+                        SubtypeDef::Literal("Vehicle"),
+                    )),
+                }),
+                then: &abilities::draw_cards(ValueDef::Constant(1)),
+            },
+        ]),
+    )
+    .with_spell_additional_cost(&CostDef::Sacrifice {
+        object: ObjectPredicateDef::AnyOf(&[
+            ObjectPredicateDef::HasType(CardType::Artifact),
+            ObjectPredicateDef::HasType(CardType::Creature),
+        ]),
+        quantity: CostQuantityDef::Fixed(1),
+    })]),
 );
 
 // DFT 91 — Hour of Victory
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static HOUR_OF_VICTORY: CardRecord = CardRecord::new(
     "Hour of Victory",
     "9192abc8-05a3-4e72-a634-fc5acbe97b26",
     "Aaron Miller",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 92 — Intimidation Tactics
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static INTIMIDATION_TACTICS: CardRecord = CardRecord::new(
     "Intimidation Tactics",
     "9b4e6022-44d2-4dfe-8f7a-51581e298f23",
     "Cristi Balanescu",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{B}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Target opponent reveals their hand. You choose an artifact or \
+             creature card from it. Exile that card.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+            )],
+            EffectDef::Sequence(&abilities::reveal_hand_and_exile_chosen_card(
+                PlayerRefDef::Target(TargetIndex::PRIMARY),
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                ]),
+            )),
+        ),
+        abilities::cycling!(
+            "Cycling {3} ({3}, Discard this card: Draw a card.)",
+            &[CostDef::Mana(mana_cost!("{3}"))]
+        ),
+    ]),
 );
 
 // DFT 93 — Kalakscion, Hunger Tyrant
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KALAKSCION_HUNGER_TYRANT: CardRecord = CardRecord::new(
     "Kalakscion, Hunger Tyrant",
     "1214fc6d-ae47-418d-88cc-58633ec2ac7a",
     "John Tedrick",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{B}{B}"), &["Crocodile"], 7, 2)
+        .with_supertype(CardSupertype::Legendary),
 );
 
 // DFT 94 — The Last Ride
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a continuous power/toughness modifier reading the controller's current life total; LifeTotal is available to resolving effects but the static value evaluator cannot supply it.
 pub(in crate::card::sets) static THE_LAST_RIDE: CardRecord = CardRecord::new(
     "The Last Ride",
     "9cbb7b4e-bd32-44a0-9396-16738c5e4381",
     "Michele Giorgi",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 95 — Locust Spray
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LOCUST_SPRAY: CardRecord = CardRecord::new(
     "Locust Spray",
     "54b3a547-6f74-4cb4-ad98-7e1b75f1a120",
     "Caio Monteiro",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{B}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Target creature gets -1/-1 until end of turn.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(-1),
+                    ValueDef::Constant(-1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+        abilities::cycling!(
+            "Cycling {B} ({B}, Discard this card: Draw a card.)",
+            &[CostDef::Mana(mana_cost!("{B}"))]
+        ),
+    ]),
 );
 
 // DFT 96 — Maximum Overdrive
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MAXIMUM_OVERDRIVE: CardRecord = CardRecord::new(
     "Maximum Overdrive",
     "5f6e5bb2-cfe9-48e5-86f9-e21f3d328327",
     "Javier Charro",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{B}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Put a +1/+1 counter on target creature. It gains deathtouch \
+         and indestructible until end of turn.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(1),
+            },
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::add_ability(&abilities::deathtouch()),
+                    AppliedEffectDef::add_ability(&abilities::indestructible()),
+                ]),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ]),
+    )]),
 );
 
 // DFT 97 — Momentum Breaker
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static MOMENTUM_BREAKER: CardRecord = CardRecord::new(
     "Momentum Breaker",
     "38513b53-384f-45e7-9905-80dd2c3c4918",
     "Dmitry Burmak",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 98 — Mutant Surveyor
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static MUTANT_SURVEYOR: CardRecord = CardRecord::new(
     "Mutant Surveyor",
     "7cec5105-3907-40d2-8e46-95acfaaaa0cc",
     "Nicholas Gregory",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 99 — Pactdoll Terror
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PACTDOLL_TERROR: CardRecord = CardRecord::new(
     "Pactdoll Terror",
     "70226354-47b7-4f9d-a5a8-559d17f07720",
     "David Astruga",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{3}{B}"), &["Toy"], 3, 4).with_abilities(&[
+        AbilityDef::triggered(
+            "Whenever this creature or another artifact you control \
+             enters, each opponent loses 1 life and you gain 1 life.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::Source,
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                    ]),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            EffectDef::Sequence(&[
+                EffectDef::LoseLife {
+                    recipient: EffectRecipientDef::Opponent,
+                    amount: ValueDef::Constant(1),
+                },
+                EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+            ]),
+        ),
+    ]),
 );
 
 // DFT 100 — Quag Feast
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static QUAG_FEAST: CardRecord = CardRecord::new(
     "Quag Feast",
     "dd8b6033-63e6-484e-8efb-a4eb9ca59fbf",
     "Loïc Canavaggia",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{1}{B}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Choose target creature, planeswalker, or Vehicle. Mill two \
+         cards, then destroy the chosen permanent if its mana value is \
+         less than or equal to the number of cards in your graveyard.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::AnyOf(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                ObjectPredicateDef::HasType(CardType::Planeswalker),
+            ]),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Mill {
+                player: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(2),
+            },
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::TargetMatches {
+                    slot: TargetIndex::PRIMARY,
+                    object: ObjectPredicateDef::ManaValueAtMostValue(
+                        ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                            ObjectPredicateDef::Any,
+                            &[ZoneKind::Graveyard],
+                            PlayerRelation::You,
+                        )),
+                    ),
+                },
+                then: &EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    then: None,
+                },
+            },
+        ]),
+    )]),
 );
 
 // DFT 101 — Ripclaw Wrangler
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RIPCLAW_WRANGLER: CardRecord = CardRecord::new(
     "Ripclaw Wrangler",
     "d4981a4a-6eca-4f84-8715-8e2672507b59",
     "John Tedrick",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_vehicle(mana_cost!("{3}{B}"), 4, 3).with_abilities(&[
+        abilities::enters_trigger(
+            "When this Vehicle enters, each opponent discards a card.",
+            EffectDef::Discard {
+                recipient: EffectRecipientDef::Opponent,
+                amount: ValueDef::Constant(1),
+                selection: DiscardSelectionDef::RecipientChooses,
+                then: None,
+            },
+        ),
+        abilities::crew(
+            "Crew 2 (Tap any number of creatures you control with total \
+             power 2 or more: This Vehicle becomes an artifact creature \
+             until end of turn.)",
+            2,
+        ),
+    ]),
 );
 
 // DFT 102 — Risen Necroregent
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static RISEN_NECROREGENT: CardRecord = CardRecord::new(
     "Risen Necroregent",
     "5a68482a-401d-48e7-854e-46e3db07ff35",
     "Inkognit",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 103 — Risky Shortcut
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RISKY_SHORTCUT: CardRecord = CardRecord::new(
     "Risky Shortcut",
     "c80aa587-4445-43d7-abc0-654d94ff4cda",
     "Ignatius Budi",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{2}{B}")).with_abilities(&[AbilityDef::spell(
+        "Draw two cards. Each player loses 2 life.",
+        EffectDef::Sequence(&[
+            abilities::draw_cards(ValueDef::Constant(2)),
+            EffectDef::LoseLife {
+                recipient: EffectRecipientDef::EachPlayer,
+                amount: ValueDef::Constant(2),
+            },
+        ]),
+    )]),
 );
 
 // DFT 104 — Shefet Archfiend
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SHEFET_ARCHFIEND: CardRecord = CardRecord::new(
     "Shefet Archfiend",
     "079dc8d2-0de3-415e-8af8-b8dec669368a",
     "GodMachine",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{5}{B}{B}"), &["Demon"], 5, 5).with_abilities(&[
+        abilities::flying(),
+        abilities::enters_trigger(
+            "When this creature enters, all other creatures get -2/-2 \
+             until end of turn.",
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                    ObjectQueryDef::matching(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    ),
+                )),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(-2),
+                    ValueDef::Constant(-2),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+        abilities::cycling!(
+            "Cycling {2} ({2}, Discard this card: Draw a card.)",
+            &[CostDef::Mana(mana_cost!("{2}"))]
+        ),
+    ]),
 );
 
 // DFT 105 — The Speed Demon
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static THE_SPEED_DEMON: CardRecord = CardRecord::new(
     "The Speed Demon",
     "62242a80-0444-4a0e-a868-97eabcc77648",
     "Helge C. Balzer",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 106 — Spin Out
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPIN_OUT: CardRecord = CardRecord::new(
     "Spin Out",
     "be722ac5-e8c4-4180-aed0-7c28895afc0d",
     "Adrián Rodríguez Pérez",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{B}{B}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Destroy target creature or Vehicle.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                ]),
+            )],
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // DFT 107 — Streaking Oilgorger
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static STREAKING_OILGORGER: CardRecord = CardRecord::new(
     "Streaking Oilgorger",
     "6ff120a2-e2bb-42a2-bcb7-a48eb7a6d9b2",
     "Campbell White",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 108 — Syphon Fuel
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SYPHON_FUEL: CardRecord = CardRecord::new(
     "Syphon Fuel",
     "4af17ae0-1035-4cb2-8974-98b377bfaa48",
     "Mathias Kollros",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{4}{B}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Target creature gets -6/-6 until end of turn. You gain 2 life.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(-6),
+                    ValueDef::Constant(-6),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(2),
+            },
+        ]),
+    )]),
 );
 
 // DFT 109 — Wickerfolk Indomitable
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a graveyard cast permission with required additional life and sacrifice costs that also compose with other alternative costs; encoding a new complete alternative cost would incorrectly replace those other casting choices.
 pub(in crate::card::sets) static WICKERFOLK_INDOMITABLE: CardRecord = CardRecord::new(
     "Wickerfolk Indomitable",
     "ba78e076-8962-4b3f-b86f-04400b062951",
     "Sergio Cosmai",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 110 — Wreckage Wickerfolk
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WRECKAGE_WICKERFOLK: CardRecord = CardRecord::new(
     "Wreckage Wickerfolk",
     "aeff3db7-81ac-4c51-9954-bc1dbcb8c4e3",
     "Johan Grenier",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{1}{B}"), &["Scarecrow"], 1, 3).with_abilities(&[
+        abilities::flying(),
+        abilities::enters_trigger(
+            "When this creature enters, surveil 2. (Look at the top two \
+             cards of your library, then put any number of them into your \
+             graveyard and the rest on top of your library in any order.)",
+            abilities::surveil(ValueDef::Constant(2)),
+        ),
+    ]),
 );
 
 // DFT 111 — Wretched Doll
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WRETCHED_DOLL: CardRecord = CardRecord::new(
     "Wretched Doll",
     "4983177d-fbf4-47fa-997f-9d08294870f2",
     "Loïc Canavaggia",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{1}{B}"), &["Toy"], 3, 1).with_abilities(&[
+        AbilityDef::activated(
+            "{B}, {T}: Surveil 1. (Look at the top card of your library. \
+             You may put that card into your graveyard.)",
+            &[CostDef::Mana(mana_cost!("{B}")), CostDef::TapSource],
+            abilities::surveil(ValueDef::Constant(1)),
+        ),
+    ]),
 );
 
 // DFT 112 — Adrenaline Jockey
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a committed activation event filtered by the exhaust mechanic label, including mana abilities; current trigger events do not observe labeled ability activations.
 pub(in crate::card::sets) static ADRENALINE_JOCKEY: CardRecord = CardRecord::new(
     "Adrenaline Jockey",
     "c8655373-320d-440d-b700-d03413f743fd",
     "Alfonso Santano",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 113 — Boommobile
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BOOMMOBILE: CardRecord = CardRecord::new(
     "Boommobile",
     "930c8289-4043-401a-8a7f-22349b7148b4",
     "Alexandr Leskinen",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_vehicle(mana_cost!("{2}{R}{R}"), 5, 5).with_abilities(&[
+        abilities::enters_trigger(
+            "When this Vehicle enters, add four mana of any one color. \
+             Spend this mana only to activate abilities.",
+            EffectDef::AddMana(
+                AddManaEffectDef::any_color()
+                    .with_amount(4)
+                    .with_restrictions(&[ManaRestrictionDef::ActivateAbility(
+                        ObjectPredicateDef::Any,
+                    )]),
+            ),
+        ),
+        exhaust(AbilityDef::activated_with_targets(
+            "Exhaust — {X}{2}{R}: This Vehicle deals X damage to any \
+             target. Put a +1/+1 counter on this Vehicle. (Activate each \
+             exhaust ability only once.)",
+            &[CostDef::Mana(mana_cost!("{X}{2}{R}"))],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::ChosenX,
+                ),
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::Source,
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::Constant(1),
+                },
+            ]),
+        )),
+        abilities::crew("Crew 2", 2),
+    ]),
 );
 
 // DFT 114 — Burner Rocket
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BURNER_ROCKET: CardRecord = CardRecord::new(
     "Burner Rocket",
     "ecee6509-1103-4ae5-a2e7-0441f5d4a872",
     "José Parodi",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_vehicle(mana_cost!("{1}{R}"), 3, 1).with_abilities(&[
+        abilities::flash(),
+        abilities::enters_trigger_with_targets(
+            "When this Vehicle enters, target creature you control gets \
+             +2/+0 and gains trample until end of turn.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                },
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(0),
+                    ),
+                    AppliedEffectDef::add_ability(&abilities::trample()),
+                ]),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+        abilities::crew(
+            "Crew 1 (Tap any number of creatures you control with total \
+             power 1 or more: This Vehicle becomes an artifact creature \
+             until end of turn.)",
+            1,
+        ),
+    ]),
 );
 
 // DFT 115 — Burnout Bashtronaut
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static BURNOUT_BASHTRONAUT: CardRecord = CardRecord::new(
     "Burnout Bashtronaut",
     "4db66e7b-cb7a-4d86-a563-d570946aeb0d",
     "Andrea Piparo",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 116 — Chandra, Spark Hunter
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CHANDRA_SPARK_HUNTER: CardRecord = CardRecord::new(
     "Chandra, Spark Hunter",
     "11f9b98e-48a1-491e-bdab-6e94e4ec747a",
     "Devin Elle Kurtz",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_planeswalker(mana_cost!("{3}{R}"), &["Chandra"], 4)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::triggered_with_targets(
+                "At the beginning of combat on your turn, choose up to one \
+                 target Vehicle you control. Until end of turn, it becomes an \
+                 artifact creature and gains haste.",
+                TriggerEventDef::StepBegins {
+                    step: TurnStepDef::BeginningOfCombat,
+                    player: PlayerRelation::You,
+                },
+                &[AbilityTargetDef::up_to(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::You),
+                        owner: None,
+                    },
+                    1,
+                )],
+                EffectDef::Sequence(&[
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        effect: AppliedEffectDef::add_card_types(
+                            CardTypeSet::single(CardType::Artifact)
+                                .union(CardTypeSet::single(CardType::Creature)),
+                        ),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        effect: AppliedEffectDef::add_ability(&abilities::haste()),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                ]),
+            ),
+            AbilityDef::activated(
+                "+2: You may sacrifice an artifact or discard a card. If you \
+                 do, draw a card.",
+                &[CostDef::Loyalty(2)],
+                EffectDef::ChooseEffect {
+                    player: EffectRecipientDef::Controller,
+                    choices: &[
+                        EffectChoiceDef {
+                            label: "Sacrifice an artifact",
+                            effect: EffectDef::PayOr(PayOrDef::optional(
+                                &[CostDef::sacrifice_permanent(ObjectPredicateDef::HasType(
+                                    CardType::Artifact,
+                                ))],
+                                &abilities::draw_cards(ValueDef::Constant(1)),
+                            )),
+                        },
+                        EffectChoiceDef {
+                            label: "Discard a card",
+                            effect: EffectDef::PayOr(PayOrDef::optional(
+                                &[CostDef::discard(ObjectPredicateDef::Any)],
+                                &abilities::draw_cards(ValueDef::Constant(1)),
+                            )),
+                        },
+                        EffectChoiceDef {
+                            label: "Do neither",
+                            effect: EffectDef::None,
+                        },
+                    ],
+                },
+            ),
+            AbilityDef::activated(
+                "0: Create a 3/2 colorless Vehicle artifact token with crew 1.",
+                &[CostDef::Loyalty(0)],
+                EffectDef::create_token(
+                    TokenCharacteristics::new(
+                        CardTypeSet::single(CardType::Artifact),
+                        &["Vehicle"],
+                        &[],
+                        Some(CreatureStats {
+                            power: 3,
+                            toughness: 2,
+                        }),
+                    )
+                    .with_abilities(&[abilities::crew("Crew 1", 1)]),
+                ),
+            ),
+            AbilityDef::activated(
+                "−7: You get an emblem with \"Whenever an artifact you control \
+                 enters, this emblem deals 3 damage to any target.\"",
+                &[CostDef::Loyalty(-7)],
+                EffectDef::CreateEmblem {
+                    emblem: EmblemCharacteristics::new(
+                        "Chandra Emblem",
+                        &[AbilityDef::triggered_with_targets(
+                            "Whenever an artifact you control enters, this emblem deals 3 \
+                             damage to any target.",
+                            TriggerEventDef::zone_changed(
+                                ObjectPredicateDef::All(&[
+                                    ObjectPredicateDef::HasType(CardType::Artifact),
+                                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                                ]),
+                                None,
+                                Some(ZoneKind::Battlefield),
+                            ),
+                            &[AbilityTargetDef::exactly_one(
+                                AbilityTargetPredicate::AnyTarget,
+                            )],
+                            EffectDef::damage(
+                                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                ValueDef::Constant(3),
+                            ),
+                        )],
+                    ),
+                },
+            ),
+        ]),
 );
 
 // DFT 117 — Clamorous Ironclad
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CLAMOROUS_IRONCLAD: CardRecord = CardRecord::new(
     "Clamorous Ironclad",
     "4701da52-b9c8-4ce9-9d57-53e10899f19d",
     "Svetlin Velinov",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_vehicle(mana_cost!("{3}{R}"), 6, 3).with_abilities(&[
+        abilities::menace(),
+        abilities::crew(
+            "Crew 3 (Tap any number of creatures you control with total \
+             power 3 or more: This Vehicle becomes an artifact creature \
+             until end of turn.)",
+            3,
+        ),
+        abilities::cycling!(
+            "Cycling {R} ({R}, Discard this card: Draw a card.)",
+            &[CostDef::Mana(mana_cost!("{R}"))]
+        ),
+    ]),
 );
 
 // DFT 118 — Count on Luck
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static COUNT_ON_LUCK: CardRecord = CardRecord::new(
     "Count on Luck",
     "8f31beae-9b8f-4c32-af84-9f3ee767ba1d",
     "Michal Ivan",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{R}{R}{R}")).with_abilities(&[AbilityDef::triggered(
+        "At the beginning of your upkeep, exile the top card of your \
+         library. You may play that card this turn.",
+        TriggerEventDef::StepBegins {
+            step: TurnStepDef::Upkeep,
+            player: PlayerRelation::You,
+        },
+        EffectDef::BindObjects(BindObjectsDef {
+            source: ObjectCollectionSourceDef::TopCards {
+                player: PlayerRefDef::EffectController,
+                count: ValueDef::Constant(1),
+            },
+            binding: crate::Binding!("top"),
+            then: &EffectDef::ExileGrantingControllerPlayThisTurn {
+                object: EffectRecipientDef::objects(ObjectSetDef::Binding(crate::Binding!("top"))),
+            },
+        }),
+    )]),
 );
 
 // DFT 119 — Crash and Burn
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CRASH_AND_BURN: CardRecord = CardRecord::new(
     "Crash and Burn",
     "339a41a1-b36f-4b81-b74c-220d279c0e26",
     "Anthony Devine",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{3}{R}")).with_abilities(&[AbilityDef::modal_spell(
+        "Choose one —",
+        &[
+            AbilityDef::spell_with_targets(
+                "Destroy target Vehicle.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                )],
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    then: None,
+                },
+            ),
+            AbilityDef::spell_with_targets(
+                "Crash and Burn deals 6 damage to target creature or planeswalker.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::HasType(CardType::Planeswalker),
+                    ]),
+                )],
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(6),
+                ),
+            ),
+        ],
+    )]),
 );
 
 // DFT 120 — Daretti, Rocketeer Engineer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DARETTI_ROCKETEER_ENGINEER: CardRecord = CardRecord::new(
     "Daretti, Rocketeer Engineer",
     "be626e2f-1075-4497-bd5b-bd805777afd3",
     "Borja Pindado",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{R}"), &["Goblin", "Artificer"], 0, 5)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Daretti's power is equal to the greatest mana value among \
+                 artifacts you control.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::define_power(ValueDef::AggregateObjectValues(
+                        &ObjectValueAggregateDef {
+                            objects: ObjectSetDef::Query(ObjectQueryDef::matching(
+                                ObjectPredicateDef::HasType(CardType::Artifact),
+                                &[ZoneKind::Battlefield],
+                                PlayerRelation::You,
+                            )),
+                            select: ObjectValueDef::ManaValue,
+                            operation: AggregateOperationDef::Maximum,
+                        },
+                    )),
+                },
+            ),
+            AbilityDef::triggered_with_targets(
+                "Whenever Daretti enters or attacks, choose target artifact \
+                 card in your graveyard. You may sacrifice an artifact. If you \
+                 do, return the chosen card to the battlefield.",
+                TriggerEventDef::AnyOf(&[
+                    TriggerEventDef::zone_changed(
+                        ObjectPredicateDef::Source,
+                        None,
+                        Some(ZoneKind::Battlefield),
+                    ),
+                    TriggerEventDef::attacks(ObjectPredicateDef::Source),
+                ]),
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Artifact),
+                        zones: &[ZoneKind::Graveyard],
+                        controller: None,
+                        owner: Some(PlayerRelation::You),
+                    },
+                )],
+                EffectDef::PayOr(PayOrDef::optional(
+                    &[CostDef::sacrifice_permanent(ObjectPredicateDef::HasType(
+                        CardType::Artifact,
+                    ))],
+                    &EffectDef::move_to_zone(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ZoneKind::Battlefield,
+                        ZonePlacement::Top,
+                    ),
+                )),
+            ),
+        ]),
 );
 
 // DFT 121 — Draconautics Engineer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DRACONAUTICS_ENGINEER: CardRecord = CardRecord::new(
     "Draconautics Engineer",
     "c44440be-e611-4e70-9919-b08e2354b7ad",
     "Artur Nakhodkin",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Goblin", "Artificer"], 2, 2).with_abilities(
+        &[
+            exhaust(AbilityDef::activated(
+                "Exhaust — {R}: Other creatures you control gain haste until \
+                 end of turn. Put a +1/+1 counter on this creature. (Activate \
+                 each exhaust ability only once.)",
+                &[CostDef::Mana(mana_cost!("{R}"))],
+                EffectDef::Sequence(&[
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                            ObjectQueryDef::matching(
+                                ObjectPredicateDef::All(&[
+                                    ObjectPredicateDef::HasType(CardType::Creature),
+                                    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                                ]),
+                                &[ZoneKind::Battlefield],
+                                PlayerRelation::You,
+                            ),
+                        )),
+                        effect: AppliedEffectDef::add_ability(&abilities::haste()),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                    EffectDef::AddCounters {
+                        object: EffectRecipientDef::Source,
+                        kind: CounterKind::PlusOnePlusOne,
+                        amount: ValueDef::Constant(1),
+                    },
+                ]),
+            )),
+            exhaust(AbilityDef::activated(
+                "Exhaust — {3}{R}: Create a 4/4 red Dinosaur Dragon creature \
+                 token with flying.",
+                &[CostDef::Mana(mana_cost!("{3}{R}"))],
+                EffectDef::create_creature_token(&["Dinosaur", "Dragon"], &[ManaColor::Red], 4, 4)
+                    .with_abilities(&[abilities::flying()]),
+            )),
+        ],
+    ),
 );
 
 // DFT 122 — Dracosaur Auxiliary
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DRACOSAUR_AUXILIARY: CardRecord = CardRecord::new(
     "Dracosaur Auxiliary",
     "cf800b8c-d08e-4644-8ed2-11b839153861",
     "Brian Valeza",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(
+        mana_cost!("{4}{R}{R}"),
+        &["Dinosaur", "Dragon", "Mount"],
+        4,
+        4,
+    )
+    .with_abilities(&[
+        abilities::flying(),
+        abilities::haste(),
+        AbilityDef::triggered_with_targets(
+            "Whenever this creature attacks while saddled, it deals 2 \
+             damage to any target.",
+            TriggerEventDef::While {
+                event: &TriggerEventDef::attacks(ObjectPredicateDef::Source),
+                condition: &TriggerConditionDef::SourceMatches {
+                    object: ObjectPredicateDef::Saddled,
+                },
+            },
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(2),
+            ),
+        ),
+        abilities::saddle(
+            &[CostDef::TapCreaturesWithTotalPower { minimum: 3 }],
+            "Saddle 3 (Tap any number of other creatures you control with \
+             total power 3 or more: This Mount becomes saddled until end \
+             of turn. Saddle only as a sorcery.)",
+        ),
+    ]),
 );
 
 // DFT 123 — Dynamite Diver
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the printed power contribution bonus for both saddling Mounts and crewing Vehicles; CrewsAsThoughPowerGreater is deliberately limited to Vehicles and does not increase saddle payment contributions.
 pub(in crate::card::sets) static DYNAMITE_DIVER: CardRecord = CardRecord::new(
     "Dynamite Diver",
     "5a4f96f6-dd91-4357-ae19-1c35db2c2bcb",
     "Pete Venters",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 124 — Endrider Catalyzer
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static ENDRIDER_CATALYZER: CardRecord = CardRecord::new(
     "Endrider Catalyzer",
     "55a5a67b-d969-4ba4-9dcc-32d0c2e5c04a",
     "Karl Kopinski",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 125 — Endrider Spikespitter
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static ENDRIDER_SPIKESPITTER: CardRecord = CardRecord::new(
     "Endrider Spikespitter",
     "4e58cb18-f216-4248-8f0d-65b0263c5c28",
     "Mila Pesic",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 126 — Fuel the Flames
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FUEL_THE_FLAMES: CardRecord = CardRecord::new(
     "Fuel the Flames",
     "624335fb-8a0b-4fa9-aefb-60ac641a7934",
     "Nicholas Gregory",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{2}{R}")).with_abilities(&[
+        AbilityDef::spell(
+            "Fuel the Flames deals 2 damage to each creature.",
+            EffectDef::damage(
+                EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ))),
+                ValueDef::Constant(2),
+            ),
+        ),
+        abilities::cycling!(
+            "Cycling {2} ({2}, Discard this card: Draw a card.)",
+            &[CostDef::Mana(mana_cost!("{2}"))]
+        ),
+    ]),
 );
 
 // DFT 127 — Full Throttle
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs scheduling two additional combats after a main phase while installing an untap trigger at every combat start this turn; the current phase schedule accepts extra phases but does not condition insertion on resolving during a main phase.
 pub(in crate::card::sets) static FULL_THROTTLE: CardRecord = CardRecord::new(
     "Full Throttle",
     "d91f7cad-89e8-45cb-a78e-b35b0ee64783",
     "Benjamin Ee",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 128 — Gastal Blockbuster
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a resolution-created reflexive trigger that chooses its target after the sacrifice and survives the source leaving; OptionalEffectTaken watches battlefield listeners and does not represent this payment-specific continuation.
 pub(in crate::card::sets) static GASTAL_BLOCKBUSTER: CardRecord = CardRecord::new(
     "Gastal Blockbuster",
     "dca41ec6-8f8f-42ef-abac-cc645c6440b7",
     "Bryan Sola",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 129 — Gastal Thrillroller
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs an ordinary activation from the graveyard that pays a chosen hand-card discard in addition to mana; current nonbattlefield activation enumeration does not support that discard cost.
 pub(in crate::card::sets) static GASTAL_THRILLROLLER: CardRecord = CardRecord::new(
     "Gastal Thrillroller",
     "d8b1762b-ff03-4312-afcc-cb6b5f280ade",
     "Caio Monteiro",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 130 — Gilded Ghoda
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GILDED_GHODA: CardRecord = CardRecord::new(
     "Gilded Ghoda",
     "55685602-a18c-43a4-ac60-13b039672fa4",
     "Alexandre Honoré",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Horse", "Mount"], 2, 2).with_abilities(&[
+        AbilityDef::triggered(
+            "Whenever this creature attacks while saddled, create a \
+             Treasure token. (It's an artifact with \"{T}, Sacrifice this \
+             token: Add one mana of any color.\")",
+            TriggerEventDef::While {
+                event: &TriggerEventDef::attacks(ObjectPredicateDef::Source),
+                condition: &TriggerConditionDef::SourceMatches {
+                    object: ObjectPredicateDef::Saddled,
+                },
+            },
+            EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(1)),
+        ),
+        abilities::saddle(
+            &[CostDef::TapCreaturesWithTotalPower { minimum: 1 }],
+            "Saddle 1 (Tap any number of other creatures you control with \
+             total power 1 or more: This Mount becomes saddled until end \
+             of turn. Saddle only as a sorcery.)",
+        ),
+    ]),
 );
 
 // DFT 131 — Goblin Surveyor
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static GOBLIN_SURVEYOR: CardRecord = CardRecord::new(
     "Goblin Surveyor",
     "e1efffe9-00f8-4177-a9e6-4ad62887d32f",
     "Pete Venters",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 132 — Greasewrench Goblin
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GREASEWRENCH_GOBLIN: CardRecord = CardRecord::new(
     "Greasewrench Goblin",
     "c8f0b123-fdb0-4f3e-ba78-fa155c227e20",
     "Alexandre Honoré",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{R}"), &["Goblin", "Artificer"], 2, 1).with_abilities(&[
+        exhaust(AbilityDef::activated(
+            "Exhaust — {2}{R}: Discard up to two cards, then draw that \
+             many cards. Put a +1/+1 counter on this creature. (Activate \
+             each exhaust ability only once.)",
+            &[CostDef::Mana(mana_cost!("{2}{R}"))],
+            EffectDef::Sequence(&[
+                EffectDef::Choose(ChooseDef {
+                    binding: ObjectChoiceBindingDef::Objects(crate::Binding!("chosen")),
+                    unchosen: None,
+                    chooser: PlayerRefDef::EffectController,
+                    candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
+                        ObjectPredicateDef::Any,
+                        &[ZoneKind::Hand],
+                        PlayerRelation::You,
+                    )),
+                    exclude: None,
+                    minimum: 0,
+                    maximum: 2,
+                    visibility: ChoiceVisibilityDef::Private,
+                    then: &EffectDef::Sequence(&[
+                        EffectDef::discard_cards(EffectRecipientDef::objects(
+                            ObjectSetDef::Binding(crate::Binding!("chosen")),
+                        )),
+                        abilities::draw_cards(ValueDef::CountObjects(&ObjectSetDef::Binding(
+                            crate::Binding!("chosen"),
+                        ))),
+                    ]),
+                }),
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::Source,
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::Constant(1),
+                },
+            ]),
+        )),
+    ]),
 );
 
 // DFT 133 — Hazoret, Godseeker
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static HAZORET_GODSEEKER: CardRecord = CardRecord::new(
     "Hazoret, Godseeker",
     "e2f66043-0872-4334-a91f-0e9bbbdddf66",
     "Chris Rallis",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 134 — Howlsquad Heavy
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static HOWLSQUAD_HEAVY: CardRecord = CardRecord::new(
     "Howlsquad Heavy",
     "df582f80-7b9a-4f71-95a9-70548ec7d2d7",
     "Leonardo Santanna",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 135 — Kickoff Celebrations
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static KICKOFF_CELEBRATIONS: CardRecord = CardRecord::new(
     "Kickoff Celebrations",
     "4e5590e1-0ac0-4bdd-815b-136bf24ced03",
     "Evyn Fong",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 136 — Lightning Strike (reprint)
@@ -1339,174 +3199,519 @@ const LIGHTNING_STRIKE_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // DFT 137 — Magmakin Artillerist
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MAGMAKIN_ARTILLERIST: CardRecord = CardRecord::new(
     "Magmakin Artillerist",
     "2ac26341-a100-424d-be84-33fbbf1b4078",
     "Madeline Boni",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Elemental", "Pirate"], 1, 4).with_abilities(
+        &[
+            AbilityDef::triggered(
+                "Whenever you discard one or more cards, this creature deals \
+                 that much damage to each opponent.",
+                TriggerEventDef::DiscardedCards(PlayerRelation::You),
+                EffectDef::damage(EffectRecipientDef::Opponent, ValueDef::TriggerEventAmount),
+            ),
+            abilities::cycling!(
+                "Cycling {1}{R} ({1}{R}, Discard this card: Draw a card.)",
+                &[CostDef::Mana(mana_cost!("{1}{R}"))]
+            ),
+            AbilityDef::triggered(
+                "When you cycle this card, it deals 1 damage to each opponent.",
+                TriggerEventDef::DiscardedToActivate(abilities::CYCLING),
+                EffectDef::damage(EffectRecipientDef::Opponent, ValueDef::Constant(1)),
+            ),
+        ],
+    ),
 );
 
 // DFT 138 — Marauding Mako
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MARAUDING_MAKO: CardRecord = CardRecord::new(
     "Marauding Mako",
     "9efbfd67-e0f5-43e0-9fff-1eb4a2bed0d8",
     "Alix Branwyn",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{R}"), &["Shark", "Pirate"], 1, 1).with_abilities(&[
+        AbilityDef::triggered(
+            "Whenever you discard one or more cards, put that many +1/+1 \
+             counters on this creature.",
+            TriggerEventDef::DiscardedCards(PlayerRelation::You),
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::TriggerEventAmount,
+            },
+        ),
+        abilities::cycling!(
+            "Cycling {2} ({2}, Discard this card: Draw a card.)",
+            &[CostDef::Mana(mana_cost!("{2}"))]
+        ),
+    ]),
 );
 
 // DFT 139 — Outpace Oblivion
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static OUTPACE_OBLIVION: CardRecord = CardRecord::new(
     "Outpace Oblivion",
     "c22e415f-636f-4394-9b21-600ab720ac98",
     "Raymond Swanland",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 140 — Pacesetter Paragon
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PACESETTER_PARAGON: CardRecord = CardRecord::new(
     "Pacesetter Paragon",
     "7364b4dc-8cce-498d-a62e-eabc612b062a",
     "Wonchun Choi",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Human", "Pilot"], 2, 3).with_abilities(&[
+        exhaust(AbilityDef::activated(
+            "Exhaust — {2}{R}: Put a +1/+1 counter on this creature. It \
+             gains double strike until end of turn. (Activate each exhaust \
+             ability only once.)",
+            &[CostDef::Mana(mana_cost!("{2}{R}"))],
+            EffectDef::Sequence(&[
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::Source,
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::Constant(1),
+                },
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::add_ability(&abilities::double_strike()),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ]),
+        )),
+    ]),
 );
 
 // DFT 141 — Pedal to the Metal
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PEDAL_TO_THE_METAL: CardRecord = CardRecord::new(
     "Pedal to the Metal",
     "75d07295-78b7-4f90-82c7-e7a639db9993",
     "Anthony Devine",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{X}{R}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Target creature gets +X/+0 and gains first strike until end \
+         of turn.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            effect: AppliedEffectDef::Composite(&[
+                AppliedEffectDef::modify_power_toughness(ValueDef::ChosenX, ValueDef::Constant(0)),
+                AppliedEffectDef::add_ability(&abilities::first_strike()),
+            ]),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )]),
 );
 
 // DFT 142 — Prowcatcher Specialist
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PROWCATCHER_SPECIALIST: CardRecord = CardRecord::new(
     "Prowcatcher Specialist",
     "affbc8db-4ff7-4a86-954a-910493e5a2ef",
     "Konstantin Porubov",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Goblin", "Warrior"], 2, 1).with_abilities(&[
+        abilities::haste(),
+        exhaust(AbilityDef::activated(
+            "Exhaust — {3}{R}: Put two +1/+1 counters on this creature. \
+             (Activate each exhaust ability only once.)",
+            &[CostDef::Mana(mana_cost!("{3}{R}"))],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(2),
+            },
+        )),
+    ]),
 );
 
 // DFT 143 — Push the Limit
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PUSH_THE_LIMIT: CardRecord = CardRecord::new(
     "Push the Limit",
     "21de84a2-2654-4e1a-a569-bf385bb43685",
     "Alexander Mokhov",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{5}{R}{R}")).with_abilities(&[AbilityDef::spell(
+        "Return all Mount and Vehicle cards from your graveyard to the \
+         battlefield. Sacrifice them at the beginning of the next end \
+         step.\nVehicles you control become artifact creatures until \
+         end of turn. Creatures you control gain haste until end of \
+         turn.",
+        EffectDef::Sequence(&[
+            EffectDef::WithZoneMoveResult {
+                effect: &EffectDef::move_to_zone(
+                    EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::matching(
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Mount")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                        ]),
+                        &[ZoneKind::Graveyard],
+                        PlayerRelation::You,
+                    ))),
+                    ZoneKind::Battlefield,
+                    ZonePlacement::Top,
+                ),
+                binding: crate::Binding!("returned"),
+                then: &EffectDef::InstallTrigger(InstalledTriggerDef::once(
+                    &AbilityDef::triggered(
+                        "At the beginning of the next end step, sacrifice this permanent.",
+                        TriggerEventDef::StepBegins {
+                            step: TurnStepDef::End,
+                            player: PlayerRelation::Any,
+                        },
+                        EffectDef::sacrifice(EffectRecipientDef::objects(
+                            ObjectSetDef::ZoneChangeSuccessorsOfBinding(crate::Binding!(
+                                "returned"
+                            )),
+                        )),
+                    ),
+                )),
+            },
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                    ObjectQueryDef::matching(
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                )),
+                effect: AppliedEffectDef::add_card_types(
+                    CardTypeSet::single(CardType::Artifact)
+                        .union(CardTypeSet::single(CardType::Creature)),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                    ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                )),
+                effect: AppliedEffectDef::add_ability(&abilities::haste()),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ]),
+    )]),
 );
 
 // DFT 144 — Reckless Velocitaur
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a committed crew/saddle contribution event naming the paying creature and the Mount or Vehicle during the main phase; the current total-power tap payment only emits ordinary tapped events and does not retain that relationship.
 pub(in crate::card::sets) static RECKLESS_VELOCITAUR: CardRecord = CardRecord::new(
     "Reckless Velocitaur",
     "8edd18be-3861-4510-ba6d-38ccba60bb5b",
     "Inkognit",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 145 — Road Rage
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ROAD_RAGE: CardRecord = CardRecord::new(
     "Road Rage",
     "fca022de-0c7b-48ea-b3b5-af28987a5070",
     "Javier Charro",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{R}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Road Rage deals X damage to target creature or planeswalker, \
+         where X is 2 plus the number of Mounts and Vehicles you \
+         control.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::AnyOf(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::HasType(CardType::Planeswalker),
+            ]),
+        )],
+        EffectDef::damage(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ValueDef::Sum(&SumValueDef::new(
+                ValueDef::Constant(2),
+                ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Mount")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                )),
+            )),
+        ),
+    )]),
 );
 
 // DFT 146 — Skycrash
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SKYCRASH: CardRecord = CardRecord::new(
     "Skycrash",
     "87e82be6-d2b4-4c95-8466-477e8c6832e9",
     "Nicholas Gregory",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{R}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Destroy target artifact.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Artifact),
+            )],
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        ),
+        abilities::cycling!(
+            "Cycling {R} ({R}, Discard this card: Draw a card.)",
+            &[CostDef::Mana(mana_cost!("{R}"))]
+        ),
+    ]),
 );
 
 // DFT 147 — Spire Mechcycle
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPIRE_MECHCYCLE: CardRecord = CardRecord::new(
     "Spire Mechcycle",
     "f483debe-9c54-4323-aec5-226587ece2c9",
     "Adam Volker",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_vehicle(mana_cost!("{4}{R}"), 5, 4).with_abilities(&[
+        abilities::haste(),
+        exhaust(AbilityDef::activated(
+            "Exhaust — Tap another untapped Mount or Vehicle you control: \
+             This Vehicle becomes an artifact creature. Put a +1/+1 \
+             counter on it for each Mount and/or Vehicle you control other \
+             than this Vehicle. (Activate each exhaust ability only once.)",
+            &[CostDef::TapPermanents {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Mount")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                    ]),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                ]),
+                controller: PlayerRelation::You,
+                count: 1,
+            }],
+            EffectDef::Sequence(&[
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::add_card_types(
+                        CardTypeSet::single(CardType::Artifact)
+                            .union(CardTypeSet::single(CardType::Creature)),
+                    ),
+                    duration: ResolvedEffectDurationDef::Permanent,
+                },
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::Source,
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::AnyOf(&[
+                                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Mount")),
+                                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                            ]),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    )),
+                },
+            ]),
+        )),
+        abilities::crew("Crew 2", 2),
+    ]),
 );
 
 // DFT 148 — Thunderhead Gunner
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static THUNDERHEAD_GUNNER: CardRecord = CardRecord::new(
     "Thunderhead Gunner",
     "ef537868-b2cb-4bbd-a935-b7f73f19bd06",
     "Mirko Failoni",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{R}"), &["Shark", "Pirate"], 4, 5).with_abilities(&[
+        abilities::reach(),
+        AbilityDef::activated(
+            "Discard a card: Draw a card. Activate only as a sorcery and \
+             only once each turn.",
+            &[CostDef::discard(ObjectPredicateDef::Any)],
+            abilities::draw_cards(ValueDef::Constant(1)),
+        )
+        .with_activation_timing(ActivationTimingDef::SorcerySpeed)
+        .activations_each_turn(1),
+    ]),
 );
 
 // DFT 149 — Tyrox, Saurid Tyrant
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TYROX_SAURID_TYRANT: CardRecord = CardRecord::new(
     "Tyrox, Saurid Tyrant",
     "159dc5a8-5cba-4c20-8c07-28a3d86c8411",
     "John Tedrick",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Dinosaur", "Warrior"], 4, 1)
+        .with_supertype(CardSupertype::Legendary),
 );
 
 // DFT 150 — Afterburner Expert
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a committed activation event filtered by the exhaust mechanic label, including mana abilities; current trigger events do not observe labeled ability activations.
 pub(in crate::card::sets) static AFTERBURNER_EXPERT: CardRecord = CardRecord::new(
     "Afterburner Expert",
     "555e1bfc-6d07-4979-a914-b2bd1fb031f2",
     "April Prime",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 151 — Agonasaur Rex
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AGONASAUR_REX: CardRecord = CardRecord::new(
     "Agonasaur Rex",
     "5b11ec26-9e07-45e1-bcaa-5d44d1231586",
     "Lucas Graciano",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{G}{G}"), &["Dinosaur"], 8, 8).with_abilities(&[
+        abilities::trample(),
+        abilities::cycling!(
+            "Cycling {2}{G} ({2}{G}, Discard this card: Draw a card.)",
+            &[CostDef::Mana(mana_cost!("{2}{G}"))]
+        ),
+        AbilityDef::triggered_with_targets(
+            "When you cycle this card, put two +1/+1 counters on up to one \
+             target creature or Vehicle. It gains trample and \
+             indestructible until end of turn.",
+            TriggerEventDef::DiscardedToActivate(abilities::CYCLING),
+            &[AbilityTargetDef::up_to(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                    ]),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+                1,
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::Constant(2),
+                },
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::add_ability(&abilities::trample()),
+                        AppliedEffectDef::add_ability(&abilities::indestructible()),
+                    ]),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ]),
+        ),
+    ]),
 );
 
 // DFT 152 — Alacrian Jaguar
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ALACRIAN_JAGUAR: CardRecord = CardRecord::new(
     "Alacrian Jaguar",
     "2bd40bca-aa54-4e52-8d48-b3709a11e633",
     "Andrey Kuzinskiy",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{G}"), &["Cat", "Mount"], 4, 4).with_abilities(&[
+        abilities::vigilance(),
+        AbilityDef::triggered(
+            "Whenever this creature attacks while saddled, it gets +2/+2 \
+             until end of turn.",
+            TriggerEventDef::While {
+                event: &TriggerEventDef::attacks(ObjectPredicateDef::Source),
+                condition: &TriggerConditionDef::SourceMatches {
+                    object: ObjectPredicateDef::Saddled,
+                },
+            },
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(2),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+        abilities::saddle(
+            &[CostDef::TapCreaturesWithTotalPower { minimum: 1 }],
+            "Saddle 1 (Tap any number of other creatures you control with \
+             total power 1 or more: This Mount becomes saddled until end \
+             of turn. Saddle only as a sorcery.)",
+        ),
+    ]),
 );
 
 // DFT 153 — Autarch Mammoth
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AUTARCH_MAMMOTH: CardRecord = CardRecord::new(
     "Autarch Mammoth",
     "4d313ea7-2456-48f3-8b12-97d8e8c2a5b3",
     "Leonardo Santanna",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{G}{G}"), &["Elephant", "Mount"], 5, 5).with_abilities(
+        &[
+            abilities::enters_trigger(
+                "When this creature enters and whenever it attacks while \
+                 saddled, create a 3/3 green Elephant creature token.",
+                EffectDef::create_creature_token(&["Elephant"], &[ManaColor::Green], 3, 3),
+            ),
+            AbilityDef::triggered(
+                "When this creature enters and whenever it attacks while \
+                 saddled, create a 3/3 green Elephant creature token.",
+                TriggerEventDef::While {
+                    event: &TriggerEventDef::attacks(ObjectPredicateDef::Source),
+                    condition: &TriggerConditionDef::SourceMatches {
+                        object: ObjectPredicateDef::Saddled,
+                    },
+                },
+                EffectDef::create_creature_token(&["Elephant"], &[ManaColor::Green], 3, 3),
+            ),
+            abilities::saddle(
+                &[CostDef::TapCreaturesWithTotalPower { minimum: 5 }],
+                "Saddle 5 (Tap any number of other creatures you control with \
+                 total power 5 or more: This Mount becomes saddled until end \
+                 of turn. Saddle only as a sorcery.)",
+            ),
+        ],
+    ),
 );
 
 // DFT 154 — Beastrider Vanguard
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BEASTRIDER_VANGUARD: CardRecord = CardRecord::new(
     "Beastrider Vanguard",
     "f4b99a61-49f1-46a2-9eb7-b6c88c236215",
     "Andrey Kuzinskiy",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Human", "Knight"], 2, 2).with_abilities(&[
+        AbilityDef::activated(
+            "{4}{G}: Look at the top three cards of your library. You may \
+             reveal a permanent card from among them and put it into your \
+             hand. Put the rest on the bottom of your library in any \
+             order.",
+            &[CostDef::Mana(mana_cost!("{4}{G}"))],
+            abilities::look_at_top_cards_reveal_choice_to_hand_rest_bottom(
+                ValueDef::Constant(3),
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::HasType(CardType::Enchantment),
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    ObjectPredicateDef::HasType(CardType::Planeswalker),
+                ]),
+                0,
+                1,
+            ),
+        ),
+    ]),
 );
 
 // DFT 155 — Bestow Greatness
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BESTOW_GREATNESS: CardRecord = CardRecord::new(
     "Bestow Greatness",
     "b6a5adee-3482-4c5b-9260-58efa8fec5ba",
     "Jeff Carpenter",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{2}{G}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Target creature gets +4/+4 and gains trample until end of turn.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            effect: AppliedEffectDef::Composite(&[
+                AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(4),
+                    ValueDef::Constant(4),
+                ),
+                AppliedEffectDef::add_ability(&abilities::trample()),
+            ]),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )]),
 );
 
 // DFT 156 — Broken Wings (reprint)
@@ -1517,309 +3722,1010 @@ const BROKEN_WINGS_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // DFT 157 — Defend the Rider
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the printed power contribution bonus for both saddling Mounts and crewing Vehicles; CrewsAsThoughPowerGreater is deliberately limited to Vehicles and does not increase saddle payment contributions.
 pub(in crate::card::sets) static DEFEND_THE_RIDER: CardRecord = CardRecord::new(
     "Defend the Rider",
     "59ed23a2-6153-47b2-ab73-062195cafb74",
     "Raph Lomotan",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 158 — District Mascot
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DISTRICT_MASCOT: CardRecord = CardRecord::new(
     "District Mascot",
     "3171b16f-cd67-416d-be5e-5d9cccb8d0a0",
     "Liiga Smilshkalne",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{G}"), &["Dog", "Mount"], 0, 0).with_abilities(&[
+        AbilityDef::as_enters(
+            "This creature enters with a +1/+1 counter on it.",
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCounters {
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: 1,
+                },
+            ),
+        ),
+        AbilityDef::activated_with_targets(
+            "{1}{G}, Remove two +1/+1 counters from this creature: Destroy \
+             target artifact.",
+            &[
+                CostDef::Mana(mana_cost!("{1}{G}")),
+                CostDef::RemoveCountersFromSource {
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: 2,
+                },
+            ],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Artifact),
+            )],
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        ),
+        AbilityDef::triggered(
+            "Whenever this creature attacks while saddled, put a +1/+1 \
+             counter on it.",
+            TriggerEventDef::While {
+                event: &TriggerEventDef::attacks(ObjectPredicateDef::Source),
+                condition: &TriggerConditionDef::SourceMatches {
+                    object: ObjectPredicateDef::Saddled,
+                },
+            },
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        abilities::saddle(
+            &[CostDef::TapCreaturesWithTotalPower { minimum: 1 }],
+            "Saddle 1",
+        ),
+    ]),
 );
 
 // DFT 159 — Dredger's Insight
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs one trigger for a simultaneous group of artifact or creature cards leaving this player's graveyard; current zone-change matchers emit a trigger for each card and do not coalesce the matching group.
 pub(in crate::card::sets) static DREDGER_S_INSIGHT: CardRecord = CardRecord::new(
     "Dredger's Insight",
     "148400a0-7819-4551-9815-9357eed1db4d",
     "Bartek Fedyczak",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 160 — Earthrumbler
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static EARTHRUMBLER: CardRecord = CardRecord::new(
     "Earthrumbler",
     "ee386cd0-934a-4b33-9db3-0a9033ab577e",
     "J.P. Targete",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_vehicle(mana_cost!("{4}{G}"), 7, 6).with_abilities(&[
+        abilities::vigilance(),
+        abilities::trample(),
+        AbilityDef::activated(
+            "Exile an artifact or creature card from your graveyard: This \
+             Vehicle becomes an artifact creature until end of turn.",
+            &[CostDef::MoveToZone(MoveToZoneCostDef::new(
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                ]),
+                ZoneKind::Graveyard,
+                ZoneKind::Exile,
+                1,
+            ))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::add_card_types(
+                    CardTypeSet::single(CardType::Artifact)
+                        .union(CardTypeSet::single(CardType::Creature)),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+        abilities::crew(
+            "Crew 3 (Tap any number of creatures you control with total \
+             power 3 or more: This Vehicle becomes an artifact creature \
+             until end of turn.)",
+            3,
+        ),
+    ]),
 );
 
 // DFT 161 — Elvish Refueler
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a player-wide exception to once-per-object activation history for exhaust plus an exhaust-activation count for the current turn; neither is represented by existing activation permissions.
 pub(in crate::card::sets) static ELVISH_REFUELER: CardRecord = CardRecord::new(
     "Elvish Refueler",
     "25dfbcb6-9b67-4151-b10f-dde70c5fd16d",
     "Carly Milligan",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 162 — Fang Guardian
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FANG_GUARDIAN: CardRecord = CardRecord::new(
     "Fang Guardian",
     "6db483a7-c9f0-449d-be97-77dbd6d3a27a",
     "Jason A. Engle",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{G}"), &["Ape", "Druid"], 4, 2).with_abilities(&[
+        abilities::flash(),
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, another target creature or Vehicle \
+             you control gets +2/+2 until end of turn.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                        ]),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    ]),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                },
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(2),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // DFT 163 — Fang-Druid Summoner
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs one optional quality-constrained search across library and/or graveyard with a single-card combined limit and shuffling only when the library is searched; ordinary Choose over a library would bypass search restrictions, while separate searches permit two cards.
 pub(in crate::card::sets) static FANG_DRUID_SUMMONER: CardRecord = CardRecord::new(
     "Fang-Druid Summoner",
     "496442f6-48c7-464e-bcf3-4c14f49fa065",
     "Nino Is",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 164 — Greenbelt Guardian
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GREENBELT_GUARDIAN: CardRecord = CardRecord::new(
     "Greenbelt Guardian",
     "2f6b0000-5fd3-483b-bac5-f9b888d8755b",
     "Tianxing Xu",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Elf", "Ranger"], 2, 2).with_abilities(&[
+        AbilityDef::activated_with_targets(
+            "{G}: Target creature gains trample until end of turn.",
+            &[CostDef::Mana(mana_cost!("{G}"))],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::add_ability(&abilities::trample()),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+        exhaust(AbilityDef::activated(
+            "Exhaust — {3}{G}: Put three +1/+1 counters on this creature. \
+             (Activate each exhaust ability only once.)",
+            &[CostDef::Mana(mana_cost!("{3}{G}"))],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(3),
+            },
+        )),
+    ]),
 );
 
 // DFT 165 — Hazard of the Dunes
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HAZARD_OF_THE_DUNES: CardRecord = CardRecord::new(
     "Hazard of the Dunes",
     "c3fbee7a-7e73-43cf-bc39-ccb1c63bf837",
     "Brent Hollowell",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{G}"), &["Wurm"], 4, 4).with_abilities(&[
+        abilities::reach(),
+        abilities::trample(),
+        exhaust(AbilityDef::activated(
+            "Exhaust — {6}{G}: Put three +1/+1 counters on this creature. \
+             (Activate each exhaust ability only once.)",
+            &[CostDef::Mana(mana_cost!("{6}{G}"))],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(3),
+            },
+        )),
+    ]),
 );
 
 // DFT 166 — Jibbirik Omnivore
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static JIBBIRIK_OMNIVORE: CardRecord = CardRecord::new(
     "Jibbirik Omnivore",
     "68a0569b-65c8-49ce-91ac-e639b8faf939",
     "Jesper Ejsing",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Beast"], 3, 2),
 );
 
 // DFT 167 — Loxodon Surveyor
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static LOXODON_SURVEYOR: CardRecord = CardRecord::new(
     "Loxodon Surveyor",
     "cd1cecb1-6776-4495-be56-b7dde65453f1",
     "J.P. Targete",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 168 — Lumbering Worldwagon
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LUMBERING_WORLDWAGON: CardRecord = CardRecord::new(
     "Lumbering Worldwagon",
     "9f989c59-7b2a-4036-9ea2-cd0c7e85c15b",
     "Raph Lomotan",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_vehicle(mana_cost!("{2}{G}"), 0, 4).with_abilities(&[
+        AbilityDef::static_ability(
+            "This Vehicle's power is equal to the number of lands you control.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::define_power(ValueDef::CountMatchingObjects(
+                    &ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                )),
+            },
+        ),
+        AbilityDef::triggered(
+            "Whenever this Vehicle enters or attacks, you may search your \
+             library for a basic land card, put it onto the battlefield \
+             tapped, then shuffle.",
+            TriggerEventDef::AnyOf(&[
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::Source,
+                    None,
+                    Some(ZoneKind::Battlefield),
+                ),
+                TriggerEventDef::attacks(ObjectPredicateDef::Source),
+            ]),
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::SearchZone {
+                    player: EffectRecipientDef::Controller,
+                    source: ZoneKind::Library,
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                    ]),
+                    minimum: 0,
+                    maximum: ValueDef::Constant(1),
+                    reveal: true,
+                    destination: ZoneKind::Battlefield,
+                    placement: ZonePlacement::Top,
+                    shuffle: true,
+                    enters_tapped: true,
+                    attachment: None,
+                    binding: None,
+                    then: None,
+                },
+            },
+        ),
+        abilities::crew("Crew 4", 4),
+    ]),
 );
 
 // DFT 169 — March of the World Ooze
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MARCH_OF_THE_WORLD_OOZE: CardRecord = CardRecord::new(
     "March of the World Ooze",
     "b1964ec5-0dd1-4b54-917c-cbeab05aba79",
     "Helge C. Balzer",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{3}{G}{G}{G}")).with_abilities(&[
+        AbilityDef::static_ability(
+            "Creatures you control have base power and toughness 6/6 and \
+             are Oozes in addition to their other types.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                    ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                )),
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::set_base_power_toughness(
+                        ValueDef::Constant(6),
+                        ValueDef::Constant(6),
+                    ),
+                    AppliedEffectDef::add_creature_types(CreatureTypeSetDef::named(&["Ooze"])),
+                ]),
+            },
+        ),
+        AbilityDef::triggered_if(
+            "Whenever an opponent casts a spell, if it's not their turn, \
+             you create a 3/3 green Elephant creature token.",
+            TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                ObjectPredicateDef::Any,
+                ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
+            ])),
+            &TriggerConditionDef::Not(&TriggerConditionDef::ActivePlayer(
+                PlayerRelation::EventPlayer,
+            )),
+            EffectDef::create_creature_token(&["Elephant"], &[ManaColor::Green], 3, 3),
+        ),
+    ]),
 );
 
 // DFT 170 — Migrating Ketradon
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MIGRATING_KETRADON: CardRecord = CardRecord::new(
     "Migrating Ketradon",
     "a9ba2219-8184-4141-8708-845cb0957299",
     "Izzy",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{G}{G}"), &["Dinosaur"], 6, 6).with_abilities(&[
+        abilities::reach(),
+        abilities::enters_trigger(
+            "When this creature enters, you gain 4 life.",
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(4),
+            },
+        ),
+        abilities::cycling!(
+            "Cycling {2} ({2}, Discard this card: Draw a card.)",
+            &[CostDef::Mana(mana_cost!("{2}"))]
+        ),
+    ]),
 );
 
 // DFT 171 — Molt Tender
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a mana activation cost choosing and exiling a card from the controller's graveyard; the mana planner does not enumerate graveyard MoveToZone costs, although ordinary stack activations do.
 pub(in crate::card::sets) static MOLT_TENDER: CardRecord = CardRecord::new(
     "Molt Tender",
     "f800bf4e-4bfb-45b6-950b-c76952f52bb1",
     "Filip Burburan",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 172 — Ooze Patrol
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static OOZE_PATROL: CardRecord = CardRecord::new(
     "Ooze Patrol",
     "101d22c6-830d-4908-9003-6b206f694eba",
     "Forrest Schehl",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{G}"), &["Ooze"], 2, 2).with_abilities(&[
+        abilities::enters_trigger(
+            "When this creature enters, mill two cards, then put a +1/+1 \
+             counter on this creature for each artifact and/or creature \
+             card in your graveyard. (To mill two cards, put the top two \
+             cards of your library into your graveyard.)",
+            EffectDef::Sequence(&[
+                EffectDef::Mill {
+                    player: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(2),
+                },
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::Source,
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Artifact),
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                        ]),
+                        &[ZoneKind::Graveyard],
+                        PlayerRelation::You,
+                    )),
+                },
+            ]),
+        ),
+    ]),
 );
 
 // DFT 173 — Oviya, Automech Artisan
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static OVIYA_AUTOMECH_ARTISAN: CardRecord = CardRecord::new(
     "Oviya, Automech Artisan",
     "ee5f504c-33fc-4a91-b69b-8ef555987c79",
     "Julia Metzger",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{G}"), &["Human", "Artificer"], 1, 2)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Each creature that's attacking one of your opponents has trample.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                        ObjectQueryDef::matching(
+                            ObjectPredicateDef::All(&[
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                ObjectPredicateDef::Attacking,
+                            ]),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        ),
+                    )),
+                    effect: AppliedEffectDef::add_ability(&abilities::trample()),
+                },
+            ),
+            AbilityDef::activated(
+                "{G}, {T}: You may put a creature or Vehicle card from your \
+                 hand onto the battlefield. If you put an artifact onto the \
+                 battlefield this way, put two +1/+1 counters on it.",
+                &[CostDef::Mana(mana_cost!("{G}")), CostDef::TapSource],
+                EffectDef::Choose(ChooseDef {
+                    binding: ObjectChoiceBindingDef::Objects(crate::Binding!("chosen")),
+                    unchosen: None,
+                    chooser: PlayerRefDef::EffectController,
+                    candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                        ]),
+                        &[ZoneKind::Hand],
+                        PlayerRelation::You,
+                    )),
+                    exclude: None,
+                    minimum: 0,
+                    maximum: 1,
+                    visibility: ChoiceVisibilityDef::Private,
+                    then: &EffectDef::WithZoneMoveResult {
+                        effect: &EffectDef::move_to_zone(
+                            EffectRecipientDef::objects(ObjectSetDef::Binding(crate::Binding!(
+                                "chosen"
+                            ))),
+                            ZoneKind::Battlefield,
+                            ZonePlacement::Top,
+                        ),
+                        binding: crate::Binding!("arrived"),
+                        then: &EffectDef::AddCounters {
+                            object: EffectRecipientDef::objects(ObjectSetDef::Matching {
+                                objects: &ObjectSetDef::ZoneChangeSuccessorsOfBinding(
+                                    crate::Binding!("arrived"),
+                                ),
+                                object: ObjectSetFilterDef::Predicate(
+                                    &ObjectPredicateDef::HasType(CardType::Artifact),
+                                ),
+                            }),
+                            kind: CounterKind::PlusOnePlusOne,
+                            amount: ValueDef::Constant(2),
+                        },
+                    },
+                }),
+            ),
+        ]),
 );
 
 // DFT 174 — Plow Through
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PLOW_THROUGH: CardRecord = CardRecord::new(
     "Plow Through",
     "a311d4b3-ab2a-43c2-8480-6c5daac41178",
     "Brian Valeza",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{G}")).with_abilities(&[AbilityDef::modal_spell(
+        "Choose one —",
+        &[
+            AbilityDef::spell_with_targets(
+                "Target creature you control fights target creature an \
+                 opponent controls. (Each deals damage equal to its power to \
+                 the other.)",
+                &[
+                    AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::You),
+                        owner: None,
+                    }),
+                    AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::Opponent),
+                        owner: None,
+                    }),
+                ],
+                EffectDef::Fight {
+                    first: ObjectRefDef::Target(TargetIndex::PRIMARY),
+                    second: ObjectRefDef::Target(TargetIndex(1)),
+                    excess: None,
+                },
+            ),
+            AbilityDef::spell_with_targets(
+                "Destroy target Vehicle.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                )],
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    then: None,
+                },
+            ),
+        ],
+    )]),
 );
 
 // DFT 175 — Point the Way
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static POINT_THE_WAY: CardRecord = CardRecord::new(
     "Point the Way",
     "8fd4c73d-0e9a-4ffe-8062-f2f4d0e601fe",
     "Izzy",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 176 — Pothole Mole
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static POTHOLE_MOLE: CardRecord = CardRecord::new(
     "Pothole Mole",
     "21c7b59f-fdae-4a11-9784-497a8165d75a",
     "Daren Bader",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Mole"], 2, 3).with_abilities(&[
+        abilities::enters_trigger(
+            "When this creature enters, mill three cards, then you may \
+             return a land card from your graveyard to your hand. (To mill \
+             three cards, put the top three cards of your library into \
+             your graveyard.)",
+            EffectDef::Sequence(&[
+                EffectDef::Mill {
+                    player: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(3),
+                },
+                EffectDef::Choose(ChooseDef {
+                    binding: ObjectChoiceBindingDef::Objects(crate::Binding!("chosen")),
+                    unchosen: None,
+                    chooser: PlayerRefDef::EffectController,
+                    candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        &[ZoneKind::Graveyard],
+                        PlayerRelation::You,
+                    )),
+                    exclude: None,
+                    minimum: 0,
+                    maximum: 1,
+                    visibility: ChoiceVisibilityDef::Public,
+                    then: &EffectDef::move_to_zone(
+                        EffectRecipientDef::objects(ObjectSetDef::Binding(crate::Binding!(
+                            "chosen"
+                        ))),
+                        ZoneKind::Hand,
+                        ZonePlacement::Top,
+                    ),
+                }),
+            ]),
+        ),
+    ]),
 );
 
 // DFT 177 — Regal Imperiosaur
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static REGAL_IMPERIOSAUR: CardRecord = CardRecord::new(
     "Regal Imperiosaur",
     "36f569cc-ed09-4c27-b753-18b22ad7f425",
     "Stephanie Cheung",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{G}{G}"), &["Dinosaur"], 5, 4).with_abilities(&[
+        AbilityDef::static_ability(
+            "Other Dinosaurs you control get +1/+1.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                    ObjectQueryDef::matching(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Dinosaur")),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                )),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(1),
+                ),
+            },
+        ),
+    ]),
 );
 
 // DFT 178 — Rise from the Wreck
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RISE_FROM_THE_WRECK: CardRecord = CardRecord::new(
     "Rise from the Wreck",
     "43e6ac32-a7a4-4c15-81b0-8485d6a0e7ca",
     "Nino Is",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{2}{G}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Return up to one target creature card, up to one target Mount \
+         card, up to one target Vehicle card, and up to one target \
+         creature card with no abilities from your graveyard to your \
+         hand.",
+        &[
+            AbilityTargetDef::up_to(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: Some(PlayerRelation::You),
+                },
+                1,
+            ),
+            AbilityTargetDef::up_to(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Mount")),
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: Some(PlayerRelation::You),
+                },
+                1,
+            ),
+            AbilityTargetDef::up_to(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: Some(PlayerRelation::You),
+                },
+                1,
+            ),
+            AbilityTargetDef::up_to(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::HasAbility(
+                            AbilityPredicateDef::Any,
+                        )),
+                    ]),
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: Some(PlayerRelation::You),
+                },
+                1,
+            ),
+        ],
+        EffectDef::move_to_zone(
+            EffectRecipientDef::objects(ObjectSetDef::Union(&[
+                ObjectSetDef::LegalTargets(TargetIndex(0)),
+                ObjectSetDef::LegalTargets(TargetIndex(1)),
+                ObjectSetDef::LegalTargets(TargetIndex(2)),
+                ObjectSetDef::LegalTargets(TargetIndex(3)),
+            ])),
+            ZoneKind::Hand,
+            ZonePlacement::Top,
+        ),
+    )]),
 );
 
 // DFT 179 — Run Over
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a self spell-cost condition inspecting whether a declared target is a controlled Mount or Vehicle; existing spell-cost predicates only test targeting the external cost source.
 pub(in crate::card::sets) static RUN_OVER: CardRecord = CardRecord::new(
     "Run Over",
     "642f8fdd-6c58-49a3-904c-27f717cae980",
     "Tuan Duong Chu",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 180 — Silken Strength
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SILKEN_STRENGTH: CardRecord = CardRecord::new(
     "Silken Strength",
     "ce0e1ded-9b00-4d7b-884c-70a429783b1f",
     "Olivier Bernard",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{G}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::flash(),
+            abilities::aura_spell(
+                "Enchant creature or Vehicle",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                    ]),
+                )],
+            ),
+            AbilityDef::static_ability(
+                "Enchanted permanent gets +1/+2 and has reach.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(1),
+                            ValueDef::Constant(2),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::reach()),
+                    ]),
+                },
+            ),
+            abilities::enters_trigger(
+                "When this Aura enters, untap enchanted permanent.",
+                EffectDef::Untap {
+                    object: EffectRecipientDef::AttachedPermanent,
+                },
+            ),
+        ]),
 );
 
 // DFT 181 — Stampeding Scurryfoot
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STAMPEDING_SCURRYFOOT: CardRecord = CardRecord::new(
     "Stampeding Scurryfoot",
     "7fc713d7-4a7e-4f1f-b461-e89bb1457d7d",
     "Julia Metzger",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{G}"), &["Mouse"], 1, 1).with_abilities(&[exhaust(
+        AbilityDef::activated(
+            "Exhaust — {3}{G}: Put a +1/+1 counter on this creature. \
+             Create a 3/3 green Elephant creature token. (Activate each \
+             exhaust ability only once.)",
+            &[CostDef::Mana(mana_cost!("{3}{G}"))],
+            EffectDef::Sequence(&[
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::Source,
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::Constant(1),
+                },
+                EffectDef::create_creature_token(&["Elephant"], &[ManaColor::Green], 3, 3),
+            ]),
+        ),
+    )]),
 );
 
 // DFT 182 — Terrian, World Tyrant
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TERRIAN_WORLD_TYRANT: CardRecord = CardRecord::new(
     "Terrian, World Tyrant",
     "b44255cf-5264-4ead-9de0-20cc0f7cac6f",
     "Nicholas Gregory",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{G}{G}{G}"), &["Dinosaur", "Ooze"], 9, 7)
+        .with_supertype(CardSupertype::Legendary),
 );
 
 // DFT 183 — Thunderous Velocipede
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static THUNDEROUS_VELOCIPEDE: CardRecord = CardRecord::new(
     "Thunderous Velocipede",
     "98a79557-8ed6-4d9a-b4e1-cece05664984",
     "Adrián Rodríguez Pérez",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_vehicle(mana_cost!("{1}{G}{G}"), 5, 5).with_abilities(&[
+        abilities::trample(),
+        AbilityDef::replacement_for(
+            "Each other Vehicle and creature you control enters with an \
+             additional +1/+1 counter on it if its mana value is 4 or \
+             less. Otherwise, it enters with three additional +1/+1 \
+             counters on it.",
+            ReplacementEventDef::ObjectEntersBattlefield {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                    ]),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    ObjectPredicateDef::ManaValueAtMost(4),
+                ]),
+                controller: PlayerRelation::You,
+                cast: None,
+            },
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCounters {
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: 1,
+                },
+            ),
+        ),
+        AbilityDef::replacement_for(
+            "Each other Vehicle and creature you control enters with an \
+             additional +1/+1 counter on it if its mana value is 4 or \
+             less. Otherwise, it enters with three additional +1/+1 \
+             counters on it.",
+            ReplacementEventDef::ObjectEntersBattlefield {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                    ]),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::ManaValueAtMost(4)),
+                ]),
+                controller: PlayerRelation::You,
+                cast: None,
+            },
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCounters {
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: 3,
+                },
+            ),
+        ),
+        abilities::crew("Crew 3", 3),
+    ]),
 );
 
 // DFT 184 — Veloheart Bike
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VELOHEART_BIKE: CardRecord = CardRecord::new(
     "Veloheart Bike",
     "85edde1a-f05c-4ce8-bedd-88359647aa0d",
     "Anthony Devine",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_vehicle(mana_cost!("{2}{G}"), 4, 2).with_abilities(&[
+        abilities::enters_trigger(
+            "When this Vehicle enters, you gain 2 life.",
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(2),
+            },
+        ),
+        abilities::tap_for_mana(
+            "{T}: Add one mana of any color.",
+            AddManaEffectDef::any_color(),
+        ),
+        abilities::crew(
+            "Crew 2 (Tap any number of creatures you control with total \
+             power 2 or more: This Vehicle becomes an artifact creature \
+             until end of turn.)",
+            2,
+        ),
+    ]),
 );
 
 // DFT 185 — Venomsac Lagac
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VENOMSAC_LAGAC: CardRecord = CardRecord::new(
     "Venomsac Lagac",
     "9142b1c9-09d7-42e4-8138-6c15d31f2470",
     "Andrey Kuzinskiy",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Lizard", "Mount"], 2, 1).with_abilities(&[
+        abilities::deathtouch(),
+        AbilityDef::triggered(
+            "Whenever this creature attacks while saddled, it gets +0/+3 \
+             until end of turn.",
+            TriggerEventDef::While {
+                event: &TriggerEventDef::attacks(ObjectPredicateDef::Source),
+                condition: &TriggerConditionDef::SourceMatches {
+                    object: ObjectPredicateDef::Saddled,
+                },
+            },
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(0),
+                    ValueDef::Constant(3),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+        abilities::saddle(
+            &[CostDef::TapCreaturesWithTotalPower { minimum: 2 }],
+            "Saddle 2 (Tap any number of other creatures you control with \
+             total power 2 or more: This Mount becomes saddled until end \
+             of turn. Saddle only as a sorcery.)",
+        ),
+    ]),
 );
 
 // DFT 186 — Webstrike Elite
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the cycling activation's chosen X captured in its discard-trigger context and target validation; current DiscardedToActivate capture resets X to zero.
 pub(in crate::card::sets) static WEBSTRIKE_ELITE: CardRecord = CardRecord::new(
     "Webstrike Elite",
     "064cc22d-d424-4bc9-b8f0-88b170fd6c28",
     "Andrew Mar",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 187 — Aatchik, Emerald Radian
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AATCHIK_EMERALD_RADIAN: CardRecord = CardRecord::new(
     "Aatchik, Emerald Radian",
     "fbdaa29b-85ff-4a06-b27e-fcdbdfd4a3fe",
     "Loïc Canavaggia",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{B}{B}{G}"), &["Insect", "Druid"], 3, 3)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::enters_trigger(
+                "When Aatchik enters, create a 1/1 green Insect creature token \
+                 for each artifact and/or creature card in your graveyard.",
+                EffectDef::create_creature_token(&["Insect"], &[ManaColor::Green], 1, 1)
+                    .with_count(ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Artifact),
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                        ]),
+                        &[ZoneKind::Graveyard],
+                        PlayerRelation::You,
+                    ))),
+            ),
+            AbilityDef::triggered(
+                "Whenever another Insect you control dies, put a +1/+1 counter \
+                 on Aatchik. Each opponent loses 1 life.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Insect")),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ]),
+                    Some(ZoneKind::Battlefield),
+                    Some(ZoneKind::Graveyard),
+                ),
+                EffectDef::Sequence(&[
+                    EffectDef::AddCounters {
+                        object: EffectRecipientDef::Source,
+                        kind: CounterKind::PlusOnePlusOne,
+                        amount: ValueDef::Constant(1),
+                    },
+                    EffectDef::LoseLife {
+                        recipient: EffectRecipientDef::Opponent,
+                        amount: ValueDef::Constant(1),
+                    },
+                ]),
+            ),
+        ]),
 );
 
 // DFT 188 — Apocalypse Runner
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static APOCALYPSE_RUNNER: CardRecord = CardRecord::new(
     "Apocalypse Runner",
     "971286f5-77ea-4824-91de-f0ac88c46238",
     "Aaron J. Riley",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_vehicle(mana_cost!("{2}{B}{R}"), 6, 5).with_abilities(&[
+        AbilityDef::activated_with_targets(
+            "{T}: Target creature you control with power 2 or less gains \
+             lifelink until end of turn and can't be blocked this turn.",
+            &[CostDef::TapSource],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::PowerLessThan(ValueDef::Constant(3)),
+                    ]),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                },
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::add_ability(&abilities::lifelink()),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BE_BLOCKED),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ]),
+        ),
+        abilities::crew(
+            "Crew 3 (Tap any number of creatures you control with total \
+             power 3 or more: This Vehicle becomes an artifact creature \
+             until end of turn.)",
+            3,
+        ),
+    ]),
 );
 
 // DFT 189 — Boom Scholar
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a generic activation-cost reduction filtered by the exhaust mechanic label; existing spell cost reductions do not alter costs of activated or mana abilities.
 pub(in crate::card::sets) static BOOM_SCHOLAR: CardRecord = CardRecord::new(
     "Boom Scholar",
     "f2b84684-10c9-4635-a922-620f04809bb1",
     "Brian Valeza",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 190 — Boosted Sloop
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BOOSTED_SLOOP: CardRecord = CardRecord::new(
     "Boosted Sloop",
     "3563cb48-9dcb-4b92-af3a-4793adf03125",
     "José Parodi",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_vehicle(mana_cost!("{1}{U}{R}"), 3, 3).with_abilities(&[
+        abilities::menace(),
+        AbilityDef::triggered(
+            "Whenever you attack, draw a card, then discard a card.",
+            TriggerEventDef::attack_declared(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
+                1,
+                None,
+            ),
+            EffectDef::Sequence(&[
+                abilities::draw_cards(ValueDef::Constant(1)),
+                EffectDef::Discard {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                    selection: DiscardSelectionDef::RecipientChooses,
+                    then: None,
+                },
+            ]),
+        ),
+        abilities::crew(
+            "Crew 1 (Tap any number of creatures you control with total \
+             power 1 or more: This Vehicle becomes an artifact creature \
+             until end of turn.)",
+            1,
+        ),
+    ]),
 );
 
 // DFT 191 — Brightglass Gearhulk
@@ -1875,183 +4781,629 @@ pub(in crate::card::sets) static BRIGHTGLASS_GEARHULK: CardRecord = CardRecord::
 );
 
 // DFT 192 — Broadside Barrage
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BROADSIDE_BARRAGE: CardRecord = CardRecord::new(
     "Broadside Barrage",
     "d086e4e5-98fa-437e-85aa-d8849c94ce94",
     "Javier Charro",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{U}{R}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Broadside Barrage deals 5 damage to target creature or \
+             planeswalker. Draw a card, then discard a card.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::HasType(CardType::Planeswalker),
+                ]),
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(5),
+                ),
+                abilities::draw_cards(ValueDef::Constant(1)),
+                EffectDef::Discard {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                    selection: DiscardSelectionDef::RecipientChooses,
+                    then: None,
+                },
+            ]),
+        ),
+    ]),
 );
 
 // DFT 193 — Broodheart Engine
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BROODHEART_ENGINE: CardRecord = CardRecord::new(
     "Broodheart Engine",
     "ed09139b-a66e-4cd1-b45a-23a4648d3401",
     "Rémi Jacquot",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{B}{G}")).with_abilities(&[
+        AbilityDef::triggered(
+            "At the beginning of your upkeep, surveil 1.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
+            },
+            abilities::surveil(ValueDef::Constant(1)),
+        ),
+        AbilityDef::activated_with_targets(
+            "{2}{B}{G}, {T}, Sacrifice this artifact: Return target \
+             creature or Vehicle card from your graveyard to the \
+             battlefield. Activate only as a sorcery.",
+            &[
+                CostDef::Mana(mana_cost!("{2}{B}{G}")),
+                CostDef::TapSource,
+                CostDef::SacrificeSource,
+            ],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                    ]),
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: Some(PlayerRelation::You),
+                },
+            )],
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Battlefield,
+                ZonePlacement::Top,
+            ),
+        )
+        .with_activation_timing(ActivationTimingDef::SorcerySpeed),
+    ]),
 );
 
 // DFT 194 — Captain Howler, Sea Scourge
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a turn-long delayed damage trigger bound to the chosen creature and surviving ability removal; installed triggers cannot match a bound object identity, while granting an ability changes that behavior.
 pub(in crate::card::sets) static CAPTAIN_HOWLER_SEA_SCOURGE: CardRecord = CardRecord::new(
     "Captain Howler, Sea Scourge",
     "0957c90f-e10d-40f8-a4be-9e9ef623dd43",
     "Mirko Failoni",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 195 — Caradora, Heart of Alacria
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a prospective +1/+1 counter placement replacement that adds one to each qualifying counter batch, including entry counters; existing counter operations modify counters as effects rather than replacing their placement.
 pub(in crate::card::sets) static CARADORA_HEART_OF_ALACRIA: CardRecord = CardRecord::new(
     "Caradora, Heart of Alacria",
     "1256d22d-a2a9-41fb-b669-0661ba230bc7",
     "Mirko Failoni",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 196 — Cloudspire Coordinator
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a committed entry count for Mounts and Vehicles controlled by this player this turn, including departed objects, plus a saddle power bonus for its Pilot tokens.
 pub(in crate::card::sets) static CLOUDSPIRE_COORDINATOR: CardRecord = CardRecord::new(
     "Cloudspire Coordinator",
     "eef16cda-9150-4e7d-8490-d9f287b81b62",
     "Eduardo Francisco",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 197 — Cloudspire Skycycle
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CLOUDSPIRE_SKYCYCLE: CardRecord = CardRecord::new(
     "Cloudspire Skycycle",
     "881f01a4-a923-4d56-bacb-984a389296fa",
     "Hardy Fowler",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_vehicle(mana_cost!("{2}{R}{W}"), 2, 3).with_abilities(&[
+        abilities::flying(),
+        abilities::enters_trigger_with_targets(
+            "When this Vehicle enters, distribute two +1/+1 counters among \
+             one or two other target Vehicles and/or creatures you \
+             control.",
+            &[AbilityTargetDef {
+                minimum: 1,
+                maximum: 2,
+                divided_total: Some(crate::card::DividedTotal::Fixed(2)),
+                ..AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                        ]),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    ]),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                })
+            }],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::DividedAmongTargets,
+            },
+        ),
+        abilities::crew("Crew 1", 1),
+    ]),
 );
 
 // DFT 198 — Coalstoke Gearhulk
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static COALSTOKE_GEARHULK: CardRecord = CardRecord::new(
     "Coalstoke Gearhulk",
     "73431628-b9b0-41e6-8e9b-8a090939b0c1",
     "Nino Vecia",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{1}{B}{B}{R}{R}"), &["Construct"], 5, 4)
+        .with_abilities(&[
+            abilities::menace(),
+            abilities::deathtouch(),
+            abilities::enters_trigger_with_targets(
+                "When this creature enters, put target creature card with mana \
+                 value 4 or less from a graveyard onto the battlefield under \
+                 your control with a finality counter on it. That creature \
+                 gains menace, deathtouch, and haste. At the beginning of your \
+                 next end step, exile that creature.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::ManaValueAtMost(4),
+                        ]),
+                        zones: &[ZoneKind::Graveyard],
+                        controller: None,
+                        owner: Some(PlayerRelation::Any),
+                    },
+                )],
+                EffectDef::WithZoneMoveResult {
+                    effect: &EffectDef::WithBattlefieldArrival {
+                        effect: &EffectDef::move_to_zone(
+                            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            ZoneKind::Battlefield,
+                            ZonePlacement::Top,
+                        ),
+                        arrival: BattlefieldArrivalDef {
+                            controller: Some(PlayerRelation::You),
+                            modifications: &[BattlefieldEntryModificationDef::AddCounters {
+                                kind: CounterKind::Finality,
+                                amount: 1,
+                            }],
+                            ..BattlefieldArrivalDef::DEFAULT
+                        },
+                    },
+                    binding: crate::Binding!("returned"),
+                    then: &EffectDef::Sequence(&[
+                        EffectDef::Apply {
+                            recipient: EffectRecipientDef::objects(
+                                ObjectSetDef::ZoneChangeSuccessorsOfBinding(crate::Binding!(
+                                    "returned"
+                                )),
+                            ),
+                            effect: AppliedEffectDef::Composite(&[
+                                AppliedEffectDef::add_ability(&abilities::menace()),
+                                AppliedEffectDef::add_ability(&abilities::deathtouch()),
+                                AppliedEffectDef::add_ability(&abilities::haste()),
+                            ]),
+                            duration: ResolvedEffectDurationDef::Permanent,
+                        },
+                        EffectDef::InstallTrigger(InstalledTriggerDef::once(
+                            &AbilityDef::triggered(
+                                "At the beginning of your next end step, exile that creature.",
+                                TriggerEventDef::StepBegins {
+                                    step: TurnStepDef::End,
+                                    player: PlayerRelation::You,
+                                },
+                                EffectDef::move_to_zone(
+                                    EffectRecipientDef::objects(
+                                        ObjectSetDef::ZoneChangeSuccessorsOfBinding(
+                                            crate::Binding!("returned"),
+                                        ),
+                                    ),
+                                    ZoneKind::Exile,
+                                    ZonePlacement::Top,
+                                ),
+                            ),
+                        )),
+                    ]),
+                },
+            ),
+        ]),
 );
 
 // DFT 199 — Debris Beetle
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DEBRIS_BEETLE: CardRecord = CardRecord::new(
     "Debris Beetle",
     "405e7900-f6df-4033-b70b-b1d2a8b6d7c8",
     "Julie Dillon",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_vehicle(mana_cost!("{2}{B}{G}"), 6, 6).with_abilities(&[
+        abilities::trample(),
+        abilities::enters_trigger(
+            "When this Vehicle enters, each opponent loses 3 life and you \
+             gain 3 life.",
+            EffectDef::Sequence(&[
+                EffectDef::LoseLife {
+                    recipient: EffectRecipientDef::Opponent,
+                    amount: ValueDef::Constant(3),
+                },
+                EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(3),
+                },
+            ]),
+        ),
+        abilities::crew("Crew 2", 2),
+    ]),
 );
 
 // DFT 200 — Dune Drifter
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DUNE_DRIFTER: CardRecord = CardRecord::new(
     "Dune Drifter",
     "36185de4-55c2-4e5d-9bcc-ea12b7052728",
     "Simon Dominic",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_vehicle(mana_cost!("{X}{W}{B}"), 3, 3).with_abilities(&[
+        abilities::enters_trigger_with_targets(
+            "When this Vehicle enters, return target artifact or creature \
+             card with mana value X or less from your graveyard to the \
+             battlefield.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Artifact),
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                        ]),
+                        ObjectPredicateDef::ManaValueAtMostValue(ValueDef::SourceCastX),
+                    ]),
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: Some(PlayerRelation::You),
+                },
+            )],
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Battlefield,
+                ZonePlacement::Top,
+            ),
+        ),
+        abilities::crew(
+            "Crew 2 (Tap any number of creatures you control with total \
+             power 2 or more: This Vehicle becomes an artifact creature \
+             until end of turn.)",
+            2,
+        ),
+    ]),
 );
 
 // DFT 201 — Embalmed Ascendant
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static EMBALMED_ASCENDANT: CardRecord = CardRecord::new(
     "Embalmed Ascendant",
     "5cf181ae-daa7-42f9-b667-5e679d80cf34",
     "Edgar Sánchez Hidalgo",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 202 — Explosive Getaway
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static EXPLOSIVE_GETAWAY: CardRecord = CardRecord::new(
     "Explosive Getaway",
     "a876edac-b8c8-4994-94f5-548e0fe70fe4",
     "Caio Monteiro",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{3}{R}{W}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Exile up to one target artifact or creature. Return it to the \
+             battlefield under its owner's control at the beginning of the \
+             next end step.\nExplosive Getaway deals 4 damage to each \
+             creature.",
+            &[AbilityTargetDef::up_to(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                    ]),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+                1,
+            )],
+            EffectDef::Sequence(&[
+                abilities::exile_until_next_end_step(EffectRecipientDef::Target(
+                    TargetIndex::PRIMARY,
+                )),
+                EffectDef::damage(
+                    EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    ))),
+                    ValueDef::Constant(4),
+                ),
+            ]),
+        ),
+    ]),
 );
 
 // DFT 203 — Far Fortune, End Boss
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed. Also needs a prospective damage replacement that adds 1 to each qualifying damage event rather than modifying life afterward.
 pub(in crate::card::sets) static FAR_FORTUNE_END_BOSS: CardRecord = CardRecord::new(
     "Far Fortune, End Boss",
     "f523e96d-9df1-4854-accb-9876aef787e5",
     "Javier Charro",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 204 — Fearless Swashbuckler
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a predicate over this combat's complete attacker declaration, requiring both a Pirate and a Vehicle, including attackers that already left; current conditions count attackers or individual predicates without that stored declaration query.
 pub(in crate::card::sets) static FEARLESS_SWASHBUCKLER: CardRecord = CardRecord::new(
     "Fearless Swashbuckler",
     "0d86d66b-481f-44ec-86d8-6fc91b52ef38",
     "Konstantin Porubov",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 205 — Gastal Thrillseeker
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static GASTAL_THRILLSEEKER: CardRecord = CardRecord::new(
     "Gastal Thrillseeker",
     "a8e5205d-d734-4292-a3c8-70cf5f131289",
     "Olivier Bernard",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 206 — Guidelight Pathmaker
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GUIDELIGHT_PATHMAKER: CardRecord = CardRecord::new(
     "Guidelight Pathmaker",
     "b2e00cd7-925e-4bab-b064-c96aa2935f8c",
     "Stephan Martiniere",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_vehicle(mana_cost!("{4}{W}{U}"), 6, 5).with_abilities(&[
+        abilities::vigilance(),
+        abilities::enters_trigger(
+            "When this Vehicle enters, you may search your library for an \
+             artifact card and reveal it. Put it onto the battlefield if \
+             its mana value is 2 or less. Otherwise, put it into your \
+             hand. If you search your library this way, shuffle.",
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::SearchZone {
+                    player: EffectRecipientDef::Controller,
+                    source: ZoneKind::Library,
+                    object: ObjectPredicateDef::HasType(CardType::Artifact),
+                    minimum: 0,
+                    maximum: ValueDef::Constant(1),
+                    reveal: true,
+                    destination: ZoneKind::Library,
+                    placement: ZonePlacement::Top,
+                    shuffle: true,
+                    enters_tapped: false,
+                    attachment: None,
+                    binding: Some(crate::Binding!("found")),
+                    then: Some(&EffectDef::IfElseCondition {
+                        condition: &TriggerConditionDef::ObjectSetCount(
+                            &ObjectSetCountConditionDef {
+                                objects: &ObjectSetDef::Binding(crate::Binding!("found")),
+                                predicate: ObjectSetPredicateDef::contains(
+                                    &ObjectPredicateDef::ManaValueAtMost(2),
+                                ),
+                            },
+                        ),
+                        then: &EffectDef::move_to_zone(
+                            EffectRecipientDef::objects(ObjectSetDef::Binding(crate::Binding!(
+                                "found"
+                            ))),
+                            ZoneKind::Battlefield,
+                            ZonePlacement::Top,
+                        ),
+                        otherwise: &EffectDef::move_to_zone(
+                            EffectRecipientDef::objects(ObjectSetDef::Binding(crate::Binding!(
+                                "found"
+                            ))),
+                            ZoneKind::Hand,
+                            ZonePlacement::Top,
+                        ),
+                    }),
+                },
+            },
+        ),
+        abilities::crew("Crew 2", 2),
+    ]),
 );
 
 // DFT 207 — Haunt the Network
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HAUNT_THE_NETWORK: CardRecord = CardRecord::new(
     "Haunt the Network",
     "478d236c-9778-435a-ac21-bd0017a17d5b",
     "Jeff Carpenter",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{3}{U}{B}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Choose target opponent. Create two 1/1 colorless Thopter \
+             artifact creature tokens with flying. Then the chosen player \
+             loses X life and you gain X life, where X is the number of \
+             artifacts you control.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::create_artifact_creature_token(&["Thopter"], &[], 1, 1)
+                    .with_abilities(&[abilities::flying()])
+                    .with_count(ValueDef::Constant(2)),
+                EffectDef::LoseLife {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    )),
+                },
+                EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    )),
+                },
+            ]),
+        ),
+    ]),
 );
 
 // DFT 208 — Haunted Hellride
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HAUNTED_HELLRIDE: CardRecord = CardRecord::new(
     "Haunted Hellride",
     "e2ce0d37-d5d7-49dd-885e-9998bb8abede",
     "Olivier Bernard",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_vehicle(mana_cost!("{1}{U}{B}"), 3, 3).with_abilities(&[
+        AbilityDef::triggered_with_targets(
+            "Whenever you attack, target creature you control gets +1/+0 \
+             and gains deathtouch until end of turn. Untap it.",
+            TriggerEventDef::attack_declared(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
+                1,
+                None,
+            ),
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                },
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(1),
+                            ValueDef::Constant(0),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::deathtouch()),
+                    ]),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+                EffectDef::Untap {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                },
+            ]),
+        ),
+        abilities::crew(
+            "Crew 1 (Tap any number of creatures you control with total \
+             power 1 or more: This Vehicle becomes an artifact creature \
+             until end of turn.)",
+            1,
+        ),
+    ]),
 );
 
 // DFT 209 — Ketramose, the New Dawn
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs one trigger per simultaneous exile batch across both battlefield and graveyards during this player's turn; existing zone-change triggers observe individual transitions and cannot merge that group.
 pub(in crate::card::sets) static KETRAMOSE_THE_NEW_DAWN: CardRecord = CardRecord::new(
     "Ketramose, the New Dawn",
     "cffae8d0-7b4e-42ed-8124-24a86b38f490",
     "Maaz Ali Khan",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 210 — Kolodin, Triumph Caster
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KOLODIN_TRIUMPH_CASTER: CardRecord = CardRecord::new(
     "Kolodin, Triumph Caster",
     "36bcd476-a236-4434-b191-5c8b6fa7be7b",
     "Michal Ivan",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{R}{W}"), &["Human", "Pilot"], 2, 3)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Mounts and Vehicles you control have haste.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                        ObjectQueryDef::matching(
+                            ObjectPredicateDef::AnyOf(&[
+                                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Mount")),
+                                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                            ]),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        ),
+                    )),
+                    effect: AppliedEffectDef::add_ability(&abilities::haste()),
+                },
+            ),
+            AbilityDef::triggered(
+                "Whenever a Mount you control enters, it becomes saddled until \
+                 end of turn.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Mount")),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ]),
+                    None,
+                    Some(ZoneKind::Battlefield),
+                ),
+                EffectDef::Saddle {
+                    object: EffectRecipientDef::TriggeringObject,
+                },
+            ),
+            AbilityDef::triggered(
+                "Whenever a Vehicle you control enters, it becomes an artifact \
+                 creature until end of turn.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ]),
+                    None,
+                    Some(ZoneKind::Battlefield),
+                ),
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::TriggeringObject,
+                    effect: AppliedEffectDef::add_card_types(
+                        CardTypeSet::single(CardType::Artifact)
+                            .union(CardTypeSet::single(CardType::Creature)),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ]),
 );
 
 // DFT 211 — Lagorin, Soul of Alacria
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LAGORIN_SOUL_OF_ALACRIA: CardRecord = CardRecord::new(
     "Lagorin, Soul of Alacria",
     "7b04e3f4-103b-4845-b3f0-5417971c7666",
     "Mirko Failoni",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{G}{W}"), &["Beast", "Mount"], 1, 1)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::flying(),
+            AbilityDef::triggered_with_targets(
+                "Whenever Lagorin attacks while saddled, put a +1/+1 counter \
+                 on each of up to two target Mounts and/or Vehicles.",
+                TriggerEventDef::While {
+                    event: &TriggerEventDef::attacks(ObjectPredicateDef::Source),
+                    condition: &TriggerConditionDef::SourceMatches {
+                        object: ObjectPredicateDef::Saddled,
+                    },
+                },
+                &[AbilityTargetDef::up_to(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Mount")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                        ]),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: None,
+                        owner: None,
+                    },
+                    2,
+                )],
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+            abilities::saddle(
+                &[CostDef::TapCreaturesWithTotalPower { minimum: 1 }],
+                "Saddle 1 (Tap any number of other creatures you control with \
+                 total power 1 or more: This Mount becomes saddled until end \
+                 of turn. Saddle only as a sorcery.)",
+            ),
+        ]),
 );
 
 // DFT 212 — Loot, the Pathfinder
@@ -2104,336 +5456,921 @@ pub(in crate::card::sets) static LOOT_THE_PATHFINDER: CardRecord = CardRecord::n
 );
 
 // DFT 213 — Mendicant Core, Guidelight
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static MENDICANT_CORE_GUIDELIGHT: CardRecord = CardRecord::new(
     "Mendicant Core, Guidelight",
     "f434b103-490f-424e-a0a1-efb1b931c8e6",
     "Zezhou Chen",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 214 — Mimeoplasm, Revered One
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs an as-entry choice exiling up to X creature cards, linking those exiles and deriving entry counters from the completed exile group; current entry replacements cannot execute that variable linked-exile selection.
 pub(in crate::card::sets) static MIMEOPLASM_REVERED_ONE: CardRecord = CardRecord::new(
     "Mimeoplasm, Revered One",
     "34e4c342-dc22-4e9c-81fc-a691ae9e21c1",
     "Ron Spencer",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 215 — Oildeep Gearhulk
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static OILDEEP_GEARHULK: CardRecord = CardRecord::new(
     "Oildeep Gearhulk",
     "a5e2d09e-b9f5-4a0d-96d3-984b5c2c387d",
     "Artur Nakhodkin",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{U}{U}{B}{B}"), &["Construct"], 4, 4)
+        .with_abilities(&[
+            abilities::lifelink(),
+            abilities::ward(&[CostDef::Mana(mana_cost!("{1}"))], "Ward {1}"),
+            abilities::enters_trigger_with_targets(
+                "When this creature enters, look at target player's hand. You \
+                 may choose a card from it. If you do, that player discards \
+                 that card, then draws a card.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Player(PlayerRelation::Any),
+                )],
+                EffectDef::ChooseCardsFromCollection(ChooseCardsFromCollectionDef {
+                    source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Query(
+                        ObjectQueryDef::owned_by(
+                            ObjectPredicateDef::Any,
+                            &[ZoneKind::Hand],
+                            PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                        ),
+                    )),
+                    actor: PlayerRefDef::EffectController,
+                    inspection: CollectionInspectionDef::Look,
+                    object: ObjectPredicateDef::Any,
+                    minimum: 0,
+                    maximum: 1,
+                    chosen: crate::Binding!("chosen"),
+                    remainder: crate::Binding!("rest"),
+                    then: &EffectDef::IfCondition {
+                        condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                            left: ValueDef::CountObjects(&ObjectSetDef::Binding(crate::Binding!(
+                                "chosen"
+                            ))),
+                            comparison: ComparisonDef::Greater,
+                            right: ValueDef::Constant(0),
+                        }),
+                        then: &EffectDef::Sequence(&[
+                            EffectDef::discard_cards(EffectRecipientDef::objects(
+                                ObjectSetDef::Binding(crate::Binding!("chosen")),
+                            )),
+                            EffectDef::DrawCards {
+                                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                amount: ValueDef::Constant(1),
+                            },
+                        ]),
+                    },
+                }),
+            ),
+        ]),
 );
 
 // DFT 216 — Pyrewood Gearhulk
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PYREWOOD_GEARHULK: CardRecord = CardRecord::new(
     "Pyrewood Gearhulk",
     "3d8493ee-bd06-4583-9908-a0dbcc5be6d7",
     "Martin de Diego Sádaba",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{2}{R}{R}{G}{G}"), &["Construct"], 7, 7)
+        .with_abilities(&[
+            abilities::vigilance(),
+            abilities::menace(),
+            abilities::enters_trigger(
+                "When this creature enters, other creatures you control get \
+                 +2/+2 and gain vigilance and menace until end of turn. Damage \
+                 can't be prevented this turn.",
+                EffectDef::Sequence(&[
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                            ObjectQueryDef::matching(
+                                ObjectPredicateDef::All(&[
+                                    ObjectPredicateDef::HasType(CardType::Creature),
+                                    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                                ]),
+                                &[ZoneKind::Battlefield],
+                                PlayerRelation::You,
+                            ),
+                        )),
+                        effect: AppliedEffectDef::Composite(&[
+                            AppliedEffectDef::modify_power_toughness(
+                                ValueDef::Constant(2),
+                                ValueDef::Constant(2),
+                            ),
+                            AppliedEffectDef::add_ability(&abilities::vigilance()),
+                            AppliedEffectDef::add_ability(&abilities::menace()),
+                        ]),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                    EffectDef::DamageCannotBePreventedThisTurn,
+                ]),
+            ),
+        ]),
 );
 
 // DFT 217 — Rangers' Aetherhive
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a committed activation event filtered by the exhaust mechanic label, including mana abilities; current trigger events do not observe labeled ability activations.
 pub(in crate::card::sets) static RANGERS_AETHERHIVE: CardRecord = CardRecord::new(
     "Rangers' Aetherhive",
     "1b238d2c-d10f-496d-aa34-5a1536e056b5",
     "Josiah \"Jo\" Cameron",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 218 — Redshift, Rocketeer Chief
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static REDSHIFT_ROCKETEER_CHIEF: CardRecord = CardRecord::new(
     "Redshift, Rocketeer Chief",
     "5fba3820-32ba-47e9-9fa8-f985ff471b3f",
     "Wayne Reynolds",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{R}{G}"), &["Goblin", "Pilot"], 2, 3)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::vigilance(),
+            AbilityDef::activated_mana(
+                "{T}: Add X mana of any one color, where X is Redshift's \
+                 power. Spend this mana only to activate abilities.",
+                &[CostDef::TapSource],
+                EffectDef::AddMana(
+                    AddManaEffectDef::any_color()
+                        .with_variable_amount(ValueDef::SourcePower)
+                        .with_restrictions(&[ManaRestrictionDef::ActivateAbility(
+                            ObjectPredicateDef::Any,
+                        )]),
+                ),
+            ),
+            exhaust(AbilityDef::activated(
+                "Exhaust — {10}{R}{G}: Put any number of permanent cards from \
+                 your hand onto the battlefield. (Activate each exhaust \
+                 ability only once.)",
+                &[CostDef::Mana(mana_cost!("{10}{R}{G}"))],
+                EffectDef::Choose(ChooseDef {
+                    binding: ObjectChoiceBindingDef::Objects(crate::Binding!("chosen")),
+                    unchosen: None,
+                    chooser: PlayerRefDef::EffectController,
+                    candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::HasType(CardType::Artifact),
+                            ObjectPredicateDef::HasType(CardType::Enchantment),
+                            ObjectPredicateDef::HasType(CardType::Land),
+                            ObjectPredicateDef::HasType(CardType::Planeswalker),
+                        ]),
+                        &[ZoneKind::Hand],
+                        PlayerRelation::You,
+                    )),
+                    exclude: None,
+                    minimum: 0,
+                    maximum: 255,
+                    visibility: ChoiceVisibilityDef::Private,
+                    then: &EffectDef::move_to_zone(
+                        EffectRecipientDef::objects(ObjectSetDef::Binding(crate::Binding!(
+                            "chosen"
+                        ))),
+                        ZoneKind::Battlefield,
+                        ZonePlacement::Top,
+                    ),
+                }),
+            )),
+        ]),
 );
 
 // DFT 219 — Riptide Gearhulk
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a zone placement inserting a card third from the top of its owner's library, or at the bottom when fewer than three cards exist; current placements only expose top and bottom.
 pub(in crate::card::sets) static RIPTIDE_GEARHULK: CardRecord = CardRecord::new(
     "Riptide Gearhulk",
     "44bfb0f7-18ca-4f6e-ba64-92120010456e",
     "Artur Nakhodkin",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 220 — Rocketeer Boostbuggy
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ROCKETEER_BOOSTBUGGY: CardRecord = CardRecord::new(
     "Rocketeer Boostbuggy",
     "4c80c91e-dd3d-4c7b-89e4-bfb253eeaee2",
     "Chris Seaman",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_vehicle(mana_cost!("{R}{G}"), 3, 2).with_abilities(&[
+        AbilityDef::triggered(
+            "Whenever this Vehicle attacks, create a Treasure token. (It's \
+             an artifact with \"{T}, Sacrifice this token: Add one mana of \
+             any color.\")",
+            TriggerEventDef::attacks(ObjectPredicateDef::Source),
+            EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(1)),
+        ),
+        exhaust(AbilityDef::activated(
+            "Exhaust — {3}: This Vehicle becomes an artifact creature. Put \
+             a +1/+1 counter on it. (Activate each exhaust ability only \
+             once.)",
+            &[CostDef::Mana(mana_cost!("{3}"))],
+            EffectDef::Sequence(&[
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::add_card_types(
+                        CardTypeSet::single(CardType::Artifact)
+                            .union(CardTypeSet::single(CardType::Creature)),
+                    ),
+                    duration: ResolvedEffectDurationDef::Permanent,
+                },
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::Source,
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::Constant(1),
+                },
+            ]),
+        )),
+        abilities::crew("Crew 1", 1),
+    ]),
 );
 
 // DFT 221 — Sab-Sunen, Luxa Embodied
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs parity of the total number of counters across all counter kinds, both in static attack/block restrictions and resolution conditions; existing values select particular kinds and do not provide odd/even predicates.
 pub(in crate::card::sets) static SAB_SUNEN_LUXA_EMBODIED: CardRecord = CardRecord::new(
     "Sab-Sunen, Luxa Embodied",
     "2ef555b1-666d-4386-8983-0e88f9b6cdec",
     "Valera Lutfullina",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 222 — Samut, the Driving Force
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static SAMUT_THE_DRIVING_FORCE: CardRecord = CardRecord::new(
     "Samut, the Driving Force",
     "8efd8222-5c37-46d8-a2ec-1d7aae25320b",
     "Chris Rallis",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 223 — Sita Varma, Masked Racer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SITA_VARMA_MASKED_RACER: CardRecord = CardRecord::new(
     "Sita Varma, Masked Racer",
     "eb523c06-6f3e-4e19-b777-19aefc4a4e02",
     "Kai Carpenter",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{G}{U}"), &["Human", "Rogue"], 2, 3)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[exhaust(AbilityDef::activated(
+            "Exhaust — {X}{G}{G}{U}: Put X +1/+1 counters on Sita Varma. \
+             Then you may have the base power and toughness of each other \
+             creature you control become equal to Sita Varma's power until \
+             end of turn. (Activate each exhaust ability only once.)",
+            &[CostDef::Mana(mana_cost!("{X}{G}{G}{U}"))],
+            EffectDef::Sequence(&[
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::Source,
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::ChosenX,
+                },
+                EffectDef::May {
+                    player: EffectRecipientDef::Controller,
+                    effect: &EffectDef::Apply {
+                        recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                            ObjectQueryDef::matching(
+                                ObjectPredicateDef::All(&[
+                                    ObjectPredicateDef::HasType(CardType::Creature),
+                                    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                                ]),
+                                &[ZoneKind::Battlefield],
+                                PlayerRelation::You,
+                            ),
+                        )),
+                        effect: AppliedEffectDef::set_base_power_toughness(
+                            ValueDef::SourcePower,
+                            ValueDef::SourcePower,
+                        ),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                },
+            ]),
+        ))]),
 );
 
 // DFT 224 — Skyserpent Seeker
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs revealing one library collection through its second matching land before moving both lands together and randomizing the rest; current collection sources stop at the first match or a fixed count.
 pub(in crate::card::sets) static SKYSERPENT_SEEKER: CardRecord = CardRecord::new(
     "Skyserpent Seeker",
     "8dbd9fc0-c0df-4119-a0d3-2e1790998c21",
     "Johan Grenier",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 225 — Thundering Broodwagon
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static THUNDERING_BROODWAGON: CardRecord = CardRecord::new(
     "Thundering Broodwagon",
     "2d1576d4-15a3-4e91-84ef-e71e258185e7",
     "Bartek Fedyczak",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_vehicle(mana_cost!("{2}{B}{B}{G}{G}"), 6, 5).with_abilities(&[
+        abilities::reach(),
+        abilities::menace(),
+        abilities::enters_trigger_with_targets(
+            "When this Vehicle enters, destroy target nonland permanent an \
+             opponent controls with mana value 4 or less.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                        ObjectPredicateDef::ManaValueAtMost(4),
+                    ]),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::Opponent),
+                    owner: None,
+                },
+            )],
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        ),
+        abilities::crew("Crew 3", 3),
+        abilities::cycling!(
+            "Cycling {2} ({2}, Discard this card: Draw a card.)",
+            &[CostDef::Mana(mana_cost!("{2}"))]
+        ),
+    ]),
 );
 
 // DFT 226 — Veteran Beastrider
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VETERAN_BEASTRIDER: CardRecord = CardRecord::new(
     "Veteran Beastrider",
     "cab38f35-b60c-464c-a0b5-9d5f2dc6de7f",
     "Andreia Ugrai",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{G}{W}"), &["Human", "Knight"], 3, 4).with_abilities(&[
+        AbilityDef::triggered(
+            "At the beginning of your end step, untap each creature you \
+             control.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::End,
+                player: PlayerRelation::You,
+            },
+            EffectDef::Untap {
+                object: EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ))),
+            },
+        ),
+        AbilityDef::activated(
+            "{2}{G}{W}: Creatures you control get +1/+1 until end of turn.",
+            &[CostDef::Mana(mana_cost!("{2}{G}{W}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                    ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                )),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // DFT 227 — Voyage Home
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VOYAGE_HOME: CardRecord = CardRecord::new(
     "Voyage Home",
     "4ba835da-0247-4716-9079-1b605297f6d5",
     "Hardy Fowler",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{5}{W}{U}")).with_abilities(&[
+        AbilityDef::static_ability(
+            "Affinity for artifacts (This spell costs {1} less to cast for \
+             each artifact you control.)",
+            EffectDef::ReduceGenericCostBy(ValueDef::CountMatchingObjects(
+                &ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+            )),
+        )
+        .with_source_zones(&[ZoneKind::Hand]),
+        AbilityDef::spell(
+            "You draw three cards and gain 3 life.",
+            EffectDef::Sequence(&[
+                abilities::draw_cards(ValueDef::Constant(3)),
+                EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(3),
+                },
+            ]),
+        ),
+    ]),
 );
 
 // DFT 228 — Winter, Cursed Rider
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs an activated cost exiling an arbitrary chosen number of artifact cards from the graveyard and carrying that paid count as X; the ordinary activation planner currently supports only fixed single-card exile selections.
 pub(in crate::card::sets) static WINTER_CURSED_RIDER: CardRecord = CardRecord::new(
     "Winter, Cursed Rider",
     "02d46d0e-3161-45b5-a49e-5cd592c67ddd",
     "Daren Bader",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 229 — Zahur, Glory's Past
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static ZAHUR_GLORY_S_PAST: CardRecord = CardRecord::new(
     "Zahur, Glory's Past",
     "31944ea5-045d-481d-9aff-3c7ed663813a",
     "Leroy Steinmann",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 230 — Aetherjacket
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AETHERJACKET: CardRecord = CardRecord::new(
     "Aetherjacket",
     "0a29c8a5-fd98-422c-9518-2db0993495e5",
     "Domenico Cava",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{3}"), &["Thopter"], 2, 1).with_abilities(&[
+        abilities::flying(),
+        abilities::vigilance(),
+        AbilityDef::activated_with_targets(
+            "{2}, {T}, Sacrifice this creature: Destroy another target \
+             artifact. Activate only as a sorcery.",
+            &[
+                CostDef::Mana(mana_cost!("{2}")),
+                CostDef::TapSource,
+                CostDef::SacrificeSource,
+            ],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                ]),
+            )],
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        )
+        .with_activation_timing(ActivationTimingDef::SorcerySpeed),
+    ]),
 );
 
 // DFT 231 — The Aetherspark
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a planeswalker attack prohibition that applies while it is attached to a creature, plus legal Equipment planeswalker attachment state; ordinary creature attack/block restrictions do not prevent attacks against this permanent.
 pub(in crate::card::sets) static THE_AETHERSPARK: CardRecord = CardRecord::new(
     "The Aetherspark",
     "05690d52-06c4-40b1-8360-380418a83250",
     "Donato Giancola",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 232 — Camera Launcher
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CAMERA_LAUNCHER: CardRecord = CardRecord::new(
     "Camera Launcher",
     "968651db-92fb-46cd-acda-9e097668b7c9",
     "Ben Wootten",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{3}"), &["Construct"], 2, 2).with_abilities(&[
+        exhaust(AbilityDef::activated(
+            "Exhaust — {3}: Put a +1/+1 counter on this creature. Create a \
+             1/1 colorless Thopter artifact creature token with flying. \
+             (Activate each exhaust ability only once.)",
+            &[CostDef::Mana(mana_cost!("{3}"))],
+            EffectDef::Sequence(&[
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::Source,
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::Constant(1),
+                },
+                EffectDef::create_artifact_creature_token(&["Thopter"], &[], 1, 1)
+                    .with_abilities(&[abilities::flying()])
+                    .with_count(ValueDef::Constant(1)),
+            ]),
+        )),
+    ]),
 );
 
 // DFT 233 — Guidelight Matrix
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GUIDELIGHT_MATRIX: CardRecord = CardRecord::new(
     "Guidelight Matrix",
     "cccf7fb5-c043-4a1f-ad2f-edb280cb5037",
     "Eli Minaya",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
+        abilities::enters_trigger(
+            "When this artifact enters, draw a card.",
+            abilities::draw_cards(ValueDef::Constant(1)),
+        ),
+        AbilityDef::activated_with_targets(
+            "{2}, {T}: Target Mount you control becomes saddled until end \
+             of turn. Activate only as a sorcery.",
+            &[CostDef::Mana(mana_cost!("{2}")), CostDef::TapSource],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Mount")),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                },
+            )],
+            EffectDef::Saddle {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+        )
+        .with_activation_timing(ActivationTimingDef::SorcerySpeed),
+        AbilityDef::activated_with_targets(
+            "{2}, {T}: Target Vehicle you control becomes an artifact \
+             creature until end of turn.",
+            &[CostDef::Mana(mana_cost!("{2}")), CostDef::TapSource],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                },
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::add_card_types(
+                    CardTypeSet::single(CardType::Artifact)
+                        .union(CardTypeSet::single(CardType::Creature)),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // DFT 234 — Lifecraft Engine
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LIFECRAFT_ENGINE: CardRecord = CardRecord::new(
     "Lifecraft Engine",
     "40c92203-17df-4f10-92c6-ebcc79f01357",
     "Mirko Failoni",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_vehicle(mana_cost!("{3}"), 4, 4).with_abilities(&[
+        AbilityDef::as_enters(
+            "As this permanent enters, choose a creature type.",
+            ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(
+                BattlefieldEntryScalarChoiceDef::CREATURE_TYPE,
+            )),
+        ),
+        AbilityDef::static_ability(
+            "Vehicle creatures you control are the chosen creature type in \
+             addition to their other types.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                    ObjectQueryDef::matching(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                )),
+                effect: AppliedEffectDef::add_chosen_creature_type(),
+            },
+        ),
+        AbilityDef::static_ability(
+            "Each creature you control of the chosen type other than this \
+             Vehicle gets +1/+1.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                    ObjectQueryDef::matching(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                            ObjectPredicateDef::HasSourcesChosenScalar(
+                                BattlefieldEntryChoiceDestinationDef::CreatureType,
+                            ),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                )),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(1),
+                ),
+            },
+        ),
+        abilities::crew("Crew 3", 3),
+    ]),
 );
 
 // DFT 235 — Marketback Walker
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MARKETBACK_WALKER: CardRecord = CardRecord::new(
     "Marketback Walker",
     "c2152030-6007-493f-a616-545723a00249",
     "Svetlin Velinov",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{X}{X}"), &["Construct"], 0, 0).with_abilities(&[
+        AbilityDef::as_enters(
+            "This creature enters with X +1/+1 counters on it.",
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCastXCounters {
+                    kind: CounterKind::PlusOnePlusOne,
+                },
+            ),
+        ),
+        AbilityDef::activated(
+            "{4}: Put a +1/+1 counter on this creature.",
+            &[CostDef::Mana(mana_cost!("{4}"))],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        abilities::dies_trigger(
+            "When this creature dies, draw a card for each +1/+1 counter \
+             on it.",
+            abilities::draw_cards(ValueDef::CountersOnSource(CounterKind::PlusOnePlusOne)),
+        ),
+    ]),
 );
 
 // DFT 236 — Marshals' Pathcruiser
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MARSHALS_PATHCRUISER: CardRecord = CardRecord::new(
     "Marshals' Pathcruiser",
     "8f920f83-6380-4e4f-be68-6bf9df3110d8",
     "Javier Charro",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_vehicle(mana_cost!("{3}"), 6, 5).with_abilities(&[
+        abilities::enters_trigger(
+            "When this Vehicle enters, search your library for a basic \
+             land card, reveal it, put it into your hand, then shuffle.",
+            EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                ]),
+                minimum: 0,
+                maximum: ValueDef::Constant(1),
+                reveal: true,
+                destination: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+                shuffle: true,
+                enters_tapped: false,
+                attachment: None,
+                binding: None,
+                then: None,
+            },
+        ),
+        exhaust(AbilityDef::activated(
+            "Exhaust — {W}{U}{B}{R}{G}: This Vehicle becomes an artifact \
+             creature. Put two +1/+1 counters on it. (Activate each \
+             exhaust ability only once.)",
+            &[CostDef::Mana(mana_cost!("{W}{U}{B}{R}{G}"))],
+            EffectDef::Sequence(&[
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::add_card_types(
+                        CardTypeSet::single(CardType::Artifact)
+                            .union(CardTypeSet::single(CardType::Creature)),
+                    ),
+                    duration: ResolvedEffectDurationDef::Permanent,
+                },
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::Source,
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::Constant(2),
+                },
+            ]),
+        )),
+        abilities::crew("Crew 5", 5),
+    ]),
 );
 
 // DFT 237 — Monument to Endurance
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a per-source, per-turn history of modes chosen, enforced while choosing triggered modes; existing modal triggers can constrain mode count but cannot exclude previously chosen modes.
 pub(in crate::card::sets) static MONUMENT_TO_ENDURANCE: CardRecord = CardRecord::new(
     "Monument to Endurance",
     "d21433ba-0a14-42bc-ad0b-a4ef823a3295",
     "Victor Sales",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 238 — Pit Automaton
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs an event identifying a nonmana exhaust activation and a delayed trigger consumed by the next such event before end of turn; neither the activation event nor that combined lifetime is represented.
 pub(in crate::card::sets) static PIT_AUTOMATON: CardRecord = CardRecord::new(
     "Pit Automaton",
     "c72527ef-ac05-44c8-8c76-10532ce3da6e",
     "Villarrte",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 239 — Racers' Scoreboard
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static RACERS_SCOREBOARD: CardRecord = CardRecord::new(
     "Racers' Scoreboard",
     "50bae2ba-a6a0-4a6a-96e9-0e0372e55108",
     "Konstantin Porubov",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 240 — Radiant Lotus
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a targeted mana-producing activation with one-or-more artifact sacrifice selection and output scaled by the completed payment; ordinary sacrifice activations support fixed counts, not this chosen group.
 pub(in crate::card::sets) static RADIANT_LOTUS: CardRecord = CardRecord::new(
     "Radiant Lotus",
     "be6dac83-39c2-40dc-a322-76a3ea4e7aee",
     "Bruce Brenneise",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 241 — Rover Blades
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ROVER_BLADES: CardRecord = CardRecord::new(
     "Rover Blades",
     "8855a999-83f6-4c0d-9444-3ff292f77d58",
     "Nathaniel Himawan",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_vehicle(mana_cost!("{3}"), 2, 2).with_abilities(&[
+        abilities::double_strike(),
+        AbilityDef::static_ability(
+            "Equipped creature has double strike.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::AttachedPermanent,
+                effect: AppliedEffectDef::add_ability(&abilities::double_strike()),
+            },
+        ),
+        abilities::equip(&[CostDef::Mana(mana_cost!("{4}"))], "Equip {4}"),
+        abilities::crew(
+            "Crew 2 (Tap any number of creatures you control with total \
+             power 2 or more: This Vehicle becomes an artifact creature \
+             until end of turn. Creatures can't be attached to other \
+             permanents.)",
+            2,
+        ),
+    ]),
 );
 
 // DFT 242 — Scrap Compactor
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SCRAP_COMPACTOR: CardRecord = CardRecord::new(
     "Scrap Compactor",
     "12ccd555-60d4-49a1-b022-1e119344172a",
     "Viko Menezes",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
+        AbilityDef::activated_with_targets(
+            "{3}, {T}, Sacrifice this artifact: It deals 3 damage to \
+             target creature.",
+            &[
+                CostDef::Mana(mana_cost!("{3}")),
+                CostDef::TapSource,
+                CostDef::SacrificeSource,
+            ],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(3),
+            ),
+        ),
+        AbilityDef::activated_with_targets(
+            "{6}, {T}, Sacrifice this artifact: Destroy target creature or \
+             Vehicle.",
+            &[
+                CostDef::Mana(mana_cost!("{6}")),
+                CostDef::TapSource,
+                CostDef::SacrificeSource,
+            ],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                ]),
+            )],
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // DFT 243 — Skybox Ferry
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SKYBOX_FERRY: CardRecord = CardRecord::new(
     "Skybox Ferry",
     "75d9ef34-ae95-4465-a30c-372e231bd733",
     "Borja Pindado",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_vehicle(mana_cost!("{5}"), 4, 4).with_abilities(&[
+        abilities::flying(),
+        abilities::crew(
+            "Crew 2 (Tap any number of creatures you control with total \
+             power 2 or more: This Vehicle becomes an artifact creature \
+             until end of turn.)",
+            2,
+        ),
+        abilities::cycling!(
+            "Cycling {2} ({2}, Discard this card: Draw a card.)",
+            &[CostDef::Mana(mana_cost!("{2}"))]
+        ),
+    ]),
 );
 
 // DFT 244 — Starting Column
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static STARTING_COLUMN: CardRecord = CardRecord::new(
     "Starting Column",
     "0530b343-98c2-440a-b32e-d1566d318c3b",
     "Jakub Kasper",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 245 — Ticket Tortoise
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TICKET_TORTOISE: CardRecord = CardRecord::new(
     "Ticket Tortoise",
     "fa178ed7-8f3a-45f0-817d-5fbc7993b04a",
     "Brian Valeza",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{2}"), &["Turtle"], 3, 1).with_abilities(&[
+        abilities::defender(),
+        AbilityDef::triggered_if(
+            "When this creature enters, if an opponent controls more lands \
+             than you, you create a Treasure token. (It's an artifact with \
+             \"{T}, Sacrifice this token: Add one mana of any color.\")",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                left: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Opponent,
+                )),
+                comparison: ComparisonDef::Greater,
+                right: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                )),
+            }),
+            EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(1)),
+        ),
+    ]),
 );
 
 // DFT 246 — Walking Sarcophagus
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static WALKING_SARCOPHAGUS: CardRecord = CardRecord::new(
     "Walking Sarcophagus",
     "89ccbd73-9414-48a3-bdcf-e838fcffc08f",
     "Julia Metzger",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 247 — Wreck Remover
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WRECK_REMOVER: CardRecord = CardRecord::new(
     "Wreck Remover",
     "e3151960-cc0c-47b5-b476-295d7a17ae14",
     "Villarrte",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{4}"), &["Construct"], 3, 4).with_abilities(&[
+        AbilityDef::triggered_with_targets(
+            "Whenever this creature enters or attacks, exile up to one \
+             target card from a graveyard. You gain 1 life.",
+            TriggerEventDef::AnyOf(&[
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::Source,
+                    None,
+                    Some(ZoneKind::Battlefield),
+                ),
+                TriggerEventDef::attacks(ObjectPredicateDef::Source),
+            ]),
+            &[AbilityTargetDef::up_to(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Any,
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: None,
+                },
+                1,
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Exile,
+                    ZonePlacement::Top,
+                ),
+                EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+            ]),
+        ),
+        abilities::cycling!(
+            "Cycling {2} ({2}, Discard this card: Draw a card.)",
+            &[CostDef::Mana(mana_cost!("{2}"))]
+        ),
+    ]),
 );
 
 // DFT 248 — Amonkhet Raceway
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static AMONKHET_RACEWAY: CardRecord = CardRecord::new(
     "Amonkhet Raceway",
     "4f312807-ea2a-4385-8774-4e23b4a5d4a6",
     "Brian Valeza",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 249 — Avishkar Raceway
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static AVISHKAR_RACEWAY: CardRecord = CardRecord::new(
     "Avishkar Raceway",
     "08a6b378-c7fa-4226-a310-4ee7e550b4d6",
     "Julian Kok Joon Wen",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 250 — Bleachbone Verge
@@ -2486,12 +6423,12 @@ const BLOSSOMING_SANDS_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // DFT 253 — Country Roads
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the printed power contribution bonus for both saddling Mounts and crewing Vehicles; CrewsAsThoughPowerGreater is deliberately limited to Vehicles and does not increase saddle payment contributions.
 pub(in crate::card::sets) static COUNTRY_ROADS: CardRecord = CardRecord::new(
     "Country Roads",
     "897acd91-12ba-4fa8-a26e-c09f009167a8",
     "Mark Poole",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 254 — Dismal Backwater (reprint)
@@ -2502,12 +6439,12 @@ const DISMAL_BACKWATER_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // DFT 255 — Foul Roads
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the printed power contribution bonus for both saddling Mounts and crewing Vehicles; CrewsAsThoughPowerGreater is deliberately limited to Vehicles and does not increase saddle payment contributions.
 pub(in crate::card::sets) static FOUL_ROADS: CardRecord = CardRecord::new(
     "Foul Roads",
     "a37c026a-c89f-41f3-8812-424124dd3760",
     "Borja Pindado",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 256 — Jungle Hollow (reprint)
@@ -2518,12 +6455,12 @@ const JUNGLE_HOLLOW_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // DFT 257 — Muraganda Raceway
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static MURAGANDA_RACEWAY: CardRecord = CardRecord::new(
     "Muraganda Raceway",
     "5041ae16-29ff-4ad5-8a37-4736e9409294",
     "Brian Valeza",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 258 — Night Market
@@ -2554,12 +6491,12 @@ pub(in crate::card::sets) static NIGHT_MARKET: CardRecord = CardRecord::new(
 );
 
 // DFT 259 — Reef Roads
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the printed power contribution bonus for both saddling Mounts and crewing Vehicles; CrewsAsThoughPowerGreater is deliberately limited to Vehicles and does not increase saddle payment contributions.
 pub(in crate::card::sets) static REEF_ROADS: CardRecord = CardRecord::new(
     "Reef Roads",
     "73a8171a-2629-4356-ae86-b4d03aa14bd3",
     "David Álvarez",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 260 — Riverpyre Verge
@@ -2598,12 +6535,12 @@ pub(in crate::card::sets) static RIVERPYRE_VERGE: CardRecord = CardRecord::new(
 );
 
 // DFT 261 — Rocky Roads
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the printed power contribution bonus for both saddling Mounts and crewing Vehicles; CrewsAsThoughPowerGreater is deliberately limited to Vehicles and does not increase saddle payment contributions.
 pub(in crate::card::sets) static ROCKY_ROADS: CardRecord = CardRecord::new(
     "Rocky Roads",
     "6f0d4e8a-aab5-458e-bc0e-2b6b0054646a",
     "Arthur Yuan",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 262 — Rugged Highlands (reprint)
@@ -2713,21 +6650,39 @@ pub(in crate::card::sets) static WASTEWOOD_VERGE: CardRecord = CardRecord::new(
 );
 
 // DFT 269 — Wild Roads
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the printed power contribution bonus for both saddling Mounts and crewing Vehicles; CrewsAsThoughPowerGreater is deliberately limited to Vehicles and does not increase saddle payment contributions.
 pub(in crate::card::sets) static WILD_ROADS: CardRecord = CardRecord::new(
     "Wild Roads",
     "4d3d48d1-a98e-40af-b04c-c40b9d52e9ee",
     "Leanna Crossan",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DFT 270 — Willowrush Verge
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WILLOWRUSH_VERGE: CardRecord = CardRecord::new(
     "Willowrush Verge",
     "758d93d5-3f66-4395-a928-000485396c87",
     "Aaron Miller",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Blue),
+        AbilityDef::activated_mana_if(
+            "{T}: Add {G}. Activate only if you control a Forest or an Island.",
+            &[CostDef::TapSource],
+            &TriggerConditionDef::ObjectCount {
+                query: ObjectQueryDef::matching(
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Forest")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Island")),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                comparison: ComparisonDef::GreaterOrEqual,
+                amount: 1,
+            },
+            EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Green)),
+        ),
+    ]),
 );
 
 // DFT 271 — Wind-Scarred Crag (reprint)

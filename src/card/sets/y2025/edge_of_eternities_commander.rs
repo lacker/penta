@@ -1,5 +1,12 @@
 //! Edge of Eternities Commander cards cataloged for the Vintage Cube pool.
 
+use crate::card::CardSupertype;
+use crate::card::ComparisonDef;
+use crate::card::ConditionDef;
+use crate::card::ObjectCountConditionDef;
+use crate::card::ObjectQueryDef;
+use crate::card::ZoneKind;
+use crate::card::tokens;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::card::AbilityDef;
@@ -96,21 +103,42 @@ pub(in crate::card::sets) static BALOTH_PRIME: CardRecord = CardRecord::new(
 );
 
 // EOC 19 — Surge Conductor
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SURGE_CONDUCTOR_19: CardRecord = CardRecord::new(
     "Surge Conductor",
     "686c005b-39c8-4c6c-bf5a-462774f1d6d9",
     "Alexandr Leskinen",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{3}"), &["Robot"], 3, 2).with_abilities(&[
+AbilityDef::triggered("Whenever another nontoken artifact you control enters, proliferate. (Choose any number of permanents and/or players, then give each another counter of each kind already there.)", TriggerEventDef::zone_changed(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Artifact), ObjectPredicateDef::ControlledBy(PlayerRelation::You), ObjectPredicateDef::Not(&ObjectPredicateDef::Source), ObjectPredicateDef::Not(&ObjectPredicateDef::Token)]), None, Some(ZoneKind::Battlefield)), EffectDef::Proliferate)
+]),
 );
 
 // EOC 23 — Radiant Summit
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RADIANT_SUMMIT_23: CardRecord = CardRecord::new(
     "Radiant Summit",
     "1595f80a-b566-49ce-a64f-4289443b1b8d",
     "Marco Gorlei",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&["Mountain", "Plains"]).with_abilities(&[AbilityDef::as_enters(
+        "This land enters tapped unless you control two or more basic lands.",
+        ReplacementEffectDef::Conditional {
+            condition: ConditionDef::ObjectCount(&ObjectCountConditionDef {
+                query: ObjectQueryDef::matching(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                comparison: ComparisonDef::GreaterOrEqual,
+                amount: 2,
+            }),
+            if_true: &[],
+            if_false: &[ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::Tapped,
+            )],
+        },
+    )]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

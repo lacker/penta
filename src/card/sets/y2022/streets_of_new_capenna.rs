@@ -1,5 +1,7 @@
 //! Streets of New Capenna cards cataloged for the Vintage Cube pool.
 
+use crate::card::AppliedRuleDef;
+use crate::card::ExilePlayDurationDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
@@ -281,21 +283,36 @@ pub(in crate::card::sets) static FAKE_YOUR_OWN_DEATH: CardRecord = CardRecord::n
 );
 
 // SNC 102 — Big Score
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BIG_SCORE_102: CardRecord = CardRecord::new(
     "Big Score",
     "39d1578f-e2cf-4b93-8204-ed5434feb183",
     "Gaboleps",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{3}{R}")).with_ability(AbilityDef::spell_with_additional_cost(
+        "As an additional cost to cast this spell, discard a card. Draw two cards and create two Treasure tokens.",
+        &[], CostDef::DiscardCards(1),
+        EffectDef::Sequence(&[
+            EffectDef::DrawCards { recipient: EffectRecipientDef::Controller, amount: ValueDef::Constant(2) },
+            EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(2)),
+        ]),
+    )),
 );
 
 // SNC 108 — Goldhound
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GOLDHOUND_108: CardRecord = CardRecord::new(
     "Goldhound",
     "c059e4b4-1542-4b5c-810a-9f0abac5792b",
     "Donato Giancola",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{R}"), &["Treasure", "Dog"], 1, 1)
+        .with_abilities(&[
+            abilities::first_strike(),
+            abilities::menace(),
+            AbilityDef::activated_mana(
+                "{T}, Sacrifice this creature: Add one mana of any color.",
+                &[CostDef::TapSource, CostDef::SacrificeSource],
+                EffectDef::AddMana(AddManaEffectDef::any_color()),
+            ),
+        ])
+        .with_type(crate::card::CardType::Artifact),
 );
 
 // SNC 110 — Involuntary Employment
@@ -334,7 +351,7 @@ pub(in crate::card::sets) static INVOLUNTARY_EMPLOYMENT: CardRecord = CardRecord
 );
 
 // SNC 112 — Jaxis, the Troublemaker
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — There is no blitz alternative-cast procedure with its linked haste, death-draw, and delayed-sacrifice clauses; ordinary dash has a different end-step action.
 pub(in crate::card::sets) static JAXIS_THE_TROUBLEMAKER_112: CardRecord = CardRecord::new(
     "Jaxis, the Troublemaker",
     "78127c0c-672f-4e4b-9c23-6a5f237228fd",
@@ -352,7 +369,7 @@ pub(in crate::card::sets) static MAYHEM_PATROL: CardRecord = CardRecord::new(
 );
 
 // SNC 122 — Rob the Archives
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — There is no casualty optional cast cost that produces its separate reflexive copy trigger. Treating the sacrifice as kicker would give the wrong cost identity and trigger timing.
 pub(in crate::card::sets) static ROB_THE_ARCHIVES_122: CardRecord = CardRecord::new(
     "Rob the Archives",
     "a3ec95f6-88c8-4daf-882f-8b4bc73452c3",
@@ -361,12 +378,15 @@ pub(in crate::card::sets) static ROB_THE_ARCHIVES_122: CardRecord = CardRecord::
 );
 
 // SNC 124 — Sticky Fingers
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STICKY_FINGERS_124: CardRecord = CardRecord::new(
     "Sticky Fingers",
     "3678fa3d-d41f-4b7a-b25e-6fc5f78876c7",
     "Mark Behm",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{R}")).with_subtypes(&["Aura"]).with_abilities(&[
+abilities::aura_spell("Enchant creature", &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Creature))]),
+AbilityDef::static_ability("Enchanted creature has menace and \"Whenever this creature deals combat damage to a player, create a Treasure token.\" (It can't be blocked except by two or more creatures. The token is an artifact with \"{T}, Sacrifice this token: Add one mana of any color.\")", EffectDef::StaticApply { recipient: EffectRecipientDef::AttachedPermanent, effect: AppliedEffectDef::Composite(&[AppliedEffectDef::add_ability(&abilities::menace()), AppliedEffectDef::add_ability(&AbilityDef::triggered("Whenever this creature deals combat damage to a player, create a Treasure token.", TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source), EffectDef::create_token(crate::card::tokens::treasure())))]) }),
+AbilityDef::triggered("When enchanted creature dies, draw a card.", TriggerEventDef::zone_changed(ObjectPredicateDef::AttachedToSource, Some(ZoneKind::Battlefield), Some(ZoneKind::Graveyard)), abilities::draw_cards(ValueDef::Constant(1)))
+]),
 );
 
 // SNC 131 — Witty Roastmaster
@@ -414,12 +434,15 @@ pub(in crate::card::sets) static JEWEL_THIEF: CardRecord = CardRecord::new(
 );
 
 // SNC 160 — Topiary Stomper
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TOPIARY_STOMPER_160: CardRecord = CardRecord::new(
     "Topiary Stomper",
     "87bb2699-280f-4e1e-b3f8-73efe6088f31",
     "Robin Olausson",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{G}{G}"), &["Plant", "Dinosaur"], 4, 4).with_abilities(&[
+abilities::vigilance(),
+abilities::enters_trigger("When this creature enters, search your library for a basic land card, put it onto the battlefield tapped, then shuffle.", EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Library, object: ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Land), ObjectPredicateDef::Supertype(CardSupertype::Basic)]), minimum: 0, maximum: ValueDef::Constant(1), reveal: false, destination: ZoneKind::Battlefield, placement: ZonePlacement::Top, shuffle: true, enters_tapped: true, attachment: None, binding: None, then: None }),
+AbilityDef::static_ability("This creature can't attack or block unless you control seven or more lands.", EffectDef::IfCondition { condition: &TriggerConditionDef::ObjectCount { query: ObjectQueryDef::matching(ObjectPredicateDef::HasType(CardType::Land), &[ZoneKind::Battlefield], PlayerRelation::You), comparison: ComparisonDef::Less, amount: 7 }, then: &EffectDef::StaticApply { recipient: EffectRecipientDef::Source, effect: AppliedEffectDef::Composite(&[AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_ATTACK), AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK)]) } })
+]),
 );
 
 // SNC 161 — Venom Connoisseur
@@ -517,12 +540,28 @@ pub(in crate::card::sets) static BODY_DROPPER: CardRecord = CardRecord::new(
 );
 
 // SNC 230 — Void Rend
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VOID_REND_230: CardRecord = CardRecord::new(
     "Void Rend",
     "2daab74d-d66b-4164-aa19-24e8d5536f7d",
     "Rovina Cai",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{W}{U}{B}")).with_abilities(&[
+        abilities::cannot_be_countered(),
+        AbilityDef::spell_with_targets(
+            "Destroy target nonland permanent.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+            )],
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // SNC 250 — Jetmir's Garden
@@ -566,16 +605,19 @@ pub(in crate::card::sets) static ZIATORAS_PROVING_GROUND: CardRecord = CardRecor
 );
 
 // SNC 426 — Professional Face-Breaker
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PROFESSIONAL_FACE_BREAKER_426: CardRecord = CardRecord::new(
     "Professional Face-Breaker",
     "2b7e703f-dcd2-4a99-846f-758d4858453a",
     "Dan Murayama Scott",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Human", "Warrior"], 2, 3).with_abilities(&[
+abilities::menace(),
+AbilityDef::triggered("Whenever one or more creatures you control deal combat damage to a player, create a Treasure token.", TriggerEventDef::CombatDamageDealtToPlayers { sources: ObjectPredicateDef::ControlledBy(PlayerRelation::You), players: PlayerRelation::Any }, EffectDef::create_token(crate::card::tokens::treasure())),
+AbilityDef::activated("Sacrifice a Treasure: Exile the top card of your library. You may play that card this turn.", &[CostDef::sacrifice_permanent(ObjectPredicateDef::Subtype(SubtypeDef::Literal("Treasure")))], EffectDef::ExileTopOfLibraryToPlay { player: EffectRecipientDef::Controller, amount: ValueDef::Constant(1), free: false, face_down: false, duration: ExilePlayDurationDef::ThisTurn, spend_any_color: false, play_condition: None, cast_only: false })
+]),
 );
 
 // SNC 440 — Unlicensed Hearse
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Target slots cannot require that every card in a multi-target group have the same graveyard owner. Separate modes for each graveyard would incorrectly prevent a copy from retargeting into the other graveyard.
 pub(in crate::card::sets) static UNLICENSED_HEARSE_440: CardRecord = CardRecord::new(
     "Unlicensed Hearse",
     "9066fb8f-8568-4e87-bee9-573f6c204a26",

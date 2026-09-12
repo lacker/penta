@@ -127,12 +127,16 @@ CardRules::new_sorcery(mana_cost!("{U}")).with_ability(AbilityDef::spell(
 );
 
 // P02 54 — Temporal Manipulation
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TEMPORAL_MANIPULATION_54: CardRecord = CardRecord::new(
     "Temporal Manipulation",
     "b3964160-79d6-4cdd-8b43-7a8f5dde9da7",
     "Anson Maddocks",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{3}{U}{U}")).with_abilities(&[AbilityDef::spell(
+        "Take an extra turn after this one.",
+        EffectDef::TakeExtraTurn {
+            player: EffectRecipientDef::Controller,
+        },
+    )]),
 );
 
 // P02 87 — Ravenous Rats

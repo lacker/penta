@@ -1,5 +1,17 @@
 //! Guilds of Ravnica cards used as cross-format rules-engine test cases.
 
+use crate::card::AddManaEffectDef;
+use crate::card::AppliedEffectDef;
+use crate::card::ChoiceVisibilityDef;
+use crate::card::ChooseOneOfEachDef;
+use crate::card::CostDef;
+use crate::card::CounterKind;
+use crate::card::CreatedTokensDef;
+use crate::card::DrawEventMatcherDef;
+use crate::card::ObjectQueryDef;
+use crate::card::ObjectSetDef;
+use crate::card::ResolvedEffectDurationDef;
+use crate::card::RevealObjectsDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
@@ -118,12 +130,13 @@ pub(in crate::card::sets) static BURGLAR_RAT: CardRecord = CardRecord::new(
 );
 
 // GRN 75 — Mausoleum Secrets
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MAUSOLEUM_SECRETS_75: CardRecord = CardRecord::new(
     "Mausoleum Secrets",
     "26f7cf38-78cc-4139-9f2a-4dd0be7d9da8",
     "Adam Paquette",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{B}")).with_abilities(&[
+AbilityDef::spell("Undergrowth — Search your library for a black card with mana value less than or equal to the number of creature cards in your graveyard, reveal it, put it into your hand, then shuffle.", EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Library, object: ObjectPredicateDef::All(&[ObjectPredicateDef::Color(ManaColor::Black), ObjectPredicateDef::ManaValueAtMostValue(ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(ObjectPredicateDef::HasType(CardType::Creature), &[ZoneKind::Graveyard], PlayerRelation::You)))]), minimum: 0, maximum: ValueDef::Constant(1), reveal: true, destination: ZoneKind::Hand, placement: ZonePlacement::Top, shuffle: true, enters_tapped: false, attachment: None, binding: None, then: None })
+]),
 );
 
 // GRN 77 — Midnight Reaper
@@ -180,7 +193,7 @@ CardRules::new_creature(mana_cost!("{3}{R}"), &["Phoenix"], 3, 2).with_abilities
 );
 
 // GRN 99 — Experimental Frenzy
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — PlayRestrictionDef has no source-zone selector, so it cannot prohibit plays from hand while preserving the separate permission to play the top card.
 pub(in crate::card::sets) static EXPERIMENTAL_FRENZY_99: CardRecord = CardRecord::new(
     "Experimental Frenzy",
     "4b8f32e2-5dc8-4f1b-8a69-d3ae06378ed8",
@@ -189,39 +202,60 @@ pub(in crate::card::sets) static EXPERIMENTAL_FRENZY_99: CardRecord = CardRecord
 );
 
 // GRN 103 — Goblin Cratermaker
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GOBLIN_CRATERMAKER_103: CardRecord = CardRecord::new(
     "Goblin Cratermaker",
     "86ecaedc-08f1-4de7-aae8-056df57940e0",
     "Svetlin Velinov",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Goblin", "Warrior"], 2, 2).with_abilities(&[
+AbilityDef::modal_activated("{1}, Sacrifice this creature: Choose one —\n• This creature deals 2 damage to target creature.\n• Destroy target colorless nonland permanent.", &[CostDef::Mana(mana_cost!("{1}")), CostDef::SacrificeSource], &[AbilityDef::spell_with_targets("This creature deals 2 damage to target creature.", &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Creature))], EffectDef::damage(EffectRecipientDef::Target(TargetIndex::PRIMARY), ValueDef::Constant(2))), AbilityDef::spell_with_targets("Destroy target colorless nonland permanent.", &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[ObjectPredicateDef::ColorCount(0), ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land))]))], EffectDef::destroy_target(TargetIndex::PRIMARY))], 1, 1, false)
+])
 );
 
 // GRN 109 — Legion Warboss
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LEGION_WARBOSS_109: CardRecord = CardRecord::new(
     "Legion Warboss",
     "5e84cb9c-9876-47a4-aea4-78574321bc36",
     "Alex Konstad",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Goblin", "Soldier"], 2, 2).with_abilities(&[
+AbilityDef::triggered_with_targets("Mentor (Whenever this creature attacks, put a +1/+1 counter on target attacking creature with lesser power.)", TriggerEventDef::attacks(ObjectPredicateDef::Source), &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::Attacking, ObjectPredicateDef::PowerLessThan(ValueDef::SourcePower)]))], EffectDef::AddCounters { object: EffectRecipientDef::Target(TargetIndex::PRIMARY), kind: CounterKind::PlusOnePlusOne, amount: ValueDef::Constant(1) }),
+AbilityDef::triggered("At the beginning of combat on your turn, create a 1/1 red Goblin creature token. That token gains haste until end of turn and attacks this combat if able.", TriggerEventDef::StepBegins { step: TurnStepDef::BeginningOfCombat, player: PlayerRelation::You }, EffectDef::create_creature_token(&["Goblin"], &[ManaColor::Red], 1, 1).with_created_tokens(CreatedTokensDef { binding: Binding!("warboss_goblin"), then: &EffectDef::Sequence(&[EffectDef::Apply { recipient: EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!("warboss_goblin"))), effect: AppliedEffectDef::add_ability(&abilities::haste()), duration: ResolvedEffectDurationDef::UntilEndOfTurn }, EffectDef::Apply { recipient: EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!("warboss_goblin"))), effect: AppliedEffectDef::add_ability(&abilities::attacks_each_combat_if_able()), duration: ResolvedEffectDurationDef::UntilEndOfCombat }]) }))
+]),
 );
 
 // GRN 115 — Runaway Steam-Kin
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RUNAWAY_STEAM_KIN_115: CardRecord = CardRecord::new(
     "Runaway Steam-Kin",
     "d8c9c111-fbc7-44e1-94bd-1ca164370623",
     "Jason Felix",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Elemental"], 1, 1).with_abilities(&[
+AbilityDef::triggered_if("Whenever you cast a red spell, if this creature has fewer than three +1/+1 counters on it, put a +1/+1 counter on this creature.", TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[ObjectPredicateDef::Color(ManaColor::Red), ObjectPredicateDef::ControlledBy(PlayerRelation::You)])), &TriggerConditionDef::SourceCounters { kind: CounterKind::PlusOnePlusOne, comparison: ComparisonDef::Less, amount: 3 }, EffectDef::AddCounters { object: EffectRecipientDef::Source, kind: CounterKind::PlusOnePlusOne, amount: ValueDef::Constant(1) }),
+AbilityDef::activated_mana("Remove three +1/+1 counters from this creature: Add {R}{R}{R}.", &[CostDef::RemoveCountersFromSource { kind: CounterKind::PlusOnePlusOne, amount: 3 }], EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Red).with_amount(3)))
+]),
 );
 
 // GRN 119 — Torch Courier
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TORCH_COURIER_119: CardRecord = CardRecord::new(
     "Torch Courier",
     "d4c9fc8c-e68f-4636-84b8-877f6ec04b09",
     "Mark Zug",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{R}"), &["Goblin"], 1, 1).with_abilities(&[
+        abilities::haste(),
+        AbilityDef::activated_with_targets(
+            "Sacrifice this creature: Another target creature gains haste until end of turn.",
+            &[CostDef::SacrificeSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                ]),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::add_ability(&abilities::haste()),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // GRN 121 — Affectionate Indrik
@@ -339,7 +373,7 @@ pub(in crate::card::sets) static ASSASSIN_S_TROPHY: CardRecord = CardRecord::new
 );
 
 // GRN 189 — Mnemonic Betrayal
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Arbitrary-card exile grants cannot attach a spend-mana-as-any-type permission to the exiled graveyard group. That modifier is exposed only on top-of-library exile operations, which cannot select these cards.
 pub(in crate::card::sets) static MNEMONIC_BETRAYAL_189: CardRecord = CardRecord::new(
     "Mnemonic Betrayal",
     "a5cf45aa-ed34-4add-a2ec-fc11f8c15ffa",
@@ -348,12 +382,40 @@ pub(in crate::card::sets) static MNEMONIC_BETRAYAL_189: CardRecord = CardRecord:
 );
 
 // GRN 192 — Niv-Mizzet, Parun
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NIV_MIZZET_PARUN_192: CardRecord = CardRecord::new(
     "Niv-Mizzet, Parun",
     "6f3d2dc5-7b9d-4af6-9f3b-4de90fbf63c9",
     "Svetlin Velinov",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(
+        mana_cost!("{U}{U}{U}{R}{R}{R}"),
+        &["Dragon", "Wizard"],
+        5,
+        5,
+    )
+    .with_supertype(CardSupertype::Legendary)
+    .with_abilities(&[
+        abilities::cannot_be_countered(),
+        abilities::flying(),
+        AbilityDef::triggered_with_targets(
+            "Whenever you draw a card, Niv-Mizzet deals 1 damage to any target.",
+            TriggerEventDef::DrewCard(DrawEventMatcherDef::any(PlayerRelation::You)),
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(1),
+            ),
+        ),
+        AbilityDef::triggered(
+            "Whenever a player casts an instant or sorcery spell, you draw a card.",
+            TriggerEventDef::spell_cast(ObjectPredicateDef::AnyOf(&[
+                ObjectPredicateDef::HasType(CardType::Instant),
+                ObjectPredicateDef::HasType(CardType::Sorcery),
+            ])),
+            abilities::draw_cards(ValueDef::Constant(1)),
+        ),
+    ]),
 );
 
 // GRN 203 — Swiftblade Vindicator
@@ -378,21 +440,21 @@ pub(in crate::card::sets) static THOUSAND_YEAR_STORM: CardRecord = CardRecord::n
 );
 
 // GRN 228 — Invert // Invent
-// Audit: unsupported — Card rules have not been implemented.
-pub(in crate::card::sets) static INVERT_INVENT_228: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static INVERT_INVENT_228: CardRecord = CardRecord::new_split(
     "Invert // Invent",
     "054a4e4f-8baa-41cf-b24c-d068e8b9a070",
     "Mathias Kollros",
-    crate::card::CardRules::unsupported(),
-);
+    &[("Invert", CardRules::new_instant(mana_cost!("{U/R}")).with_ability(AbilityDef::spell_with_targets("Switch the power and toughness of each of up to two target creatures until end of turn.", &[AbilityTargetDef::up_to(AbilityTargetPredicate::Object { object: ObjectPredicateDef::HasType(CardType::Creature), zones: &[ZoneKind::Battlefield], controller: None, owner: None }, 2)], EffectDef::Apply { recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY), effect: AppliedEffectDef::switch_power_toughness(), duration: ResolvedEffectDurationDef::UntilEndOfTurn }))), ("Invent", CardRules::new_instant(mana_cost!("{4}{U}{R}")).with_ability(AbilityDef::spell("Search your library for an instant card and/or a sorcery card, reveal them, put them into your hand, then shuffle.", EffectDef::Sequence(&[EffectDef::ChooseOneOfEach(ChooseOneOfEachDef { actor: PlayerRefDef::EffectController, input: ObjectSetDef::Query(ObjectQueryDef::matching(ObjectPredicateDef::Any, &[ZoneKind::Library], PlayerRelation::You)), predicates: &[ObjectPredicateDef::HasType(CardType::Instant), ObjectPredicateDef::HasType(CardType::Sorcery)], chosen: Binding!("invent_found"), remainder: Binding!("invent_rest"), visibility: ChoiceVisibilityDef::Private, then: &EffectDef::Sequence(&[EffectDef::RevealObjects(RevealObjectsDef { input: ObjectSetDef::Binding(Binding!("invent_found")), then: &EffectDef::None }), EffectDef::move_to_zone(EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!("invent_found"))), ZoneKind::Hand, ZonePlacement::Top)]) }), EffectDef::ShuffleLibrary { player: EffectRecipientDef::Controller }]))))]);
 
 // GRN 242 — Wand of Vertebrae
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WAND_OF_VERTEBRAE_242: CardRecord = CardRecord::new(
     "Wand of Vertebrae",
     "87f208bc-e4dc-4d3a-8906-dccde3cc251b",
     "Volkan Baǵa",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
+AbilityDef::activated("{T}: Mill a card.", &[CostDef::TapSource], EffectDef::Mill { player: EffectRecipientDef::Controller, amount: ValueDef::Constant(1) }),
+AbilityDef::activated_with_targets("{2}, {T}, Exile this artifact: Shuffle up to five target cards from your graveyard into your library.", &[CostDef::Mana(mana_cost!("{2}")), CostDef::TapSource, CostDef::ExileSource], &[AbilityTargetDef::up_to(AbilityTargetPredicate::Object { object: ObjectPredicateDef::Any, zones: &[ZoneKind::Graveyard], controller: None, owner: Some(PlayerRelation::You) }, 5)], EffectDef::Sequence(&[EffectDef::move_to_zone(EffectRecipientDef::Target(TargetIndex::PRIMARY), ZoneKind::Library, ZonePlacement::Top), EffectDef::ShuffleLibrary { player: EffectRecipientDef::Controller }]))
+]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

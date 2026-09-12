@@ -6365,12 +6365,52 @@ pub(in crate::card::sets) static ZORALINE_COSMOS_CALLER: CardRecord = CardRecord
 );
 
 // BLB 243 — Barkform Harvester
-// Audit: unsupported — Needs a creature-type characteristic-defining ability that functions in every zone and supplies all creature types as copiable values; existing all-types continuous grants do not give a card changeling outside the battlefield.
 pub(in crate::card::sets) static BARKFORM_HARVESTER: CardRecord = CardRecord::new(
-    "Barkform Harvester",
-    "f77049a6-0f22-415b-bc89-20bcb32accf6",
-    "Zezhou Chen",
-    CardRules::unsupported(),
+"Barkform Harvester",
+"f77049a6-0f22-415b-bc89-20bcb32accf6",
+"Zezhou Chen",
+CardRules::new_creature(mana_cost!("{3}"), &["Shapeshifter"], 2, 3)
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Changeling (This card is every creature type.)",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::Characteristic(
+                        crate::card::CharacteristicOperationDef::Subtypes(
+                            crate::card::SetOperationDef::Add(crate::card::CREATURE_TYPES),
+                        ),
+                    ),
+                },
+            )
+            .with_source_zones(&[
+                ZoneKind::Battlefield,
+                ZoneKind::Library,
+                ZoneKind::Hand,
+                ZoneKind::Graveyard,
+                ZoneKind::Stack,
+                ZoneKind::Exile,
+                ZoneKind::Command,
+            ]),
+            abilities::reach(),
+            AbilityDef::activated_with_targets(
+                "{2}: Put target card from your graveyard on the bottom of your library.",
+                &[CostDef::Mana(mana_cost!("{2}"))],
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::Any,
+                        zones: &[ZoneKind::Graveyard],
+                        controller: None,
+                        owner: Some(PlayerRelation::You),
+                    },
+                )],
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Library,
+                    ZonePlacement::Bottom,
+                ),
+            ),
+        ])
+        .with_type(crate::card::CardType::Artifact),
 );
 
 // BLB 244 — Bumbleflower's Sharepot
@@ -6570,12 +6610,38 @@ pub(in crate::card::sets) static TANGLE_TUMBLER: CardRecord = CardRecord::new(
 );
 
 // BLB 251 — Three Tree Mascot
-// Audit: unsupported — Needs a creature-type characteristic-defining ability applying in every zone and supplying every creature type as copiable values; battlefield all-type modifiers do not implement changeling.
 pub(in crate::card::sets) static THREE_TREE_MASCOT: CardRecord = CardRecord::new(
-    "Three Tree Mascot",
-    "aaced75b-6e07-457c-8ea2-f74d99710d15",
-    "Gina Matarazzo",
-    CardRules::unsupported(),
+"Three Tree Mascot",
+"aaced75b-6e07-457c-8ea2-f74d99710d15",
+"Gina Matarazzo",
+CardRules::new_artifact_creature(mana_cost!("{2}"), &["Shapeshifter"], 2, 1).with_abilities(&[
+        AbilityDef::static_ability(
+            "Changeling (This card is every creature type.)",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Characteristic(
+                    crate::card::CharacteristicOperationDef::Subtypes(
+                        crate::card::SetOperationDef::Add(crate::card::CREATURE_TYPES),
+                    ),
+                ),
+            },
+        )
+        .with_source_zones(&[
+            ZoneKind::Battlefield,
+            ZoneKind::Library,
+            ZoneKind::Hand,
+            ZoneKind::Graveyard,
+            ZoneKind::Stack,
+            ZoneKind::Exile,
+            ZoneKind::Command,
+        ]),
+        AbilityDef::activated_mana(
+            "{1}: Add one mana of any color. Activate only once each turn.",
+            &[CostDef::Mana(mana_cost!("{1}"))],
+            EffectDef::AddMana(crate::card::AddManaEffectDef::any_color()),
+        )
+        .once_each_turn(),
+    ]),
 );
 
 // BLB 252 — Fabled Passage (reprint)

@@ -1,5 +1,14 @@
 //! Commander 2011 card records required by supported formats.
 
+use crate::card::BindObjectsDef;
+use crate::card::ControlDurationDef;
+use crate::card::ManaColor;
+use crate::card::ObjectCollectionSourceDef;
+use crate::card::ObjectRefDef;
+use crate::card::ObjectSetDef;
+use crate::card::PlayerRefDef;
+use crate::card::PlayerRelation;
+use crate::card::RevealObjectsDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::AbilityTargetDef;
@@ -33,21 +42,41 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // CMD 46 — Flusterstorm
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FLUSTERSTORM_46: CardRecord = CardRecord::new(
     "Flusterstorm",
     "1e2e09bf-e7c8-4f13-bcee-f9c8cbc57993",
     "Erica Yang",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{U}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Counter target instant or sorcery spell unless its controller pays {1}.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Spell,
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Instant),
+                            ObjectPredicateDef::HasType(CardType::Sorcery),
+                        ]),
+                    ]),
+                    zones: &[ZoneKind::Stack],
+                    controller: None,
+                    owner: None,
+                },
+            )],
+            abilities::counter_target_unless_paid(&[CostDef::Mana(mana_cost!("{1}"))]),
+        ),
+        abilities::storm(),
+    ]),
 );
 
 // CMD 114 — Chaos Warp
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CHAOS_WARP_114: CardRecord = CardRecord::new(
     "Chaos Warp",
     "042431bc-0b21-4920-802f-6dd02e4c8721",
     "Trevor Claxton",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{2}{R}")).with_abilities(&[
+AbilityDef::spell_with_targets("The owner of target permanent shuffles it into their library, then reveals the top card of their library. If it's a permanent card, they put it onto the battlefield.", &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Any)], EffectDef::Sequence(&[EffectDef::move_to_zone(EffectRecipientDef::Target(TargetIndex::PRIMARY), ZoneKind::Library, ZonePlacement::Top), EffectDef::ShuffleLibrary { player: EffectRecipientDef::player(PlayerRefDef::OwnerOf(ObjectRefDef::Target(TargetIndex::PRIMARY))) }, EffectDef::BindObjects(BindObjectsDef { source: ObjectCollectionSourceDef::TopCards { player: PlayerRefDef::OwnerOf(ObjectRefDef::Target(TargetIndex::PRIMARY)), count: ValueDef::Constant(1) }, binding: Binding!("warp_revealed"), then: &EffectDef::Sequence(&[EffectDef::RevealObjects(RevealObjectsDef { input: ObjectSetDef::Binding(Binding!("warp_revealed")), then: &EffectDef::None }), EffectDef::ForEachInBinding { objects: Binding!("warp_revealed"), binding: Binding!("warp_card"), effect: &EffectDef::IfCondition { condition: &TriggerConditionDef::BoundObjectMatches { binding: Binding!("warp_card"), object: ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Artifact), ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::HasType(CardType::Enchantment), ObjectPredicateDef::HasType(CardType::Land), ObjectPredicateDef::HasType(CardType::Planeswalker)]) }, then: &EffectDef::move_to_zone(EffectRecipientDef::object(ObjectRefDef::Binding(Binding!("warp_card"))), ZoneKind::Battlefield, ZonePlacement::Top) } }]) })]))
+]),
 );
 
 // CMD 170 — Scavenging Ooze
@@ -134,7 +163,7 @@ CardRules::new_artifact(mana_cost!("{3}"))
 );
 
 // CMD 269 — Command Tower
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Commander designation is recorded, but mana selectors cannot derive the commander pair’s color identity (including rules-text mana symbols and reverse faces).
 pub(in crate::card::sets) static COMMAND_TOWER_269: CardRecord = CardRecord::new(
     "Command Tower",
     "46982091-cc78-4171-8b3d-d07592684728",
@@ -143,12 +172,40 @@ pub(in crate::card::sets) static COMMAND_TOWER_269: CardRecord = CardRecord::new
 );
 
 // CMD 277 — Homeward Path
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HOMEWARD_PATH_277: CardRecord = CardRecord::new(
     "Homeward Path",
     "b5fb67ed-f4ea-47d6-876a-2ad6a3fc9a18",
     "Tomasz Jedruszek",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated(
+            "{T}: Each player gains control of all creatures they own.",
+            &[CostDef::TapSource],
+            EffectDef::BindObjects(crate::card::BindObjectsDef {
+                source: crate::card::ObjectCollectionSourceDef::ObjectSet(
+                    crate::card::ObjectSetDef::Query(crate::card::ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    )),
+                ),
+                binding: crate::Binding!("owned_creatures"),
+                then: &EffectDef::ForEachInBinding {
+                    objects: crate::Binding!("owned_creatures"),
+                    binding: crate::Binding!("owned_creature"),
+                    effect: &EffectDef::gain_control(
+                        EffectRecipientDef::object(crate::card::ObjectRefDef::Binding(
+                            crate::Binding!("owned_creature"),
+                        )),
+                        PlayerRefDef::OwnerOf(crate::card::ObjectRefDef::Binding(crate::Binding!(
+                            "owned_creature"
+                        ))),
+                        ControlDurationDef::Indefinitely,
+                    ),
+                },
+            }),
+        ),
+    ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

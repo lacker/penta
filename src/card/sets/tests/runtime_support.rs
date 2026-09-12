@@ -324,10 +324,14 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                 !definition.optional
                     && definition.condition.is_none()
                     && zones_match
-                    && ((from == Some(ZoneKind::Hand)
-                        && to == ZoneKind::Graveyard
-                        && shared_zone_move_cause(cause)
-                        && effect == ReplacementEffectDef::MoveToZone(ZoneKind::Battlefield))
+                    && ((from == Some(ZoneKind::Battlefield)
+                        && matches!(to, ZoneKind::Hand | ZoneKind::Library | ZoneKind::Command)
+                        && cause == ZoneMoveCauseDef::Any
+                        && effect == ReplacementEffectDef::MoveToZone(ZoneKind::Exile))
+                        || (from == Some(ZoneKind::Hand)
+                            && to == ZoneKind::Graveyard
+                            && shared_zone_move_cause(cause)
+                            && effect == ReplacementEffectDef::MoveToZone(ZoneKind::Battlefield))
                         || (matches!(from, None | Some(ZoneKind::Battlefield))
                             && to == ZoneKind::Graveyard
                             && cause == ZoneMoveCauseDef::Any
@@ -784,10 +788,10 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                             mode.declarative_effect().is_none() || shared_definition_ability(mode)
                         })
                 })
-                // A purely modal trigger does nothing of its own before the
-                // mode it prints, exactly as a modal activated ability does.
+                // Modal wrappers and triggers with no recipients in a two-player
+                // game can resolve without applying an effect.
                 && (shared_stack_effect(effect)
-                    || (definition.modes.is_some() && effect == EffectDef::None))
+                    || effect == EffectDef::None)
         }
         DeclarativeAbilityDef::Pregame(definition) => {
             definition

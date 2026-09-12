@@ -1,5 +1,20 @@
 //! Morningtide card records.
 
+use crate::card::BattlefieldEntryModificationDef;
+use crate::card::BindObjectsDef;
+use crate::card::ChoiceVisibilityDef;
+use crate::card::ChooseDef;
+use crate::card::ChooseObjectOrderDef;
+use crate::card::CounterKind;
+use crate::card::LookAtObjectsDef;
+use crate::card::MoveObjectsDef;
+use crate::card::ObjectChoiceBindingDef;
+use crate::card::ObjectCollectionSourceDef;
+use crate::card::ObjectSetDef;
+use crate::card::PlayerRefDef;
+use crate::card::ReplacementEffectDef;
+use crate::card::ReplacementEventDef;
+use crate::card::TriggerEventDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::AbilityDef;
@@ -125,7 +140,7 @@ pub(in crate::card::sets) static KINDLED_FURY: CardRecord = CardRecord::new(
 );
 
 // MOR 104 — Shared Animosity
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — There is no predicate comparing two objects' creature-type sets, including changeling, to count other attacking creatures sharing a type with the triggering creature.
 pub(in crate::card::sets) static SHARED_ANIMOSITY_104: CardRecord = CardRecord::new(
     "Shared Animosity",
     "fe332c46-90f0-4cc0-8bf1-35a3934ff8a0",
@@ -134,12 +149,29 @@ pub(in crate::card::sets) static SHARED_ANIMOSITY_104: CardRecord = CardRecord::
 );
 
 // MOR 105 — Spitebellows
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPITEBELLOWS_105: CardRecord = CardRecord::new(
     "Spitebellows",
     "43f2104d-aeff-493f-8227-cb95bf3e2eab",
     "Larry MacDougall",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{5}{R}"), &["Elemental"], 6, 1).with_abilities(&[
+        AbilityDef::triggered_with_targets(
+            "When this creature leaves the battlefield, it deals 6 damage to target creature.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                Some(ZoneKind::Battlefield),
+                None,
+            ),
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(6),
+            ),
+        ),
+        abilities::evoke(&[CostDef::Mana(mana_cost!("{1}{R}{R}"))])[0],
+        abilities::evoke(&[CostDef::Mana(mana_cost!("{1}{R}{R}"))])[1],
+    ]),
 );
 
 // MOR 109 — Taurean Mauler
@@ -152,21 +184,24 @@ pub(in crate::card::sets) static TAUREAN_MAULER: CardRecord = CardRecord::new(
 );
 
 // MOR 115 — Bramblewood Paragon
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BRAMBLEWOOD_PARAGON_115: CardRecord = CardRecord::new(
     "Bramblewood Paragon",
     "3910f5b2-17da-41e4-bf40-1c40b513fa12",
     "Jim Murray",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Elf", "Warrior"], 2, 2).with_abilities(&[
+AbilityDef::replacement_for("Each other Warrior creature you control enters with an additional +1/+1 counter on it.", ReplacementEventDef::ObjectEntersBattlefield { object: ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::Subtype(SubtypeDef::Literal("Warrior")), ObjectPredicateDef::Not(&ObjectPredicateDef::Source)]), controller: PlayerRelation::You, cast: None }, ReplacementEffectDef::ModifyBattlefieldEntry(BattlefieldEntryModificationDef::AddCounters { kind: CounterKind::PlusOnePlusOne, amount: 1 })),
+AbilityDef::static_ability("Each creature you control with a +1/+1 counter on it has trample.", EffectDef::StaticApply { recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::HasCounter(CounterKind::PlusOnePlusOne)]), &[ZoneKind::Battlefield], PlayerRelation::You), effect: AppliedEffectDef::add_ability(&abilities::trample()) })
+]),
 );
 
 // MOR 117 — Cream of the Crop
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CREAM_OF_THE_CROP_117: CardRecord = CardRecord::new(
     "Cream of the Crop",
     "030b0a9d-d0cf-4f3a-97b3-3e1d59226ee6",
     "Howard Lyon",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{G}")).with_abilities(&[
+AbilityDef::triggered("Whenever a creature you control enters, you may look at the top X cards of your library, where X is that creature's power. If you do, put one of those cards on top of your library and the rest on the bottom of your library in any order.", TriggerEventDef::zone_changed(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::ControlledBy(PlayerRelation::You)]), None, Some(ZoneKind::Battlefield)), EffectDef::May { player: EffectRecipientDef::Controller, effect: &EffectDef::BindObjects(BindObjectsDef { source: ObjectCollectionSourceDef::TopCards { player: PlayerRefDef::EffectController, count: ValueDef::TriggeringObjectPower }, binding: Binding!("crop_seen"), then: &EffectDef::Sequence(&[EffectDef::LookAtObjects(LookAtObjectsDef { actor: PlayerRefDef::EffectController, source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(Binding!("crop_seen"))), visibility: ChoiceVisibilityDef::Private, then: &EffectDef::None }), EffectDef::Choose(ChooseDef { binding: ObjectChoiceBindingDef::Objects(Binding!("crop_top")), unchosen: Some(Binding!("crop_bottom")), chooser: PlayerRefDef::EffectController, candidates: ObjectSetDef::Binding(Binding!("crop_seen")), exclude: None, minimum: 1, maximum: 1, visibility: ChoiceVisibilityDef::Private, then: &EffectDef::Sequence(&[EffectDef::MoveObjects(MoveObjectsDef { input: ObjectSetDef::Binding(Binding!("crop_top")), from: Some(ZoneKind::Library), zone: ZoneKind::Library, placement: ZonePlacement::Top, moved: None, then: &EffectDef::None }), EffectDef::ChooseObjectOrder(ChooseObjectOrderDef { actor: PlayerRefDef::EffectController, input: ObjectSetDef::Binding(Binding!("crop_bottom")), ordered: Binding!("crop_order"), placement: ZonePlacement::Bottom, visibility: ChoiceVisibilityDef::Private, then: &EffectDef::MoveObjects(MoveObjectsDef { input: ObjectSetDef::Binding(Binding!("crop_order")), from: Some(ZoneKind::Library), zone: ZoneKind::Library, placement: ZonePlacement::Bottom, moved: None, then: &EffectDef::None }) })]) })]) }) })
+]),
 );
 
 // MOR 143 — Door of Destinies
@@ -179,12 +214,16 @@ pub(in crate::card::sets) static DOOR_OF_DESTINIES: CardRecord = CardRecord::new
 );
 
 // MOR 145 — Thornbite Staff
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static THORNBITE_STAFF_145: CardRecord = CardRecord::new(
     "Thornbite Staff",
     "c1ab3225-64a9-411e-b22b-1869e958b8e5",
     "Jesper Ejsing",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{2}")).with_subtypes(&["Shaman", "Equipment"]).with_abilities(&[
+AbilityDef::static_ability("Equipped creature has \"{2}, {T}: This creature deals 1 damage to any target\" and \"Whenever a creature dies, untap this creature.\"", EffectDef::StaticApply { recipient: EffectRecipientDef::AttachedPermanent, effect: AppliedEffectDef::Composite(&[AppliedEffectDef::add_ability(&AbilityDef::activated_with_targets("{2}, {T}: This creature deals 1 damage to any target.", &[CostDef::Mana(mana_cost!("{2}")), CostDef::TapSource], &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)], EffectDef::damage(EffectRecipientDef::Target(TargetIndex::PRIMARY), ValueDef::Constant(1)))), AppliedEffectDef::add_ability(&AbilityDef::triggered("Whenever a creature dies, untap this creature.", TriggerEventDef::zone_changed(ObjectPredicateDef::HasType(CardType::Creature), Some(ZoneKind::Battlefield), Some(ZoneKind::Graveyard)), EffectDef::Untap { object: EffectRecipientDef::Source }))]) }),
+AbilityDef::triggered("Whenever a Shaman creature enters, you may attach this Equipment to it.", TriggerEventDef::zone_changed(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature),ObjectPredicateDef::Subtype(SubtypeDef::Literal("Shaman"))]), None, Some(ZoneKind::Battlefield)), EffectDef::May { player: EffectRecipientDef::Controller, effect: &EffectDef::Attach { object: EffectRecipientDef::TriggeringObject } }),
+abilities::equip(&[CostDef::Mana(mana_cost!("{4}"))], "Equip {4}")
+])
+.with_type(crate::card::CardType::Kindred),
 );
 
 // MOR 148 — Mutavault

@@ -1,5 +1,11 @@
 //! Khans of Tarkir cards cataloged as cross-format rules-engine test cases.
 
+use crate::card::AppliedRuleDef;
+use crate::card::BattlefieldEntryModificationDef;
+use crate::card::ComparisonDef;
+use crate::card::CopyExceptionsDef;
+use crate::card::ObjectQueryDef;
+use crate::card::TriggerConditionDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
@@ -110,12 +116,13 @@ pub(in crate::card::sets) static SEEKER_OF_THE_WAY: CardRecord = CardRecord::new
 );
 
 // KTK 34 — Clever Impersonator
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CLEVER_IMPERSONATOR_34: CardRecord = CardRecord::new(
     "Clever Impersonator",
     "cd8fffd3-81ad-47e3-a27b-d8059f2b506f",
     "Slawomir Maniak",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{U}{U}"), &["Shapeshifter"], 0, 0).with_abilities(&[
+AbilityDef::replacement("You may have this creature enter as a copy of any nonland permanent on the battlefield.", ReplacementEffectDef::CopyEntering { object: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)), exceptions: CopyExceptionsDef::NONE })
+]),
 );
 
 // KTK 37 — Disdainful Stroke
@@ -141,12 +148,13 @@ pub(in crate::card::sets) static DISDAINFUL_STROKE: CardRecord = CardRecord::new
 );
 
 // KTK 56 — Stubborn Denial
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STUBBORN_DENIAL_56: CardRecord = CardRecord::new(
     "Stubborn Denial",
     "6f8626c4-306f-4e9d-8840-2bb73fe87e87",
     "James Ryman",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{U}")).with_abilities(&[
+AbilityDef::spell_with_targets("Counter target noncreature spell unless its controller pays {1}.\nFerocious — If you control a creature with power 4 or greater, counter that spell instead.", &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object { object: ObjectPredicateDef::NoncreatureSpell, zones: &[ZoneKind::Stack], controller: None, owner: None })], EffectDef::IfElseCondition { condition: &TriggerConditionDef::ObjectCount { query: ObjectQueryDef::matching(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::PowerAtLeast(4)]), &[ZoneKind::Battlefield], PlayerRelation::You), comparison: ComparisonDef::GreaterOrEqual, amount: 1 }, then: &EffectDef::counter_target(TargetIndex::PRIMARY), otherwise: &abilities::counter_target_unless_paid(&[CostDef::Mana(mana_cost!("{1}"))]) })
+]),
 );
 
 // KTK 59 — Treasure Cruise
@@ -223,16 +231,19 @@ pub(in crate::card::sets) static MONASTERY_SWIFTSPEAR: CardRecord = CardRecord::
 );
 
 // KTK 123 — Tormenting Voice
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TORMENTING_VOICE_123: CardRecord = CardRecord::new(
     "Tormenting Voice",
     "25af9ac1-a03b-4be7-b726-fb66427b1caa",
     "Volkan Baǵa",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{1}{R}")).with_abilities(&[AbilityDef::spell(
+        "Draw two cards.",
+        abilities::draw_cards(ValueDef::Constant(2)),
+    )
+    .with_spell_additional_cost(&CostDef::discard(ObjectPredicateDef::Any))]),
 );
 
 // KTK 133 — Hardened Scales
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — ReplacementEventDef has no counter-placement event to modify the amount of +1/+1 counters put on other controlled creatures.
 pub(in crate::card::sets) static HARDENED_SCALES_133: CardRecord = CardRecord::new(
     "Hardened Scales",
     "7dcdf1db-bfaf-4160-8003-1fa2e56b00dc",
@@ -253,30 +264,72 @@ pub(in crate::card::sets) static HOOTING_MANDRILLS: CardRecord = CardRecord::new
 );
 
 // KTK 207 — Temur Ascendancy
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TEMUR_ASCENDANCY_207: CardRecord = CardRecord::new(
     "Temur Ascendancy",
     "11746bf1-d813-4ade-8ce4-9935cebef856",
     "Jaime Jones",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{G}{U}{R}")).with_abilities(&[
+        AbilityDef::static_ability(
+            "Creatures you control have haste.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                effect: AppliedEffectDef::add_ability(&abilities::haste()),
+            },
+        ),
+        AbilityDef::triggered(
+            "Whenever a creature you control with power 4 or greater enters, you may draw a card.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ObjectPredicateDef::PowerAtLeast(4),
+                ]),
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &abilities::draw_cards(ValueDef::Constant(1)),
+            },
+        ),
+    ]),
 );
 
 // KTK 216 — Altar of the Brood
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ALTAR_OF_THE_BROOD_216: CardRecord = CardRecord::new(
     "Altar of the Brood",
     "8d59d264-87ee-4305-bffb-110549331a82",
     "Erica Yang",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[AbilityDef::triggered(
+        "Whenever another permanent you control enters, each opponent mills a card.",
+        TriggerEventDef::zone_changed(
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+            ]),
+            None,
+            Some(ZoneKind::Battlefield),
+        ),
+        EffectDef::Mill {
+            player: EffectRecipientDef::Opponent,
+            amount: ValueDef::Constant(1),
+        },
+    )]),
 );
 
 // KTK 217 — Briber's Purse
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BRIBER_S_PURSE_217: CardRecord = CardRecord::new(
     "Briber's Purse",
     "7f9951f1-ca51-44a2-8480-602df466f0ab",
     "Steve Argyle",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{X}")).with_abilities(&[
+AbilityDef::as_enters("This artifact enters with X gem counters on it.", ReplacementEffectDef::ModifyBattlefieldEntry(BattlefieldEntryModificationDef::AddCastXCounters { kind: CounterKind::named("gem") })),
+AbilityDef::activated_with_targets("{1}, {T}, Remove a gem counter from this artifact: Target creature can't attack or block this turn.", &[CostDef::Mana(mana_cost!("{1}")), CostDef::TapSource, CostDef::RemoveCountersFromSource { kind: CounterKind::named("gem"), amount: 1 }], &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Creature))], EffectDef::Apply { recipient: EffectRecipientDef::target_objects(TargetIndex::PRIMARY), effect: AppliedEffectDef::Composite(&[AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_ATTACK), AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK)]), duration: ResolvedEffectDurationDef::UntilEndOfTurn })
+]),
 );
 
 // KTK 227 — Ugin's Nexus

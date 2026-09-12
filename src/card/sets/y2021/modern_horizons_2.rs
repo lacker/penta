@@ -1,5 +1,11 @@
 //! Modern Horizons 2 cards cataloged as cross-format rules-engine test cases.
 
+use crate::card::AbilityKindDef;
+use crate::card::AbilityPredicateDef;
+use crate::card::BindObjectsDef;
+use crate::card::ObjectCollectionSourceDef;
+use crate::card::SpellCastQueryDef;
+use crate::card::SuspendAbilityDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::AdditionalCostIndex;
@@ -185,12 +191,39 @@ pub(in crate::card::sets) static UNBOUNDED_POTENTIAL: CardRecord = CardRecord::n
 );
 
 // MH2 39 — Dress Down
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DRESS_DOWN_39: CardRecord = CardRecord::new(
     "Dress Down",
     "04f9f061-67b8-4427-9fcb-b3ccfee8fc5d",
     "Iain McCaig",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{U}")).with_abilities(&[
+        abilities::flash(),
+        abilities::enters_trigger(
+            "When this enchantment enters, draw a card.",
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        AbilityDef::static_ability(
+            "Creatures lose all abilities.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                effect: AppliedEffectDef::remove_abilities(crate::card::AbilityPredicateDef::Any),
+            },
+        ),
+        AbilityDef::triggered(
+            "At the beginning of the end step, sacrifice this enchantment.",
+            TriggerEventDef::StepBegins {
+                step: crate::card::TurnStepDef::End,
+                player: PlayerRelation::Any,
+            },
+            EffectDef::sacrifice(EffectRecipientDef::Source),
+        ),
+    ]),
 );
 
 // MH2 46 — Hard Evidence
@@ -297,21 +330,63 @@ CardRules::new_creature(mana_cost!("{5}{U}{U}"), &["Dragon"], 3, 3).with_abiliti
 );
 
 // MH2 61 — Scuttletide
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SCUTTLETIDE_61: CardRecord = CardRecord::new(
     "Scuttletide",
     "38e4ce27-aba2-4a3f-8de7-d442323d8be2",
     "Yeong-Hao Han",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{U}")).with_abilities(&[
+        AbilityDef::activated(
+            "{1}, Discard a card: Create a 0/3 blue Crab creature token.",
+            &[CostDef::Mana(mana_cost!("{1}")), CostDef::discard(ObjectPredicateDef::Any)],
+            EffectDef::create_creature_token(&["Crab"], &[ManaColor::Blue], 0, 3),
+        ),
+        AbilityDef::static_ability(
+            "Delirium — Crabs you control get +1/+1 as long as there are four or more card types among cards in your graveyard.",
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                    left: ValueDef::CardTypesAmongGraveyards(PlayerRelation::You),
+                    comparison: ComparisonDef::GreaterOrEqual,
+                    right: ValueDef::Constant(4),
+                }),
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Crab")),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(1)),
+                },
+            },
+        ),
+    ]),
 );
 
 // MH2 66 — Step Through
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STEP_THROUGH_66: CardRecord = CardRecord::new(
     "Step Through",
     "716534cb-aa89-4de7-9aa5-8d8aa4422a6a",
     "Randy Gallegos",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{3}{U}{U}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Return two target creatures to their owners' hands.",
+            &[
+                AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Creature)),
+                AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Creature)),
+            ],
+            EffectDef::Sequence(&[
+                EffectDef::move_to_zone(EffectRecipientDef::Target(TargetIndex::PRIMARY), ZoneKind::Hand, ZonePlacement::Top),
+                EffectDef::move_to_zone(EffectRecipientDef::Target(TargetIndex(1)), ZoneKind::Hand, ZonePlacement::Top),
+            ]),
+        ),
+        abilities::typecycling!(
+            "Wizardcycling {2} ({2}, Discard this card: Search your library for a Wizard card, reveal it, put it into your hand, then shuffle.)",
+            &[CostDef::Mana(mana_cost!("{2}"))],
+            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Wizard")),
+        ),
+    ]),
 );
 
 // MH2 67 — Subtlety
@@ -363,12 +438,13 @@ pub(in crate::card::sets) static SUBTLETY: CardRecord = CardRecord::new(
 );
 
 // MH2 68 — Suspend
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SUSPEND_68: CardRecord = CardRecord::new(
     "Suspend",
     "40af215c-d3f7-42f0-85cd-77a3fcd919ba",
     "Lake Hurwitz",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{U}")).with_abilities(&[
+AbilityDef::spell_with_targets("Exile target creature and put two time counters on it. If it doesn't have suspend, it gains suspend. (At the beginning of its owner's upkeep, they remove a time counter. When the last is removed, they may play it without paying its mana cost. If it's a creature, it has haste.)", &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Creature))], EffectDef::BindObjects(BindObjectsDef { source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::LegalTargets(TargetIndex::PRIMARY)), binding: Binding!("suspend_target"), then: &EffectDef::Sequence(&[EffectDef::move_to_zone(EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!("suspend_target"))), ZoneKind::Exile, ZonePlacement::Top), EffectDef::BindObjects(BindObjectsDef { source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::ZoneChangeSuccessorsOfBinding(Binding!("suspend_target"))), binding: Binding!("suspend_exiled"), then: &EffectDef::ForEachInBinding { objects: Binding!("suspend_exiled"), binding: Binding!("suspend_card"), effect: &EffectDef::Sequence(&[EffectDef::AddCounters { object: EffectRecipientDef::object(ObjectRefDef::Binding(Binding!("suspend_card"))), kind: CounterKind::named("time"), amount: ValueDef::Constant(2) }, EffectDef::IfCondition { condition: &TriggerConditionDef::Not(&TriggerConditionDef::BoundObjectMatches { binding: Binding!("suspend_card"), object: ObjectPredicateDef::HasAbility(AbilityPredicateDef::Is(AbilityKindDef::Suspend)) }), then: &EffectDef::Apply { recipient: EffectRecipientDef::object(ObjectRefDef::Binding(Binding!("suspend_card"))), effect: AppliedEffectDef::add_ability(&abilities::suspend("Suspend", &SuspendAbilityDef::granted())), duration: ResolvedEffectDurationDef::Permanent } }]) } })]) }))
+]),
 );
 
 // MH2 75 — Archon of Cruelty
@@ -555,7 +631,7 @@ pub(in crate::card::sets) static GRIEF: CardRecord = CardRecord::new(
 );
 
 // MH2 88 — Hell Mongrel
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Madness needs a discard-to-exile replacement followed by a linked triggered cast-or-graveyard choice. No existing alternative-cast procedure implements that timing and zone-change sequence.
 pub(in crate::card::sets) static HELL_MONGREL_88: CardRecord = CardRecord::new(
     "Hell Mongrel",
     "f7da32a3-8e33-4603-abd2-8db144062f6a",
@@ -600,21 +676,41 @@ pub(in crate::card::sets) static NESTED_SHAMBLER: CardRecord = CardRecord::new(
 );
 
 // MH2 96 — Persist
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PERSIST_96: CardRecord = CardRecord::new(
     "Persist",
     "90f390c3-af1c-424f-9721-e26e9321e5a3",
     "Milivoj Ćeran",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{1}{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Return target nonlegendary creature card from your graveyard to the battlefield with a -1/-1 counter on it.",
+        &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+            object: ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(CardSupertype::Legendary)),
+            ]),
+            zones: &[ZoneKind::Graveyard], controller: None, owner: Some(PlayerRelation::You),
+        })],
+        EffectDef::WithBattlefieldArrival {
+            effect: &EffectDef::move_to_zone(EffectRecipientDef::Target(TargetIndex::PRIMARY), ZoneKind::Battlefield, ZonePlacement::Top),
+            arrival: crate::card::BattlefieldArrivalDef {
+                counters: Some(crate::card::TokenCountersDef {
+                    kind: CounterKind::MinusOneMinusOne,
+                    amount: ValueDef::Constant(1),
+                }),
+                ..crate::card::BattlefieldArrivalDef::DEFAULT
+            },
+        },
+    )),
 );
 
 // MH2 106 — Unmarked Grave
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static UNMARKED_GRAVE_106: CardRecord = CardRecord::new(
     "Unmarked Grave",
     "492b368b-de32-45c1-8459-238aae54f9fc",
     "James Paick",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{1}{B}")).with_ability(AbilityDef::spell(
+        "Search your library for a nonlegendary card, put that card into your graveyard, then shuffle.",
+        EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Library, object: ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(CardSupertype::Legendary)), minimum: 0, maximum: ValueDef::Constant(1), reveal: false, destination: ZoneKind::Graveyard, placement: ZonePlacement::Top, shuffle: true, enters_tapped: false, attachment: None, binding: None, then: None },
+    )),
 );
 
 // MH2 107 — Vermin Gorger
@@ -685,7 +781,7 @@ pub(in crate::card::sets) static VILE_ENTOMBER: CardRecord = CardRecord::new(
 );
 
 // MH2 115 — Blazing Rootwalla
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Madness needs a discard-to-exile replacement followed by a linked triggered cast-or-graveyard choice. No existing alternative-cast procedure implements that timing and zone-change sequence.
 pub(in crate::card::sets) static BLAZING_ROOTWALLA_115: CardRecord = CardRecord::new(
     "Blazing Rootwalla",
     "4404fc9c-ef02-479c-9638-0cc163f0b48f",
@@ -800,7 +896,7 @@ CardRules::new_creature(mana_cost!("{3}{R}{R}"), &["Elemental", "Incarnation"], 
 );
 
 // MH2 127 — Galvanic Relay
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — ExilePlayDurationDef only offers permissions starting immediately. It cannot defer the play window until the next turn and disallow playing the exiled card during the current turn.
 pub(in crate::card::sets) static GALVANIC_RELAY_127: CardRecord = CardRecord::new(
     "Galvanic Relay",
     "06373318-e548-4664-b227-17e3b6fd0a88",
@@ -809,7 +905,7 @@ pub(in crate::card::sets) static GALVANIC_RELAY_127: CardRecord = CardRecord::ne
 );
 
 // MH2 132 — Harmonic Prodigy
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — AdditionalTriggerDef only doubles entry-caused triggers. It cannot double arbitrary triggered abilities of Shamans and other Wizards, including prowess itself.
 pub(in crate::card::sets) static HARMONIC_PRODIGY_132: CardRecord = CardRecord::new(
     "Harmonic Prodigy",
     "22579ac0-ad3f-4000-a65a-46a17a7f1aa5",
@@ -910,7 +1006,7 @@ pub(in crate::card::sets) static RAGAVAN_NIMBLE_PILFERER: CardRecord = CardRecor
 );
 
 // MH2 139 — Revolutionist
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Madness needs a discard-to-exile replacement followed by a linked triggered cast-or-graveyard choice. No existing alternative-cast procedure implements that timing and zone-change sequence.
 pub(in crate::card::sets) static REVOLUTIONIST_139: CardRecord = CardRecord::new(
     "Revolutionist",
     "bb8f3008-a3ba-4f73-afa6-ad81074b3196",
@@ -919,21 +1015,28 @@ pub(in crate::card::sets) static REVOLUTIONIST_139: CardRecord = CardRecord::new
 );
 
 // MH2 143 — Strike It Rich
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STRIKE_IT_RICH_143: CardRecord = CardRecord::new(
     "Strike It Rich",
     "1c7c2814-a617-4123-acdf-1b01b2768210",
     "Volkan Baǵa",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{R}")).with_abilities(&[
+        AbilityDef::spell(
+            "Create a Treasure token.",
+            EffectDef::create_token(tokens::treasure()),
+        ),
+        abilities::flashback(&[CostDef::Mana(mana_cost!("{2}{R}"))]),
+    ]),
 );
 
 // MH2 144 — Tavern Scoundrel
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TAVERN_SCOUNDREL_144: CardRecord = CardRecord::new(
     "Tavern Scoundrel",
     "55082c8a-d792-4cd8-94b1-d80c65804463",
     "Cynthia Sheppard",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Human", "Rogue"], 1, 3).with_abilities(&[
+AbilityDef::triggered("Whenever you win a coin flip, create two Treasure tokens. (They're artifacts with \"{T}, Sacrifice this token: Add one mana of any color.\")", TriggerEventDef::CoinFlipWon(PlayerRelation::You), EffectDef::create_token(crate::card::tokens::treasure()).with_count(ValueDef::Constant(2))),
+AbilityDef::activated("{1}, {T}, Sacrifice another permanent: Flip a coin.", &[CostDef::Mana(mana_cost!("{1}")), CostDef::TapSource, CostDef::sacrifice_permanent(ObjectPredicateDef::Not(&ObjectPredicateDef::Source))], EffectDef::FlipCoin { on_win: &EffectDef::None, on_loss: &EffectDef::None })
+]),
 );
 
 // MH2 145 — Unholy Heat
@@ -1063,7 +1166,7 @@ pub(in crate::card::sets) static BANNERHIDE_KRUSHOK: CardRecord = CardRecord::ne
 );
 
 // MH2 151 — Chatterfang, Squirrel General
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Token replacement only multiplies the prospective token batch. It cannot append one independently declared Squirrel token for each token in the replaced batch.
 pub(in crate::card::sets) static CHATTERFANG_SQUIRREL_GENERAL_151: CardRecord = CardRecord::new(
     "Chatterfang, Squirrel General",
     "1785cf85-1ac0-4246-9b89-1a8221a8e1b2",
@@ -1286,7 +1389,7 @@ pub(in crate::card::sets) static GRIST_THE_HUNGER_TIDE: CardRecord = CardRecord:
 );
 
 // MH2 215 — Terminal Agony
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Madness needs a discard-to-exile replacement followed by a linked triggered cast-or-graveyard choice. No existing alternative-cast procedure implements that timing and zone-change sequence.
 pub(in crate::card::sets) static TERMINAL_AGONY_215: CardRecord = CardRecord::new(
     "Terminal Agony",
     "314e94ad-0e12-48bb-aae1-2c842943114a",
@@ -1412,12 +1515,14 @@ pub(in crate::card::sets) static KALDRA_COMPLEAT: CardRecord = CardRecord::new(
 );
 
 // MH2 228 — Liquimetal Torque
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LIQUIMETAL_TORQUE_228: CardRecord = CardRecord::new(
     "Liquimetal Torque",
     "13c6101a-da40-4785-8ccb-4e779bbbdb55",
     "Brian Snõddy",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated_with_targets("{T}: Target nonland permanent becomes an artifact in addition to its other types until end of turn.", &[CostDef::TapSource], &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)))], EffectDef::Apply { recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY), effect: AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Artifact)), duration: ResolvedEffectDurationDef::UntilEndOfTurn }),
+    ]),
 );
 
 // MH2 231 — Nettlecyst
@@ -1455,39 +1560,81 @@ pub(in crate::card::sets) static NETTLECYST: CardRecord = CardRecord::new(
 );
 
 // MH2 232 — Ornithopter of Paradise
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ORNITHOPTER_OF_PARADISE_232: CardRecord = CardRecord::new(
     "Ornithopter of Paradise",
     "025b0f0f-daf6-4071-82e7-39c015447ce4",
     "Raoul Vitale",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{2}"), &["Thopter"], 0, 2).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::activated_mana(
+            "{T}: Add one mana of any color.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::any_color()),
+        ),
+    ]),
 );
 
 // MH2 247 — Goldmire Bridge
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GOLDMIRE_BRIDGE_247: CardRecord = CardRecord::new(
     "Goldmire Bridge",
     "dbe2a1fa-196f-497f-a15f-0b3b04da9cbb",
     "Aaron Miller",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[])
+        .with_type(CardType::Artifact)
+        .with_abilities(&[
+            abilities::enters_tapped(CardType::Land),
+            abilities::indestructible(),
+            AbilityDef::activated_mana(
+                "{T}: Add {W} or {B}.",
+                &[CostDef::TapSource],
+                EffectDef::AddMana(AddManaEffectDef::choice(&[
+                    ManaColor::White,
+                    ManaColor::Black,
+                ])),
+            ),
+        ]),
 );
 
 // MH2 249 — Mistvault Bridge
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MISTVAULT_BRIDGE_249: CardRecord = CardRecord::new(
     "Mistvault Bridge",
     "9f36a6e2-3e51-4a30-a225-10cfe6650b9d",
     "Mathias Kollros",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[])
+        .with_type(CardType::Artifact)
+        .with_abilities(&[
+            abilities::enters_tapped(CardType::Land),
+            abilities::indestructible(),
+            AbilityDef::activated_mana(
+                "{T}: Add {U} or {B}.",
+                &[CostDef::TapSource],
+                EffectDef::AddMana(AddManaEffectDef::choice(&[
+                    ManaColor::Blue,
+                    ManaColor::Black,
+                ])),
+            ),
+        ]),
 );
 
 // MH2 252 — Razortide Bridge
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RAZORTIDE_BRIDGE_252: CardRecord = CardRecord::new(
     "Razortide Bridge",
     "e7ea7395-430e-4036-92c9-17a850ec2371",
     "Rob Alexander",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[])
+        .with_type(CardType::Artifact)
+        .with_abilities(&[
+            abilities::enters_tapped(CardType::Land),
+            abilities::indestructible(),
+            AbilityDef::activated_mana(
+                "{T}: Add {W} or {U}.",
+                &[CostDef::TapSource],
+                EffectDef::AddMana(AddManaEffectDef::choice(&[
+                    ManaColor::White,
+                    ManaColor::Blue,
+                ])),
+            ),
+        ]),
 );
 
 // MH2 261 — Yavimaya, Cradle of Growth
@@ -1511,16 +1658,17 @@ pub(in crate::card::sets) static YAVIMAYA_CRADLE_OF_GROWTH: CardRecord = CardRec
 );
 
 // MH2 328 — Esper Sentinel
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ESPER_SENTINEL_328: CardRecord = CardRecord::new(
     "Esper Sentinel",
     "676758ee-dac8-4c97-8a62-fff25bcbb6df",
     "Eric Deschamps",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{W}"), &["Human", "Soldier"], 1, 1).with_abilities(&[
+AbilityDef::triggered("Whenever an opponent casts their first noncreature spell each turn, draw a card unless that player pays {X}, where X is this creature's power.", TriggerEventDef::While { event: &TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[ObjectPredicateDef::NoncreatureSpell, ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent)])), condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef { left: ValueDef::CountSpellsCastThisTurn(&SpellCastQueryDef { spell: ObjectPredicateDef::NoncreatureSpell, player: PlayerRelation::EventPlayer }), comparison: ComparisonDef::Equal, right: ValueDef::Constant(1) }) }, EffectDef::PayOr(PayOrDef::unless(&[CostDef::GenericMana(ValueDef::SourcePower)], &abilities::draw_cards(ValueDef::Constant(1))).with_payer(PlayerSetDef::One(PlayerRefDef::EventPlayer))))
+]),
 );
 
 // MH2 333 — Serra's Emissary
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Protection predicates cannot consume a stored chosen card type, so a static chosen-card-type protection grant to the player and creatures cannot be declared.
 pub(in crate::card::sets) static SERRA_S_EMISSARY_333: CardRecord = CardRecord::new(
     "Serra's Emissary",
     "8de657fb-e68e-4400-9a12-60aaaa075fc4",
@@ -1529,16 +1677,19 @@ pub(in crate::card::sets) static SERRA_S_EMISSARY_333: CardRecord = CardRecord::
 );
 
 // MH2 341 — Thought Monitor
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static THOUGHT_MONITOR_341: CardRecord = CardRecord::new(
     "Thought Monitor",
     "55c98ef7-be05-4bcf-be4b-62a437297330",
     "Martina Pilcerova",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{6}{U}"), &["Construct"], 2, 2).with_abilities(&[
+        AbilityDef::static_ability("Affinity for artifacts (This spell costs {1} less to cast for each artifact you control.)", EffectDef::ReduceGenericCostBy(ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(ObjectPredicateDef::HasType(CardType::Artifact), &[ZoneKind::Battlefield], PlayerRelation::You)))).with_source_zones(&[ZoneKind::Hand]),
+        abilities::flying(),
+        abilities::enters_trigger("When this creature enters, draw two cards.", EffectDef::DrawCards { recipient: EffectRecipientDef::Controller, amount: ValueDef::Constant(2) }),
+    ]),
 );
 
 // MH2 343 — Kitchen Imp
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Madness needs its discard-to-exile replacement and linked cast-or-graveyard procedure.
 pub(in crate::card::sets) static KITCHEN_IMP_343: CardRecord = CardRecord::new(
     "Kitchen Imp",
     "20c7b777-c002-45c7-b2bb-d21dab591445",
@@ -1569,12 +1720,14 @@ pub(in crate::card::sets) static IGNOBLE_HIERARCH: CardRecord = CardRecord::new(
 );
 
 // MH2 358 — Timeless Witness
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TIMELESS_WITNESS_358: CardRecord = CardRecord::new(
     "Timeless Witness",
     "8a0f47b0-2254-4df2-b3dc-74c1d3811d2f",
     "Deruchenko Alexander",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{G}{G}"), &["Human", "Shaman"], 2, 1).with_abilities(&[
+        abilities::enters_trigger_with_targets("When this creature enters, return target card from your graveyard to your hand.", &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object { object: ObjectPredicateDef::Any, zones: &[ZoneKind::Graveyard], controller: Some(PlayerRelation::You), owner: None })], EffectDef::move_to_zone(EffectRecipientDef::Target(TargetIndex::PRIMARY), ZoneKind::Hand, ZonePlacement::Top)),
+        abilities::eternalize!("Eternalize {5}{G}{G} ({5}{G}{G}, Exile this card from your graveyard: Create a token that's a copy of it, except it's a 4/4 black Zombie Human Shaman with no mana cost. Eternalize only as a sorcery.)", &[CostDef::Mana(mana_cost!("{5}{G}{G}"))]),
+    ]),
 );
 
 // MH2 380 — Urza's Saga
@@ -1676,21 +1829,52 @@ pub(in crate::card::sets) static URZA_S_SAGA: CardRecord = CardRecord::new(
 );
 
 // MH2 401 — Profane Tutor
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PROFANE_TUTOR_401: CardRecord = CardRecord::new(
     "Profane Tutor",
     "0c7f7fdb-9c38-43f8-acb9-6ea1797387a6",
     "Richard Kane Ferguson",
-    crate::card::CardRules::unsupported(),
+    CardRules::base(
+        CardTypeSet::single(CardType::Sorcery),
+        crate::card::PrintedManaCost::None,
+    )
+    .with_abilities(&[
+        abilities::suspend(
+            "Suspend 2—{1}{B}",
+            &crate::card::SuspendAbilityDef::fixed(2, &[CostDef::Mana(mana_cost!("{1}{B}"))]),
+        ),
+        AbilityDef::spell(
+            "Search your library for a card, put that card into your hand, then shuffle.",
+            EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                object: ObjectPredicateDef::Any,
+                minimum: 0,
+                maximum: ValueDef::Constant(1),
+                reveal: false,
+                destination: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+                shuffle: true,
+                enters_tapped: false,
+                attachment: None,
+                binding: None,
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // MH2 411 — Chatterstorm
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CHATTERSTORM_411: CardRecord = CardRecord::new(
     "Chatterstorm",
     "4c1b91d8-39c4-4ab1-996b-2a5a78243fd4",
     "Milivoj Ćeran",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{1}{G}")).with_abilities(&[
+        AbilityDef::spell(
+            "Create a 1/1 green Squirrel creature token.",
+            EffectDef::create_creature_token(&["Squirrel"], &[ManaColor::Green], 1, 1),
+        ),
+        abilities::storm(),
+    ]),
 );
 
 // MH2 421 — Goblin Anarchomancer
@@ -1782,7 +1966,7 @@ pub(in crate::card::sets) static DAUTHI_VOIDWALKER: CardRecord = CardRecord::new
 );
 
 // MH2 451 — Necrogoyf
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Madness needs a discard-to-exile replacement followed by a linked triggered cast-or-graveyard choice. No existing alternative-cast procedure implements that timing and zone-change sequence.
 pub(in crate::card::sets) static NECROGOYF_451: CardRecord = CardRecord::new(
     "Necrogoyf",
     "11a2d158-d69e-4854-b84f-9f271e36101c",
@@ -1791,21 +1975,41 @@ pub(in crate::card::sets) static NECROGOYF_451: CardRecord = CardRecord::new(
 );
 
 // MH2 462 — Sanctum Weaver
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SANCTUM_WEAVER_462: CardRecord = CardRecord::new(
     "Sanctum Weaver",
     "15fd218c-3e14-4b82-9e03-16a0fad1b530",
     "Kimonas Theodossiou",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Dryad"], 0, 2)
+        .with_ability(AbilityDef::activated_mana(
+            "{T}: Add X mana of any one color, where X is the number of enchantments you control.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::any_color().with_variable_amount(
+                ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasType(CardType::Enchantment),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                )),
+            )),
+        ))
+        .with_type(crate::card::CardType::Enchantment),
 );
 
 // MH2 470 — Diamond Lion
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DIAMOND_LION_470: CardRecord = CardRecord::new(
     "Diamond Lion",
     "2116f1a3-f621-4bef-b5bd-fa4a644f76b1",
     "Howard Lyon",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{2}"), &["Cat"], 2, 2).with_ability(
+        AbilityDef::activated_mana(
+            "{T}, Discard your hand, Sacrifice this creature: Add three mana of any one color.",
+            &[
+                CostDef::TapSource,
+                CostDef::DiscardHand,
+                CostDef::SacrificeSource,
+            ],
+            EffectDef::AddMana(AddManaEffectDef::any_color().with_amount(3)),
+        ),
+    ),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

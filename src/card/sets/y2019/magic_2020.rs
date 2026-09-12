@@ -1,5 +1,10 @@
 //! Core Set 2020 cards cataloged for the Vintage Cube.
 
+use crate::ParentBinding;
+use crate::card::PlayActionMatcherDef;
+use crate::card::PlayRestrictionDef;
+use crate::card::PlayerRefDef;
+use crate::card::TopOfLibraryCostDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
@@ -165,12 +170,43 @@ pub(in crate::card::sets) static DEVOUT_DECREE: CardRecord = CardRecord::new(
 );
 
 // M20 17 — Gauntlets of Light
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GAUNTLETS_OF_LIGHT_17: CardRecord = CardRecord::new(
     "Gauntlets of Light",
     "da0d5436-b881-45ac-b8ec-248d88714021",
     "Ekaterina Burmak",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{2}{W}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature gets +0/+2 and assigns combat damage equal to its toughness rather than its power.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(0),
+                            ValueDef::Constant(2),
+                        ),
+                        AppliedEffectDef::Rule(
+                            AppliedRuleDef::AssignsCombatDamageEqualToToughness,
+                        ),
+                    ]),
+                },
+            ),
+            AbilityDef::static_ability(
+                "Enchanted creature has \"{2}{W}: Untap this creature.\"",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::add_ability(&AbilityDef::activated(
+                        "{2}{W}: Untap this creature.",
+                        &[CostDef::Mana(mana_cost!("{2}{W}"))],
+                        EffectDef::Untap {
+                            object: EffectRecipientDef::Source,
+                        },
+                    )),
+                },
+            ),
+        ]),
 );
 
 // M20 34 — Raise the Alarm (reprint)
@@ -226,12 +262,13 @@ pub(in crate::card::sets) static CLOUDKIN_SEER: CardRecord = CardRecord::new(
 );
 
 // M20 74 — Scholar of the Ages
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SCHOLAR_OF_THE_AGES_74: CardRecord = CardRecord::new(
     "Scholar of the Ages",
     "80137c9a-ea56-4dc7-a503-43fe192c8fce",
     "Micah Epstein",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{5}{U}{U}"), &["Human", "Wizard"], 3, 3).with_abilities(&[
+abilities::enters_trigger_with_targets("When this creature enters, return up to two target instant and/or sorcery cards from your graveyard to your hand.", &[AbilityTargetDef::up_to(AbilityTargetPredicate::Object { object: ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Instant), ObjectPredicateDef::HasType(CardType::Sorcery)]), zones: &[ZoneKind::Graveyard], controller: None, owner: Some(PlayerRelation::You) }, 2)], EffectDef::move_to_zone(EffectRecipientDef::Target(TargetIndex::PRIMARY), ZoneKind::Hand, ZonePlacement::Top))
+]),
 );
 
 // M20 76 — Spectral Sailor
@@ -251,25 +288,42 @@ pub(in crate::card::sets) static SPECTRAL_SAILOR: CardRecord = CardRecord::new(
 );
 
 // M20 77 — Tale's End
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TALE_S_END_77: CardRecord = CardRecord::new(
     "Tale's End",
     "1421115b-9a98-4ab2-bcb2-7d8899ce12db",
     "Randy Vargas",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{U}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Counter target activated ability, triggered ability, or legendary spell.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::Ability,
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Spell,
+                        ObjectPredicateDef::Supertype(CardSupertype::Legendary),
+                    ]),
+                ]),
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            },
+        )],
+        EffectDef::counter_target(TargetIndex::PRIMARY),
+    )]),
 );
 
 // M20 113 — Scheming Symmetry
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SCHEMING_SYMMETRY_113: CardRecord = CardRecord::new(
     "Scheming Symmetry",
     "01acc50b-856d-442d-9880-1a892b40643b",
     "Seb McKinnon",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{B}")).with_abilities(&[
+AbilityDef::spell_with_targets("Choose two target players. Each of them searches their library for a card, then shuffles and puts that card on top.", &[AbilityTargetDef::exactly_value(AbilityTargetPredicate::Player(PlayerRelation::Any), ValueDef::Constant(2))], EffectDef::SearchZone { player: EffectRecipientDef::Target(TargetIndex::PRIMARY), source: ZoneKind::Library, object: ObjectPredicateDef::Any, minimum: 1, maximum: ValueDef::Constant(1), reveal: false, destination: ZoneKind::Library, placement: ZonePlacement::Top, shuffle: true, enters_tapped: false, attachment: None, binding: None, then: None })
+]),
 );
 
 // M20 122 — Vilis, Broker of Blood
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a life-loss event carrying its amount into a draw effect; existing damage and payment events do not provide a general loss-of-life trigger value.
 pub(in crate::card::sets) static VILIS_BROKER_OF_BLOOD_122: CardRecord = CardRecord::new(
     "Vilis, Broker of Blood",
     "ecdf2bd9-87b9-470a-ad2e-0ebf98560f87",
@@ -314,12 +368,31 @@ pub(in crate::card::sets) static DRAKUSETH_MAW_OF_FLAMES: CardRecord = CardRecor
 );
 
 // M20 141 — Glint-Horn Buccaneer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GLINT_HORN_BUCCANEER_141: CardRecord = CardRecord::new(
     "Glint-Horn Buccaneer",
     "df2df9cb-14f5-470f-b438-20f4ae8d0d59",
     "Zack Stella",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{R}{R}"), &["Minotaur", "Pirate"], 2, 4).with_abilities(
+        &[
+            abilities::haste(),
+            AbilityDef::triggered(
+                "Whenever you discard a card, this creature deals 1 damage to each opponent.",
+                TriggerEventDef::Discarded(PlayerRelation::You),
+                EffectDef::damage(EffectRecipientDef::Opponent, ValueDef::Constant(1)),
+            ),
+            AbilityDef::activated(
+                "{1}{R}, Discard a card: Draw a card. Activate only if this creature is attacking.",
+                &[
+                    CostDef::Mana(mana_cost!("{1}{R}")),
+                    CostDef::discard(ObjectPredicateDef::Any),
+                ],
+                abilities::draw_cards(ValueDef::Constant(1)),
+            )
+            .with_activation_condition(&TriggerConditionDef::SourceMatches {
+                object: ObjectPredicateDef::Attacking,
+            }),
+        ],
+    ),
 );
 
 // M20 144 — Goblin Smuggler
@@ -488,7 +561,7 @@ pub(in crate::card::sets) static LEYLINE_OF_ABUNDANCE: CardRecord = CardRecord::
 );
 
 // M20 198 — Veil of Summer
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Hexproof has no color-specific player or permanent rule. Ordinary hexproof would also stop opposing red, green, white, and colorless sources.
 pub(in crate::card::sets) static VEIL_OF_SUMMER_198: CardRecord = CardRecord::new(
     "Veil of Summer",
     "aa686c34-1c11-469f-93c2-f9891aea521f",
@@ -527,7 +600,7 @@ pub(in crate::card::sets) static EMPYREAN_EAGLE: CardRecord = CardRecord::new(
 );
 
 // M20 222 — Bag of Holding
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Discard-trigger snapshots are inconsistent across payment paths: resolving discards identify the new card, while some casting costs retain the retired hand identity without a zone-change result. The linked exile cannot reliably select exactly the discarded graveyard incarnation across those paths.
 pub(in crate::card::sets) static BAG_OF_HOLDING_222: CardRecord = CardRecord::new(
     "Bag of Holding",
     "49283832-54f2-4619-b4a9-750493c93292",
@@ -574,12 +647,48 @@ pub(in crate::card::sets) static MANIFOLD_KEY: CardRecord = CardRecord::new(
 );
 
 // M20 233 — Mystic Forge
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MYSTIC_FORGE_233: CardRecord = CardRecord::new(
     "Mystic Forge",
     "924a24e7-91b8-4ceb-a136-7a765d98c994",
     "Titus Lunter",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{4}")).with_abilities(&[
+        AbilityDef::static_ability(
+            "You may look at the top card of your library any time.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Controller,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::MayLookAtTopOfLibrary),
+            },
+        ),
+        AbilityDef::static_ability(
+            "You may cast artifact spells and colorless spells from the top of your library.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Controller,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlayFromTopOfLibrary {
+                    restriction: PlayRestrictionDef::new(
+                        PlayActionMatcherDef::CastSpell,
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Artifact),
+                            ObjectPredicateDef::ColorCount(0),
+                        ]),
+                    ),
+                    cost: TopOfLibraryCostDef::Printed,
+                }),
+            },
+        ),
+        AbilityDef::activated(
+            "{T}, Pay 1 life: Exile the top card of your library.",
+            &[CostDef::TapSource, CostDef::PayLife(1)],
+            abilities::bind_top_cards_then(
+                PlayerRefDef::EffectController,
+                ValueDef::Constant(1),
+                &EffectDef::move_to_zone(
+                    EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
+                    ZoneKind::Exile,
+                    ZonePlacement::Top,
+                ),
+            ),
+        ),
+    ]),
 );
 
 // M20 244 — Cryptic Caves

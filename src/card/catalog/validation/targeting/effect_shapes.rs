@@ -458,10 +458,14 @@ fn validate_effect_target_shapes(
         | EffectDef::PutIntoLibraryBeneathTop { object, .. }
         | EffectDef::Counter { object, .. }
         | EffectDef::PutSpellIntoOwnersLibrary { object }
-        | EffectDef::Endure { object, .. }
-        | EffectDef::ChooseCounterKind { object, .. }
-        | EffectDef::ModifyCounters { object, .. } => {
+        | EffectDef::Endure { object, .. } => {
             validate_recipient_shape(object, targets, RecipientExpectation::Object)
+        }
+        // Counter choice and modification operate on both permanent and
+        // player counter piles, just like AddCounters below.
+        EffectDef::ChooseCounterKind { object, .. }
+        | EffectDef::ModifyCounters { object, .. } => {
+            validate_recipient_shape(object, targets, RecipientExpectation::Any)
         }
         EffectDef::CopyStackObject(copy) => {
             validate_recipient_shape(copy.object, targets, RecipientExpectation::Object)

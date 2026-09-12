@@ -1,5 +1,14 @@
 //! Strixhaven: School of Mages cards cataloged for the Vintage Cube.
 
+use crate::card::AggregateOperationDef;
+use crate::card::ChooseCardsFromCollectionDef;
+use crate::card::CollectionInspectionDef;
+use crate::card::DestroyFollowUpDef;
+use crate::card::ObjectCollectionSourceDef;
+use crate::card::ObjectValueAggregateDef;
+use crate::card::ObjectValueDef;
+use crate::card::PayOrDef;
+use crate::card::SacrificedAmountDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
@@ -67,7 +76,7 @@ const PEST_TOKEN: TokenCharacteristics =
         ));
 
 // STX 6 — Wandering Archaic // Explore the Vastlands
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The tax-or-copy front face is expressible. The reverse face needs APNAP private selections from each player's own top-five collection before the cards are revealed and moved. ChooseForEachPlayer cannot restrict its candidates to that frozen top-five subset or make each one-of-each choice optional.
 pub(in crate::card::sets) static WANDERING_ARCHAIC_EXPLORE_THE_VASTLANDS_6: CardRecord =
     CardRecord::new(
         "Wandering Archaic // Explore the Vastlands",
@@ -192,21 +201,29 @@ pub(in crate::card::sets) static FROST_TRICKSTER: CardRecord = CardRecord::new(
 );
 
 // STX 51 — Resculpt
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RESCULPT_51: CardRecord = CardRecord::new(
     "Resculpt",
     "1bfb1fcb-a411-4c1c-b8fc-496242ae3a9b",
     "Torstein Nordstrand",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Exile target artifact or creature. Its controller creates a 4/4 blue and red Elemental creature token.",
+        &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Artifact), ObjectPredicateDef::HasType(CardType::Creature)]))],
+        EffectDef::Sequence(&[
+            EffectDef::move_to_zone(EffectRecipientDef::Target(TargetIndex::PRIMARY), ZoneKind::Exile, ZonePlacement::Top),
+            EffectDef::create_creature_token(&["Elemental"], &[ManaColor::Blue, ManaColor::Red], 4, 4).with_controller(PlayerRefDef::ControllerOf(ObjectRefDef::Target(TargetIndex::PRIMARY))),
+        ]),
+    )),
 );
 
 // STX 54 — Solve the Equation
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SOLVE_THE_EQUATION_54: CardRecord = CardRecord::new(
     "Solve the Equation",
     "66c04ee2-c1e0-45fb-aaf5-1b4459df80fc",
     "Lie Setiawan",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{2}{U}")).with_ability(AbilityDef::spell(
+        "Search your library for an instant or sorcery card, reveal it, put it into your hand, then shuffle.",
+        EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Library, object: ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Instant), ObjectPredicateDef::HasType(CardType::Sorcery)]), minimum: 1, maximum: ValueDef::Constant(1), reveal: true, destination: ZoneKind::Hand, placement: ZonePlacement::Top, shuffle: true, enters_tapped: false, attachment: None, binding: None, then: None },
+    )),
 );
 
 // STX 64 — Baleful Mastery
@@ -260,12 +277,11 @@ pub(in crate::card::sets) static BALEFUL_MASTERY: CardRecord = CardRecord::new(
 );
 
 // STX 83 — Professor Onyx
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PROFESSOR_ONYX_83: CardRecord = CardRecord::new(
     "Professor Onyx",
     "013eeb99-1b66-4fba-ad96-78deee901ea4",
     "Kieran Yanner",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_planeswalker(mana_cost!("{4}{B}{B}"), &["Liliana"], 5).with_supertype(CardSupertype::Legendary).with_abilities(&[AbilityDef::triggered("Magecraft — Whenever you cast or copy an instant or sorcery spell, each opponent loses 2 life and you gain 2 life.", TriggerEventDef::AnyOf(&[TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Instant), ObjectPredicateDef::HasType(CardType::Sorcery)]), ObjectPredicateDef::ControlledBy(PlayerRelation::You)])), TriggerEventDef::spell_copied(ObjectPredicateDef::All(&[ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Instant), ObjectPredicateDef::HasType(CardType::Sorcery)]), ObjectPredicateDef::ControlledBy(PlayerRelation::You)]))]), EffectDef::Sequence(&[EffectDef::LoseLife { recipient: EffectRecipientDef::Opponent, amount: ValueDef::Constant(2) }, EffectDef::GainLife { recipient: EffectRecipientDef::Controller, amount: ValueDef::Constant(2) }])), AbilityDef::activated("+1: You lose 1 life. Look at the top three cards of your library. Put one of them into your hand and the rest into your graveyard.", &[CostDef::Loyalty(1)], EffectDef::Sequence(&[EffectDef::LoseLife { recipient: EffectRecipientDef::Controller, amount: ValueDef::Constant(1) }, EffectDef::ChooseCardsFromCollection(ChooseCardsFromCollectionDef { source: ObjectCollectionSourceDef::TopCards { player: PlayerRefDef::EffectController, count: ValueDef::Constant(3) }, actor: PlayerRefDef::EffectController, inspection: CollectionInspectionDef::Look, object: ObjectPredicateDef::Any, minimum: 1, maximum: 1, chosen: Binding!("onyx_hand"), remainder: Binding!("onyx_grave"), then: &EffectDef::Sequence(&[EffectDef::move_to_zone(EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!("onyx_hand"))), ZoneKind::Hand, ZonePlacement::Top), EffectDef::move_to_zone(EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!("onyx_grave"))), ZoneKind::Graveyard, ZonePlacement::Top)]) })])), AbilityDef::activated("−3: Each opponent sacrifices a creature with the greatest power among creatures that player controls.", &[CostDef::Loyalty(-3)], EffectDef::SacrificeOfChoice { player: EffectRecipientDef::Opponent, object: ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::Not(&ObjectPredicateDef::PowerLessThan(ValueDef::AggregateObjectValues(&ObjectValueAggregateDef { objects: ObjectSetDef::Query(ObjectQueryDef::matching(ObjectPredicateDef::HasType(CardType::Creature), &[ZoneKind::Battlefield], PlayerRelation::Opponent)), select: ObjectValueDef::Power, operation: AggregateOperationDef::Maximum })))]), count: ValueDef::Constant(1), then: None, amount: SacrificedAmountDef::Power, otherwise: None, optional: false }), AbilityDef::activated("−8: Each opponent may discard a card. If they don't, they lose 3 life. Repeat this process six more times.", &[CostDef::Loyalty(-8)], EffectDef::Sequence(&[EffectDef::PayOr(PayOrDef::unless(&[CostDef::DiscardCards(1)], &EffectDef::LoseLife { recipient: EffectRecipientDef::Opponent, amount: ValueDef::Constant(3) }).with_payer(PlayerSetDef::One(PlayerRefDef::Opponent))); 7]))]),
 );
 
 // STX 90 — Unwilling Ingredient
@@ -298,16 +314,18 @@ pub(in crate::card::sets) static UNWILLING_INGREDIENT: CardRecord = CardRecord::
 );
 
 // STX 115 — Storm-Kiln Artist
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STORM_KILN_ARTIST_115: CardRecord = CardRecord::new(
     "Storm-Kiln Artist",
     "fa96b8dc-233a-4884-ab84-235cbc7df0b6",
     "Manuel Castañón",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{R}"), &["Dwarf", "Shaman"], 2, 2).with_abilities(&[
+AbilityDef::static_ability("This creature gets +1/+0 for each artifact you control.", EffectDef::StaticApply { recipient: EffectRecipientDef::Source, effect: AppliedEffectDef::modify_power_toughness(ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(ObjectPredicateDef::HasType(CardType::Artifact), &[ZoneKind::Battlefield], PlayerRelation::You)), ValueDef::Constant(0)) }),
+AbilityDef::triggered("Magecraft — Whenever you cast or copy an instant or sorcery spell, create a Treasure token. (It's an artifact with \"{T}, Sacrifice this token: Add one mana of any color.\")", TriggerEventDef::AnyOf(&[TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Instant), ObjectPredicateDef::HasType(CardType::Sorcery)]), ObjectPredicateDef::ControlledBy(PlayerRelation::You)])), TriggerEventDef::spell_copied(ObjectPredicateDef::All(&[ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Instant), ObjectPredicateDef::HasType(CardType::Sorcery)]), ObjectPredicateDef::ControlledBy(PlayerRelation::You)]))]), EffectDef::create_token(crate::card::tokens::treasure()))
+]),
 );
 
 // STX 128 — Ecological Appreciation
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Its four-name library selection and opponent split choice procedure is unavailable.
 pub(in crate::card::sets) static ECOLOGICAL_APPRECIATION_128: CardRecord = CardRecord::new(
     "Ecological Appreciation",
     "115f3d72-1aaf-4237-91b9-389256e5e5c8",
@@ -316,7 +334,7 @@ pub(in crate::card::sets) static ECOLOGICAL_APPRECIATION_128: CardRecord = CardR
 );
 
 // STX 150 — Flamescroll Celebrant // Revel in Silence
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The front face needs an event for an opponent activating a nonmana ability. TriggerEventDef has no activated-ability event; modal double-faced composition itself is supported.
 pub(in crate::card::sets) static FLAMESCROLL_CELEBRANT_REVEL_IN_SILENCE_150: CardRecord =
     CardRecord::new(
         "Flamescroll Celebrant // Revel in Silence",
@@ -326,12 +344,30 @@ pub(in crate::card::sets) static FLAMESCROLL_CELEBRANT_REVEL_IN_SILENCE_150: Car
     );
 
 // STX 165 — Blade Historian
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BLADE_HISTORIAN_165: CardRecord = CardRecord::new(
     "Blade Historian",
     "a46d64ec-aca4-428e-bce6-66cd755c8cc3",
     "Cristi Balanescu",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(
+        mana_cost!("{R/W}{R/W}{R/W}{R/W}"),
+        &["Human", "Cleric"],
+        2,
+        3,
+    )
+    .with_ability(AbilityDef::static_ability(
+        "Attacking creatures you control have double strike.",
+        EffectDef::StaticApply {
+            recipient: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Attacking,
+                ]),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
+            ),
+            effect: AppliedEffectDef::add_ability(&abilities::double_strike()),
+        },
+    )),
 );
 
 // STX 176 — Deadly Brew
@@ -595,7 +631,7 @@ pub(in crate::card::sets) static SEDGEMOOR_WITCH: CardRecord = CardRecord::new(
 );
 
 // STX 308 — Crackle with Power
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The casting planner enumerates only a single X mana symbol, so it cannot pay the tripled {X}{X}{X} cost. Target selection also has no dynamic up-to-X maximum.
 pub(in crate::card::sets) static CRACKLE_WITH_POWER_308: CardRecord = CardRecord::new(
     "Crackle with Power",
     "d1c038e6-2346-4544-bea1-b64098f63f23",
@@ -604,12 +640,13 @@ pub(in crate::card::sets) static CRACKLE_WITH_POWER_308: CardRecord = CardRecord
 );
 
 // STX 337 — Culling Ritual
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CULLING_RITUAL_337: CardRecord = CardRecord::new(
     "Culling Ritual",
     "1ba72e51-ca69-48d4-96dc-df9519468c01",
     "Lorenzo Mastroianni",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{2}{B}{G}")).with_abilities(&[
+AbilityDef::spell("Destroy each nonland permanent with mana value 2 or less. Add {B} or {G} for each permanent destroyed this way.", EffectDef::Destroy { object: EffectRecipientDef::matching_objects(ObjectPredicateDef::All(&[ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)), ObjectPredicateDef::ManaValueAtMost(2)]), &[ZoneKind::Battlefield], PlayerRelation::Any), then: Some(DestroyFollowUpDef { binding: Binding!("ritual_destroyed"), effect: &EffectDef::AddMana(AddManaEffectDef::combination(&[ManaColor::Black, ManaColor::Green], 1).with_variable_amount(ValueDef::BoundObjectCount(Binding!("ritual_destroyed")))) }) })
+]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

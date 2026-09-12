@@ -1,6 +1,9 @@
 //! The Lord of the Rings: Tales of Middle-earth Commander cards cataloged for
 //! the Vintage Cube pool.
 
+use crate::card::CardSupertype;
+use crate::card::ObjectQueryDef;
+use crate::card::ZoneKind;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
@@ -38,12 +41,34 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // LTC 32 — Gimli of the Glittering Caves
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GIMLI_OF_THE_GLITTERING_CAVES_32: CardRecord = CardRecord::new(
     "Gimli of the Glittering Caves",
     "5afc0319-9e17-4e81-a0b6-e76645bacb04",
     "Sidharth Chaturvedi",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Dwarf", "Warrior"], 1, 1)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::double_strike(),
+            AbilityDef::triggered(
+                "Whenever another legendary creature you control enters, put a +1/+1 counter on this creature.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Supertype(CardSupertype::Legendary),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    ]),
+                    None,
+                    Some(crate::card::ZoneKind::Battlefield),
+                ),
+                EffectDef::AddCounters { object: EffectRecipientDef::Source, kind: crate::card::CounterKind::PlusOnePlusOne, amount: ValueDef::Constant(1) },
+            ),
+            AbilityDef::triggered(
+                "Whenever this creature deals combat damage to a player, create a Treasure token.",
+                TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
+                EffectDef::create_token(crate::card::tokens::treasure()),
+            ),
+        ]),
 );
 
 // LTC 56 — Forth Eorlingas!
@@ -89,12 +114,17 @@ pub(in crate::card::sets) static FORTH_EORLINGAS: CardRecord = CardRecord::new(
 );
 
 // LTC 114 — Cavern-Hoard Dragon
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CAVERN_HOARD_DRAGON_114: CardRecord = CardRecord::new(
     "Cavern-Hoard Dragon",
     "31540dde-7cea-4eb1-896e-27e21b56f00a",
     "Antonio José Manzanedo",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{7}{R}{R}"), &["Dragon"], 6, 6).with_abilities(&[
+abilities::spell_cost_reduction("This spell costs {X} less to cast, where X is the greatest number of artifacts an opponent controls.", ObjectPredicateDef::Source, PlayerRelation::You, ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(ObjectPredicateDef::HasType(CardType::Artifact), &[ZoneKind::Battlefield], PlayerRelation::Opponent))),
+abilities::flying(),
+abilities::trample(),
+abilities::haste(),
+AbilityDef::triggered("Whenever this creature deals combat damage to a player, you create a Treasure token for each artifact that player controls.", TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source), EffectDef::create_token(crate::card::tokens::treasure()).with_count(ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(ObjectPredicateDef::HasType(CardType::Artifact), &[ZoneKind::Battlefield], PlayerRelation::EventPlayer))))
+]),
 );
 
 // LTC 159 — Relic of Sauron

@@ -570,6 +570,13 @@ fn validate_replacement_program_for_event(
             to: ZoneKind::Graveyard,
             ..
         } if effect == ReplacementEffectDef::MoveToZone(ZoneKind::Battlefield) => Ok(()),
+        // The shared battlefield-exit procedure also replaces bounce, tuck,
+        // and command-zone departures before committing their destinations.
+        ReplacementEventDef::WouldMove {
+            from: Some(ZoneKind::Battlefield),
+            to: ZoneKind::Hand | ZoneKind::Library | ZoneKind::Command,
+            cause: ZoneMoveCauseDef::Any,
+        } if effect == ReplacementEffectDef::MoveToZone(ZoneKind::Exile) => Ok(()),
         // "From anywhere" replaces the same move wherever it starts, so it
         // is held to the same program as the battlefield exit it includes.
         // The watching-permanent form beside it says the same thing about

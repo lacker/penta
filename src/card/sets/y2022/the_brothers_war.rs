@@ -1,5 +1,13 @@
 //! The Brothers' War cards cataloged for the Vintage Cube pool.
 
+use crate::card::AbilityKindDef;
+use crate::card::AbilityPredicateDef;
+use crate::card::CopyStackObjectDef;
+use crate::card::ObjectQueryDef;
+use crate::card::PlayActionMatcherDef;
+use crate::card::PlayRestrictionDef;
+use crate::card::SubtypeDef;
+use crate::card::TriggerConditionDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
@@ -127,7 +135,10 @@ pub(in crate::card::sets) static LORAN_OF_THE_THIRD_PATH: CardRecord = CardRecor
 );
 
 // BRO 22 — Recommission
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The target and graveyard return are representable, but the entry wrapper
+// accepts unconditional battlefield modifications only. This card's +1/+1 counter applies only
+// when the selected artifact-or-creature card enters as a creature; there is no prospective-entry
+// predicate to make the arrival counter conditional without also countering returned artifacts.
 pub(in crate::card::sets) static RECOMMISSION_22: CardRecord = CardRecord::new(
     "Recommission",
     "2a64e330-1257-4ec3-9a75-889cdcac3ade",
@@ -136,21 +147,23 @@ pub(in crate::card::sets) static RECOMMISSION_22: CardRecord = CardRecord::new(
 );
 
 // BRO 23 — Recruitment Officer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RECRUITMENT_OFFICER_23: CardRecord = CardRecord::new(
     "Recruitment Officer",
     "c226656b-68d5-4df2-b313-a323a728c520",
     "Johan Grenier",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{W}"), &["Human", "Soldier"], 2, 1).with_ability(
+        AbilityDef::activated("{3}{W}: Look at the top four cards of your library. You may reveal a creature card with mana value 3 or less from among them and put it into your hand. Put the rest on the bottom of your library in a random order.", &[CostDef::Mana(mana_cost!("{3}{W}"))], abilities::look_at_top_cards_reveal_choice_to_hand_rest_random_bottom(ValueDef::Constant(4), ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::ManaValueAtMost(3)]), 0, 1)),
+    ),
 );
 
 // BRO 26 — Soul Partition
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SOUL_PARTITION_26: CardRecord = CardRecord::new(
     "Soul Partition",
     "28bb8ec0-9729-4aa1-8ce4-a3a5598b0d70",
     "Kekai Kotaki",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{W}")).with_abilities(&[
+AbilityDef::spell_with_targets("Exile target nonland permanent. For as long as that card remains exiled, its owner may play it. A spell cast by an opponent this way costs {2} more to cast.", &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)))], EffectDef::IfElseCondition { condition: &TriggerConditionDef::TargetMatches { slot: TargetIndex::PRIMARY, object: ObjectPredicateDef::OwnedBy(PlayerRelation::You) }, then: &EffectDef::ExileGrantingOwnerPlay { object: EffectRecipientDef::Target(TargetIndex::PRIMARY), surcharge: mana_cost!("{0}") }, otherwise: &EffectDef::ExileGrantingOwnerPlay { object: EffectRecipientDef::Target(TargetIndex::PRIMARY), surcharge: mana_cost!("{2}") } })
+]),
 );
 
 // BRO 72 — Weakstone's Subjugation
@@ -195,7 +208,9 @@ pub(in crate::card::sets) static WEAKSTONE_S_SUBJUGATION: CardRecord = CardRecor
 );
 
 // BRO 77 — Combat Courier
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The sacrifice-to-draw activation is expressible, but the card also has
+// unearth. The current engine has no unearth program for returning the source from its graveyard
+// with the delayed exile and replacement if it would leave the battlefield.
 pub(in crate::card::sets) static COMBAT_COURIER_77: CardRecord = CardRecord::new(
     "Combat Courier",
     "171edf80-ffc1-4894-9be5-c3e93a96f734",
@@ -229,21 +244,49 @@ pub(in crate::card::sets) static GIXIAN_INFILTRATOR: CardRecord = CardRecord::ne
 );
 
 // BRO 127 — Bitter Reunion
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BITTER_REUNION_127: CardRecord = CardRecord::new(
     "Bitter Reunion",
     "345a1c80-41d6-43b1-83ab-1aa56dd06b1b",
     "Jake Murray",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{R}")).with_abilities(&[
+        abilities::enters_trigger(
+            "When this enchantment enters, you may discard a card. If you do, draw two cards.",
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::WithCosts {
+                    costs: &[CostDef::DiscardCards(1)],
+                    effect: &EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(2),
+                    },
+                },
+            },
+        ),
+        AbilityDef::activated(
+            "{1}, Sacrifice this enchantment: Creatures you control gain haste until end of turn.",
+            &[CostDef::Mana(mana_cost!("{1}")), CostDef::SacrificeSource],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                effect: AppliedEffectDef::add_ability(&abilities::haste()),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // BRO 131 — Dwarven Forge-Chanter
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DWARVEN_FORGE_CHANTER_131: CardRecord = CardRecord::new(
     "Dwarven Forge-Chanter",
     "bbd6a95a-11b9-43aa-b293-20a3102bae71",
     "Bartłomiej Gaweł",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Dwarf", "Wizard"], 1, 3).with_abilities(&[
+        abilities::ward(&[CostDef::PayLife(2)], "Ward—Pay 2 life. (Whenever this creature becomes the target of a spell or ability an opponent controls, counter it unless that player pays 2 life.)"),
+        abilities::prowess(),
+    ]),
 );
 
 // BRO 136 — Giant Cindermaw
@@ -363,7 +406,7 @@ pub(in crate::card::sets) static BUSHWHACK: CardRecord = CardRecord::new(
 );
 
 // BRO 175 — Citanul Stalwart
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The mana-ability planner rejects a selected artifact-or-creature tap cost in addition to tapping this source.
 pub(in crate::card::sets) static CITANUL_STALWART_175: CardRecord = CardRecord::new(
     "Citanul Stalwart",
     "a842a945-21d9-432c-b970-6da65b16f309",
@@ -372,7 +415,7 @@ pub(in crate::card::sets) static CITANUL_STALWART_175: CardRecord = CardRecord::
 );
 
 // BRO 185 — Gwenna, Eyes of Gaea
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Mana restrictions are conjunctive, so no restriction permits either creature spell casting or creature-source activation while excluding all other payments.
 pub(in crate::card::sets) static GWENNA_EYES_OF_GAEA_185: CardRecord = CardRecord::new(
     "Gwenna, Eyes of Gaea",
     "7ee387b7-18e4-41b7-aefe-f2b5954e3051",
@@ -714,25 +757,73 @@ pub(in crate::card::sets) static TOCASIA_S_DIG_SITE: CardRecord = CardRecord::ne
 );
 
 // BRO 305 — Myrel, Shield of Argive
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MYREL_SHIELD_OF_ARGIVE_305: CardRecord = CardRecord::new(
     "Myrel, Shield of Argive",
     "977da60c-073a-42d1-b9f5-789a2b7071b8",
     "Ryan Pancoast",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{W}"), &["Human", "Soldier"], 3, 4).with_supertype(CardSupertype::Legendary).with_abilities(&[
+AbilityDef::static_ability("During your turn, your opponents can't cast spells or activate abilities of artifacts, creatures, or enchantments.", EffectDef::IfCondition { condition: &TriggerConditionDef::ActivePlayer(PlayerRelation::You), then: &EffectDef::Sequence(&[EffectDef::StaticApply { recipient: EffectRecipientDef::Opponent, effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotPlay(PlayRestrictionDef::new(PlayActionMatcherDef::CastSpell, ObjectPredicateDef::Any))) }, EffectDef::StaticApply { recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Artifact), ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::HasType(CardType::Enchantment)]), &[ZoneKind::Battlefield], PlayerRelation::Opponent), effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotActivateAbilities(AbilityPredicateDef::Is(AbilityKindDef::Activated))) }]) }),
+AbilityDef::triggered("Whenever Myrel attacks, create X 1/1 colorless Soldier artifact creature tokens, where X is the number of Soldiers you control.", TriggerEventDef::attacks(ObjectPredicateDef::Source), EffectDef::create_artifact_creature_token(&["Soldier"], &[], 1, 1).with_count(ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(ObjectPredicateDef::Subtype(SubtypeDef::Literal("Soldier")), &[ZoneKind::Battlefield], PlayerRelation::You))))
+]),
 );
 
 // BRO 313 — Drafna, Founder of Lat-Nam
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DRAFNA_FOUNDER_OF_LAT_NAM_313: CardRecord = CardRecord::new(
     "Drafna, Founder of Lat-Nam",
     "c3f9fd87-5c9b-4732-b8a5-f6be360a5fa5",
     "Lie Setiawan",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(
+        mana_cost!("{1}{U}"),
+        &["Human", "Artificer", "Advisor"],
+        2,
+        1,
+    )
+    .with_supertype(CardSupertype::Legendary)
+    .with_abilities(&[
+        AbilityDef::activated_with_targets(
+            "{1}{U}: Return target artifact you control to its owner's hand.",
+            &[CostDef::Mana(mana_cost!("{1}{U}"))],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Artifact),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                },
+            )],
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
+        ),
+        AbilityDef::activated_with_targets(
+            "{3}, {T}: Copy target artifact spell you control. (The copy becomes a token.)",
+            &[CostDef::Mana(mana_cost!("{3}")), CostDef::TapSource],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        ObjectPredicateDef::Spell,
+                    ]),
+                    zones: &[ZoneKind::Stack],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                },
+            )],
+            EffectDef::CopyStackObject(&CopyStackObjectDef {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                controller: PlayerRefDef::EffectController,
+                count: ValueDef::Constant(1),
+                retarget: false,
+                colors: None,
+            }),
+        ),
+    ]),
 );
 
 // BRO 363 — Cityscape Leveler
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Unearth requires its distinct graveyard activation, delayed end-step exile, and replacement of every later battlefield departure. There is no complete shared unearth procedure.
 pub(in crate::card::sets) static CITYSCAPE_LEVELER_363: CardRecord = CardRecord::new(
     "Cityscape Leveler",
     "35d2bcd1-3ed3-4b99-9bb6-d0fa0a9f2ea1",
@@ -741,7 +832,10 @@ pub(in crate::card::sets) static CITYSCAPE_LEVELER_363: CardRecord = CardRecord:
 );
 
 // BRO 364 — Liberator, Urza's Battlethopter
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The cast-as-though-flash permission is representable, but the triggered
+// clause needs the total amount of mana spent to cast its triggering spell. The engine records
+// ColorsOfManaSpent, not a spent-mana amount, so it cannot compare that amount to this creature's
+// current power without omitting a printed trigger condition.
 pub(in crate::card::sets) static LIBERATOR_URZA_S_BATTLETHOPTER_364: CardRecord = CardRecord::new(
     "Liberator, Urza's Battlethopter",
     "04acd5af-bd55-4c16-9b6d-10822d564c14",
@@ -750,12 +844,15 @@ pub(in crate::card::sets) static LIBERATOR_URZA_S_BATTLETHOPTER_364: CardRecord 
 );
 
 // BRO 368 — Thran Spider
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static THRAN_SPIDER_368: CardRecord = CardRecord::new(
     "Thran Spider",
     "42c400de-25cb-4865-ad1b-9a8a8da3da55",
     "Joshua Cairos",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{3}"), &["Spider"], 2, 4).with_abilities(&[
+abilities::reach(),
+AbilityDef::triggered_with_targets("When this creature enters, you and target opponent each create a tapped Powerstone token.", TriggerEventDef::zone_changed(ObjectPredicateDef::Source, None, Some(ZoneKind::Battlefield)), &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(PlayerRelation::Opponent))], EffectDef::Sequence(&[EffectDef::create_artifact_token(&["Powerstone"], &[]).with_abilities(&[AbilityDef::activated_mana("{T}: Add {C}. This mana can't be spent to cast nonartifact spells.", &[CostDef::TapSource], EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless).with_restrictions(&[ManaRestrictionDef::CannotCastSpell(ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Artifact)))])))]).entering_tapped(), EffectDef::create_artifact_token(&["Powerstone"], &[]).with_abilities(&[AbilityDef::activated_mana("{T}: Add {C}. This mana can't be spent to cast nonartifact spells.", &[CostDef::TapSource], EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless).with_restrictions(&[ManaRestrictionDef::CannotCastSpell(ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Artifact)))])))]).entering_tapped().with_controller(PlayerRefDef::Target(TargetIndex::PRIMARY))])),
+AbilityDef::activated("{7}: Look at the top four cards of your library. You may reveal an artifact card from among them and put it into your hand. Put the rest on the bottom of your library in a random order.", &[CostDef::Mana(mana_cost!("{7}"))], abilities::look_at_top_cards_reveal_choice_to_hand_rest_random_bottom(ValueDef::Constant(4), ObjectPredicateDef::HasType(CardType::Artifact), 0, 1))
+]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

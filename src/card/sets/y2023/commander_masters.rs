@@ -1,5 +1,19 @@
 //! Commander Masters cards cataloged for legend-rule coverage.
 
+use crate::card::AbilityDef;
+use crate::card::AppliedEffectDef;
+use crate::card::AppliedRuleDef;
+use crate::card::CastTimingPermissionDef;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::ObjectPredicateDef;
+use crate::card::ObjectRefDef;
+use crate::card::PlayerRelation;
+use crate::card::ResolvedEffectDurationDef;
+use crate::card::TriggerEventDef;
+use crate::card::ValueDef;
+use crate::card::abilities;
+use crate::mana_cost;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::card::CardRules;
@@ -23,12 +37,15 @@ pub(in crate::card::sets) static SLIVER_GRAVEMOTHER: CardRecord = CardRecord::ne
 );
 
 // CMM 750 — Skittering Cicada
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SKITTERING_CICADA_750: CardRecord = CardRecord::new(
     "Skittering Cicada",
     "4a430137-70d9-45fc-acaa-87b29ea0d588",
     "Denis Zhbankov",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}"), &["Insect"], 2, 2).with_abilities(&[
+abilities::flash(),
+AbilityDef::static_ability("You may cast colorless spells as though they had flash.", EffectDef::StaticApply { recipient: EffectRecipientDef::Controller, effect: AppliedEffectDef::Rule(AppliedRuleDef::MayCastAsThoughItHadFlash(CastTimingPermissionDef::new(ObjectPredicateDef::ColorCount(0)))) }),
+AbilityDef::triggered("Whenever you cast a colorless spell, until end of turn, this creature gains trample and gets +X/+X, where X is that spell's mana value.", TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[ObjectPredicateDef::ColorCount(0), ObjectPredicateDef::ControlledBy(PlayerRelation::You)])), EffectDef::Apply { recipient: EffectRecipientDef::Source, effect: AppliedEffectDef::Composite(&[AppliedEffectDef::add_ability(&abilities::trample()), AppliedEffectDef::modify_power_toughness(ValueDef::ObjectManaValue(ObjectRefDef::TriggeringObject), ValueDef::ObjectManaValue(ObjectRefDef::TriggeringObject))]), duration: ResolvedEffectDurationDef::UntilEndOfTurn })
+]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

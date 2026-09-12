@@ -1,5 +1,12 @@
 //! Eldritch Moon cards cataloged for the Vintage Cube pool.
 
+use crate::card::BattlefieldEntryModificationDef;
+use crate::card::CardSupertype;
+use crate::card::ManaColor;
+use crate::card::ReplacementEffectDef;
+use crate::card::ReplacementEventDef;
+use crate::card::SpellResolutionDestinationDef;
+use crate::card::SumValueDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::card::AbilityDef;
@@ -85,7 +92,7 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // EMN 6 — Emrakul, the Promised End
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The engine has no control-an-opponent-during-their-next-turn procedure or binding for the extra turn after that controlled turn.
 pub(in crate::card::sets) static EMRAKUL_THE_PROMISED_END_6: CardRecord = CardRecord::new(
     "Emrakul, the Promised End",
     "8d74a469-c71d-4773-99d3-5456b31df424",
@@ -94,7 +101,7 @@ pub(in crate::card::sets) static EMRAKUL_THE_PROMISED_END_6: CardRecord = CardRe
 );
 
 // EMN 7 — Eternal Scourge
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — There is no intrinsic cast-from-exile permission. Exile-play effects grant permission when they move a card, which cannot authorize this card after any arbitrary path into exile.
 pub(in crate::card::sets) static ETERNAL_SCOURGE_7: CardRecord = CardRecord::new(
     "Eternal Scourge",
     "13ce52f5-6d49-4d44-a3d7-925340de8406",
@@ -277,21 +284,57 @@ CardRules::new_sorcery(mana_cost!("{5}{W}{W}")).with_abilities(&[
 );
 
 // EMN 40 — Selfless Spirit
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SELFLESS_SPIRIT_40: CardRecord = CardRecord::new(
     "Selfless Spirit",
     "a4624976-3773-4a1e-b725-5f6efce147a5",
     "Seb McKinnon",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Spirit", "Cleric"], 2, 1).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::activated(
+            "Sacrifice this creature: Creatures you control gain indestructible until end of turn.",
+            &[CostDef::SacrificeSource],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                effect: AppliedEffectDef::add_ability(&abilities::indestructible()),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // EMN 46 — Thalia, Heretic Cathar
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static THALIA_HERETIC_CATHAR_46: CardRecord = CardRecord::new(
     "Thalia, Heretic Cathar",
     "ab0cee38-5e24-49d0-870c-22843ed4e101",
     "Magali Villeneuve",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Soldier"], 3, 2)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::first_strike(),
+            AbilityDef::replacement_for(
+                "Creatures and nonbasic lands your opponents control enter tapped.",
+                ReplacementEventDef::ObjectEntersBattlefield {
+                    object: ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Land),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(
+                                CardSupertype::Basic,
+                            )),
+                        ]),
+                    ]),
+                    controller: PlayerRelation::Opponent,
+                    cast: None,
+                },
+                ReplacementEffectDef::ModifyBattlefieldEntry(
+                    BattlefieldEntryModificationDef::Tapped,
+                ),
+            ),
+        ]),
 );
 
 // EMN 55 — Displace
@@ -487,7 +530,7 @@ pub(in crate::card::sets) static COLLECTIVE_BRUTALITY: CardRecord = CardRecord::
 );
 
 // EMN 111 — Voldaren Pariah // Abolisher of Bloodlines
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Madness requires a discard-to-exile replacement and a linked triggered cast-or-graveyard procedure; no current alternative-cast procedure implements it.
 pub(in crate::card::sets) static VOLDAREN_PARIAH_ABOLISHER_OF_BLOODLINES_111: CardRecord =
     CardRecord::new(
         "Voldaren Pariah // Abolisher of Bloodlines",
@@ -497,7 +540,7 @@ pub(in crate::card::sets) static VOLDAREN_PARIAH_ABOLISHER_OF_BLOODLINES_111: Ca
     );
 
 // EMN 116 — Alchemist's Greeting
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Madness requires a discard-to-exile replacement and a linked triggered cast-or-graveyard procedure; no current alternative-cast procedure implements it.
 pub(in crate::card::sets) static ALCHEMIST_S_GREETING_116: CardRecord = CardRecord::new(
     "Alchemist's Greeting",
     "8f33aaa1-cbaa-40a9-889e-3eca26b3a549",
@@ -596,7 +639,7 @@ pub(in crate::card::sets) static COLLECTIVE_DEFIANCE: CardRecord = CardRecord::n
 );
 
 // EMN 126 — Distemper of the Blood
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Madness requires a discard-to-exile replacement and a linked triggered cast-or-graveyard procedure; no current alternative-cast procedure implements it.
 pub(in crate::card::sets) static DISTEMPER_OF_THE_BLOOD_126: CardRecord = CardRecord::new(
     "Distemper of the Blood",
     "d0ad2acb-073b-4a98-be8c-2ea39ca85496",
@@ -679,12 +722,13 @@ pub(in crate::card::sets) static SAVAGE_ALLIANCE: CardRecord = CardRecord::new(
 );
 
 // EMN 155 — Eldritch Evolution
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ELDRITCH_EVOLUTION_155: CardRecord = CardRecord::new(
     "Eldritch Evolution",
     "efcb00e5-2caa-45c8-ad19-05d45c683d16",
     "Jason Rainville",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{1}{G}{G}")).with_abilities(&[
+AbilityDef::spell_with_additional_cost("As an additional cost to cast this spell, sacrifice a creature.\nSearch your library for a creature card with mana value X or less, where X is 2 plus the sacrificed creature's mana value. Put that card onto the battlefield, then shuffle. Exile Eldritch Evolution.", &[], CostDef::sacrifice_permanent(ObjectPredicateDef::HasType(CardType::Creature)), EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Library, object: ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::ManaValueAtMostValue(ValueDef::Sum(&SumValueDef { left: ValueDef::SacrificedManaValue, right: ValueDef::Constant(2) }))]), minimum: 0, maximum: ValueDef::Constant(1), reveal: true, destination: ZoneKind::Battlefield, placement: ZonePlacement::Top, shuffle: true, enters_tapped: false, attachment: None, binding: None, then: None }).with_resolution_destination(SpellResolutionDestinationDef::Exile)
+]),
 );
 
 // EMN 160 — Grapple with the Past
@@ -735,7 +779,7 @@ pub(in crate::card::sets) static GRAPPLE_WITH_THE_PAST: CardRecord = CardRecord:
 );
 
 // EMN 181 — Bloodhall Priest
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Madness requires a discard-to-exile replacement and a linked triggered cast-or-graveyard procedure; no current alternative-cast procedure implements it.
 pub(in crate::card::sets) static BLOODHALL_PRIEST_181: CardRecord = CardRecord::new(
     "Bloodhall Priest",
     "c4824cca-0039-4486-be8f-650dac2c8e9f",
@@ -744,7 +788,7 @@ pub(in crate::card::sets) static BLOODHALL_PRIEST_181: CardRecord = CardRecord::
 );
 
 // EMN 189 — Spell Queller
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The immediate free-cast operations always offer the cast to the resolving ability controller. They cannot offer the linked exiled card to its owner, who may be a different player.
 pub(in crate::card::sets) static SPELL_QUELLER_189: CardRecord = CardRecord::new(
     "Spell Queller",
     "9b76bcd4-580a-4435-afe9-290940b1837f",
@@ -753,12 +797,31 @@ pub(in crate::card::sets) static SPELL_QUELLER_189: CardRecord = CardRecord::new
 );
 
 // EMN 203 — Geier Reach Sanitarium
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GEIER_REACH_SANITARIUM_203: CardRecord = CardRecord::new(
     "Geier Reach Sanitarium",
     "96093739-fedc-4d8f-a29d-0e57f571e5a9",
     "Cliff Childs",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[])
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::tap_for(ManaColor::Colorless),
+            AbilityDef::activated(
+                "{2}, {T}: Each player draws a card, then discards a card.",
+                &[CostDef::Mana(mana_cost!("{2}")), CostDef::TapSource],
+                EffectDef::Sequence(&[
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::EachPlayer,
+                        amount: ValueDef::Constant(1),
+                    },
+                    EffectDef::Discard {
+                        recipient: EffectRecipientDef::EachPlayer,
+                        amount: ValueDef::Constant(1),
+                        selection: DiscardSelectionDef::RecipientChooses,
+                        then: None,
+                    },
+                ]),
+            ),
+        ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

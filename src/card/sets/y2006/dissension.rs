@@ -1,5 +1,6 @@
 //! DIS card records required by supported formats.
 
+use crate::card::CostModificationDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::AbilityTargetPredicate;
@@ -80,12 +81,25 @@ pub(in crate::card::sets) static SPELL_SNARE: CardRecord = CardRecord::new(
 );
 
 // DIS 34 — Tidespout Tyrant
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TIDESPOUT_TYRANT_34: CardRecord = CardRecord::new(
     "Tidespout Tyrant",
     "44865244-2b9f-4734-a4da-49613b23ee4d",
     "Dany Orizio",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{5}{U}{U}{U}"), &["Djinn"], 5, 5).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::triggered_with_targets(
+            "Whenever you cast a spell, return target permanent to its owner’s hand.",
+            TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(PlayerRelation::You)),
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::Any,
+            )],
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
+        ),
+    ]),
 );
 
 // DIS 47 — Macabre Waltz
@@ -249,12 +263,38 @@ pub(in crate::card::sets) static COILING_ORACLE: CardRecord = CardRecord::new(
 );
 
 // DIS 112 — Grand Arbiter Augustin IV
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GRAND_ARBITER_AUGUSTIN_IV_112: CardRecord = CardRecord::new(
     "Grand Arbiter Augustin IV",
     "a2ac328b-923f-48dd-a4f5-de389ade9125",
     "Zoltan Boros & Gabor Szikszai",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{W}{U}"), &["Human", "Advisor"], 2, 3)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "White spells you cast cost {1} less to cast.",
+                EffectDef::ModifyCost(CostModificationDef::reduce_spell(
+                    ObjectPredicateDef::Color(ManaColor::White),
+                    PlayerRelation::You,
+                    ValueDef::Constant(1),
+                )),
+            ),
+            AbilityDef::static_ability(
+                "Blue spells you cast cost {1} less to cast.",
+                EffectDef::ModifyCost(CostModificationDef::reduce_spell(
+                    ObjectPredicateDef::Color(ManaColor::Blue),
+                    PlayerRelation::You,
+                    ValueDef::Constant(1),
+                )),
+            ),
+            AbilityDef::static_ability(
+                "Spells your opponents cast cost {1} more to cast.",
+                EffectDef::ModifyCost(CostModificationDef::increase_spell(
+                    ObjectPredicateDef::Any,
+                    PlayerRelation::Opponent,
+                    mana_cost!("{1}"),
+                )),
+            ),
+        ]),
 );
 
 // DIS 133 — Trygon Predator
@@ -292,7 +332,7 @@ pub(in crate::card::sets) static TRYGON_PREDATOR: CardRecord = CardRecord::new(
 );
 
 // DIS 162 — Magewright's Stone
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Ability predicates distinguish activated abilities but cannot inspect whether their activation cost contains the tap symbol.
 pub(in crate::card::sets) static MAGEWRIGHT_S_STONE_162: CardRecord = CardRecord::new(
     "Magewright's Stone",
     "d27e8442-91ce-4106-bfc6-a1f6e0e34c2d",
@@ -301,12 +341,18 @@ pub(in crate::card::sets) static MAGEWRIGHT_S_STONE_162: CardRecord = CardRecord
 );
 
 // DIS 166 — Simic Signet
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SIMIC_SIGNET_166: CardRecord = CardRecord::new(
     "Simic Signet",
     "90107d10-e2aa-4cb7-a000-039f0c581b47",
     "Greg Hildebrandt",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[AbilityDef::activated_mana(
+        "{1}, {T}: Add {G}{U}.",
+        &[CostDef::Mana(mana_cost!("{1}")), CostDef::TapSource],
+        EffectDef::AddMana(AddManaEffectDef::one_of_each(
+            ManaColor::Green,
+            ManaColor::Blue,
+        )),
+    )]),
 );
 
 // DIS 170 — Azorius Chancery

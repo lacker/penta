@@ -1,5 +1,14 @@
 //! Born of the Gods card records required by supported formats.
 
+use crate::TargetIndex;
+use crate::card::AbilityTargetDef;
+use crate::card::BattlefieldEntryModificationDef;
+use crate::card::CardNameDef;
+use crate::card::CounterKind;
+use crate::card::ObjectRefDef;
+use crate::card::ReplacementEffectDef;
+use crate::card::ResolvedEffectDurationDef;
+use crate::card::ZonePlacement;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::card::AbilityDef;
@@ -37,30 +46,39 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // BNG 27 — Spirit of the Labyrinth
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPIRIT_OF_THE_LABYRINTH_27: CardRecord = CardRecord::new(
     "Spirit of the Labyrinth",
     "f44e5128-e146-4e46-b313-a40d82719d1d",
     "Jason Chan",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Spirit"], 3, 1)
+        .with_abilities(&[AbilityDef::static_ability(
+            "Each player can't draw more than one card each turn.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::EachPlayer,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotDrawMoreThanEachTurn(1)),
+            },
+        )])
+        .with_type(crate::card::CardType::Enchantment),
 );
 
 // BNG 49 — Retraction Helix
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RETRACTION_HELIX_49: CardRecord = CardRecord::new(
     "Retraction Helix",
     "4fe8c0b9-fdf4-4fc0-aa7c-774546cdd792",
     "Phill Simmer",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{U}")).with_abilities(&[
+AbilityDef::spell_with_targets("Until end of turn, target creature gains \"{T}: Return target nonland permanent to its owner's hand.\"", &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Creature))], EffectDef::Apply { recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY), effect: AppliedEffectDef::add_ability(&AbilityDef::activated_with_targets("{T}: Return target nonland permanent to its owner's hand.", &[CostDef::TapSource], &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)))], EffectDef::move_to_zone(EffectRecipientDef::Target(TargetIndex::PRIMARY), ZoneKind::Hand, ZonePlacement::Top))), duration: ResolvedEffectDurationDef::UntilEndOfTurn })
+]),
 );
 
 // BNG 61 — Bile Blight
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BILE_BLIGHT_61: CardRecord = CardRecord::new(
     "Bile Blight",
     "3ca11057-e50a-4817-924a-5bb504d0780f",
     "Vincent Proce",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{B}{B}")).with_abilities(&[
+AbilityDef::spell_with_targets("Target creature and all other creatures with the same name as that creature get -3/-3 until end of turn.", &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Creature))], EffectDef::Apply { recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::NameEquals(CardNameDef::NameOf(ObjectRefDef::Target(TargetIndex::PRIMARY)))]), &[ZoneKind::Battlefield], PlayerRelation::Any), effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(-3), ValueDef::Constant(-3)), duration: ResolvedEffectDurationDef::UntilEndOfTurn })
+]),
 );
 
 // BNG 119 — Courser of Kruphix
@@ -132,12 +150,14 @@ static OTHER_LEGENDS_YOU_CONTROL: ValueDef = ValueDef::Sum(&SumValueDef::new(
 ));
 
 // BNG 157 — Astral Cornucopia
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ASTRAL_CORNUCOPIA_157: CardRecord = CardRecord::new(
     "Astral Cornucopia",
     "a72b8011-c712-418f-869e-42fda3dc0830",
     "Aleksi Briclot",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{X}{X}{X}")).with_abilities(&[
+AbilityDef::replacement("This artifact enters with X charge counters on it.", ReplacementEffectDef::ModifyBattlefieldEntry(BattlefieldEntryModificationDef::AddCastXCounters { kind: CounterKind::named("charge") })),
+AbilityDef::activated_mana("{T}: Choose a color. Add one mana of that color for each charge counter on this artifact.", &[CostDef::TapSource], EffectDef::AddMana(AddManaEffectDef::any_color().with_variable_amount(ValueDef::CountersOnSource(CounterKind::named("charge")))))
+]),
 );
 
 // BNG 159 — Heroes' Podium

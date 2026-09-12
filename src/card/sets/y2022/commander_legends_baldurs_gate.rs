@@ -1,6 +1,16 @@
 //! Commander Legends: Battle for Baldur's Gate cards cataloged for the
 //! Vintage Cube.
 
+use crate::card::BindObjectsDef;
+use crate::card::CardTypeSet;
+use crate::card::ChoiceVisibilityDef;
+use crate::card::ChooseDef;
+use crate::card::CreatureTypeSetDef;
+use crate::card::ObjectChoiceBindingDef;
+use crate::card::ObjectCollectionSourceDef;
+use crate::card::PlayerRefDef;
+use crate::card::SumValueDef;
+use crate::card::tokens;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
@@ -69,12 +79,14 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // CLB 2 — Abdel Adrian, Gorion's Ward
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ABDEL_ADRIAN_GORION_S_WARD_2: CardRecord = CardRecord::new(
     "Abdel Adrian, Gorion's Ward",
     "396f9198-67b6-45d8-91b4-dc853bff9623",
     "Karl Kopinski",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{W}"), &["Human", "Warrior"], 4, 4).with_supertype(CardSupertype::Legendary).with_abilities(&[
+AbilityDef::triggered("When Abdel Adrian enters, exile any number of other nonland permanents you control until Abdel Adrian leaves the battlefield. Create a 1/1 white Soldier creature token for each permanent exiled this way.", TriggerEventDef::zone_changed(ObjectPredicateDef::Source, None, Some(ZoneKind::Battlefield)), EffectDef::Choose(ChooseDef { binding: ObjectChoiceBindingDef::Objects(Binding!("abdel_chosen")), unchosen: None, chooser: PlayerRefDef::EffectController, candidates: ObjectSetDef::Query(ObjectQueryDef::matching(ObjectPredicateDef::All(&[ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)), ObjectPredicateDef::Not(&ObjectPredicateDef::Source)]), &[ZoneKind::Battlefield], PlayerRelation::You)), exclude: None, minimum: 0, maximum: usize::MAX, visibility: ChoiceVisibilityDef::Public, then: &EffectDef::BindObjects(BindObjectsDef { source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::LinkedExiles), binding: Binding!("abdel_previous"), then: &EffectDef::ExileLinkedToSource { object: EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!("abdel_chosen"))), face_down: false, until_source_leaves: true, then: Some(&EffectDef::create_creature_token(&["Soldier"], &[ManaColor::White], 1, 1).with_count(ValueDef::Sum(&SumValueDef { left: ValueDef::CountObjects(&ObjectSetDef::LinkedExiles), right: ValueDef::Negate(&ValueDef::BoundObjectCount(Binding!("abdel_previous"))) }))) } }) })),
+AbilityDef::deck_construction("Choose a Background (You can have a Background as a second commander.)", DeckConstructionDef::ChooseABackground, "Both commanders are designated before the game.")
+]),
 );
 
 // CLB 8 — Banishment
@@ -575,7 +587,7 @@ pub(in crate::card::sets) static GUT_TRUE_SOUL_ZEALOT: CardRecord = CardRecord::
 );
 
 // CLB 182 — Ingenious Artillerist
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Battlefield-entry triggers publish one event per object, with no grouped entry event carrying the number of artifacts that entered simultaneously.
 pub(in crate::card::sets) static INGENIOUS_ARTILLERIST_182: CardRecord = CardRecord::new(
     "Ingenious Artillerist",
     "1d8dd6c3-3699-4dd1-a019-fdb569eaf722",
@@ -584,16 +596,21 @@ pub(in crate::card::sets) static INGENIOUS_ARTILLERIST_182: CardRecord = CardRec
 );
 
 // CLB 193 — Reckless Barbarian
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RECKLESS_BARBARIAN_193: CardRecord = CardRecord::new(
     "Reckless Barbarian",
     "c912e984-1d27-4da2-9733-d56e437bcf58",
     "Oleksandr Kozachenko",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Dragon", "Barbarian"], 2, 2).with_ability(
+        AbilityDef::activated_mana(
+            "Sacrifice this creature: Add {R}{R}.",
+            &[CostDef::SacrificeSource],
+            EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Red).with_amount(2)),
+        ),
+    ),
 );
 
 // CLB 206 — Wild Magic Surge
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — There is no predicate comparing a revealed permanent's card-type set with the destroyed object's last-known card types. A fixed-type search cannot handle multi-type permanents.
 pub(in crate::card::sets) static WILD_MAGIC_SURGE_206: CardRecord = CardRecord::new(
     "Wild Magic Surge",
     "c4c89d88-9d40-46b6-bee0-6bc2e2ca8ba1",
@@ -717,39 +734,77 @@ CardRules::new_planeswalker(mana_cost!("{2}{R}{G}"), &["Minsc"], 3)
 );
 
 // CLB 310 — Dire Mimic
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DIRE_MIMIC_310: CardRecord = CardRecord::new(
     "Dire Mimic",
     "6e29bae1-0643-4781-9edc-50a8e6d1a3a1",
     "Igor Kieryluk",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{2}")).with_subtypes(&["Treasure"]).with_abilities(&[
+        abilities::flash(),
+        AbilityDef::activated_mana("{T}, Sacrifice this artifact: Add one mana of any color.", &[CostDef::TapSource, CostDef::SacrificeSource], EffectDef::AddMana(AddManaEffectDef::any_color())),
+        AbilityDef::activated("{3}: This artifact becomes a Shapeshifter artifact creature with base power and toughness 5/5 until end of turn.", &[CostDef::Mana(mana_cost!("{3}"))], EffectDef::Apply { recipient: EffectRecipientDef::Source, effect: AppliedEffectDef::Composite(&[AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)), AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&["Shapeshifter"])), AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(5), ValueDef::Constant(5))]), duration: ResolvedEffectDurationDef::UntilEndOfTurn }),
+    ]),
 );
 
 // CLB 332 — Patriar's Seal
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PATRIAR_S_SEAL_332: CardRecord = CardRecord::new(
     "Patriar's Seal",
     "37f920f0-4dfc-477b-af7e-a17dfc9ba455",
     "Kamila Szutenberg",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
+        AbilityDef::activated_mana(
+            "{T}: Add one mana of any color.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::any_color()),
+        ),
+        AbilityDef::activated_with_targets(
+            "{1}, {T}: Untap target legendary creature you control.",
+            &[CostDef::Mana(mana_cost!("{1}")), CostDef::TapSource],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Supertype(CardSupertype::Legendary),
+                    ]),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                },
+            )],
+            EffectDef::Untap {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+        ),
+    ]),
 );
 
 // CLB 334 — Prized Statue
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PRIZED_STATUE_334: CardRecord = CardRecord::new(
     "Prized Statue",
     "58a49829-c354-4823-8cc1-a159fc46c0d7",
     "Ben Wootten",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{2}")).with_ability(AbilityDef::triggered(
+        "When this artifact enters or is put into a graveyard from the battlefield, create a Treasure token.",
+        TriggerEventDef::AnyOf(&[
+            TriggerEventDef::zone_changed(ObjectPredicateDef::Source, None, Some(ZoneKind::Battlefield)),
+            TriggerEventDef::zone_changed(ObjectPredicateDef::Source, Some(ZoneKind::Battlefield), Some(ZoneKind::Graveyard)),
+        ]),
+        EffectDef::create_token(tokens::treasure()),
+    )),
 );
 
 // CLB 336 — Rug of Smothering
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RUG_OF_SMOTHERING_336: CardRecord = CardRecord::new(
     "Rug of Smothering",
     "a73d1cb0-d0dc-4f2a-9cf2-954d5889dd08",
     "Ioannis Fiore",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{3}"), &["Construct"], 1, 3).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::triggered(
+            "Whenever a player casts a spell, they lose 1 life for each spell they've cast this turn.",
+            TriggerEventDef::spell_cast(ObjectPredicateDef::Any),
+            EffectDef::LoseLife { recipient: EffectRecipientDef::EventPlayer, amount: ValueDef::CountSpellsCastThisTurn(&SpellCastQueryDef { player: PlayerRelation::EventPlayer, spell: ObjectPredicateDef::Any }) },
+        ),
+    ]),
 );
 
 // CLB 346 — Basilisk Gate
@@ -792,7 +847,7 @@ static GATES_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
 );
 
 // CLB 382 — Ancient Silver Dragon
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — There is no declarative d20 roll that records the result for the subsequent draw amount.
 pub(in crate::card::sets) static ANCIENT_SILVER_DRAGON_382: CardRecord = CardRecord::new(
     "Ancient Silver Dragon",
     "24d9a4d3-e1d2-42ae-bca4-02bc2cf69c9d",
@@ -801,16 +856,17 @@ pub(in crate::card::sets) static ANCIENT_SILVER_DRAGON_382: CardRecord = CardRec
 );
 
 // CLB 505 — Guild Artisan
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GUILD_ARTISAN_505: CardRecord = CardRecord::new(
     "Guild Artisan",
     "5a331542-11e4-49dc-be2f-ee56f07ccee0",
     "Mark Behm",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{R}")).with_subtypes(&["Background"]).with_supertype(CardSupertype::Legendary).with_abilities(&[
+AbilityDef::static_ability("Commander creatures you own have \"Whenever this creature attacks a player, if no opponent has more life than that player, you create two Treasure tokens.\" (They're artifacts with \"{T}, Sacrifice this token: Add one mana of any color.\")", EffectDef::StaticApply { recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::Commander, ObjectPredicateDef::OwnedBy(PlayerRelation::You)]), &[ZoneKind::Battlefield], PlayerRelation::Any), effect: AppliedEffectDef::add_ability(&AbilityDef::triggered("Whenever this creature attacks a player, if no opponent has more life than that player, you create two Treasure tokens.", TriggerEventDef::attacks_a_player(ObjectPredicateDef::Source), EffectDef::create_token(crate::card::tokens::treasure()).with_count(ValueDef::Constant(2)))) })
+]),
 );
 
 // CLB 507 — Karlach, Fury of Avernus
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The trigger cannot test whether this is the first combat phase of the turn. First-attack history differs when no creatures attacked in the first combat.
 pub(in crate::card::sets) static KARLACH_FURY_OF_AVERNUS_507: CardRecord = CardRecord::new(
     "Karlach, Fury of Avernus",
     "231621a3-01dc-41af-827a-94aaa63179ae",
@@ -819,7 +875,7 @@ pub(in crate::card::sets) static KARLACH_FURY_OF_AVERNUS_507: CardRecord = CardR
 );
 
 // CLB 553 — Archivist of Oghma
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — TriggerEventDef has no library-search event, so searches cannot generate its life-gain and draw trigger.
 pub(in crate::card::sets) static ARCHIVIST_OF_OGHMA_553: CardRecord = CardRecord::new(
     "Archivist of Oghma",
     "9a67ef30-a8ef-4437-8c9a-d125a98fbd6b",
@@ -880,7 +936,7 @@ pub(in crate::card::sets) static DISPLACER_KITTEN: CardRecord = CardRecord::new(
 );
 
 // CLB 607 — Deep Gnome Terramancer
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Entry events neither group simultaneous land entries nor record whether a land entered by the play-land action. Checking cast history cannot distinguish a played land from another entry.
 pub(in crate::card::sets) static DEEP_GNOME_TERRAMANCER_607: CardRecord = CardRecord::new(
     "Deep Gnome Terramancer",
     "ac23a376-4b3a-4316-b3e2-2e25ca2b5e76",
@@ -889,7 +945,7 @@ pub(in crate::card::sets) static DEEP_GNOME_TERRAMANCER_607: CardRecord = CardRe
 );
 
 // CLB 620 — Black Market Connections
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Triggered modal placement accepts at most one mode. This trigger must choose one to three distinct modes before resolution; three independent may-effects would choose at the wrong time and allow declining every mode.
 pub(in crate::card::sets) static BLACK_MARKET_CONNECTIONS_620: CardRecord = CardRecord::new(
     "Black Market Connections",
     "8b28572c-d2ba-4834-8630-3d82202ebb6f",

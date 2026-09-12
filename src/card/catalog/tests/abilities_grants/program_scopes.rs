@@ -888,3 +888,16 @@ fn explicitly_tagged_mana_abilities_cannot_declare_targets() {
         }
     );
 }
+
+#[test]
+fn variable_mana_amounts_validate_their_bound_object_references() {
+    let binding = Binding!("mana_source_group");
+    assert_eq!(
+        super::validate_ability_targets(
+            &[],
+            EffectDef::AddMana(crate::card::AddManaEffectDef::one(crate::card::ManaColor::Green)
+                .with_variable_amount(ValueDef::BoundObjectCount(binding))),
+        ),
+        Err(GrantedAbilityValidationError::ObjectSetBindingReferenceOutOfScope { binding }),
+    );
+}

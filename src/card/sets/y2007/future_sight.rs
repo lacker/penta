@@ -1,5 +1,10 @@
 //! Future Sight cards cataloged as cross-format rules-engine test cases.
 
+use crate::card::ActivationTimingDef;
+use crate::card::BasicLandType;
+use crate::card::InstalledTriggerDef;
+use crate::card::PayOrDef;
+use crate::card::SubtypeDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
@@ -49,7 +54,7 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // FUT 18 — Aven Mindcensor
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — SearchZone cannot replace an opponent’s library search with a search of only its top four cards.
 pub(in crate::card::sets) static AVEN_MINDCENSOR_18: CardRecord = CardRecord::new(
     "Aven Mindcensor",
     "5b8ede8a-5317-4662-b964-a9bd202a4aab",
@@ -58,7 +63,7 @@ pub(in crate::card::sets) static AVEN_MINDCENSOR_18: CardRecord = CardRecord::ne
 );
 
 // FUT 35 — Delay
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Counter can redirect a spell to exile, but cannot attach counters and a persistent suspend grant to the countered card’s new incarnation only after a successful counter.
 pub(in crate::card::sets) static DELAY_35: CardRecord = CardRecord::new(
     "Delay",
     "e821d337-4bc5-4401-ac9b-34adf4012b73",
@@ -67,12 +72,13 @@ pub(in crate::card::sets) static DELAY_35: CardRecord = CardRecord::new(
 );
 
 // FUT 42 — Pact of Negation
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PACT_OF_NEGATION_42: CardRecord = CardRecord::new(
     "Pact of Negation",
     "cca467a2-a2b3-4bdf-9d60-62979f675347",
     "Jason Chan",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{0}")).with_abilities(&[
+AbilityDef::spell_with_targets("Counter target spell.\nAt the beginning of your next upkeep, pay {3}{U}{U}. If you don't, you lose the game.", &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object { object: ObjectPredicateDef::Spell, zones: &[ZoneKind::Stack], controller: None, owner: None })], EffectDef::Sequence(&[EffectDef::counter_target(TargetIndex::PRIMARY), EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered("At the beginning of your next upkeep, pay {3}{U}{U}. If you don’t, you lose the game.", TriggerEventDef::StepBegins { step: TurnStepDef::Upkeep, player: PlayerRelation::You }, EffectDef::PayOr(PayOrDef::optional_or(&[CostDef::Mana(mana_cost!("{3}{U}{U}"))], &EffectDef::None, &EffectDef::LoseTheGame { player: EffectRecipientDef::Controller })))))]))
+]),
 );
 
 // FUT 43 — Reality Strobe
@@ -195,16 +201,33 @@ CardRules::new_creature(mana_cost!("{1}{U}"), &["Illusion"], 1, 1).with_abilitie
 );
 
 // FUT 61 — Vedalken Aethermage
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VEDALKEN_AETHERMAGE_61: CardRecord = CardRecord::new(
     "Vedalken Aethermage",
     "496eb37d-5c8f-4dd7-a0a7-3ed1bd2210d6",
     "William Simpson",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{U}"), &["Vedalken", "Wizard"], 1, 2).with_abilities(&[
+        abilities::flash(),
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, return target Sliver to its owner’s hand.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Sliver")),
+            )],
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
+        ),
+        abilities::typecycling_with_costs(
+            "Wizardcycling {3}",
+            &[CostDef::Mana(mana_cost!("{3}")), CostDef::DiscardSource],
+            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Wizard")),
+        ),
+    ]),
 );
 
 // FUT 66 — Gibbering Descent
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Madness needs a discard-to-exile replacement and linked triggered cast-or-graveyard procedure; the current alternative-cast model has no madness procedure.
 pub(in crate::card::sets) static GIBBERING_DESCENT_66: CardRecord = CardRecord::new(
     "Gibbering Descent",
     "d4839a0b-47db-4464-9e9a-0e976d468106",
@@ -213,12 +236,15 @@ pub(in crate::card::sets) static GIBBERING_DESCENT_66: CardRecord = CardRecord::
 );
 
 // FUT 73 — Oblivion Crown
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static OBLIVION_CROWN_73: CardRecord = CardRecord::new(
     "Oblivion Crown",
     "0cd5486b-c6f4-4cfc-9590-8ffc78b48b0a",
     "Kev Walker",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{B}")).with_subtypes(&["Aura"]).with_abilities(&[
+abilities::flash(),
+abilities::enchant_creature(),
+AbilityDef::static_ability("Enchanted creature has \"Discard a card: This creature gets +1/+1 until end of turn.\".", EffectDef::StaticApply { recipient: EffectRecipientDef::object(ObjectRefDef::AttachedToSource), effect: AppliedEffectDef::add_ability(&AbilityDef::activated("Discard a card: This creature gets +1/+1 until end of turn.", &[CostDef::discard(ObjectPredicateDef::Any)], EffectDef::Apply { recipient: EffectRecipientDef::Source, effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(1)), duration: ResolvedEffectDurationDef::UntilEndOfTurn })) })
+]),
 );
 
 // FUT 76 — Shimian Specter
@@ -234,12 +260,13 @@ static BRIDGE_FROM_BELOW_IS_IN_GRAVEYARD: TriggerConditionDef =
     TriggerConditionDef::SourceInZone(ZoneKind::Graveyard);
 
 // FUT 78 — Slaughter Pact
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SLAUGHTER_PACT_78: CardRecord = CardRecord::new(
     "Slaughter Pact",
     "42696fdb-de1f-44ae-bef3-b6af068958d0",
     "Kev Walker",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{0}")).with_abilities(&[
+AbilityDef::spell_with_targets("Destroy target nonblack creature.\nAt the beginning of your next upkeep, pay {2}{B}. If you don't, you lose the game.", &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::Not(&ObjectPredicateDef::Color(ManaColor::Black))]))], EffectDef::Sequence(&[EffectDef::destroy_target(TargetIndex::PRIMARY), EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered("At the beginning of your next upkeep, pay {2}{B}. If you don’t, you lose the game.", TriggerEventDef::StepBegins { step: TurnStepDef::Upkeep, player: PlayerRelation::You }, EffectDef::PayOr(PayOrDef::optional_or(&[CostDef::Mana(mana_cost!("{2}{B}"))], &EffectDef::None, &EffectDef::LoseTheGame { player: EffectRecipientDef::Controller })))))]))
+]),
 );
 
 // FUT 81 — Bridge from Below
@@ -303,16 +330,17 @@ CardRules::new_creature(mana_cost!("{2}{B}"), &["Imp", "Rebel"], 2, 2)
 );
 
 // FUT 84 — Fleshwrither
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FLESHWRITHER_84: CardRecord = CardRecord::new(
     "Fleshwrither",
     "08e1a646-6925-4a53-a99c-8951af016a7a",
     "Dave Allsop",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{B}{B}"), &["Horror"], 3, 3).with_abilities(&[
+AbilityDef::activated("Transfigure {1}{B}{B} ({1}{B}{B}, Sacrifice this creature: Search your library for a creature card with the same mana value as this creature, put that card onto the battlefield, then shuffle. Transfigure only as a sorcery.)", &[CostDef::Mana(mana_cost!("{1}{B}{B}")), CostDef::SacrificeSource], EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Library, object: ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::ManaValueEqualTo(ValueDef::ObjectManaValue(ObjectRefDef::Source))]), minimum: 0, maximum: ValueDef::Constant(1), reveal: false, destination: ZoneKind::Battlefield, placement: ZonePlacement::Top, shuffle: true, enters_tapped: false, attachment: None, binding: None, then: None }).with_activation_timing(ActivationTimingDef::SorcerySpeed)
+]),
 );
 
 // FUT 86 — Grave Scrabbler
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Madness needs a discard-to-exile replacement and linked triggered cast-or-graveyard procedure; the current alternative-cast model has no madness procedure.
 pub(in crate::card::sets) static GRAVE_SCRABBLER_86: CardRecord = CardRecord::new(
     "Grave Scrabbler",
     "0f0a08a8-bbb9-4816-b03c-af4d729fce45",
@@ -321,12 +349,17 @@ pub(in crate::card::sets) static GRAVE_SCRABBLER_86: CardRecord = CardRecord::ne
 );
 
 // FUT 90 — Street Wraith
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STREET_WRAITH_90: CardRecord = CardRecord::new(
     "Street Wraith",
     "672e2815-bbcc-4338-a8ba-9aa97142ea69",
     "Cyril Van Der Haegen",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{B}{B}"), &["Wraith"], 3, 4).with_abilities(&[
+        abilities::landwalk(BasicLandType::Swamp),
+        abilities::cycling_with_costs(
+            "Cycling—Pay 2 life.",
+            &[CostDef::PayLife(2), CostDef::DiscardSource],
+        ),
+    ]),
 );
 
 // FUT 94 — Arc Blade
@@ -365,21 +398,54 @@ pub(in crate::card::sets) static BOGARDAN_LANCER: CardRecord = CardRecord::new(
 );
 
 // FUT 100 — Haze of Rage
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HAZE_OF_RAGE_100: CardRecord = CardRecord::new(
     "Haze of Rage",
     "846134c0-5a8d-4ccb-8451-db29b70be3f5",
     "Paolo Parente",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{1}{R}")).with_abilities(&[
+        abilities::buyback(&[CostDef::Mana(mana_cost!("{2}"))]),
+        AbilityDef::spell(
+            "Creatures you control get +1/+0 until end of turn.",
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+        abilities::storm(),
+    ]),
 );
 
 // FUT 101 — Magus of the Moon
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MAGUS_OF_THE_MOON_101: CardRecord = CardRecord::new(
     "Magus of the Moon",
     "c06a4443-6851-4873-8fb8-2ef76c9d6d2c",
     "Franz Vohwinkel",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Human", "Wizard"], 2, 2).with_abilities(&[
+        AbilityDef::static_ability(
+            "Nonbasic lands are Mountains.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(
+                            CardSupertype::Basic,
+                        )),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                effect: AppliedEffectDef::set_basic_land_types(&[BasicLandType::Mountain]),
+            },
+        ),
+    ]),
 );
 
 // FUT 110 — Bloodshot Trainee
@@ -406,7 +472,7 @@ CardRules::new_creature(mana_cost!("{3}{R}"), &["Goblin", "Warrior"], 2, 3).with
 );
 
 // FUT 116 — Grinning Ignus
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Mana-ability eligibility recognizes ReturnSourceToHand, but pay_moving_mana_activation_costs never executes that cost. The offered activation therefore adds mana without returning the creature; it cannot be enabled until that shared payment path is repaired.
 pub(in crate::card::sets) static GRINNING_IGNUS_116: CardRecord = CardRecord::new(
     "Grinning Ignus",
     "31716a43-2522-46ff-a9a4-b6952cd41f11",
@@ -459,16 +525,17 @@ pub(in crate::card::sets) static SPROUT_SWARM: CardRecord = CardRecord::new(
 );
 
 // FUT 139 — Summoner's Pact
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SUMMONER_S_PACT_139: CardRecord = CardRecord::new(
     "Summoner's Pact",
     "948b026c-cfce-462b-afb6-7a383bd121de",
     "Chippy",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{0}")).with_abilities(&[
+AbilityDef::spell("Search your library for a green creature card, reveal it, put it into your hand, then shuffle.\nAt the beginning of your next upkeep, pay {2}{G}{G}. If you don't, you lose the game.", EffectDef::Sequence(&[EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Library, object: ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::Color(ManaColor::Green)]), minimum: 0, maximum: ValueDef::Constant(1), reveal: true, destination: ZoneKind::Hand, placement: ZonePlacement::Top, shuffle: true, enters_tapped: false, attachment: None, binding: None, then: None }, EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered("At the beginning of your next upkeep, pay {2}{G}{G}. If you don’t, you lose the game.", TriggerEventDef::StepBegins { step: TurnStepDef::Upkeep, player: PlayerRelation::You }, EffectDef::PayOr(PayOrDef::optional_or(&[CostDef::Mana(mana_cost!("{2}{G}{G}"))], &EffectDef::None, &EffectDef::LoseTheGame { player: EffectRecipientDef::Controller })))))]))
+]),
 );
 
 // FUT 144 — Edge of Autumn
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Cycling from hand cannot pay a chosen battlefield land sacrifice; the activation-cost planner permits that sacrifice only from battlefield or exile.
 pub(in crate::card::sets) static EDGE_OF_AUTUMN_144: CardRecord = CardRecord::new(
     "Edge of Autumn",
     "03998e86-ef67-4329-b106-61252f3f532a",
@@ -547,7 +614,7 @@ CardRules::new_artifact(mana_cost!("{7}"))
 );
 
 // FUT 160 — Cloud Key
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Entry choices cannot bind a card type for later spell-cost predicates; existing chosen-color and creature-subtype bindings are not card-type bindings.
 pub(in crate::card::sets) static CLOUD_KEY_160: CardRecord = CardRecord::new(
     "Cloud Key",
     "b893ab56-44a6-4b3c-bb3e-6deec298cbce",
@@ -763,7 +830,7 @@ pub(in crate::card::sets) static DRYAD_ARBOR: CardRecord = CardRecord::new(
 );
 
 // FUT 176 — Grove of the Burnwillows
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Mana-ability resolution has no opponent-life-gain rider; a separate trigger would incorrectly use the stack and gain life too late.
 pub(in crate::card::sets) static GROVE_OF_THE_BURNWILLOWS_176: CardRecord = CardRecord::new(
     "Grove of the Burnwillows",
     "e0b4d4b1-6e25-4c4b-a21a-1b7b1c1d6452",
@@ -786,7 +853,7 @@ pub(in crate::card::sets) static HORIZON_CANOPY: CardRecord = CardRecord::new(
 );
 
 // FUT 179 — River of Tears
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Mana production cannot conditionally switch its color based on a land-play history value; the amount override changes only quantity.
 pub(in crate::card::sets) static RIVER_OF_TEARS_179: CardRecord = CardRecord::new(
     "River of Tears",
     "8d5b2058-99fc-4d9b-9e3d-056fa3fd1244",

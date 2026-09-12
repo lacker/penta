@@ -1,5 +1,15 @@
 //! SOI card records required by supported formats.
 
+use crate::TargetIndex;
+use crate::card::AddManaEffectDef;
+use crate::card::AppliedEffectDef;
+use crate::card::ComparisonDef;
+use crate::card::MoveObjectsDef;
+use crate::card::ObjectSetDef;
+use crate::card::QuantifierDef;
+use crate::card::TriggerConditionDef;
+use crate::card::TurnStepDef;
+use crate::card::ZonePlacement;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::card::AbilityDef;
@@ -43,7 +53,7 @@ const CLUE_TOKEN: TokenCharacteristics = tokens::clue().with_art(CardArt::new(
 ));
 
 // SOI 31 — Odric, Lunarch Marshal
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The engine has no skulk keyword identity or keyword predicate. A similar block restriction would not let Odric detect and grant skulk as required.
 pub(in crate::card::sets) static ODRIC_LUNARCH_MARSHAL_31: CardRecord = CardRecord::new(
     "Odric, Lunarch Marshal",
     "5c77c30f-d813-46e6-9cdd-938b4a6359ad",
@@ -68,16 +78,17 @@ pub(in crate::card::sets) static THRABEN_INSPECTOR: CardRecord = CardRecord::new
 );
 
 // SOI 61 — Essence Flux
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ESSENCE_FLUX_61: CardRecord = CardRecord::new(
     "Essence Flux",
     "639bdbb5-8c2d-439d-bcea-dc54da9686ea",
     "Seb McKinnon",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{U}")).with_abilities(&[
+AbilityDef::spell_with_targets("Exile target creature you control, then return that card to the battlefield under its owner's control. If it's a Spirit, put a +1/+1 counter on it.", &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object { object: ObjectPredicateDef::HasType(CardType::Creature), zones: &[ZoneKind::Battlefield], controller: Some(PlayerRelation::You), owner: None })], EffectDef::ExileLinkedToSource { until_source_leaves: false, object: EffectRecipientDef::Target(TargetIndex::PRIMARY), face_down: false, then: Some(&EffectDef::MoveObjects(MoveObjectsDef { input: ObjectSetDef::LinkedExiles, from: Some(ZoneKind::Exile), zone: ZoneKind::Battlefield, placement: ZonePlacement::Top, moved: Some(Binding!("flux_returned")), then: &EffectDef::ForEachInBinding { objects: Binding!("flux_returned"), binding: Binding!("flux_spirit"), effect: &EffectDef::IfCondition { condition: &TriggerConditionDef::BoundObjectMatches { binding: Binding!("flux_spirit"), object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Spirit")) }, then: &EffectDef::AddCounters { object: EffectRecipientDef::objects(ObjectSetDef::One(ObjectRefDef::Binding(Binding!("flux_spirit")))), kind: CounterKind::PlusOnePlusOne, amount: ValueDef::Constant(1) } } } })) })
+]),
 );
 
 // SOI 98 — Alms of the Vein
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Madness requires a discard-to-exile replacement and a linked triggered cast-or-graveyard procedure; no current alternative-cast procedure implements it.
 pub(in crate::card::sets) static ALMS_OF_THE_VEIN_98: CardRecord = CardRecord::new(
     "Alms of the Vein",
     "79b80948-a3cd-4962-8fce-d58f2db7e68e",
@@ -86,7 +97,7 @@ pub(in crate::card::sets) static ALMS_OF_THE_VEIN_98: CardRecord = CardRecord::n
 );
 
 // SOI 102 — Biting Rain
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Madness requires a discard-to-exile replacement and a linked triggered cast-or-graveyard procedure; no current alternative-cast procedure implements it.
 pub(in crate::card::sets) static BITING_RAIN_102: CardRecord = CardRecord::new(
     "Biting Rain",
     "5ac62d2f-6834-4d98-b69d-bd7b5831d981",
@@ -125,7 +136,7 @@ pub(in crate::card::sets) static CROW_OF_DARK_TIDINGS: CardRecord = CardRecord::
 );
 
 // SOI 111 — From Under the Floorboards
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Madness requires a discard-to-exile replacement and a linked triggered cast-or-graveyard procedure; no current alternative-cast procedure implements it.
 pub(in crate::card::sets) static FROM_UNDER_THE_FLOORBOARDS_111: CardRecord = CardRecord::new(
     "From Under the Floorboards",
     "3e644706-223d-4e56-9614-b224e281be2f",
@@ -134,7 +145,7 @@ pub(in crate::card::sets) static FROM_UNDER_THE_FLOORBOARDS_111: CardRecord = Ca
 );
 
 // SOI 114 — Gisa's Bidding
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Madness requires a discard-to-exile replacement and a linked triggered cast-or-graveyard procedure; no current alternative-cast procedure implements it.
 pub(in crate::card::sets) static GISA_S_BIDDING_114: CardRecord = CardRecord::new(
     "Gisa's Bidding",
     "e01e904c-7d8e-447b-90cb-1f4ae3fb304d",
@@ -143,7 +154,7 @@ pub(in crate::card::sets) static GISA_S_BIDDING_114: CardRecord = CardRecord::ne
 );
 
 // SOI 126 — Murderous Compulsion
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Madness requires a discard-to-exile replacement and a linked triggered cast-or-graveyard procedure; no current alternative-cast procedure implements it.
 pub(in crate::card::sets) static MURDEROUS_COMPULSION_126: CardRecord = CardRecord::new(
     "Murderous Compulsion",
     "33b94db1-ac8c-4667-81d5-408df0f30879",
@@ -152,7 +163,7 @@ pub(in crate::card::sets) static MURDEROUS_COMPULSION_126: CardRecord = CardReco
 );
 
 // SOI 145 — Avacyn's Judgment
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Madness requires a discard-to-exile replacement and a linked triggered cast-or-graveyard procedure; no current alternative-cast procedure implements it.
 pub(in crate::card::sets) static AVACYN_S_JUDGMENT_145: CardRecord = CardRecord::new(
     "Avacyn's Judgment",
     "0c5f44ce-1464-4282-9afa-20e9ea44c613",
@@ -161,7 +172,7 @@ pub(in crate::card::sets) static AVACYN_S_JUDGMENT_145: CardRecord = CardRecord:
 );
 
 // SOI 173 — Malevolent Whispers
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Madness requires a discard-to-exile replacement and a linked triggered cast-or-graveyard procedure; no current alternative-cast procedure implements it.
 pub(in crate::card::sets) static MALEVOLENT_WHISPERS_173: CardRecord = CardRecord::new(
     "Malevolent Whispers",
     "674d33d6-dfd4-4972-aaa3-6de0236a8c45",
@@ -170,35 +181,51 @@ pub(in crate::card::sets) static MALEVOLENT_WHISPERS_173: CardRecord = CardRecor
 );
 
 // SOI 189 — Vessel of Volatility
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VESSEL_OF_VOLATILITY_189: CardRecord = CardRecord::new(
     "Vessel of Volatility",
     "81647b86-2c84-4a14-8d5a-919f7a5b8bc7",
     "Kieran Yanner",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{R}")).with_abilities(&[AbilityDef::activated_mana(
+        "{1}{R}, Sacrifice this enchantment: Add {R}{R}{R}{R}.",
+        &[
+            CostDef::Mana(mana_cost!("{1}{R}")),
+            CostDef::SacrificeSource,
+        ],
+        EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Red).with_amount(4)),
+    )]),
 );
 
 // SOI 200 — Cryptolith Rite
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CRYPTOLITH_RITE_200: CardRecord = CardRecord::new(
     "Cryptolith Rite",
     "2910adcd-882a-46af-8236-ca1a9e2c19ab",
     "Zack Stella",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{G}")).with_abilities(&[AbilityDef::static_ability(
+        "Creatures you control have \"{T}: Add one mana of any color.\"",
+        EffectDef::StaticApply {
+            recipient: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
+            ),
+            effect: AppliedEffectDef::add_ability(&abilities::tap_for_mana(
+                "{T}: Add one mana of any color.",
+                AddManaEffectDef::any_color(),
+            )),
+        },
+    )]),
 );
 
 // SOI 203 — Duskwatch Recruiter // Krallenhorde Howler
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DUSKWATCH_RECRUITER_KRALLENHORDE_HOWLER_203: CardRecord =
-    CardRecord::new(
-        "Duskwatch Recruiter // Krallenhorde Howler",
-        "e1915d93-c7dd-4bb7-bd5c-63a359a02b97",
-        "Craig J Spearing",
-        crate::card::CardRules::unsupported(),
-    );
+    CardRecord::new_dfc(
+    "Duskwatch Recruiter // Krallenhorde Howler",
+    "e1915d93-c7dd-4bb7-bd5c-63a359a02b97",
+    "Craig J Spearing",
+    &[("Duskwatch Recruiter", CardRules::new_creature(mana_cost!("{1}{G}"), &["Human", "Warrior", "Werewolf"], 2, 2).with_abilities(&[AbilityDef::activated("{2}{G}: Look at the top three cards of your library. You may reveal a creature card from among them and put it into your hand. Put the rest on the bottom of your library in any order.", &[CostDef::Mana(mana_cost!("{2}{G}"))], abilities::look_at_top_cards_reveal_choice_to_hand_rest_bottom(ValueDef::Constant(3), ObjectPredicateDef::HasType(CardType::Creature), 0, 1)), AbilityDef::triggered_if("At the beginning of each upkeep, if no spells were cast last turn, transform this creature.", TriggerEventDef::StepBegins { step: TurnStepDef::Upkeep, player: PlayerRelation::Any }, &TriggerConditionDef::SpellsCastLastTurn { quantifier: QuantifierDef::Every, player: PlayerRelation::Any, comparison: ComparisonDef::Equal, amount: 0 }, EffectDef::Transform { object: EffectRecipientDef::Source })])), ("Krallenhorde Howler", CardRules::new_creature_without_mana_cost(&["Werewolf"], 3, 3).printed_colors(&[ManaColor::Green]).with_abilities(&[abilities::spell_cost_reduction("Creature spells you cast cost {1} less to cast.", ObjectPredicateDef::HasType(CardType::Creature), PlayerRelation::You, ValueDef::Constant(1)), AbilityDef::triggered_if("At the beginning of each upkeep, if a player cast two or more spells last turn, transform this creature.", TriggerEventDef::StepBegins { step: TurnStepDef::Upkeep, player: PlayerRelation::Any }, &TriggerConditionDef::SpellsCastLastTurn { quantifier: QuantifierDef::Any, player: PlayerRelation::Any, comparison: ComparisonDef::GreaterOrEqual, amount: 2 }, EffectDef::Transform { object: EffectRecipientDef::Source })]))]);
 
 // SOI 216 — Loam Dryad
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Mana-ability eligibility rejects the additional TapPermanents cost; the other creature cannot be reserved and tapped during immediate mana production.
 pub(in crate::card::sets) static LOAM_DRYAD_216: CardRecord = CardRecord::new(
     "Loam Dryad",
     "61c9441d-18d9-4ec6-859e-e9a7893b54e3",
@@ -294,7 +321,7 @@ pub(in crate::card::sets) static MAGNIFYING_GLASS: CardRecord = CardRecord::new(
 );
 
 // SOI 274 — Fortified Village
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Entry payments cannot reveal a selected card from hand. RevealCardFromHand is implemented for activated-ability costs, but not the replacement payment needed to enter untapped.
 pub(in crate::card::sets) static FORTIFIED_VILLAGE_274: CardRecord = CardRecord::new(
     "Fortified Village",
     "1feb9dc1-671d-43ad-ae22-ed1a9916b140",

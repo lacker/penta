@@ -1,5 +1,6 @@
 //! The Lost Caverns of Ixalan card inventory.
 
+use crate::card::CopyAbilityDef;
 use crate::card::ExilePlayDurationDef;
 use super::CardRecord;
 use super::PrintingRecord;

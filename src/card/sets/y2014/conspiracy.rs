@@ -1,5 +1,9 @@
 //! Conspiracy cards cataloged for the Vintage Cube pool.
 
+use crate::card::AddManaEffectDef;
+use crate::card::CounterKind;
+use crate::card::ManaColor;
+use crate::card::TriggerConditionDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
@@ -61,12 +65,14 @@ pub(in crate::card::sets) static CUSTODI_SQUIRE: CardRecord = CardRecord::new(
 );
 
 // CNS 36 — Treasonous Ogre
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TREASONOUS_OGRE_36: CardRecord = CardRecord::new(
     "Treasonous Ogre",
     "ae48c31d-6fd9-457f-adb8-37f367724ba1",
     "Randy Gallegos",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{R}"), &["Ogre", "Shaman"], 2, 3).with_abilities(&[
+AbilityDef::triggered("Dethrone (Whenever this creature attacks the player with the most life or tied for most life, put a +1/+1 counter on it.)", TriggerEventDef::While { event: &TriggerEventDef::attacks_a_player(ObjectPredicateDef::Source), condition: &TriggerConditionDef::PlayerHasMostLife(PlayerRelation::Opponent) }, EffectDef::AddCounters { object: EffectRecipientDef::Source, kind: CounterKind::PlusOnePlusOne, amount: ValueDef::Constant(1) }),
+AbilityDef::activated_mana("Pay 3 life: Add {R}.", &[CostDef::PayLife(3)], EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Red)))
+]),
 );
 
 // CNS 42 — Dack Fayden
@@ -138,7 +144,7 @@ pub(in crate::card::sets) static DACK_FAYDEN: CardRecord = CardRecord::new(
 );
 
 // CNS 51 — Selvala, Explorer Returned
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The activated-mana runtime requires a plannable AddMana effect. It cannot reveal both libraries, compute production from those hidden cards, gain life, and draw cards within the same immediate mana resolution.
 pub(in crate::card::sets) static SELVALA_EXPLORER_RETURNED_51: CardRecord = CardRecord::new(
     "Selvala, Explorer Returned",
     "89d4786c-e022-4ae5-9ef3-75886db51f49",

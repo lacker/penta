@@ -514,7 +514,8 @@ fn static_object_characteristic_supported(
         CharacteristicOperationDef::CardTypes(SetOperationDef::Add(types)) => {
             types != crate::card::CardTypeSet::EMPTY
                 && (static_direct_characteristic_recipient(recipient)
-                    || types == crate::card::CardTypeSet::single(CardType::Creature)
+                    || (types == crate::card::CardTypeSet::single(CardType::Creature)
+                        || types == crate::card::CardTypeSet::single(CardType::Land))
                         && static_type_animation_query_supported(recipient))
         }
         CharacteristicOperationDef::Color(_)
@@ -535,7 +536,7 @@ fn static_object_characteristic_supported(
         }
         CharacteristicOperationDef::CardTypes(
             SetOperationDef::Remove(_) | SetOperationDef::Set(_),
-        ) => false,
+        ) => static_direct_characteristic_recipient(recipient),
     }
 }
 

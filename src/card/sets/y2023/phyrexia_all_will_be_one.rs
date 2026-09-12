@@ -1,5 +1,16 @@
 //! Phyrexia: All Will Be One cards cataloged for the Vintage Cube pool.
 
+use crate::card::ActivationTimingDef;
+use crate::card::AddManaEffectDef;
+use crate::card::AppliedRuleDef;
+use crate::card::CardTypeSet;
+use crate::card::CharacteristicOperationDef;
+use crate::card::ColorSet;
+use crate::card::CopyExceptionsDef;
+use crate::card::DiscardSelectionDef;
+use crate::card::ObjectQueryDef;
+use crate::card::SetOperationDef;
+use crate::card::TapEventMatcherDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::Binding;
@@ -80,7 +91,7 @@ pub(in crate::card::sets) static PLANAR_DISRUPTION: CardRecord = CardRecord::new
 );
 
 // ONE 47 — Encroaching Mycosynth
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — External static type changes are evaluated for battlefield permanents. Nonbattlefield card and spell types read intrinsic self-characteristic clauses, but do not visit external CardTypes effects, so its permanent-card and permanent-spell clauses would be omitted.
 pub(in crate::card::sets) static ENCROACHING_MYCOSYNTH_47: CardRecord = CardRecord::new(
     "Encroaching Mycosynth",
     "65a2fcc9-2317-48a1-a5eb-234fb3300364",
@@ -89,21 +100,34 @@ pub(in crate::card::sets) static ENCROACHING_MYCOSYNTH_47: CardRecord = CardReco
 );
 
 // ONE 64 — Minor Misstep
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MINOR_MISSTEP_64: CardRecord = CardRecord::new(
     "Minor Misstep",
     "360ca37b-5bbd-4923-a493-7674786a36af",
     "Lorenzo Mastroianni",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{U}")).with_ability(AbilityDef::counter_target(
+        "Counter target spell with mana value 1 or less.",
+        &AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+            object: ObjectPredicateDef::All(&[
+                ObjectPredicateDef::Spell,
+                ObjectPredicateDef::ManaValueAtMost(1),
+            ]),
+            zones: &[ZoneKind::Stack],
+            controller: None,
+            owner: None,
+        }),
+    )),
 );
 
 // ONE 75 — Unctus, Grand Metatect
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static UNCTUS_GRAND_METATECT_75: CardRecord = CardRecord::new(
     "Unctus, Grand Metatect",
     "164b07e6-48ba-4789-bd8f-7cada1fec8a9",
     "Andrew Mar",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{1}{U}{U}"), &["Phyrexian", "Vedalken"], 2, 4).with_supertype(CardSupertype::Legendary).with_abilities(&[
+AbilityDef::static_ability("Other blue creatures you control have \"Whenever this creature becomes tapped, draw a card, then discard a card.\"", EffectDef::StaticApply { recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::Color(ManaColor::Blue), ObjectPredicateDef::Not(&ObjectPredicateDef::Source)]), &[ZoneKind::Battlefield], PlayerRelation::You), effect: AppliedEffectDef::add_ability(&AbilityDef::triggered("Whenever this creature becomes tapped, draw a card, then discard a card.", TriggerEventDef::Tapped(TapEventMatcherDef::any(ObjectPredicateDef::Source)), EffectDef::Sequence(&[abilities::draw_cards(ValueDef::Constant(1)), EffectDef::Discard { recipient: EffectRecipientDef::Controller, amount: ValueDef::Constant(1), selection: DiscardSelectionDef::RecipientChooses, then: None }]))) }),
+AbilityDef::static_ability("Other artifact creatures you control get +1/+1.", EffectDef::StaticApply { recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::HasType(CardType::Artifact), ObjectPredicateDef::Not(&ObjectPredicateDef::Source)]), &[ZoneKind::Battlefield], PlayerRelation::You), effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(1)) }),
+AbilityDef::activated_with_targets("{U/P}: Until end of turn, target creature you control becomes a blue artifact in addition to its other colors and types. Activate only as a sorcery. ({U/P} can be paid with either {U} or 2 life.)", &[CostDef::Mana(mana_cost!("{U/P}"))], &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object { object: ObjectPredicateDef::HasType(CardType::Creature), zones: &[ZoneKind::Battlefield], controller: Some(PlayerRelation::You), owner: None })], EffectDef::Apply { recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY), effect: AppliedEffectDef::Composite(&[AppliedEffectDef::add_colors(ColorSet::from_colors(&[ManaColor::Blue])), AppliedEffectDef::Characteristic(CharacteristicOperationDef::CardTypes(SetOperationDef::Add(CardTypeSet::single(CardType::Artifact))))]), duration: ResolvedEffectDurationDef::UntilEndOfTurn }).with_activation_timing(ActivationTimingDef::SorcerySpeed)
+]),
 );
 
 // ONE 80 — Annihilating Glare
@@ -365,16 +389,44 @@ pub(in crate::card::sets) static CONTAGIOUS_VORRAC: CardRecord = CardRecord::new
 );
 
 // ONE 172 — Infectious Bite
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static INFECTIOUS_BITE_172: CardRecord = CardRecord::new(
     "Infectious Bite",
     "83dfb2a5-cd5c-46c6-9bb8-7c5d00f3e003",
     "Campbell White",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{G}")).with_ability(AbilityDef::spell_with_targets(
+        "Target creature you control deals damage equal to its power to target creature you don't control. Each opponent gets a poison counter.",
+        &[
+            AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                zones: &[ZoneKind::Battlefield],
+                controller: Some(PlayerRelation::You),
+                owner: None,
+            }),
+            AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                zones: &[ZoneKind::Battlefield],
+                controller: Some(PlayerRelation::NotYou),
+                owner: None,
+            }),
+        ],
+        EffectDef::Sequence(&[
+            EffectDef::damage_from(
+                crate::card::ObjectRefDef::Target(TargetIndex::PRIMARY),
+                EffectRecipientDef::Target(TargetIndex(1)),
+                ValueDef::TargetPower(TargetIndex::PRIMARY),
+            ),
+            EffectDef::AddPlayerCounters {
+                recipient: EffectRecipientDef::Opponent,
+                kind: CounterKind::Poison,
+                amount: ValueDef::Constant(1),
+            },
+        ]),
+    )),
 );
 
 // ONE 189 — Tyrranax Rex
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the toxic keyword: combat damage to a player must also give its
+// fixed poison-counter amount without replacing the combat damage as infect does.
 pub(in crate::card::sets) static TYRRANAX_REX_189: CardRecord = CardRecord::new(
     "Tyrranax Rex",
     "0fb52b44-da5f-4f7a-a6c2-7924b855e051",
@@ -513,7 +565,8 @@ pub(in crate::card::sets) static OVIKA_ENIGMA_GOLIATH: CardRecord = CardRecord::
 );
 
 // ONE 218 — Tyvar, Jubilant Brawler
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the static permission to activate creature abilities as though their
+// sources had haste. The existing haste keyword does not alter another creature's activation rule.
 pub(in crate::card::sets) static TYVAR_JUBILANT_BRAWLER_218: CardRecord = CardRecord::new(
     "Tyvar, Jubilant Brawler",
     "66605fe1-9a20-4c95-b53e-1249cedb978b",
@@ -522,16 +575,44 @@ pub(in crate::card::sets) static TYVAR_JUBILANT_BRAWLER_218: CardRecord = CardRe
 );
 
 // ONE 243 — Surgical Skullbomb
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SURGICAL_SKULLBOMB_243: CardRecord = CardRecord::new(
     "Surgical Skullbomb",
     "98c2b2af-739f-413c-8c36-da6f78df0acb",
     "Gaboleps",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
+        AbilityDef::activated(
+            "{1}, Sacrifice this artifact: Draw a card.",
+            &[CostDef::Mana(mana_cost!("{1}")), CostDef::SacrificeSource],
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        AbilityDef::activated_with_targets(
+            "{2}{U}, Sacrifice this artifact: Return target creature to its owner's hand. Draw a card. Activate only as a sorcery.",
+            &[CostDef::Mana(mana_cost!("{2}{U}")), CostDef::SacrificeSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
+                EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+            ]),
+        )
+        .with_activation_timing(crate::card::ActivationTimingDef::SorcerySpeed),
+    ]),
 );
 
 // ONE 246 — Zenith Chronicler
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a cast trigger filtered to each player's first multicolored spell of
+// the turn; existing spell-cast predicates do not retain that per-player qualified ordinal.
 pub(in crate::card::sets) static ZENITH_CHRONICLER_246: CardRecord = CardRecord::new(
     "Zenith Chronicler",
     "1431fe83-7dc7-4c40-8d66-6525560e4323",
@@ -540,34 +621,106 @@ pub(in crate::card::sets) static ZENITH_CHRONICLER_246: CardRecord = CardRecord:
 );
 
 // ONE 346 — Mondrak, Glory Dominus
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MONDRAK_GLORY_DOMINUS_346: CardRecord = CardRecord::new(
     "Mondrak, Glory Dominus",
     "1ef1b6a8-0151-4e41-a909-3d519dc19f14",
     "rishxxv",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{W}{W}"), &["Phyrexian", "Horror"], 4, 4)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "If one or more tokens would be created under your control, twice that many of those tokens are created instead.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Controller,
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::DoublesTokensCreated),
+                },
+            ),
+            AbilityDef::activated(
+                "{1}{W/P}{W/P}, Sacrifice two other artifacts and/or creatures: Put an indestructible counter on this creature.",
+                &[
+                    CostDef::Mana(mana_cost!("{1}{W/P}{W/P}")),
+                    CostDef::SacrificePermanents {
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::AnyOf(&[
+                                ObjectPredicateDef::HasType(CardType::Artifact),
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                            ]),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                        controller: PlayerRelation::You,
+                        count: 2,
+                    },
+                ],
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::Source,
+                    kind: CounterKind::Indestructible,
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+        ]),
 );
 
 // ONE 358 — Staff of Compleation
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STAFF_OF_COMPLEATION_358: CardRecord = CardRecord::new(
     "Staff of Compleation",
     "315490d2-4d1f-4065-9d18-4682f1d7d066",
     "Joshua Alvarado",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
+        AbilityDef::activated_with_targets(
+            "{T}, Pay 1 life: Destroy target permanent you own.",
+            &[CostDef::TapSource, CostDef::PayLife(1)],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Any,
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: Some(PlayerRelation::You),
+                },
+            )],
+            EffectDef::destroy_target(TargetIndex::PRIMARY),
+        ),
+        AbilityDef::activated_mana(
+            "{T}, Pay 2 life: Add one mana of any color.",
+            &[CostDef::TapSource, CostDef::PayLife(2)],
+            EffectDef::AddMana(AddManaEffectDef::any_color()),
+        ),
+        AbilityDef::activated(
+            "{T}, Pay 3 life: Proliferate.",
+            &[CostDef::TapSource, CostDef::PayLife(3)],
+            EffectDef::Proliferate,
+        ),
+        AbilityDef::activated(
+            "{T}, Pay 4 life: Draw a card.",
+            &[CostDef::TapSource, CostDef::PayLife(4)],
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        AbilityDef::activated(
+            "{5}: Untap this artifact.",
+            &[CostDef::Mana(mana_cost!("{5}"))],
+            EffectDef::Untap {
+                object: EffectRecipientDef::Source,
+            },
+        ),
+    ]),
 );
 
 // ONE 388 — Vindictive Flamestoker
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VINDICTIVE_FLAMESTOKER_388: CardRecord = CardRecord::new(
     "Vindictive Flamestoker",
     "6c266012-6374-4870-917a-532fadf917ad",
     "Xavier Ribeiro",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{R}"), &["Phyrexian", "Wizard"], 1, 2).with_abilities(&[
+AbilityDef::triggered("Whenever you cast a noncreature spell, put an oil counter on this creature.", TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[ObjectPredicateDef::NoncreatureSpell, ObjectPredicateDef::ControlledBy(PlayerRelation::You)])), EffectDef::AddCounters { object: EffectRecipientDef::Source, kind: CounterKind::named("oil"), amount: ValueDef::Constant(1) }),
+AbilityDef::activated("{6}{R}, Sacrifice this creature: Discard your hand, then draw four cards. This ability costs {1} less to activate for each oil counter on this creature.", &[CostDef::Mana(mana_cost!("{6}{R}")), CostDef::SacrificeSource], EffectDef::Sequence(&[EffectDef::Discard { recipient: EffectRecipientDef::Controller, amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(ObjectPredicateDef::Any, &[ZoneKind::Hand], PlayerRelation::You)), selection: DiscardSelectionDef::RecipientChooses, then: None }, abilities::draw_cards(ValueDef::Constant(4))])).with_activation_cost_reduction(ValueDef::CountersOnSource(CounterKind::named("oil")), 0)
+]),
 );
 
 // ONE 397 — Soulless Jailer
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs global zone-change prevention for permanent cards in graveyards and
+// a cast restriction limited to noncreature spells cast from graveyard or exile.
 pub(in crate::card::sets) static SOULLESS_JAILER_397: CardRecord = CardRecord::new(
     "Soulless Jailer",
     "45354872-4426-445e-8ef0-2df65afdbc53",
@@ -576,7 +729,8 @@ pub(in crate::card::sets) static SOULLESS_JAILER_397: CardRecord = CardRecord::n
 );
 
 // ONE 400 — Mirrex
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the toxic keyword on its created Mite token; token creation can
+// declare the body and can't-block text, but not toxic's combat-damage poison rider.
 pub(in crate::card::sets) static MIRREX_400: CardRecord = CardRecord::new(
     "Mirrex",
     "2b7a760f-c9fb-454c-bedd-46a675daf02e",
@@ -585,16 +739,43 @@ pub(in crate::card::sets) static MIRREX_400: CardRecord = CardRecord::new(
 );
 
 // ONE 402 — The Mycosynth Gardens
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static THE_MYCOSYNTH_GARDENS_402: CardRecord = CardRecord::new(
     "The Mycosynth Gardens",
     "4afcac49-ac80-4561-ba2c-ce9487e9d8fe",
     "Andrew Mar",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&["Sphere"]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated_mana(
+            "{1}, {T}: Add one mana of any color.",
+            &[CostDef::Mana(mana_cost!("{1}")), CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::any_color()),
+        ),
+        AbilityDef::activated_with_targets(
+            "{X}, {T}: This land becomes a copy of target nontoken artifact you control with mana value X.",
+            &[CostDef::Mana(mana_cost!("{X}")), CostDef::TapSource],
+            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
+                    ObjectPredicateDef::ManaValueEqualTo(ValueDef::ChosenX),
+                ]),
+                zones: &[ZoneKind::Battlefield],
+                controller: Some(PlayerRelation::You),
+                owner: None,
+            })],
+            EffectDef::BecomeCopyOf {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                copier: None,
+                exceptions: CopyExceptionsDef::NONE,
+                duration: None,
+            },
+        ),
+    ]),
 );
 
 // ONE 416 — Elesh Norn, Mother of Machines
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a trigger replacement that suppresses opponents' permanent triggers
+// caused by entrants, alongside the existing controller-side additional-trigger rule.
 pub(in crate::card::sets) static ELESH_NORN_MOTHER_OF_MACHINES_416: CardRecord = CardRecord::new(
     "Elesh Norn, Mother of Machines",
     "649be99a-fa52-469e-85df-11ecc576ea39",
@@ -603,7 +784,8 @@ pub(in crate::card::sets) static ELESH_NORN_MOTHER_OF_MACHINES_416: CardRecord =
 );
 
 // ONE 427 — Skrelv, Defector Mite
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the toxic keyword for the printed and granted toxic 1; the color
+// choice and color-scoped combat evasion cannot make the card complete without that rider.
 pub(in crate::card::sets) static SKRELV_DEFECTOR_MITE_427: CardRecord = CardRecord::new(
     "Skrelv, Defector Mite",
     "2e55ca48-0fe0-44bd-9453-02cda0b7f5da",
@@ -612,7 +794,8 @@ pub(in crate::card::sets) static SKRELV_DEFECTOR_MITE_427: CardRecord = CardReco
 );
 
 // ONE 479 — Myr Convert
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the toxic keyword, whose combat-damage poison rider differs from
+// the engine's supported infect replacement.
 pub(in crate::card::sets) static MYR_CONVERT_479: CardRecord = CardRecord::new(
     "Myr Convert",
     "19c7d89a-2b02-4faa-83cf-7dcf7faf6c4a",

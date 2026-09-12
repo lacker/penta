@@ -1,5 +1,16 @@
 //! Ravnica: City of Guilds cards cataloged for the Vintage Cube pool.
 
+use crate::card::BindObjectsDef;
+use crate::card::ChoiceVisibilityDef;
+use crate::card::ChooseDef;
+use crate::card::ChooseObjectOrderDef;
+use crate::card::CopyExceptionsDef;
+use crate::card::LookAtObjectsDef;
+use crate::card::ObjectChoiceBindingDef;
+use crate::card::ObjectCollectionSourceDef;
+use crate::card::ObjectQueryDef;
+use crate::card::ObjectRefDef;
+use crate::card::ReplacementEffectDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::BasicLandType;
@@ -112,39 +123,51 @@ CardRules::new_creature(mana_cost!("{4}{U}"), &["Sphinx"], 2, 5).with_abilities(
 );
 
 // RAV 42 — Copy Enchantment
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static COPY_ENCHANTMENT_42: CardRecord = CardRecord::new(
     "Copy Enchantment",
     "ac22117d-bd58-439f-b199-da72bc7160b2",
     "Joel Thomas",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{2}{U}")).with_abilities(&[AbilityDef::replacement(
+        "You may have this enchantment enter as a copy of any enchantment on the battlefield.",
+        ReplacementEffectDef::CopyEntering {
+            object: ObjectPredicateDef::HasType(CardType::Enchantment),
+            exceptions: CopyExceptionsDef::NONE,
+        },
+    )]),
 );
 
 // RAV 43 — Dizzy Spell
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DIZZY_SPELL_43: CardRecord = CardRecord::new(
     "Dizzy Spell",
     "6e0db10d-fb6d-44df-9ff2-6f1e0e8f8209",
     "Christopher Moeller",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{U}")).with_abilities(&[
+AbilityDef::spell_with_targets("Target creature gets -3/-0 until end of turn.", &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Creature))], EffectDef::Apply { recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY), effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(-3), ValueDef::Constant(0)), duration: ResolvedEffectDurationDef::UntilEndOfTurn }),
+AbilityDef::activated("Transmute {1}{U}{U} ({1}{U}{U}, Discard this card: Search your library for a card with the same mana value as this card, reveal it, put it into your hand, then shuffle. Transmute only as a sorcery.)", &[CostDef::Mana(mana_cost!("{1}{U}{U}")), CostDef::DiscardSource], EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Library, object: ObjectPredicateDef::ManaValueEqualTo(ValueDef::ObjectManaValue(ObjectRefDef::Source)), minimum: 0, maximum: ValueDef::Constant(1), reveal: true, destination: ZoneKind::Hand, placement: ZonePlacement::Top, shuffle: true, enters_tapped: false, attachment: None, binding: None, then: None }).with_source_zones(&[ZoneKind::Hand]).with_activation_timing(ActivationTimingDef::SorcerySpeed)
+]),
 );
 
 // RAV 46 — Drift of Phantasms
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DRIFT_OF_PHANTASMS_46: CardRecord = CardRecord::new(
     "Drift of Phantasms",
     "c1096ce5-f776-4028-b231-e6eaee35014b",
     "Michael Phillippi",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Spirit"], 0, 5).with_abilities(&[
+abilities::defender(),
+abilities::flying(),
+AbilityDef::activated("Transmute {1}{U}{U} ({1}{U}{U}, Discard this card: Search your library for a card with the same mana value as this card, reveal it, put it into your hand, then shuffle. Transmute only as a sorcery.)", &[CostDef::Mana(mana_cost!("{1}{U}{U}")), CostDef::DiscardSource], EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Library, object: ObjectPredicateDef::ManaValueEqualTo(ValueDef::ObjectManaValue(ObjectRefDef::Source)), minimum: 0, maximum: ValueDef::Constant(1), reveal: true, destination: ZoneKind::Hand, placement: ZonePlacement::Top, shuffle: true, enters_tapped: false, attachment: None, binding: None, then: None }).with_source_zones(&[ZoneKind::Hand]).with_activation_timing(ActivationTimingDef::SorcerySpeed)
+]),
 );
 
 // RAV 60 — Muddle the Mixture
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MUDDLE_THE_MIXTURE_60: CardRecord = CardRecord::new(
     "Muddle the Mixture",
     "4cc785b0-0a77-4b02-b0b4-2bda2fc621cc",
     "Luca Zontini",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{U}{U}")).with_abilities(&[
+AbilityDef::counter_target("Counter target instant or sorcery spell.", &AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object { object: ObjectPredicateDef::All(&[ObjectPredicateDef::Spell, ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Instant), ObjectPredicateDef::HasType(CardType::Sorcery)])]), zones: &[ZoneKind::Stack], controller: None, owner: None })),
+AbilityDef::activated("Transmute {1}{U}{U} ({1}{U}{U}, Discard this card: Search your library for a card with the same mana value as this card, reveal it, put it into your hand, then shuffle. Transmute only as a sorcery.)", &[CostDef::Mana(mana_cost!("{1}{U}{U}")), CostDef::DiscardSource], EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Library, object: ObjectPredicateDef::ManaValueEqualTo(ValueDef::ObjectManaValue(ObjectRefDef::Source)), minimum: 0, maximum: ValueDef::Constant(1), reveal: true, destination: ZoneKind::Hand, placement: ZonePlacement::Top, shuffle: true, enters_tapped: false, attachment: None, binding: None, then: None }).with_source_zones(&[ZoneKind::Hand]).with_activation_timing(ActivationTimingDef::SorcerySpeed)
+]),
 );
 
 // RAV 61 — Peel from Reality
@@ -292,21 +315,26 @@ pub(in crate::card::sets) static DARK_CONFIDANT: CardRecord = CardRecord::new(
 );
 
 // RAV 83 — Dimir House Guard
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DIMIR_HOUSE_GUARD_83: CardRecord = CardRecord::new(
     "Dimir House Guard",
     "9a021caf-d9e7-470b-85be-3af42a3adfd3",
     "John Zeleznik",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{B}"), &["Skeleton"], 2, 3).with_abilities(&[
+abilities::fear(),
+abilities::regenerate_self("Sacrifice a creature: Regenerate this creature.", &[CostDef::sacrifice_permanent(ObjectPredicateDef::HasType(CardType::Creature))]),
+AbilityDef::activated("Transmute {1}{B}{B} ({1}{B}{B}, Discard this card: Search your library for a card with the same mana value as this card, reveal it, put it into your hand, then shuffle. Transmute only as a sorcery.)", &[CostDef::Mana(mana_cost!("{1}{B}{B}")), CostDef::DiscardSource], EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Library, object: ObjectPredicateDef::ManaValueEqualTo(ValueDef::ObjectManaValue(ObjectRefDef::Source)), minimum: 0, maximum: ValueDef::Constant(1), reveal: true, destination: ZoneKind::Hand, placement: ZonePlacement::Top, shuffle: true, enters_tapped: false, attachment: None, binding: None, then: None }).with_source_zones(&[ZoneKind::Hand]).with_activation_timing(ActivationTimingDef::SorcerySpeed)
+]),
 );
 
 // RAV 84 — Dimir Machinations
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DIMIR_MACHINATIONS_84: CardRecord = CardRecord::new(
     "Dimir Machinations",
     "14bfd72a-78c1-4167-89bf-ea1fccccd5b1",
     "Greg Staples",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{2}{B}")).with_abilities(&[
+AbilityDef::spell_with_targets("Look at the top three cards of target player's library. Exile any number of those cards, then put the rest back in any order.", &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(PlayerRelation::Any))], EffectDef::BindObjects(BindObjectsDef { source: ObjectCollectionSourceDef::TopCards { player: PlayerRefDef::Target(TargetIndex::PRIMARY), count: ValueDef::Constant(3) }, binding: Binding!("machinations_top"), then: &EffectDef::Sequence(&[EffectDef::LookAtObjects(LookAtObjectsDef { actor: PlayerRefDef::EffectController, source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(Binding!("machinations_top"))), visibility: ChoiceVisibilityDef::Private, then: &EffectDef::None }), EffectDef::Choose(ChooseDef { binding: ObjectChoiceBindingDef::Objects(Binding!("machinations_exile")), unchosen: Some(Binding!("machinations_keep")), chooser: PlayerRefDef::EffectController, candidates: ObjectSetDef::Binding(Binding!("machinations_top")), exclude: None, minimum: 0, maximum: 3, visibility: ChoiceVisibilityDef::Private, then: &EffectDef::Sequence(&[EffectDef::MoveObjects(MoveObjectsDef { input: ObjectSetDef::Binding(Binding!("machinations_exile")), from: Some(ZoneKind::Library), zone: ZoneKind::Exile, placement: ZonePlacement::Top, moved: None, then: &EffectDef::None }), EffectDef::ChooseObjectOrder(ChooseObjectOrderDef { actor: PlayerRefDef::EffectController, input: ObjectSetDef::Binding(Binding!("machinations_keep")), ordered: Binding!("machinations_order"), placement: ZonePlacement::Top, visibility: ChoiceVisibilityDef::Private, then: &EffectDef::MoveObjects(MoveObjectsDef { input: ObjectSetDef::Binding(Binding!("machinations_order")), from: Some(ZoneKind::Library), zone: ZoneKind::Library, placement: ZonePlacement::Top, moved: None, then: &EffectDef::None }) })]) })]) })),
+AbilityDef::activated("Transmute {1}{B}{B} ({1}{B}{B}, Discard this card: Search your library for a card with the same mana value as this card, reveal it, put it into your hand, then shuffle. Transmute only as a sorcery.)", &[CostDef::Mana(mana_cost!("{1}{B}{B}")), CostDef::DiscardSource], EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Library, object: ObjectPredicateDef::ManaValueEqualTo(ValueDef::ObjectManaValue(ObjectRefDef::Source)), minimum: 0, maximum: ValueDef::Constant(1), reveal: true, destination: ZoneKind::Hand, placement: ZonePlacement::Top, shuffle: true, enters_tapped: false, attachment: None, binding: None, then: None }).with_source_zones(&[ZoneKind::Hand]).with_activation_timing(ActivationTimingDef::SorcerySpeed)
+]),
 );
 
 // RAV 93 — Last Gasp
@@ -331,7 +359,7 @@ pub(in crate::card::sets) static LAST_GASP: CardRecord = CardRecord::new(
 );
 
 // RAV 116 — Breath of Fury
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Additional combat phases are not represented in the turn scheduler. TakeExtraTurn cannot create a combat immediately after the current phase or attach the Aura as the success condition for it.
 pub(in crate::card::sets) static BREATH_OF_FURY_116: CardRecord = CardRecord::new(
     "Breath of Fury",
     "dbef6f4a-f9a0-4a4c-b8a2-6c3a8fb7e14a",
@@ -414,12 +442,14 @@ CardRules::new_instant(mana_cost!("{1}{R}")).with_ability(
 );
 
 // RAV 156 — Chord of Calling
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CHORD_OF_CALLING_156: CardRecord = CardRecord::new(
     "Chord of Calling",
     "e064174b-8f07-4fea-9eef-c3b5d0220b1a",
     "Heather Hudson",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{X}{G}{G}{G}")).with_abilities(&[
+abilities::convoke(),
+AbilityDef::spell("Search your library for a creature card with mana value X or less, put it onto the battlefield, then shuffle.", EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Library, object: ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::ManaValueAtMostValue(ValueDef::ChosenX)]), minimum: 0, maximum: ValueDef::Constant(1), reveal: false, destination: ZoneKind::Battlefield, placement: ZonePlacement::Top, shuffle: true, enters_tapped: false, attachment: None, binding: None, then: None })
+]),
 );
 
 // RAV 158 — Doubling Season
@@ -462,30 +492,57 @@ CardRules::new_sorcery(mana_cost!("{1}{G}")).with_ability(AbilityDef::spell(
 );
 
 // RAV 184 — Stone-Seeder Hierophant
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STONE_SEEDER_HIEROPHANT_184: CardRecord = CardRecord::new(
     "Stone-Seeder Hierophant",
     "f4e1b9f9-e58c-4474-9a31-8e5d9f96492e",
     "William Simpson",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{G}{G}"), &["Human", "Druid"], 1, 1).with_abilities(&[
+        AbilityDef::triggered(
+            "Whenever a land you control enters, untap this creature.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            EffectDef::Untap {
+                object: EffectRecipientDef::Source,
+            },
+        ),
+        AbilityDef::activated_with_targets(
+            "{T}: Untap target land.",
+            &[CostDef::TapSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Land),
+            )],
+            EffectDef::Untap {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+        ),
+    ]),
 );
 
 // RAV 198 — Congregation at Dawn
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CONGREGATION_AT_DAWN_198: CardRecord = CardRecord::new(
     "Congregation at Dawn",
     "2f1b950a-b2fe-4afc-bb79-c9f4c272ea36",
     "Randy Gallegos",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{G}{G}{W}")).with_abilities(&[
+AbilityDef::spell("Search your library for up to three creature cards, reveal them, then shuffle and put those cards on top in any order.", EffectDef::Choose(ChooseDef { chooser: PlayerRefDef::EffectController, candidates: ObjectSetDef::Query(ObjectQueryDef::matching(ObjectPredicateDef::HasType(CardType::Creature), &[ZoneKind::Library], PlayerRelation::You)), exclude: None, minimum: 0, maximum: 3, binding: ObjectChoiceBindingDef::OrderedObjects(Binding!("dawn_found")), unchosen: None, visibility: ChoiceVisibilityDef::Private, then: &EffectDef::Sequence(&[EffectDef::RevealObjects(RevealObjectsDef { input: ObjectSetDef::Binding(Binding!("dawn_found")), then: &EffectDef::None }), EffectDef::ShuffleLibrary { player: EffectRecipientDef::Controller }, EffectDef::move_to_zone(EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!("dawn_found"))), ZoneKind::Library, ZonePlacement::Top)]) }))
+]),
 );
 
 // RAV 203 — Dimir Infiltrator
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DIMIR_INFILTRATOR_203: CardRecord = CardRecord::new(
     "Dimir Infiltrator",
     "3db9204c-dde8-4241-aac2-1f090566f604",
     "Jim Nelson",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{U}{B}"), &["Spirit"], 1, 3).with_abilities(&[
+abilities::cannot_be_blocked(),
+AbilityDef::activated("Transmute {1}{U}{B} ({1}{U}{B}, Discard this card: Search your library for a card with the same mana value as this card, reveal it, put it into your hand, then shuffle. Transmute only as a sorcery.)", &[CostDef::Mana(mana_cost!("{1}{U}{B}")), CostDef::DiscardSource], EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Library, object: ObjectPredicateDef::ManaValueEqualTo(ValueDef::ObjectManaValue(ObjectRefDef::Source)), minimum: 0, maximum: ValueDef::Constant(1), reveal: true, destination: ZoneKind::Hand, placement: ZonePlacement::Top, shuffle: true, enters_tapped: false, attachment: None, binding: None, then: None }).with_source_zones(&[ZoneKind::Hand]).with_activation_timing(ActivationTimingDef::SorcerySpeed)
+]),
 );
 
 // RAV 213 — Lightning Helix
@@ -580,16 +637,22 @@ pub(in crate::card::sets) static DIMIR_GUILDMAGE: CardRecord = CardRecord::new(
 );
 
 // RAV 255 — Boros Signet
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BOROS_SIGNET_255: CardRecord = CardRecord::new(
     "Boros Signet",
     "1bae1f86-4639-4424-b47b-fdc826bf6e97",
     "Greg Hildebrandt",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[AbilityDef::activated_mana(
+        "{1}, {T}: Add {R}{W}.",
+        &[CostDef::Mana(mana_cost!("{1}")), CostDef::TapSource],
+        EffectDef::AddMana(AddManaEffectDef::one_of_each(
+            ManaColor::Red,
+            ManaColor::White,
+        )),
+    )]),
 );
 
 // RAV 257 — Cloudstone Curio
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — There is no predicate comparing a candidate permanent's card types with the entering permanent's last-known type set. A fixed creature/land filter cannot represent shared permanent types.
 pub(in crate::card::sets) static CLOUDSTONE_CURIO_257: CardRecord = CardRecord::new(
     "Cloudstone Curio",
     "47cbda17-d368-4dc3-b41c-95b146468b44",
@@ -598,12 +661,18 @@ pub(in crate::card::sets) static CLOUDSTONE_CURIO_257: CardRecord = CardRecord::
 );
 
 // RAV 260 — Dimir Signet
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DIMIR_SIGNET_260: CardRecord = CardRecord::new(
     "Dimir Signet",
     "9a9a1df5-a4e8-49a4-aebe-ca93894ccfcf",
     "Greg Hildebrandt",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[AbilityDef::activated_mana(
+        "{1}, {T}: Add {U}{B}.",
+        &[CostDef::Mana(mana_cost!("{1}")), CostDef::TapSource],
+        EffectDef::AddMana(AddManaEffectDef::one_of_each(
+            ManaColor::Blue,
+            ManaColor::Black,
+        )),
+    )]),
 );
 
 // RAV 275 — Boros Garrison

@@ -1,5 +1,17 @@
 //! Theros Beyond Death cards cataloged for the Vintage Cube.
 
+use crate::card::AddManaEffectDef;
+use crate::card::BasicLandType;
+use crate::card::BindObjectsDef;
+use crate::card::CardTypeSet;
+use crate::card::CharacteristicOperationDef;
+use crate::card::ConditionDef;
+use crate::card::CreatureTypeSetDef;
+use crate::card::DrawEventMatcherDef;
+use crate::card::ObjectCollectionSourceDef;
+use crate::card::ObjectRefDef;
+use crate::card::PayOrDef;
+use crate::card::SetOperationDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::card::AbilityDef;
@@ -64,12 +76,16 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // THB 18 — Heliod, Sun-Crowned
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HELIOD_SUN_CROWNED_18: CardRecord = CardRecord::new(
     "Heliod, Sun-Crowned",
     "01a8576e-cadc-4521-aadd-3a05f0bc4d20",
     "Lius Lasahido",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment_creature(mana_cost!("{2}{W}"), &["God"], 5, 5).with_supertype(CardSupertype::Legendary).with_abilities(&[
+abilities::indestructible(),
+AbilityDef::static_ability("As long as your devotion to white is less than five, Heliod isn't a creature.", EffectDef::IfCondition { condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef { left: ValueDef::DevotionTo(ManaColor::White), comparison: ComparisonDef::Less, right: ValueDef::Constant(5) }), then: &EffectDef::StaticApply { recipient: EffectRecipientDef::Source, effect: AppliedEffectDef::Characteristic(CharacteristicOperationDef::CardTypes(SetOperationDef::Remove(CardTypeSet::single(CardType::Creature)))) } }),
+AbilityDef::triggered_with_targets("Whenever you gain life, put a +1/+1 counter on target creature or enchantment you control.", TriggerEventDef::LifeGained(PlayerRelation::You), &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object { object: ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::HasType(CardType::Enchantment)]), zones: &[ZoneKind::Battlefield], controller: Some(PlayerRelation::You), owner: None })], EffectDef::AddCounters { object: EffectRecipientDef::Target(TargetIndex::PRIMARY), kind: CounterKind::PlusOnePlusOne, amount: ValueDef::Constant(1) }),
+AbilityDef::activated_with_targets("{1}{W}: Another target creature gains lifelink until end of turn.", &[CostDef::Mana(mana_cost!("{1}{W}"))], &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::Not(&ObjectPredicateDef::Source)]))], EffectDef::Apply { recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY), effect: AppliedEffectDef::add_ability(&abilities::lifelink()), duration: ResolvedEffectDurationDef::UntilEndOfTurn })
+]),
 );
 
 // THB 20 — Heliod's Pilgrim (reprint)
@@ -80,12 +96,13 @@ const HELIOD_S_PILGRIM_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // THB 55 — Nadir Kraken
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NADIR_KRAKEN_55: CardRecord = CardRecord::new(
     "Nadir Kraken",
     "7817e039-e509-4b6f-b5a3-deb3769bbdc8",
     "Dan Murayama Scott",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{U}{U}"), &["Kraken"], 2, 3).with_abilities(&[
+AbilityDef::triggered("Whenever you draw a card, you may pay {1}. If you do, put a +1/+1 counter on this creature and create a 1/1 blue Tentacle creature token.", TriggerEventDef::DrewCard(DrawEventMatcherDef::any(PlayerRelation::You)), EffectDef::PayOr(PayOrDef::optional(&[CostDef::Mana(mana_cost!("{1}"))], &EffectDef::Sequence(&[EffectDef::AddCounters { object: EffectRecipientDef::Source, kind: CounterKind::PlusOnePlusOne, amount: ValueDef::Constant(1) }, EffectDef::create_creature_token(&["Tentacle"], &[ManaColor::Blue], 1, 1)]))))
+]),
 );
 
 // THB 73 — Thassa's Oracle
@@ -162,12 +179,14 @@ pub(in crate::card::sets) static THASSAS_ORACLE: CardRecord = CardRecord::new(
 );
 
 // THB 87 — Cling to Dust
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CLING_TO_DUST_87: CardRecord = CardRecord::new(
     "Cling to Dust",
     "52c2de5f-e486-4cfe-9fb6-be0078ce5f93",
     "Caio Monteiro",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{B}")).with_abilities(&[
+AbilityDef::spell_with_targets("Exile target card from a graveyard. If it was a creature card, you gain 3 life. Otherwise, you draw a card.", &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object { object: ObjectPredicateDef::Any, zones: &[ZoneKind::Graveyard], controller: None, owner: None })], EffectDef::BindObjects(BindObjectsDef { source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::LegalTargets(TargetIndex::PRIMARY)), binding: Binding!("dust_target"), then: &EffectDef::ForEachInBinding { objects: Binding!("dust_target"), binding: Binding!("dust_card"), effect: &EffectDef::IfElseCondition { condition: &TriggerConditionDef::BoundObjectMatches { binding: Binding!("dust_card"), object: ObjectPredicateDef::HasType(CardType::Creature) }, then: &EffectDef::Sequence(&[EffectDef::move_to_zone(EffectRecipientDef::object(ObjectRefDef::Binding(Binding!("dust_card"))), ZoneKind::Exile, ZonePlacement::Top), EffectDef::GainLife { recipient: EffectRecipientDef::Controller, amount: ValueDef::Constant(3) }]), otherwise: &EffectDef::Sequence(&[EffectDef::move_to_zone(EffectRecipientDef::object(ObjectRefDef::Binding(Binding!("dust_card"))), ZoneKind::Exile, ZonePlacement::Top), abilities::draw_cards(ValueDef::Constant(1))]) } } })),
+escape(&[CostDef::Mana(mana_cost!("{3}{B}")), CostDef::exile(ObjectPredicateDef::Any, ZoneKind::Graveyard, CostQuantityDef::Fixed(5))])
+]),
 );
 
 // THB 99 — Gray Merchant of Asphodel (reprint)
@@ -362,30 +381,42 @@ pub(in crate::card::sets) static UNDERWORLD_RAGE_HOUND: CardRecord = CardRecord:
 );
 
 // THB 168 — Destiny Spinner
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DESTINY_SPINNER_168: CardRecord = CardRecord::new(
     "Destiny Spinner",
     "ba264166-948b-47d4-b302-64476acc1a55",
     "Livia Prima",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment_creature(mana_cost!("{1}{G}"), &["Human"], 2, 3).with_abilities(&[
+AbilityDef::static_ability("Creature and enchantment spells you control can't be countered.", EffectDef::StaticApply { recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::HasType(CardType::Enchantment)]), &[ZoneKind::Stack], PlayerRelation::You), effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeCountered) }),
+AbilityDef::activated_with_targets("{3}{G}: Target land you control becomes an X/X Elemental creature with trample and haste until end of turn, where X is the number of enchantments you control. It's still a land.", &[CostDef::Mana(mana_cost!("{3}{G}"))], &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object { object: ObjectPredicateDef::HasType(CardType::Land), zones: &[ZoneKind::Battlefield], controller: Some(PlayerRelation::You), owner: None })], EffectDef::Apply { recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY), effect: AppliedEffectDef::Composite(&[AppliedEffectDef::Characteristic(CharacteristicOperationDef::CardTypes(SetOperationDef::Add(CardTypeSet::single(CardType::Creature)))), AppliedEffectDef::set_base_power_toughness(ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(ObjectPredicateDef::HasType(CardType::Enchantment), &[ZoneKind::Battlefield], PlayerRelation::You)), ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(ObjectPredicateDef::HasType(CardType::Enchantment), &[ZoneKind::Battlefield], PlayerRelation::You))), AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&["Elemental"])), AppliedEffectDef::add_ability(&abilities::trample()), AppliedEffectDef::add_ability(&abilities::haste())]), duration: ResolvedEffectDurationDef::UntilEndOfTurn })
+]),
 );
 
 // THB 173 — Hyrax Tower Scout
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HYRAX_TOWER_SCOUT_173: CardRecord = CardRecord::new(
     "Hyrax Tower Scout",
     "bb7f2638-d757-4df6-90b0-b616534dd3a0",
     "Micah Epstein",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Human", "Scout"], 3, 3).with_ability(
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, untap target creature.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Untap {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+        ),
+    ),
 );
 
 // THB 174 — Ilysian Caryatid
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ILYSIAN_CARYATID_174: CardRecord = CardRecord::new(
     "Ilysian Caryatid",
     "7cdf8ab8-f221-4f7b-9af9-3849cad1f596",
     "Winona Nelson",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Plant"], 1, 1).with_abilities(&[
+AbilityDef::activated_mana("{T}: Add one mana of any color. If you control a creature with power 4 or greater, add two mana of any one color instead.", &[CostDef::TapSource], EffectDef::AddMana(AddManaEffectDef::any_color().with_amount_override(&ConditionDef::Exists(ObjectQueryDef::matching(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::PowerAtLeast(4)]), &[ZoneKind::Battlefield], PlayerRelation::You)), 2)))
+]),
 );
 
 // THB 182 — Nessian Hornbeetle
@@ -425,7 +456,7 @@ pub(in crate::card::sets) static NESSIAN_HORNBEETLE: CardRecord = CardRecord::ne
 );
 
 // THB 190 — Nyxbloom Ancient
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a mana-production replacement that preserves every produced unit's type and triples its amount.
 pub(in crate::card::sets) static NYXBLOOM_ANCIENT_190: CardRecord = CardRecord::new(
     "Nyxbloom Ancient",
     "a391da36-0b40-46ea-b771-50d2b920207e",
@@ -588,21 +619,47 @@ pub(in crate::card::sets) static TERROR_OF_MOUNT_VELUS: CardRecord = CardRecord:
 );
 
 // THB 325 — Arasta of the Endless Web
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ARASTA_OF_THE_ENDLESS_WEB_325: CardRecord = CardRecord::new(
     "Arasta of the Endless Web",
     "03b9304c-9993-4539-9165-48568eb81db1",
     "Sam Rowan",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{G}{G}"), &["Spider"], 3, 5).with_supertype(CardSupertype::Legendary).with_abilities(&[
+abilities::reach(),
+AbilityDef::triggered("Whenever an opponent casts an instant or sorcery spell, create a 1/2 green Spider creature token with reach.", TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Instant), ObjectPredicateDef::HasType(CardType::Sorcery)]), ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent)])), EffectDef::create_creature_token(&["Spider"], &[ManaColor::Green], 1, 2).with_abilities(&[abilities::reach()]))
+])
+.with_type(crate::card::CardType::Enchantment),
 );
 
 // THB 326 — Dryad of the Ilysian Grove
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DRYAD_OF_THE_ILYSIAN_GROVE_326: CardRecord = CardRecord::new(
     "Dryad of the Ilysian Grove",
     "36adefc7-44a8-40d0-8bdf-ad12d010b0bd",
     "Scott Murphy",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment_creature(mana_cost!("{2}{G}"), &["Nymph", "Dryad"], 2, 4)
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "You may play an additional land on each of your turns.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Controller,
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlayAdditionalLands(1)),
+                },
+            ),
+            AbilityDef::static_ability(
+                "Lands you control are every basic land type in addition to their other types.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::Characteristic(
+                        CharacteristicOperationDef::BasicLandTypes(SetOperationDef::Add(
+                            &BasicLandType::ALL,
+                        )),
+                    ),
+                },
+            ),
+        ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

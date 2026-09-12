@@ -1,5 +1,8 @@
 //! Commander 2013 cards cataloged for the Vintage Cube pool.
 
+use crate::card::AbilityPredicateDef;
+use crate::card::CardTypeSet;
+use crate::card::CreatureTypeSetDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
@@ -64,12 +67,14 @@ pub(in crate::card::sets) static ANGEL_OF_FINALITY: CardRecord = CardRecord::new
 );
 
 // C13 9 — Darksteel Mutation
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DARKSTEEL_MUTATION_9: CardRecord = CardRecord::new(
     "Darksteel Mutation",
     "df7d800b-0120-4036-81d7-dec60ccc8057",
     "Daniel Ljunggren",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{W}")).with_subtypes(&["Aura"]).with_abilities(&[
+abilities::aura_spell("Enchant creature", &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Creature))]),
+AbilityDef::static_ability("Enchanted creature is an Insect artifact creature with base power and toughness 0/1 and has indestructible, and it loses all other abilities, card types, and creature types.", EffectDef::StaticApply { recipient: EffectRecipientDef::AttachedPermanent, effect: AppliedEffectDef::Composite(&[AppliedEffectDef::set_card_types(CardTypeSet::single(CardType::Artifact).with(CardType::Creature)), AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&["Insect"])), AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(0), ValueDef::Constant(1)), AppliedEffectDef::remove_abilities(AbilityPredicateDef::Any), AppliedEffectDef::add_ability(&abilities::indestructible())]) })
+]),
 );
 
 // C13 25 — Unexpectedly Absent
@@ -148,7 +153,7 @@ CardRules::new_sorcery(mana_cost!("{2}{B}")).with_ability(
 );
 
 // C13 186 — Derevi, Empyrial Tactician
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Physical commander cards do not offer ordinary mana-cost activated abilities from the command zone. Existing command-zone ongoing effects are separate rules objects and cannot move the commander onto the battlefield.
 pub(in crate::card::sets) static DEREVI_EMPYRIAL_TACTICIAN_186: CardRecord = CardRecord::new(
     "Derevi, Empyrial Tactician",
     "3d61a4d4-f0d5-4bc4-8977-57bbb3d97776",

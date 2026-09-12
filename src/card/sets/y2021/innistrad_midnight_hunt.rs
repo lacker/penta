@@ -1,5 +1,20 @@
 //! Innistrad: Midnight Hunt cards cataloged for the Vintage Cube pool.
 
+use crate::ParentBinding;
+use crate::card::AbilityKindDef;
+use crate::card::AbilityPredicateDef;
+use crate::card::AggregateOperationDef;
+use crate::card::BindObjectsDef;
+use crate::card::ChoiceVisibilityDef;
+use crate::card::ChooseDef;
+use crate::card::ObjectChoiceBindingDef;
+use crate::card::ObjectCollectionSourceDef;
+use crate::card::ObjectRefDef;
+use crate::card::ObjectSetDef;
+use crate::card::ObjectValueAggregateDef;
+use crate::card::ObjectValueDef;
+use crate::card::PlayerRefDef;
+use crate::card::PlayerSetDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
@@ -100,7 +115,7 @@ pub(in crate::card::sets) static ADELINE_RESPLENDENT_CATHAR: CardRecord =
 );
 
 // MID 7 — Brutal Cathar // Moonrage Brute
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The transforming daybound/nightbound double-faced card procedure is not declaratively represented.
 pub(in crate::card::sets) static BRUTAL_CATHAR_MOONRAGE_BRUTE_7: CardRecord = CardRecord::new(
     "Brutal Cathar // Moonrage Brute",
     "0dbac7ce-a6fa-466e-b6ba-173cf2dec98e",
@@ -398,16 +413,58 @@ pub(in crate::card::sets) static ARDENT_ELEMENTALIST: CardRecord = CardRecord::n
 );
 
 // MID 133 — Cathartic Pyre
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CATHARTIC_PYRE_133: CardRecord = CardRecord::new(
     "Cathartic Pyre",
     "b045c28a-39f9-4cd9-8f3a-a626b697f409",
     "Ryan Yee",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{R}")).with_ability(AbilityDef::modal_spell(
+        "Choose one —",
+        &[
+            AbilityDef::spell_with_targets(
+                "Cathartic Pyre deals 3 damage to target creature or planeswalker.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::HasType(CardType::Planeswalker),
+                    ]),
+                )],
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(3),
+                ),
+            ),
+            AbilityDef::spell(
+                "Discard up to two cards, then draw that many cards.",
+                EffectDef::Choose(ChooseDef {
+                    binding: ObjectChoiceBindingDef::Objects(ParentBinding),
+                    unchosen: None,
+                    chooser: PlayerRefDef::EffectController,
+                    candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
+                        ObjectPredicateDef::Any,
+                        &[ZoneKind::Hand],
+                        PlayerSetDef::One(PlayerRefDef::EffectController),
+                    )),
+                    exclude: None,
+                    minimum: 0,
+                    maximum: 2,
+                    visibility: ChoiceVisibilityDef::Private,
+                    then: &EffectDef::Sequence(&[
+                        EffectDef::discard_cards(EffectRecipientDef::objects(
+                            ObjectSetDef::Binding(ParentBinding),
+                        )),
+                        EffectDef::DrawCards {
+                            recipient: EffectRecipientDef::Controller,
+                            amount: ValueDef::BoundObjectCount(ParentBinding),
+                        },
+                    ]),
+                }),
+            ),
+        ],
+    )),
 );
 
 // MID 245 — Teferi, Who Slows the Sunset
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The emblem requires additional untapping and drawing as turn-based actions during opponents' untap and draw steps. Installed step triggers resolve later and cannot implement those continuous turn-based-action modifications.
 pub(in crate::card::sets) static TEFERI_WHO_SLOWS_THE_SUNSET_245: CardRecord = CardRecord::new(
     "Teferi, Who Slows the Sunset",
     "ad2e18d4-986c-4a44-8f26-1b8689339cfb",
@@ -416,7 +473,7 @@ pub(in crate::card::sets) static TEFERI_WHO_SLOWS_THE_SUNSET_245: CardRecord = C
 );
 
 // MID 254 — Jack-o'-Lantern
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Nonpermanent mana activations support hand exile and ongoing command-zone rules objects only. The graveyard mana ability cannot be offered or paid; making it an ordinary activated ability would incorrectly use the stack.
 pub(in crate::card::sets) static JACK_O_LANTERN_254: CardRecord = CardRecord::new(
     "Jack-o'-Lantern",
     "21b589ab-45a0-480a-a891-581c34f8a9bf",
@@ -425,52 +482,117 @@ pub(in crate::card::sets) static JACK_O_LANTERN_254: CardRecord = CardRecord::ne
 );
 
 // MID 255 — Moonsilver Key
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MOONSILVER_KEY_255: CardRecord = CardRecord::new(
     "Moonsilver Key",
     "87778e37-af92-402e-b037-5fbd6112b682",
     "Joseph Meehan",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
+AbilityDef::activated("{1}, {T}, Sacrifice this artifact: Search your library for an artifact card with a mana ability or a basic land card, reveal it, put it into your hand, then shuffle.", &[CostDef::Mana(mana_cost!("{1}")), CostDef::TapSource, CostDef::SacrificeSource], EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Library, object: ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Artifact), ObjectPredicateDef::HasAbility(AbilityPredicateDef::Is(AbilityKindDef::ActivatedMana))]), ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Land), ObjectPredicateDef::Supertype(CardSupertype::Basic)])]), minimum: 0, maximum: ValueDef::Constant(1), reveal: true, destination: ZoneKind::Hand, placement: ZonePlacement::Top, shuffle: true, enters_tapped: false, attachment: None, binding: None, then: None })
+]),
 );
 
 // MID 265 — Overgrown Farmland
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static OVERGROWN_FARMLAND_265: CardRecord = CardRecord::new(
     "Overgrown Farmland",
     "84a76e0f-49fc-4087-8859-98f4a4deacdf",
     "Jonas De Ro",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        AbilityDef::as_enters(
+            "This land enters tapped unless you control two or more other lands.",
+            crate::card::ReplacementEffectDef::Conditional {
+                condition: crate::card::ConditionDef::ObjectCount(&TWO_OR_MORE_OTHER_LANDS),
+                if_true: &[],
+                if_false: &ENTER_TAPPED,
+            },
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add {G} or {W}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(crate::card::AddManaEffectDef::choice(&[
+                ManaColor::Green,
+                ManaColor::White,
+            ])),
+        ),
+    ]),
 );
 
 // MID 282 — Haunted Ridge
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HAUNTED_RIDGE_282: CardRecord = CardRecord::new(
     "Haunted Ridge",
     "91f67a64-b97d-473a-be9d-c8044ff86605",
     "Piotr Dura",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        AbilityDef::as_enters(
+            "This land enters tapped unless you control two or more other lands.",
+            crate::card::ReplacementEffectDef::Conditional {
+                condition: crate::card::ConditionDef::ObjectCount(&TWO_OR_MORE_OTHER_LANDS),
+                if_true: &[],
+                if_false: &ENTER_TAPPED,
+            },
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add {B} or {R}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(crate::card::AddManaEffectDef::choice(&[
+                ManaColor::Black,
+                ManaColor::Red,
+            ])),
+        ),
+    ]),
 );
 
 // MID 284 — Rockfall Vale
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ROCKFALL_VALE_284: CardRecord = CardRecord::new(
     "Rockfall Vale",
     "3bfcc5d4-babd-4b66-95fa-c5ec6c49e93a",
     "Piotr Dura",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        AbilityDef::as_enters(
+            "This land enters tapped unless you control two or more other lands.",
+            crate::card::ReplacementEffectDef::Conditional {
+                condition: crate::card::ConditionDef::ObjectCount(&TWO_OR_MORE_OTHER_LANDS),
+                if_true: &[],
+                if_false: &ENTER_TAPPED,
+            },
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add {R} or {G}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(crate::card::AddManaEffectDef::choice(&[
+                ManaColor::Red,
+                ManaColor::Green,
+            ])),
+        ),
+    ]),
 );
 
 // MID 285 — Shipwreck Marsh
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SHIPWRECK_MARSH_285: CardRecord = CardRecord::new(
     "Shipwreck Marsh",
     "07ad2562-fc26-40a1-9e6c-21f4f88dc2d8",
     "Steven Belledin",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        AbilityDef::as_enters(
+            "This land enters tapped unless you control two or more other lands.",
+            crate::card::ReplacementEffectDef::Conditional {
+                condition: crate::card::ConditionDef::ObjectCount(&TWO_OR_MORE_OTHER_LANDS),
+                if_true: &[],
+                if_false: &ENTER_TAPPED,
+            },
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add {U} or {B}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(crate::card::AddManaEffectDef::choice(&[
+                ManaColor::Blue,
+                ManaColor::Black,
+            ])),
+        ),
+    ]),
 );
 
 // MID 336 — Malevolent Hermit // Benevolent Geist
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Its disturb double-faced transformation is not declaratively represented.
 pub(in crate::card::sets) static MALEVOLENT_HERMIT_BENEVOLENT_GEIST_336: CardRecord =
     CardRecord::new(
         "Malevolent Hermit // Benevolent Geist",
@@ -480,12 +602,13 @@ pub(in crate::card::sets) static MALEVOLENT_HERMIT_BENEVOLENT_GEIST_336: CardRec
     );
 
 // MID 365 — Unnatural Growth
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static UNNATURAL_GROWTH_365: CardRecord = CardRecord::new(
     "Unnatural Growth",
     "61baa102-9bc0-4f97-89e1-cca4dbd823bd",
     "Svetlin Velinov",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{G}{G}{G}{G}")).with_abilities(&[
+AbilityDef::triggered("At the beginning of each combat, double the power and toughness of each creature you control until end of turn.", TriggerEventDef::StepBegins { step: TurnStepDef::BeginningOfCombat, player: PlayerRelation::Any }, EffectDef::BindObjects(BindObjectsDef { source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Query(ObjectQueryDef::matching(ObjectPredicateDef::HasType(CardType::Creature), &[ZoneKind::Battlefield], PlayerRelation::You))), binding: Binding!("growth_creatures"), then: &EffectDef::ForEachInBinding { objects: Binding!("growth_creatures"), binding: Binding!("growth_creature"), effect: &EffectDef::Apply { recipient: EffectRecipientDef::object(ObjectRefDef::Binding(Binding!("growth_creature"))), effect: AppliedEffectDef::modify_power_toughness(ValueDef::ObjectPower(ObjectRefDef::Binding(Binding!("growth_creature"))), ValueDef::AggregateObjectValues(&ObjectValueAggregateDef { objects: ObjectSetDef::One(ObjectRefDef::Binding(Binding!("growth_creature"))), select: ObjectValueDef::Toughness, operation: AggregateOperationDef::Sum })), duration: ResolvedEffectDurationDef::UntilEndOfTurn } } }))
+]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

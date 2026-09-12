@@ -12,7 +12,7 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
 
 
 // AFC 324 — Prosper, Tome-Bound
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The end-step trigger needs an exile-to-play permission limited to the next turn and a trigger for cards played from exile.
 pub(in crate::card::sets) static PROSPER_TOME_BOUND_324: CardRecord = CardRecord::new(
     "Prosper, Tome-Bound",
     "0333ccf1-239a-4de2-bb0a-9b4ac1649adf",

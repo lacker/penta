@@ -1,5 +1,15 @@
 //! Dominaria United cards cataloged for the Vintage Cube pool.
 
+use crate::ParentBinding;
+use crate::card::ActivationTimingDef;
+use crate::card::BattlefieldArrivalDef;
+use crate::card::CardTypeSet;
+use crate::card::ChooseCardsFromCollectionDef;
+use crate::card::CollectionInspectionDef;
+use crate::card::CreatureTypeSetDef;
+use crate::card::IfNoObjectsDef;
+use crate::card::MoveObjectsDef;
+use crate::card::RandomizeObjectOrderDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
@@ -91,7 +101,7 @@ CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Cleric"], 3, 3).with_a
 );
 
 // DMU 19 — Guardian of New Benalia
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — There is no enlist declaration-time tap choice, including the no-summoning-sickness restriction, or enlist event carrying the enlisted creature's power.
 pub(in crate::card::sets) static GUARDIAN_OF_NEW_BENALIA_19: CardRecord = CardRecord::new(
     "Guardian of New Benalia",
     "43da76ee-fec3-4b2e-915d-10cf8d518d2c",
@@ -413,12 +423,28 @@ pub(in crate::card::sets) static SHEOLDRED_THE_APOCALYPSE: CardRecord = CardReco
 );
 
 // DMU 122 — Electrostatic Infantry
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ELECTROSTATIC_INFANTRY_122: CardRecord = CardRecord::new(
     "Electrostatic Infantry",
     "5ed2d72f-f1cf-45a7-adf7-969f531721ce",
     "Kekai Kotaki",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Dwarf", "Wizard"], 1, 2).with_abilities(&[
+        abilities::trample(),
+        AbilityDef::triggered(
+            "Whenever you cast an instant or sorcery spell, put a +1/+1 counter on this creature.",
+            TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Instant),
+                    ObjectPredicateDef::HasType(CardType::Sorcery),
+                ]),
+            ])),
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: crate::card::CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // DMU 137 — Lightning Strike (reprint)
@@ -471,16 +497,19 @@ pub(in crate::card::sets) static MAGNIGOTH_SENTRY: CardRecord = CardRecord::new(
 );
 
 // DMU 177 — Silverback Elder
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SILVERBACK_ELDER_177: CardRecord = CardRecord::new(
     "Silverback Elder",
     "b987664f-0b74-4c0a-b306-14767a55559a",
     "Alexander Mokhov",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{G}{G}{G}"), &["Ape", "Shaman"], 5, 7).with_abilities(&[
+AbilityDef::modal_triggered("Whenever you cast a creature spell, choose one —\n• Destroy target artifact or enchantment.\n• Look at the top five cards of your library. You may put a land card from among them onto the battlefield tapped. Put the rest on the bottom of your library in a random order.\n• You gain 4 life.", TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::ControlledBy(PlayerRelation::You)])), &[AbilityDef::destroy_target("Destroy target artifact or enchantment.", &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Artifact), ObjectPredicateDef::HasType(CardType::Enchantment)]))), AbilityDef::spell("Look at the top five cards of your library. You may put a land card from among them onto the battlefield tapped. Put the rest on the bottom of your library in a random order.", EffectDef::ChooseCardsFromCollection(ChooseCardsFromCollectionDef { source: ObjectCollectionSourceDef::TopCards { player: PlayerRefDef::EffectController, count: ValueDef::Constant(5) }, actor: PlayerRefDef::EffectController, inspection: CollectionInspectionDef::Look, object: ObjectPredicateDef::HasType(CardType::Land), minimum: 0, maximum: 1, chosen: Binding!("elder_land"), remainder: Binding!("elder_rest"), then: &EffectDef::Sequence(&[EffectDef::WithBattlefieldArrival { arrival: BattlefieldArrivalDef { controller: None, counters: None, attachment: None, modifications: &[crate::card::BattlefieldEntryModificationDef::Tapped] }, effect: &EffectDef::move_to_zone(EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!("elder_land"))), ZoneKind::Battlefield, ZonePlacement::Top) }, EffectDef::RandomizeObjectOrder(RandomizeObjectOrderDef { input: ObjectSetDef::Binding(Binding!("elder_rest")), randomized: Binding!("elder_ordered"), then: &EffectDef::MoveObjects(MoveObjectsDef { input: ObjectSetDef::Binding(Binding!("elder_ordered")), from: Some(ZoneKind::Library), zone: ZoneKind::Library, placement: ZonePlacement::Bottom, moved: None, then: &EffectDef::None }) })]) })), AbilityDef::spell("You gain 4 life.", EffectDef::GainLife { recipient: EffectRecipientDef::Controller, amount: ValueDef::Constant(4) })])
+]),
 );
 
 // DMU 182 — Tail Swipe
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Fight and the two opposing creature targets are representable, but the
+// conditional pump needs cast-time own-main-phase provenance. SourceCastAtInstantSpeed does not
+// distinguish a main-phase response from a sorcery-speed cast, so it cannot express this condition.
 pub(in crate::card::sets) static TAIL_SWIPE_182: CardRecord = CardRecord::new(
     "Tail Swipe",
     "95a39b26-8c83-40ea-b492-036251366d73",
@@ -618,16 +647,24 @@ pub(in crate::card::sets) static GARNA_BLOODFIST_OF_KELD: CardRecord = CardRecor
 );
 
 // DMU 232 — Inscribed Tablet
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static INSCRIBED_TABLET_232: CardRecord = CardRecord::new(
     "Inscribed Tablet",
     "699d8655-d250-4ab6-92c5-376979bbabc7",
     "Jarel Threat",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{1}")).with_ability(AbilityDef::activated(
+        "{1}, {T}, Sacrifice this artifact: Reveal the top five cards of your library. Put a land card from among them into your hand and the rest on the bottom of your library in a random order. If you didn't put a card into your hand this way, draw a card.",
+        &[crate::card::CostDef::Mana(mana_cost!("{1}")), crate::card::CostDef::TapSource, crate::card::CostDef::SacrificeSource],
+        EffectDef::ChooseCardsFromCollection(ChooseCardsFromCollectionDef {
+            source: ObjectCollectionSourceDef::TopCards { player: PlayerRefDef::EffectController, count: ValueDef::Constant(5) }, actor: PlayerRefDef::EffectController, inspection: CollectionInspectionDef::Reveal,
+            object: ObjectPredicateDef::HasType(CardType::Land), minimum: 1, maximum: 1,
+            chosen: crate::Binding!("inscribed_tablet_chosen"), remainder: crate::Binding!("inscribed_tablet_remainder"),
+            then: &EffectDef::MoveObjects(MoveObjectsDef { input: ObjectSetDef::Binding(crate::Binding!("inscribed_tablet_chosen")), from: Some(ZoneKind::Library), zone: ZoneKind::Hand, placement: ZonePlacement::Top, moved: Some(crate::Binding!("inscribed_tablet_to_hand")), then: &EffectDef::RandomizeObjectOrder(RandomizeObjectOrderDef { input: ObjectSetDef::Binding(crate::Binding!("inscribed_tablet_remainder")), randomized: ParentBinding, then: &EffectDef::Sequence(&[EffectDef::MoveObjects(MoveObjectsDef { input: ObjectSetDef::Binding(ParentBinding), from: Some(ZoneKind::Library), zone: ZoneKind::Library, placement: ZonePlacement::Bottom, moved: None, then: &EffectDef::None }), EffectDef::IfNoObjects(IfNoObjectsDef { input: ObjectSetDef::Binding(crate::Binding!("inscribed_tablet_to_hand")), if_empty: &EffectDef::DrawCards { recipient: EffectRecipientDef::Controller, amount: ValueDef::Constant(1) }, otherwise: &EffectDef::None })]) }) }),
+        }),
+    )),
 );
 
 // DMU 236 — Relic of Legends
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The mana-ability planner rejects a selected-creature tap cost. TapSource cannot represent tapping a legendary creature while leaving the Relic untapped.
 pub(in crate::card::sets) static RELIC_OF_LEGENDS_236: CardRecord = CardRecord::new(
     "Relic of Legends",
     "64a2809e-c441-416c-90ff-6fb1e246dff3",
@@ -655,7 +692,7 @@ pub(in crate::card::sets) static CRYSTAL_GROTTO: CardRecord = CardRecord::new(
 );
 
 // DMU 252 — Plaza of Heroes
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — ManaTypeSource cannot derive the available colors from legendary permanents. The legendary-spell restriction alone does not implement the separate unrestricted color-producing ability.
 pub(in crate::card::sets) static PLAZA_OF_HEROES_252: CardRecord = CardRecord::new(
     "Plaza of Heroes",
     "a2cfcf67-f83c-43af-9e2d-5513fcdde835",
@@ -697,7 +734,7 @@ pub(in crate::card::sets) static SERRA_REDEEMER: CardRecord = CardRecord::new(
 );
 
 // DMU 329 — Braids, Arisen Nightmare
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The sacrifice continuation lacks a predicate comparing a candidate permanent's card types with the sacrificed permanent's last-known type set.
 pub(in crate::card::sets) static BRAIDS_ARISEN_NIGHTMARE_329: CardRecord = CardRecord::new(
     "Braids, Arisen Nightmare",
     "1e20d56c-20df-4fe9-a329-df5768a180af",
@@ -863,7 +900,7 @@ pub(in crate::card::sets) static SERRA_PARAGON: CardRecord = CardRecord::new(
 );
 
 // DMU 409 — Rundvelt Hordemaster
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The top-library exile permission has no card-characteristic filter. The arbitrary-card exile permission lasts only this turn, so neither can grant the Goblin-only permission through the end of your next turn.
 pub(in crate::card::sets) static RUNDVELT_HORDEMASTER_409: CardRecord = CardRecord::new(
     "Rundvelt Hordemaster",
     "060d14a4-e903-4c89-9c3a-baa91f125c4e",
@@ -872,16 +909,18 @@ pub(in crate::card::sets) static RUNDVELT_HORDEMASTER_409: CardRecord = CardReco
 );
 
 // DMU 416 — Llanowar Loamspeaker
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LLANOWAR_LOAMSPEAKER_416: CardRecord = CardRecord::new(
     "Llanowar Loamspeaker",
     "5fdb1dfd-6394-414f-959e-9f129a3ab1a1",
     "Zara Alfonso",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Elf", "Druid"], 1, 3).with_abilities(&[
+AbilityDef::activated_mana("{T}: Add one mana of any color.", &[CostDef::TapSource], EffectDef::AddMana(AddManaEffectDef::any_color())),
+AbilityDef::activated_with_targets("{T}: Target land you control becomes a 3/3 Elemental creature with haste until end of turn. It's still a land. Activate only as a sorcery.", &[CostDef::TapSource], &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object { object: ObjectPredicateDef::HasType(CardType::Land), zones: &[ZoneKind::Battlefield], controller: Some(PlayerRelation::You), owner: None })], EffectDef::Apply { recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY), effect: AppliedEffectDef::Composite(&[AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)), AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&["Elemental"])), AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(3), ValueDef::Constant(3)), AppliedEffectDef::add_ability(&abilities::haste())]), duration: ResolvedEffectDurationDef::UntilEndOfTurn }).with_activation_timing(ActivationTimingDef::SorcerySpeed)
+]),
 );
 
 // DMU 422 — Thran Portal
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Chosen basic land types are supported, but there is no activation-cost modifier adding a life payment to every mana ability this land acquires.
 pub(in crate::card::sets) static THRAN_PORTAL_422: CardRecord = CardRecord::new(
     "Thran Portal",
     "eba2995e-f255-46da-abcf-9a6f3996edb1",

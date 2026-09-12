@@ -1,5 +1,10 @@
 //! Conflux cards cataloged for the Vintage Cube.
 
+use crate::card::ComparisonDef;
+use crate::card::DrawEventMatcherDef;
+use crate::card::ObjectRefDef;
+use crate::card::TriggerConditionDef;
+use crate::card::TriggerEventDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::AbilityTargetPredicate;
@@ -114,7 +119,7 @@ CardRules::new_instant(mana_cost!("{W}")).with_ability(AbilityDef::spell_with_ta
 );
 
 // CON 31 — Master Transmuter
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Returning a chosen battlefield permanent is not supported by the activated-cost planner; ReturnToHand currently has a casting-cost path only.
 pub(in crate::card::sets) static MASTER_TRANSMUTER_31: CardRecord = CardRecord::new(
     "Master Transmuter",
     "252482b2-aaa7-49f3-af8c-30923ca98994",
@@ -123,12 +128,13 @@ pub(in crate::card::sets) static MASTER_TRANSMUTER_31: CardRecord = CardRecord::
 );
 
 // CON 48 — Kederekt Parasite
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KEDEREKT_PARASITE_48: CardRecord = CardRecord::new(
     "Kederekt Parasite",
     "878c7d8c-4df0-43ac-8197-d89c8be5e70d",
     "Dan Murayama Scott",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{B}"), &["Horror"], 1, 1).with_abilities(&[
+AbilityDef::triggered_if("Whenever an opponent draws a card, if you control a red permanent, you may have this creature deal 1 damage to that player.", TriggerEventDef::DrewCard(DrawEventMatcherDef::any(PlayerRelation::Opponent)), &TriggerConditionDef::ObjectCount { query: ObjectQueryDef::matching(ObjectPredicateDef::Color(ManaColor::Red), &[ZoneKind::Battlefield], PlayerRelation::You), comparison: ComparisonDef::GreaterOrEqual, amount: 1 }, EffectDef::May { player: EffectRecipientDef::Controller, effect: &EffectDef::damage(EffectRecipientDef::player(PlayerRefDef::EventPlayer), ValueDef::Constant(1)) })
+]),
 );
 
 // CON 60 — Canyon Minotaur
@@ -223,12 +229,25 @@ pub(in crate::card::sets) static KNIGHT_OF_THE_RELIQUARY: CardRecord = CardRecor
 );
 
 // CON 116 — Magister Sphinx
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MAGISTER_SPHINX_116: CardRecord = CardRecord::new(
     "Magister Sphinx",
     "cd2abff9-6927-42cc-8cf1-a0876d3a45d7",
     "Steven Belledin",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{4}{W}{U}{B}"), &["Sphinx"], 5, 5).with_abilities(
+        &[
+            abilities::flying(),
+            abilities::enters_trigger_with_targets(
+                "When this creature enters, target player’s life total becomes 10.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Player(PlayerRelation::Any),
+                )],
+                EffectDef::SetLifeTotal {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    total: ValueDef::Constant(10),
+                },
+            ),
+        ],
+    ),
 );
 
 // CON 120 — Nicol Bolas, Planeswalker
@@ -302,12 +321,25 @@ pub(in crate::card::sets) static PROGENITUS: CardRecord = CardRecord::new(
 );
 
 // CON 135 — Bone Saw
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BONE_SAW_135: CardRecord = CardRecord::new(
     "Bone Saw",
     "a3bf79d6-4b4a-4fdd-a831-36eff2523661",
     "Pete Venters",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{0}"))
+        .with_subtypes(&["Equipment"])
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Equipped creature gets +1/+0.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::object(ObjectRefDef::AttachedToSource),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(0),
+                    ),
+                },
+            ),
+            abilities::equip(&[CostDef::Mana(mana_cost!("{1}"))], "Equip {1}"),
+        ]),
 );
 
 // CON 142 — Exotic Orchard

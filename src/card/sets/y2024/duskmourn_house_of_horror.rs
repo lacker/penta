@@ -4418,12 +4418,13 @@ pub(in crate::card::sets) static GLASSWORKS: CardRecord = CardRecord::new(
 });
 
 // DSK 138 — Grab the Prize
-// Audit: unsupported — Needs a last-known card-type predicate for the discarded casting-cost object. AdditionalCostObject retains its old identity, but bound-card matching only reads live cards, so a discarded land is incorrectly treated as nonland after it leaves the hand.
 pub(in crate::card::sets) static GRAB_THE_PRIZE: CardRecord = CardRecord::new(
-    "Grab the Prize",
-    "50895202-f1a1-4840-a11a-55b78b8b5929",
-    "Halil Ural",
-    CardRules::unsupported(),
+"Grab the Prize",
+"50895202-f1a1-4840-a11a-55b78b8b5929",
+"Halil Ural",
+CardRules::new_sorcery(mana_cost!("{1}{R}")).with_abilities(&[
+AbilityDef::spell_with_additional_cost("As an additional cost to cast this spell, discard a card.\nDraw two cards. If the discarded card wasn't a land card, Grab the Prize deals 2 damage to each opponent.", &[], CostDef::discard(ObjectPredicateDef::Any), EffectDef::Sequence(&[abilities::draw_cards(ValueDef::Constant(2)), EffectDef::BindObjects(BindObjectsDef { source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::One(ObjectRefDef::AdditionalCostObject(crate::AdditionalCostObjectIndex::PRIMARY))), binding: ParentBinding, then: &EffectDef::IfCondition { condition: &TriggerConditionDef::ObjectSetCount(&crate::card::ObjectSetCountConditionDef { objects: &ObjectSetDef::Binding(ParentBinding), predicate: crate::card::ObjectSetPredicateDef { filter: Some(crate::card::ObjectSetFilterDef::Predicate(&ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)))), comparison: ComparisonDef::GreaterOrEqual, amount: 1 } }), then: &EffectDef::damage(EffectRecipientDef::Opponent, ValueDef::Constant(2)) } })]))
+]),
 );
 
 // DSK 139 — Hand That Feeds

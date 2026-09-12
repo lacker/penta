@@ -69,12 +69,14 @@ const BLOOD_TOKEN: TokenCharacteristics = tokens::blood().with_art(CardArt::new(
 ));
 
 // VOW 46 — Welcoming Vampire
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WELCOMING_VAMPIRE_46: CardRecord = CardRecord::new(
     "Welcoming Vampire",
     "d8f69cea-823c-482b-a605-8138b3d950e6",
     "Lorenzo Mastroianni",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Vampire"], 2, 3).with_abilities(&[
+abilities::flying(),
+AbilityDef::triggered("Whenever one or more other creatures you control with power 2 or less enter, draw a card. This ability triggers only once each turn.", TriggerEventDef::zone_changed(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::ControlledBy(PlayerRelation::You), ObjectPredicateDef::Not(&ObjectPredicateDef::Source), ObjectPredicateDef::Not(&ObjectPredicateDef::PowerGreaterThan(ValueDef::Constant(2)))]), None, Some(ZoneKind::Battlefield)), abilities::draw_cards(ValueDef::Constant(1))).triggering_at_most(1)
+]),
 );
 
 // VOW 55 — Cruel Witness
@@ -100,7 +102,7 @@ pub(in crate::card::sets) static CRUEL_WITNESS: CardRecord = CardRecord::new(
 );
 
 // VOW 87 — Wash Away
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The targeting vocabulary cannot inspect the targeted spell's cast source zone. Cleave is also absent from AlternativeCastKindDef, so its ordinary restriction and alternate cast cannot be declared.
 pub(in crate::card::sets) static WASH_AWAY_87: CardRecord = CardRecord::new(
     "Wash Away",
     "43411ade-be80-4535-8baa-7055e78496df",
@@ -327,12 +329,23 @@ pub(in crate::card::sets) static ANCESTRAL_ANGER: CardRecord = CardRecord::new(
 );
 
 // VOW 164 — Kessig Flamebreather
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KESSIG_FLAMEBREATHER_164: CardRecord = CardRecord::new(
     "Kessig Flamebreather",
     "303ad78a-b02a-44dc-afe6-7f95781a5062",
     "Lius Lasahido",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Human", "Shaman"], 1, 3).with_ability(
+        AbilityDef::triggered(
+            "Whenever you cast a noncreature spell, this creature deals 1 damage to each opponent.",
+            TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
+            ])),
+            EffectDef::damage(
+                EffectRecipientDef::players(PlayerSetDef::Related(PlayerRelation::Opponent)),
+                ValueDef::Constant(1),
+            ),
+        ),
+    ),
 );
 
 // VOW 174 — Reckless Impulse
@@ -524,12 +537,50 @@ pub(in crate::card::sets) static HALANA_AND_ALENA_PARTNERS: CardRecord = CardRec
 );
 
 // VOW 259 — Lantern of the Lost
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LANTERN_OF_THE_LOST_259: CardRecord = CardRecord::new(
     "Lantern of the Lost",
     "c2303f11-2c82-44d5-893a-8e71dece7746",
     "Chris Cold",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
+        abilities::enters_trigger_with_targets(
+            "When this artifact enters, exile target card from a graveyard.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Any,
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: None,
+                },
+            )],
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Exile,
+                ZonePlacement::Top,
+            ),
+        ),
+        AbilityDef::activated(
+            "{1}, {T}, Exile this artifact: Exile all cards from all graveyards, then draw a card.",
+            &[
+                CostDef::Mana(mana_cost!("{1}")),
+                CostDef::TapSource,
+                CostDef::ExileSource,
+            ],
+            EffectDef::Sequence(&[
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::new(
+                        ObjectPredicateDef::Any,
+                        &[ZoneKind::Graveyard],
+                    ))),
+                    ZoneKind::Exile,
+                    ZonePlacement::Top,
+                ),
+                EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+            ]),
+        ),
+    ]),
 );
 
 // VOW 261 — Deathcap Glade
@@ -773,16 +824,53 @@ pub(in crate::card::sets) static BLOODTITHE_HARVESTER: CardRecord = CardRecord::
 );
 
 // VOW 359 — Hullbreaker Horror
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HULLBREAKER_HORROR_359: CardRecord = CardRecord::new(
     "Hullbreaker Horror",
     "2e073047-fba8-41bd-b260-1eefb084fc80",
     "Svetlin Velinov",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{5}{U}{U}"), &["Kraken", "Horror"], 7, 8).with_abilities(
+        &[
+            abilities::flash(),
+            abilities::cannot_be_countered(),
+            AbilityDef::modal_triggered_up_to_one(
+                "Whenever you cast a spell, choose up to one —",
+                TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(PlayerRelation::You)),
+                &[
+                    AbilityDef::spell_with_targets(
+                        "• Return target spell you don't control to its owner's hand.",
+                        &[AbilityTargetDef::exactly_one(
+                            AbilityTargetPredicate::Object {
+                                object: ObjectPredicateDef::Spell,
+                                zones: &[ZoneKind::Stack],
+                                controller: Some(PlayerRelation::NotYou),
+                                owner: None,
+                            },
+                        )],
+                        EffectDef::move_to_zone(
+                            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            ZoneKind::Hand,
+                            ZonePlacement::Top,
+                        ),
+                    ),
+                    AbilityDef::spell_with_targets(
+                        "• Return target nonland permanent to its owner's hand.",
+                        &[AbilityTargetDef::exactly_one_permanent(
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                        )],
+                        EffectDef::move_to_zone(
+                            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            ZoneKind::Hand,
+                            ZonePlacement::Top,
+                        ),
+                    ),
+                ],
+            ),
+        ],
+    ),
 );
 
 // VOW 374 — Alchemist's Gambit
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — There is no delayed-loss trigger bound to the specific extra turn this spell creates, and cleave is not an existing alternative-cast kind. It does not have flashback.
 pub(in crate::card::sets) static ALCHEMIST_S_GAMBIT_374: CardRecord = CardRecord::new(
     "Alchemist's Gambit",
     "9eab8938-57c9-4e08-b808-09eb02b040a0",

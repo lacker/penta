@@ -1,5 +1,17 @@
 //! Modern Horizons 3 cards cataloged as attachment edge cases.
 
+use crate::card::AbilityPredicateDef;
+use crate::card::BindObjectsDef;
+use crate::card::CardTypeSet;
+use crate::card::ColorSet;
+use crate::card::CopyStackObjectDef;
+use crate::card::CountConditionDef;
+use crate::card::EffectChoiceDef;
+use crate::card::KeywordAbility;
+use crate::card::ObjectCollectionSourceDef;
+use crate::card::PlayerRuleDef;
+use crate::card::PutObjectsOntoBattlefieldFaceDownDef;
+use crate::card::SpellCastQueryDef;
 use super::super::y2016::eldritch_moon::escalate;
 use super::super::y2020::theros_beyond_death::escape;
 use super::CardRecord;
@@ -230,25 +242,38 @@ const fn landscape_abilities(
 }
 
 // MH3 7 — Glaring Fleshraker
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GLARING_FLESHRAKER_7: CardRecord = CardRecord::new(
     "Glaring Fleshraker",
     "80c2a3c7-1486-4ff9-88ec-79ec67a437f8",
     "Raph Lomotan",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{C}"), &["Eldrazi", "Drone"], 2, 2).with_abilities(&[
+        AbilityDef::triggered(
+            "Whenever you cast a colorless spell, create a 0/1 colorless Eldrazi Spawn creature token with \"Sacrifice this token: Add {C}.\"",
+            TriggerEventDef::spell_cast(ObjectPredicateDef::ColorCount(0)),
+            EffectDef::create_creature_token(&["Eldrazi", "Spawn"], &[], 0, 1).with_abilities(&[AbilityDef::activated_mana(
+                "Sacrifice this creature: Add {C}.", &[CostDef::SacrificeSource], EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless)),
+            )]),
+        ),
+        AbilityDef::triggered(
+            "Whenever another colorless creature you control enters, this creature deals 1 damage to each opponent.",
+            TriggerEventDef::zone_changed(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::ColorCount(0), ObjectPredicateDef::ControlledBy(PlayerRelation::You), ObjectPredicateDef::Not(&ObjectPredicateDef::Source)]), None, Some(ZoneKind::Battlefield)),
+            EffectDef::damage(EffectRecipientDef::players(PlayerSetDef::Related(PlayerRelation::Opponent)), ValueDef::Constant(1)),
+        ),
+    ]),
 );
 
 // MH3 10 — Kozilek, the Broken Reality
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KOZILEK_THE_BROKEN_REALITY_10: CardRecord = CardRecord::new(
     "Kozilek, the Broken Reality",
     "04066abb-44d2-4730-9cc3-2584bc4c7d8c",
-    "Brent Hollowell",
-    crate::card::CardRules::unsupported(),
+    "Brent Hollowell",CardRules::new_creature(mana_cost!("{9}"), &["Eldrazi"], 9, 9).with_supertype(CardSupertype::Legendary).with_abilities(&[
+AbilityDef::triggered_with_targets("When you cast this spell, up to two target players each manifest two cards from their hands. For each card manifested this way, you draw a card. (To manifest a card, put it onto the battlefield face down as a 2/2 creature. Turn it face up any time for its mana cost if it's a creature card.)", TriggerEventDef::spell_cast(ObjectPredicateDef::Source), &[AbilityTargetDef::up_to(AbilityTargetPredicate::Player(PlayerRelation::Any), 2)], EffectDef::ChooseForEachPlayer(ChooseForEachPlayerDef { player: EffectRecipientDef::Target(TargetIndex::PRIMARY), candidates: ObjectPredicateDef::Any, zone: ZoneKind::Hand, selection: PerPlayerSelectionDef::Count(ValueDef::Constant(2)), visibility: ChoiceVisibilityDef::Private, chosen: Binding!("kozilek_hands"), unchosen: Binding!("kozilek_remaining"), then: &EffectDef::Sequence(&[EffectDef::ForEachInBinding { objects: Binding!("kozilek_hands"), binding: Binding!("manifest_card"), effect: &EffectDef::PutObjectsOntoBattlefieldFaceDown(PutObjectsOntoBattlefieldFaceDownDef { input: ObjectSetDef::One(ObjectRefDef::Binding(Binding!("manifest_card"))), controller: PlayerRefDef::OwnerOf(ObjectRefDef::Binding(Binding!("manifest_card"))), characteristics: crate::card::face_down::manifest(), turn_up_for_mana_cost: true, moved: None, then: &EffectDef::None }) }, EffectDef::DrawCards { recipient: EffectRecipientDef::Controller, amount: ValueDef::Sum(&SumValueDef { left: ValueDef::CountObjects(&ObjectSetDef::ZoneChangeSuccessorsOfBinding(Binding!("kozilek_hands"))), right: ValueDef::Sum(&SumValueDef { left: ValueDef::CountObjects(&ObjectSetDef::Query(ObjectQueryDef::matching(ObjectPredicateDef::Any, &[ZoneKind::Battlefield], PlayerRelation::Any))), right: ValueDef::Negate(&ValueDef::CountObjects(&ObjectSetDef::Union(&[ObjectSetDef::ZoneChangeSuccessorsOfBinding(Binding!("kozilek_hands")), ObjectSetDef::Query(ObjectQueryDef::matching(ObjectPredicateDef::Any, &[ZoneKind::Battlefield], PlayerRelation::Any))]))) }) }) }]) })),
+AbilityDef::static_ability("Other colorless creatures you control get +3/+2.", EffectDef::StaticApply { recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::ColorCount(0), ObjectPredicateDef::Not(&ObjectPredicateDef::Source)]), &[ZoneKind::Battlefield], PlayerRelation::You), effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(3), ValueDef::Constant(2)) })
+]),
 );
 
 // MH3 11 — Kozilek's Command
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — AbilityTargetDef has a fixed maximum and an exact dynamic count, but no dynamic up-to maximum. Its fourth mode needs any number from zero through chosen X, not exactly X targets.
 pub(in crate::card::sets) static KOZILEK_S_COMMAND_11: CardRecord = CardRecord::new(
     "Kozilek's Command",
     "92585587-cfdc-406a-9114-4f6dd8802c37",
@@ -302,12 +327,14 @@ pub(in crate::card::sets) static DOG_UMBRA: CardRecord = CardRecord::new(
 );
 
 // MH3 26 — Flare of Fortitude
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FLARE_OF_FORTITUDE_26: CardRecord = CardRecord::new(
     "Flare of Fortitude",
     "37b41b59-0296-443b-8a62-8d5c4641ef66",
     "Winona Nelson",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{2}{W}{W}")).with_abilities(&[
+AbilityDef::alternative_cast(&[CostDef::sacrifice_permanent(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::Not(&ObjectPredicateDef::Token), ObjectPredicateDef::Color(ManaColor::White)]))], AlternativeCastKindDef::AlternativeCost, Some("You may sacrifice a nontoken white creature rather than pay this spell's mana cost."), EffectDef::None),
+AbilityDef::spell("Until end of turn, your life total can't change, and permanents you control gain hexproof and indestructible.", EffectDef::Sequence(&[EffectDef::Apply { recipient: EffectRecipientDef::Controller, effect: AppliedEffectDef::Rule(AppliedRuleDef::PlayerRule(PlayerRuleDef::LifeTotalCannotChange)), duration: ResolvedEffectDurationDef::UntilEndOfTurn }, EffectDef::Apply { recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::Any, &[ZoneKind::Battlefield], PlayerRelation::You), effect: AppliedEffectDef::Composite(&[AppliedEffectDef::add_ability(&abilities::hexproof()), AppliedEffectDef::add_ability(&abilities::indestructible())]), duration: ResolvedEffectDurationDef::UntilEndOfTurn }]))
+]),
 );
 
 // MH3 34 — Mandibular Kite
@@ -613,12 +640,16 @@ pub(in crate::card::sets) static THRABEN_CHARM: CardRecord = CardRecord::new(
 );
 
 // MH3 51 — Amphibian Downpour
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AMPHIBIAN_DOWNPOUR_51: CardRecord = CardRecord::new(
     "Amphibian Downpour",
     "2d8aeca5-622a-45be-8168-07e7c00e3092",
     "Omar Rayyan",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{2}{U}")).with_subtypes(&["Aura"]).with_abilities(&[
+abilities::flash(),
+abilities::storm(),
+abilities::enchant_creature(),
+AbilityDef::static_ability("Enchanted creature loses all abilities and is a blue Frog creature with base power and toughness 1/1.", EffectDef::StaticApply { recipient: EffectRecipientDef::AttachedPermanent, effect: AppliedEffectDef::Composite(&[AppliedEffectDef::remove_abilities(AbilityPredicateDef::Any), AppliedEffectDef::set_card_types(CardTypeSet::single(CardType::Creature)), AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&["Frog"])), AppliedEffectDef::set_colors(ColorSet::from_colors(&[ManaColor::Blue])), AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(1), ValueDef::Constant(1))]) })
+]),
 );
 
 // MH3 53 — Brainsurge
@@ -654,21 +685,60 @@ pub(in crate::card::sets) static BRAINSURGE: CardRecord = CardRecord::new(
 );
 
 // MH3 54 — Consign to Memory
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CONSIGN_TO_MEMORY_54: CardRecord = CardRecord::new(
     "Consign to Memory",
     "bc95af55-d1dd-4fe6-adb0-3ad6db20d986",
     "Ben Hill",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{U}")).with_abilities(&[
+        abilities::replicate(&[CostDef::Mana(mana_cost!("{1}"))]),
+        AbilityDef::spell_with_targets(
+            "Counter target triggered ability or colorless spell.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::TriggeredAbility,
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::Spell,
+                            ObjectPredicateDef::ColorCount(0),
+                        ]),
+                    ]),
+                    zones: &[ZoneKind::Stack],
+                    controller: None,
+                    owner: None,
+                },
+            )],
+            EffectDef::Counter {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Graveyard,
+                placement: ZonePlacement::Top,
+            },
+        ),
+    ]),
 );
 
 // MH3 63 — Harbinger of the Seas
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HARBINGER_OF_THE_SEAS_63: CardRecord = CardRecord::new(
     "Harbinger of the Seas",
     "00212714-a410-4cbc-bf1c-f90d7d77378c",
     "Winona Nelson",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{U}{U}"), &["Merfolk", "Wizard"], 2, 2).with_ability(
+        AbilityDef::static_ability(
+            "Nonbasic lands are Islands.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(
+                            CardSupertype::Basic,
+                        )),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                effect: AppliedEffectDef::set_basic_land_types(&[BasicLandType::Island]),
+            },
+        ),
+    ),
 );
 
 // MH3 69 — Serum Visionary
@@ -693,16 +763,19 @@ pub(in crate::card::sets) static SERUM_VISIONARY: CardRecord = CardRecord::new(
 );
 
 // MH3 71 — Strix Serenade
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STRIX_SERENADE_71: CardRecord = CardRecord::new(
     "Strix Serenade",
     "42ac5ac7-b2f9-4e6f-af41-7e42ac816374",
     "Filipe Pagliuso",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Counter target artifact, creature, or planeswalker spell. Its controller creates a 2/2 blue Bird creature token with flying.",
+        &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object { object: ObjectPredicateDef::All(&[ObjectPredicateDef::Spell, ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Artifact), ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::HasType(CardType::Planeswalker)])]), zones: &[ZoneKind::Stack], controller: None, owner: None })],
+        EffectDef::Sequence(&[EffectDef::counter_target(TargetIndex::PRIMARY), EffectDef::create_creature_token(&["Bird"], &[ManaColor::Blue], 2, 2).with_controller(PlayerRefDef::ControllerOf(ObjectRefDef::Target(TargetIndex::PRIMARY))).with_abilities(&[abilities::flying()])]),
+    )),
 );
 
 // MH3 79 — Volatile Stormdrake
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Exchange control is available, but protection and hexproof do not have an activated-and-triggered-abilities-only targeting restriction. Ordinary hexproof would incorrectly prohibit opponents' spells too.
 pub(in crate::card::sets) static VOLATILE_STORMDRAKE_79: CardRecord = CardRecord::new(
     "Volatile Stormdrake",
     "2e6e3232-8bb8-4504-9597-dfdfc6d634bd",
@@ -1149,16 +1222,46 @@ pub(in crate::card::sets) static GALVANIC_DISCHARGE: CardRecord = CardRecord::ne
 );
 
 // MH3 123 — Ghostfire Slice
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GHOSTFIRE_SLICE_123: CardRecord = CardRecord::new(
     "Ghostfire Slice",
     "2adea3ee-138f-455b-a001-586883c44758",
     "Johann Bodin",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{2}{R}")).with_abilities(&[
+        abilities::devoid(),
+        abilities::spell_cost_reduction(
+            "This spell costs {2} less to cast if an opponent controls a multicolored permanent.",
+            ObjectPredicateDef::Source,
+            PlayerRelation::You,
+            ValueDef::IfMatchingObjectCount(&CountConditionDef {
+                query: ObjectQueryDef::matching(
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::ColorCount(0),
+                        ObjectPredicateDef::ColorCount(1),
+                    ])),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Opponent,
+                ),
+                comparison: ComparisonDef::GreaterOrEqual,
+                amount: 1,
+                then: ValueDef::Constant(2),
+                otherwise: ValueDef::Constant(0),
+            }),
+        ),
+        AbilityDef::spell_with_targets(
+            "Ghostfire Slice deals 4 damage to any target.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(4),
+            ),
+        ),
+    ]),
 );
 
 // MH3 124 — Glimpse the Impossible
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Exile identities and delayed moves can be bound, but an installed trigger checks its intervening-if condition without the captured object bindings. It cannot test whether any of this spell's particular cards remain exiled at the beginning of the end step. An unconditional trigger with a resolution-only check would still trigger when the printed ability must not.
 pub(in crate::card::sets) static GLIMPSE_THE_IMPOSSIBLE_124: CardRecord = CardRecord::new(
     "Glimpse the Impossible",
     "133ad0dd-5b61-4c38-9264-0b0e75b95d95",
@@ -1176,12 +1279,42 @@ pub(in crate::card::sets) static MOLTEN_GATEKEEPER: CardRecord = CardRecord::new
 );
 
 // MH3 136 — Siege Smash
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SIEGE_SMASH_136: CardRecord = CardRecord::new(
     "Siege Smash",
     "f33e3b25-76f5-4263-a309-9ea97f2d8248",
     "Joshua Cairos",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{R}")).with_abilities(&[
+        abilities::split_second(),
+        AbilityDef::modal_spell(
+            "Choose one —",
+            &[
+                AbilityDef::spell_with_targets(
+                    "• Destroy target artifact.",
+                    &[AbilityTargetDef::exactly_one_permanent(
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                    )],
+                    EffectDef::destroy_target(TargetIndex::PRIMARY),
+                ),
+                AbilityDef::spell_with_targets(
+                    "• Target creature gets +3/+2 and gains trample until end of turn.",
+                    &[AbilityTargetDef::exactly_one_permanent(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                    )],
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        effect: AppliedEffectDef::Composite(&[
+                            AppliedEffectDef::modify_power_toughness(
+                                ValueDef::Constant(3),
+                                ValueDef::Constant(2),
+                            ),
+                            AppliedEffectDef::add_ability(&abilities::trample()),
+                        ]),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                ),
+            ],
+        ),
+    ]),
 );
 
 // MH3 145 — Basking Broodscale
@@ -1892,12 +2025,14 @@ pub(in crate::card::sets) static FAITHFUL_WATCHDOG: CardRecord = CardRecord::new
 );
 
 // MH3 195 — Obstinate Gargoyle
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static OBSTINATE_GARGOYLE_195: CardRecord = CardRecord::new(
     "Obstinate Gargoyle",
     "40cf39f2-7382-405d-a14b-7eb8726cd38a",
     "Craig J Spearing",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{1}{W}{B}"), &["Gargoyle"], 2, 2).with_abilities(&[
+AbilityDef::static_ability("This creature has flying as long as it's modified. (Equipment, Auras you control, and counters are modifications.)", EffectDef::IfCondition { condition: &TriggerConditionDef::AnyOf(&[TriggerConditionDef::SourceMatches { object: ObjectPredicateDef::HasAnyCounter }, TriggerConditionDef::ValueComparison(&ValueComparisonDef { left: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(ObjectPredicateDef::All(&[ObjectPredicateDef::Subtype(SubtypeDef::Literal("Equipment")), ObjectPredicateDef::AttachedTo(&ObjectPredicateDef::Source)]), &[ZoneKind::Battlefield], PlayerRelation::Any)), comparison: ComparisonDef::Greater, right: ValueDef::Constant(0) }), TriggerConditionDef::ValueComparison(&ValueComparisonDef { left: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(ObjectPredicateDef::All(&[ObjectPredicateDef::Subtype(SubtypeDef::Literal("Aura")), ObjectPredicateDef::AttachedTo(&ObjectPredicateDef::Source)]), &[ZoneKind::Battlefield], PlayerRelation::You)), comparison: ComparisonDef::Greater, right: ValueDef::Constant(0) })]), then: &EffectDef::StaticApply { recipient: EffectRecipientDef::Source, effect: AppliedEffectDef::add_ability(&abilities::flying()) } }),
+abilities::persist()
+]),
 );
 
 // MH3 197 — Phlage, Titan of Fire's Fury
@@ -2101,7 +2236,7 @@ CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
 );
 
 // MH3 212 — Vexing Bauble
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Cast triggers cannot inspect whether no mana was spent on the triggering spell.
 pub(in crate::card::sets) static VEXING_BAUBLE_212: CardRecord = CardRecord::new(
     "Vexing Bauble",
     "29f11089-658f-42e6-aeb0-09b512ad2479",
@@ -2462,7 +2597,7 @@ pub(in crate::card::sets) static TWISTED_LANDSCAPE: CardRecord = CardRecord::new
 );
 
 // MH3 233 — Ugin's Labyrinth
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Mana amounts and overrides cannot inspect this source's linked-exile set. CountMatchingObjects accepts zone queries but has no exiled-with-this-source predicate, and CountObjects over LinkedExiles is not evaluated by the mana planner.
 pub(in crate::card::sets) static UGIN_S_LABYRINTH_233: CardRecord = CardRecord::new(
     "Ugin's Labyrinth",
     "020e1348-1a35-4cc8-bad6-9fbddfa79277",
@@ -2471,12 +2606,14 @@ pub(in crate::card::sets) static UGIN_S_LABYRINTH_233: CardRecord = CardRecord::
 );
 
 // MH3 234 — Urza's Cave
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static URZA_S_CAVE_234: CardRecord = CardRecord::new(
     "Urza's Cave",
     "926916ed-2f22-4ba9-9427-194886ad6c1e",
     "Mark Poole",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&["Urza's", "Cave"]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated("{3}, {T}, Sacrifice this land: Search your library for a land card, put it onto the battlefield tapped, then shuffle.", &[CostDef::Mana(mana_cost!("{3}")), CostDef::TapSource, CostDef::SacrificeSource], EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Library, object: ObjectPredicateDef::HasType(CardType::Land), minimum: 0, maximum: ValueDef::Constant(1), reveal: false, destination: ZoneKind::Battlefield, placement: ZonePlacement::Top, shuffle: true, enters_tapped: true, attachment: None, binding: None, then: None }),
+    ]),
 );
 
 // MH3 237 — Ajani, Nacatl Pariah // Ajani, Nacatl Avenger
@@ -2643,13 +2780,12 @@ pub(in crate::card::sets) static AJANI_NACATL_PARIAH: CardRecord = CardRecord::n
 );
 
 // MH3 238 — Razorgrass Ambush // Razorgrass Field
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RAZORGRASS_AMBUSH_RAZORGRASS_FIELD_238: CardRecord =
-    CardRecord::new(
+    CardRecord::new_mdfc(
         "Razorgrass Ambush // Razorgrass Field",
         "57065dca-f90e-4184-bbc4-95d726a4160b",
         "Cristi Balanescu",
-        crate::card::CardRules::unsupported(),
+        &[("Razorgrass Ambush", CardRules::new_instant(mana_cost!("{1}{W}")).with_ability(AbilityDef::spell_with_targets("Razorgrass Ambush deals 3 damage to target attacking or blocking creature.", &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::AttackingOrBlocking]))], EffectDef::damage(EffectRecipientDef::Target(TargetIndex::PRIMARY), ValueDef::Constant(3))))), ("Razorgrass Field", CardRules::new_land(&[]).with_abilities(&[AbilityDef::replacement("As this land enters, you may pay 3 life. If you don't, it enters tapped.", ReplacementEffectDef::PayOr { payment: EffectPaymentDef::new(PlayerSetDef::Related(PlayerRelation::You), &[CostDef::PayLife(3)]), if_paid: &[], if_declined: &[ReplacementEffectDef::ModifyBattlefieldEntry(BattlefieldEntryModificationDef::Tapped)] }), abilities::tap_for(ManaColor::White)]))],
     );
 
 // MH3 239 — Witch Enchanter // Witch-Blessed Meadow
@@ -2710,13 +2846,12 @@ pub(in crate::card::sets) static WITCH_ENCHANTER: CardRecord = CardRecord::new_m
 );
 
 // MH3 240 — Hydroelectric Specimen // Hydroelectric Laboratory
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HYDROELECTRIC_SPECIMEN_HYDROELECTRI_240: CardRecord =
-    CardRecord::new(
+    CardRecord::new_mdfc(
         "Hydroelectric Specimen // Hydroelectric Laboratory",
         "8689ecd7-e9a6-458b-99d2-6dbaca527f00",
         "Raoul Vitale",
-        crate::card::CardRules::unsupported(),
+        &[("Hydroelectric Specimen", CardRules::new_creature(mana_cost!("{2}{U}"), &["Weird"], 1, 4).with_abilities(&[abilities::flash(), abilities::enters_trigger_with_targets("When this creature enters, you may change the target of target instant or sorcery spell with a single target to this creature.", &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object { object: ObjectPredicateDef::All(&[ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Instant), ObjectPredicateDef::HasType(CardType::Sorcery)]), ObjectPredicateDef::DeclaredTargetCount { minimum: 1, maximum: 1 }]), zones: &[ZoneKind::Stack], controller: None, owner: None })], EffectDef::May { player: EffectRecipientDef::Controller, effect: &EffectDef::ChangeStackTargets(&crate::card::ChangeStackTargetsDef { object: EffectRecipientDef::Target(TargetIndex::PRIMARY), chooser: PlayerRefDef::EffectController, change: crate::card::StackTargetChangeDef::ReplaceOneWith(EffectRecipientDef::Source) }) })])), ("Hydroelectric Laboratory", CardRules::new_land(&[]).with_abilities(&[AbilityDef::replacement("As this land enters, you may pay 3 life. If you don't, it enters tapped.", ReplacementEffectDef::PayOr { payment: EffectPaymentDef::new(PlayerSetDef::Related(PlayerRelation::You), &[CostDef::PayLife(3)]), if_paid: &[], if_declined: &[ReplacementEffectDef::ModifyBattlefieldEntry(BattlefieldEntryModificationDef::Tapped)] }), abilities::tap_for(ManaColor::Blue)]))],
     );
 
 // MH3 241 — Sink into Stupor // Soporific Springs
@@ -2785,70 +2920,138 @@ pub(in crate::card::sets) static SINK_INTO_STUPOR: CardRecord = CardRecord::new_
 );
 
 // MH3 243 — Boggart Trawler // Boggart Bog
-// Audit: unsupported — Card rules have not been implemented.
-pub(in crate::card::sets) static BOGGART_TRAWLER_BOGGART_BOG_243: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static BOGGART_TRAWLER_BOGGART_BOG_243: CardRecord = CardRecord::new_mdfc(
     "Boggart Trawler // Boggart Bog",
     "d0d484a6-5610-4f1d-95ec-eda273c255e4",
     "Randy Gallegos",
-    crate::card::CardRules::unsupported(),
+    &[
+        (
+            "Boggart Trawler",
+            CardRules::new_creature(mana_cost!("{2}{B}"), &["Goblin"], 3, 1).with_ability(
+                abilities::enters_trigger_with_targets(
+                    "When this creature enters, exile target player's graveyard.",
+                    &[AbilityTargetDef::exactly_one(
+                        AbilityTargetPredicate::Player(PlayerRelation::Any),
+                    )],
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::owned_by(
+                            ObjectPredicateDef::Any,
+                            &[ZoneKind::Graveyard],
+                            PlayerSetDef::LegalTargets(TargetIndex::PRIMARY),
+                        ))),
+                        ZoneKind::Exile,
+                        ZonePlacement::Top,
+                    ),
+                ),
+            ),
+        ),
+        (
+            "Boggart Bog",
+            CardRules::new_land(&[]).with_abilities(&[
+                AbilityDef::replacement(
+                    "As this land enters, you may pay 3 life. If you don't, it enters tapped.",
+                    ReplacementEffectDef::PayOr {
+                        payment: EffectPaymentDef::new(
+                            PlayerSetDef::Related(PlayerRelation::You),
+                            &[CostDef::PayLife(3)],
+                        ),
+                        if_paid: &[],
+                        if_declined: &[ReplacementEffectDef::ModifyBattlefieldEntry(
+                            BattlefieldEntryModificationDef::Tapped,
+                        )],
+                    },
+                ),
+                abilities::tap_for(ManaColor::Black),
+            ]),
+        ),
+    ],
 );
 
 // MH3 244 — Fell the Profane // Fell Mire
-// Audit: unsupported — Card rules have not been implemented.
-pub(in crate::card::sets) static FELL_THE_PROFANE_FELL_MIRE_244: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static FELL_THE_PROFANE_FELL_MIRE_244: CardRecord = CardRecord::new_mdfc(
     "Fell the Profane // Fell Mire",
     "a3cb782d-c459-468d-9779-9b5669abc337",
     "Yeong-Hao Han",
-    crate::card::CardRules::unsupported(),
+    &[
+        (
+            "Fell the Profane",
+            CardRules::new_instant(mana_cost!("{2}{B}{B}")).with_ability(
+                AbilityDef::spell_with_targets(
+                    "Destroy target creature or planeswalker.",
+                    &[AbilityTargetDef::exactly_one_permanent(
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::HasType(CardType::Planeswalker),
+                        ]),
+                    )],
+                    EffectDef::destroy_target(TargetIndex::PRIMARY),
+                ),
+            ),
+        ),
+        (
+            "Fell Mire",
+            CardRules::new_land(&[]).with_abilities(&[
+                AbilityDef::replacement(
+                    "As this land enters, you may pay 3 life. If you don't, it enters tapped.",
+                    ReplacementEffectDef::PayOr {
+                        payment: EffectPaymentDef::new(
+                            PlayerSetDef::Related(PlayerRelation::You),
+                            &[CostDef::PayLife(3)],
+                        ),
+                        if_paid: &[],
+                        if_declined: &[ReplacementEffectDef::ModifyBattlefieldEntry(
+                            BattlefieldEntryModificationDef::Tapped,
+                        )],
+                    },
+                ),
+                abilities::tap_for(ManaColor::Black),
+            ]),
+        ),
+    ],
 );
 
 // MH3 246 — Pinnacle Monk // Mystic Peak
-// Audit: unsupported — Card rules have not been implemented.
-pub(in crate::card::sets) static PINNACLE_MONK_MYSTIC_PEAK_246: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static PINNACLE_MONK_MYSTIC_PEAK_246: CardRecord = CardRecord::new_mdfc(
     "Pinnacle Monk // Mystic Peak",
     "24d4f26e-7f96-4b38-867e-4fac819b2679",
     "Jason A. Engle",
-    crate::card::CardRules::unsupported(),
+    &[("Pinnacle Monk", CardRules::new_creature(mana_cost!("{3}{R}{R}"), &["Djinn", "Monk"], 2, 2).with_abilities(&[abilities::prowess(), abilities::enters_trigger_with_targets("When this creature enters, return target instant or sorcery card from your graveyard to your hand.", &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object { object: ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Instant), ObjectPredicateDef::HasType(CardType::Sorcery)]), zones: &[ZoneKind::Graveyard], controller: None, owner: Some(PlayerRelation::You) })], EffectDef::move_to_zone(EffectRecipientDef::Target(TargetIndex::PRIMARY), ZoneKind::Hand, ZonePlacement::Top))])), ("Mystic Peak", CardRules::new_land(&[]).with_abilities(&[AbilityDef::replacement("As this land enters, you may pay 3 life. If you don't, it enters tapped.", ReplacementEffectDef::PayOr { payment: EffectPaymentDef::new(PlayerSetDef::Related(PlayerRelation::You), &[CostDef::PayLife(3)]), if_paid: &[], if_declined: &[ReplacementEffectDef::ModifyBattlefieldEntry(BattlefieldEntryModificationDef::Tapped)] }), abilities::tap_for(ManaColor::Red)]))],
 );
 
 // MH3 248 — Sundering Eruption // Volcanic Fissure
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SUNDERING_ERUPTION_VOLCANIC_FISSURE_248: CardRecord =
-    CardRecord::new(
+    CardRecord::new_mdfc(
         "Sundering Eruption // Volcanic Fissure",
         "50686ac7-346c-43d1-bdaa-28d46a12ad93",
         "Yohann Schepacz",
-        crate::card::CardRules::unsupported(),
+        &[("Sundering Eruption", CardRules::new_sorcery(mana_cost!("{2}{R}")).with_ability(AbilityDef::spell_with_targets("Destroy target land. Its controller may search their library for a basic land card, put it onto the battlefield tapped, then shuffle. Creatures without flying can't block this turn.", &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Land))], EffectDef::Sequence(&[EffectDef::Destroy { object: EffectRecipientDef::Target(TargetIndex::PRIMARY), then: None }, EffectDef::May { player: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY), effect: &EffectDef::SearchZone { player: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY), source: ZoneKind::Library, object: ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Land), ObjectPredicateDef::Supertype(CardSupertype::Basic)]), minimum: 0, maximum: ValueDef::Constant(1), reveal: false, destination: ZoneKind::Battlefield, placement: ZonePlacement::Top, shuffle: true, enters_tapped: true, attachment: None, binding: None, then: None } }, EffectDef::Apply { recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::Not(&ObjectPredicateDef::HasKeyword(KeywordAbility::Flying))]), &[ZoneKind::Battlefield], PlayerRelation::Any), effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK), duration: ResolvedEffectDurationDef::UntilEndOfTurn }])))), ("Volcanic Fissure", CardRules::new_land(&[]).with_abilities(&[AbilityDef::replacement("As this land enters, you may pay 3 life. If you don't, it enters tapped.", ReplacementEffectDef::PayOr { payment: EffectPaymentDef::new(PlayerSetDef::Related(PlayerRelation::You), &[CostDef::PayLife(3)]), if_paid: &[], if_declined: &[ReplacementEffectDef::ModifyBattlefieldEntry(BattlefieldEntryModificationDef::Tapped)] }), abilities::tap_for(ManaColor::Red)]))],
     );
 
 // MH3 249 — Bridgeworks Battle // Tanglespan Bridgeworks
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BRIDGEWORKS_BATTLE_TANGLESPAN_BRIDGEWORKS_249: CardRecord =
-    CardRecord::new(
+    CardRecord::new_mdfc(
         "Bridgeworks Battle // Tanglespan Bridgeworks",
         "ebef3db0-2b58-4581-a79c-fbca9a059e63",
         "Ron Spears",
-        crate::card::CardRules::unsupported(),
+        &[("Bridgeworks Battle", CardRules::new_sorcery(mana_cost!("{2}{G}")).with_ability(AbilityDef::spell_with_targets("Target creature you control gets +2/+2 until end of turn. It fights up to one target creature you don't control.", &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object { object: ObjectPredicateDef::HasType(CardType::Creature), zones: &[ZoneKind::Battlefield], controller: Some(PlayerRelation::You), owner: None }), AbilityTargetDef::up_to(AbilityTargetPredicate::Object { object: ObjectPredicateDef::HasType(CardType::Creature), zones: &[ZoneKind::Battlefield], controller: Some(PlayerRelation::Opponent), owner: None }, 1)], EffectDef::Sequence(&[EffectDef::Apply { recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY), effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(2), ValueDef::Constant(2)), duration: ResolvedEffectDurationDef::UntilEndOfTurn }, EffectDef::Fight { first: ObjectRefDef::Target(TargetIndex::PRIMARY), second: ObjectRefDef::Target(TargetIndex(1)), excess: None }])))), ("Tanglespan Bridgeworks", CardRules::new_land(&[]).with_abilities(&[AbilityDef::replacement("As this land enters, you may pay 3 life. If you don't, it enters tapped.", ReplacementEffectDef::PayOr { payment: EffectPaymentDef::new(PlayerSetDef::Related(PlayerRelation::You), &[CostDef::PayLife(3)]), if_paid: &[], if_declined: &[ReplacementEffectDef::ModifyBattlefieldEntry(BattlefieldEntryModificationDef::Tapped)] }), abilities::tap_for(ManaColor::Green)]))],
     );
 
 // MH3 250 — Disciple of Freyalise // Garden of Freyalise
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DISCIPLE_OF_FREYALISE_GARDEN_OF_FREYALISE_250: CardRecord =
-    CardRecord::new(
+    CardRecord::new_mdfc(
         "Disciple of Freyalise // Garden of Freyalise",
         "a8e9ea5a-5e10-4b77-baef-0352ff035483",
         "Valera Lutfullina",
-        crate::card::CardRules::unsupported(),
+        &[("Disciple of Freyalise", CardRules::new_creature(mana_cost!("{3}{G}{G}{G}"), &["Elf", "Druid"], 3, 3).with_ability(abilities::enters_trigger("When this creature enters, you may sacrifice another creature. If you do, you gain X life and draw X cards, where X is that creature's power.", EffectDef::SacrificeOfChoice { player: EffectRecipientDef::Controller, object: ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::Not(&ObjectPredicateDef::Source)]), count: ValueDef::Constant(1), then: Some(&EffectDef::Sequence(&[EffectDef::GainLife { recipient: EffectRecipientDef::Controller, amount: ValueDef::TriggerEventAmount }, EffectDef::DrawCards { recipient: EffectRecipientDef::Controller, amount: ValueDef::TriggerEventAmount }])), amount: SacrificedAmountDef::Power, otherwise: None, optional: true }))), ("Garden of Freyalise", CardRules::new_land(&[]).with_abilities(&[AbilityDef::replacement("As this land enters, you may pay 3 life. If you don't, it enters tapped.", ReplacementEffectDef::PayOr { payment: EffectPaymentDef::new(PlayerSetDef::Related(PlayerRelation::You), &[CostDef::PayLife(3)]), if_paid: &[], if_declined: &[ReplacementEffectDef::ModifyBattlefieldEntry(BattlefieldEntryModificationDef::Tapped)] }), abilities::tap_for(ManaColor::Green)]))],
     );
 
 // MH3 261 — Waterlogged Teachings // Inundated Archive
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WATERLOGGED_TEACHINGS_INUNDATED_ARCHIVE_261: CardRecord =
-    CardRecord::new(
+    CardRecord::new_mdfc(
         "Waterlogged Teachings // Inundated Archive",
         "060f9675-4921-4cbb-bae2-54c85c679fd4",
         "Douglas Shuler",
-        crate::card::CardRules::unsupported(),
+        &[("Waterlogged Teachings", CardRules::new_instant(mana_cost!("{3}{U/B}")).with_ability(AbilityDef::spell("Search your library for an instant card or a card with flash, reveal it, put it into your hand, then shuffle.", EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Library, object: ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Instant), ObjectPredicateDef::HasKeyword(KeywordAbility::Flash)]), minimum: 0, maximum: ValueDef::Constant(1), reveal: true, destination: ZoneKind::Hand, placement: ZonePlacement::Top, shuffle: true, enters_tapped: false, attachment: None, binding: None, then: None }))), ("Inundated Archive", CardRules::new_land(&[]).with_abilities(&[abilities::enters_tapped(CardType::Land), AbilityDef::activated_mana("{T}: Add {U} or {B}.", &[CostDef::TapSource], EffectDef::AddMana(AddManaEffectDef::choice(&[ManaColor::Blue, ManaColor::Black])))]))],
     );
 
 // MH3 284 — Annoyed Altisaur (reprint)
@@ -2866,7 +3069,7 @@ const PRIEST_OF_TITANIA_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // MH3 320 — Echoes of Eternity
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — AdditionalTriggerDef only doubles triggers caused by battlefield entry. It cannot double arbitrary triggers of colorless spells or permanents, including spell-cast and upkeep triggers.
 pub(in crate::card::sets) static ECHOES_OF_ETERNITY_320: CardRecord = CardRecord::new(
     "Echoes of Eternity",
     "ae70f03f-cf60-418b-98e3-bc868e739656",
@@ -2875,7 +3078,7 @@ pub(in crate::card::sets) static ECHOES_OF_ETERNITY_320: CardRecord = CardRecord
 );
 
 // MH3 334 — Party Thrasher
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The engine does not grant convoke to spells conditionally on their being cast from exile. The cast-cost scanner handles intrinsic payment keywords, not this zone-dependent continuous grant.
 pub(in crate::card::sets) static PARTY_THRASHER_334: CardRecord = CardRecord::new(
     "Party Thrasher",
     "52bb8272-e60f-4aa1-8f98-6110715a78fa",
@@ -2884,7 +3087,7 @@ pub(in crate::card::sets) static PARTY_THRASHER_334: CardRecord = CardRecord::ne
 );
 
 // MH3 335 — Powerbalance
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Immediate free-cast offers accept only graveyard or exile cards. They cannot cast the revealed top card directly from the library during this trigger; exiling it first changes the printed behavior.
 pub(in crate::card::sets) static POWERBALANCE_335: CardRecord = CardRecord::new(
     "Powerbalance",
     "8a64a5c4-ebae-472b-8f90-dcdd8ab8bc26",
@@ -2893,7 +3096,7 @@ pub(in crate::card::sets) static POWERBALANCE_335: CardRecord = CardRecord::new(
 );
 
 // MH3 350 — Archway of Innovation
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — There is no consumable permission granting improvise to only the next spell cast this turn. The next-cast lifetime currently applies to cast-timing permissions, not payment keywords.
 pub(in crate::card::sets) static ARCHWAY_OF_INNOVATION_350: CardRecord = CardRecord::new(
     "Archway of Innovation",
     "472905ac-1eb9-4951-8180-b8c35fbab3d7",
@@ -3025,7 +3228,7 @@ pub(in crate::card::sets) static NADU_WINGED_WISDOM: CardRecord = CardRecord::ne
 );
 
 // MH3 383 — Ulamog, the Defiler
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The entry-value interpreter cannot compute AggregateObjectValues over exiled cards. Its greatest-exiled-mana-value entry counter count cannot be supplied to AddCountersValue.
 pub(in crate::card::sets) static ULAMOG_THE_DEFILER_383: CardRecord = CardRecord::new(
     "Ulamog, the Defiler",
     "339f83ca-4f46-4246-be23-5ca4add31d81",
@@ -3034,43 +3237,80 @@ pub(in crate::card::sets) static ULAMOG_THE_DEFILER_383: CardRecord = CardRecord
 );
 
 // MH3 387 — Null Elemental Blast
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NULL_ELEMENTAL_BLAST_387: CardRecord = CardRecord::new(
     "Null Elemental Blast",
     "7114c9c8-5370-42e0-8aaf-dc05e2422a76",
     "Milivoj Ćeran",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{C}")).with_ability(AbilityDef::modal_spell(
+        "Choose one —",
+        &[
+            AbilityDef::spell_with_targets(
+                "Counter target multicolored spell.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::Spell,
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::AnyOf(&[
+                                ObjectPredicateDef::ColorCount(0),
+                                ObjectPredicateDef::ColorCount(1),
+                            ])),
+                        ]),
+                        zones: &[ZoneKind::Stack],
+                        controller: None,
+                        owner: None,
+                    },
+                )],
+                EffectDef::counter_target(TargetIndex::PRIMARY),
+            ),
+            AbilityDef::spell_with_targets(
+                "Destroy target multicolored permanent.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::ColorCount(0),
+                        ObjectPredicateDef::ColorCount(1),
+                    ])),
+                )],
+                EffectDef::destroy_target(TargetIndex::PRIMARY),
+            ),
+        ],
+    )),
 );
 
 // MH3 400 — Flare of Denial
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FLARE_OF_DENIAL_400: CardRecord = CardRecord::new(
     "Flare of Denial",
     "0149c119-83ea-46f5-9e22-33a674ddddb6",
     "Jason A. Engle",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{U}{U}")).with_abilities(&[
+AbilityDef::alternative_cast(&[CostDef::sacrifice_permanent(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::Not(&ObjectPredicateDef::Token), ObjectPredicateDef::Color(ManaColor::Blue)]))], AlternativeCastKindDef::AlternativeCost, Some("You may sacrifice a nontoken blue creature rather than pay this spell's mana cost."), EffectDef::None),
+AbilityDef::spell_with_targets("Counter target spell.", &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object { object: ObjectPredicateDef::All(&[ObjectPredicateDef::Spell, ObjectPredicateDef::Any]), zones: &[ZoneKind::Stack], controller: None, owner: None })], EffectDef::counter_target(TargetIndex::PRIMARY))
+]),
 );
 
 // MH3 409 — Grim Servant
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GRIM_SERVANT_409: CardRecord = CardRecord::new(
     "Grim Servant",
     "77251806-c2b6-448c-a95e-a1943ca0bfd8",
     "David Astruga",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{B}"), &["Zombie", "Warlock"], 3, 2).with_abilities(&[
+abilities::menace(),
+abilities::enters_trigger("When this creature enters, search your library for a card with mana value less than or equal to your devotion to black, reveal it, put it into your hand, then shuffle. You lose 3 life. (Each {B} in the mana costs of permanents you control counts toward your devotion to black.)", EffectDef::Sequence(&[EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Library, object: ObjectPredicateDef::ManaValueAtMostValue(ValueDef::DevotionTo(ManaColor::Black)), minimum: 0, maximum: ValueDef::Constant(1), reveal: true, destination: ZoneKind::Hand, placement: ZonePlacement::Top, shuffle: true, enters_tapped: false, attachment: None, binding: None, then: None }, EffectDef::LoseLife { recipient: EffectRecipientDef::Controller, amount: ValueDef::Constant(3) }]))
+]),
 );
 
 // MH3 410 — Marionette Apprentice
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MARIONETTE_APPRENTICE_410: CardRecord = CardRecord::new(
     "Marionette Apprentice",
     "22b5a3dd-0b5a-434e-afee-a83b0279fd15",
     "Steve Ellis",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{B}"), &["Human", "Artificer"], 1, 2).with_abilities(&[
+abilities::enters_trigger("Fabricate 1 (When this creature enters, put a +1/+1 counter on it or create a 1/1 colorless Servo artifact creature token.)", EffectDef::ChooseEffect { player: EffectRecipientDef::Controller, choices: &[EffectChoiceDef { label: "Put a +1/+1 counter on this creature", effect: EffectDef::AddCounters { object: EffectRecipientDef::Source, kind: CounterKind::PlusOnePlusOne, amount: ValueDef::Constant(1) } }, EffectChoiceDef { label: "Create a Servo", effect: EffectDef::create_artifact_creature_token(&["Servo"], &[], 1, 1) }] }),
+AbilityDef::triggered("Whenever another creature or artifact you control is put into a graveyard from the battlefield, each opponent loses 1 life.", TriggerEventDef::zone_changed(ObjectPredicateDef::All(&[ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::HasType(CardType::Artifact)]), ObjectPredicateDef::Not(&ObjectPredicateDef::Source), ObjectPredicateDef::ControlledBy(PlayerRelation::You)]), Some(ZoneKind::Battlefield), Some(ZoneKind::Graveyard)), EffectDef::LoseLife { recipient: EffectRecipientDef::Opponent, amount: ValueDef::Constant(1) })
+]),
 );
 
 // MH3 411 — Necrodominance
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Player rules can modify maximum hand size or remove the limit, but cannot set the base maximum to five. A minus-two modifier is not equivalent when another effect sets that maximum.
 pub(in crate::card::sets) static NECRODOMINANCE_411: CardRecord = CardRecord::new(
     "Necrodominance",
     "f810a2d7-efbe-4ea1-83d1-d594a8eaf88b",
@@ -3079,25 +3319,62 @@ pub(in crate::card::sets) static NECRODOMINANCE_411: CardRecord = CardRecord::ne
 );
 
 // MH3 414 — Warren Soultrader
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WARREN_SOULTRADER_414: CardRecord = CardRecord::new(
     "Warren Soultrader",
     "17fd4d15-413f-41c5-b3e0-71bbb52851bc",
     "Pete Venters",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{B}"), &["Zombie", "Goblin", "Wizard"], 3, 3).with_abilities(&[
+AbilityDef::activated("Pay 1 life, Sacrifice another creature: Create a Treasure token. (It's an artifact with \"{T}, Sacrifice this token: Add one mana of any color.\")", &[CostDef::PayLife(1), CostDef::sacrifice_permanent(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::Not(&ObjectPredicateDef::Source)]))], EffectDef::create_token(crate::card::tokens::treasure()))
+]),
 );
 
 // MH3 416 — Flare of Duplication
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FLARE_OF_DUPLICATION_416: CardRecord = CardRecord::new(
     "Flare of Duplication",
     "170483c2-4e50-4cc8-9481-3330057d91bb",
     "Olivier Bernard",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{R}{R}")).with_abilities(&[
+        AbilityDef::alternative_cast(
+            &[CostDef::sacrifice_permanent(ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
+                ObjectPredicateDef::Color(ManaColor::Red),
+            ]))],
+            AlternativeCastKindDef::AlternativeCost,
+            Some(
+                "You may sacrifice a nontoken red creature rather than pay this spell's mana cost.",
+            ),
+            EffectDef::None,
+        ),
+        AbilityDef::spell_with_targets(
+            "Copy target instant or sorcery spell. You may choose new targets for the copy.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Spell,
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Instant),
+                            ObjectPredicateDef::HasType(CardType::Sorcery),
+                        ]),
+                    ]),
+                    zones: &[ZoneKind::Stack],
+                    controller: None,
+                    owner: None,
+                },
+            )],
+            EffectDef::CopyStackObject(&CopyStackObjectDef {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                controller: PlayerRefDef::EffectController,
+                count: ValueDef::Constant(1),
+                retarget: true,
+                colors: None,
+            }),
+        ),
+    ]),
 );
 
 // MH3 421 — Unstable Amulet
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The exile-play permission has no lifetime ending when this same permanent next exiles a card. This-turn and while-exiled permissions both authorize the wrong plays.
 pub(in crate::card::sets) static UNSTABLE_AMULET_421: CardRecord = CardRecord::new(
     "Unstable Amulet",
     "25f01df9-c4fa-4598-84c1-217bde6b1841",
@@ -3106,7 +3383,7 @@ pub(in crate::card::sets) static UNSTABLE_AMULET_421: CardRecord = CardRecord::n
 );
 
 // MH3 427 — Monstrous Vortex
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — There is no discover procedure. Cascade uses a strict mana-value bound and lacks discover's choice to put the matched card into hand, so substituting cascade changes the card.
 pub(in crate::card::sets) static MONSTROUS_VORTEX_427: CardRecord = CardRecord::new(
     "Monstrous Vortex",
     "0970efb6-427f-4d5b-9b66-eda4b91015bd",
@@ -3404,7 +3681,7 @@ pub(in crate::card::sets) static SORIN_OF_HOUSE_MARKOV: CardRecord = CardRecord:
 );
 
 // MH3 445 — Ral, Monsoon Mage // Ral, Leyline Prodigy
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The back face's +1 must install a temporary instant/sorcery cost reduction until your next turn. ModifyCost is a static operation; the resolving-effect and ongoing-effect procedures cannot install that duration-scoped static discount.
 pub(in crate::card::sets) static RAL_MONSOON_MAGE_RAL_LEYLINE_PRODIGY_445: CardRecord =
     CardRecord::new(
         "Ral, Monsoon Mage // Ral, Leyline Prodigy",
@@ -3494,12 +3771,16 @@ pub(in crate::card::sets) static GUIDE_OF_SOULS: CardRecord = CardRecord::new(
 );
 
 // MH3 450 — Dreamtide Whale
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DREAMTIDE_WHALE_450: CardRecord = CardRecord::new(
     "Dreamtide Whale",
     "966e2066-ef45-4882-a420-247115a319b9",
     "Ron Spears",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Whale"], 7, 5).with_abilities(&[
+AbilityDef::as_enters("Vanishing 2 (This creature enters with two time counters on it. At the beginning of your upkeep, remove a time counter from it. When the last is removed, sacrifice it.)", ReplacementEffectDef::ModifyBattlefieldEntry(BattlefieldEntryModificationDef::AddCounters { kind: CounterKind::named("time"), amount: 2 })),
+AbilityDef::triggered_if("At the beginning of your upkeep, if this creature has a time counter on it, remove a time counter from it.", TriggerEventDef::StepBegins { step: TurnStepDef::Upkeep, player: PlayerRelation::You }, &TriggerConditionDef::SourceCounters { kind: CounterKind::named("time"), comparison: ComparisonDef::Greater, amount: 0 }, EffectDef::RemoveCounters { object: EffectRecipientDef::Source, kind: CounterKind::named("time"), amount: ValueDef::Constant(1) }),
+AbilityDef::triggered("When the last time counter is removed from this creature, sacrifice it.", TriggerEventDef::LastCounterRemoved { object: ObjectPredicateDef::Source, kind: CounterKind::named("time") }, EffectDef::sacrifice(EffectRecipientDef::Source)),
+AbilityDef::triggered("Whenever a player casts their second spell each turn, proliferate. (Choose any number of permanents and/or players, then give each another counter of each kind already there.)", TriggerEventDef::While { event: &TriggerEventDef::spell_cast(ObjectPredicateDef::Any), condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef { left: ValueDef::CountSpellsCastThisTurn(&SpellCastQueryDef { spell: ObjectPredicateDef::Any, player: PlayerRelation::EventPlayer }), comparison: ComparisonDef::Equal, right: ValueDef::Constant(2) }) }, EffectDef::Proliferate)
+]),
 );
 
 // MH3 452 — Crabomination
@@ -3544,12 +3825,13 @@ CardRules::new_creature(mana_cost!("{4}{B}{B}"), &["Crab", "Demon"], 5, 5).with_
 );
 
 // MH3 455 — Ripples of Undeath
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RIPPLES_OF_UNDEATH_455: CardRecord = CardRecord::new(
     "Ripples of Undeath",
     "0136a022-6b16-4b33-a817-946ded4e9dd5",
     "Ben Wootten",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{B}")).with_abilities(&[
+AbilityDef::triggered("At the beginning of your first main phase, mill three cards. Then you may pay {1} and 3 life. If you do, put a card from among those cards into your hand.", TriggerEventDef::StepBegins { step: TurnStepDef::PrecombatMain, player: PlayerRelation::You }, EffectDef::BindObjects(BindObjectsDef { source: ObjectCollectionSourceDef::TopCards { player: PlayerRefDef::EffectController, count: ValueDef::Constant(3) }, binding: Binding!("ripples_top"), then: &EffectDef::Sequence(&[EffectDef::Mill { player: EffectRecipientDef::Controller, amount: ValueDef::Constant(3) }, EffectDef::PayOr(PayOrDef::optional(&[CostDef::Mana(mana_cost!("{1}")), CostDef::PayLife(3)], &EffectDef::Choose(ChooseDef { chooser: PlayerRefDef::EffectController, candidates: ObjectSetDef::ZoneChangeSuccessorsOfBinding(Binding!("ripples_top")), exclude: None, minimum: 1, maximum: 1, binding: ObjectChoiceBindingDef::Objects(Binding!("ripples_return")), unchosen: None, visibility: ChoiceVisibilityDef::Private, then: &EffectDef::move_to_zone(EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!("ripples_return"))), ZoneKind::Hand, ZonePlacement::Top) })))]) }))
+]),
 );
 
 // MH3 457 — Detective's Phoenix (alternate printing)
@@ -3620,16 +3902,26 @@ pub(in crate::card::sets) static WIGHT_OF_THE_RELIQUARY: CardRecord = CardRecord
 );
 
 // MH3 462 — Winter Moon
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WINTER_MOON_462: CardRecord = CardRecord::new(
     "Winter Moon",
     "1ea94321-7311-4543-bdc0-23938a8904c3",
     "Drew Baker",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[AbilityDef::static_ability(
+        "Players can't untap more than one nonbasic land during their untap steps.",
+        EffectDef::StaticApply {
+            recipient: EffectRecipientDef::EachPlayer,
+            effect: AppliedEffectDef::Rule(AppliedRuleDef::UntapAtMostOne(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(CardSupertype::Basic)),
+                ]),
+            )),
+        },
+    )]),
 );
 
 // MH3 474 — Herigast, Erupting Nullkite
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The engine can author an individual emerge cost but cannot grant emerge using each creature spell's own mana cost to all of a player's creature spells.
 pub(in crate::card::sets) static HERIGAST_ERUPTING_NULLKITE_474: CardRecord = CardRecord::new(
     "Herigast, Erupting Nullkite",
     "72a86d7d-a7a4-4a26-b92a-0518af2d9646",

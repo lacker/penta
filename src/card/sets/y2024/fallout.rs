@@ -1,5 +1,8 @@
 //! Fallout cards cataloged for the Vintage Cube pool.
 
+use crate::card::AddManaEffectDef;
+use crate::card::CostDef;
+use crate::card::ManaColor;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::AdditionalCostIndex;
@@ -75,7 +78,7 @@ pub(in crate::card::sets) static SECURITRON_SQUADRON: CardRecord = CardRecord::n
 );
 
 // PIP 58 — Grim Reaper's Sprint
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Additional combat scheduling and the morbid discount are available, but the resolving condition vocabulary cannot test whether the current step is this controller's main phase. Testing only whose turn it is would incorrectly add a combat after an entry during combat or an end step.
 pub(in crate::card::sets) static GRIM_REAPER_S_SPRINT_58: CardRecord = CardRecord::new(
     "Grim Reaper's Sprint",
     "18e76286-9e06-42de-b322-eb8aa2cdca3a",
@@ -84,7 +87,7 @@ pub(in crate::card::sets) static GRIM_REAPER_S_SPRINT_58: CardRecord = CardRecor
 );
 
 // PIP 388 — Megaton's Fate
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Rad counters require an upkeep mill, life-loss, and rad-removal procedure associated with players. Merely adding named counters would omit their rules.
 pub(in crate::card::sets) static MEGATON_S_FATE_388: CardRecord = CardRecord::new(
     "Megaton's Fate",
     "3e8c93a1-3553-4de7-8441-396aa50b26bb",
@@ -93,7 +96,7 @@ pub(in crate::card::sets) static MEGATON_S_FATE_388: CardRecord = CardRecord::ne
 );
 
 // PIP 583 — Bottle-Cap Blast
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Damage follow-ups report whether damage was dealt or identify damaged recipients, but do not expose excess damage from an ordinary damage assignment. FightExcessDef applies only to fights and cannot implement the Treasure count.
 pub(in crate::card::sets) static BOTTLE_CAP_BLAST_583: CardRecord = CardRecord::new(
     "Bottle-Cap Blast",
     "4c4d8bfb-aaf0-41f3-a000-1df6363fb25c",
@@ -102,7 +105,7 @@ pub(in crate::card::sets) static BOTTLE_CAP_BLAST_583: CardRecord = CardRecord::
 );
 
 // PIP 594 — Rose, Cutthroat Raider
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Attack history records creatures that attacked, but not the distinct opponents they attacked this turn. Raid alone cannot distinguish attacking an opponent from attacking only that opponent's planeswalkers for the Junk count.
 pub(in crate::card::sets) static ROSE_CUTTHROAT_RAIDER_594: CardRecord = CardRecord::new(
     "Rose, Cutthroat Raider",
     "5163087f-163d-4e5e-ae6b-aca192b4358b",
@@ -111,7 +114,7 @@ pub(in crate::card::sets) static ROSE_CUTTHROAT_RAIDER_594: CardRecord = CardRec
 );
 
 // PIP 597 — Vault 21: House Gambit
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The collection pipeline cannot compare each revealed card's mana value with all other cards in the same chosen set to count the matching duplicates.
 pub(in crate::card::sets) static VAULT_21_HOUSE_GAMBIT_597: CardRecord = CardRecord::new(
     "Vault 21: House Gambit",
     "0f4e60ea-4192-4388-8ad0-e5b3339eb872",
@@ -120,12 +123,18 @@ pub(in crate::card::sets) static VAULT_21_HOUSE_GAMBIT_597: CardRecord = CardRec
 );
 
 // PIP 973 — Sunscorched Divide
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SUNSCORCHED_DIVIDE_973: CardRecord = CardRecord::new(
     "Sunscorched Divide",
     "a2595012-a6ce-49d1-a1b6-27d06ae1fc64",
     "Zezhou Chen",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[AbilityDef::activated_mana(
+        "{1}, {T}: Add {R}{W}.",
+        &[CostDef::Mana(mana_cost!("{1}")), CostDef::TapSource],
+        EffectDef::AddMana(AddManaEffectDef::one_of_each(
+            ManaColor::Red,
+            ManaColor::White,
+        )),
+    )]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

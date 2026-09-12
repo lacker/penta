@@ -1,5 +1,12 @@
 //! Dominaria cards cataloged for the Vintage Cube pool.
 
+use crate::card::AbilityTargetPredicate;
+use crate::card::AddManaEffectDef;
+use crate::card::AppliedRuleDef;
+use crate::card::BattlefieldEntryModificationDef;
+use crate::card::ManaColor;
+use crate::card::ReplacementEffectDef;
+use crate::card::ValueComparisonDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::card::AbilityDef;
@@ -248,12 +255,14 @@ pub(in crate::card::sets) static LYRA_DAWNBRINGER: CardRecord = CardRecord::new(
 );
 
 // DOM 36 — Teshar, Ancestor's Apostle
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TESHAR_ANCESTOR_S_APOSTLE_36: CardRecord = CardRecord::new(
     "Teshar, Ancestor's Apostle",
     "f6d115b4-51d5-4898-b56c-2729aa428018",
     "Even Amundsen",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{W}"), &["Bird", "Cleric"], 2, 2).with_supertype(CardSupertype::Legendary).with_abilities(&[
+abilities::flying(),
+AbilityDef::triggered_with_targets("Whenever you cast a historic spell, return target creature card with mana value 3 or less from your graveyard to the battlefield. (Artifacts, legendaries, and Sagas are historic.)", TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Artifact), ObjectPredicateDef::Supertype(CardSupertype::Legendary), ObjectPredicateDef::Subtype(SubtypeDef::Literal("Saga"))]), ObjectPredicateDef::ControlledBy(PlayerRelation::You)])), &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object { object: ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::ManaValueAtMost(3)]), zones: &[ZoneKind::Graveyard], controller: None, owner: Some(PlayerRelation::You) })], EffectDef::move_to_zone(EffectRecipientDef::Target(TargetIndex::PRIMARY), ZoneKind::Battlefield, ZonePlacement::Top))
+]),
 );
 
 // DOM 68 — Tempest Djinn
@@ -301,12 +310,13 @@ pub(in crate::card::sets) static CAST_DOWN: CardRecord = CardRecord::new(
 );
 
 // DOM 93 — Final Parting
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FINAL_PARTING_93: CardRecord = CardRecord::new(
     "Final Parting",
     "de8803f6-9efa-4323-b8c5-29bdd5a48f9a",
     "Eric Deschamps",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{3}{B}{B}")).with_abilities(&[
+AbilityDef::spell("Search your library for two cards. Put one into your hand and the other into your graveyard. Then shuffle.", EffectDef::Sequence(&[EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Library, object: ObjectPredicateDef::Any, minimum: 2, maximum: ValueDef::Constant(2), reveal: false, destination: ZoneKind::Library, placement: ZonePlacement::Top, shuffle: false, enters_tapped: false, attachment: None, binding: Some(Binding!("part_found")), then: Some(&EffectDef::IfElseCondition { condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef { left: ValueDef::BoundObjectCount(Binding!("part_found")), comparison: ComparisonDef::GreaterOrEqual, right: ValueDef::Constant(2) }), then: &EffectDef::Choose(ChooseDef { chooser: PlayerRefDef::EffectController, candidates: ObjectSetDef::Binding(Binding!("part_found")), exclude: None, minimum: 1, maximum: 1, binding: ObjectChoiceBindingDef::Objects(Binding!("part_hand")), unchosen: Some(Binding!("part_grave")), visibility: ChoiceVisibilityDef::Private, then: &EffectDef::Sequence(&[EffectDef::move_to_zone(EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!("part_hand"))), ZoneKind::Hand, ZonePlacement::Top), EffectDef::move_to_zone(EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!("part_grave"))), ZoneKind::Graveyard, ZonePlacement::Top)]) }), otherwise: &EffectDef::Choose(ChooseDef { chooser: PlayerRefDef::EffectController, candidates: ObjectSetDef::Binding(Binding!("part_found")), exclude: None, minimum: 0, maximum: 1, binding: ObjectChoiceBindingDef::Objects(Binding!("part_short_hand")), unchosen: Some(Binding!("part_short_grave")), visibility: ChoiceVisibilityDef::Private, then: &EffectDef::Sequence(&[EffectDef::move_to_zone(EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!("part_short_hand"))), ZoneKind::Hand, ZonePlacement::Top), EffectDef::move_to_zone(EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!("part_short_grave"))), ZoneKind::Graveyard, ZonePlacement::Top)]) }) }) }, EffectDef::ShuffleLibrary { player: EffectRecipientDef::Controller }]))
+]),
 );
 
 // DOM 97 — Knight of Malice
@@ -358,7 +368,7 @@ pub(in crate::card::sets) static GHITU_LAVARUNNER: CardRecord = CardRecord::new(
 );
 
 // DOM 146 — Squee, the Immortal
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — There is no intrinsic cast-from-exile permission. Exile-play effects grant permission when they move a card, which cannot authorize this card after any arbitrary path into exile.
 pub(in crate::card::sets) static SQUEE_THE_IMMORTAL_146: CardRecord = CardRecord::new(
     "Squee, the Immortal",
     "a3974c62-a524-454e-9ce7-2c23b704e5cb",
@@ -367,12 +377,25 @@ pub(in crate::card::sets) static SQUEE_THE_IMMORTAL_146: CardRecord = CardRecord
 );
 
 // DOM 151 — Warlord's Fury
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WARLORD_S_FURY_151: CardRecord = CardRecord::new(
     "Warlord's Fury",
     "0ebd63cf-7e8c-4c8d-844d-98535d5f3039",
     "Volkan Baǵa",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{R}")).with_abilities(&[AbilityDef::spell(
+        "Creatures you control gain first strike until end of turn.\nDraw a card.",
+        EffectDef::Sequence(&[
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                effect: AppliedEffectDef::add_ability(&abilities::first_strike()),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+            abilities::draw_cards(ValueDef::Constant(1)),
+        ]),
+    )]),
 );
 
 // DOM 164 — Grow from the Ashes
@@ -601,7 +624,7 @@ CardRules::new_artifact(mana_cost!("{4}"))
 );
 
 // DOM 224 — Mox Amber
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The mana-type selection domain can inspect mana-producing abilities, but cannot derive the colors of legendary creatures and planeswalkers.
 pub(in crate::card::sets) static MOX_AMBER_224: CardRecord = CardRecord::new(
     "Mox Amber",
     "66024e69-ad60-4c9a-a0ca-da138d33ad80",
@@ -610,30 +633,91 @@ pub(in crate::card::sets) static MOX_AMBER_224: CardRecord = CardRecord::new(
 );
 
 // DOM 234 — Traxos, Scourge of Kroog
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TRAXOS_SCOURGE_OF_KROOG_234: CardRecord = CardRecord::new(
     "Traxos, Scourge of Kroog",
     "dab80216-3df7-4e4f-8732-16dd6cac6bcf",
     "Lius Lasahido",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{4}"), &["Construct"], 7, 7)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::trample(),
+            AbilityDef::as_enters(
+                "Traxos enters tapped.",
+                ReplacementEffectDef::ModifyBattlefieldEntry(
+                    BattlefieldEntryModificationDef::Tapped,
+                ),
+            ),
+            AbilityDef::static_ability(
+                "It doesn't untap during your untap step.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::DoesNotUntapDuringUntapStep),
+                },
+            ),
+            AbilityDef::triggered(
+                "Whenever you cast a historic spell, untap Traxos.",
+                TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        ObjectPredicateDef::Supertype(CardSupertype::Legendary),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Saga")),
+                    ]),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ])),
+                EffectDef::Untap {
+                    object: EffectRecipientDef::Source,
+                },
+            ),
+        ]),
 );
 
 // DOM 236 — Voltaic Servant
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VOLTAIC_SERVANT_236: CardRecord = CardRecord::new(
     "Voltaic Servant",
     "28564ac6-8b9b-4b99-9630-8fb3158d354c",
     "Jonas De Ro",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{2}"), &["Construct"], 1, 3).with_abilities(&[
+        AbilityDef::triggered_with_targets(
+            "At the beginning of your end step, untap target artifact.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::End,
+                player: PlayerRelation::You,
+            },
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Artifact),
+            )],
+            EffectDef::Untap {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+        ),
+    ]),
 );
 
 // DOM 238 — Cabal Stronghold
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CABAL_STRONGHOLD_238: CardRecord = CardRecord::new(
     "Cabal Stronghold",
     "0bda51ef-ee3e-48d4-92e2-c9083bbe0f80",
     "Dimitar Marinski",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated_mana(
+            "{3}, {T}: Add {B} for each basic Swamp you control.",
+            &[CostDef::Mana(mana_cost!("{3}")), CostDef::TapSource],
+            EffectDef::AddMana(
+                AddManaEffectDef::one(ManaColor::Black).with_variable_amount(
+                    ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Land),
+                            ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Swamp")),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    )),
+                ),
+            ),
+        ),
+    ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

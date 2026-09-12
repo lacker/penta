@@ -1,5 +1,6 @@
 //! Dragons of Tarkir cards cataloged as cross-format rules-engine test cases.
 
+use crate::card::ManaColor;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
@@ -60,7 +61,7 @@ pub(in crate::card::sets) static ARTFUL_MANEUVER: CardRecord = CardRecord::new(
 );
 
 // DTK 120 — Sidisi, Undead Vizier
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Exploit must emit a distinct sacrifice-mechanic event and trigger only while Sidisi is still present. A sacrifice follow-up would incorrectly resolve the tutor in the entry trigger and even after sacrificing Sidisi herself; there is no exploit event matcher.
 pub(in crate::card::sets) static SIDISI_UNDEAD_VIZIER_120: CardRecord = CardRecord::new(
     "Sidisi, Undead Vizier",
     "6ea5dbba-6114-4d97-9363-817ab9e896d3",
@@ -104,12 +105,29 @@ pub(in crate::card::sets) static IMPACT_TREMORS: CardRecord = CardRecord::new(
 );
 
 // DTK 150 — Rending Volley
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RENDING_VOLLEY_150: CardRecord = CardRecord::new(
     "Rending Volley",
     "8234090e-9df1-4915-90ef-8a4bc6212655",
     "Lucas Graciano",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{R}")).with_abilities(&[
+        abilities::cannot_be_countered(),
+        AbilityDef::spell_with_targets(
+            "Rending Volley deals 4 damage to target white or blue creature.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::Color(ManaColor::White),
+                        ObjectPredicateDef::Color(ManaColor::Blue),
+                    ]),
+                ]),
+            )],
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(4),
+            ),
+        ),
+    ]),
 );
 
 // DTK 156 — Seismic Rupture

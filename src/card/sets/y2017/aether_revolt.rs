@@ -1,5 +1,14 @@
 //! Aether Revolt cards cataloged for the Vintage Cube pool.
 
+use crate::card::AddManaEffectDef;
+use crate::card::BattlefieldEntryChoiceDestinationDef;
+use crate::card::BattlefieldEntryScalarChoiceDef;
+use crate::card::ComparisonDef;
+use crate::card::CopyExceptionsDef;
+use crate::card::ObjectQueryDef;
+use crate::card::ReplacementChoiceDef;
+use crate::card::ReplacementEventDef;
+use crate::card::TokenCopyDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::card::AbilityDef;
@@ -83,21 +92,24 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // AER 48 — Trophy Mage
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TROPHY_MAGE_48: CardRecord = CardRecord::new(
     "Trophy Mage",
     "19754fe4-2f61-42a3-afa2-3a6a8257b81b",
     "Anna Steinbauer",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Human", "Wizard"], 2, 2).with_abilities(&[
+abilities::enters_trigger("When this creature enters, you may search your library for an artifact card with mana value 3, reveal it, put it into your hand, then shuffle.", EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Library, object: ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Artifact), ObjectPredicateDef::ManaValueEqualTo(ValueDef::Constant(3))]), minimum: 0, maximum: ValueDef::Constant(1), reveal: true, destination: ZoneKind::Hand, placement: ZonePlacement::Top, shuffle: true, enters_tapped: false, attachment: None, binding: None, then: None })
+]),
 );
 
 // AER 49 — Whir of Invention
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WHIR_OF_INVENTION_49: CardRecord = CardRecord::new(
     "Whir of Invention",
     "0279fd3c-9252-4958-9d7a-5f33aa25907e",
     "Christine Choi",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{X}{U}{U}{U}")).with_abilities(&[
+abilities::improvise(),
+AbilityDef::spell("Search your library for an artifact card with mana value X or less, put it onto the battlefield, then shuffle.", EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Library, object: ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Artifact), ObjectPredicateDef::ManaValueAtMostValue(ValueDef::ChosenX)]), minimum: 0, maximum: ValueDef::Constant(1), reveal: false, destination: ZoneKind::Battlefield, placement: ZonePlacement::Top, shuffle: true, enters_tapped: false, attachment: None, binding: None, then: None })
+]),
 );
 
 // AER 51 — Aether Poisoner
@@ -271,21 +283,35 @@ pub(in crate::card::sets) static DRUID_OF_THE_COWL: CardRecord = CardRecord::new
 );
 
 // AER 109 — Heroic Intervention
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HEROIC_INTERVENTION_109: CardRecord = CardRecord::new(
     "Heroic Intervention",
     "8f5a620c-fde7-4b72-bf8a-efc4f14560c5",
     "James Ryman",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{G}")).with_abilities(&[AbilityDef::spell(
+        "Permanents you control gain hexproof and indestructible until end of turn.",
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::Any,
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
+            ),
+            effect: AppliedEffectDef::Composite(&[
+                AppliedEffectDef::add_ability(&abilities::hexproof()),
+                AppliedEffectDef::add_ability(&abilities::indestructible()),
+            ]),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )]),
 );
 
 // AER 145 — Cogwork Assembler
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static COGWORK_ASSEMBLER_145: CardRecord = CardRecord::new(
     "Cogwork Assembler",
     "6dddacdd-bbc4-4f9b-be1c-5f2c64be3cbc",
     "Joseph Meehan",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{3}"), &["Assembly-Worker"], 2, 3).with_abilities(&[
+AbilityDef::activated_with_targets("{7}: Create a token that's a copy of target artifact. That token gains haste. Exile it at the beginning of the next end step.", &[CostDef::Mana(mana_cost!("{7}"))], &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Artifact))], EffectDef::create_token_from_copy(&TokenCopyDef { object: &EffectRecipientDef::Target(TargetIndex::PRIMARY), exceptions: CopyExceptionsDef::NONE }).with_created_tokens(CreatedTokensDef { binding: ParentBinding, then: &EffectDef::Sequence(&[EffectDef::Apply { recipient: EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)), effect: AppliedEffectDef::add_ability(&abilities::haste()), duration: ResolvedEffectDurationDef::Permanent }, EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered("Exile it at the beginning of the next end step.", TriggerEventDef::StepBegins { step: TurnStepDef::End, player: PlayerRelation::Any }, EffectDef::move_to_zone(EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)), ZoneKind::Exile, ZonePlacement::Top))))]) }))
+]),
 );
 
 // AER 151 — Foundry Assembler
@@ -298,7 +324,7 @@ pub(in crate::card::sets) static FOUNDRY_ASSEMBLER: CardRecord = CardRecord::new
 );
 
 // AER 154 — Hope of Ghirapur
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Target-player predicates cannot test whether this source dealt that player combat damage earlier this turn.
 pub(in crate::card::sets) static HOPE_OF_GHIRAPUR_154: CardRecord = CardRecord::new(
     "Hope of Ghirapur",
     "6f4bcadd-7eff-4294-94d5-52482a734d5b",
@@ -307,12 +333,15 @@ pub(in crate::card::sets) static HOPE_OF_GHIRAPUR_154: CardRecord = CardRecord::
 );
 
 // AER 164 — Metallic Mimic
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static METALLIC_MIMIC_164: CardRecord = CardRecord::new(
     "Metallic Mimic",
     "1aa4eba9-9e91-4beb-9296-a18baa73a318",
     "Zack Stella",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{2}"), &["Shapeshifter"], 2, 1).with_abilities(&[
+AbilityDef::as_enters("As this permanent enters, choose a creature type.", ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(BattlefieldEntryScalarChoiceDef::CREATURE_TYPE))),
+AbilityDef::static_ability("This creature is the chosen type in addition to its other types.", EffectDef::StaticApply { recipient: EffectRecipientDef::Source, effect: AppliedEffectDef::add_chosen_creature_type() }),
+AbilityDef::replacement_for("Each other creature you control of the chosen type enters with an additional +1/+1 counter on it.", ReplacementEventDef::ObjectEntersBattlefield { object: ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::HasSourcesChosenScalar(BattlefieldEntryChoiceDestinationDef::CreatureType), ObjectPredicateDef::Not(&ObjectPredicateDef::Source)]), controller: PlayerRelation::You, cast: None }, ReplacementEffectDef::ModifyBattlefieldEntry(BattlefieldEntryModificationDef::AddCounters { kind: CounterKind::PlusOnePlusOne, amount: 1 }))
+]),
 );
 
 // AER 181 — Walking Ballista
@@ -360,12 +389,27 @@ pub(in crate::card::sets) static WALKING_BALLISTA: CardRecord = CardRecord::new(
 );
 
 // AER 184 — Spire of Industry
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPIRE_OF_INDUSTRY_184: CardRecord = CardRecord::new(
     "Spire of Industry",
     "8331724d-6fab-454a-b06c-b06e499fa552",
     "John Avon",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated_mana_if(
+            "{T}, Pay 1 life: Add one mana of any color. Activate only if you control an artifact.",
+            &[CostDef::TapSource, CostDef::PayLife(1)],
+            &TriggerConditionDef::ObjectCount {
+                query: ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                comparison: ComparisonDef::GreaterOrEqual,
+                amount: 1,
+            },
+            EffectDef::AddMana(AddManaEffectDef::any_color()),
+        ),
+    ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

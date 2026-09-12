@@ -1,5 +1,17 @@
 //! Kaladesh cards cataloged for the Vintage Cube pool.
 
+use crate::card::AggregateOperationDef;
+use crate::card::AlternativeCastKindDef;
+use crate::card::ComparisonDef;
+use crate::card::CostModificationDef;
+use crate::card::CounterKindDef;
+use crate::card::CounterOperationDef;
+use crate::card::DestroyFollowUpDef;
+use crate::card::ObjectValueAggregateDef;
+use crate::card::ObjectValueDef;
+use crate::card::SpellCastQueryDef;
+use crate::card::TriggerConditionDef;
+use crate::card::TurnStepDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
@@ -89,21 +101,43 @@ pub(in crate::card::sets) static FUMIGATE: CardRecord = CardRecord::new(
 );
 
 // KLD 25 — Refurbish
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static REFURBISH_25: CardRecord = CardRecord::new(
     "Refurbish",
     "f60e2ac4-f21f-4232-abc8-db078472408b",
     "Johann Bodin",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{3}{W}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Return target artifact card from your graveyard to the battlefield.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Artifact),
+                zones: &[ZoneKind::Graveyard],
+                controller: None,
+                owner: Some(PlayerRelation::You),
+            },
+        )],
+        EffectDef::move_to_zone(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ZoneKind::Battlefield,
+            ZonePlacement::Top,
+        ),
+    )]),
 );
 
 // KLD 44 — Dramatic Reversal
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DRAMATIC_REVERSAL_44: CardRecord = CardRecord::new(
     "Dramatic Reversal",
     "dcb59045-2743-48ae-8063-727e551b1c41",
     "Eric Deschamps",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{U}")).with_abilities(&[AbilityDef::spell(
+        "Untap all nonland permanents you control.",
+        EffectDef::Untap {
+            object: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
+            ),
+        },
+    )]),
 );
 
 // KLD 48 — Gearseeker Serpent
@@ -137,12 +171,14 @@ pub(in crate::card::sets) static GEARSEEKER_SERPENT: CardRecord = CardRecord::ne
 );
 
 // KLD 59 — Padeem, Consul of Innovation
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PADEEM_CONSUL_OF_INNOVATION_59: CardRecord = CardRecord::new(
     "Padeem, Consul of Innovation",
     "e31b30a7-13e8-408e-a758-60e6e9290808",
     "Matt Stewart",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{U}"), &["Vedalken", "Artificer"], 1, 4).with_supertype(CardSupertype::Legendary).with_abilities(&[
+AbilityDef::static_ability("Artifacts you control have hexproof. (They can't be the targets of spells or abilities your opponents control.)", EffectDef::StaticApply { recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::HasType(CardType::Artifact), &[ZoneKind::Battlefield], PlayerRelation::You), effect: AppliedEffectDef::add_ability(&abilities::hexproof()) }),
+AbilityDef::triggered_if("At the beginning of your upkeep, if you control the artifact with the greatest mana value or tied for the greatest mana value, draw a card.", TriggerEventDef::StepBegins { step: TurnStepDef::Upkeep, player: PlayerRelation::You }, &TriggerConditionDef::ObjectCount { query: ObjectQueryDef::matching(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Artifact), ObjectPredicateDef::ManaValueEqualTo(ValueDef::AggregateObjectValues(&ObjectValueAggregateDef { objects: ObjectSetDef::Query(ObjectQueryDef::matching(ObjectPredicateDef::HasType(CardType::Artifact), &[ZoneKind::Battlefield], PlayerRelation::Any)), select: ObjectValueDef::ManaValue, operation: AggregateOperationDef::Maximum }))]), &[ZoneKind::Battlefield], PlayerRelation::You), comparison: ComparisonDef::GreaterOrEqual, amount: 1 }, abilities::draw_cards(ValueDef::Constant(1)))
+]),
 );
 
 // KLD 60 — Paradoxical Outcome
@@ -211,21 +247,25 @@ pub(in crate::card::sets) static PARADOXICAL_OUTCOME: CardRecord = CardRecord::n
 );
 
 // KLD 67 — Torrential Gearhulk
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TORRENTIAL_GEARHULK_67: CardRecord = CardRecord::new(
     "Torrential Gearhulk",
     "d52868cb-087e-4f91-91bc-455f2e2e7cd7",
     "Svetlin Velinov",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{4}{U}{U}"), &["Construct"], 5, 6).with_abilities(&[
+abilities::flash(),
+abilities::enters_trigger_with_targets("When this creature enters, you may cast target instant card from your graveyard without paying its mana cost. If that spell would be put into your graveyard, exile it instead.", &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object { object: ObjectPredicateDef::HasType(CardType::Instant), zones: &[ZoneKind::Graveyard], controller: None, owner: Some(PlayerRelation::You) })], EffectDef::MayCastTargetWithoutPaying { object: EffectRecipientDef::Target(TargetIndex::PRIMARY), ability: &AbilityDef::alternative_cast(crate::NO_COSTS, AlternativeCastKindDef::Granted, Some("Cast without paying its mana cost."), EffectDef::None).with_exile_if_put_into_graveyard() })
+]),
 );
 
 // KLD 96 — Noxious Gearhulk
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NOXIOUS_GEARHULK_96: CardRecord = CardRecord::new(
     "Noxious Gearhulk",
     "9f86e5fe-8723-4494-b4cc-b7ac3a047bd1",
     "Lius Lasahido",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{4}{B}{B}"), &["Construct"], 5, 4).with_abilities(&[
+abilities::menace(),
+abilities::enters_trigger_with_targets("When this creature enters, you may destroy another target creature. If a creature is destroyed this way, you gain life equal to its toughness.", &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::Not(&ObjectPredicateDef::Source)]))], EffectDef::May { player: EffectRecipientDef::Controller, effect: &EffectDef::Destroy { object: EffectRecipientDef::Target(TargetIndex::PRIMARY), then: Some(DestroyFollowUpDef { binding: Binding!("gearhulk_destroyed"), effect: &EffectDef::GainLife { recipient: EffectRecipientDef::Controller, amount: ValueDef::AggregateObjectValues(&ObjectValueAggregateDef { objects: ObjectSetDef::Binding(Binding!("gearhulk_destroyed")), select: ObjectValueDef::Toughness, operation: AggregateOperationDef::Sum }) } }) } })
+]),
 );
 
 // KLD 107 — Brazen Scourge
@@ -301,25 +341,38 @@ pub(in crate::card::sets) static CHANDRA_TORCH_OF_DEFIANCE: CardRecord =
 );
 
 // KLD 126 — Reckless Fireweaver
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RECKLESS_FIREWEAVER_126: CardRecord = CardRecord::new(
     "Reckless Fireweaver",
     "63ffac51-62c4-4170-85b3-a43d7cfae7d7",
     "Deruchenko Alexander",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Human", "Artificer"], 1, 3).with_abilities(&[
+AbilityDef::triggered("Whenever an artifact you control enters, this creature deals 1 damage to each opponent.", TriggerEventDef::zone_changed(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Artifact), ObjectPredicateDef::ControlledBy(PlayerRelation::You)]), None, Some(ZoneKind::Battlefield)), EffectDef::damage(EffectRecipientDef::Opponent, ValueDef::Constant(1)))
+]),
 );
 
 // KLD 127 — Renegade Tactics
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RENEGADE_TACTICS_127: CardRecord = CardRecord::new(
     "Renegade Tactics",
     "6c06a39c-68bb-4e65-9a6d-9d9bc745201f",
     "Yeong-Hao Han",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{R}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Target creature can't block this turn.\nDraw a card.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+            abilities::draw_cards(ValueDef::Constant(1)),
+        ]),
+    )]),
 );
 
 // KLD 131 — Spark of Creativity
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The arbitrary-card exile operation grants a play permission as it exiles the card. It cannot first exile and reveal that card, then grant a paid play permission only if the optional damage is declined.
 pub(in crate::card::sets) static SPARK_OF_CREATIVITY_131: CardRecord = CardRecord::new(
     "Spark of Creativity",
     "718bf224-5e1b-439c-a998-ceec5c0a8903",
@@ -410,21 +463,45 @@ pub(in crate::card::sets) static CLOUDBLAZER: CardRecord = CardRecord::new(
 );
 
 // KLD 192 — Aetherflux Reservoir
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AETHERFLUX_RESERVOIR_192: CardRecord = CardRecord::new(
     "Aetherflux Reservoir",
     "96b6b2e1-c3e6-464c-8a13-b15deb34e862",
     "Cliff Childs",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{4}")).with_abilities(&[
+        AbilityDef::triggered(
+            "Whenever you cast a spell, you gain 1 life for each spell you’ve cast this turn.",
+            TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(PlayerRelation::You)),
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::CountSpellsCastThisTurn(&SpellCastQueryDef {
+                    player: PlayerRelation::You,
+                    spell: ObjectPredicateDef::Any,
+                }),
+            },
+        ),
+        AbilityDef::activated_with_targets(
+            "Pay 50 life: This artifact deals 50 damage to any target.",
+            &[CostDef::PayLife(50)],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(50),
+            ),
+        ),
+    ]),
 );
 
 // KLD 194 — Animation Module
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ANIMATION_MODULE_194: CardRecord = CardRecord::new(
     "Animation Module",
     "34bdc973-db45-46a6-ac48-ce88fb59920a",
     "Aaron Miller",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
+AbilityDef::triggered("Whenever one or more +1/+1 counters are put on a permanent you control, you may pay {1}. If you do, create a 1/1 colorless Servo artifact creature token.", TriggerEventDef::CountersPlaced { object: ObjectPredicateDef::ControlledBy(PlayerRelation::You), kind: CounterKind::PlusOnePlusOne }, EffectDef::PayOr(PayOrDef::optional(&[CostDef::Mana(mana_cost!("{1}"))], &EffectDef::create_artifact_creature_token(&["Servo"], &[], 1, 1)))),
+AbilityDef::activated_with_targets("{3}, {T}: Choose a counter on target permanent or player. Give that permanent or player another counter of that kind.", &[CostDef::Mana(mana_cost!("{3}")), CostDef::TapSource], &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyOf(&[AbilityTargetPredicate::Player(PlayerRelation::Any), AbilityTargetPredicate::Object { object: ObjectPredicateDef::Any, zones: &[ZoneKind::Battlefield], controller: None, owner: None }]))], EffectDef::ChooseCounterKind { object: EffectRecipientDef::Target(TargetIndex::PRIMARY), then: &EffectDef::ModifyCounters { object: EffectRecipientDef::Target(TargetIndex::PRIMARY), kind: CounterKindDef::Chosen, operation: CounterOperationDef::Add, amount: ValueDef::Constant(1) } })
+]),
 );
 
 // KLD 203 — Cultivator's Caravan
@@ -468,12 +545,20 @@ pub(in crate::card::sets) static FILIGREE_FAMILIAR: CardRecord = CardRecord::new
 );
 
 // KLD 215 — Foundry Inspector
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FOUNDRY_INSPECTOR_215: CardRecord = CardRecord::new(
     "Foundry Inspector",
     "93f827e8-1cc4-4a15-a4be-2e74323963b9",
     "Jason A. Engle",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{3}"), &["Construct"], 3, 2).with_abilities(&[
+        AbilityDef::static_ability(
+            "Artifact spells you cast cost {1} less to cast.",
+            EffectDef::ModifyCost(CostModificationDef::reduce_spell(
+                ObjectPredicateDef::HasType(CardType::Artifact),
+                PlayerRelation::You,
+                ValueDef::Constant(1),
+            )),
+        ),
+    ]),
 );
 
 // KLD 230 — Renegade Freighter
@@ -627,12 +712,15 @@ pub(in crate::card::sets) static INSPIRING_VANTAGE: CardRecord = CardRecord::new
 );
 
 // KLD 247 — Inventors' Fair
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static INVENTORS_FAIR_247: CardRecord = CardRecord::new(
     "Inventors' Fair",
     "275471e3-ded1-40ac-91ef-369dce5764d9",
     "Jonas De Ro",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_supertype(CardSupertype::Legendary).with_abilities(&[
+AbilityDef::triggered_if("At the beginning of your upkeep, if you control three or more artifacts, you gain 1 life.", TriggerEventDef::StepBegins { step: TurnStepDef::Upkeep, player: PlayerRelation::You }, &TriggerConditionDef::ObjectCount { query: ObjectQueryDef::matching(ObjectPredicateDef::HasType(CardType::Artifact), &[ZoneKind::Battlefield], PlayerRelation::You), comparison: ComparisonDef::GreaterOrEqual, amount: 3 }, EffectDef::GainLife { recipient: EffectRecipientDef::Controller, amount: ValueDef::Constant(1) }),
+abilities::tap_for(ManaColor::Colorless),
+AbilityDef::activated("{4}, {T}, Sacrifice Inventors' Fair: Search your library for an artifact card, reveal it, put it into your hand, then shuffle. Activate only if you control three or more artifacts.", &[CostDef::Mana(mana_cost!("{4}")), CostDef::TapSource, CostDef::SacrificeSource], EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Library, object: ObjectPredicateDef::HasType(CardType::Artifact), minimum: 0, maximum: ValueDef::Constant(1), reveal: true, destination: ZoneKind::Hand, placement: ZonePlacement::Top, shuffle: true, enters_tapped: false, attachment: None, binding: None, then: None }).with_activation_condition(&TriggerConditionDef::ObjectCount { query: ObjectQueryDef::matching(ObjectPredicateDef::HasType(CardType::Artifact), &[ZoneKind::Battlefield], PlayerRelation::You), comparison: ComparisonDef::GreaterOrEqual, amount: 3 })
+]),
 );
 
 // KLD 249 — Spirebluff Canal

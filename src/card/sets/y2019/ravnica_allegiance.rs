@@ -1,5 +1,21 @@
 //! RNA card records required by supported formats.
 
+use crate::card::ActivationTimingDef;
+use crate::card::AddManaEffectDef;
+use crate::card::CardSupertype;
+use crate::card::ComparisonDef;
+use crate::card::ConditionDef;
+use crate::card::CounterKind;
+use crate::card::DrawEventMatcherDef;
+use crate::card::ExilePlayDurationDef;
+use crate::card::ManaTypeFilterDef;
+use crate::card::ManaTypeSetDef;
+use crate::card::ManaTypeSourceDef;
+use crate::card::ObjectRefDef;
+use crate::card::ObjectSetDef;
+use crate::card::PlayerRefDef;
+use crate::card::PlayerSetDef;
+use crate::card::SumValueDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
@@ -77,12 +93,13 @@ pub(in crate::card::sets) static ARCHWAY_ANGEL: CardRecord = CardRecord::new(
 );
 
 // RNA 22 — Smothering Tithe
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SMOTHERING_TITHE_22: CardRecord = CardRecord::new(
     "Smothering Tithe",
     "7af082fa-86a3-4f7b-966d-2be1f1d0c0bc",
     "Mark Behm",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{3}{W}")).with_abilities(&[
+AbilityDef::triggered("Whenever an opponent draws a card, that player may pay {2}. If the player doesn't, you create a Treasure token. (It's an artifact with \"{T}, Sacrifice this token: Add one mana of any color.\")", TriggerEventDef::DrewCard(DrawEventMatcherDef::any(PlayerRelation::Opponent)), EffectDef::PayOr(PayOrDef::unless(&[CostDef::Mana(mana_cost!("{2}"))], &EffectDef::create_token(crate::card::tokens::treasure())).with_payer(PlayerSetDef::One(PlayerRefDef::EventPlayer))))
+]),
 );
 
 // RNA 40 — Gateway Sneak
@@ -140,12 +157,14 @@ CardRules::new_creature(mana_cost!("{2}{U}{U}"), &["Sphinx"], 4, 4).with_abiliti
 );
 
 // RNA 107 — Light Up the Stage
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LIGHT_UP_THE_STAGE_107: CardRecord = CardRecord::new(
     "Light Up the Stage",
     "9287b848-2aeb-4c70-ac4a-acafb871b7a4",
     "Dmitry Burmak",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{2}{R}")).with_abilities(&[
+AbilityDef::alternative_cast(&[CostDef::Mana(mana_cost!("{R}"))], AlternativeCastKindDef::AlternativeCost, Some("Spectacle {R} (You may cast this spell for its spectacle cost rather than its mana cost if an opponent lost life this turn.)"), EffectDef::None).with_alternative_condition(&TriggerConditionDef::OpponentLostLifeThisTurn),
+AbilityDef::spell("Exile the top two cards of your library. Until the end of your next turn, you may play those cards.", EffectDef::ExileTopOfLibraryToPlay { player: EffectRecipientDef::Controller, amount: ValueDef::Constant(2), free: false, face_down: false, duration: ExilePlayDurationDef::UntilEndOfYourNextTurn, spend_any_color: false, play_condition: None, cast_only: false })
+]),
 );
 
 // RNA 115 — Skewer the Critics
@@ -194,16 +213,18 @@ pub(in crate::card::sets) static BIOGENIC_UPGRADE: CardRecord = CardRecord::new(
 );
 
 // RNA 131 — Incubation Druid
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static INCUBATION_DRUID_131: CardRecord = CardRecord::new(
     "Incubation Druid",
     "075bbe5d-d0f3-4be3-a3a6-072d5d3d614c",
     "Daniel Ljunggren",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Elf", "Druid"], 0, 2).with_abilities(&[
+AbilityDef::activated_mana("{T}: Add one mana of any type that a land you control could produce. If this creature has a +1/+1 counter on it, add three mana of that type instead.", &[CostDef::TapSource], EffectDef::AddMana(AddManaEffectDef::choice_from(ManaTypeSetDef { source: ManaTypeSourceDef::CouldBeProducedBy(&ObjectSetDef::Query(ObjectQueryDef::matching(ObjectPredicateDef::HasType(CardType::Land), &[ZoneKind::Battlefield], PlayerRelation::You))), filter: ManaTypeFilterDef::AnyType }).with_amount_override(&ConditionDef::Exists(ObjectQueryDef::matching(ObjectPredicateDef::All(&[ObjectPredicateDef::Source, ObjectPredicateDef::HasCounter(CounterKind::PlusOnePlusOne)]), &[ZoneKind::Battlefield], PlayerRelation::You)), 3))),
+AbilityDef::activated("{3}{G}{G}: Adapt 3. (If this creature has no +1/+1 counters on it, put three +1/+1 counters on it.)", &[CostDef::Mana(mana_cost!("{3}{G}{G}"))], EffectDef::IfCondition { condition: &TriggerConditionDef::SourceCounters { kind: CounterKind::PlusOnePlusOne, comparison: ComparisonDef::Equal, amount: 0 }, then: &EffectDef::AddCounters { object: EffectRecipientDef::Source, kind: CounterKind::PlusOnePlusOne, amount: ValueDef::Constant(3) } })
+]),
 );
 
 // RNA 139 — Saruli Caretaker
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Mana-ability eligibility rejects TapPermanents costs, so this ability cannot select and tap its additional creature payer. The ordinary activated-ability tap decision would use the stack and cannot substitute for a mana ability.
 pub(in crate::card::sets) static SARULI_CARETAKER_139: CardRecord = CardRecord::new(
     "Saruli Caretaker",
     "ef3358cb-714c-49bf-b7e9-a69d02d7799e",
@@ -212,7 +233,7 @@ pub(in crate::card::sets) static SARULI_CARETAKER_139: CardRecord = CardRecord::
 );
 
 // RNA 158 — Biomancer's Familiar
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The cost discount is expressible, but no one-use rule lets a particular creature bypass the counter-presence condition of its next adapt activation this turn.
 pub(in crate::card::sets) static BIOMANCER_S_FAMILIAR_158: CardRecord = CardRecord::new(
     "Biomancer's Familiar",
     "d38c9891-36d1-4565-9c4a-1cd9dbf8c048",
@@ -221,12 +242,14 @@ pub(in crate::card::sets) static BIOMANCER_S_FAMILIAR_158: CardRecord = CardReco
 );
 
 // RNA 161 — Cindervines
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CINDERVINES_161: CardRecord = CardRecord::new(
     "Cindervines",
     "9f970f79-3051-4ba1-badb-697ef321cbb3",
     "Mark Behm",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{R}{G}")).with_abilities(&[
+AbilityDef::triggered("Whenever an opponent casts a noncreature spell, this enchantment deals 1 damage to that player.", TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[ObjectPredicateDef::NoncreatureSpell, ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent)])), EffectDef::damage(EffectRecipientDef::player(PlayerRefDef::EventPlayer), ValueDef::Constant(1))),
+AbilityDef::activated_with_targets("{1}, Sacrifice this enchantment: Destroy target artifact or enchantment. This enchantment deals 2 damage to that permanent's controller.", &[CostDef::Mana(mana_cost!("{1}")), CostDef::SacrificeSource], &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Artifact), ObjectPredicateDef::HasType(CardType::Enchantment)]))], EffectDef::Sequence(&[EffectDef::Destroy { object: EffectRecipientDef::Target(TargetIndex::PRIMARY), then: None }, EffectDef::damage(EffectRecipientDef::player(PlayerRefDef::ControllerOf(ObjectRefDef::Target(TargetIndex::PRIMARY))), ValueDef::Constant(2))]))
+]),
 );
 
 // RNA 171 — Final Payment
@@ -326,7 +349,7 @@ pub(in crate::card::sets) static GROWTH_SPIRAL: CardRecord = CardRecord::new(
 );
 
 // RNA 189 — Lavinia, Azorius Renegade
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Cast history exposes colors of mana spent but not the total amount spent. Zero colors also matches a spell paid entirely with colorless mana, so it cannot implement the no-mana-spent trigger.
 pub(in crate::card::sets) static LAVINIA_AZORIUS_RENEGADE_189: CardRecord = CardRecord::new(
     "Lavinia, Azorius Renegade",
     "c497d496-1232-4614-93b0-9864fa93c29f",
@@ -335,16 +358,17 @@ pub(in crate::card::sets) static LAVINIA_AZORIUS_RENEGADE_189: CardRecord = Card
 );
 
 // RNA 195 — Prime Speaker Vannifar
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PRIME_SPEAKER_VANNIFAR_195: CardRecord = CardRecord::new(
     "Prime Speaker Vannifar",
     "84abfc59-10a7-4cb5-9cdd-81797116c810",
     "Kieran Yanner",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{G}{U}"), &["Elf", "Ooze", "Wizard"], 2, 4).with_supertype(CardSupertype::Legendary).with_abilities(&[
+AbilityDef::activated("{T}, Sacrifice another creature: Search your library for a creature card with mana value equal to 1 plus the sacrificed creature's mana value, put that card onto the battlefield, then shuffle. Activate only as a sorcery.", &[CostDef::TapSource, CostDef::sacrifice_permanent(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::Not(&ObjectPredicateDef::Source)]))], EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Library, object: ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::ManaValueEqualTo(ValueDef::Sum(&SumValueDef { left: ValueDef::SacrificedManaValue, right: ValueDef::Constant(1) }))]), minimum: 0, maximum: ValueDef::Constant(1), reveal: true, destination: ZoneKind::Battlefield, placement: ZonePlacement::Top, shuffle: true, enters_tapped: false, attachment: None, binding: None, then: None }).with_activation_timing(ActivationTimingDef::SorcerySpeed)
+]),
 );
 
 // RNA 201 — Rhythm of the Wild
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — There is no shared riot entry replacement choosing a +1/+1 counter or haste, including its grant to other nontoken creatures.
 pub(in crate::card::sets) static RHYTHM_OF_THE_WILD_201: CardRecord = CardRecord::new(
     "Rhythm of the Wild",
     "84062ce2-fea2-4e06-b83b-7cc597fb2a1b",

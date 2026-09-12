@@ -1,5 +1,29 @@
 //! Commander 2017 card records required by supported formats.
 
+use crate::card::AbilityTargetPredicate;
+use crate::card::BattlefieldEntryChoiceDestinationDef;
+use crate::card::BattlefieldEntryScalarChoiceDef;
+use crate::card::BindObjectsDef;
+use crate::card::CardTypeSet;
+use crate::card::ChoiceVisibilityDef;
+use crate::card::CostAdjustmentDef;
+use crate::card::CostAmountDef;
+use crate::card::CostDef;
+use crate::card::CostModificationDef;
+use crate::card::LookAtObjectsDef;
+use crate::card::ObjectCollectionSourceDef;
+use crate::card::ObjectSetDef;
+use crate::card::ReplacementChoiceDef;
+use crate::card::ReplacementEffectDef;
+use crate::card::RevealObjectsDef;
+use crate::card::SpellCostConditionDef;
+use crate::card::SpellCostModificationDef;
+use crate::card::SubtypeDef;
+use crate::card::TriggerConditionDef;
+use crate::card::TriggerEventDef;
+use crate::card::TurnStepDef;
+use crate::card::ValueDef;
+use crate::card::abilities;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
@@ -69,16 +93,18 @@ CardRules::new_instant(mana_cost!("{2}{W}")).with_ability(
 );
 
 // C17 14 — Bloodline Necromancer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BLOODLINE_NECROMANCER_14: CardRecord = CardRecord::new(
     "Bloodline Necromancer",
     "42bffd03-3821-4b0f-9535-2eb455154587",
     "Joe Slucher",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{B}"), &["Vampire", "Wizard"], 3, 2).with_abilities(&[
+abilities::lifelink(),
+AbilityDef::triggered_with_targets("When this creature enters, you may return target Vampire or Wizard creature card from your graveyard to the battlefield.", TriggerEventDef::zone_changed(ObjectPredicateDef::Source, None, Some(ZoneKind::Battlefield)), &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object { object: ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vampire")), ObjectPredicateDef::Subtype(SubtypeDef::Literal("Wizard"))])]), zones: &[ZoneKind::Graveyard], controller: None, owner: Some(PlayerRelation::You) })], EffectDef::May { player: EffectRecipientDef::Controller, effect: &EffectDef::move_to_zone(EffectRecipientDef::Target(TargetIndex::PRIMARY), ZoneKind::Battlefield, ZonePlacement::Top) })
+]),
 );
 
 // C17 24 — Curse of Opulence
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Attack-declaration predicates do not identify the player being attacked relative to the Aura’s enchanted player; triggering once per attacker would overproduce Gold.
 pub(in crate::card::sets) static CURSE_OF_OPULENCE_24: CardRecord = CardRecord::new(
     "Curse of Opulence",
     "e23db9d3-d11f-4b2c-8349-687bc0e9d4c2",
@@ -130,7 +156,7 @@ pub(in crate::card::sets) static FRACTURED_IDENTITY: CardRecord = CardRecord::ne
 );
 
 // C17 38 — Inalla, Archmage Ritualist
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The shared battlefield-event listener does not register abilities of command-zone cards, so eminence cannot observe another Wizard entering while Inalla is in the command zone.
 pub(in crate::card::sets) static INALLA_ARCHMAGE_RITUALIST_38: CardRecord = CardRecord::new(
     "Inalla, Archmage Ritualist",
     "7c6e803a-451c-4aa6-97a2-400077f32c47",
@@ -139,21 +165,26 @@ pub(in crate::card::sets) static INALLA_ARCHMAGE_RITUALIST_38: CardRecord = Card
 );
 
 // C17 53 — Herald's Horn
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HERALD_S_HORN_53: CardRecord = CardRecord::new(
     "Herald's Horn",
     "07b06421-778a-4d23-862b-30fc5fa25928",
     "Jason Felix",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
+AbilityDef::as_enters("As this artifact enters, choose a creature type.", ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(BattlefieldEntryScalarChoiceDef::CREATURE_TYPE))),
+AbilityDef::static_ability("Creature spells you cast of the chosen type cost {1} less to cast.", EffectDef::ModifyCost(CostModificationDef::Spell(SpellCostModificationDef { spell: ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::HasSourcesChosenScalar(BattlefieldEntryChoiceDestinationDef::CreatureType)]), caster: PlayerRelation::You, condition: SpellCostConditionDef::Always, adjustment: CostAdjustmentDef::Subtract(CostAmountDef::Generic(ValueDef::Constant(1))) }))),
+AbilityDef::triggered("At the beginning of your upkeep, look at the top card of your library. If it's a creature card of the chosen type, you may reveal it and put it into your hand.", TriggerEventDef::StepBegins { step: TurnStepDef::Upkeep, player: PlayerRelation::You }, EffectDef::BindObjects(BindObjectsDef { source: ObjectCollectionSourceDef::TopCards { player: PlayerRefDef::EffectController, count: ValueDef::Constant(1) }, binding: Binding!("horn_top"), then: &EffectDef::Sequence(&[EffectDef::LookAtObjects(LookAtObjectsDef { actor: PlayerRefDef::EffectController, source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(Binding!("horn_top"))), visibility: ChoiceVisibilityDef::Private, then: &EffectDef::None }), EffectDef::ForEachInBinding { objects: Binding!("horn_top"), binding: Binding!("horn_card"), effect: &EffectDef::IfCondition { condition: &TriggerConditionDef::BoundObjectMatches { binding: Binding!("horn_card"), object: ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::HasSourcesChosenScalar(BattlefieldEntryChoiceDestinationDef::CreatureType)]) }, then: &EffectDef::May { player: EffectRecipientDef::Controller, effect: &EffectDef::Sequence(&[EffectDef::RevealObjects(RevealObjectsDef { input: ObjectSetDef::One(ObjectRefDef::Binding(Binding!("horn_card"))), then: &EffectDef::None }), EffectDef::move_to_zone(EffectRecipientDef::object(ObjectRefDef::Binding(Binding!("horn_card"))), ZoneKind::Hand, ZonePlacement::Top)]) } } }]) }))
+]),
 );
 
 // C17 54 — Mirror of the Forebears
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MIRROR_OF_THE_FOREBEARS_54: CardRecord = CardRecord::new(
     "Mirror of the Forebears",
     "82e96f29-ce98-4e2d-8035-da3994ab66db",
     "Kieran Yanner",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
+AbilityDef::as_enters("As this permanent enters, choose a creature type.", ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(BattlefieldEntryScalarChoiceDef::CREATURE_TYPE))),
+AbilityDef::activated_with_targets("{1}: Until end of turn, this artifact becomes a copy of target creature you control of the chosen type, except it's an artifact in addition to its other types.", &[CostDef::Mana(mana_cost!("{1}"))], &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object { object: ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::HasSourcesChosenScalar(BattlefieldEntryChoiceDestinationDef::CreatureType)]), zones: &[ZoneKind::Battlefield], controller: Some(PlayerRelation::You), owner: None })], EffectDef::BecomeCopyOf { object: EffectRecipientDef::Target(TargetIndex::PRIMARY), copier: None, exceptions: CopyExceptionsDef::NONE.with_added_types(CardTypeSet::single(CardType::Artifact)), duration: Some(ResolvedEffectDurationDef::UntilEndOfTurn) })
+]),
 );
 
 // C17 55 — Ramos, Dragon Engine
@@ -166,7 +197,7 @@ pub(in crate::card::sets) static RAMOS_DRAGON_ENGINE: CardRecord = CardRecord::n
 );
 
 // C17 56 — Path of Ancestry
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Mana types cannot be derived from designated commanders’ color identities, and spend effects cannot compare the spell’s creature types with a commander.
 pub(in crate::card::sets) static PATH_OF_ANCESTRY_56: CardRecord = CardRecord::new(
     "Path of Ancestry",
     "70e70720-f0b9-4ad7-9366-927d6798d31e",

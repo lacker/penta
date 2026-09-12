@@ -1,5 +1,11 @@
 //! Amonkhet cards cataloged for the Vintage Cube pool.
 
+use crate::card::BattlefieldEntryModificationDef;
+use crate::card::CardSupertype;
+use crate::card::CostModificationDef;
+use crate::card::PayOrDef;
+use crate::card::ReplacementEffectDef;
+use crate::card::ReplacementEventDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
@@ -83,7 +89,7 @@ pub(in crate::card::sets) static REGAL_CARACAL: CardRecord = CardRecord::new(
 );
 
 // AKH 38 — Vizier of Remedies
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The replacement-event vocabulary has no counter-placement event to reduce the number of -1/-1 counters placed.
 pub(in crate::card::sets) static VIZIER_OF_REMEDIES_38: CardRecord = CardRecord::new(
     "Vizier of Remedies",
     "36ab760e-93e0-4dbc-aaa1-02316f62ed3f",
@@ -154,7 +160,7 @@ pub(in crate::card::sets) static BONE_PICKER: CardRecord = CardRecord::new(
 );
 
 // AKH 107 — Shadow of the Grave
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Turn history does not preserve the identities of cards discarded or cycled this turn through their graveyard incarnations.
 pub(in crate::card::sets) static SHADOW_OF_THE_GRAVE_107: CardRecord = CardRecord::new(
     "Shadow of the Grave",
     "9b0205cb-c163-4332-9624-394e1024bf6a",
@@ -163,7 +169,7 @@ pub(in crate::card::sets) static SHADOW_OF_THE_GRAVE_107: CardRecord = CardRecor
 );
 
 // AKH 125 — Combat Celebrant
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Exert is implemented, but its untap debt is attached to the permanent rather than the player who exerted it. Borrowed creatures therefore skip the wrong player's untap step; a complete declaration requires that shared exert correction.
 pub(in crate::card::sets) static COMBAT_CELEBRANT_125: CardRecord = CardRecord::new(
     "Combat Celebrant",
     "28b63c3d-2e55-4343-b49a-11fa602ec473",
@@ -211,12 +217,39 @@ pub(in crate::card::sets) static GLORYBRINGER: CardRecord = CardRecord::new(
 );
 
 // AKH 175 — Manglehorn
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MANGLEHORN_175: CardRecord = CardRecord::new(
     "Manglehorn",
     "0aa3a844-97e6-4f5d-a36f-56fea4e06932",
     "Lius Lasahido",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Beast"], 2, 2).with_abilities(&[
+        AbilityDef::triggered_with_targets(
+            "When this creature enters, you may destroy target artifact.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Artifact),
+            )],
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    then: None,
+                },
+            },
+        ),
+        AbilityDef::replacement_for(
+            "Artifacts your opponents control enter tapped.",
+            ReplacementEventDef::ObjectEntersBattlefield {
+                object: ObjectPredicateDef::HasType(CardType::Artifact),
+                controller: PlayerRelation::Opponent,
+                cast: None,
+            },
+            ReplacementEffectDef::ModifyBattlefieldEntry(BattlefieldEntryModificationDef::Tapped),
+        ),
+    ]),
 );
 
 // AKH 192 — Vizier of the Menagerie
@@ -256,21 +289,25 @@ pub(in crate::card::sets) static ENIGMA_DRAKE: CardRecord = CardRecord::new(
 );
 
 // AKH 229 — Hazoret's Monument
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HAZORET_S_MONUMENT_229: CardRecord = CardRecord::new(
     "Hazoret's Monument",
     "7a0a70f2-f2cb-4a08-a1a7-95c8fc3de6e3",
     "Richard Wright",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{3}")).with_supertype(CardSupertype::Legendary).with_abilities(&[
+AbilityDef::static_ability("Red creature spells you cast cost {1} less to cast.", EffectDef::ModifyCost(CostModificationDef::reduce_spell(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::Color(ManaColor::Red)]), PlayerRelation::You, ValueDef::Constant(1)))),
+AbilityDef::triggered("Whenever you cast a creature spell, you may discard a card. If you do, draw a card.", TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::ControlledBy(PlayerRelation::You)])), EffectDef::PayOr(PayOrDef::optional(&[CostDef::discard(ObjectPredicateDef::Any)], &abilities::draw_cards(ValueDef::Constant(1)))))
+]),
 );
 
 // AKH 239 — Canyon Slough
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CANYON_SLOUGH_239: CardRecord = CardRecord::new(
     "Canyon Slough",
     "8cb273d9-466d-416d-b27d-d1bc8a249076",
     "Titus Lunter",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&["Swamp", "Mountain"]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        abilities::cycling!("Cycling {2}", &[CostDef::Mana(mana_cost!("{2}"))]),
+    ]),
 );
 
 // AKH 241 — Cradle of the Accursed

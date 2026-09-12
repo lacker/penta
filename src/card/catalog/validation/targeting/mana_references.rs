@@ -4,6 +4,9 @@ fn validate_mana_references(
     target_count: usize,
     scope: BindingScope<'_>,
 ) -> Result<(), GrantedAbilityValidationError> {
+    if let Some(amount) = mana.variable_amount {
+        validate_value_target_references(amount, target_count, scope)?;
+    }
     for restriction in mana.restrictions {
         match restriction {
             crate::card::ManaRestrictionDef::CastSpell(predicate)

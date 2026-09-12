@@ -41,6 +41,7 @@ fn shared_condition_value(value: ValueDef, static_context: bool) -> bool {
         ValueDef::Constant(_)
         | ValueDef::LifeTotal(_)
         | ValueDef::StartingLifeTotal
+        | ValueDef::DevotionTo(_)
         | ValueDef::CardTypesAmongGraveyards(_)
         // Static and triggered conditions read the same stored turn tally.
         | ValueDef::CardsDrawnThisTurn(_)
@@ -64,7 +65,6 @@ fn shared_condition_value(value: ValueDef, static_context: bool) -> bool {
         // computed.
         ValueDef::SourcePower
         | ValueDef::LandsPlayedThisTurn(_)
-        | ValueDef::DevotionTo(_)
         | ValueDef::LibrarySize(_)
         | ValueDef::SpellsCastThisGame(_)
         | ValueDef::BasicLandTypesControlled(_)
@@ -205,6 +205,7 @@ pub(in super::super) fn shared_static_trigger_condition(condition: TriggerCondit
             // resolved, so a static clause reads plain state rather than
             // anything the layer being computed could change. Dash's haste
             // is one clause that asks; a paid kicker is recorded beside it.
+            | TriggerConditionDef::SourceWasCast
             | TriggerConditionDef::SourceCastWith(_)
             | TriggerConditionDef::SourcePaidAlternativeCost(_)
             | TriggerConditionDef::SourcePaidAdditionalCost(_)

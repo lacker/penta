@@ -1,5 +1,16 @@
 //! War of the Spark cards cataloged for the Vintage Cube pool.
 
+use crate::card::CostAdjustmentDef;
+use crate::card::CostAmountDef;
+use crate::card::CostModificationDef;
+use crate::card::DamageEventMatcherDef;
+use crate::card::DamagePreventionDef;
+use crate::card::EffectChoiceDef;
+use crate::card::ObjectRefDef;
+use crate::card::SpellCostConditionDef;
+use crate::card::SpellCostModificationDef;
+use crate::card::SumValueDef;
+use crate::card::TurnStepDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
@@ -62,7 +73,7 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // WAR 1 — Karn, the Great Creator
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The engine has no outside-the-game zone or wish-style retrieval operation. Searching exile alone would omit a legal branch of the -2 ability.
 pub(in crate::card::sets) static KARN_THE_GREAT_CREATOR_1: CardRecord = CardRecord::new(
     "Karn, the Great Creator",
     "3ec0c0fb-1a4f-45f4-85b7-346a6d3ce2c5",
@@ -71,7 +82,7 @@ pub(in crate::card::sets) static KARN_THE_GREAT_CREATOR_1: CardRecord = CardReco
 );
 
 // WAR 2 — Ugin, the Ineffable
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a face-down exile linked to a token whose battlefield exit returns that exact card, while retaining the token and face-down-card identities.
 pub(in crate::card::sets) static UGIN_THE_INEFFABLE_2: CardRecord = CardRecord::new(
     "Ugin, the Ineffable",
     "7b003521-3da3-41bf-9765-36630653f902",
@@ -246,7 +257,7 @@ pub(in crate::card::sets) static NARSET_PARTER_OF_VEILS: CardRecord = CardRecord
 );
 
 // WAR 68 — Spark Double
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs an entering-copy exception conditional on the copied permanent being a creature or planeswalker, adding the corresponding counter and removing legendary.
 pub(in crate::card::sets) static SPARK_DOUBLE_68: CardRecord = CardRecord::new(
     "Spark Double",
     "bb8a103c-b776-4501-9441-a45b90391045",
@@ -408,7 +419,7 @@ pub(in crate::card::sets) static DREADHORDE_ARCANIST: CardRecord = CardRecord::n
 );
 
 // WAR 127 — Finale of Promise
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs two independently optional graveyard spell targets with mana value bounded by X, free casting, exile-on-resolution replacement, and conditional spell copying.
 pub(in crate::card::sets) static FINALE_OF_PROMISE_127: CardRecord = CardRecord::new(
     "Finale of Promise",
     "811b2dda-e1b7-4a46-83cc-5cdc17554836",
@@ -426,21 +437,35 @@ pub(in crate::card::sets) static GRIM_INITIATE: CardRecord = CardRecord::new(
 );
 
 // WAR 137 — Krenko, Tin Street Kingpin
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KRENKO_TIN_STREET_KINGPIN_137: CardRecord = CardRecord::new(
     "Krenko, Tin Street Kingpin",
     "37ed04d3-cfa1-4778-aea6-b4c2c29e6e0a",
     "Mark Behm",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Goblin"], 1, 2)
+        .with_supertype(CardSupertype::Legendary)
+        .with_ability(AbilityDef::triggered(
+            "Whenever Krenko attacks, put a +1/+1 counter on it, then create a number of 1/1 red Goblin creature tokens equal to Krenko's power.",
+            TriggerEventDef::attacks(ObjectPredicateDef::Source),
+            EffectDef::Sequence(&[
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::Source,
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::Constant(1),
+                },
+                EffectDef::create_creature_token(&["Goblin"], &[ManaColor::Red], 1, 1)
+                    .with_count(ValueDef::ObjectPower(crate::card::ObjectRefDef::Source)),
+            ]),
+        )),
 );
 
 // WAR 160 — Finale of Devastation
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FINALE_OF_DEVASTATION_160: CardRecord = CardRecord::new(
     "Finale of Devastation",
     "985453e7-997e-4d77-a338-cc0290791ebe",
     "Bayard Wu",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{X}{G}{G}")).with_abilities(&[
+AbilityDef::spell("Search your library and/or graveyard for a creature card with mana value X or less and put it onto the battlefield. If you search your library this way, shuffle. If X is 10 or more, creatures you control get +X/+X and gain haste until end of turn.", EffectDef::Sequence(&[EffectDef::ChooseEffect { player: EffectRecipientDef::Controller, choices: &[EffectChoiceDef { label: "Search your library.", effect: EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Library, object: ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::ManaValueAtMostValue(ValueDef::ChosenX)]), minimum: 0, maximum: ValueDef::Constant(1), reveal: false, destination: ZoneKind::Battlefield, placement: ZonePlacement::Top, shuffle: true, enters_tapped: false, attachment: None, binding: None, then: None } }, EffectChoiceDef { label: "Search your graveyard.", effect: EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Graveyard, object: ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::ManaValueAtMostValue(ValueDef::ChosenX)]), minimum: 1, maximum: ValueDef::Constant(1), reveal: false, destination: ZoneKind::Battlefield, placement: ZonePlacement::Top, shuffle: false, enters_tapped: false, attachment: None, binding: None, then: None } }, EffectChoiceDef { label: "Search both zones.", effect: EffectDef::Sequence(&[EffectDef::Choose(ChooseDef { chooser: PlayerRefDef::EffectController, candidates: ObjectSetDef::Union(&[ObjectSetDef::Query(ObjectQueryDef::matching(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::ManaValueAtMostValue(ValueDef::ChosenX)]), &[ZoneKind::Library], PlayerRelation::You)), ObjectSetDef::Query(ObjectQueryDef::matching(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::ManaValueAtMostValue(ValueDef::ChosenX)]), &[ZoneKind::Graveyard], PlayerRelation::You))]), exclude: None, minimum: 0, maximum: 1, binding: ObjectChoiceBindingDef::Objects(Binding!("finale_found")), unchosen: None, visibility: ChoiceVisibilityDef::Private, then: &EffectDef::move_to_zone(EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!("finale_found"))), ZoneKind::Battlefield, ZonePlacement::Top) }), EffectDef::ShuffleLibrary { player: EffectRecipientDef::Controller }]) }] }, EffectDef::IfCondition { condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef { left: ValueDef::ChosenX, comparison: ComparisonDef::GreaterOrEqual, right: ValueDef::Constant(10) }), then: &EffectDef::Apply { recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::HasType(CardType::Creature), &[ZoneKind::Battlefield], PlayerRelation::You), effect: AppliedEffectDef::Composite(&[AppliedEffectDef::modify_power_toughness(ValueDef::ChosenX, ValueDef::ChosenX), AppliedEffectDef::add_ability(&abilities::haste())]), duration: ResolvedEffectDurationDef::UntilEndOfTurn } }]))
+]),
 );
 
 // WAR 169 — Nissa, Who Shakes the World
@@ -551,7 +576,7 @@ pub(in crate::card::sets) static NISSA_WHO_SHAKES_THE_WORLD: CardRecord =
     ;
 
 // WAR 180 — Vivien, Champion of the Wilds
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Arbitrary-card exile permissions cannot combine face-down exile, a creature-only cast restriction, and a while-exiled duration. The timed top-library exile operation cannot grant that permission to just the chosen card.
 pub(in crate::card::sets) static VIVIEN_CHAMPION_OF_THE_WILDS_180: CardRecord = CardRecord::new(
     "Vivien, Champion of the Wilds",
     "ff3986d7-9b3d-4082-8d72-ce59c9fcd5d5",
@@ -560,30 +585,92 @@ pub(in crate::card::sets) static VIVIEN_CHAMPION_OF_THE_WILDS_180: CardRecord = 
 );
 
 // WAR 193 — Dovin's Veto
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DOVIN_S_VETO_193: CardRecord = CardRecord::new(
     "Dovin's Veto",
     "5d6b5054-2224-4f68-9d82-3ed17c5dacc4",
     "Izzy",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{W}{U}")).with_abilities(&[
+        abilities::cannot_be_countered(),
+        AbilityDef::spell_with_targets(
+            "Counter target noncreature spell.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::NoncreatureSpell,
+                    zones: &[ZoneKind::Stack],
+                    controller: None,
+                    owner: None,
+                },
+            )],
+            EffectDef::counter_target(TargetIndex::PRIMARY),
+        ),
+    ]),
 );
 
 // WAR 204 — Mayhem Devil
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MAYHEM_DEVIL_204: CardRecord = CardRecord::new(
     "Mayhem Devil",
     "17416926-168b-49b3-9231-acbb8f8a1d13",
     "Dmitry Burmak",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{B}{R}"), &["Devil"], 3, 3).with_ability(
+        AbilityDef::triggered_with_targets(
+            "Whenever a player sacrifices a permanent, Mayhem Devil deals 1 damage to any target.",
+            TriggerEventDef::Sacrificed {
+                object: ObjectPredicateDef::Any,
+                player: PlayerRelation::Any,
+            },
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(1),
+            ),
+        ),
+    ),
 );
 
 // WAR 206 — Neoform
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NEOFORM_206: CardRecord = CardRecord::new(
     "Neoform",
     "92d8f67e-4f2f-4a1f-b190-7c3f39e477e4",
     "Bram Sels",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{G}{U}")).with_ability(
+        AbilityDef::spell_with_additional_cost(
+            "As an additional cost to cast this spell, sacrifice a creature. Search your library for a creature card with mana value equal to 1 plus the sacrificed creature's mana value, put that card onto the battlefield with an additional +1/+1 counter on it, then shuffle.",
+            &[],
+            CostDef::SacrificePermanent {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                controller: PlayerRelation::You,
+            },
+            EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::ManaValueEqualTo(ValueDef::Sum(&SumValueDef::new(
+                        ValueDef::SacrificedManaValue,
+                        ValueDef::Constant(1),
+                    ))),
+                ]),
+                minimum: 0,
+                maximum: ValueDef::Constant(1),
+                reveal: false,
+                destination: ZoneKind::Battlefield,
+                placement: ZonePlacement::Top,
+                shuffle: true,
+                enters_tapped: false,
+                attachment: None,
+                binding: Some(crate::ids::ParentBinding),
+                then: Some(&EffectDef::AddCounters {
+                    object: EffectRecipientDef::objects(crate::card::ObjectSetDef::Binding(
+                        crate::ids::ParentBinding,
+                    )),
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::Constant(1),
+                }),
+            },
+        ),
+    ),
 );
 
 // WAR 220 — Tamiyo, Collector of Tales
@@ -756,7 +843,7 @@ pub(in crate::card::sets) static TENTH_DISTRICT_LEGIONNAIRE: CardRecord = CardRe
 );
 
 // WAR 228 — Ashiok, Dream Render
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The search procedure has no continuous restriction that forbids library searches caused by spells and abilities controlled by opponents. The loyalty ability itself is expressible.
 pub(in crate::card::sets) static ASHIOK_DREAM_RENDER_228: CardRecord = CardRecord::new(
     "Ashiok, Dream Render",
     "f2df3258-c053-48a8-974f-d80899b2cd93",
@@ -765,12 +852,11 @@ pub(in crate::card::sets) static ASHIOK_DREAM_RENDER_228: CardRecord = CardRecor
 );
 
 // WAR 229 — Dovin, Hand of Control
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DOVIN_HAND_OF_CONTROL_229: CardRecord = CardRecord::new(
     "Dovin, Hand of Control",
     "bd6ff745-919b-4688-9e9e-ab7835b3b891",
     "Kieran Yanner",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_planeswalker(mana_cost!("{2}{W/U}"), &["Dovin"], 5).with_supertype(CardSupertype::Legendary).with_abilities(&[AbilityDef::static_ability("Artifact, instant, and sorcery spells your opponents cast cost {1} more to cast.", EffectDef::ModifyCost(CostModificationDef::Spell(SpellCostModificationDef { spell: ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Artifact), ObjectPredicateDef::HasType(CardType::Instant), ObjectPredicateDef::HasType(CardType::Sorcery)]), caster: PlayerRelation::Opponent, condition: SpellCostConditionDef::Always, adjustment: CostAdjustmentDef::Add(CostAmountDef::Generic(ValueDef::Constant(1))) }))), AbilityDef::activated_with_targets("−1: Until your next turn, prevent all damage that would be dealt to and dealt by target permanent an opponent controls.", &[CostDef::Loyalty(-1)], &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object { object: ObjectPredicateDef::Any, zones: &[ZoneKind::Battlefield], controller: Some(PlayerRelation::Opponent), owner: None })], EffectDef::Sequence(&[EffectDef::PreventDamage { prevention: DamagePreventionDef::unlimited(DamageEventMatcherDef::to(EffectRecipientDef::Target(TargetIndex::PRIMARY))), duration: ResolvedEffectDurationDef::UntilYourNextTurn }, EffectDef::PreventDamage { prevention: DamagePreventionDef::unlimited(DamageEventMatcherDef::from(ObjectRefDef::Target(TargetIndex::PRIMARY))), duration: ResolvedEffectDurationDef::UntilYourNextTurn }]))]),
 );
 
 // WAR 234 — Saheeli, Sublime Artificer
@@ -830,16 +916,35 @@ pub(in crate::card::sets) static SAHEELI_SUBLIME_ARTIFICER: CardRecord =
 );
 
 // WAR 238 — God-Pharaoh's Statue
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GOD_PHARAOH_S_STATUE_238: CardRecord = CardRecord::new(
     "God-Pharaoh's Statue",
     "7dce06ba-c1e1-45ec-82a7-fc10b0fa8870",
     "Igor Kieryluk",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{6}"))
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::spell_cost_increase(
+                "Spells your opponents cast cost {2} more to cast.",
+                ObjectPredicateDef::Any,
+                PlayerRelation::Opponent,
+                mana_cost!("{2}"),
+            ),
+            AbilityDef::triggered(
+                "At the beginning of your end step, each opponent loses 1 life.",
+                TriggerEventDef::StepBegins {
+                    step: TurnStepDef::End,
+                    player: PlayerRelation::You,
+                },
+                EffectDef::LoseLife {
+                    recipient: EffectRecipientDef::Opponent,
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+        ]),
 );
 
 // WAR 242 — Prismite
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The mana-ability planner rejects repeatable activations paid solely with mana; its loop bound currently requires spending a source, permanent, card, life, or activation limit.
 pub(in crate::card::sets) static PRISMITE_242: CardRecord = CardRecord::new(
     "Prismite",
     "40475e96-0283-445f-97fb-1da008707399",
@@ -848,25 +953,37 @@ pub(in crate::card::sets) static PRISMITE_242: CardRecord = CardRecord::new(
 );
 
 // WAR 244 — Blast Zone
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The activated-cost planner supports a single X symbol only; it cannot enumerate and pay the doubled variable mana cost {X}{X}.
 pub(in crate::card::sets) static BLAST_ZONE_244: CardRecord = CardRecord::new(
     "Blast Zone",
     "ea6bc7d5-e8f6-4103-920c-9f7ec5cd6c28",
     "Chris Ostrowski",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // WAR 245 — Emergence Zone
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static EMERGENCE_ZONE_245: CardRecord = CardRecord::new(
     "Emergence Zone",
     "ab95f6e7-b806-47fe-a071-6c38b3176d94",
     "Jonas De Ro",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated(
+            "{1}, {T}, Sacrifice this land: You may cast spells this turn as though they had flash.",
+            &[CostDef::Mana(mana_cost!("{1}")), CostDef::TapSource, CostDef::SacrificeSource],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Controller,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::MayCastAsThoughItHadFlash(
+                    CastTimingPermissionDef::new(ObjectPredicateDef::Any),
+                )),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // WAR 275 — Tezzeret, Master of the Bridge
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The cast-cost scanner reads intrinsic payment keywords but cannot grant affinity to candidate creature and planeswalker spells from a battlefield static ability. A generic discount would not actually grant the printed affinity ability.
 pub(in crate::card::sets) static TEZZERET_MASTER_OF_THE_BRIDGE_275: CardRecord = CardRecord::new(
     "Tezzeret, Master of the Bridge",
     "9ee1eea2-961f-445d-b035-6baed454f289",

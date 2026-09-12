@@ -1,5 +1,9 @@
 //! M19 card records required by supported formats.
 
+use crate::card::CopyExceptionsDef;
+use crate::card::CostModificationDef;
+use crate::card::ReplacementEventDef;
+use crate::card::ZoneMoveCauseDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
@@ -79,12 +83,14 @@ pub(in crate::card::sets) static HERALD_OF_FAITH: CardRecord = CardRecord::new(
 );
 
 // M19 21 — Lena, Selfless Champion
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LENA_SELFLESS_CHAMPION_21: CardRecord = CardRecord::new(
     "Lena, Selfless Champion",
     "2ffcbcda-2ba3-45e7-80c0-85ea3b7eea0c",
     "Lucas Graciano",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{W}{W}"), &["Human", "Knight"], 3, 3).with_supertype(CardSupertype::Legendary).with_abilities(&[
+abilities::enters_trigger("When Lena enters, create a 1/1 white Soldier creature token for each nontoken creature you control.", EffectDef::create_creature_token(&["Soldier"], &[ManaColor::White], 1, 1).with_count(ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::Not(&ObjectPredicateDef::Token)]), &[ZoneKind::Battlefield], PlayerRelation::You)))),
+AbilityDef::activated("Sacrifice Lena: Creatures you control with power less than Lena's power gain indestructible until end of turn.", &[CostDef::SacrificeSource], EffectDef::Apply { recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::PowerLessThan(ValueDef::SourcePower)]), &[ZoneKind::Battlefield], PlayerRelation::You), effect: AppliedEffectDef::add_ability(&abilities::indestructible()), duration: ResolvedEffectDurationDef::UntilEndOfTurn })
+]),
 );
 
 // M19 22 — Leonin Vanguard
@@ -227,12 +233,22 @@ pub(in crate::card::sets) static EXCLUSION_MAGE: CardRecord = CardRecord::new(
 );
 
 // M19 61 — Mirror Image
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MIRROR_IMAGE_61: CardRecord = CardRecord::new(
     "Mirror Image",
     "5b3ffc69-f21b-410e-8993-8c1b4669fc19",
     "Randy Vargas",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Shapeshifter"], 0, 0).with_abilities(&[
+        AbilityDef::replacement(
+            "You may have this creature enter as a copy of a creature you control.",
+            ReplacementEffectDef::CopyEntering {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
+                exceptions: CopyExceptionsDef::NONE,
+            },
+        ),
+    ]),
 );
 
 // M19 63 — Mystic Archaeologist
@@ -269,12 +285,13 @@ pub(in crate::card::sets) static SKELETON_ARCHER: CardRecord = CardRecord::new(
 );
 
 // M19 121 — Stitcher's Supplier
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STITCHER_S_SUPPLIER_121: CardRecord = CardRecord::new(
     "Stitcher's Supplier",
     "2b737126-50b5-4678-91bf-197b64086fe4",
     "Chris Seaman",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{B}"), &["Zombie"], 1, 1).with_abilities(&[
+AbilityDef::triggered("When this creature enters or dies, mill three cards. (Put the top three cards of your library into your graveyard.)", TriggerEventDef::AnyOf(&[TriggerEventDef::zone_changed(ObjectPredicateDef::Source, None, Some(ZoneKind::Battlefield)), TriggerEventDef::zone_changed(ObjectPredicateDef::Source, Some(ZoneKind::Battlefield), Some(ZoneKind::Graveyard))]), EffectDef::Mill { player: EffectRecipientDef::Controller, amount: ValueDef::Constant(3) })
+]),
 );
 
 // M19 124 — Vampire Neonate
@@ -375,12 +392,13 @@ CardRules::new_enchantment(mana_cost!("{R}")).with_abilities(&[
 );
 
 // M19 129 — Apex of Power
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static APEX_OF_POWER_129: CardRecord = CardRecord::new(
     "Apex of Power",
     "c827bccf-38f9-4a7c-bd0e-038594a9f63b",
     "Svetlin Velinov",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{7}{R}{R}{R}")).with_abilities(&[
+AbilityDef::spell("Exile the top seven cards of your library. Until end of turn, you may cast spells from among them.\nIf this spell was cast from your hand, add ten mana of any one color.", EffectDef::Sequence(&[EffectDef::ExileTopOfLibraryToPlay { player: EffectRecipientDef::Controller, amount: ValueDef::Constant(7), free: false, face_down: false, duration: ExilePlayDurationDef::ThisTurn, spend_any_color: false, play_condition: None, cast_only: true }, EffectDef::IfCondition { condition: &TriggerConditionDef::SourceCastFrom(ZoneKind::Hand), then: &EffectDef::AddMana(AddManaEffectDef::any_color().with_amount(10)) }]))
+]),
 );
 
 // M19 134 — Dark-Dweller Oracle
@@ -440,12 +458,44 @@ pub(in crate::card::sets) static GOBLIN_MOTIVATOR: CardRecord = CardRecord::new(
 );
 
 // M19 144 — Goblin Trashmaster
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GOBLIN_TRASHMASTER_144: CardRecord = CardRecord::new(
     "Goblin Trashmaster",
     "2bc69988-3c2d-4b76-a8c0-05926b9bbd08",
     "Jakub Kasper",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{R}{R}"), &["Goblin", "Warrior"], 3, 3).with_abilities(
+        &[
+            AbilityDef::static_ability(
+                "Other Goblins you control get +1/+1.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(1),
+                    ),
+                },
+            ),
+            AbilityDef::activated_with_targets(
+                "Sacrifice a Goblin: Destroy target artifact.",
+                &[CostDef::sacrifice_permanent(ObjectPredicateDef::Subtype(
+                    SubtypeDef::Literal("Goblin"),
+                ))],
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                )],
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    then: None,
+                },
+            ),
+        ],
+    ),
 );
 
 // M19 149 — Lathliss, Dragon Queen
@@ -557,12 +607,14 @@ pub(in crate::card::sets) static GIGANTOSAURUS: CardRecord = CardRecord::new(
 );
 
 // M19 186 — Goreclaw, Terror of Qal Sisma
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GORECLAW_TERROR_OF_QAL_SISMA_186: CardRecord = CardRecord::new(
     "Goreclaw, Terror of Qal Sisma",
     "36d4574a-3266-4497-b145-fb25820d8a7f",
     "Svetlin Velinov",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{G}"), &["Bear"], 4, 3).with_supertype(CardSupertype::Legendary).with_abilities(&[
+AbilityDef::static_ability("Creature spells you cast with power 4 or greater cost {2} less to cast.", EffectDef::ModifyCost(CostModificationDef::reduce_spell(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::PowerAtLeast(4)]), PlayerRelation::You, ValueDef::Constant(2)))),
+AbilityDef::triggered("Whenever Goreclaw attacks, each creature you control with power 4 or greater gets +1/+1 and gains trample until end of turn.", TriggerEventDef::attacks(ObjectPredicateDef::Source), EffectDef::Apply { recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::PowerAtLeast(4)]), &[ZoneKind::Battlefield], PlayerRelation::You), effect: AppliedEffectDef::Composite(&[AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(1)), AppliedEffectDef::add_ability(&abilities::trample())]), duration: ResolvedEffectDurationDef::UntilEndOfTurn })
+]),
 );
 
 // M19 208 — Vivien Reid
@@ -821,12 +873,14 @@ pub(in crate::card::sets) static AGGRESSIVE_MAMMOTH: CardRecord = CardRecord::ne
 );
 
 // M19 306 — Nexus of Fate
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NEXUS_OF_FATE_306: CardRecord = CardRecord::new(
     "Nexus of Fate",
     "f163cfbf-6df6-4af5-9fe4-23b0d511586a",
     "Mike Bierek",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{5}{U}{U}")).with_abilities(&[
+AbilityDef::spell("Take an extra turn after this one.", EffectDef::TakeExtraTurn { player: EffectRecipientDef::Controller }),
+AbilityDef::replacement_for("If Nexus of Fate would be put into a graveyard from anywhere, reveal Nexus of Fate and shuffle it into its owner's library instead.", ReplacementEventDef::WouldMove { from: None, to: ZoneKind::Graveyard, cause: ZoneMoveCauseDef::Any }, ReplacementEffectDef::Sequence(&[ReplacementEffectDef::MoveToZone(ZoneKind::Library), ReplacementEffectDef::Perform(&EffectDef::ShuffleLibrary { player: EffectRecipientDef::Controller })])).with_source_zones(&[ZoneKind::Battlefield, ZoneKind::Stack, ZoneKind::Hand, ZoneKind::Library, ZoneKind::Graveyard, ZoneKind::Exile, ZoneKind::Command])
+]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

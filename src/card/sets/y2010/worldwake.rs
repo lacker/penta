@@ -1,5 +1,8 @@
 //! Worldwake cards cataloged for the Vintage Cube.
 
+use crate::card::CostModificationDef;
+use crate::card::DestroyFollowUpDef;
+use crate::card::ObjectRefDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::AdditionalCostIndex;
@@ -404,21 +407,36 @@ pub(in crate::card::sets) static ARBOR_ELF: CardRecord = CardRecord::new(
 );
 
 // WWK 108 — Nature's Claim
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NATURE_S_CLAIM_108: CardRecord = CardRecord::new(
     "Nature's Claim",
     "64ae5a91-ac54-4222-832e-d7a740a3f7cb",
     "Daarken",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{G}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Destroy target artifact or enchantment. Its controller gains 4 life.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::AnyOf(&[
+                ObjectPredicateDef::HasType(CardType::Artifact),
+                ObjectPredicateDef::HasType(CardType::Enchantment),
+            ]),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::destroy_target(TargetIndex::PRIMARY),
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(4),
+            },
+        ]),
+    )]),
 );
 
 // WWK 115 — Terastodon
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TERASTODON_115: CardRecord = CardRecord::new(
     "Terastodon",
     "e66d2f62-8a4a-4e8d-93e1-5dc802684106",
     "Lars Grant-West",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{6}{G}{G}"), &["Elephant"], 9, 9).with_abilities(&[
+AbilityDef::triggered_with_targets("When this creature enters, you may destroy up to three target noncreature permanents. For each permanent put into a graveyard this way, its controller creates a 3/3 green Elephant creature token.", TriggerEventDef::zone_changed(ObjectPredicateDef::Source, None, Some(ZoneKind::Battlefield)), &[AbilityTargetDef::up_to(AbilityTargetPredicate::Object { object: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)), zones: &[ZoneKind::Battlefield], controller: None, owner: None }, 3)], EffectDef::May { player: EffectRecipientDef::Controller, effect: &EffectDef::Destroy { object: EffectRecipientDef::Target(TargetIndex::PRIMARY), then: Some(DestroyFollowUpDef { binding: Binding!("terastodon_destroyed"), effect: &EffectDef::ForEachInBinding { objects: Binding!("terastodon_destroyed"), binding: Binding!("terastodon_permanent"), effect: &EffectDef::create_creature_token(&["Elephant"], &[ManaColor::Green], 3, 3).with_controller(PlayerRefDef::ControllerOf(ObjectRefDef::Binding(Binding!("terastodon_permanent")))) } }) } })
+]),
 );
 
 // WWK 118 — Wolfbriar Elemental
@@ -534,12 +552,20 @@ pub(in crate::card::sets) static KITESAIL: CardRecord = CardRecord::new(
 );
 
 // WWK 127 — Lodestone Golem
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LODESTONE_GOLEM_127: CardRecord = CardRecord::new(
     "Lodestone Golem",
     "9bb0ee6a-852a-4f1e-8f03-40b6d505bc82",
     "Chris Rahn",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{4}"), &["Golem"], 5, 3).with_abilities(&[
+        AbilityDef::static_ability(
+            "Nonartifact spells cost {1} more to cast.",
+            EffectDef::ModifyCost(CostModificationDef::increase_spell(
+                ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Artifact)),
+                PlayerRelation::Any,
+                mana_cost!("{1}"),
+            )),
+        ),
+    ]),
 );
 
 // WWK 133 — Celestial Colonnade

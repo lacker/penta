@@ -1,5 +1,12 @@
 //! Planechase 2012 cards cataloged for the Vintage Cube pool.
 
+use crate::card::AbilityDef;
+use crate::card::AppliedEffectDef;
+use crate::card::CardSupertype;
+use crate::card::CardType;
+use crate::card::ObjectPredicateDef;
+use crate::card::PlayerRelation;
+use crate::card::ZoneKind;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::card::CardRules;
@@ -66,12 +73,27 @@ pub(in crate::card::sets) static BALEFUL_STRIX: CardRecord = CardRecord::new(
 );
 
 // PC2 101 — Maelstrom Wanderer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MAELSTROM_WANDERER_101: CardRecord = CardRecord::new(
     "Maelstrom Wanderer",
     "9129baf5-ffa9-4ffb-bcab-19d6a42dbfcc",
     "Thomas M. Baxa",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{5}{G}{U}{R}"), &["Elemental"], 7, 5)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Creatures you control have haste.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::add_ability(&abilities::haste()),
+                },
+            ),
+            abilities::cascade(),
+            abilities::cascade(),
+        ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

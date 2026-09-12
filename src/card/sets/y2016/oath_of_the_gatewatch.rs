@@ -1,5 +1,10 @@
 //! Oath of the Gatewatch card records.
 
+use crate::card::AddManaEffectDef;
+use crate::card::BindObjectsDef;
+use crate::card::MoveObjectsDef;
+use crate::card::ObjectCollectionSourceDef;
+use crate::card::PlayerRefDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::AdditionalCostObjectIndex;
@@ -45,21 +50,83 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // OGW 8 — Spatial Contortion
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPATIAL_CONTORTION_8: CardRecord = CardRecord::new(
     "Spatial Contortion",
     "4e2acf70-7625-4b77-83c1-0e08436da31f",
     "Daarken",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{C}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "({C} represents colorless mana.)\nTarget creature gets +3/-3 until end of turn.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            effect: AppliedEffectDef::modify_power_toughness(
+                ValueDef::Constant(3),
+                ValueDef::Constant(-3),
+            ),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )]),
 );
 
 // OGW 12 — Warping Wail
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WARPING_WAIL_12: CardRecord = CardRecord::new(
     "Warping Wail",
     "f2ef4db8-b51c-4f52-84f1-6fee31c4a14c",
     "Jason Felix",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{C}")).with_abilities(&[AbilityDef::modal_spell(
+        "({C} represents colorless mana.)\nChoose one —",
+        &[
+            AbilityDef::spell_with_targets(
+                "Exile target creature with power or toughness 1 or less.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::PowerGreaterThan(
+                                ValueDef::Constant(1),
+                            )),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::ToughnessGreaterThan(
+                                ValueDef::Constant(1),
+                            )),
+                        ]),
+                    ]),
+                )],
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Exile,
+                    ZonePlacement::Top,
+                ),
+            ),
+            AbilityDef::spell_with_targets(
+                "Counter target sorcery spell.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::Spell,
+                            ObjectPredicateDef::HasType(CardType::Sorcery),
+                        ]),
+                        zones: &[ZoneKind::Stack],
+                        controller: None,
+                        owner: None,
+                    },
+                )],
+                EffectDef::counter_target(TargetIndex::PRIMARY),
+            ),
+            AbilityDef::spell(
+                "Create an Eldrazi Scion.",
+                EffectDef::create_creature_token(&["Eldrazi", "Scion"], &[], 1, 1).with_abilities(
+                    &[AbilityDef::activated_mana(
+                        "Sacrifice this token: Add {C}.",
+                        &[CostDef::SacrificeSource],
+                        EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless)),
+                    )],
+                ),
+            ),
+        ],
+    )
+    .with_mode_selection(1, 1, false)]),
 );
 
 // OGW 26 — Make a Stand
@@ -90,12 +157,16 @@ pub(in crate::card::sets) static MAKE_A_STAND: CardRecord = CardRecord::new(
 );
 
 // OGW 44 — Dimensional Infiltrator
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DIMENSIONAL_INFILTRATOR_44: CardRecord = CardRecord::new(
     "Dimensional Infiltrator",
     "0ea28dd5-57b0-4255-a3d9-1c190c446f20",
     "Chase Stone",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{U}"), &["Eldrazi"], 2, 1).with_abilities(&[
+abilities::devoid(),
+abilities::flash(),
+abilities::flying(),
+AbilityDef::activated_with_targets("{1}{C}: Target opponent exiles the top card of their library. If it's a land card, you may return this creature to its owner's hand. ({C} represents colorless mana.)", &[CostDef::Mana(mana_cost!("{1}{C}"))], &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(PlayerRelation::Opponent))], EffectDef::BindObjects(BindObjectsDef { source: ObjectCollectionSourceDef::TopCards { player: PlayerRefDef::Target(TargetIndex::PRIMARY), count: ValueDef::Constant(1) }, binding: Binding!("infiltrator_top"), then: &EffectDef::MoveObjects(MoveObjectsDef { input: ObjectSetDef::Binding(Binding!("infiltrator_top")), from: Some(ZoneKind::Library), zone: ZoneKind::Exile, placement: ZonePlacement::Top, moved: Some(Binding!("infiltrator_exiled")), then: &EffectDef::ForEachInBinding { objects: Binding!("infiltrator_exiled"), binding: Binding!("infiltrator_card"), effect: &EffectDef::IfCondition { condition: &TriggerConditionDef::BoundObjectMatches { binding: Binding!("infiltrator_card"), object: ObjectPredicateDef::HasType(CardType::Land) }, then: &EffectDef::May { player: EffectRecipientDef::Controller, effect: &EffectDef::move_to_zone(EffectRecipientDef::Source, ZoneKind::Hand, ZonePlacement::Top) } } } }) }))
+]),
 );
 
 // OGW 63 — Sphinx of the Final Word
@@ -160,12 +231,24 @@ pub(in crate::card::sets) static UNTAMED_HUNGER: CardRecord = CardRecord::new(
 );
 
 // OGW 108 — Expedite
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static EXPEDITE_108: CardRecord = CardRecord::new(
     "Expedite",
     "59c65eb7-4353-45ce-9c2e-1791c2804ccf",
     "Kieran Yanner",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{R}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Target creature gains haste until end of turn.\nDraw a card.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::add_ability(&abilities::haste()),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+            abilities::draw_cards(ValueDef::Constant(1)),
+        ]),
+    )]),
 );
 
 // OGW 141 — Pulse of Murasa
@@ -275,7 +358,7 @@ pub(in crate::card::sets) static AYLI_ETERNAL_PILGRIM: CardRecord = CardRecord::
 );
 
 // OGW 172 — Holdout Settlement
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Mana-ability eligibility rejects the additional TapPermanents cost; the other creature cannot be reserved and tapped during immediate mana production.
 pub(in crate::card::sets) static HOLDOUT_SETTLEMENT_172: CardRecord = CardRecord::new(
     "Holdout Settlement",
     "cf08c317-6f2d-47e3-ab5b-8af73fd3e404",

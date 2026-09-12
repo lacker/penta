@@ -1,5 +1,8 @@
 //! Lorwyn Eclipsed card inventory.
 
+use crate::card::CardTypeSet;
+use crate::card::CharacteristicOperationDef;
+use crate::card::SetOperationDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
@@ -6974,12 +6977,53 @@ pub(in crate::card::sets) static DAWN_BLESSED_PENNANT: CardRecord = CardRecord::
 );
 
 // ECL 255 — Firdoch Core
-// Audit: unsupported — Needs an all-zone creature-type characteristic-defining ability whose all-types value is copiable; battlefield all-type modifiers do not implement changeling.
 pub(in crate::card::sets) static FIRDOCH_CORE: CardRecord = CardRecord::new(
-    "Firdoch Core",
-    "8e45cd37-bf97-4742-978d-96f96ed653cd",
-    "Jason A. Engle",
-    CardRules::unsupported(),
+"Firdoch Core",
+"8e45cd37-bf97-4742-978d-96f96ed653cd",
+"Jason A. Engle",
+CardRules::new_artifact(mana_cost!("{3}"))
+        .with_subtypes(&["Shapeshifter"])
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Changeling (This card is every creature type.)",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::Characteristic(CharacteristicOperationDef::Subtypes(
+                        SetOperationDef::Add(crate::card::CREATURE_TYPES),
+                    )),
+                },
+            )
+            .with_source_zones(&[
+                ZoneKind::Battlefield,
+                ZoneKind::Library,
+                ZoneKind::Hand,
+                ZoneKind::Graveyard,
+                ZoneKind::Stack,
+                ZoneKind::Exile,
+                ZoneKind::Command,
+            ]),
+            AbilityDef::activated_mana(
+                "{T}: Add one mana of any color.",
+                &[CostDef::TapSource],
+                EffectDef::AddMana(AddManaEffectDef::any_color()),
+            ),
+            AbilityDef::activated(
+                "{4}: This artifact becomes a 4/4 artifact creature until end of turn.",
+                &[CostDef::Mana(mana_cost!("{4}"))],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)),
+                        AppliedEffectDef::set_base_power_toughness(
+                            ValueDef::Constant(4),
+                            ValueDef::Constant(4),
+                        ),
+                    ]),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ])
+        .with_type(CardType::Kindred),
 );
 
 // ECL 256 — Foraging Wickermaw
@@ -7190,12 +7234,15 @@ const SPRINGLEAF_DRUM_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // ECL 261 — Stalactite Dagger
-// Audit: unsupported — Needs an all-zone creature-type characteristic-defining ability whose all-types value is copiable; battlefield all-type modifiers do not implement changeling.
 pub(in crate::card::sets) static STALACTITE_DAGGER: CardRecord = CardRecord::new(
-    "Stalactite Dagger",
-    "6954df09-95f3-46cf-9ba8-2a1aea653d8f",
-    "Drew Tucker",
-    CardRules::unsupported(),
+"Stalactite Dagger",
+"6954df09-95f3-46cf-9ba8-2a1aea653d8f",
+"Drew Tucker",
+CardRules::new_artifact(mana_cost!("{2}")).with_subtypes(&["Equipment"]).with_abilities(&[
+abilities::enters_trigger("When this Equipment enters, create a 1/1 colorless Shapeshifter creature token with changeling. (It's every creature type.)", EffectDef::create_creature_token(&["Shapeshifter"], &[], 1, 1).with_abilities(&[AbilityDef::static_ability("Changeling (This card is every creature type.)", EffectDef::StaticApply { recipient: EffectRecipientDef::Source, effect: AppliedEffectDef::Characteristic(CharacteristicOperationDef::Subtypes(SetOperationDef::Add(crate::card::CREATURE_TYPES))) }).with_source_zones(&[ZoneKind::Battlefield, ZoneKind::Library, ZoneKind::Hand, ZoneKind::Graveyard, ZoneKind::Stack, ZoneKind::Exile, ZoneKind::Command])])),
+AbilityDef::static_ability("Equipped creature gets +1/+1 and is all creature types.", EffectDef::StaticApply { recipient: EffectRecipientDef::AttachedPermanent, effect: AppliedEffectDef::Composite(&[AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(1)), AppliedEffectDef::set_creature_types(CreatureTypeSetDef::ALL)]) }),
+abilities::equip(&[CostDef::Mana(mana_cost!("{2}"))], "Equip {2}")
+]),
 );
 
 // ECL 262 — Blood Crypt (reprint)

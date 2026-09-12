@@ -87,7 +87,9 @@ pub(in super::super) fn shared_mana_effect(effect: EffectDef, choices_are_suppor
                 // there -- and what it grants has to be a keyword, which is what
                 // the permanent the spell becomes carries away with it.
                 ManaSpendEffectDef::ApplyToPaidSpellMatching { object, effect } => {
-                    shared_object_predicate(object) && shared_granted_keyword_effect(effect)
+                    shared_object_predicate(object)
+                        && (shared_granted_keyword_effect(effect)
+                            || shared_cannot_be_countered_effect(effect))
                 }
                 ManaSpendEffectDef::ApplyToPaidAbility(_) | ManaSpendEffectDef::Special(_) => false,
             })

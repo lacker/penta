@@ -971,3 +971,5 @@ mod teenage_mutant_ninja_turtles;
 
 #[path = "tests/the_hobbit.rs"]
 mod the_hobbit;
+
+mod cedh_card_audit;

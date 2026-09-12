@@ -1,5 +1,10 @@
 //! Planar Chaos cards cataloged as cross-format rules-engine test cases.
 
+use crate::card::AddManaEffectDef;
+use crate::card::AppliedRuleDef;
+use crate::card::ChangeStackTargetsDef;
+use crate::card::CostDef;
+use crate::card::StackTargetChangeDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::ControlDurationDef;
@@ -143,16 +148,17 @@ pub(in crate::card::sets) static SUNLANCE: CardRecord = CardRecord::new(
 );
 
 // PLC 44 — Pongify
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PONGIFY_44: CardRecord = CardRecord::new(
     "Pongify",
     "cce74a84-4441-4f2e-89d8-df0b096790ed",
     "Heather Hudson",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{U}")).with_abilities(&[
+AbilityDef::spell_with_targets("Destroy target creature. It can't be regenerated. Its controller creates a 3/3 green Ape creature token.", &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Creature))], EffectDef::Sequence(&[EffectDef::WithRule { rule: AppliedRuleDef::CannotRegenerate, effect: &EffectDef::Destroy { object: EffectRecipientDef::Target(TargetIndex::PRIMARY), then: None } }, EffectDef::create_creature_token(&["Ape"], &[ManaColor::Green], 3, 3).with_controller(PlayerRefDef::ControllerOf(ObjectRefDef::Target(TargetIndex::PRIMARY)))]))
+]),
 );
 
 // PLC 63 — Big Game Hunter
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Madness needs a discard-to-exile replacement and linked triggered cast-or-graveyard procedure; the current alternative-cast model has no madness procedure.
 pub(in crate::card::sets) static BIG_GAME_HUNTER_63: CardRecord = CardRecord::new(
     "Big Game Hunter",
     "a61f38a9-6f15-4186-a602-78cdb00f2d75",
@@ -247,16 +253,17 @@ CardRules::new_instant(mana_cost!("{B}")).with_abilities(&[
 );
 
 // PLC 72 — Imp's Mischief
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static IMP_S_MISCHIEF_72: CardRecord = CardRecord::new(
     "Imp's Mischief",
     "22ec70a6-40b7-41da-a6c0-c140cadf5509",
     "Thomas M. Baxa",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{B}")).with_abilities(&[
+AbilityDef::spell_with_targets("Change the target of target spell with a single target. You lose life equal to that spell's mana value.", &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object { object: ObjectPredicateDef::All(&[ObjectPredicateDef::Spell, ObjectPredicateDef::DeclaredTargetCount { minimum: 1, maximum: 1 }]), zones: &[ZoneKind::Stack], controller: None, owner: None })], EffectDef::Sequence(&[EffectDef::ChangeStackTargets(&ChangeStackTargetsDef { object: EffectRecipientDef::Target(TargetIndex::PRIMARY), chooser: PlayerRefDef::EffectController, change: StackTargetChangeDef::ChooseNew { optional: false, restriction: None } }), EffectDef::LoseLife { recipient: EffectRecipientDef::Controller, amount: ValueDef::ObjectManaValue(ObjectRefDef::Target(TargetIndex::PRIMARY)) }]))
+]),
 );
 
 // PLC 76 — Muck Drubb
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Madness needs a discard-to-exile replacement and linked triggered cast-or-graveyard procedure; the current alternative-cast model has no madness procedure.
 pub(in crate::card::sets) static MUCK_DRUBB_76: CardRecord = CardRecord::new(
     "Muck Drubb",
     "e5bda3fc-89e8-44c2-bcfb-d17064bbc391",
@@ -265,12 +272,18 @@ pub(in crate::card::sets) static MUCK_DRUBB_76: CardRecord = CardRecord::new(
 );
 
 // PLC 122 — Simian Spirit Guide
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SIMIAN_SPIRIT_GUIDE_122: CardRecord = CardRecord::new(
     "Simian Spirit Guide",
     "5d7f701c-dcdc-4067-8d00-b4b7aadee9ba",
     "Dave DeVries",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Ape", "Spirit"], 2, 2).with_abilities(&[
+        AbilityDef::activated_mana(
+            "Exile this card from your hand: Add {R}.",
+            &[CostDef::ExileSource],
+            EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Red)),
+        )
+        .with_source_zones(&[ZoneKind::Hand]),
+    ]),
 );
 
 // PLC 128 — Fungal Behemoth

@@ -1,5 +1,22 @@
 //! BFZ card records required by supported formats.
 
+use crate::ParentBinding;
+use crate::card::BattlefieldEntryModificationDef;
+use crate::card::BindObjectsDef;
+use crate::card::CardSupertype;
+use crate::card::ComparisonDef;
+use crate::card::ConditionDef;
+use crate::card::FreePlayDef;
+use crate::card::FreePlayDurationDef;
+use crate::card::ObjectCollectionSourceDef;
+use crate::card::ObjectCountConditionDef;
+use crate::card::ObjectQueryDef;
+use crate::card::ObjectSetDef;
+use crate::card::PayOrDef;
+use crate::card::PlayerRefDef;
+use crate::card::ReplacementEffectDef;
+use crate::card::TriggerEventDef;
+use crate::card::ZonePlacement;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::card::AbilityDef;
@@ -47,16 +64,19 @@ const ELDRAZI_SCION_TOKEN: TokenCharacteristics =
         .with_art(CardArt::new("b999a0fe-d2d0-4367-9abb-6ce5f3764f19", "Izzy"));
 
 // BFZ 15 — Ulamog, the Ceaseless Hunger
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ULAMOG_THE_CEASELESS_HUNGER_15: CardRecord = CardRecord::new(
     "Ulamog, the Ceaseless Hunger",
     "1192f7a9-102e-4b3a-b154-18c8eb332217",
     "Michael Komarck",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{10}"), &["Eldrazi"], 10, 10).with_supertype(CardSupertype::Legendary).with_abilities(&[
+AbilityDef::triggered_with_targets("When you cast this spell, exile two target permanents.", TriggerEventDef::spell_cast(ObjectPredicateDef::Source), &[AbilityTargetDef { minimum: 2, maximum: 2, ..AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Any) }], EffectDef::move_to_zone(EffectRecipientDef::Target(TargetIndex::PRIMARY), ZoneKind::Exile, ZonePlacement::Top)),
+abilities::indestructible(),
+AbilityDef::triggered("Whenever Ulamog attacks, defending player exiles the top twenty cards of their library.", TriggerEventDef::attacks(ObjectPredicateDef::Source), EffectDef::BindObjects(BindObjectsDef { source: ObjectCollectionSourceDef::TopCards { player: PlayerRefDef::Opponent, count: ValueDef::Constant(20) }, binding: ParentBinding, then: &EffectDef::move_to_zone(EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)), ZoneKind::Exile, ZonePlacement::Top) }))
+]),
 );
 
 // BFZ 17 — Void Winnower
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Spell and blocker predicates have mana-value comparisons but no parity predicate for all even mana values, including arbitrary chosen X values.
 pub(in crate::card::sets) static VOID_WINNOWER_17: CardRecord = CardRecord::new(
     "Void Winnower",
     "8cbedb0a-34ca-4d42-bb43-cbea0f3c6d02",
@@ -218,12 +238,13 @@ CardRules::new_instant(mana_cost!("{2}{G}"))
 );
 
 // BFZ 209 — Bring to Light
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BRING_TO_LIGHT_209: CardRecord = CardRecord::new(
     "Bring to Light",
     "d25b13a4-6282-4426-8b01-9550f7d52d16",
     "Jonas De Ro",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{3}{G}{U}")).with_abilities(&[
+AbilityDef::spell("Converge — Search your library for a creature, instant, or sorcery card with mana value less than or equal to the number of colors of mana spent to cast this spell, exile that card, then shuffle. You may cast that card without paying its mana cost.", EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Library, object: ObjectPredicateDef::All(&[ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Instant), ObjectPredicateDef::HasType(CardType::Sorcery)])]), ObjectPredicateDef::ManaValueAtMostValue(ValueDef::ColorsOfManaSpent)]), minimum: 0, maximum: ValueDef::Constant(1), reveal: true, destination: ZoneKind::Exile, placement: ZonePlacement::Top, shuffle: true, enters_tapped: false, attachment: None, binding: Some(Binding!("bring_card")), then: Some(&EffectDef::MayPlayWithoutPaying(FreePlayDef { objects: ObjectSetDef::Binding(Binding!("bring_card")), duration: FreePlayDurationDef::WhileResolving, mandatory: false, grants_haste: false })) })
+]),
 );
 
 // BFZ 223 — Hedron Archive
@@ -250,21 +271,43 @@ pub(in crate::card::sets) static HEDRON_ARCHIVE: CardRecord = CardRecord::new(
 );
 
 // BFZ 242 — Sanctum of Ugin
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SANCTUM_OF_UGIN_242: CardRecord = CardRecord::new(
     "Sanctum of Ugin",
     "86798d03-9f2d-46bd-a660-13c8dd5535ce",
     "James Paick",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+abilities::tap_for(ManaColor::Colorless),
+AbilityDef::triggered("Whenever you cast a colorless spell with mana value 7 or greater, you may sacrifice this land. If you do, search your library for a colorless creature card, reveal it, put it into your hand, then shuffle.", TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[ObjectPredicateDef::ControlledBy(PlayerRelation::You), ObjectPredicateDef::ColorCount(0), ObjectPredicateDef::Not(&ObjectPredicateDef::ManaValueAtMost(6))])), EffectDef::PayOr(PayOrDef::optional(&[CostDef::sacrifice_permanent(ObjectPredicateDef::Source)], &EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Library, object: ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::ColorCount(0)]), minimum: 0, maximum: ValueDef::Constant(1), reveal: true, destination: ZoneKind::Hand, placement: ZonePlacement::Top, shuffle: true, enters_tapped: false, attachment: None, binding: None, then: None })))
+]),
 );
 
 // BFZ 249 — Sunken Hollow
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SUNKEN_HOLLOW_249: CardRecord = CardRecord::new(
     "Sunken Hollow",
     "0dd1726f-b899-491a-8b0e-8e3d25f17d3d",
     "Adam Paquette",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&["Island", "Swamp"]).with_abilities(&[AbilityDef::as_enters(
+        "This land enters tapped unless you control two or more basic lands.",
+        ReplacementEffectDef::Conditional {
+            condition: ConditionDef::ObjectCount(&ObjectCountConditionDef {
+                query: ObjectQueryDef::matching(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                comparison: ComparisonDef::GreaterOrEqual,
+                amount: 2,
+            }),
+            if_true: &[],
+            if_false: &[ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::Tapped,
+            )],
+        },
+    )]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

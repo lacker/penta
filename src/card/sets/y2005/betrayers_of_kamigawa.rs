@@ -1,5 +1,14 @@
 //! Betrayers of Kamigawa cards cataloged for the Vintage Cube.
 
+use crate::card::ChoiceVisibilityDef;
+use crate::card::ChooseForEachPlayerDef;
+use crate::card::DamageAssignmentDef;
+use crate::card::HalvedValueDef;
+use crate::card::ObjectSetDef;
+use crate::card::PerPlayerSelectionDef;
+use crate::card::PlayerRelation;
+use crate::card::RoundingDef;
+use crate::card::ZoneKind;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::card::AbilityDef;
@@ -34,7 +43,7 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // BOK 33 — Disrupting Shoal
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The casting planner only chooses nonzero X from a variable mana payment or an X-sized additional cost. It cannot derive X from the mana value of the single card exiled for this alternative cost.
 pub(in crate::card::sets) static DISRUPTING_SHOAL_33: CardRecord = CardRecord::new(
     "Disrupting Shoal",
     "15589745-4c0a-4edf-ad45-3b7fa45e70c5",
@@ -99,7 +108,7 @@ pub(in crate::card::sets) static OKIBA_GANG_SHINOBI: CardRecord = CardRecord::ne
 );
 
 // BOK 96 — Blazing Shoal
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The casting planner only chooses nonzero X from a variable mana payment or an X-sized additional cost. It cannot derive X from the mana value of the single card exiled for this alternative cost.
 pub(in crate::card::sets) static BLAZING_SHOAL_96: CardRecord = CardRecord::new(
     "Blazing Shoal",
     "8b915daa-d239-4460-bd6b-e1327fdf7f51",
@@ -108,12 +117,27 @@ pub(in crate::card::sets) static BLAZING_SHOAL_96: CardRecord = CardRecord::new(
 );
 
 // BOK 98 — Crack the Earth
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CRACK_THE_EARTH_98: CardRecord = CardRecord::new(
     "Crack the Earth",
     "8ab16152-4617-4deb-b995-195e21f8f485",
     "Wayne Reynolds",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{R}"))
+        .with_subtypes(&["Arcane"])
+        .with_abilities(&[AbilityDef::spell(
+            "Each player sacrifices a permanent of their choice.",
+            EffectDef::ChooseForEachPlayer(ChooseForEachPlayerDef {
+                player: EffectRecipientDef::EachPlayer,
+                candidates: ObjectPredicateDef::Any,
+                zone: ZoneKind::Battlefield,
+                selection: PerPlayerSelectionDef::Count(ValueDef::Constant(1)),
+                visibility: ChoiceVisibilityDef::Public,
+                chosen: Binding!("sacrifice_chosen"),
+                unchosen: Binding!("sacrifice_unchosen"),
+                then: &EffectDef::sacrifice(EffectRecipientDef::objects(ObjectSetDef::Binding(
+                    Binding!("sacrifice_chosen"),
+                ))),
+            }),
+        )]),
 );
 
 // BOK 104 — Fumiko the Lowblood
@@ -148,12 +172,13 @@ pub(in crate::card::sets) static FUMIKO_THE_LOWBLOOD: CardRecord =
             ]),
     );
 // BOK 107 — Heartless Hidetsugu
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HEARTLESS_HIDETSUGU_107: CardRecord = CardRecord::new(
     "Heartless Hidetsugu",
     "4a3ab177-d9ab-46bf-bd92-20a9ecf2d0ad",
     "Carl Critchlow",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{R}{R}"), &["Ogre", "Shaman"], 4, 3).with_supertype(CardSupertype::Legendary).with_abilities(&[
+AbilityDef::activated("{T}: Heartless Hidetsugu deals damage to each player equal to half that player's life total, rounded down.", &[CostDef::TapSource], EffectDef::damage_simultaneously(&[DamageAssignmentDef::from_effect(EffectRecipientDef::Controller, ValueDef::Halved(&HalvedValueDef { value: ValueDef::LifeTotal(PlayerRelation::You), rounding: RoundingDef::Down })), DamageAssignmentDef::from_effect(EffectRecipientDef::Opponent, ValueDef::Halved(&HalvedValueDef { value: ValueDef::LifeTotal(PlayerRelation::Opponent), rounding: RoundingDef::Down }))]))
+]),
 );
 
 // BOK 154 — Mirror Gallery

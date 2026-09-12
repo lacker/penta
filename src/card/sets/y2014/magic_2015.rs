@@ -1,5 +1,6 @@
 //! Magic 2015 cards cataloged for the Vintage Cube pool.
 
+use crate::card::AbilityTargetPredicate;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
@@ -74,7 +75,7 @@ pub(in crate::card::sets) static HELIOD_S_PILGRIM: CardRecord = CardRecord::new(
 );
 
 // M15 15 — Hushwing Gryff
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The trigger pipeline has no continuous rule suppressing triggered abilities caused by creatures entering the battlefield.
 pub(in crate::card::sets) static HUSHWING_GRYFF_15: CardRecord = CardRecord::new(
     "Hushwing Gryff",
     "7b44eb0d-5a3a-4624-aee4-11d6978fb4b0",
@@ -105,16 +106,34 @@ pub(in crate::card::sets) static TRIPLICATE_SPIRITS: CardRecord = CardRecord::ne
 );
 
 // M15 119 — Ulcerate
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ULCERATE_119: CardRecord = CardRecord::new(
     "Ulcerate",
     "2e06e6c8-05c0-4d87-9961-605b888bc794",
     "Johann Bodin",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{B}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Target creature gets -3/-3 until end of turn. You lose 3 life.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(-3),
+                    ValueDef::Constant(-3),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+            EffectDef::LoseLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(3),
+            },
+        ]),
+    )]),
 );
 
 // M15 122 — Waste Not
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Discarded has no card predicate. Object-set conditions inspect a live zone object rather than the discarded card snapshot, so they cannot classify discard-cost events whose hand object was replaced or already moved.
 pub(in crate::card::sets) static WASTE_NOT_122: CardRecord = CardRecord::new(
     "Waste Not",
     "241d8f7d-3981-47c1-b7b8-748277fa452f",
@@ -123,12 +142,14 @@ pub(in crate::card::sets) static WASTE_NOT_122: CardRecord = CardRecord::new(
 );
 
 // M15 138 — Crowd's Favor
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CROWD_S_FAVOR_138: CardRecord = CardRecord::new(
     "Crowd's Favor",
     "536b8104-9d8d-444b-8535-62bcbe279de2",
     "Slawomir Maniak",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{R}")).with_abilities(&[
+abilities::convoke(),
+AbilityDef::spell_with_targets("Target creature gets +1/+0 and gains first strike until end of turn. (It deals combat damage before creatures without first strike.)", &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Creature))], EffectDef::Apply { recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY), effect: AppliedEffectDef::Composite(&[AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(0)), AppliedEffectDef::add_ability(&abilities::first_strike())]), duration: ResolvedEffectDurationDef::UntilEndOfTurn })
+]),
 );
 
 // M15 142 — Frenzied Goblin (reprint)
@@ -139,7 +160,7 @@ const FRENZIED_GOBLIN_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // M15 143 — Generator Servant
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Mana-spend grants have no duration field; they can grant haste to a paid creature spell, but cannot expire that grant at end of turn.
 pub(in crate::card::sets) static GENERATOR_SERVANT_143: CardRecord = CardRecord::new(
     "Generator Servant",
     "74d0c422-4201-4d6f-9df7-659e8b78b541",
@@ -216,12 +237,23 @@ pub(in crate::card::sets) static GOBLIN_RABBLEMASTER: CardRecord = CardRecord::n
 );
 
 // M15 164 — Stoke the Flames
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STOKE_THE_FLAMES_164: CardRecord = CardRecord::new(
     "Stoke the Flames",
     "1d94c000-52e0-4215-83af-6351dc43e636",
     "Ryan Barger",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{2}{R}{R}")).with_abilities(&[
+        abilities::convoke(),
+        AbilityDef::spell_with_targets(
+            "Stoke the Flames deals 4 damage to any target.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(4),
+            ),
+        ),
+    ]),
 );
 
 // M15 194 — Reclamation Sage
@@ -251,7 +283,7 @@ pub(in crate::card::sets) static RECLAMATION_SAGE: CardRecord = CardRecord::new(
 );
 
 // M15 209 — Yisan, the Wanderer Bard
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — PutCountersOnSource is supported in resolving payments but not activation-cost enumeration or payment; the counter must be paid before this ability goes on the stack.
 pub(in crate::card::sets) static YISAN_THE_WANDERER_BARD_209: CardRecord = CardRecord::new(
     "Yisan, the Wanderer Bard",
     "65cd97cd-6d6e-4512-a050-6851b7527567",
@@ -260,7 +292,7 @@ pub(in crate::card::sets) static YISAN_THE_WANDERER_BARD_209: CardRecord = CardR
 );
 
 // M15 215 — The Chain Veil
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — MayActivateLoyaltyAnyTime changes timing only; the engine has no additional loyalty activation allowance that composes with prior activations and repeated resolutions.
 pub(in crate::card::sets) static THE_CHAIN_VEIL_215: CardRecord = CardRecord::new(
     "The Chain Veil",
     "0415cc0e-979e-42cc-a56d-88d13153a7de",

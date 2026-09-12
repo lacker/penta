@@ -1,5 +1,12 @@
 //! SOK card records required by supported formats.
 
+use crate::card::ChoiceVisibilityDef;
+use crate::card::ChooseForEachPlayerDef;
+use crate::card::CopyStackObjectDef;
+use crate::card::ManaColor;
+use crate::card::ObjectSetDef;
+use crate::card::PerPlayerSelectionDef;
+use crate::card::PlayerRefDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
@@ -51,16 +58,33 @@ pub(in crate::card::sets) static ARABA_MOTHRIDER: CardRecord = CardRecord::new(
 );
 
 // SOK 38 — Freed from the Real
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FREED_FROM_THE_REAL_38: CardRecord = CardRecord::new(
     "Freed from the Real",
     "e9ecee02-12c0-4aed-a679-41bce95e0cda",
     "Scott M. Fischer",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{2}{U}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::activated(
+                "{U}: Tap enchanted creature.",
+                &[CostDef::Mana(mana_cost!("{U}"))],
+                EffectDef::Tap {
+                    object: EffectRecipientDef::object(crate::card::ObjectRefDef::AttachedToSource),
+                },
+            ),
+            AbilityDef::activated(
+                "{U}: Untap enchanted creature.",
+                &[CostDef::Mana(mana_cost!("{U}"))],
+                EffectDef::Untap {
+                    object: EffectRecipientDef::object(crate::card::ObjectRefDef::AttachedToSource),
+                },
+            ),
+        ]),
 );
 
 // SOK 48 — Oboro Breezecaller
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Returning a chosen battlefield permanent is not supported by the activated-cost planner; ReturnToHand currently has a casting-cost path only.
 pub(in crate::card::sets) static OBORO_BREEZECALLER_48: CardRecord = CardRecord::new(
     "Oboro Breezecaller",
     "a382a9b8-0b19-46c2-a547-a22d6e23d0ac",
@@ -110,12 +134,34 @@ CardRules::new_creature(mana_cost!("{2}{U}{U}"), &["Human", "Rogue"], 3, 1)
 );
 
 // SOK 60 — Twincast
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TWINCAST_60: CardRecord = CardRecord::new(
     "Twincast",
     "1a367559-1d84-4f6f-9e6e-ff90de420389",
     "Christopher Moeller",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{U}{U}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Copy target instant or sorcery spell. You may choose new targets for the copy.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Spell,
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Instant),
+                        ObjectPredicateDef::HasType(CardType::Sorcery),
+                    ]),
+                ]),
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            },
+        )],
+        EffectDef::CopyStackObject(&CopyStackObjectDef {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            controller: PlayerRefDef::EffectController,
+            count: ValueDef::Constant(1),
+            retarget: true,
+            colors: None,
+        }),
+    )]),
 );
 
 // SOK 63 — Death Denied
@@ -192,12 +238,28 @@ CardRules::new_creature(mana_cost!("{3}{R}{R}"), &["Human", "Samurai"], 3, 3)
 );
 
 // SOK 118 — Thoughts of Ruin
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static THOUGHTS_OF_RUIN_118: CardRecord = CardRecord::new(
     "Thoughts of Ruin",
     "2a0f2db3-41a6-4283-9812-46b6ae6d1df6",
     "John Avon",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{2}{R}{R}")).with_abilities(&[AbilityDef::spell(
+        "Each player sacrifices a land of their choice for each card in your hand.",
+        EffectDef::ChooseForEachPlayer(ChooseForEachPlayerDef {
+            player: EffectRecipientDef::EachPlayer,
+            candidates: ObjectPredicateDef::HasType(CardType::Land),
+            zone: ZoneKind::Battlefield,
+            selection: PerPlayerSelectionDef::Count(ValueDef::CardsInHandAbove {
+                player: PlayerRelation::You,
+                threshold: 0,
+            }),
+            visibility: ChoiceVisibilityDef::Public,
+            chosen: Binding!("sacrifice_chosen"),
+            unchosen: Binding!("sacrifice_unchosen"),
+            then: &EffectDef::sacrifice(EffectRecipientDef::objects(ObjectSetDef::Binding(
+                Binding!("sacrifice_chosen"),
+            ))),
+        }),
+    )]),
 );
 
 // SOK 147 — Seek the Horizon
@@ -251,21 +313,44 @@ CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
 );
 
 // SOK 162 — Mikokoro, Center of the Sea
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MIKOKORO_CENTER_OF_THE_SEA_162: CardRecord = CardRecord::new(
     "Mikokoro, Center of the Sea",
     "7ef72797-328e-4303-8ffb-9686086648b8",
     "John Avon",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[])
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::tap_for(ManaColor::Colorless),
+            AbilityDef::activated(
+                "{2}, {T}: Each player draws a card.",
+                &[CostDef::Mana(mana_cost!("{2}")), CostDef::TapSource],
+                EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::EachPlayer,
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+        ]),
 );
 
 // SOK 164 — Oboro, Palace in the Clouds
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static OBORO_PALACE_IN_THE_CLOUDS_164: CardRecord = CardRecord::new(
     "Oboro, Palace in the Clouds",
     "ffc2d68e-6543-43ec-b67a-afff1325a32f",
     "Rob Alexander",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[])
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::tap_for(ManaColor::Blue),
+            AbilityDef::activated(
+                "{1}: Return Oboro to its owner's hand.",
+                &[CostDef::Mana(mana_cost!("{1}"))],
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Source,
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
+            ),
+        ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

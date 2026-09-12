@@ -1,5 +1,16 @@
 //! Commander 2018 cards cataloged for the Vintage Cube pool.
 
+use crate::ParentBinding;
+use crate::card::AppliedEffectDef;
+use crate::card::BattlefieldEntryModificationDef;
+use crate::card::CardSupertype;
+use crate::card::CardTypeSet;
+use crate::card::CounterKind;
+use crate::card::CreatedTokensDef;
+use crate::card::ManaColor;
+use crate::card::ReplacementEffectDef;
+use crate::card::ResolvedEffectDurationDef;
+use crate::card::TurnStepDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::card::AbilityDef;
@@ -41,21 +52,27 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // C18 23 — Loyal Apprentice
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LOYAL_APPRENTICE_23: CardRecord = CardRecord::new(
     "Loyal Apprentice",
     "b5fef5fe-3e59-4fd6-8a88-7c1cee56892f",
     "Joe Slucher",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Human", "Artificer"], 2, 1).with_abilities(&[
+abilities::haste(),
+AbilityDef::triggered_if("Lieutenant — At the beginning of combat on your turn, if you control your commander, create a 1/1 colorless Thopter artifact creature token with flying. That token gains haste until end of turn.", TriggerEventDef::StepBegins { step: TurnStepDef::BeginningOfCombat, player: PlayerRelation::You }, &TriggerConditionDef::ObjectCount { query: ObjectQueryDef::matching(ObjectPredicateDef::Commander, &[ZoneKind::Battlefield], PlayerRelation::You), comparison: ComparisonDef::GreaterOrEqual, amount: 1 }, EffectDef::create_artifact_creature_token(&["Thopter"], &[], 1, 1).with_abilities(&[abilities::flying()]).with_created_tokens(CreatedTokensDef { binding: ParentBinding, then: &EffectDef::Apply { recipient: EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)), effect: AppliedEffectDef::add_ability(&abilities::haste()), duration: ResolvedEffectDurationDef::UntilEndOfTurn } }))
+]),
 );
 
 // C18 38 — Arixmethes, Slumbering Isle
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ARIXMETHES_SLUMBERING_ISLE_38: CardRecord = CardRecord::new(
     "Arixmethes, Slumbering Isle",
     "c723c7dc-a452-49ec-a4e5-9e516fe530e9",
     "Dimitar Marinski",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{G}{U}"), &["Kraken"], 12, 12).with_supertype(CardSupertype::Legendary).with_abilities(&[
+AbilityDef::as_enters("Arixmethes enters tapped with five slumber counters on it.", ReplacementEffectDef::Sequence(&[ReplacementEffectDef::ModifyBattlefieldEntry(BattlefieldEntryModificationDef::Tapped), ReplacementEffectDef::ModifyBattlefieldEntry(BattlefieldEntryModificationDef::AddCounters { kind: CounterKind::named("slumber"), amount: 5 })])),
+AbilityDef::static_ability("As long as Arixmethes has a slumber counter on it, it's a land. (It's not a creature.)", EffectDef::IfCondition { condition: &TriggerConditionDef::SourceCounters { kind: CounterKind::named("slumber"), comparison: ComparisonDef::Greater, amount: 0 }, then: &EffectDef::StaticApply { recipient: EffectRecipientDef::Source, effect: AppliedEffectDef::set_card_types(CardTypeSet::single(CardType::Land)) } }),
+AbilityDef::triggered("Whenever you cast a spell, you may remove a slumber counter from Arixmethes.", TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(PlayerRelation::You)), EffectDef::May { player: EffectRecipientDef::Controller, effect: &EffectDef::RemoveCounters { object: EffectRecipientDef::Source, kind: CounterKind::named("slumber"), amount: ValueDef::Constant(1) } }),
+abilities::tap_for_mana("{T}: Add {G}{U}.", AddManaEffectDef::one_of_each(ManaColor::Green, ManaColor::Blue))
+]),
 );
 
 // C18 54 — Coveted Jewel

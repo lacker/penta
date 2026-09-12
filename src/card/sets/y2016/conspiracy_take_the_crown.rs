@@ -1,5 +1,6 @@
 //! Conspiracy: Take the Crown cards cataloged for the Vintage Cube pool.
 
+use crate::card::ZonePlacement;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
@@ -103,16 +104,17 @@ pub(in crate::card::sets) static PALACE_SENTINELS: CardRecord = CardRecord::new(
 );
 
 // CN2 22 — Recruiter of the Guard
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RECRUITER_OF_THE_GUARD_22: CardRecord = CardRecord::new(
     "Recruiter of the Guard",
     "bb9ad57f-cca2-4717-a951-cbe3c7782efe",
     "Jason Rainville",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Soldier"], 1, 1).with_abilities(&[
+abilities::enters_trigger("When this creature enters, you may search your library for a creature card with toughness 2 or less, reveal it, put it into your hand, then shuffle.", EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Library, object: ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::ToughnessLessThan(ValueDef::Constant(3))]), minimum: 0, maximum: ValueDef::Constant(1), reveal: true, destination: ZoneKind::Hand, placement: ZonePlacement::Top, shuffle: true, enters_tapped: false, attachment: None, binding: None, then: None })
+]),
 );
 
 // CN2 23 — Sanctum Prelate
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Entry replacements cannot record an arbitrary chosen number for a continuous mana-value cast prohibition.
 pub(in crate::card::sets) static SANCTUM_PRELATE_23: CardRecord = CardRecord::new(
     "Sanctum Prelate",
     "1d95a7dd-2803-4164-8979-d7e8e8085ca2",
@@ -121,7 +123,7 @@ pub(in crate::card::sets) static SANCTUM_PRELATE_23: CardRecord = CardRecord::ne
 );
 
 // CN2 30 — Expropriate
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The engine has no ordered player voting procedure with separate per-voter consequences.
 pub(in crate::card::sets) static EXPROPRIATE_30: CardRecord = CardRecord::new(
     "Expropriate",
     "9c8a2a5a-cb9b-4582-a453-085da78584f9",
@@ -157,7 +159,7 @@ pub(in crate::card::sets) static ENTOURAGE_OF_TREST: CardRecord = CardRecord::ne
 );
 
 // CN2 69 — Regal Behemoth
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The monarch designation and its transfer rules exist, but no condition can ask whether this ability's controller is currently the monarch before triggering the additional mana.
 pub(in crate::card::sets) static REGAL_BEHEMOTH_69: CardRecord = CardRecord::new(
     "Regal Behemoth",
     "644e5b24-394a-43f1-8384-186d6108f540",
@@ -166,7 +168,7 @@ pub(in crate::card::sets) static REGAL_BEHEMOTH_69: CardRecord = CardRecord::new
 );
 
 // CN2 70 — Selvala, Heart of the Wilds
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The resolving draw comparison is expressible, but mana_ability_value delegates aggregate power to cost_reduction_value, which returns zero for AggregateObjectValues. The greatest-power mana amount is therefore not executable by the current mana-activation planner.
 pub(in crate::card::sets) static SELVALA_HEART_OF_THE_WILDS_70: CardRecord = CardRecord::new(
     "Selvala, Heart of the Wilds",
     "99a3e619-fbdb-406c-9f21-eb582cb878c0",

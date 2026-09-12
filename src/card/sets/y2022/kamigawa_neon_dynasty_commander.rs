@@ -1,6 +1,12 @@
 //! Kamigawa: Neon Dynasty Commander cards cataloged for the Vintage Cube
 //! pool.
 
+use crate::card::AbilityTargetDef;
+use crate::card::CardTypeSet;
+use crate::card::CharacteristicOperationDef;
+use crate::card::DeckConstructionDef;
+use crate::card::SetOperationDef;
+use crate::card::SubtypeDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::card::AbilityDef;
@@ -37,7 +43,7 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // NEC 13 — Imposter Mech
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — CopyExceptionsDef can add card types but cannot replace the copied creature's card-type set with artifact while retaining its copied rules and applying the Vehicle exception.
 pub(in crate::card::sets) static IMPOSTER_MECH_13: CardRecord = CardRecord::new(
     "Imposter Mech",
     "59b7450c-3163-4f12-9af1-2e998a6c36cf",
@@ -95,25 +101,30 @@ pub(in crate::card::sets) static KAPPA_CANNONEER: CardRecord = CardRecord::new(
 );
 
 // NEC 45 — Swift Reconfiguration
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SWIFT_RECONFIGURATION_45: CardRecord = CardRecord::new(
     "Swift Reconfiguration",
     "0bd0b431-534d-4ab7-93ed-b9a25259e88e",
     "Nicholas Gregory",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{W}")).with_subtypes(&["Aura"]).with_abilities(&[
+abilities::flash(),
+abilities::aura_spell("Enchant creature or Vehicle", &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle"))]))]),
+AbilityDef::static_ability("Enchanted permanent is a Vehicle artifact with crew 5 and it loses all other card types. (It's not a creature unless it's crewed.)", EffectDef::StaticApply { recipient: EffectRecipientDef::AttachedPermanent, effect: AppliedEffectDef::Composite(&[AppliedEffectDef::set_card_types(CardTypeSet::single(CardType::Artifact)), AppliedEffectDef::Characteristic(CharacteristicOperationDef::Subtypes(SetOperationDef::Add(&["Vehicle"]))), AppliedEffectDef::add_ability(&abilities::crew("Crew 5", 5))]) })
+]),
 );
 
 // NEC 46 — Yoshimaru, Ever Faithful
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static YOSHIMARU_EVER_FAITHFUL_46: CardRecord = CardRecord::new(
     "Yoshimaru, Ever Faithful",
     "84dcd364-38c1-4987-a066-1c4d4533912e",
     "Ilse Gort",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{W}"), &["Dog"], 1, 1).with_supertype(CardSupertype::Legendary).with_abilities(&[
+AbilityDef::triggered("Whenever another legendary permanent you control enters, put a +1/+1 counter on Yoshimaru.", TriggerEventDef::zone_changed(ObjectPredicateDef::All(&[ObjectPredicateDef::Supertype(CardSupertype::Legendary), ObjectPredicateDef::ControlledBy(PlayerRelation::You), ObjectPredicateDef::Not(&ObjectPredicateDef::Source)]), None, Some(ZoneKind::Battlefield)), EffectDef::AddCounters { object: EffectRecipientDef::Source, kind: CounterKind::PlusOnePlusOne, amount: ValueDef::Constant(1) }),
+AbilityDef::deck_construction("Partner (You can have two commanders if both have partner.)", DeckConstructionDef::Partner, "Both commanders are designated before the game.")
+]),
 );
 
 // NEC 56 — Ruthless Technomancer
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The activated-cost planner cannot select a positive variable number of artifacts to sacrifice and preserve that X as the target's power limit.
 pub(in crate::card::sets) static RUTHLESS_TECHNOMANCER_56: CardRecord = CardRecord::new(
     "Ruthless Technomancer",
     "b6f8e7b9-d90b-40a5-88f4-4edfae0d01f7",

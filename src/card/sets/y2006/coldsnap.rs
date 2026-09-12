@@ -1,5 +1,15 @@
 //! Coldsnap card records required by supported formats.
 
+use crate::card::AlternativeCastKindDef;
+use crate::card::BindObjectsDef;
+use crate::card::CardNameDef;
+use crate::card::ChangeStackTargetsDef;
+use crate::card::CostQuantityDef;
+use crate::card::ObjectCollectionSourceDef;
+use crate::card::RevealObjectsDef;
+use crate::card::StackTargetChangeDef;
+use crate::card::TurnPhaseDef;
+use crate::card::ValueComparisonDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::ParentBinding;
@@ -82,30 +92,34 @@ pub(in crate::card::sets) static WALL_OF_SHARDS: CardRecord = CardRecord::new(
 );
 
 // CSP 27 — Arcum Dagsson
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ARCUM_DAGSSON_27: CardRecord = CardRecord::new(
     "Arcum Dagsson",
     "dd9d3ce7-53db-4808-88bc-03c120211f81",
     "Pete Venters",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{U}"), &["Human", "Artificer"], 2, 2).with_supertype(CardSupertype::Legendary).with_abilities(&[
+AbilityDef::activated_with_targets("{T}: Target artifact creature's controller sacrifices it. That player may search their library for a noncreature artifact card, put it onto the battlefield, then shuffle.", &[CostDef::TapSource], &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Artifact),ObjectPredicateDef::HasType(CardType::Creature)]))], EffectDef::Sequence(&[EffectDef::sacrifice(EffectRecipientDef::Target(TargetIndex::PRIMARY)), EffectDef::SearchZone { player: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY), source: ZoneKind::Library, object: ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Artifact), ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature))]), minimum: 0, maximum: ValueDef::Constant(1), reveal: false, destination: ZoneKind::Battlefield, placement: ZonePlacement::Top, shuffle: true, enters_tapped: false, attachment: None, binding: None, then: None }]))
+]),
 );
 
 // CSP 29 — Commandeer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static COMMANDEER_29: CardRecord = CardRecord::new(
     "Commandeer",
     "7e6e6204-c622-4efe-ac4f-8195528cec9c",
     "John Matson",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{5}{U}{U}")).with_abilities(&[
+AbilityDef::alternative_cast(&[CostDef::exile(ObjectPredicateDef::Color(ManaColor::Blue), ZoneKind::Hand, CostQuantityDef::Fixed(2))], AlternativeCastKindDef::AlternativeCost, Some("You may exile two blue cards from your hand rather than pay this spell’s mana cost."), EffectDef::None),
+AbilityDef::spell_with_targets("Gain control of target noncreature spell. You may choose new targets for it. (If that spell is an artifact, enchantment, or planeswalker, the permanent enters under your control.)", &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object { object: ObjectPredicateDef::NoncreatureSpell, zones: &[ZoneKind::Stack], controller: None, owner: None })], EffectDef::Sequence(&[EffectDef::gain_control(EffectRecipientDef::Target(TargetIndex::PRIMARY), PlayerRefDef::EffectController, ControlDurationDef::Indefinitely), EffectDef::ChangeStackTargets(&ChangeStackTargetsDef { object: EffectRecipientDef::Target(TargetIndex::PRIMARY), chooser: PlayerRefDef::EffectController, change: StackTargetChangeDef::ChooseNew { optional: true, restriction: None } })]))
+]),
 );
 
 // CSP 31 — Counterbalance
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static COUNTERBALANCE_31: CardRecord = CardRecord::new(
     "Counterbalance",
     "c329ff2b-0331-4934-a8df-870dd7bf402b",
     "John Zeleznik",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{U}{U}")).with_abilities(&[
+AbilityDef::triggered("Whenever an opponent casts a spell, you may reveal the top card of your library. If you do, counter that spell if it has the same mana value as the revealed card.", TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent)), EffectDef::May { player: EffectRecipientDef::Controller, effect: &EffectDef::BindObjects(BindObjectsDef { source: ObjectCollectionSourceDef::TopCards { player: PlayerRefDef::EffectController, count: ValueDef::Constant(1) }, binding: Binding!("revealed_top"), then: &EffectDef::Sequence(&[EffectDef::RevealObjects(RevealObjectsDef { input: ObjectSetDef::Binding(Binding!("revealed_top")), then: &EffectDef::None }), EffectDef::ForEachInBinding { objects: Binding!("revealed_top"), binding: Binding!("revealed_card"), effect: &EffectDef::IfCondition { condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef { left: ValueDef::ObjectManaValue(ObjectRefDef::TriggeringObject), comparison: ComparisonDef::Equal, right: ValueDef::ObjectManaValue(ObjectRefDef::Binding(Binding!("revealed_card"))) }), then: &EffectDef::Counter { object: EffectRecipientDef::TriggeringObject, zone: ZoneKind::Graveyard, placement: ZonePlacement::Top } } }]) }) })
+]),
 );
 
 // CSP 33 — Flashfreeze
@@ -277,12 +291,14 @@ pub(in crate::card::sets) static BRAID_OF_FIRE: CardRecord = CardRecord::new(
 );
 
 // CSP 81 — Fury of the Horde
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FURY_OF_THE_HORDE_81: CardRecord = CardRecord::new(
     "Fury of the Horde",
     "f3223ef9-787a-40ac-8ab2-79ac75664aa2",
     "Stephen Tappin",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{5}{R}{R}")).with_abilities(&[
+AbilityDef::alternative_cast(&[CostDef::exile(ObjectPredicateDef::Color(ManaColor::Red), ZoneKind::Hand, CostQuantityDef::Fixed(2))], AlternativeCastKindDef::AlternativeCost, Some("You may exile two red cards from your hand rather than pay this spell’s mana cost."), EffectDef::None),
+AbilityDef::spell("Untap all creatures that attacked this turn. After this main phase, there is an additional combat phase followed by an additional main phase.", EffectDef::Sequence(&[EffectDef::Untap { object: EffectRecipientDef::matching_objects(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::AttackedThisTurn]), &[ZoneKind::Battlefield], PlayerRelation::Any) }, EffectDef::ScheduleTurnPhases(&[TurnPhaseDef::Combat, TurnPhaseDef::PostcombatMain])]))
+]),
 );
 
 // CSP 86 — Karplusan Minotaur
@@ -319,12 +335,24 @@ CardRules::new_creature(mana_cost!("{2}{R}{R}"), &["Minotaur", "Warrior"], 3, 3)
 );
 
 // CSP 96 — Rite of Flame
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RITE_OF_FLAME_96: CardRecord = CardRecord::new(
     "Rite of Flame",
     "c062caf7-f0eb-44db-9f74-e6711a13fada",
     "Dany Orizio",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{R}")).with_abilities(&[AbilityDef::spell(
+        "Add {R}{R}, then add {R} for each card named Rite of Flame in each graveyard.",
+        EffectDef::Sequence(&[
+            EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Red).with_amount(2)),
+            EffectDef::AddManaEqualTo {
+                color: ManaColor::Red,
+                amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                    ObjectPredicateDef::NameEquals(CardNameDef::Literal("Rite of Flame")),
+                    &[ZoneKind::Graveyard],
+                    PlayerRelation::Any,
+                )),
+            },
+        ]),
+    )]),
 );
 
 // CSP 102 — Arctic Nishoba
@@ -347,12 +375,13 @@ pub(in crate::card::sets) static ARCTIC_NISHOBA: CardRecord = CardRecord::new(
 );
 
 // CSP 105 — Boreal Druid
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BOREAL_DRUID_105: CardRecord = CardRecord::new(
     "Boreal Druid",
     "473d3633-6dc7-4026-a50e-3ea76b9e8c20",
     "Dan Dos Santos",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{G}"), &["Elf", "Druid"], 1, 1)
+        .with_abilities(&[abilities::tap_for(ManaColor::Colorless)])
+        .with_supertype(CardSupertype::Snow),
 );
 
 // CSP 138 — Mishra's Bauble

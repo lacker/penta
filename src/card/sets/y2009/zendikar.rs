@@ -1,5 +1,8 @@
 //! Zendikar cards cataloged for the Vintage Cube pool.
 
+use crate::card::CardSupertype;
+use crate::card::ObjectQueryDef;
+use crate::card::QuantifierDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::ControlDurationDef;
@@ -246,12 +249,14 @@ pub(in crate::card::sets) static KRAKEN_HATCHLING: CardRecord = CardRecord::new(
 );
 
 // ZEN 57 — Mindbreak Trap
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MINDBREAK_TRAP_57: CardRecord = CardRecord::new(
     "Mindbreak Trap",
     "4f51140b-6254-431a-8810-94307bfdfbbe",
     "Christopher Moeller",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{2}{U}{U}")).with_subtypes(&["Trap"]).with_abilities(&[
+AbilityDef::alternative_cast(&[CostDef::Mana(mana_cost!("{0}"))], AlternativeCastKindDef::AlternativeCost, Some("If an opponent cast three or more spells this turn, you may pay {0} rather than pay this spell’s mana cost."), EffectDef::None).with_alternative_condition(&TriggerConditionDef::SpellsCastThisTurn { quantifier: QuantifierDef::Any, player: PlayerRelation::Opponent, comparison: ComparisonDef::GreaterOrEqual, amount: 3 }),
+AbilityDef::spell_with_targets("Exile any number of target spells.", &[AbilityTargetDef::any_number(AbilityTargetPredicate::Object { object: ObjectPredicateDef::Spell, zones: &[ZoneKind::Stack], controller: None, owner: None })], EffectDef::move_to_zone(EffectRecipientDef::Target(TargetIndex::PRIMARY), ZoneKind::Exile, ZonePlacement::Top))
+]),
 );
 
 // ZEN 58 — Paralyzing Grasp
@@ -385,7 +390,7 @@ CardRules::new_creature(mana_cost!("{1}{B}"), &["Vampire", "Shaman"], 1, 1).with
 );
 
 // ZEN 82 — Bloodchief Ascension
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The turn history does not record how much life each opponent lost; current life totals or damage-only history cannot answer the two-life-loss threshold.
 pub(in crate::card::sets) static BLOODCHIEF_ASCENSION_82: CardRecord = CardRecord::new(
     "Bloodchief Ascension",
     "aa213dbb-c52a-4084-92aa-d0b5d97a97d9",
@@ -512,7 +517,7 @@ pub(in crate::card::sets) static GIANT_SCORPION: CardRecord = CardRecord::new(
 );
 
 // ZEN 109 — Ravenous Trap
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — No per-player history counter records how many cards entered that player’s graveyard from anywhere this turn for the alternative-cost condition.
 pub(in crate::card::sets) static RAVENOUS_TRAP_109: CardRecord = CardRecord::new(
     "Ravenous Trap",
     "f4540013-11f9-4a8b-ad54-61f467f04756",
@@ -695,12 +700,33 @@ pub(in crate::card::sets) static GOBLIN_BUSHWHACKER: CardRecord = CardRecord::ne
 );
 
 // ZEN 127 — Goblin Ruinblaster
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GOBLIN_RUINBLASTER_127: CardRecord = CardRecord::new(
     "Goblin Ruinblaster",
     "0d95d1f3-7ec1-4279-ade7-3f339f2f33da",
     "Matt Cavotta",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Goblin", "Shaman"], 2, 1).with_abilities(&[
+        abilities::kicker(&[CostDef::Mana(mana_cost!("{R}"))]),
+        abilities::haste(),
+        AbilityDef::triggered_if_with_targets(
+            "When this creature enters, if it was kicked, destroy target nonbasic land.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            &TriggerConditionDef::SourcePaidAdditionalCost(crate::AdditionalCostIndex::PRIMARY),
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(CardSupertype::Basic)),
+                ]),
+            )],
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // ZEN 128 — Goblin Shortcutter
@@ -808,12 +834,14 @@ pub(in crate::card::sets) static SLAUGHTER_CRY: CardRecord = CardRecord::new(
 );
 
 // ZEN 154 — Warren Instigator
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WARREN_INSTIGATOR_154: CardRecord = CardRecord::new(
     "Warren Instigator",
     "98637219-40d8-414c-939d-e2c90b909725",
     "Andrew Robinson",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{R}{R}"), &["Goblin", "Berserker"], 1, 1).with_abilities(&[
+abilities::double_strike(),
+AbilityDef::triggered("Whenever this creature deals damage to an opponent, you may put a Goblin creature card from your hand onto the battlefield.", TriggerEventDef::damage_to_player(ObjectPredicateDef::Source, PlayerRelation::Opponent), EffectDef::Choose(ChooseDef { binding: ObjectChoiceBindingDef::Objects(ParentBinding), unchosen: None, chooser: PlayerRefDef::EffectController, candidates: ObjectSetDef::Query(ObjectQueryDef::matching(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature),ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin"))]), &[ZoneKind::Hand], PlayerRelation::You)), exclude: None, minimum: 0, maximum: 1, visibility: ChoiceVisibilityDef::Private, then: &EffectDef::move_to_zone(EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)), ZoneKind::Battlefield, ZonePlacement::Top) }))
+]),
 );
 
 // ZEN 168 — Lotus Cobra

@@ -1,5 +1,19 @@
 //! Bloomburrow Commander cards cataloged for the Vintage Cube pool.
 
+use crate::TargetIndex;
+use crate::card::AbilityOperationDef;
+use crate::card::AbilityTargetDef;
+use crate::card::AbilityTargetPredicate;
+use crate::card::AlternativeCastKindDef;
+use crate::card::AppliedEffectDef;
+use crate::card::CardType;
+use crate::card::CharacteristicOperationDef;
+use crate::card::CopyExceptionsDef;
+use crate::card::CostDef;
+use crate::card::PlayerRelation;
+use crate::card::SubtypeDef;
+use crate::card::TokenCopyDef;
+use crate::card::abilities;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::card::AbilityDef;
@@ -86,7 +100,7 @@ pub(in crate::card::sets) static JACKED_RABBIT: CardRecord = CardRecord::new(
 );
 
 // BLC 14 — Fortune Teller's Talent
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The cost-modification matcher does not receive the candidate spell's cast source zone, so its third level cannot discount only spells cast from outside the hand.
 pub(in crate::card::sets) static FORTUNE_TELLER_S_TALENT_14: CardRecord = CardRecord::new(
     "Fortune Teller's Talent",
     "a1d43877-20ab-4e84-a597-4b5e03a6bf90",
@@ -95,16 +109,19 @@ pub(in crate::card::sets) static FORTUNE_TELLER_S_TALENT_14: CardRecord = CardRe
 );
 
 // BLC 17 — Hazel's Brewmaster
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HAZEL_S_BREWMASTER_17: CardRecord = CardRecord::new(
     "Hazel's Brewmaster",
     "52af8b70-a9c8-40d7-99da-fa51dc293688",
     "Simon Dominic",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{B}"), &["Squirrel", "Warlock"], 3, 4).with_abilities(&[
+abilities::menace(),
+AbilityDef::triggered_with_targets("Whenever this creature enters or attacks, exile up to one target card from a graveyard and create a Food token.", TriggerEventDef::AnyOf(&[TriggerEventDef::zone_changed(ObjectPredicateDef::Source, None, Some(ZoneKind::Battlefield)), TriggerEventDef::attacks(ObjectPredicateDef::Source)]), &[AbilityTargetDef::up_to(AbilityTargetPredicate::Object { object: ObjectPredicateDef::Any, zones: &[ZoneKind::Graveyard], controller: None, owner: None }, 1)], EffectDef::Sequence(&[EffectDef::ExileLinkedToSource { object: EffectRecipientDef::Target(TargetIndex::PRIMARY), face_down: false, until_source_leaves: false, then: None }, EffectDef::create_token(crate::card::tokens::food())])),
+AbilityDef::static_ability("Foods you control have all activated abilities of all creature cards exiled with this creature.", EffectDef::StaticApply { recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::Subtype(SubtypeDef::Literal("Food")), &[ZoneKind::Battlefield], PlayerRelation::You), effect: AppliedEffectDef::Characteristic(CharacteristicOperationDef::Abilities(AbilityOperationDef::AddActivatedAbilitiesOfLinkedExiles(ObjectPredicateDef::HasType(CardType::Creature)))) })
+]),
 );
 
 // BLC 35 — Trailtracker Scout
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — There is no event for crossing an amount of total mana spent casting spells this turn. Spell counts and mana-value counts cannot implement expend 8.
 pub(in crate::card::sets) static TRAILTRACKER_SCOUT_35: CardRecord = CardRecord::new(
     "Trailtracker Scout",
     "36ee967a-3cac-4fff-b616-ec2557c676f2",
@@ -113,21 +130,26 @@ pub(in crate::card::sets) static TRAILTRACKER_SCOUT_35: CardRecord = CardRecord:
 );
 
 // BLC 50 — Pollywog Prodigy
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static POLLYWOG_PRODIGY_50: CardRecord = CardRecord::new(
     "Pollywog Prodigy",
     "292158eb-cef0-4807-a38f-c5686064b95a",
     "Caroline Gariba",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{U}"), &["Frog", "Wizard"], 1, 3).with_abilities(&[
+abilities::evolve(),
+AbilityDef::triggered("Whenever an opponent casts a noncreature spell with mana value less than this creature's power, draw a card.", TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[ObjectPredicateDef::NoncreatureSpell, ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent), ObjectPredicateDef::ManaValueAtMostValue(ValueDef::SourcePower), ObjectPredicateDef::Not(&ObjectPredicateDef::ManaValueEqualTo(ValueDef::SourcePower))])), abilities::draw_cards(ValueDef::Constant(1)))
+]),
 );
 
 // BLC 56 — Agate Instigator
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AGATE_INSTIGATOR_56: CardRecord = CardRecord::new(
     "Agate Instigator",
     "163c093e-9b6f-497d-a167-cfee1dbc5106",
     "Quintin Gleim",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Lizard", "Rogue"], 1, 3).with_abilities(&[
+AbilityDef::alternative_cast(&[CostDef::Mana(mana_cost!("{2}{R}{R}"))], AlternativeCastKindDef::Offspring, Some("Offspring {1}{R} (You may pay an additional {1}{R} as you cast this spell. If you do, when this creature enters, create a 1/1 token copy of it.)"), EffectDef::None),
+AbilityDef::triggered_if("When this creature enters, if its offspring cost was paid, create a 1/1 token copy of it.", TriggerEventDef::zone_changed(ObjectPredicateDef::Source, None, Some(ZoneKind::Battlefield)), &TriggerConditionDef::SourceCastWith(AlternativeCastKindDef::Offspring), EffectDef::create_token_from_copy(&TokenCopyDef { object: &EffectRecipientDef::Source, exceptions: CopyExceptionsDef::power_toughness(1, 1) })),
+AbilityDef::triggered("Whenever another creature you control enters, this creature deals 1 damage to each opponent.", TriggerEventDef::zone_changed(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::Not(&ObjectPredicateDef::Source), ObjectPredicateDef::ControlledBy(PlayerRelation::You)]), None, Some(ZoneKind::Battlefield)), EffectDef::damage(EffectRecipientDef::Opponent, ValueDef::Constant(1)))
+]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

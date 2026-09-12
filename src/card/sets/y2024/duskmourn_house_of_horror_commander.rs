@@ -127,7 +127,7 @@ pub(in crate::card::sets) static URSINE_MONSTROSITY: CardRecord = CardRecord::ne
 );
 
 // DSC 66 — Giggling Skitterspike
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Monstrous status is not represented. A +1/+1-counter test would allow repeated monstrosity after counters are removed and suppress it after unrelated counters are added.
 pub(in crate::card::sets) static GIGGLING_SKITTERSPIKE_66: CardRecord = CardRecord::new(
     "Giggling Skitterspike",
     "a7360ffb-5a45-490f-9adf-d540a404e64d",

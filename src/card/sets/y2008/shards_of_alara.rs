@@ -1,5 +1,9 @@
 //! Shards of Alara cards cataloged for the Vintage Cube pool.
 
+use crate::card::AddManaEffectDef;
+use crate::card::ChoiceVisibilityDef;
+use crate::card::CostModificationDef;
+use crate::card::ZonePlacement;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
@@ -139,7 +143,7 @@ pub(in crate::card::sets) static ELSPETH_KNIGHT_ERRANT: CardRecord = CardRecord:
 );
 
 // ALA 10 — Ethersworn Canonist
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The spell-history cast limit counts all spells; it cannot count only nonartifact spells while still allowing further artifact spells.
 pub(in crate::card::sets) static ETHERSWORN_CANONIST_10: CardRecord = CardRecord::new(
     "Ethersworn Canonist",
     "2aebe7a8-b982-4be4-83ca-3594e8f606b4",
@@ -157,34 +161,51 @@ pub(in crate::card::sets) static GUARDIANS_OF_AKRASA: CardRecord = CardRecord::n
 );
 
 // ALA 21 — Ranger of Eos
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RANGER_OF_EOS_21: CardRecord = CardRecord::new(
     "Ranger of Eos",
     "1a30ee26-5f78-4ac2-9105-1baa9ece8a21",
     "Volkan Baǵa",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{W}"), &["Human", "Soldier", "Ranger"], 3, 2).with_abilities(&[
+abilities::enters_trigger("When this creature enters, you may search your library for up to two creature cards with mana value 1 or less, reveal them, put them into your hand, then shuffle.", EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Library, object: ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::ManaValueAtMost(1)]), minimum: 0, maximum: ValueDef::Constant(2), reveal: true, destination: ZoneKind::Hand, placement: ZonePlacement::Top, shuffle: true, enters_tapped: false, attachment: None, binding: None, then: None })
+]),
 );
 
 // ALA 42 — Etherium Sculptor
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ETHERIUM_SCULPTOR_42: CardRecord = CardRecord::new(
     "Etherium Sculptor",
     "0d050f2d-bd65-4ab9-9ea6-9deba91b2792",
     "Steven Belledin",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{1}{U}"), &["Vedalken", "Artificer"], 1, 2)
+        .with_abilities(&[AbilityDef::static_ability(
+            "Artifact spells you cast cost {1} less to cast.",
+            EffectDef::ModifyCost(CostModificationDef::reduce_spell(
+                ObjectPredicateDef::HasType(CardType::Artifact),
+                PlayerRelation::You,
+                ValueDef::Constant(1),
+            )),
+        )]),
 );
 
 // ALA 44 — Filigree Sages
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FILIGREE_SAGES_44: CardRecord = CardRecord::new(
     "Filigree Sages",
     "08790aaf-0142-4b20-89cf-cdaffeea4582",
     "Dan Murayama Scott",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{3}{U}"), &["Vedalken", "Wizard"], 2, 3)
+        .with_abilities(&[AbilityDef::activated_with_targets(
+            "{2}{U}: Untap target artifact.",
+            &[CostDef::Mana(mana_cost!("{2}{U}"))],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Artifact),
+            )],
+            EffectDef::Untap {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+        )]),
 );
 
 // ALA 60 — Tezzeret the Seeker
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Loyalty activation costs are fixed signed integers; the activated-cost planner cannot choose and pay a variable −X loyalty cost.
 pub(in crate::card::sets) static TEZZERET_THE_SEEKER_60: CardRecord = CardRecord::new(
     "Tezzeret the Seeker",
     "3b214b6f-4734-4200-8467-92d7e3469b5d",
@@ -193,7 +214,7 @@ pub(in crate::card::sets) static TEZZERET_THE_SEEKER_60: CardRecord = CardRecord
 );
 
 // ALA 63 — Ad Nauseam
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The effect graph has no player-controlled repeat loop that reveals, moves to hand, and loses the revealed card’s mana value before offering another iteration.
 pub(in crate::card::sets) static AD_NAUSEAM_63: CardRecord = CardRecord::new(
     "Ad Nauseam",
     "0a4ce4a1-65e3-4b40-be35-8fc55a968ec8",
@@ -448,12 +469,14 @@ pub(in crate::card::sets) static BRANCHING_BOLT: CardRecord = CardRecord::new(
 );
 
 // ALA 194 — Sharuum the Hegemon
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SHARUUM_THE_HEGEMON_194: CardRecord = CardRecord::new(
     "Sharuum the Hegemon",
     "6589eaa8-95ec-4c97-8155-185487560ae6",
     "Izzy",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{3}{W}{U}{B}"), &["Sphinx"], 5, 5).with_supertype(CardSupertype::Legendary).with_abilities(&[
+abilities::flying(),
+abilities::enters_trigger_with_targets("When Sharuum enters, you may return target artifact card from your graveyard to the battlefield.", &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object { object: ObjectPredicateDef::HasType(CardType::Artifact), zones: &[ZoneKind::Graveyard], controller: None, owner: Some(PlayerRelation::You) })], EffectDef::May { player: EffectRecipientDef::Controller, effect: &EffectDef::move_to_zone(EffectRecipientDef::Target(TargetIndex::PRIMARY), ZoneKind::Battlefield, ZonePlacement::Top) })
+]),
 );
 
 // ALA 202 — Tidehollow Sculler
@@ -503,21 +526,68 @@ CardRules::new_artifact_creature(mana_cost!("{W}{B}"), &["Zombie"], 2, 2)
 );
 
 // ALA 218 — Relic of Progenitus
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RELIC_OF_PROGENITUS_218: CardRecord = CardRecord::new(
     "Relic of Progenitus",
     "90c41192-64ef-43aa-9af0-75f0d3f56688",
     "Jean-Sébastien Rossbach",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
+        AbilityDef::activated_with_targets(
+            "{T}: Target player exiles a card from their graveyard.",
+            &[CostDef::TapSource],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Any),
+            )],
+            EffectDef::ChooseExact(crate::card::ChooseExactDef {
+                binding: Binding!("graveyard_exile"),
+                chooser: crate::card::PlayerRefDef::Target(TargetIndex::PRIMARY),
+                candidates: ObjectSetDef::Query(crate::card::ObjectQueryDef::owned_by(
+                    ObjectPredicateDef::Any,
+                    &[ZoneKind::Graveyard],
+                    crate::card::PlayerSetDef::One(crate::card::PlayerRefDef::Target(
+                        TargetIndex::PRIMARY,
+                    )),
+                )),
+                exclude: None,
+                amount: ValueDef::Constant(1),
+                visibility: ChoiceVisibilityDef::Public,
+                then: &EffectDef::move_to_zone(
+                    EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!("graveyard_exile"))),
+                    ZoneKind::Exile,
+                    ZonePlacement::Top,
+                ),
+            }),
+        ),
+        AbilityDef::activated(
+            "{1}, Exile this artifact: Exile all graveyards. Draw a card.",
+            &[CostDef::Mana(mana_cost!("{1}")), CostDef::ExileSource],
+            EffectDef::Sequence(&[
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::Any,
+                        &[ZoneKind::Graveyard],
+                        PlayerRelation::Any,
+                    ),
+                    ZoneKind::Exile,
+                    ZonePlacement::Top,
+                ),
+                abilities::draw_cards(ValueDef::Constant(1)),
+            ]),
+        ),
+    ]),
 );
 
 // ALA 220 — Arcane Sanctum
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ARCANE_SANCTUM_220: CardRecord = CardRecord::new(
     "Arcane Sanctum",
     "6edc0681-4252-4d3d-baf3-f03c22af1208",
     "Anthony Francisco",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        abilities::tap_for_mana(
+            "{T}: Add {W}, {U}, or {B}.",
+            AddManaEffectDef::choice(&[ManaColor::White, ManaColor::Blue, ManaColor::Black]),
+        ),
+    ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

@@ -1,5 +1,12 @@
 //! Modern Horizons cards cataloged for the Vintage Cube pool.
 
+use crate::card::CharacteristicOperationDef;
+use crate::card::KeywordAbility;
+use crate::card::PlayActionMatcherDef;
+use crate::card::PlayRestrictionDef;
+use crate::card::SetOperationDef;
+use crate::card::StackTargetAggregationDef;
+use crate::card::StackTargetFilterDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
@@ -148,12 +155,47 @@ pub(in crate::card::sets) static GIVER_OF_RUNES: CardRecord = CardRecord::new(
 );
 
 // MH1 21 — Ranger-Captain of Eos
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RANGER_CAPTAIN_OF_EOS_21: CardRecord = CardRecord::new(
     "Ranger-Captain of Eos",
     "af3928b4-813a-4120-8799-de34235d60ac",
     "Ryan Pancoast",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{W}{W}"), &["Human", "Soldier", "Ranger"], 3, 3).with_abilities(&[
+        abilities::enters_trigger(
+            "When this creature enters, you may search your library for a creature card with mana value 1 or less, reveal it, put it into your hand, then shuffle.",
+            EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::ManaValueAtMost(1),
+                ]),
+                minimum: 0,
+                maximum: ValueDef::Constant(1),
+                reveal: true,
+                destination: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+                shuffle: true,
+                enters_tapped: false,
+                attachment: None,
+                binding: None,
+                then: None,
+            },
+        ),
+        AbilityDef::activated(
+            "Sacrifice this creature: Your opponents can't cast noncreature spells this turn.",
+            &[CostDef::SacrificeSource],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Opponent,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotPlay(
+                    PlayRestrictionDef::new(
+                        PlayActionMatcherDef::CastSpell,
+                        ObjectPredicateDef::NoncreatureSpell,
+                    ),
+                )),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // MH1 24 — Rhox Veteran
@@ -248,7 +290,7 @@ pub(in crate::card::sets) static SETTLE_BEYOND_REALITY: CardRecord = CardRecord:
 );
 
 // MH1 29 — Sisay, Weatherlight Captain
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a value that unions the colors of other legendary permanents you control. ValueDef can count matching objects or aggregate their numeric characteristics, but has no distinct-colors-across-objects value; without Sisay's complete characteristic-defining ability, her power-bounded search cannot be represented faithfully.
 pub(in crate::card::sets) static SISAY_WEATHERLIGHT_CAPTAIN_29: CardRecord = CardRecord::new(
     "Sisay, Weatherlight Captain",
     "5a293c45-1e73-4527-be2f-2dcd5c47b610",
@@ -535,12 +577,39 @@ pub(in crate::card::sets) static FIRST_SPHERE_GARGANTUA: CardRecord = CardRecord
 );
 
 // MH1 92 — Force of Despair
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FORCE_OF_DESPAIR_92: CardRecord = CardRecord::new(
     "Force of Despair",
     "8f497b0d-4448-4201-bd55-c147da1a216d",
     "Seb McKinnon",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{B}{B}")).with_abilities(&[
+        AbilityDef::alternative_cast(
+            &[CostDef::exile(
+                ObjectPredicateDef::Color(ManaColor::Black),
+                ZoneKind::Hand,
+                CostQuantityDef::Fixed(1),
+            )],
+            AlternativeCastKindDef::AlternativeCost,
+            Some(
+                "If it's not your turn, you may exile a black card from your hand rather than pay this spell's mana cost.",
+            ),
+            EffectDef::None,
+        )
+        .with_alternative_condition(&NOT_YOUR_TURN),
+        AbilityDef::spell(
+            "Destroy all creatures that entered this turn.",
+            EffectDef::Destroy {
+                object: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::EnteredThisTurn,
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // MH1 94 — Graveshifter
@@ -564,12 +633,61 @@ pub(in crate::card::sets) static PUTRID_GOBLIN: CardRecord = CardRecord::new(
 );
 
 // MH1 116 — Yawgmoth, Thran Physician
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static YAWGMOTH_THRAN_PHYSICIAN_116: CardRecord = CardRecord::new(
     "Yawgmoth, Thran Physician",
     "8690cbcc-f8fd-41f7-9e28-e61c12b04014",
     "Mark Winters",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{B}{B}"), &["Human", "Cleric"], 2, 4)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::keyword(
+                "Protection from Humans",
+                KeywordAbility::ProtectionFrom(&ObjectPredicateDef::Subtype(
+                    SubtypeDef::Literal("Human"),
+                )),
+            ),
+            AbilityDef::activated_with_targets(
+                "Pay 1 life, Sacrifice another creature: Put a -1/-1 counter on up to one target creature and draw a card.",
+                &[
+                    CostDef::PayLife(1),
+                    CostDef::SacrificePermanent {
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                        controller: PlayerRelation::You,
+                    },
+                ],
+                &[AbilityTargetDef::up_to(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: None,
+                        owner: None,
+                    },
+                    1,
+                )],
+                EffectDef::Sequence(&[
+                    EffectDef::AddCounters {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        kind: CounterKind::MinusOneMinusOne,
+                        amount: ValueDef::Constant(1),
+                    },
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    },
+                ]),
+            ),
+            AbilityDef::activated(
+                "{B}{B}, Discard a card: Proliferate. (Choose any number of permanents and/or players, then give each another counter of each kind already there.)",
+                &[
+                    CostDef::Mana(mana_cost!("{B}{B}")),
+                    CostDef::discard(ObjectPredicateDef::Any),
+                ],
+                EffectDef::Proliferate,
+            ),
+        ]),
 );
 
 // MH1 120 — Bogardan Dragonheart
@@ -654,12 +772,55 @@ pub(in crate::card::sets) static GOATNAP: CardRecord = CardRecord::new(
 );
 
 // MH1 128 — Goblin Engineer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GOBLIN_ENGINEER_128: CardRecord = CardRecord::new(
     "Goblin Engineer",
     "a55c4d47-5252-40af-961d-c08bc688028a",
     "Jehan Choo",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Goblin", "Artificer"], 1, 2).with_abilities(&[
+        abilities::enters_trigger(
+            "When this creature enters, you may search your library for an artifact card, put it into your graveyard, then shuffle.",
+            EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                object: ObjectPredicateDef::HasType(CardType::Artifact),
+                minimum: 0,
+                maximum: ValueDef::Constant(1),
+                reveal: false,
+                destination: ZoneKind::Graveyard,
+                placement: ZonePlacement::Top,
+                shuffle: true,
+                enters_tapped: false,
+                attachment: None,
+                binding: None,
+                then: None,
+            },
+        ),
+        AbilityDef::activated_with_targets(
+            "{R}, {T}, Sacrifice an artifact: Return target artifact card with mana value 3 or less from your graveyard to the battlefield.",
+            &[
+                CostDef::Mana(mana_cost!("{R}")),
+                CostDef::TapSource,
+                CostDef::SacrificePermanent {
+                    object: ObjectPredicateDef::HasType(CardType::Artifact),
+                    controller: PlayerRelation::You,
+                },
+            ],
+            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::ManaValueAtMost(3),
+                ]),
+                zones: &[ZoneKind::Graveyard],
+                controller: None,
+                owner: Some(PlayerRelation::You),
+            })],
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Battlefield,
+                ZonePlacement::Top,
+            ),
+        ),
+    ]),
 );
 
 // MH1 130 — Goblin Oriflamme
@@ -687,12 +848,41 @@ pub(in crate::card::sets) static GOBLIN_ORIFLAMME: CardRecord = CardRecord::new(
 );
 
 // MH1 138 — Pashalik Mons
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PASHALIK_MONS_138: CardRecord = CardRecord::new(
     "Pashalik Mons",
     "11616853-34b1-4bb1-9590-461e12970ec3",
     "Even Amundsen",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Goblin", "Warrior"], 2, 2)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::dies_trigger_matching_with_targets(
+                "Whenever this creature or another Goblin you control dies, this creature deals 1 damage to any target.",
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::Source,
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ]),
+                ]),
+                &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)],
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(1),
+                ),
+            ),
+            AbilityDef::activated(
+                "{3}{R}, Sacrifice a Goblin: Create two 1/1 red Goblin creature tokens.",
+                &[
+                    CostDef::Mana(mana_cost!("{3}{R}")),
+                    CostDef::SacrificePermanent {
+                        object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
+                        controller: PlayerRelation::You,
+                    },
+                ],
+                EffectDef::create_creature_token(&["Goblin"], &[ManaColor::Red], 1, 1)
+                    .with_amount(2),
+            ),
+        ]),
 );
 
 // MH1 143 — Ravenous Giant
@@ -1148,12 +1338,14 @@ pub(in crate::card::sets) static GOOD_FORTUNE_UNICORN: CardRecord = CardRecord::
 );
 
 // MH1 216 — Unsettled Mariner
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static UNSETTLED_MARINER_216: CardRecord = CardRecord::new(
     "Unsettled Mariner",
     "eaea2e54-ee50-47b9-a2a5-e3353831248c",
     "John Stanko",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{W}{U}"), &["Shapeshifter"], 2, 2).with_abilities(&[
+AbilityDef::static_ability("Changeling (This card is every creature type.)", EffectDef::StaticApply { recipient: EffectRecipientDef::Source, effect: AppliedEffectDef::Characteristic(CharacteristicOperationDef::Subtypes(SetOperationDef::Add(crate::card::CREATURE_TYPES))) }).with_source_zones(&[ZoneKind::Battlefield, ZoneKind::Library, ZoneKind::Hand, ZoneKind::Graveyard, ZoneKind::Stack, ZoneKind::Exile, ZoneKind::Command]),
+AbilityDef::triggered("Whenever you or a permanent you control becomes the target of a spell or ability an opponent controls, counter that spell or ability unless its controller pays {1}.", TriggerEventDef::targets_selected(ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent), StackTargetFilterDef::AnyOf(&[StackTargetFilterDef::Player(PlayerRelation::You), StackTargetFilterDef::Permanent(ObjectPredicateDef::ControlledBy(PlayerRelation::You))]), StackTargetAggregationDef::EachMatchingTarget), abilities::counter_triggering_spell_unless_paid(&[CostDef::GenericMana(ValueDef::Constant(1))]))
+]),
 );
 
 // MH1 217 — Wrenn and Six
@@ -1259,12 +1451,30 @@ pub(in crate::card::sets) static FARMSTEAD_GLEANER: CardRecord = CardRecord::new
 );
 
 // MH1 225 — Lesser Masticore
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LESSER_MASTICORE_225: CardRecord = CardRecord::new(
     "Lesser Masticore",
     "c4c7cba5-6111-40ce-828a-e811301bb283",
     "Wisnu Tan",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{2}"), &["Masticore"], 2, 2).with_abilities(&[
+        AbilityDef::spell_with_additional_cost(
+            "As an additional cost to cast this spell, discard a card.",
+            &[],
+            CostDef::discard(ObjectPredicateDef::Any),
+            EffectDef::None,
+        ),
+        AbilityDef::activated_with_targets(
+            "{4}: This creature deals 1 damage to target creature.",
+            &[CostDef::Mana(mana_cost!("{4}"))],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(1),
+            ),
+        ),
+        abilities::persist(),
+    ]),
 );
 
 // MH1 230 — Talisman of Conviction
@@ -1345,48 +1555,102 @@ pub(in crate::card::sets) static TALISMAN_OF_CURIOSITY: CardRecord = CardRecord:
 );
 
 // MH1 233 — Talisman of Hierarchy
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TALISMAN_OF_HIERARCHY_233: CardRecord = CardRecord::new(
     "Talisman of Hierarchy",
     "826f99c7-f534-4183-8f0d-efe1609808ac",
     "Lindsey Look",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
+        AbilityDef::activated_mana(
+            "{T}: Add {C}.",
+            &TALISMAN_TAP,
+            EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless)),
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add {W} or {B}. This artifact deals 1 damage to you.",
+            &TALISMAN_TAP,
+            EffectDef::AddMana(
+                AddManaEffectDef::choice(&[ManaColor::White, ManaColor::Black])
+                    .with_damage_to_controller(1),
+            ),
+        ),
+    ]),
 );
 
 // MH1 235 — Universal Automaton
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static UNIVERSAL_AUTOMATON_235: CardRecord = CardRecord::new(
     "Universal Automaton",
     "53c682e2-c90f-4f4b-9010-00b099e85518",
     "Ben Maier",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{1}"), &["Shapeshifter"], 1, 1).with_abilities(&[
+        AbilityDef::static_ability(
+            "Changeling (This card is every creature type.)",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Characteristic(
+                    crate::card::CharacteristicOperationDef::Subtypes(
+                        crate::card::SetOperationDef::Add(crate::card::CREATURE_TYPES),
+                    ),
+                ),
+            },
+        )
+        .with_source_zones(&[
+            ZoneKind::Battlefield,
+            ZoneKind::Library,
+            ZoneKind::Hand,
+            ZoneKind::Graveyard,
+            ZoneKind::Stack,
+            ZoneKind::Exile,
+            ZoneKind::Command,
+        ]),
+    ]),
 );
 
 // MH1 238 — Fiery Islet
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FIERY_ISLET_238: CardRecord = CardRecord::new(
     "Fiery Islet",
     "a3aab13c-9d9d-4507-ae5d-da979990ae1b",
     "Richard Wright",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&abilities::horizon_land(
+        "{T}, Pay 1 life: Add {U} or {R}.",
+        &[ManaColor::Blue, ManaColor::Red],
+    )),
 );
 
 // MH1 241 — Hall of Heliod's Generosity
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HALL_OF_HELIOD_S_GENEROSITY_241: CardRecord = CardRecord::new(
     "Hall of Heliod's Generosity",
     "b5cbd10a-b9a6-4c00-8280-72bb4add4390",
     "Daniel Ljunggren",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[])
+        .with_ability(AbilityDef::activated_with_targets(
+            "{1}{W}, {T}: Put target enchantment card from your graveyard on top of your library.",
+            &[CostDef::Mana(mana_cost!("{1}{W}")), CostDef::TapSource],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Enchantment),
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: Some(PlayerRelation::You),
+                },
+            )],
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Library,
+                ZonePlacement::Top,
+            ),
+        ))
+        .with_supertype(crate::card::CardSupertype::Legendary),
 );
 
 // MH1 243 — Nurturing Peatland
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NURTURING_PEATLAND_243: CardRecord = CardRecord::new(
     "Nurturing Peatland",
     "2744ac83-a79f-4042-8720-688b5adda382",
     "Noah Bradley",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&abilities::horizon_land(
+        "{T}, Pay 1 life: Add {B} or {G}.",
+        &[ManaColor::Black, ManaColor::Green],
+    )),
 );
 
 // MH1 244 — Prismatic Vista
@@ -1411,12 +1675,14 @@ pub(in crate::card::sets) static PRISMATIC_VISTA: CardRecord = CardRecord::new(
 );
 
 // MH1 246 — Silent Clearing
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SILENT_CLEARING_246: CardRecord = CardRecord::new(
     "Silent Clearing",
     "ac07e230-0297-4e1d-bdfe-119010e0ad8e",
     "Seb McKinnon",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&abilities::horizon_land(
+        "{T}, Pay 1 life: Add {W} or {B}.",
+        &[ManaColor::White, ManaColor::Black],
+    )),
 );
 
 // MH1 247 — Sunbaked Canyon

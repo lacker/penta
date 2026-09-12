@@ -129,7 +129,7 @@ pub(in crate::card::sets) static CROSSWAY_TROUBLEMAKERS: CardRecord = CardRecord
 );
 
 // VOC 60 — Shadowgrange Archfiend
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Madness needs its discard-to-exile replacement and linked cast-or-graveyard procedure.
 pub(in crate::card::sets) static SHADOWGRANGE_ARCHFIEND_60: CardRecord = CardRecord::new(
     "Shadowgrange Archfiend",
     "598bf482-99ce-4b39-a969-7685752382ed",

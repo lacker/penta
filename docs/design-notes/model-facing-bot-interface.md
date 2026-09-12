@@ -97,6 +97,16 @@ and bounds; the engine validates again. Optional mana actions and every other
 real alternative remain selectable. Only the existing engine classification
 advances forced continuations.
 
+`play` also accepts current-view tickets in its `choices` array. It resolves
+them to complete action values before I/O, so several declared attackers or
+blocker assignments can share one model submission without stale indices or
+manual removal of presentation fields. Tickets and explicit actions can be
+mixed, including a requested finish command that becomes legal after the prior
+declarations. Selection decisions still require exact option IDs. All ticket
+references must match the connection's current view and supplied revision.
+An uncertain batch is recovered by `retry` with its resolved body and ID.
+Read the returned ready view directly; no extra observation call is required.
+
 [`client.mjs`](../../tools/penta-mcp/client.mjs) records the exact body and a
 request ID before I/O. It serializes state-changing/read-and-refresh calls per
 connection. An uncertain result blocks other plays. An identical retained

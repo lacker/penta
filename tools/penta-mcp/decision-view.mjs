@@ -107,13 +107,15 @@ export class DecisionView {
     return { view: this.id, reference, kind: found.kind, ...page(items, offset, limit) };
   }
 
-  choice(ticket, options) {
+  choice(ticket, options, indexed = true) {
     if (!this.active) throw new Error("stale ticket; request next(full=true)");
     const entry = this.tickets.get(ticket);
     if (!entry) throw new Error("unknown or expired ticket; request next(full=true)");
     if (!entry.decision) {
       if (options !== undefined) throw new Error("concrete action tickets do not accept options");
-      return { index: entry.index };
+      if (indexed) return { index: entry.index };
+      const { index: _index, ...action } = entry.action;
+      return { action: structuredClone(action) };
     }
     const decision = entry.decision;
     if (!Array.isArray(options)) throw new Error("decision tickets require an explicit options array");

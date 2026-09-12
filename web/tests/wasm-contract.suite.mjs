@@ -4,6 +4,7 @@ import test from "node:test";
 
 import { initializeWasm, WebGame } from "./wasm-test-support.mjs";
 import { SessionClient } from "../../tools/penta-mcp/client.mjs";
+import "./wasm-session-roundtrips.mjs";
 
 test("session API controls either seat and advances only forced continuations in the browser match", async () => {
   await initializeWasm();

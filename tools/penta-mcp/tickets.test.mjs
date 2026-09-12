@@ -109,3 +109,33 @@ test("decision tickets send selected IDs in model order and reject changed retri
   assert.deepEqual(f.posts[0].choices, [{ decision: 10, options: [3, 8] }]);
   await assert.rejects(f.client.choose({ ticket, options: [8, 3] }), /cannot change/);
 });
+
+test("ticket batches resolve exact actions in one request and retain the resolved retry body", async () => {
+  const f = fixture(); const first = await f.attach(); const tickets = unpack(first.choices);
+  const move = { connection: first.connection, revision: first.revision,
+    choices: [{ ticket: tickets[0].ticket }, { ticket: tickets[1].ticket }], waitMs: 0 };
+  f.fail = "network";
+  await assert.rejects(f.client.play(move), /lost after commit/);
+  assert.equal(f.posts.length, 1);
+  assert.deepEqual(f.posts[0].choices, actions.map(({ index: _index, ...action }) => ({ action })));
+  await assert.rejects(f.client.play(move), /uncertain outcome/);
+  f.fail = null; f.view = ready("b");
+  await f.client.retry({ connection: first.connection, waitMs: 0 });
+  assert.deepEqual(f.posts[0], f.posts[1]); assert.equal(f.commits, 1);
+  await assert.rejects(f.client.play(move), /stale ticket revision/);
+});
+
+test("ticket batches reject mixed views and preserve ordered selections and explicit future actions", async () => {
+  const f = fixture(); const first = await f.attach(); const second = await f.attach();
+  const ticket = unpack(first.choices)[0].ticket;
+  await assert.rejects(f.client.play({ connection: second.connection, revision: second.revision,
+    choices: [{ ticket }], waitMs: 0 }), /expired ticket/);
+  assert.equal(f.posts.length, 0);
+  f.view.observation.decision = { id: 10, minimum: 0, maximum: 2, options: [{ id: 8 }, { id: 3 }] };
+  f.view.observation.legalActions = [{ index: 99, type: "ChooseDecision", decision: 10 }];
+  const next = await f.client.next({ connection: first.connection, full: true, waitMs: 0 });
+  const decisionTicket = unpack(next.choices)[0].ticket;
+  await f.client.play({ connection: first.connection, revision: next.revision,
+    choices: [{ ticket: decisionTicket, options: [3, 8] }, { action: { type: "PassPriority" } }], waitMs: 0 });
+  assert.deepEqual(f.posts[0].choices, [{ decision: 10, options: [3, 8] }, { action: { type: "PassPriority" } }]);
+});

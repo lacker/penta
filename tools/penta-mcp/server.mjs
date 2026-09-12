@@ -12,11 +12,12 @@ const choice = z.union([
   z.object({ index: uint }).strict(),
   z.object({ decision: uint, options: z.array(uint).max(4096) }).strict(),
   z.object({ action: z.record(z.string(), z.unknown()) }).strict(),
+  z.object({ ticket: z.string(), options: z.array(uint).max(4096).optional() }).strict(),
 ]);
 
 export function createServer(base = process.env.PENTA_SERVER_URL ?? `http://localhost:${getWorktreeDevPort()}`, client = new SessionClient(base)) {
   const server = new McpServer({ name: "penta", version: "0.1.0" }, {
-    instructions: "Attach only to your assigned seat with presentation=decision-v1. Read the current position, updates, and choices; choose(ticket) submits one exact choice and waits. Decision tickets require explicit option IDs in options, preserving order. Read oversized sections with inspect_ref(reference). Use next when waiting or next(full=true) to refresh. Resolve uncertain submissions with retry before another move. All real decisions remain yours; only engine-forced continuations advance automatically. Each shared/rows table is self-contained: shared fields apply to every row. Printed card text is reference material; observed characteristics may differ. No explanation is required with a move. Exact play/inspect remain available; default attach presentation=exact returns full JSON or changes from baseRevision. Never reuse old indices or parse descriptive labels into commands.",
+    instructions: "Attach only to your assigned seat with presentation=decision-v1. Read the current position, updates, and choices. Submit already-decided groups together with play(choices=[{ticket},...]); choose(ticket) handles one action or a whole selection. Both return the next view; do not call next again when ready. Decision tickets require explicit option IDs in options, preserving order. Read oversized sections with inspect_ref(reference). Use next when waiting or next(full=true) to refresh. Resolve uncertain submissions with retry before another move. All real decisions remain yours; only engine-forced continuations advance automatically. Each shared/rows table is self-contained: shared fields apply to every row. Printed card text is reference material; observed characteristics may differ. No explanation is required with a move. Exact play/inspect remain available; default attach presentation=exact returns full JSON or changes from baseRevision. Never reuse old indices or parse descriptive labels into commands.",
   });
   const tool = (name, description, schema, method, readOnly = false) => server.registerTool(name, {
     description, inputSchema: schema,
@@ -39,7 +40,7 @@ export function createServer(base = process.env.PENTA_SERVER_URL ?? `http://loca
     z.object({ room: z.string(), token: z.string(), presentation: z.enum(["exact", "decision-v1"]).default("exact") }), "attach", true);
   tool("next", "Wait for your next decision; full=true returns a complete playing observation.",
     z.object({ connection, waitMs, full: z.boolean().default(false) }), "next", true);
-  tool("play", "Submit exact choices and wait. Batch actions stop at the first unfulfilled choice; inspect the accepted count.",
+  tool("play", "Submit already-decided choices together and wait, including attacker/blocker groups. Batch choices can use current-view tickets, exact actions, or decisions. Stop at new information you need. Inspect receipt.accepted; retry uncertain results.",
     z.object({ connection, revision: z.string(), choices: z.array(choice).min(1).max(64), requestId: z.string().optional(), waitMs }), "play");
   tool("retry", "Retry the last uncertain play with its original request ID, without playing twice.",
     z.object({ connection, waitMs }), "retry");

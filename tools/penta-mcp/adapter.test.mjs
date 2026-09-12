@@ -204,6 +204,11 @@ test("stdio MCP handshake exposes usable schemas and a single compact tool resul
     assert.deepEqual(posts[0].choices, [{ index: 0 }]);
     await client.callTool({ name: "choose", arguments: { ticket, waitMs: 0 } });
     assert.deepEqual(posts[0], posts[1]);
+    const next = JSON.parse(played.content[0].text);
+    const batch = await client.callTool({ name: "play", arguments: { connection: packet.connection,
+      revision: next.revision, choices: next.choices.map(choice => ({ ticket: choice.ticket })), waitMs: 0 } });
+    assert.equal(batch.isError, undefined);
+    assert.deepEqual(posts[2].choices, observation.legalActions.map(({ index: _index, ...action }) => ({ action })));
   } finally {
     await client.close();
     await new Promise(resolve => host.close(resolve));

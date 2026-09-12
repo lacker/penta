@@ -202,6 +202,32 @@ in the intended order; omission is an error even when `[]` is allowed:
 {"ticket":"example:a0","options":[4,2]}
 ```
 
+Submit an already-decided group of actions together through `play`, using
+tickets from the current view. For example, two selected attacker tickets and
+an explicit instruction to finish declaring attackers:
+
+```json
+{"connection":"...","revision":"...","choices":[{"ticket":"example:a2"},{"ticket":"example:a5"},{"action":{"type":"FinishDeclaringAttackers"}}]}
+```
+
+Blocker assignments work the same way with `FinishDeclaringBlockers`. The
+adapter resolves tickets to complete stored actions before submitting the batch;
+it never reuses their indices against subsequent states. All tickets must come
+from the connection's current view and revision. Ticket decisions can also
+carry `options`, and tickets can be mixed with the existing exact action forms.
+The HTTP endpoint continues receiving canonical choices, with no ticket schema.
+After an uncertain batch, `retry` retains the resolved body and request ID.
+
+A batch avoids a model round trip per creature; its actions still undergo
+sequential engine validation. An explicit finish can be redundant if the engine
+already forced it after the last declaration. Check the accepted prefix and
+returned position when a batch stops; do not repeat a finish that already
+happened. A mulligan `BottomCards` action already contains its whole card group,
+and an option-selection decision takes its whole selected list in one call.
+Split a batch when a later choice depends on new information or an unresolved
+decision. Both `play` and `choose` return the next view: use a ready response
+directly instead of requesting it again with `next`.
+
 The engine validates the stored revision and exact choice again. No action is
 ranked or inferred from a label. Optional mana actions and all genuine choices
 remain present. `choose` uses the same play-and-wait behavior as `play`.

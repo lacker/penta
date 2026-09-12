@@ -103,6 +103,9 @@ the bot-wire epoch.
   frozen inspection pages. `choose` resolves short revision-bound tickets and
   retains idempotent retries; `inspect_ref` reads their issuing view. A small
   `play-penta` skill and stdio probe support direct model tool invocation.
+  `play` accepts groups of current-view tickets, resolved to exact action
+  values before submission, so combat groups do not need per-creature model
+  calls or manual reconstruction of action payloads.
   Shared `forcedAction` classification (`actions.forced.v1`) lets sessions
   advance unique continuations while preserving optional mana actions and all
   genuine selections. Seat-safe session updates retain public reveals and

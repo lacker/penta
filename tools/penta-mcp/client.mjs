@@ -114,7 +114,18 @@ export class SessionClient {
   }
 
   async play({ connection, revision, choices, requestId, waitMs = 25_000 }, signal) {
-    return this.#submit(connection, { revision, choices, requestId: requestId ?? randomUUID() }, waitMs, signal);
+    const session = this.#get(connection);
+    const resolved = choices.map(choice => {
+      if (!Object.hasOwn(choice, "ticket")) return choice;
+      if (session.pending) throw new Error("an earlier play has an uncertain outcome; use retry first");
+      if (!session.decisionView || session.decisionView.revision !== revision) {
+        throw new Error("stale ticket revision; request next(full=true)");
+      }
+      // All tickets belong to this one frozen view. Resolve complete actions,
+      // never indices that would change after an earlier choice in the batch.
+      return session.decisionView.choice(choice.ticket, choice.options, false);
+    });
+    return this.#submit(connection, { revision, choices: resolved, requestId: requestId ?? randomUUID() }, waitMs, signal);
   }
 
   async #exclusive(session, operation) {

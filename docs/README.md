@@ -18,3 +18,6 @@ Future or exploratory architecture belongs under
 [`design-notes/`](design-notes/) rather than in documentation of the current
 engine. Release history and compatibility changes remain in the repository
 [changelog](../CHANGELOG.md).
+
+Current proposals include the [model-facing bot interface](design-notes/model-facing-bot-interface.md)
+for compact decision views, exact action tickets, and direct MCP play.

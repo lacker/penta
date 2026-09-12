@@ -158,6 +158,10 @@ wall time on the same match workload before claiming overall token savings.
 `tools/penta-mcp/measure-trace.mjs` measures presentation characters on supplied
 observation traces without invoking a model or changing any game decisions.
 
+The [model-facing interface proposal](design-notes/model-facing-bot-interface.md)
+describes a future compact current-position view, descriptive action tickets,
+and direct MCP pilot workflow. Those proposed interfaces are not implemented.
+
 ## HTTP contract and recovery
 
 The session envelope has `apiVersion: 1`. Public setup discovery is

@@ -17,6 +17,7 @@ use crate::card::ComparisonDef;
 use crate::card::CostDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
+use crate::card::ManaColor;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
 use crate::card::ObjectRefDef;
@@ -238,12 +239,13 @@ pub(in crate::card::sets) static AYLI_ETERNAL_PILGRIM: CardRecord = CardRecord::
 );
 
 // OGW 183 — Wastes
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WASTES: CardRecord = CardRecord::new(
     "Wastes",
     "7019912c-bd9b-4b96-9388-400794909aa1",
     "Jason Felix",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[])
+        .with_supertype(CardSupertype::Basic)
+        .with_abilities(&[abilities::tap_for(ManaColor::Colorless)]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

@@ -955,3 +955,5 @@ mod aetherdrift;
 mod avatar;
 
 mod edge_of_eternities;
+
+mod final_fantasy;

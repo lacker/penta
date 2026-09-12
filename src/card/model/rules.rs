@@ -267,6 +267,19 @@ impl CardRules {
         rules
     }
 
+    /// A Vehicle on the back face of a transforming card has printed stats
+    /// but no mana cost.
+    #[must_use]
+    pub const fn new_vehicle_without_mana_cost(power: i16, toughness: i16) -> Self {
+        let mut rules = Self::base(
+            CardTypeSet::single(CardType::Artifact),
+            PrintedManaCost::None,
+        );
+        rules.subtypes = VEHICLE_SUBTYPES;
+        rules.creature_stats = Some(CreatureStats { power, toughness });
+        rules
+    }
+
     /// A Spacecraft with printed power and toughness before it is a creature.
     #[must_use]
     pub const fn new_spacecraft(mana_cost: ManaCost, power: i16, toughness: i16) -> Self {

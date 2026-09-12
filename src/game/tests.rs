@@ -962,3 +962,5 @@ mod spider_man;
 
 mod lorwyn_eclipsed;
 mod tarkir_dragonstorm;
+
+mod marvel_super_heroes;

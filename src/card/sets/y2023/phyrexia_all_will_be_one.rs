@@ -207,12 +207,12 @@ pub(in crate::card::sets) static BARBED_BATTERFIST: CardRecord = CardRecord::new
 );
 
 // ONE 123 — Blazing Crescendo
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs an exile-play permission expiring at cleanup of its controller's next turn; the current turn-count duration also permits plays during the following opponent turn.
 pub(in crate::card::sets) static BLAZING_CRESCENDO: CardRecord = CardRecord::new(
     "Blazing Crescendo",
     "d6bfc16a-2871-40a4-b279-636b80491a06",
     "Tiffany Turrill",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // ONE 133 — Furnace Strider

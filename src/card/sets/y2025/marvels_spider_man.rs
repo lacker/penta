@@ -747,7 +747,7 @@ pub(in crate::card::sets) static THWIP: CardRecord = CardRecord::new(
 );
 
 // SPM 21 — Web Up
-// Audit: unsupported — Needs immediate return when the exile-until-source-leaves duration ends; the current linked-exile implementation returns through a separate leaves trigger that can be responded to or countered.
+// Audit: unsupported — Needs exile-until-source-leaves with an immediate return when the duration ends (CR 610.3), rather than a delayed return through an ordinary leaves trigger.
 pub(in crate::card::sets) static WEB_UP: CardRecord = CardRecord::new(
     "Web Up",
     "1ab7c1e6-54af-4002-8a81-23a1ccafa3ff",

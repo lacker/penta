@@ -20,6 +20,7 @@ use crate::card::CostAmountDef;
 use crate::card::CostDef;
 use crate::card::CounterKind;
 use crate::card::CreateTokenDef;
+use crate::card::DiscardSelectionDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::ManaColor;
@@ -29,6 +30,7 @@ use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
 use crate::card::ObjectRefDef;
 use crate::card::ObjectSetDef;
+use crate::card::PayOrDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
 use crate::card::ReplacementEffectDef;
@@ -85,12 +87,29 @@ pub(in crate::card::sets) static RAISE_THE_ALARM: CardRecord = CardRecord::new(
 );
 
 // MRD 53 — Thirst for Knowledge
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static THIRST_FOR_KNOWLEDGE: CardRecord = CardRecord::new(
     "Thirst for Knowledge",
     "0ff1f608-203e-4413-8753-37fc49731c87",
     "Ben Thompson",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{2}{U}")).with_abilities(&[AbilityDef::spell(
+        "Draw three cards. Then discard two cards unless you discard \
+         an artifact card.",
+        EffectDef::Sequence(&[
+            abilities::draw_cards(ValueDef::Constant(3)),
+            EffectDef::PayOr(PayOrDef::optional_or(
+                &[CostDef::discard(ObjectPredicateDef::HasType(
+                    CardType::Artifact,
+                ))],
+                &EffectDef::None,
+                &EffectDef::Discard {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(2),
+                    selection: DiscardSelectionDef::RecipientChooses,
+                    then: None,
+                },
+            )),
+        ]),
+    )]),
 );
 
 // MRD 57 — Barter in Blood

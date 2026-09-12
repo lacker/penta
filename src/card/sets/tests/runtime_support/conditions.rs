@@ -185,6 +185,8 @@ pub(in super::super) fn shared_static_trigger_condition(condition: TriggerCondit
         TriggerConditionDef::CreatureDiedThisTurn
         | TriggerConditionDef::SourceArrivedSinceControllersLastUpkeep
         | TriggerConditionDef::SourceOnBattlefield
+        // Spell tallies are recorded game state, also read by cast permissions.
+        | TriggerConditionDef::SpellsCastThisTurn { .. }
             | TriggerConditionDef::SourceUntapped
         | TriggerConditionDef::SourceIsPaired
             | TriggerConditionDef::SourceCounters { .. }

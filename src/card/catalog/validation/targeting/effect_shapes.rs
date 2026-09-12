@@ -461,12 +461,6 @@ fn validate_effect_target_shapes(
         | EffectDef::Endure { object, .. } => {
             validate_recipient_shape(object, targets, RecipientExpectation::Object)
         }
-        // Counter choice and modification operate on both permanent and
-        // player counter piles, just like AddCounters below.
-        EffectDef::ChooseCounterKind { object, .. }
-        | EffectDef::ModifyCounters { object, .. } => {
-            validate_recipient_shape(object, targets, RecipientExpectation::Any)
-        }
         EffectDef::CopyStackObject(copy) => {
             validate_recipient_shape(copy.object, targets, RecipientExpectation::Object)
         }
@@ -485,7 +479,11 @@ fn validate_effect_target_shapes(
             validate_recipient_shape(object, targets, RecipientExpectation::Object)?;
             validate_effect_target_shapes(*follow_up.effect, targets, triggering_object_zone)
         }
-        EffectDef::Attach { object } | EffectDef::MayCastTargetWithoutPaying { object, .. } => {
+        // Counter choice and modification accept permanent and player counters.
+        EffectDef::ChooseCounterKind { object, .. }
+        | EffectDef::ModifyCounters { object, .. }
+        | EffectDef::Attach { object }
+        | EffectDef::MayCastTargetWithoutPaying { object, .. } => {
             validate_recipient_shape(object, targets, RecipientExpectation::Any)
         }
         EffectDef::PutOntoBattlefieldThen {

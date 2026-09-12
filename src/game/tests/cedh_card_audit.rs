@@ -389,7 +389,7 @@ fn pollywog_prodigy_compares_mana_value_strictly_at_trigger_time() {
                 .iter_mut()
                 .find(|p| p.card.id == GameObjectId(120_110))
                 .unwrap()
-                .counters = Default::default();
+                .counters = Counters::default();
             drain_pending(&mut game);
             assert_eq!(
                 game.players[0].hand.len(),

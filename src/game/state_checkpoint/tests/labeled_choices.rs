@@ -257,6 +257,8 @@ fn labeled_choices_bind_declarations_and_compose_with_token_modifiers_and_sequen
     definition.rules = ARBITRARY_RULES;
     crate::game::tests::synchronize_single_part_definition(definition);
     game.catalog = CardCatalog::new(definitions).unwrap();
+    // This fixture replaces the immutable catalog after constructing the game.
+    game.prepared_engine = crate::prepared_engine::PreparedEngine::compile(&game.catalog);
     let source = game
         .put_onto_battlefield(PlayerId::One, cards::SARPADIAN_EMPIRES_VOL_VII)
         .unwrap();

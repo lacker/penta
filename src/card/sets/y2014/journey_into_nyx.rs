@@ -18,7 +18,7 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // JOU 5 — Banishing Light
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs exile with immediate return when its source leaves, including if that happens before the enters trigger resolves; the existing helper installs a stack-using leaves trigger rather than the CR 610.3 duration.
 pub(in crate::card::sets) static BANISHING_LIGHT: CardRecord = CardRecord::new(
     "Banishing Light",
     "fbaa4800-30cc-4a80-a6cc-9a24ada9eb40",

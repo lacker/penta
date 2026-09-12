@@ -60,12 +60,14 @@ pub(in crate::card::sets) static DISPERSE: CardRecord = CardRecord::new(
 );
 
 // MOR 41 — Mind Spring
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MIND_SPRING: CardRecord = CardRecord::new(
     "Mind Spring",
     "7b7cd9b6-1ea8-423d-8aa0-8699fffbcf50",
     "Mark Zug",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{X}{U}{U}")).with_abilities(&[AbilityDef::spell(
+        "Draw X cards.",
+        abilities::draw_cards(ValueDef::ChosenX),
+    )]),
 );
 
 // MOR 43 — Negate

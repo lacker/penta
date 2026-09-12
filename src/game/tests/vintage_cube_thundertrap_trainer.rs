@@ -94,7 +94,7 @@ fn cast_for(game: &mut Game, card: GameObjectId, offspring: bool) {
         .find(|action| match action {
             Action::CastSpell {
                 card: id, choices, ..
-            } => *id == card && choices.costs().alternative().is_some() == offspring,
+            } => *id == card && choices.costs().additional().is_empty() != offspring,
             _ => false,
         })
         .expect("that way of casting him is on offer");
@@ -312,7 +312,7 @@ fn the_offspring_cost_is_paid_once_or_not_at_all() {
         .filter_map(|action| match action {
             Action::CastSpell {
                 card: id, choices, ..
-            } if id == trainer => Some(choices.costs().alternative()),
+            } if id == trainer => Some(choices.costs().additional().len()),
             _ => None,
         })
         .collect::<Vec<_>>();
@@ -320,14 +320,9 @@ fn the_offspring_cost_is_paid_once_or_not_at_all() {
     prices.dedup();
 
     assert_eq!(
-        prices.len(),
-        2,
-        "his own cost and the offspring one, and nothing beyond: {prices:?}",
-    );
-    assert_eq!(
-        prices.iter().filter(|price| price.is_none()).count(),
-        1,
-        "one of the two is the printed cost",
+        prices,
+        vec![0, 1],
+        "offspring is paid exactly once or not at all"
     );
 }
 

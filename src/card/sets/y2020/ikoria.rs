@@ -14,6 +14,10 @@ use crate::card::CompanionConditionDef;
 use crate::card::ComparisonDef;
 use crate::card::CostDef;
 use crate::card::CostModificationDef;
+use crate::card::DamageEventMatcherDef;
+use crate::card::DamageKindDef;
+use crate::card::DamageRecipientMatcherDef;
+use crate::card::DamageSourceMatcherDef;
 use crate::card::DeckConstructionDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
@@ -67,12 +71,21 @@ pub(in crate::card::sets) static AEGIS_TURTLE: CardRecord = CardRecord::new(
 );
 
 // IKO 69 — Thieving Otter
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static THIEVING_OTTER: CardRecord = CardRecord::new(
     "Thieving Otter",
     "07f84b0a-37d9-4b0f-8d75-1fab45a12d44",
     "Jakub Kasper",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Otter"], 2, 2).with_abilities(&[
+        AbilityDef::triggered(
+            "Whenever this creature deals damage to an opponent, draw a card.",
+            TriggerEventDef::DamageDealt(DamageEventMatcherDef {
+                kind: DamageKindDef::Any,
+                source: DamageSourceMatcherDef::Matching(ObjectPredicateDef::Source),
+                recipient: DamageRecipientMatcherDef::Recipients(EffectRecipientDef::Opponent),
+            }),
+            abilities::draw_cards(ValueDef::Constant(1)),
+        ),
+    ]),
 );
 
 // IKO 70 — Voracious Greatshark
@@ -151,12 +164,31 @@ pub(in crate::card::sets) static SPELLEATER_WOLVERINE: CardRecord = CardRecord::
 );
 
 // IKO 148 — Colossification
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static COLOSSIFICATION: CardRecord = CardRecord::new(
     "Colossification",
     "7b6e6f2a-5015-44c6-aa8d-85188494d1a6",
     "Johan Grenier",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{5}{G}{G}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            abilities::enters_trigger(
+                "When this Aura enters, tap enchanted creature.",
+                EffectDef::Tap {
+                    object: EffectRecipientDef::AttachedPermanent,
+                },
+            ),
+            AbilityDef::static_ability(
+                "Enchanted creature gets +20/+20.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(20),
+                        ValueDef::Constant(20),
+                    ),
+                },
+            ),
+        ]),
 );
 
 // IKO 170 — Ram Through

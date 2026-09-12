@@ -1023,12 +1023,32 @@ CardRules::new_artifact(mana_cost!("{1}")).with_ability(AbilityDef::activated(
 );
 
 // M11 216 — Sword of Vengeance
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SWORD_OF_VENGEANCE: CardRecord = CardRecord::new(
     "Sword of Vengeance",
     "96fc0138-46fc-493c-8a28-8630c4759193",
     "Dan Murayama Scott",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{3}"))
+        .with_subtypes(&["Equipment"])
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Equipped creature gets +2/+0 and has first strike, vigilance, \
+                 trample, and haste.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(2),
+                            ValueDef::Constant(0),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::first_strike()),
+                        AppliedEffectDef::add_ability(&abilities::vigilance()),
+                        AppliedEffectDef::add_ability(&abilities::trample()),
+                        AppliedEffectDef::add_ability(&abilities::haste()),
+                    ]),
+                },
+            ),
+            abilities::equip(&[CostDef::Mana(mana_cost!("{3}"))], "Equip {3}"),
+        ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

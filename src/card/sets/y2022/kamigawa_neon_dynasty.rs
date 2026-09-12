@@ -9,6 +9,8 @@ use crate::card::AddManaEffectDef;
 use crate::card::AppliedEffectDef;
 use crate::card::AppliedRuleDef;
 use crate::card::BasicLandType;
+use crate::card::BattlefieldEntryModificationDef;
+use crate::card::BattlefieldEntryScalarChoiceDef;
 use crate::card::CardArt;
 use crate::card::CardRules;
 use crate::card::CardSupertype;
@@ -31,6 +33,7 @@ use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::InstalledTriggerDef;
 use crate::card::ManaColor;
+use crate::card::ManaTypeDef;
 use crate::card::ObjectChoiceBindingDef;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
@@ -39,6 +42,7 @@ use crate::card::ObjectSetDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
 use crate::card::PlayerSetDef;
+use crate::card::ReplacementChoiceDef;
 use crate::card::ReplacementEffectDef;
 use crate::card::ReplacementEventDef;
 use crate::card::ResolvedEffectDurationDef;
@@ -163,7 +167,7 @@ pub(in crate::card::sets) static LION_SASH: CardRecord = CardRecord::new(
             abilities::reconfigure(
                 &[CostDef::Mana(mana_cost!("{2}"))],
                 "Reconfigure {2} ({2}: Attach to target creature you control; or unattach from a \
-                creature. Reconfigure only as a sorcery. While attached, this isn't a creature.)",
+                 creature. Reconfigure only as a sorcery. While attached, this isn't a creature.)",
             ),
         ]),
 );
@@ -337,7 +341,7 @@ pub(in crate::card::sets) static MIRRORSHELL_CRAB: CardRecord = CardRecord::new(
         abilities::ward(
             &[CostDef::Mana(crate::ManaCost::new(3, 0))],
             "Ward {3} (Whenever this creature becomes the target of a spell or ability an \
-            opponent controls, counter it unless that player pays {3}.)",
+             opponent controls, counter it unless that player pays {3}.)",
         ),
         AbilityDef::activated_with_targets(
             "Channel — {2}{U}, Discard this card: Counter target spell or ability unless its \
@@ -372,7 +376,7 @@ pub(in crate::card::sets) static MOON_CIRCUIT_HACKER: CardRecord = CardRecord::n
         .with_abilities(&[
             abilities::ninjutsu!(
                 "Ninjutsu {U} ({U}, Return an unblocked attacker you control to hand: Put this \
-                card onto the battlefield from your hand tapped and attacking.)",
+                 card onto the battlefield from your hand tapped and attacking.)",
                 &[CostDef::Mana(mana_cost!("{U}"))],
             ),
             AbilityDef::triggered(
@@ -487,7 +491,8 @@ pub(in crate::card::sets) static VIRUS_BEETLE: CardRecord = CardRecord::new(
 
 // NEO 136 — Crackling Emergence
 static EMERGENCE_REPLACEMENT: AbilityDef = AbilityDef::replacement_for(
-    "If enchanted land would be destroyed, instead sacrifice this Aura and that land gains indestructible until end of turn.",
+    "If enchanted land would be destroyed, instead sacrifice this \
+     Aura and that land gains indestructible until end of turn.",
     ReplacementEventDef::WouldBeDestroyed {
         object: ObjectPredicateDef::AttachedToSource,
     },
@@ -831,12 +836,28 @@ pub(in crate::card::sets) static SECLUDED_COURTYARD: CardRecord = CardRecord::ne
 );
 
 // NEO 281 — Uncharted Haven
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static UNCHARTED_HAVEN: CardRecord = CardRecord::new(
     "Uncharted Haven",
     "1d4ad89a-3a00-4bf4-a357-4a8a089d4a82",
     "Lorenzo Lanfranconi",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        AbilityDef::replacement(
+            "This land enters tapped. As it enters, choose a color.",
+            ReplacementEffectDef::Sequence(&[
+                ReplacementEffectDef::ModifyBattlefieldEntry(
+                    BattlefieldEntryModificationDef::Tapped,
+                ),
+                ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(
+                    BattlefieldEntryScalarChoiceDef::COLOR,
+                )),
+            ]),
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add one mana of the chosen color.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::one_of_type(ManaTypeDef::ChosenColor)),
+        ),
+    ]),
 );
 
 // NEO 357 — Fable of the Mirror-Breaker // Reflection of Kiki-Jiki

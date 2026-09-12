@@ -833,7 +833,6 @@ mod vintage_cube_stern_scolding;
 mod vintage_cube_stock_up;
 mod vintage_cube_stomping_ground;
 mod vintage_cube_stoneforge;
-mod vintage_cube_stormchasers_talent;
 mod vintage_cube_strip_mine;
 mod vintage_cube_subtlety;
 mod vintage_cube_sunfall;
@@ -948,3 +947,4 @@ mod playtest_regressions;
 
 mod lost_caverns_of_ixalan;
 mod wilds_of_eldraine;
+mod bloomburrow;

@@ -259,12 +259,28 @@ pub(in crate::card::sets) static BLOODFELL_CAVES: CardRecord = CardRecord::new(
 );
 
 // KTK 231 — Blossoming Sands
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BLOSSOMING_SANDS: CardRecord = CardRecord::new(
     "Blossoming Sands",
     "a32a1c0b-f6ea-475a-aa01-3618ea7d8647",
     "Sam Burley",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        abilities::enters_trigger(
+            "When this land enters, you gain 1 life.",
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add {G} or {W}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::Green,
+                ManaColor::White,
+            ])),
+        ),
+    ]),
 );
 
 // KTK 232 — Dismal Backwater
@@ -367,12 +383,25 @@ pub(in crate::card::sets) static SCOURED_BARRENS: CardRecord = CardRecord::new(
 );
 
 // KTK 243 — Swiftwater Cliffs
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SWIFTWATER_CLIFFS: CardRecord = CardRecord::new(
     "Swiftwater Cliffs",
     "e782d005-a563-4738-978a-73a3465de78f",
     "Eytan Zana",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        abilities::enters_trigger(
+            "When this land enters, you gain 1 life.",
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add {U} or {R}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[ManaColor::Blue, ManaColor::Red])),
+        ),
+    ]),
 );
 
 // KTK 244 — Thornwood Falls

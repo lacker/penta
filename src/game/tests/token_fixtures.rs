@@ -73,7 +73,6 @@ pub(in crate::game) const fn poisonous_snake_token() -> TokenCharacteristics {
 static FLYING_TOKEN_ABILITIES: [AbilityDef; 1] = [abilities::flying()];
 static HASTE_TOKEN_ABILITIES: [AbilityDef; 1] = [abilities::haste()];
 static MENACE_TOKEN_ABILITIES: [AbilityDef; 1] = [abilities::menace()];
-static PROWESS_TOKEN_ABILITIES: [AbilityDef; 1] = [abilities::prowess()];
 static TRAMPLE_TOKEN_ABILITIES: [AbilityDef; 1] = [abilities::trample()];
 static VIGILANCE_TOKEN_ABILITIES: [AbilityDef; 1] = [abilities::vigilance()];
 
@@ -91,12 +90,6 @@ pub(in crate::game) const fn token_with_menace(
     token: TokenCharacteristics,
 ) -> TokenCharacteristics {
     token.with_abilities(&MENACE_TOKEN_ABILITIES)
-}
-
-pub(in crate::game) const fn token_with_prowess(
-    token: TokenCharacteristics,
-) -> TokenCharacteristics {
-    token.with_abilities(&PROWESS_TOKEN_ABILITIES)
 }
 
 pub(in crate::game) const fn token_with_trample(

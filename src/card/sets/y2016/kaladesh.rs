@@ -454,12 +454,20 @@ pub(in crate::card::sets) static SPIREBLUFF_CANAL: CardRecord = CardRecord::new(
 );
 
 // KLD 266 — Flame Lash
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FLAME_LASH: CardRecord = CardRecord::new(
     "Flame Lash",
     "ac44e3cb-cc69-4222-87bc-ffa54b7ab34a",
     "Viktor Titov",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{3}{R}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Flame Lash deals 4 damage to any target.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::AnyTarget,
+        )],
+        EffectDef::damage(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ValueDef::Constant(4),
+        ),
+    )]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

@@ -3,6 +3,8 @@
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::card::AbilityDef;
+use crate::card::AbilityTargetDef;
+use crate::card::AbilityTargetPredicate;
 use crate::card::CardArt;
 use crate::card::CardRules;
 use crate::card::CardType;
@@ -11,6 +13,7 @@ use crate::card::CreateTokenDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::ObjectPredicateDef;
+use crate::card::ObjectRefDef;
 use crate::card::PlayerRelation;
 use crate::card::SubtypeDef;
 use crate::card::TokenCharacteristics;
@@ -20,6 +23,7 @@ use crate::card::ValueDef;
 use crate::card::ZoneKind;
 use crate::card::abilities;
 use crate::card::tokens;
+use crate::ids::TargetIndex;
 use crate::mana_cost;
 
 /// Printed set identity and stable catalog slug.
@@ -62,12 +66,33 @@ pub(in crate::card::sets) static CROW_OF_DARK_TIDINGS: CardRecord = CardRecord::
 );
 
 // SOI 223 — Rabid Bite
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RABID_BITE: CardRecord = CardRecord::new(
     "Rabid Bite",
     "2f573622-877b-4d21-adfc-40a32b7c2e6d",
     "Karl Kopinski",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{1}{G}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Target creature you control deals damage equal to its power \
+         to target creature you don't control.",
+        &[
+            AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                zones: &[ZoneKind::Battlefield],
+                controller: Some(PlayerRelation::You),
+                owner: None,
+            }),
+            AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                zones: &[ZoneKind::Battlefield],
+                controller: Some(PlayerRelation::Opponent),
+                owner: None,
+            }),
+        ],
+        EffectDef::damage_from(
+            ObjectRefDef::Target(TargetIndex::PRIMARY),
+            EffectRecipientDef::Target(TargetIndex(1)),
+            ValueDef::TargetPower(TargetIndex::PRIMARY),
+        ),
+    )]),
 );
 
 // SOI 233 — Tireless Tracker

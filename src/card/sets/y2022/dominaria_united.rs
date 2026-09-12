@@ -1,29 +1,31 @@
 //! Dominaria United cards cataloged for the Vintage Cube pool.
 
 use super::CardRecord;
-use crate::card::ManaColor;
-use crate::card::CostDef;
-use crate::card::AddManaEffectDef;
 use super::PrintingRecord;
 use crate::TargetIndex;
 use crate::card::AbilityDef;
 use crate::card::AbilityTargetDef;
 use crate::card::AbilityTargetPredicate;
+use crate::card::AddManaEffectDef;
 use crate::card::AppliedEffectDef;
 use crate::card::AppliedRuleDef;
 use crate::card::CardRules;
 use crate::card::CardSupertype;
 use crate::card::CardType;
+use crate::card::CostDef;
+use crate::card::CounterKind;
 use crate::card::DrawEventMatcherDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::GraveyardPlayPermissionDef;
 use crate::card::InstalledTriggerDef;
+use crate::card::ManaColor;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
 use crate::card::PlayActionMatcherDef;
 use crate::card::PlayRestrictionDef;
 use crate::card::PlayerRelation;
+use crate::card::ResolvedEffectDurationDef;
 use crate::card::TriggerEventDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
@@ -168,12 +170,39 @@ pub(in crate::card::sets) static MICROMANCER: CardRecord = CardRecord::new(
 );
 
 // DMU 64 — Shore Up
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SHORE_UP: CardRecord = CardRecord::new(
     "Shore Up",
     "9d933bf1-14f0-4150-a0d2-6b845b9624cf",
     "Mark Behm",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{U}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Target creature you control gets +1/+1 and gains hexproof \
+         until end of turn. Untap it. (It can't be the target of \
+         spells or abilities your opponents control.)",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                zones: &[ZoneKind::Battlefield],
+                controller: Some(PlayerRelation::You),
+                owner: None,
+            },
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(1),
+                    ),
+                    AppliedEffectDef::add_ability(&abilities::hexproof()),
+                ]),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+            EffectDef::Untap {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+        ]),
+    )]),
 );
 
 // DMU 72 — Tolarian Terror
@@ -384,12 +413,36 @@ pub(in crate::card::sets) static CRYSTAL_GROTTO: CardRecord = CardRecord::new(
 );
 
 // DMU 282 — Serra Redeemer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SERRA_REDEEMER: CardRecord = CardRecord::new(
     "Serra Redeemer",
     "a8b9cb5c-29f2-46ed-803e-c2170955217c",
     "Joshua Raphael",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{W}{W}"), &["Angel", "Soldier"], 2, 4).with_abilities(
+        &[
+            abilities::flying(),
+            AbilityDef::triggered(
+                "Whenever another creature you control with power 2 or less \
+                 enters, put two +1/+1 counters on that creature.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                            ObjectPredicateDef::PowerLessThan(ValueDef::Constant(3)),
+                        ]),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ]),
+                    None,
+                    Some(ZoneKind::Battlefield),
+                ),
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::TriggeringObject,
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::Constant(2),
+                },
+            ),
+        ],
+    ),
 );
 
 // DMU 339 — Ertai Resurrected

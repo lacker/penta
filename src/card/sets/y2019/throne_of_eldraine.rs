@@ -306,7 +306,8 @@ fn brazen_borrower_composition() -> CardComposition {
             .with_subtypes(&["Adventure"])
             .with_ability(
                 AbilityDef::spell_with_targets(
-                    "Return target nonland permanent an opponent controls to its owner's hand.",
+                    "Return target nonland permanent an opponent controls to its \
+                     owner's hand.",
                     &const {
                         [AbilityTargetDef::exactly_one(
                             AbilityTargetPredicate::Object {
@@ -373,21 +374,66 @@ pub(in crate::card::sets) static BRAZEN_BORROWER: CardRecord = CardRecord::new(
 .with_composition(brazen_borrower_composition);
 
 // ELD 40 — Charmed Sleep
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CHARMED_SLEEP: CardRecord = CardRecord::new(
     "Charmed Sleep",
     "f1f97d9e-650b-4b69-8733-d80c8e0f723f",
     "Titus Lunter",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{U}{U}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            abilities::enters_trigger(
+                "When this Aura enters, tap enchanted creature.",
+                EffectDef::Tap {
+                    object: EffectRecipientDef::AttachedPermanent,
+                },
+            ),
+            AbilityDef::static_ability(
+                "Enchanted creature doesn't untap during its controller's \
+                 untap step.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::DoesNotUntapDuringUntapStep),
+                },
+            ),
+        ]),
 );
 
 // ELD 62 — Run Away Together
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RUN_AWAY_TOGETHER: CardRecord = CardRecord::new(
     "Run Away Together",
     "aeffc3c0-567c-442f-ba06-b7d9617c5789",
     "Filip Burburan",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{U}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Choose two target creatures controlled by different players. \
+         Return those creatures to their owners' hands.",
+        &[
+            AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                zones: &[ZoneKind::Battlefield],
+                controller: Some(PlayerRelation::You),
+                owner: None,
+            }),
+            AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                zones: &[ZoneKind::Battlefield],
+                controller: Some(PlayerRelation::Opponent),
+                owner: None,
+            }),
+        ],
+        EffectDef::Sequence(&[
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex(1)),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
+        ]),
+    )]),
 );
 
 // ELD 76 — Bake into a Pie
@@ -475,7 +521,8 @@ const fn bonecrusher_rules() -> CardRules {
         // life whether or not the spell works, which is what makes it awkward to
         // answer at all.
         .with_ability(AbilityDef::triggered(
-            "Whenever this creature becomes the target of a spell, this creature deals 2 damage to that spell's controller.",
+            "Whenever this creature becomes the target of a spell, this \
+             creature deals 2 damage to that spell's controller.",
             TriggerEventDef::becomes_targeted(ObjectPredicateDef::Spell),
             EffectDef::damage(EffectRecipientDef::EventPlayer, ValueDef::Constant(2)),
         ))
@@ -486,7 +533,8 @@ fn bonecrusher_composition() -> CardComposition {
     let stomp = const {
         CardRules::new_instant(mana_cost!("{1}{R}")).with_ability(
             AbilityDef::spell_with_targets(
-                "Damage can't be prevented this turn.\nStomp deals 2 damage to any target.",
+                "Damage can't be prevented this turn.\nStomp deals 2 damage to \
+                 any target.",
                 &const {
                     [AbilityTargetDef::exactly_one(
                         AbilityTargetPredicate::AnyTarget,

@@ -14,6 +14,9 @@ pub enum OptionalAdditionalCostKindDef {
     /// Kicker (CR 702.33a): a cost that may be paid once in addition to
     /// whichever ordinary or alternative cost is paying for the spell.
     Kicker,
+    /// Offspring (CR 702.175): an independent additional payment whose
+    /// enters trigger creates a 1/1 token copy.
+    Offspring,
     /// Buyback (CR 702.27): if this cost was paid, a resolving spell card goes
     /// to its owner's hand instead of its graveyard.
     Buyback,
@@ -49,6 +52,7 @@ impl OptionalAdditionalCostKindDef {
     pub const fn label(self) -> &'static str {
         match self {
             Self::Kicker => "Kicker",
+            Self::Offspring => "Offspring",
             Self::Buyback => "Buyback",
             Self::Replicate => "Replicate",
             Self::Multikicker => "Multikicker",
@@ -101,6 +105,11 @@ impl OptionalAdditionalCostAbilityDef {
                 format!("Kicker {cost} (You may pay an additional {cost} as you cast this spell.)")
             }
             (OptionalAdditionalCostKindDef::Kicker, None) => "Kicker".into(),
+            (OptionalAdditionalCostKindDef::Offspring, Some(cost)) => format!(
+                "Offspring {cost} (You may pay an additional {cost} as you cast this spell. If you \
+                 do, when this creature enters, create a 1/1 token copy of it.)"
+            ),
+            (OptionalAdditionalCostKindDef::Offspring, None) => "Offspring".into(),
             (OptionalAdditionalCostKindDef::Buyback, Some(cost)) => format!(
                 "Buyback {cost} (You may pay an additional {cost} as you cast this spell. If you \
                  do, put this card into your hand as it resolves.)"

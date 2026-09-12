@@ -76,6 +76,8 @@ Render object IDs together with names. For example, a battlefield row could be
 engine observations, not a recalculation from printed power and toughness.
 Keep IDs distinct for different copies, and never carry identity across zone
 changes unless the receiving observation explicitly supports that relation.
+Printing definitions use canonical UUID strings; they are separate from
+numeric game-object IDs and action/option indices.
 
 Use a documented, versioned field mapping. Ordinary defaults can have compact
 representations, but absent, false, zero, null, and an empty collection must

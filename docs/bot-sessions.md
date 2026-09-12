@@ -126,9 +126,10 @@ The full menu remains available through the HTTP observation. Inspect pages
 stop at 24,000 item characters or the requested limit, whichever comes first;
 a single larger item is returned intact so paging always makes progress.
 
-`inspect(section: "catalog", definitions: [...])` retrieves public card
-definitions, rules text, and structured metadata. A name `query` is also
-available. The adapter caches the public catalog outside model context, and
+`inspect(section: "catalog", definitions: [...])` accepts the catalog's canonical
+printing UUID strings (protocol 32), rather than numeric definition IDs. It
+retrieves public card definitions, rules text, and structured metadata. A name
+`query` is also available. The adapter caches the public catalog outside model context, and
 sends only the requested page. `inspect(section: "match")` gives exact match
 details. A waiting response exposes neither another seat's intermediate
 observation nor a revision that could reveal private choice counts.
@@ -199,7 +200,7 @@ choices. Exact-session records are unavailable to either seat until match
 completion, including the registered deck names. Legacy external-game records
 withhold the seed and journal while playing. After completion either seat may
 fetch the credential-free replay. Exact sessions use browser/host replay
-version 3, which refuses older version-2 journals.
+version 4, which refuses older version-2 and version-3 journals.
 Bot protocol and checkpoint versions do not change for this adapter.
 
 The bot role can also attach to an existing external hosted game without

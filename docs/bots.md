@@ -1913,5 +1913,7 @@ Neither changes the bot protocol epoch. Reveals are historical public facts;
 private looks, unrevealed draws, and hidden-zone hypotheses never create them.
 
 Browser/host replay version 3 adds the explicit `botConcede` command.
+Version 4 adds exact-session pacing and `sessionAct` commands; regenerate
+older journals with their original build before migrating.
 Exact replay still requires both the recorded replay version and simulation
 fingerprint; an older engine must not interpret an unknown command as a choice.

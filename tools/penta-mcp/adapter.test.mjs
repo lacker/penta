@@ -149,10 +149,17 @@ test("human invitation maps either engine seat and contains only the human crede
 });
 
 test("stdio MCP handshake exposes usable schemas and a single compact tool result", async () => {
+  // Engine custom keys need not carry RFC UUID version or variant bits.
+  const definition = "00000000-0000-0000-0000-000000000001";
   const host = httpServer((request, response) => {
-    assert.equal(request.url, "/_engine/options");
+    const routes = {
+      "/_engine/options": { apiVersion: 1, formats: [{ id: "old-school-93-94", decks: ["Sligh"] }] },
+      "/_game/room/session": ready,
+      "/_game/room/catalog": { cards: [{ definition, name: "Mountain" }] },
+    };
+    assert.ok(routes[request.url]);
     response.setHeader("content-type", "application/json");
-    response.end(JSON.stringify({ apiVersion: 1, formats: [{ id: "old-school-93-94", decks: ["Sligh"] }] }));
+    response.end(JSON.stringify(routes[request.url]));
   });
   await new Promise(resolve => host.listen(0, "127.0.0.1", resolve));
   const transport = new StdioClientTransport({
@@ -172,6 +179,13 @@ test("stdio MCP handshake exposes usable schemas and a single compact tool resul
     const bad = await client.callTool({ name: "next", arguments: { connection: "missing", waitMs: 0 } });
     assert.equal(bad.isError, true);
     assert.match(bad.content[0].text, /unknown connection/);
+    const attached = await client.callTool({ name: "attach", arguments: { room: "room", token: "own-seat" } });
+    const connection = JSON.parse(attached.content[0].text).connection;
+    const inspected = await client.callTool({ name: "inspect", arguments: { connection, section: "catalog", definitions: [definition] } });
+    assert.equal(inspected.isError, undefined);
+    assert.equal(JSON.parse(inspected.content[0].text).cards[0].definition, definition);
+    const numeric = await client.callTool({ name: "inspect", arguments: { connection, section: "catalog", definitions: [1] } });
+    assert.equal(numeric.isError, true, "protocol 32 definitions are UUIDs, not numeric IDs");
   } finally {
     await client.close();
     await new Promise(resolve => host.close(resolve));

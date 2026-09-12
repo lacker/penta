@@ -46,7 +46,7 @@ const BOT_ACTION_LIMIT: usize = 50_000;
 /// Version of the browser/host command-journal envelope. Changes to command
 /// encoding or interpretation move this independently from the bot wire and
 /// core simulation fingerprint.
-const REPLAY_VERSION: u32 = 3;
+const REPLAY_VERSION: u32 = 4;
 
 /// What a host says when its clock simply expired. Journaled verbatim like
 /// any other reason, and recognised here so that the ordinary ending keeps

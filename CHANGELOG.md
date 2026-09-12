@@ -104,10 +104,10 @@ the bot-wire epoch.
   skipped private inspections, including across reconnects and replay.
   Face-down spell cast/resolution events withhold physical card identities in
   both browser logs and the structured session history.
-  No gameplay policy is added. Browser/host replay version 3 records the new
-  `sessionApi` pacing configuration and `sessionAct` command; version-2 journals
-  are refused. Bot protocol and checkpoint versions are unchanged. See
-  [bot sessions and MCP](docs/bot-sessions.md) for setup and migration details.
+  No gameplay policy is added. Browser/host replay version 4 records the new
+  `sessionApi` pacing configuration and `sessionAct` command; version-2 and
+  version-3 journals are refused. Bot protocol and checkpoint versions are
+  unchanged. See [bot sessions and MCP](docs/bot-sessions.md) for setup and migration details.
 
 - Protocol 31 adds `PublicNotice` decisions for card naming and scalar choices.
   Opponents see that a choice is pending, then its public result; candidate

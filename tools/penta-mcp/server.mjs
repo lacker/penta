@@ -44,7 +44,7 @@ export function createServer(base = process.env.PENTA_SERVER_URL ?? "http://loca
     z.object({ connection, waitMs }), "retry");
   tool("inspect", "Read exact details. Catalog lookup accepts definition IDs or a name query; no card ranking is applied.",
     z.object({ connection, section: z.enum(["observation", "checkpoint", "catalog", "legalActions", "decision", "updates", "match", "record"]),
-      definitions: z.array(uint).optional(), query: z.string().optional(), actionType: z.string().optional(),
+      definitions: z.array(z.string()).optional(), query: z.string().optional(), actionType: z.string().optional(),
       offset: z.number().int().min(0).default(0), limit: z.number().int().min(1).max(100).default(100) }), "inspect", true);
   return server;
 }

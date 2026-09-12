@@ -118,7 +118,7 @@ not one exact-version comparison:
   without changing the ordinary bot wire epoch.
 - The optional [hosted session API](bot-sessions.md) uses envelope `apiVersion: 1`
   around unchanged canonical bot observations. Its exact-pacing configuration
-  and `sessionAct` journal command require browser/host replay version 3. MCP
+  and `sessionAct` journal command require browser/host replay version 4. MCP
   presentation deltas and menu references are adapter output, not bot-wire changes.
 
 Query `protocol_version()`, `simulation_fingerprint()`, and `engine_version()`

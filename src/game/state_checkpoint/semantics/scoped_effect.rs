@@ -6,7 +6,7 @@ pub(super) fn scoped_effect_snapshot_in_catalog(
     root: &AbilityDef,
     effect: ScopedEffect,
 ) -> Option<ScopedEffectSnapshot> {
-    let Some(origin) = effect.clause_origin else {
+    let Some(origin) = effect.clause_origin.map(AbilityOrigin::from) else {
         return scoped_effect_snapshot(root, effect);
     };
     let locator = ability_locator_for_origin(catalog, origin, |ability| {
@@ -130,7 +130,10 @@ pub(super) fn catalog_scoped_effect(
     Some(ScopedEffect {
         effect,
         target_base: snapshot.target_base,
-        clause_origin,
+        clause_origin: match clause_origin {
+            Some(origin) => Some(origin.try_into().ok()?),
+            None => None,
+        },
         local_rules,
         cost_parameter,
     })

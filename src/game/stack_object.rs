@@ -157,7 +157,7 @@ struct ScopedEffect {
     effect: EffectDef,
     target_base: usize,
     /// The authored instruction clause when it differs from the stack root.
-    clause_origin: Option<AbilityOrigin>,
+    clause_origin: Option<cast_bindings::SpellClauseOrigin>,
     local_rules: EffectLocalRules,
     cost_parameter: Option<&'static [crate::card::CostDef]>,
 }

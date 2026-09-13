@@ -1,6 +1,6 @@
 use super::model::{
-    AppliedStackEffectSnapshot, BindingSnapshot, CastSignatureSnapshot, CounterKindSnapshot,
-    DecisionCardOriginSnapshot, DetachedStackSnapshot, EffectBindingSnapshot,
+    AbilityOriginSnapshot, AppliedStackEffectSnapshot, BindingSnapshot, CastSignatureSnapshot,
+    CounterKindSnapshot, DecisionCardOriginSnapshot, DetachedStackSnapshot, EffectBindingSnapshot,
     EffectResolutionContextSnapshot, ManaSourceSnapshot, SeatSnapshot, SpellFormSnapshot,
     StackAbilitySnapshot, StackObjectKindSnapshot, StackSnapshot, TargetSelectionSnapshot,
     TargetSnapshot, TriggerContextSnapshot,
@@ -141,6 +141,19 @@ fn stack_ability_snapshot_with(
     })
 }
 
+fn resolving_clause_origin_snapshot(object: &StackObject) -> Option<AbilityOriginSnapshot> {
+    object
+        .ability
+        .as_ref()
+        .filter(|payload| {
+            object.kind == StackObjectKind::Spell
+                && payload.mode_effects.iter().any(|effect| {
+                    effect.clause_origin.map(AbilityOrigin::from) == Some(payload.origin)
+                })
+        })
+        .map(|payload| ability_origin_snapshot(payload.origin))
+}
+
 pub(super) fn detached_stack_snapshot_allowing(
     game: &Game,
     viewer: PlayerId,
@@ -170,19 +183,8 @@ pub(super) fn detached_stack_snapshot_allowing(
     if object.face_down.is_some() && face_down.is_none() {
         return None;
     }
-    let resolving_clause_origin = object
-        .ability
-        .as_ref()
-        .filter(|payload| {
-            object.kind == StackObjectKind::Spell
-                && payload
-                    .mode_effects
-                    .iter()
-                    .any(|effect| effect.clause_origin == Some(payload.origin))
-        })
-        .map(|payload| ability_origin_snapshot(payload.origin));
     Some(DetachedStackSnapshot {
-        resolving_clause_origin,
+        resolving_clause_origin: resolving_clause_origin_snapshot(object),
         object_id: object.id.0,
         kind: kind_snapshot(object.kind),
         object_kind: object_kind_snapshot(object.card.definition),
@@ -648,6 +650,14 @@ pub(super) fn parse_detached_stack(
         face_down: state.face_down.map(face_down_characteristics_from_snapshot),
         is_copy: state.is_copy,
     };
+    restore_resolving_clause(object, state, game)
+}
+
+fn restore_resolving_clause(
+    object: StackObject,
+    state: &DetachedStackSnapshot,
+    game: &Game,
+) -> Result<StackObject, String> {
     if let Some(origin) = state
         .resolving_clause_origin
         .map(ability_origin_from_snapshot)
@@ -659,7 +669,7 @@ pub(super) fn parse_detached_stack(
                 payload
                     .mode_effects
                     .iter()
-                    .find(|effect| effect.clause_origin == Some(origin))
+                    .find(|effect| effect.clause_origin.map(AbilityOrigin::from) == Some(origin))
             })
             .copied()
             .filter(|_| object.kind == StackObjectKind::Spell)

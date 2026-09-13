@@ -616,10 +616,10 @@ impl Game {
                     "effect_fallback",
                     crate::engine_profiling::effect_kind(reference.effect),
                     "reference",
-                    if !self.prepared_engine.enabled() {
-                        "engine_disabled"
-                    } else {
+                    if self.prepared_engine.enabled() {
                         "mode_effects"
+                    } else {
+                        "engine_disabled"
                     },
                 );
                 let mut effects = Vec::with_capacity(mode_effects.len() + 1);

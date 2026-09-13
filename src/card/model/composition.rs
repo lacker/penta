@@ -434,7 +434,7 @@ impl CardComposition {
                         };
                         spell.modal().is_none().then_some(spell)
                     });
-                    for target in spells.flat_map(|spell| spell.targets()) {
+                    for target in spells.flat_map(super::SpellAbilityDef::targets) {
                         let id = TargetSlotId::from_index(targets.len())?;
                         targets.push(target.presentation(id)?);
                     }

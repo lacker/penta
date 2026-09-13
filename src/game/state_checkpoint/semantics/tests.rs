@@ -187,7 +187,7 @@ fn gift_clause_locator_cannot_select_another_cards_spell() {
         ability: crate::AbilityId(1),
     };
     let effect = ScopedEffect {
-        clause_origin: Some(origin),
+        clause_origin: Some(origin.try_into().unwrap()),
         ..ScopedEffect::primary(GAIN)
     };
     let snapshot = scoped_effect_snapshot_in_catalog(&catalog, &CLAUSES[0], effect).unwrap();

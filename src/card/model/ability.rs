@@ -28,19 +28,22 @@ pub struct AbilityDef {
     /// Publish a named action only when this entire stack object finishes
     /// resolving successfully. Replacement of an individual effect does not
     /// suppress completion. The optional condition reads copied cast choices.
-    pub resolution_event: Option<(super::MechanicId, Option<&'static TriggerConditionDef>)>,
+    pub resolution_event: Option<&'static ResolutionEventDef>,
     pub definition: DeclarativeAbilityDef,
     pub effect: AbilityEffectDef,
 }
 
+/// Named action emitted after successful resolution of the whole stack object.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub struct ResolutionEventDef {
+    pub mechanic: super::MechanicId,
+    pub condition: Option<&'static TriggerConditionDef>,
+}
+
 impl AbilityDef {
     #[must_use]
-    pub const fn on_resolution_completed(
-        mut self,
-        mechanic: super::MechanicId,
-        condition: Option<&'static TriggerConditionDef>,
-    ) -> Self {
-        self.resolution_event = Some((mechanic, condition));
+    pub const fn on_resolution_completed(mut self, event: &'static ResolutionEventDef) -> Self {
+        self.resolution_event = Some(event);
         self
     }
 

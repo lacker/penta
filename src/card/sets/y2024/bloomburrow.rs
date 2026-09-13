@@ -157,7 +157,10 @@ const fn give_gift(effect: &'static EffectDef) -> AbilityDef {
             then: effect,
         },
     )
-    .on_resolution_completed(GIFT, Some(&GIFT_PROMISED))
+    .on_resolution_completed(&crate::card::ResolutionEventDef {
+        mechanic: GIFT,
+        condition: Some(&GIFT_PROMISED),
+    })
 }
 
 const fn gift_arrival(effect: EffectDef) -> AbilityDef {
@@ -171,7 +174,10 @@ const fn gift_arrival(effect: EffectDef) -> AbilityDef {
         &GIFT_PROMISED,
         effect,
     )
-    .on_resolution_completed(GIFT, None)
+    .on_resolution_completed(&crate::card::ResolutionEventDef {
+        mechanic: GIFT,
+        condition: None,
+    })
 }
 
 const GIFT_CARD: EffectDef = EffectDef::DrawCards {
@@ -597,7 +603,9 @@ pub(in crate::card::sets) static DAWN_S_TRUCE: CardRecord = CardRecord::new(
 );
 
 // BLB 10 — Dewdrop Cure
-// Audit: unsupported — Gift promises and gift effects are supported. Still needs a cast-dependent maximum target count (up to two without the promise, up to three with it); current computed target counts require an exact count.
+// Audit: unsupported — Gift promises and gift effects are supported. Still needs a cast-dependent maximum
+// target count (up to two without the promise, up to three with it); current computed target counts require an
+// exact count.
 pub(in crate::card::sets) static DEWDROP_CURE: CardRecord = CardRecord::new(
     "Dewdrop Cure",
     "666aefc2-44e0-4c27-88d5-7906f245a71f",
@@ -3065,7 +3073,9 @@ pub(in crate::card::sets) static CONSUMED_BY_GREED: CardRecord = CardRecord::new
 );
 
 // BLB 88 — Cruelclaw's Heist
-// Audit: unsupported — Gift promises and gift effects are supported. Still needs a persistent caster-owned permission to cast the specifically chosen exiled card for as long as it remains exiled, including spending mana of any type; the current controller-owned permission is limited to this turn.
+// Audit: unsupported — Gift promises and gift effects are supported. Still needs a persistent caster-owned
+// permission to cast the specifically chosen exiled card for as long as it remains exiled, including spending
+// mana of any type; the current controller-owned permission is limited to this turn.
 pub(in crate::card::sets) static CRUELCLAW_S_HEIST: CardRecord = CardRecord::new(
     "Cruelclaw's Heist",
     "cab4539a-0157-4cbe-b50f-6e2575df74e9",

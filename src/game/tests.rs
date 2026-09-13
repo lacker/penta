@@ -965,6 +965,7 @@ mod duskmourn;
 mod edge_of_eternities;
 mod final_fantasy;
 mod foundations;
+mod gift;
 mod karlov_manor;
 mod lorwyn_eclipsed;
 mod lost_caverns_of_ixalan;
@@ -985,6 +986,3 @@ mod enduring_cycle;
 mod eternal_deck_cards;
 #[path = "tests/the_hobbit.rs"]
 mod the_hobbit;
-
-
-mod gift;

@@ -127,7 +127,7 @@ fn validate_ability_definition_references(
         (cost_bindings, cast_player_bindings),
         condition,
     )?;
-    if let Some((_, completion_condition)) = ability.resolution_event {
+    if let Some(event) = ability.resolution_event {
         if !matches!(
             ability.definition,
             DeclarativeAbilityDef::Spell(_)
@@ -148,7 +148,7 @@ fn validate_ability_definition_references(
             None,
             None,
             (cost_bindings, cast_player_bindings),
-            completion_condition,
+            event.condition,
         )?;
     }
     Ok(())

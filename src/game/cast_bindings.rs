@@ -4,6 +4,44 @@ use crate::card::OptionalAdditionalCostKindDef;
 use crate::{CardDefinitionId, CastSignature};
 use std::collections::BTreeMap;
 
+/// Composed clauses belong to printed spell instructions. Keeping that narrower
+/// provenance avoids carrying unrelated granted-ability variants in every effect.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(super) struct SpellClauseOrigin {
+    definition: crate::CardDefinitionId,
+    part: crate::CardPartId,
+    ability: crate::AbilityId,
+}
+
+impl TryFrom<super::AbilityOrigin> for SpellClauseOrigin {
+    type Error = ();
+
+    fn try_from(origin: super::AbilityOrigin) -> Result<Self, Self::Error> {
+        match origin {
+            super::AbilityOrigin::Printed {
+                definition,
+                part,
+                ability,
+            } => Ok(Self {
+                definition,
+                part,
+                ability,
+            }),
+            _ => Err(()),
+        }
+    }
+}
+
+impl From<SpellClauseOrigin> for super::AbilityOrigin {
+    fn from(origin: SpellClauseOrigin) -> Self {
+        Self::Printed {
+            definition: origin.definition,
+            part: origin.part,
+            ability: origin.ability,
+        }
+    }
+}
+
 impl Game {
     pub(super) fn selected_cast_player_bindings(
         &self,
@@ -38,14 +76,14 @@ impl Game {
         let Some(payload) = object.ability.as_ref() else {
             return;
         };
-        let Some((mechanic, condition)) = payload
+        let Some(event) = payload
             .definition
             .as_ref()
             .and_then(|ability| ability.resolution_event)
         else {
             return;
         };
-        if condition.is_none_or(|condition| {
+        if event.condition.is_none_or(|condition| {
             self.trigger_condition_holds(
                 condition,
                 object.source.unwrap_or(object.id),
@@ -59,7 +97,7 @@ impl Game {
                 )),
             )
         }) {
-            self.capture_mechanic(mechanic, object.controller);
+            self.capture_mechanic(event.mechanic, object.controller);
         }
     }
 }
@@ -72,6 +110,7 @@ impl Game {
     ) -> std::borrow::Cow<'a, StackObject> {
         let Some(origin) = scoped
             .clause_origin
+            .map(super::AbilityOrigin::from)
             .filter(|origin| Some(*origin) != object.ability_origin())
         else {
             return std::borrow::Cow::Borrowed(object);

@@ -23,8 +23,12 @@ impl Game {
         };
         let mut plan = Self::selected_spell_plan(spell, selected_modes, &[])?;
         for (origin, clause) in clauses {
-            plan = Self::extend_plan_with_splices(plan.target_defs, plan.mode_effects, std::slice::from_ref(&clause))?;
-            plan.mode_effects.last_mut()?.clause_origin = Some(origin);
+            plan = Self::extend_plan_with_splices(
+                plan.target_defs,
+                plan.mode_effects,
+                std::slice::from_ref(&clause),
+            )?;
+            plan.mode_effects.last_mut()?.clause_origin = Some(origin.try_into().ok()?);
         }
         Self::extend_plan_with_splices(plan.target_defs, plan.mode_effects, spliced)
     }

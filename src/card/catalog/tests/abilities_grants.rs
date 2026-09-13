@@ -930,4 +930,5 @@ fn face_up_in_exile_rejects_trigger_and_static_contexts() {
         }
     }
 }
+
 include!("abilities_grants/static_power_toughness.rs");

@@ -171,7 +171,7 @@ fn caretakers_talent_checkpoint_and_prepared_reference_anthem_agree() {
 #[test]
 fn caretakers_talent_token_batch_draws_once_even_with_additional_triggers() {
     let (mut game, _) = board(cards::CARETAKER_S_TALENT);
-    game.put_onto_battlefield(PlayerId::One, cards::ELESH_NORN_MOTHER_OF_MACHINES_416)
+    game.put_onto_battlefield(PlayerId::One, cards::ELESH_NORN_MOTHER_OF_MACHINES)
         .unwrap();
     let spell = game
         .build_zone(PlayerId::One, &[cards::LINGERING_SOULS])

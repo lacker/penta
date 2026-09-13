@@ -603,7 +603,8 @@ starts at level 1. Setting a level emits only the resulting level's event.
 
 A granted static ability must also be supported by the reader of its effects.
 The power/toughness reader also visits surviving layer-6 static ability
-grants. Several other static-effect readers visit intrinsic clauses only; a level condition around a directly executable static effect is
-not a substitute for an actual ability grant. Keep such cards wholly
-unsupported until their readers can evaluate the granted clauses, and identify
-that gap in the inline audit.
+grants. Several other static-effect readers visit intrinsic clauses only; a
+level condition around a directly executable static effect is not a substitute
+for an actual ability grant. Keep such cards wholly unsupported until their
+readers can evaluate the granted clauses, and identify that gap in the inline
+audit.

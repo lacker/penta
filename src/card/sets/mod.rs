@@ -268,6 +268,7 @@ const SET_MODULES: &[SetDefinition] = &[
     y2025::avatar_the_last_airbender::DEFINITION,
     y2025::edge_of_eternities::DEFINITION,
     y2025::edge_of_eternities_commander::DEFINITION,
+    y2026::star_trek_commander::DEFINITION,
     y2026::lorwyn_eclipsed::DEFINITION,
     y2026::secrets_of_strixhaven::DEFINITION,
     y2026::teenage_mutant_ninja_turtles::DEFINITION,

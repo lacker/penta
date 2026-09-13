@@ -305,17 +305,33 @@ impl Game {
             DecisionContinuation::BattlefieldExitOrder { batch, remaining } => {
                 self.complete_battlefield_exit_order(batch, remaining, &pending_options, options);
             }
+            DecisionContinuation::PlayLandPermission {
+                player,
+                card,
+                option,
+                sources,
+            } => {
+                if let Some(source) = options
+                    .first()
+                    .and_then(|index| sources.get(*index as usize))
+                {
+                    self.play_land_using_permission(player, card, option, Some(*source));
+                }
+            }
             DecisionContinuation::PaySpecialAction {
                 player,
                 source,
                 action,
                 payment,
             } => {
+                let plot = (action == super::special_action_payments::PaidSpecialAction::Plot)
+                    .then(|| self.prepare_plot(player, source))
+                    .flatten();
                 if self
                     .settle_payment_decision(player, payment, options, &pending_options)
                     .is_some()
                 {
-                    self.finish_paid_special_action(player, source, action);
+                    self.finish_paid_special_action(player, source, action, plot);
                 }
             }
             DecisionContinuation::PayOr {

@@ -28,7 +28,6 @@ use crate::card::CreatureTypeSetDef;
 use crate::card::DrawEventMatcherDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
-use crate::card::GraveyardPlayPermissionDef;
 use crate::card::IfNoObjectsDef;
 use crate::card::InstalledTriggerDef;
 use crate::card::ManaColor;
@@ -42,6 +41,7 @@ use crate::card::ObjectSetCountConditionDef;
 use crate::card::ObjectSetDef;
 use crate::card::ObjectSetPredicateDef;
 use crate::card::PlayActionMatcherDef;
+use crate::card::PlayPermissionDef;
 use crate::card::PlayRestrictionDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
@@ -1003,25 +1003,32 @@ pub(in crate::card::sets) static SERRA_PARAGON: CardRecord = CardRecord::new(
              battlefield, exile it and you gain 2 life.\"",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Controller,
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlayFromGraveyard(
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlay(
                     // "A land ... or a permanent spell with mana value 3 or less": one
                     // permission rather than two, because the once-each-turn bound is on the
                     // pair. Any play action, since which one it is follows from the card --
                     // nothing but a land is ever played as a land, and nothing but a spell is
                     // ever cast.
-                    GraveyardPlayPermissionDef::once_each_of_your_turns(PlayRestrictionDef::new(
-                        PlayActionMatcherDef::Any,
-                        ObjectPredicateDef::AnyOf(&[
-                            ObjectPredicateDef::HasType(CardType::Land),
-                            ObjectPredicateDef::All(&[
-                                ObjectPredicateDef::Not(&ObjectPredicateDef::AnyOf(&[
-                                    ObjectPredicateDef::HasType(CardType::Instant),
-                                    ObjectPredicateDef::HasType(CardType::Sorcery),
-                                ])),
-                                ObjectPredicateDef::ManaValueAtMost(3),
+                    PlayPermissionDef::once_each_of_your_turns(
+                        ObjectQueryDef::matching(
+                            ObjectPredicateDef::Any,
+                            &[ZoneKind::Graveyard],
+                            PlayerRelation::You,
+                        ),
+                        PlayRestrictionDef::new(
+                            PlayActionMatcherDef::Any,
+                            ObjectPredicateDef::AnyOf(&[
+                                ObjectPredicateDef::HasType(CardType::Land),
+                                ObjectPredicateDef::All(&[
+                                    ObjectPredicateDef::Not(&ObjectPredicateDef::AnyOf(&[
+                                        ObjectPredicateDef::HasType(CardType::Instant),
+                                        ObjectPredicateDef::HasType(CardType::Sorcery),
+                                    ])),
+                                    ObjectPredicateDef::ManaValueAtMost(3),
+                                ]),
                             ]),
-                        ]),
-                    ))
+                        ),
+                    )
                     // What the permanent gains, and what makes the Paragon a value engine
                     // rather than a recursion loop: the card leaves for good, and the two life
                     // are the consolation.

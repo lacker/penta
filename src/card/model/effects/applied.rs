@@ -62,17 +62,24 @@ impl CreatureTypeSetDef {
     };
 }
 
+/// A live collection supplying activated abilities to a permanent.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum ActivatedAbilityCardsDef {
+    LinkedExiles,
+    Query(ObjectQueryDef),
+}
+
 /// One layer-6 operation over the affected object's abilities.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum AbilityOperationDef {
     Add(&'static AbilityDef),
     Remove(AbilityPredicateDef),
-    /// Every activated ability of each matching card exiled with the granting
-    /// object. Agatha's Soul Cauldron names creature cards, while Myr Welder
-    /// names every card in its linked pile. Unlike [`Self::Add`], the abilities
+    /// Every activated ability of each matching card in the live collection.
+    /// Linked exiles supply Myr Welder's abilities; the controller's library
+    /// top supplies Conspicuous Snoop's. Unlike [`Self::Add`], the abilities
     /// are read at the moment the layer is walked and each one keeps its own
     /// grant identity.
-    AddActivatedAbilitiesOfLinkedExiles(ObjectPredicateDef),
+    AddActivatedAbilitiesOf { cards: ActivatedAbilityCardsDef, object: ObjectPredicateDef },
 }
 
 /// One layer-7 operation over power and toughness.
@@ -257,11 +264,9 @@ pub enum AppliedRuleDef {
     /// Several at once multiply, which is what each of them says on its own
     /// terms (CR 616.1).
     DoublesTokensCreated,
-    /// "You may play lands from your graveyard." The mirror of
-    /// [`Self::CannotPlay`]: a permission rather than a prohibition, matched
-    /// against the same action and object the prohibition names, plus
-    /// whatever bounds how often it may be used.
-    MayPlayFromGraveyard(GraveyardPlayPermissionDef),
+    /// Selected zone objects may be played by the recipient players, subject
+    /// to the same action and characteristic restrictions as prohibitions.
+    MayPlay(PlayPermissionDef),
     /// "Each nonland card in your graveyard has escape. The escape cost is
     /// equal to the card's mana cost plus exile three other cards from your
     /// graveyard."
@@ -275,15 +280,6 @@ pub enum AppliedRuleDef {
         object: ObjectPredicateDef,
         ability: &'static AbilityDef,
     },
-    /// "You may play lands and cast spells from the top of your library."
-    /// The same permission as [`Self::MayPlayFromGraveyard`] pointed at a
-    /// different zone, plus what casting that way costs: Bolas's Citadel
-    /// prints the replacement in the same sentence as the permission, and a
-    /// permission without it would be a different card.
-    MayPlayFromTopOfLibrary {
-        restriction: PlayRestrictionDef,
-        cost: TopOfLibraryCostDef,
-    },
     /// "You may spend mana as though it were mana of any color to activate
     /// abilities of creatures you control." A player rule, found the same way
     /// [`PlayerRuleDef::NoMaximumHandSize`] is found, whose scope is part of what it
@@ -293,20 +289,10 @@ pub enum AppliedRuleDef {
     /// and about one turn, so they will name their own scopes rather than
     /// widening this one.
     MaySpendManaAsAnyColorForCreatureAbilities,
-    /// "You may look at the top card of your library any time." A player
-    /// rule found the same way [`PlayerRuleDef::NoMaximumHandSize`] is found, and
-    /// separate from [`Self::MayPlayFromTopOfLibrary`] because the printed
-    /// cards keep them separate: Oracle of Mul Daya lets you look without
-    /// letting you cast, and a permission to play is not by itself a
-    /// permission to look at what you are not playing.
-    MayLookAtTopOfLibrary,
-    /// "Play with the top card of your library revealed." The strictly
-    /// louder half of [`Self::MayLookAtTopOfLibrary`]: the affected player's
-    /// top card is public, so their opponent sees it as well. Both are
-    /// needed because the printed cards differ -- Bolas's Citadel shows the
-    /// card to nobody but its controller, and Courser of Kruphix shows it to
-    /// the table.
-    PlaysWithTopOfLibraryRevealed,
+    /// The selected cards are continuously known to the recipient players.
+    KnownCards(ObjectQueryDef),
+    /// The selected cards gain plot and may be plotted from their current zone.
+    MayPlot { cards: ObjectQueryDef, ability: &'static AbilityDef },
     /// Modify occurrences caused by matching events. Suppression takes
     /// precedence over every additional occurrence.
     ModifyTriggers(&'static TriggerModificationDef),
@@ -580,6 +566,8 @@ impl PlayActionMatcherDef {
 /// boolean prohibition.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct PlayRestrictionDef {
+    /// Restrict only plays originating in this zone.
+    pub source_zone: Option<ZoneKind>,
     pub action: PlayActionMatcherDef,
     pub object: ObjectPredicateDef,
     /// "... only any time they could cast a sorcery." A timing restriction
@@ -592,14 +580,11 @@ pub struct PlayRestrictionDef {
     pub minimum_spells_cast_this_turn: u16,
 }
 
-/// What a spell cast off the top of a library costs its caster.
-///
-/// A land played from up there costs nothing either way: only spells have a
-/// mana cost for this to replace.
+/// How a play permission modifies a spell's mana payment.
+/// Lands have no mana cost to replace.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub enum TopOfLibraryCostDef {
-    /// Its own cost, as printed. Future Sight's permission says no more than
-    /// that you may play what is up there.
+pub enum PlayCostDef {
+    /// Pay the spell's ordinary printed cost.
     Printed,
     /// "Pay life equal to its mana value rather than pay its mana cost."
     /// The mana cost goes away and the life takes its place, so a spell
@@ -623,64 +608,19 @@ pub enum TriggerModificationKindDef {
     Additional,
 }
 
-/// A permission to play cards out of a graveyard, and what bounds it.
-///
-/// Crucible's line is unbounded: as many lands as your land drops allow, on
-/// anybody's turn. Lurrus prints the other shape -- one such spell, and only
-/// during your own turns -- and the difference belongs to the permission
-/// rather than to what it names.
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub struct GraveyardPlayPermissionDef {
-    pub restriction: PlayRestrictionDef,
-    /// How many plays each qualifying turn allows. `None` is as many as the
-    /// rest of the rules permit.
-    pub per_turn: Option<u8>,
-    /// Whether it opens only on its controller's own turns.
-    pub your_turns_only: bool,
-    /// "If you do, it gains ...": what the permanent played this way carries
-    /// afterwards. It belongs to the permission because the permission is
-    /// the only thing that knows a play was made under it -- and it outlives
-    /// the permission's own source, which is why it rides on the permanent
-    /// rather than being read back off the card that allowed it.
-    pub grants: Option<&'static AppliedEffectDef>,
-}
-
-impl GraveyardPlayPermissionDef {
+impl PlayRestrictionDef {
     #[must_use]
-    pub const fn unlimited(restriction: PlayRestrictionDef) -> Self {
-        Self {
-            restriction,
-            per_turn: None,
-            your_turns_only: false,
-            grants: None,
-        }
-    }
-
-    /// "Once during each of your turns, you may cast ..."
-    #[must_use]
-    pub const fn once_each_of_your_turns(restriction: PlayRestrictionDef) -> Self {
-        Self {
-            restriction,
-            per_turn: Some(1),
-            your_turns_only: true,
-            grants: None,
-        }
-    }
-
-    /// The same permission, with what it played gaining `effect`.
-    #[must_use]
-    pub const fn granting(mut self, effect: &'static AppliedEffectDef) -> Self {
-        self.grants = Some(effect);
+    pub const fn from_zone(mut self, zone: ZoneKind) -> Self {
+        self.source_zone = Some(zone);
         self
     }
-}
 
-impl PlayRestrictionDef {
     #[must_use]
     pub const fn new(action: PlayActionMatcherDef, object: ObjectPredicateDef) -> Self {
         Self {
             action,
             object,
+            source_zone: None,
             only_at_sorcery_speed: false,
             minimum_spells_cast_this_turn: 0,
         }
@@ -937,3 +877,12 @@ impl AppliedEffectDef {
         }))
     }
 }
+
+/// Consequences of choosing a play permission, retained independently of its source.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub struct PlayBenefitDef {
+    pub on_play: Option<&'static AbilityDef>,
+    pub creature_entry_counters: &'static [(CounterKind, u16)],
+}
+
+include!("permissions.rs");

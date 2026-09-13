@@ -14,6 +14,7 @@ fn test_token() -> crate::TokenCharacteristics {
 #[allow(clippy::too_many_lines)]
 fn observation_with_printed_and_token_permanents() -> PlayerObservation {
     PlayerObservation {
+        known_cards: Vec::new(),
         viewer: PlayerId::One,
         turn: 1,
         active_turn: 1,

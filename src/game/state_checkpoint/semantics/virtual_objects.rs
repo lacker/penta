@@ -119,6 +119,9 @@ fn collect_from_ability(
     for (index, child) in child_abilities(ability).into_iter().enumerate() {
         let mut child_creator = creator.clone();
         match &mut child_creator {
+            AbilityLocator::DynamicGrant { .. } => {
+                unreachable!("authored creators are catalog roots")
+            }
             AbilityLocator::Card { nested, .. }
             | AbilityLocator::Token { nested, .. }
             | AbilityLocator::Emblem { nested, .. } => nested.push(index),

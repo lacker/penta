@@ -1,5 +1,8 @@
 //! Kamigawa: Neon Dynasty attachment edge cases.
 
+use crate::card::PlayPermissionDef;
+use crate::card::ZonePositionDef;
+
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::card::AbilityDef;
@@ -57,7 +60,6 @@ use crate::card::SpellCostConditionDef;
 use crate::card::SubtypeDef;
 use crate::card::TokenCharacteristics;
 use crate::card::TokenDef;
-use crate::card::TopOfLibraryCostDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::TurnStepDef;
@@ -1744,12 +1746,15 @@ pub(in crate::card::sets) static THE_REALITY_CHIP: CardRecord = CardRecord::new(
     CardRules::new_artifact_creature(mana_cost!("{1}{U}"), &["Equipment", "Jellyfish"], 0, 4)
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
-            AbilityDef::static_ability(
+            abilities::cards_known_to(
                 "You may look at the top card of your library any time.",
-                EffectDef::StaticApply {
-                    recipient: EffectRecipientDef::Controller,
-                    effect: AppliedEffectDef::Rule(AppliedRuleDef::MayLookAtTopOfLibrary),
-                },
+                ObjectQueryDef::matching(
+                    ObjectPredicateDef::Any,
+                    &[ZoneKind::Library],
+                    PlayerRelation::You,
+                )
+                .at(ZonePositionDef::FromTop(0)),
+                PlayerSetDef::Related(PlayerRelation::You),
             ),
             AbilityDef::static_ability(
                 "As long as The Reality Chip is attached to a creature, you \
@@ -1760,13 +1765,20 @@ pub(in crate::card::sets) static THE_REALITY_CHIP: CardRecord = CardRecord::new(
                     },
                     then: &EffectDef::StaticApply {
                         recipient: EffectRecipientDef::Controller,
-                        effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlayFromTopOfLibrary {
-                            restriction: PlayRestrictionDef::new(
-                                PlayActionMatcherDef::Any,
-                                ObjectPredicateDef::Any,
+                        effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlay(
+                            PlayPermissionDef::new(
+                                ObjectQueryDef::matching(
+                                    ObjectPredicateDef::Any,
+                                    &[ZoneKind::Library],
+                                    PlayerRelation::You,
+                                )
+                                .at(ZonePositionDef::FromTop(0)),
+                                PlayRestrictionDef::new(
+                                    PlayActionMatcherDef::Any,
+                                    ObjectPredicateDef::Any,
+                                ),
                             ),
-                            cost: TopOfLibraryCostDef::Printed,
-                        }),
+                        )),
                     },
                 },
             ),

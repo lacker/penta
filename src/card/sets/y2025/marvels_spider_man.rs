@@ -1,5 +1,8 @@
 //! Marvel's Spider-Man card inventory.
 
+use crate::card::PlayPermissionDef;
+use crate::card::ZonePositionDef;
+
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::AdditionalCostIndex;
@@ -85,7 +88,6 @@ use crate::card::SubtypeDef;
 use crate::card::TokenCharacteristics;
 use crate::card::TokenCopyDef;
 use crate::card::TokenDef;
-use crate::card::TopOfLibraryCostDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::TurnStepDef;
@@ -1276,7 +1278,14 @@ pub(in crate::card::sets) static MADAME_WEB_CLAIRVOYANT: CardRecord = CardRecord
                 "You may look at the top card of your library any time.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::Controller,
-                    effect: AppliedEffectDef::Rule(AppliedRuleDef::MayLookAtTopOfLibrary),
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::KnownCards(
+                        ObjectQueryDef::matching(
+                            ObjectPredicateDef::Any,
+                            &[ZoneKind::Library],
+                            PlayerRelation::You,
+                        )
+                        .at(ZonePositionDef::FromTop(0)),
+                    )),
                 },
             ),
             AbilityDef::static_ability(
@@ -1284,18 +1293,25 @@ pub(in crate::card::sets) static MADAME_WEB_CLAIRVOYANT: CardRecord = CardRecord
                  top of your library.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::Controller,
-                    effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlayFromTopOfLibrary {
-                        restriction: PlayRestrictionDef::new(
-                            PlayActionMatcherDef::CastSpell,
-                            ObjectPredicateDef::AnyOf(&[
-                                ObjectPredicateDef::Subtype(SubtypeDef::from_name("Spider")),
-                                ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(
-                                    CardType::Creature,
-                                )),
-                            ]),
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlay(
+                        PlayPermissionDef::new(
+                            ObjectQueryDef::matching(
+                                ObjectPredicateDef::Any,
+                                &[ZoneKind::Library],
+                                PlayerRelation::You,
+                            )
+                            .at(ZonePositionDef::FromTop(0)),
+                            PlayRestrictionDef::new(
+                                PlayActionMatcherDef::CastSpell,
+                                ObjectPredicateDef::AnyOf(&[
+                                    ObjectPredicateDef::Subtype(SubtypeDef::from_name("Spider")),
+                                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(
+                                        CardType::Creature,
+                                    )),
+                                ]),
+                            ),
                         ),
-                        cost: TopOfLibraryCostDef::Printed,
-                    }),
+                    )),
                 },
             ),
             AbilityDef::triggered(
@@ -2069,7 +2085,7 @@ pub(in crate::card::sets) static EDDIE_BROCK: CardRecord = CardRecord::new_dfc(
 // SPM 56 — Gwenom, Remorseless
 // Audit: unsupported — Needs a resolving, expiring permission to look at the top library card
 // at any time; top-card play permission already supports life payment, but
-// MayLookAtTopOfLibrary is only implemented as a battlefield static rule.
+// KnownCards currently supplies continuous knowledge from static abilities.
 pub(in crate::card::sets) static GWENOM_REMORSELESS: CardRecord = CardRecord::new(
     "Gwenom, Remorseless",
     "46b6cc5d-7a37-4e8b-a1a5-9a573056610c",

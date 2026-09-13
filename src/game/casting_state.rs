@@ -115,10 +115,8 @@ pub(super) enum CastSourceZone {
     /// A card on an adventure, which its owner may cast from exile as the
     /// creature it is on the other half.
     Exile,
-    /// The top card of the caster's own library, for the permissions that
-    /// reach up there. Only ever the topmost one: a permission to play from
-    /// the top of a library names one card, not the library.
-    LibraryTop,
+    /// A card in the library. Position restrictions belong to the permission query.
+    Library,
 }
 
 impl CastSourceZone {
@@ -131,7 +129,7 @@ impl CastSourceZone {
             Self::Hand => crate::card::ZoneKind::Hand,
             Self::Graveyard => crate::card::ZoneKind::Graveyard,
             Self::Exile => crate::card::ZoneKind::Exile,
-            Self::LibraryTop => crate::card::ZoneKind::Library,
+            Self::Library => crate::card::ZoneKind::Library,
         }
     }
 
@@ -143,7 +141,8 @@ impl CastSourceZone {
             Self::Hand => "hand",
             Self::Graveyard => "graveyard",
             Self::Exile => "exile",
-            Self::LibraryTop => "libraryTop",
+            // Retain the established checkpoint label.
+            Self::Library => "libraryTop",
         }
     }
 }
@@ -156,7 +155,7 @@ pub(super) fn cast_source_zone_from_label(label: &str) -> Option<CastSourceZone>
         "hand" => Some(CastSourceZone::Hand),
         "graveyard" => Some(CastSourceZone::Graveyard),
         "exile" => Some(CastSourceZone::Exile),
-        "libraryTop" => Some(CastSourceZone::LibraryTop),
+        "libraryTop" => Some(CastSourceZone::Library),
         _ => None,
     }
 }

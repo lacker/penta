@@ -21,6 +21,7 @@ include!("cost_configurations/additional_cost_payments.rs");
 include!("cost_configurations/mana_presence.rs");
 include!("cost_configurations/harmonize.rs");
 include!("cost_configurations/object_predicates.rs");
+include!("cost_configurations/permissions.rs");
 
 /// The chosen quantities a cost can be counted from: the X the spell is cast
 /// for, how many modes it was cast with, and how many targets it names.
@@ -437,7 +438,7 @@ impl Game {
                 .iter()
                 .find(|candidate| candidate.id == card)
                 .is_some_and(|instance| self.graveyard_play_is_permitted(instance, player, option)),
-            CastSourceZone::Hand | CastSourceZone::LibraryTop | CastSourceZone::Command => true,
+            CastSourceZone::Hand | CastSourceZone::Library | CastSourceZone::Command => true,
         }
     }
 
@@ -472,7 +473,7 @@ impl Game {
                 )
             }
             (
-                CastSourceZone::Hand | CastSourceZone::Command,
+                CastSourceZone::Hand | CastSourceZone::Command | CastSourceZone::Library,
                 Some(
                     AlternativeCastKindDef::Overload
                         | AlternativeCastKindDef::Kicked
@@ -517,9 +518,7 @@ impl Game {
                 CastSourceZone::Exile,
                 Some(AlternativeCastKindDef::Foretell | AlternativeCastKindDef::Rebound),
             )
-            // A permission to play the top card of a library uses what that
-            // play option ordinarily prints.
-            | (CastSourceZone::LibraryTop, None) => true,
+            => true,
             _ => false,
         }
     }
@@ -551,6 +550,29 @@ impl Game {
         mut visitor: impl FnMut(CostConfiguration) -> ControlFlow<()>,
     ) -> ControlFlow<()> {
         let CastCostContext { source_zone, offer } = context;
+        let mut visitor = |configuration: CostConfiguration| {
+            let requires_permission = source_zone == CastSourceZone::Library
+                || (source_zone == CastSourceZone::Graveyard
+                    && configuration.alternative().is_none()
+                    && offer.is_none()
+                    && self.graveyard_cast_permission(card, player).is_none());
+            if !requires_permission {
+                return visitor(configuration);
+            }
+            for source in self.play_permission_sources(card, player) {
+                if configuration.alternative().is_some()
+                    && self
+                        .permission_additional_alternative_mana(card, option, &configuration)
+                        .is_none()
+                    && self.play_permission_cost(player, Some(source))
+                        == Some(crate::card::PlayCostDef::LifeEqualToManaValue)
+                {
+                    continue;
+                }
+                visitor(configuration.clone().with_permission_source(Some(source)))?;
+            }
+            ControlFlow::Continue(())
+        };
         let mut selected_additional = Vec::with_capacity(option.additional_costs.len());
         let repeats = self.repeatable_additional_cost_bound(definition, card, player, option);
         let printed_cost_available =
@@ -811,18 +833,18 @@ impl Game {
             .and_then(|costs| crate::card::costs::mana_cost(costs, option.mana_cost))
             .or_else(|| granted_alternative.map(|(_, _, mana_cost)| mana_cost))
             .or_else(|| configured_base_mana_cost(option, configuration))
-            .or_else(|| cost_replaced.then(ManaCost::default))?;
-        // "Without paying its mana cost" and "rather than paying its mana
-        // cost" replace the base or alternative cost, not optional
-        // additional costs (CR 118.9d).
+            .or_else(|| {
+                (cost_replaced
+                    || self.permission_replaces_mana_with_life(card, option, configuration))
+                .then(ManaCost::default)
+            })?;
+        // Both free casts and life alternatives fix X at zero and retain additional costs.
         if cost_replaced {
             cost = ManaCost::default();
-        } else if self.library_top_cost_is_life(card, option) {
-            cost = ManaCost {
-                variable_x: cost.variable_x,
-                x_multiplier: cost.x_multiplier,
-                ..ManaCost::default()
-            };
+        } else if self.permission_replaces_mana_with_life(card, option, configuration) {
+            cost = self
+                .permission_additional_alternative_mana(card, option, configuration)
+                .unwrap_or_default();
         }
         // "You may spend mana as though it were mana of any color to cast
         // that spell": what the payer owes stops being a colour and becomes
@@ -857,19 +879,18 @@ impl Game {
         Some(cost)
     }
 
-    /// Whether this card is the top of somebody's library and the
-    /// permission reaching it charges life instead of mana. Only the topmost
-    /// card of a player's own library can be, so the library it is sitting
-    /// on names the player being asked.
-    fn library_top_cost_is_life(&self, card: GameObjectId, option: &PlayOptionDef) -> bool {
-        [PlayerId::One, PlayerId::Two].into_iter().any(|player| {
-            self.players[player.index()]
-                .library
-                .last()
-                .is_some_and(|top| {
-                    top.id == card && self.library_top_life_cost(top, player, option).is_some()
-                })
-        })
+    /// Whether the selected zone permission charges life instead of mana.
+    fn permission_replaces_mana_with_life(
+        &self,
+        card: GameObjectId,
+        option: &PlayOptionDef,
+        configuration: &CostConfiguration,
+    ) -> bool {
+        self.card_in_nonbattlefield_zone(card)
+            .is_some_and(|(_, card)| {
+                self.play_life_for_configuration(card, card.owner, option, configuration)
+                    .is_some()
+            })
     }
 
     /// Whether a permission over this card lets its mana be spent as any

@@ -1,5 +1,13 @@
 //! C20 card records required by supported formats.
 
+use crate::card::PlayPermissionDef;
+use crate::card::ZonePositionDef;
+
+use crate::card::AppliedRuleDef;
+use crate::card::ObjectQueryDef;
+use crate::card::PlayActionMatcherDef;
+use crate::card::PlayRestrictionDef;
+
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::ParentBinding;
@@ -23,6 +31,7 @@ use crate::card::ObjectSetDef;
 use crate::card::ObjectSetFilterDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
+use crate::card::PlayerSetDef;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
@@ -80,6 +89,63 @@ pub(in crate::card::sets) static FLAWLESS_MANEUVER: CardRecord = CardRecord::new
             },
         ),
     ]),
+);
+
+// C20 29 — Verge Rangers
+pub(in crate::card::sets) static VERGE_RANGERS: CardRecord = CardRecord::new(
+    "Verge Rangers",
+    "071bee6a-21ed-4776-ad78-2cc8ef5ab959",
+    "Livia Prima",
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Scout", "Ranger"], 3, 3)
+        .with_abilities(&[
+            abilities::first_strike(),
+            abilities::cards_known_to(
+                "You may look at the top card of your library any time.",
+                ObjectQueryDef::matching(
+                    ObjectPredicateDef::Any,
+                    &[ZoneKind::Library],
+                    PlayerRelation::You,
+                )
+                .at(ZonePositionDef::FromTop(0)),
+                PlayerSetDef::Related(PlayerRelation::You),
+            ),
+            AbilityDef::static_ability(
+                "As long as an opponent controls more lands than you, you may play lands from \
+                 the top of your library.",
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                        left: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                            ObjectPredicateDef::HasType(CardType::Land),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::Opponent,
+                        )),
+                        comparison: ComparisonDef::Greater,
+                        right: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                            ObjectPredicateDef::HasType(CardType::Land),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        )),
+                    }),
+                    then: &EffectDef::StaticApply {
+                        recipient: EffectRecipientDef::Controller,
+                        effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlay(
+                            PlayPermissionDef::new(
+                                ObjectQueryDef::matching(
+                                    ObjectPredicateDef::Any,
+                                    &[ZoneKind::Library],
+                                    PlayerRelation::You,
+                                )
+                                .at(ZonePositionDef::FromTop(0)),
+                                PlayRestrictionDef::new(
+                                    PlayActionMatcherDef::PlayLand,
+                                    ObjectPredicateDef::HasType(CardType::Land),
+                                ),
+                            ),
+                        )),
+                    },
+                },
+            ),
+        ]),
 );
 
 // C20 34 — Ethereal Forager
@@ -284,6 +350,7 @@ const MURMURING_MYSTIC_REPRINT: PrintingRecord = PrintingRecord::reprint(
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &FLAWLESS_MANEUVER,
+    &VERGE_RANGERS,
     &ETHEREAL_FORAGER,
     &FIERCE_GUARDIANSHIP,
     &DEADLY_ROLLICK,

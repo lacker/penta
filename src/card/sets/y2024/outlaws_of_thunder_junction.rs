@@ -1,5 +1,7 @@
 //! Outlaws of Thunder Junction card inventory.
 
+use crate::card::ZonePositionDef;
+
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::AdditionalCostObjectIndex;
@@ -1622,12 +1624,41 @@ pub(in crate::card::sets) static FAILED_FORDING: CardRecord = CardRecord::new(
 );
 
 // OTJ 48 — Fblthp, Lost on the Range
-// Audit: unsupported — The card's external-plotting composition and remaining clauses have not been implemented.
 pub(in crate::card::sets) static FBLTHP_LOST_ON_THE_RANGE: CardRecord = CardRecord::new(
     "Fblthp, Lost on the Range",
     "01d3e6ea-4791-4948-af22-c1bd04c34c1e",
     "Brian Valeza",
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{U}{U}"), &["Homunculus"], 1, 1)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::ward(&[CostDef::Mana(mana_cost!("{2}"))], "Ward {2}"),
+            abilities::cards_known_to(
+                "You may look at the top card of your library any time.",
+                ObjectQueryDef::matching(
+                    ObjectPredicateDef::Any,
+                    &[ZoneKind::Library],
+                    PlayerRelation::You,
+                )
+                .at(ZonePositionDef::FromTop(0)),
+                PlayerSetDef::Related(PlayerRelation::You),
+            ),
+            AbilityDef::static_ability(
+                "The top card of your library has plot. The plot cost is equal to its mana \
+                 cost. You may plot nonland cards from the top of your library.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Controller,
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlot {
+                        cards: ObjectQueryDef::matching(
+                            ObjectPredicateDef::Any,
+                            &[ZoneKind::Library],
+                            PlayerRelation::You,
+                        )
+                        .at(ZonePositionDef::FromTop(0)),
+                        ability: &abilities::plot(&[CostDef::ManaCostOf(ObjectRefDef::Source)]),
+                    }),
+                },
+            ),
+        ]),
 );
 
 // OTJ 49 — Fleeting Reflection

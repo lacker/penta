@@ -1,5 +1,7 @@
 //! Marvel Super Heroes card inventory.
 
+use crate::card::ZonePositionDef;
+
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
@@ -40,7 +42,6 @@ use crate::card::DrawEventMatcherDef;
 use crate::card::EffectChoiceDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
-use crate::card::GraveyardPlayPermissionDef;
 use crate::card::InstalledTriggerDef;
 use crate::card::KeywordAbility;
 use crate::card::ManaColor;
@@ -56,6 +57,7 @@ use crate::card::ObjectSetFilterDef;
 use crate::card::ObjectSetPredicateDef;
 use crate::card::PayOrDef;
 use crate::card::PlayActionMatcherDef;
+use crate::card::PlayPermissionDef;
 use crate::card::PlayRestrictionDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
@@ -70,7 +72,6 @@ use crate::card::SubtypeDef;
 use crate::card::TokenCharacteristics;
 use crate::card::TokenCopyDef;
 use crate::card::TokenDef;
-use crate::card::TopOfLibraryCostDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::TurnStepDef;
@@ -1422,7 +1423,14 @@ pub(in crate::card::sets) static IRON_LAD_DIVERGING_DESTINY: CardRecord = CardRe
                 "You may look at the top card of your library any time.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::Controller,
-                    effect: AppliedEffectDef::Rule(AppliedRuleDef::MayLookAtTopOfLibrary),
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::KnownCards(
+                        ObjectQueryDef::matching(
+                            ObjectPredicateDef::Any,
+                            &[ZoneKind::Library],
+                            PlayerRelation::You,
+                        )
+                        .at(ZonePositionDef::FromTop(0)),
+                    )),
                 },
             ),
             AbilityDef::activated(
@@ -4054,20 +4062,34 @@ pub(in crate::card::sets) static KA_ZAR_OF_THE_SAVAGE_LAND: CardRecord = CardRec
                 "You may look at the top card of your library any time.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::Controller,
-                    effect: AppliedEffectDef::Rule(AppliedRuleDef::MayLookAtTopOfLibrary),
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::KnownCards(
+                        ObjectQueryDef::matching(
+                            ObjectPredicateDef::Any,
+                            &[ZoneKind::Library],
+                            PlayerRelation::You,
+                        )
+                        .at(ZonePositionDef::FromTop(0)),
+                    )),
                 },
             ),
             AbilityDef::static_ability(
                 "You may play lands from the top of your library.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::Controller,
-                    effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlayFromTopOfLibrary {
-                        restriction: PlayRestrictionDef::new(
-                            PlayActionMatcherDef::PlayLand,
-                            ObjectPredicateDef::HasType(CardType::Land),
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlay(
+                        PlayPermissionDef::new(
+                            ObjectQueryDef::matching(
+                                ObjectPredicateDef::Any,
+                                &[ZoneKind::Library],
+                                PlayerRelation::You,
+                            )
+                            .at(ZonePositionDef::FromTop(0)),
+                            PlayRestrictionDef::new(
+                                PlayActionMatcherDef::PlayLand,
+                                ObjectPredicateDef::HasType(CardType::Land),
+                            ),
                         ),
-                        cost: TopOfLibraryCostDef::Printed,
-                    }),
+                    )),
                 },
             ),
             abilities::enters_trigger(
@@ -4134,11 +4156,18 @@ pub(in crate::card::sets) static MOLE_MAN_MOLOID_MASTER: CardRecord = CardRecord
                 "You may play lands from your graveyard.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::Controller,
-                    effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlayFromGraveyard(
-                        GraveyardPlayPermissionDef::unlimited(PlayRestrictionDef::new(
-                            PlayActionMatcherDef::PlayLand,
-                            ObjectPredicateDef::HasType(CardType::Land),
-                        )),
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlay(
+                        PlayPermissionDef::new(
+                            ObjectQueryDef::matching(
+                                ObjectPredicateDef::Any,
+                                &[ZoneKind::Graveyard],
+                                PlayerRelation::You,
+                            ),
+                            PlayRestrictionDef::new(
+                                PlayActionMatcherDef::PlayLand,
+                                ObjectPredicateDef::HasType(CardType::Land),
+                            ),
+                        ),
                     )),
                 },
             ),
@@ -5219,7 +5248,14 @@ pub(in crate::card::sets) static DAREDEVIL_MAN_WITHOUT_FEAR: CardRecord = CardRe
                  any time.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::Controller,
-                    effect: AppliedEffectDef::Rule(AppliedRuleDef::MayLookAtTopOfLibrary),
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::KnownCards(
+                        ObjectQueryDef::matching(
+                            ObjectPredicateDef::Any,
+                            &[ZoneKind::Library],
+                            PlayerRelation::You,
+                        )
+                        .at(ZonePositionDef::FromTop(0)),
+                    )),
                 },
             ),
             AbilityDef::triggered(

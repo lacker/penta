@@ -52,6 +52,12 @@ pub(in crate::game::state_checkpoint) fn current_stack_snapshot(
             .as_ref()
             .is_some_and(|cast| cast.exile_if_put_into_graveyard),
         cast_via_suspend: object.cast.as_ref().is_some_and(|cast| cast.via_suspend),
+        permission_entry_counters: object.cast.as_ref().map_or_else(Vec::new, |cast| {
+            cast.permission_entry_counters
+                .iter()
+                .map(|(kind, amount)| (kind.name().to_owned(), *amount))
+                .collect()
+        }),
         cast_at_instant_speed: object
             .cast
             .as_ref()

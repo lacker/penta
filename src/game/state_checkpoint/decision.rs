@@ -553,9 +553,8 @@ fn continuation_snapshot(
                 private_chosen,
             }
         }
-        DecisionContinuation::PaySpecialAction { player, source, action, payment } => DecisionContinuationSnapshot::PaySpecialAction {
-            player: player.index(), source: source.0, action: *action, payment: resolved_effect_payment_snapshot(payment.clone()),
-        },
+        special @ (DecisionContinuation::PlayLandPermission { .. }
+        | DecisionContinuation::PaySpecialAction { .. }) => special_action_continuation_snapshot(special),
         DecisionContinuation::PayOr {
             player,
             payment,

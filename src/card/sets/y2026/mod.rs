@@ -14,3 +14,5 @@ pub mod teenage_mutant_ninja_turtles_eternal;
 pub mod the_hobbit_eternal;
 
 pub mod lorwyn_eclipsed_commander;
+
+pub mod star_trek_commander;

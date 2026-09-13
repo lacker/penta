@@ -1,5 +1,13 @@
 //! Core Set 2021 card records.
 
+use crate::card::ZonePositionDef;
+
+use crate::card::AbilityOperationDef;
+use crate::card::ActivatedAbilityCardsDef;
+use crate::card::CharacteristicOperationDef;
+use crate::card::PlayActionMatcherDef;
+use crate::card::PlayRestrictionDef;
+
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
@@ -27,6 +35,7 @@ use crate::card::ObjectQueryDef;
 use crate::card::ObjectRefDef;
 use crate::card::ObjectSetDef;
 use crate::card::PlayerRelation;
+use crate::card::PlayerSetDef;
 use crate::card::ReplacementEffectDef;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::SubtypeDef;
@@ -239,13 +248,55 @@ pub(in crate::card::sets) static VILLAGE_RITES: CardRecord = CardRecord::new(
 );
 
 // M21 139 — Conspicuous Snoop
-// Audit: unsupported — Needs continuous access to the top library card's activated abilities,
-// with that card as each ability's source.
 pub(in crate::card::sets) static CONSPICUOUS_SNOOP: CardRecord = CardRecord::new(
     "Conspicuous Snoop",
     "5d878dab-5ed2-4ef3-b2c7-472290892854",
     "Zoltan Boros",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{R}{R}"), &["Goblin", "Rogue"], 2, 2).with_abilities(&[
+        abilities::cards_known_to(
+            "Play with the top card of your library revealed.",
+            ObjectQueryDef::matching(
+                ObjectPredicateDef::Any,
+                &[ZoneKind::Library],
+                PlayerRelation::You,
+            )
+            .at(ZonePositionDef::FromTop(0)),
+            PlayerSetDef::Related(PlayerRelation::Any),
+        ),
+        abilities::play_from_zone(
+            ObjectQueryDef::matching(
+                ObjectPredicateDef::Any,
+                &[ZoneKind::Library],
+                PlayerRelation::You,
+            )
+            .at(ZonePositionDef::FromTop(0)),
+            "You may cast Goblin spells from the top of your library.",
+            PlayRestrictionDef::new(
+                PlayActionMatcherDef::CastSpell,
+                ObjectPredicateDef::Subtype(SubtypeDef::from_name("Goblin")),
+            ),
+        ),
+        AbilityDef::static_ability(
+            "As long as the top card of your library is a Goblin card, this creature has \
+             all activated abilities of that card.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Characteristic(CharacteristicOperationDef::Abilities(
+                    AbilityOperationDef::AddActivatedAbilitiesOf {
+                        cards: ActivatedAbilityCardsDef::Query(
+                            ObjectQueryDef::matching(
+                                ObjectPredicateDef::Any,
+                                &[ZoneKind::Library],
+                                PlayerRelation::You,
+                            )
+                            .at(ZonePositionDef::FromTop(0)),
+                        ),
+                        object: ObjectPredicateDef::Subtype(SubtypeDef::from_name("Goblin")),
+                    },
+                )),
+            },
+        ),
+    ]),
 );
 
 // M21 150 — Heartfire Immolator

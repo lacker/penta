@@ -1,5 +1,7 @@
 //! Final Fantasy card inventory.
 
+use crate::card::ZonePositionDef;
+
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::AdditionalCostIndex;
@@ -56,7 +58,6 @@ use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::FreePlayDef;
 use crate::card::FreePlayDurationDef;
-use crate::card::GraveyardPlayPermissionDef;
 use crate::card::HalvedValueDef;
 use crate::card::InstalledTriggerDef;
 use crate::card::KeywordAbility;
@@ -76,6 +77,7 @@ use crate::card::ObjectValueDef;
 use crate::card::PayOrDef;
 use crate::card::PerPlayerSelectionDef;
 use crate::card::PlayActionMatcherDef;
+use crate::card::PlayPermissionDef;
 use crate::card::PlayRestrictionDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
@@ -96,7 +98,6 @@ use crate::card::SumValueDef;
 use crate::card::TokenCharacteristics;
 use crate::card::TokenCopyDef;
 use crate::card::TokenDef;
-use crate::card::TopOfLibraryCostDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::TurnStepDef;
@@ -2200,12 +2201,15 @@ pub(in crate::card::sets) static THE_LUNAR_WHALE: CardRecord = CardRecord::new(
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
             abilities::flying(),
-            AbilityDef::static_ability(
+            abilities::cards_known_to(
                 "You may look at the top card of your library any time.",
-                EffectDef::StaticApply {
-                    recipient: EffectRecipientDef::Controller,
-                    effect: AppliedEffectDef::Rule(AppliedRuleDef::MayLookAtTopOfLibrary),
-                },
+                ObjectQueryDef::matching(
+                    ObjectPredicateDef::Any,
+                    &[ZoneKind::Library],
+                    PlayerRelation::You,
+                )
+                .at(ZonePositionDef::FromTop(0)),
+                PlayerSetDef::Related(PlayerRelation::You),
             ),
             AbilityDef::static_ability(
                 "As long as The Lunar Whale attacked this turn, you may play \
@@ -2216,13 +2220,20 @@ pub(in crate::card::sets) static THE_LUNAR_WHALE: CardRecord = CardRecord::new(
                     },
                     then: &EffectDef::StaticApply {
                         recipient: EffectRecipientDef::Controller,
-                        effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlayFromTopOfLibrary {
-                            restriction: PlayRestrictionDef::new(
-                                PlayActionMatcherDef::Any,
-                                ObjectPredicateDef::Any,
+                        effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlay(
+                            PlayPermissionDef::new(
+                                ObjectQueryDef::matching(
+                                    ObjectPredicateDef::Any,
+                                    &[ZoneKind::Library],
+                                    PlayerRelation::You,
+                                )
+                                .at(ZonePositionDef::FromTop(0)),
+                                PlayRestrictionDef::new(
+                                    PlayActionMatcherDef::Any,
+                                    ObjectPredicateDef::Any,
+                                ),
                             ),
-                            cost: TopOfLibraryCostDef::Printed,
-                        }),
+                        )),
                     },
                 },
             ),
@@ -6949,16 +6960,19 @@ pub(in crate::card::sets) static EMET_SELCH_UNSUNDERED: CardRecord = CardRecord:
                             condition: &TriggerConditionDef::ActivePlayer(PlayerRelation::You),
                             then: &EffectDef::StaticApply {
                                 recipient: EffectRecipientDef::Controller,
-                                effect: AppliedEffectDef::Rule(
-                                    AppliedRuleDef::MayPlayFromGraveyard(
-                                        GraveyardPlayPermissionDef::unlimited(
-                                            PlayRestrictionDef::new(
-                                                PlayActionMatcherDef::Any,
-                                                ObjectPredicateDef::Any,
-                                            ),
+                                effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlay(
+                                    PlayPermissionDef::new(
+                                        ObjectQueryDef::matching(
+                                            ObjectPredicateDef::Any,
+                                            &[ZoneKind::Graveyard],
+                                            PlayerRelation::You,
+                                        ),
+                                        PlayRestrictionDef::new(
+                                            PlayActionMatcherDef::Any,
+                                            ObjectPredicateDef::Any,
                                         ),
                                     ),
-                                ),
+                                )),
                             },
                         },
                     ),
@@ -11652,36 +11666,45 @@ pub(in crate::card::sets) static TRAVELING_CHOCOBO: CardRecord = CardRecord::new
     // reads lands and its own kind -- which in a deck built for it is most
     // of what enters.
     CardRules::new_creature(mana_cost!("{2}{G}"), &["Bird"], 3, 2).with_abilities(&[
-        AbilityDef::static_ability(
+        abilities::cards_known_to(
             "You may look at the top card of your library any time.",
-            EffectDef::StaticApply {
-                recipient: EffectRecipientDef::players(PlayerSetDef::Related(PlayerRelation::You)),
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::MayLookAtTopOfLibrary),
-            },
+            ObjectQueryDef::matching(
+                ObjectPredicateDef::Any,
+                &[ZoneKind::Library],
+                PlayerRelation::You,
+            )
+            .at(ZonePositionDef::FromTop(0)),
+            PlayerSetDef::Related(PlayerRelation::You),
         ),
         AbilityDef::static_ability(
             "You may play lands and cast Bird spells from the top of your library.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::players(PlayerSetDef::Related(PlayerRelation::You)),
                 effect: AppliedEffectDef::Composite(&[
-                    AppliedEffectDef::Rule(AppliedRuleDef::MayPlayFromTopOfLibrary {
-                        // Two permissions rather than one: the printed sentence names two kinds of
-                        // play, and the restriction each carries is a single action and a single
-                        // predicate. Lands cost nothing beyond the land drop; a Bird pays its own
-                        // mana cost, since nothing here says otherwise.
-                        restriction: PlayRestrictionDef::new(
+                    AppliedEffectDef::Rule(AppliedRuleDef::MayPlay(PlayPermissionDef::new(
+                        ObjectQueryDef::matching(
+                            ObjectPredicateDef::Any,
+                            &[ZoneKind::Library],
+                            PlayerRelation::You,
+                        )
+                        .at(ZonePositionDef::FromTop(0)),
+                        PlayRestrictionDef::new(
                             PlayActionMatcherDef::PlayLand,
                             ObjectPredicateDef::HasType(CardType::Land),
                         ),
-                        cost: TopOfLibraryCostDef::Printed,
-                    }),
-                    AppliedEffectDef::Rule(AppliedRuleDef::MayPlayFromTopOfLibrary {
-                        restriction: PlayRestrictionDef::new(
+                    ))),
+                    AppliedEffectDef::Rule(AppliedRuleDef::MayPlay(PlayPermissionDef::new(
+                        ObjectQueryDef::matching(
+                            ObjectPredicateDef::Any,
+                            &[ZoneKind::Library],
+                            PlayerRelation::You,
+                        )
+                        .at(ZonePositionDef::FromTop(0)),
+                        PlayRestrictionDef::new(
                             PlayActionMatcherDef::CastSpell,
                             ObjectPredicateDef::Subtype(SubtypeDef::from_name("Bird")),
                         ),
-                        cost: TopOfLibraryCostDef::Printed,
-                    }),
+                    ))),
                 ]),
             },
         ),

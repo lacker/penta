@@ -376,13 +376,13 @@ fn static_player_applied_effect_supported(effect: AppliedEffectDef) -> bool {
                     .copied()
                     .all(static_player_applied_effect_supported)
         }
-        AppliedEffectDef::Rule(
-            AppliedRuleDef::CannotPlay(restriction)
-            | AppliedRuleDef::MayPlayFromTopOfLibrary { restriction, .. },
-        ) => static_object_predicate_supported(restriction.object),
-        AppliedEffectDef::Rule(AppliedRuleDef::MayPlayFromGraveyard(permission)) => {
-            static_object_predicate_supported(permission.restriction.object)
+        AppliedEffectDef::Rule(AppliedRuleDef::CannotPlay(restriction)) => static_object_predicate_supported(restriction.object),
+        AppliedEffectDef::Rule(AppliedRuleDef::MayPlay(permission)) => {
+            static_query_supported(permission.cards)
+                && static_object_predicate_supported(permission.restriction.object)
+                && permission.benefit.and_then(|benefit| benefit.on_play).is_none_or(|ability| validate_ability_effect_context(ability).is_ok())
         }
+        AppliedEffectDef::Rule(AppliedRuleDef::KnownCards(query)) => static_query_supported(query),
         // Read where a cast is offered, against the card being cast, just
         // like the other player-facing play permissions above.
         AppliedEffectDef::Rule(AppliedRuleDef::MayCastAsThoughItHadFlash(permission)) => {
@@ -402,6 +402,8 @@ fn static_player_applied_effect_supported(effect: AppliedEffectDef) -> bool {
         }
         // Read where a graveyard cast is enumerated, by the same walk that
         // answers the permissions above.
+        AppliedEffectDef::Rule(AppliedRuleDef::MayPlot { cards, ability }) => static_query_supported(cards) && matches!(ability.definition,
+            crate::card::DeclarativeAbilityDef::AlternativeCast(definition) if definition.kind == crate::card::AlternativeCastKindDef::Plot),
         AppliedEffectDef::Rule(AppliedRuleDef::GrantsAlternativeCastFromGraveyard {
             object,
             ability,
@@ -438,11 +440,9 @@ fn static_player_applied_effect_supported(effect: AppliedEffectDef) -> bool {
         // rather than the cleanup step.
         AppliedEffectDef::Rule(
             AppliedRuleDef::Ascend
-            | AppliedRuleDef::MayLookAtTopOfLibrary
             // Read by whoever is being shown the game rather than by any
             // step of it: a public top card changes what an observation
             // says and nothing else.
-            | AppliedRuleDef::PlaysWithTopOfLibraryRevealed
             | AppliedRuleDef::MaySpendManaAsAnyColorForCreatureAbilities
             | AppliedRuleDef::MayPlayAdditionalLands(_)
             | AppliedRuleDef::MayPlayAnyNumberOfLands
@@ -483,6 +483,10 @@ fn static_object_characteristic_supported(
     operation: CharacteristicOperationDef,
 ) -> bool {
     match operation {
+        CharacteristicOperationDef::Abilities(AbilityOperationDef::AddActivatedAbilitiesOf {
+            cards: crate::card::ActivatedAbilityCardsDef::Query(query),
+            ..
+        }) => static_query_supported(query),
         // A switch reads nothing, so there is no value to gate on and no way
         // for it to re-enter the characteristics walk. "This land is the
         // chosen type" reads only the choice its own source made, which is
@@ -591,8 +595,7 @@ fn static_object_rule_supported(recipient: EffectRecipientDef, rule: AppliedRule
         AppliedRuleDef::CannotBeCountered
         // Ascend belongs to a player, so nothing about an object reads it.
         | AppliedRuleDef::Ascend
-        | AppliedRuleDef::MayLookAtTopOfLibrary
-        | AppliedRuleDef::PlaysWithTopOfLibraryRevealed
+        | AppliedRuleDef::KnownCards(_)
         // Trigger modification applies to abilities controlled by a player.
         | AppliedRuleDef::ModifyTriggers(_)
         | AppliedRuleDef::MaySpendManaAsAnyColorForCreatureAbilities
@@ -610,8 +613,8 @@ fn static_object_rule_supported(recipient: EffectRecipientDef, rule: AppliedRule
         // No printed static says "if it would die, exile it instead": every
         // card that says it is a resolving effect with a duration on it.
         | AppliedRuleDef::ExileInsteadOfDying
-        | AppliedRuleDef::MayPlayFromGraveyard(_)
-        | AppliedRuleDef::MayPlayFromTopOfLibrary { .. }
+        | AppliedRuleDef::MayPlay(_)
+        | AppliedRuleDef::MayPlot { .. }
         | AppliedRuleDef::GrantsAlternativeCastFromGraveyard { .. }
         | AppliedRuleDef::UntapAtMostOne(_)
         | AppliedRuleDef::RedirectDamageFromTo { .. } => false,
@@ -875,7 +878,13 @@ fn static_condition_object_set_supported(objects: ObjectSetDef) -> bool {
 
 pub(super) fn static_query_supported(query: ObjectQueryDef) -> bool {
     !query.zones.is_empty()
-        && query.relative_position.is_none()
+        && query.position.is_none_or(|position| {
+            matches!(position, crate::card::ZonePositionDef::FromTop(_))
+                && query
+                    .zones
+                    .iter()
+                    .all(|zone| matches!(zone, ZoneKind::Library | ZoneKind::Graveyard))
+        })
         && [query.related_player, query.controller, query.owner]
             .into_iter()
             .flatten()

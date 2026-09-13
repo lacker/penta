@@ -172,9 +172,9 @@ use event::TurnPhaseResume;
 pub use event::{BattlefieldExit, GameEvent, GameResult, StackObjectKind, Step, WinReason};
 pub use mana::{Mana, ManaPool, ManaSource};
 pub use observation::{
-    CardCounterObservation, CounterObservation, EmblemObservation, ObjectCharacteristics,
-    PermanentObservation, PhysicalFaceObservation, PhysicalFaceSide, PlayerObservation,
-    StackObservation, ZoneCard, ZoneError,
+    CardCounterObservation, CounterObservation, EmblemObservation, KnownCardObservation,
+    ObjectCharacteristics, PermanentObservation, PhysicalFaceObservation, PhysicalFaceSide,
+    PlayerObservation, StackObservation, ZoneCard, ZoneError,
 };
 
 use observation::{LastSeenHand, PublicCard};
@@ -653,11 +653,11 @@ pub struct Game {
     /// Cards exiled by an object that promises to bring them back, paired
     /// with whatever exiled them. Oblivion Ring is the shape.
     linked_exiles: Vec<(GameObjectId, GameObjectId)>,
-    /// How many plays each limited graveyard permission has been used for
+    /// How many plays each limited play permission has been used for
     /// this turn. "Once during each of your turns" is a bound on the
     /// permission rather than on the card it names, so it is counted against
     /// whatever granted it and cleared as the turn does.
-    graveyard_permission_uses: Vec<(GameObjectId, u16)>,
+    play_permission_uses: Vec<(GameObjectId, u16)>,
     /// Which players have had a permanent leave the battlefield from under
     /// their control this turn, which is what revolt asks (CR 702.121a). The
     /// board afterwards cannot tell: a permanent that left and was replaced

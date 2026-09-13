@@ -31,6 +31,9 @@ mod ability_kind;
 use ability_kind::{StackAbilityCondition, stack_ability_condition, stack_payload_matches};
 mod cast_context;
 use cast_context::{detached_cast_context, stack_cast_context};
+pub(super) use cast_context::{
+    parse_permission_entry_counters, snapshot_permission_entry_counters,
+};
 mod current;
 mod effect_context;
 use effect_context::{parse_replaced_draw, replaced_draw_snapshot};
@@ -183,6 +186,7 @@ pub(super) fn detached_stack_snapshot_allowing(
     if object.face_down.is_some() && face_down.is_none() {
         return None;
     }
+    let cast = object.cast.as_ref();
     Some(DetachedStackSnapshot {
         resolving_clause_origin: resolving_clause_origin_snapshot(object),
         object_id: object.id.0,
@@ -202,59 +206,30 @@ pub(super) fn detached_stack_snapshot_allowing(
             .map(text_change_snapshot)
             .collect(),
         colors: object.colors.map(ColorSet::to_flags),
-        colors_of_mana_spent: object
-            .cast
-            .as_ref()
-            .map_or([false; 5], |cast| cast.colors_of_mana_spent.to_flags()),
-        phyrexian_symbols_paid_with_life: object
-            .cast
-            .as_ref()
+        colors_of_mana_spent: cast.map_or([false; 5], |cast| cast.colors_of_mana_spent.to_flags()),
+        phyrexian_symbols_paid_with_life: cast
             .map_or(0, |cast| cast.phyrexian_symbols_paid_with_life),
-        cast_via_flashback: object.cast.as_ref().is_some_and(|cast| cast.via_flashback),
-        cast_exile_if_put_into_graveyard: object
-            .cast
-            .as_ref()
-            .is_some_and(|cast| cast.exile_if_put_into_graveyard),
-        cast_via_suspend: object.cast.as_ref().is_some_and(|cast| cast.via_suspend),
-        cast_at_instant_speed: object
-            .cast
-            .as_ref()
-            .is_some_and(|cast| cast.at_instant_speed),
-        cast_by: object
-            .cast
-            .as_ref()
-            .and_then(|cast| cast.caster)
-            .map(PlayerId::index),
-        cast_from_zone: object
-            .cast
-            .as_ref()
+        cast_via_flashback: cast.is_some_and(|cast| cast.via_flashback),
+        cast_exile_if_put_into_graveyard: cast.is_some_and(|cast| cast.exile_if_put_into_graveyard),
+        cast_via_suspend: cast.is_some_and(|cast| cast.via_suspend),
+        permission_entry_counters: snapshot_permission_entry_counters(cast),
+        cast_at_instant_speed: cast.is_some_and(|cast| cast.at_instant_speed),
+        cast_by: cast.and_then(|cast| cast.caster).map(PlayerId::index),
+        cast_from_zone: cast
             .and_then(|cast| cast.source_zone)
             .map(|zone| zone.label().to_owned()),
         cast_tags: Vec::new(),
-        cast_alternative: object
-            .cast
-            .as_ref()
+        cast_alternative: cast
             .and_then(|cast| cast.alternative)
             .map(|kind| kind.label().to_owned()),
-        cast_player_bindings: object
-            .cast
-            .as_ref()
+        cast_player_bindings: cast
             .map(super::cast_bindings::snapshot_player_bindings)
             .unwrap_or_default(),
-        cast_alternative_cost_binding: object
-            .cast
-            .as_ref()
-            .and_then(|cast| cast.alternative_cost_binding.clone()),
-        cast_x: object.cast.as_ref().map_or(0, |cast| cast.x),
-        cast_repeatable_additional_costs: object
-            .cast
-            .as_ref()
-            .map_or(0, |cast| cast.repeatable_additional_costs),
-        cast_additional_costs: object
-            .cast
-            .as_ref()
-            .map_or_else(Vec::new, |cast| cast.additional_costs.clone()),
-        cast_exiled_payment_cards: object.cast.as_ref().map_or_else(Vec::new, |cast| {
+        cast_alternative_cost_binding: cast.and_then(|cast| cast.alternative_cost_binding.clone()),
+        cast_x: cast.map_or(0, |cast| cast.x),
+        cast_repeatable_additional_costs: cast.map_or(0, |cast| cast.repeatable_additional_costs),
+        cast_additional_costs: cast.map_or_else(Vec::new, |cast| cast.additional_costs.clone()),
+        cast_exiled_payment_cards: cast.map_or_else(Vec::new, |cast| {
             cast.exiled_payment_cards.iter().map(|id| id.0).collect()
         }),
         face_down,
@@ -326,6 +301,7 @@ fn signature_snapshot(signature: &CastSignature) -> CastSignatureSnapshot {
         },
         modes: signature.modes().iter().map(|mode| mode.0).collect(),
         alternative_cost: signature.costs().alternative().map(|cost| cost.0),
+        permission_source: signature.costs().permission_source().map(|source| source.0),
         additional_costs: signature
             .costs()
             .additional()
@@ -799,15 +775,18 @@ fn parse_signature_snapshot(state: &CastSignatureSnapshot) -> Result<CastSignatu
     };
     let choices = CastChoices::new(PlayOptionId(state.play_option))
         .with_modes(state.modes.iter().copied().map(ModeId).collect())
-        .with_costs(CostConfiguration::new(
-            state.alternative_cost.map(AlternativeCostId),
-            state
-                .additional_costs
-                .iter()
-                .copied()
-                .map(AdditionalCostId)
-                .collect(),
-        ))
+        .with_costs(
+            CostConfiguration::new(
+                state.alternative_cost.map(AlternativeCostId),
+                state
+                    .additional_costs
+                    .iter()
+                    .copied()
+                    .map(AdditionalCostId)
+                    .collect(),
+            )
+            .with_permission_source(state.permission_source.map(GameObjectId)),
+        )
         .with_x(state.x)
         .with_targets(
             state

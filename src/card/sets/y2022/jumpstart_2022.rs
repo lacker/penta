@@ -1,5 +1,12 @@
 //! Jumpstart 2022 card records.
 
+use crate::card::CardSupertype;
+use crate::card::PayOrDef;
+use crate::card::PlayActionMatcherDef;
+use crate::card::PlayRestrictionDef;
+use crate::card::TriggerEventDef;
+use crate::card::{ObjectQueryDef, PlayerSetDef, ZonePositionDef};
+
 use super::{CardRecord, PrintingRecord};
 use crate::TargetIndex;
 use crate::card::AbilityDef;
@@ -84,6 +91,66 @@ pub(in crate::card::sets) static INGENIOUS_LEONIN: CardRecord = CardRecord::new(
             ]),
         ),
     ]),
+);
+
+// J22 12 — Isu the Abominable
+pub(in crate::card::sets) static ISU_THE_ABOMINABLE: CardRecord = CardRecord::new(
+    "Isu the Abominable",
+    "1e1d50c3-3219-49cb-8f63-c1faff93215c",
+    "Victor Adame Minguez",
+    CardRules::new_creature(mana_cost!("{3}{U}{U}"), &["Yeti"], 5, 5)
+        .with_supertype(CardSupertype::Legendary)
+        .with_supertype(CardSupertype::Snow)
+        .with_abilities(&[
+            abilities::cards_known_to(
+                "You may look at the top card of your library any time.",
+                ObjectQueryDef::matching(
+                    ObjectPredicateDef::Any,
+                    &[ZoneKind::Library],
+                    PlayerRelation::You,
+                )
+                .at(ZonePositionDef::FromTop(0)),
+                PlayerSetDef::Related(PlayerRelation::You),
+            ),
+            abilities::play_from_zone(
+                ObjectQueryDef::matching(
+                    ObjectPredicateDef::Any,
+                    &[ZoneKind::Library],
+                    PlayerRelation::You,
+                )
+                .at(ZonePositionDef::FromTop(0)),
+                "You may play snow lands and cast snow spells from the top of your library.",
+                PlayRestrictionDef::new(
+                    PlayActionMatcherDef::Any,
+                    ObjectPredicateDef::Supertype(CardSupertype::Snow),
+                ),
+            ),
+            AbilityDef::triggered(
+                "Whenever another snow permanent you control enters, you may pay {G}, {W}, or \
+                 {U}. If you do, put a +1/+1 counter on Isu.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Supertype(CardSupertype::Snow),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    ]),
+                    None,
+                    Some(ZoneKind::Battlefield),
+                ),
+                EffectDef::PayOr(PayOrDef::optional(
+                    &[CostDef::Choice(&[
+                        CostDef::Mana(mana_cost!("{G}")),
+                        CostDef::Mana(mana_cost!("{W}")),
+                        CostDef::Mana(mana_cost!("{U}")),
+                    ])],
+                    &EffectDef::AddCounters {
+                        object: EffectRecipientDef::Source,
+                        kind: CounterKind::PlusOnePlusOne,
+                        amount: ValueDef::Constant(1),
+                    },
+                )),
+            ),
+        ]),
 );
 
 // J22 22 — Deadly Plot
@@ -194,6 +261,7 @@ pub(in crate::card::sets) static MILD_MANNERED_LIBRARIAN: CardRecord = CardRecor
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &INGENIOUS_LEONIN,
+    &ISU_THE_ABOMINABLE,
     &DEADLY_PLOT,
     &SUSPICIOUS_SHAMBLER,
     &MILD_MANNERED_LIBRARIAN,

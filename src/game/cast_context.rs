@@ -17,6 +17,9 @@ use crate::{AlternativeCastKindDef, CastSignature, ColorSet, PlayOptionDef};
 pub(super) struct CastContext {
     /// The player who cast this spell, retained independently of later control changes.
     pub(super) caster: Option<super::PlayerId>,
+    /// Entry counters promised by the selected casting permission, retained
+    /// even if its source leaves and cleared when the spell is copied.
+    pub(super) permission_entry_counters: Vec<(crate::card::CounterKind, u16)>,
     /// The zone the spell was actually cast from. `None` means this object is
     /// a spell copy rather than a cast spell.
     pub(super) source_zone: Option<CastSourceZone>,
@@ -89,6 +92,7 @@ impl CastContext {
             via_flashback,
             exile_if_put_into_graveyard,
             via_suspend: false,
+            permission_entry_counters: Vec::new(),
         }
     }
 
@@ -107,6 +111,7 @@ impl CastContext {
         copied.via_flashback = false;
         copied.exile_if_put_into_graveyard = false;
         copied.via_suspend = false;
+        copied.permission_entry_counters.clear();
         copied
     }
 

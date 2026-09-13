@@ -1,5 +1,7 @@
 //! Bloomburrow Commander cards cataloged for the Vintage Cube pool.
 
+use crate::card::ActivatedAbilityCardsDef;
+
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
@@ -147,9 +149,9 @@ pub(in crate::card::sets) static HAZEL_S_BREWMASTER: CardRecord = CardRecord::ne
                         until_source_leaves: false,
                         then: None,
                     },
-                    EffectDef::CreateToken(crate::card::CreateTokenDef::new(
-                        crate::card::TokenDef::Literal(crate::card::tokens::food()),
-                    )),
+                    EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                        crate::card::tokens::food(),
+                    ))),
                 ]),
             ),
             AbilityDef::static_ability(
@@ -163,9 +165,10 @@ pub(in crate::card::sets) static HAZEL_S_BREWMASTER: CardRecord = CardRecord::ne
                     ),
                     effect: AppliedEffectDef::Characteristic(
                         CharacteristicOperationDef::Abilities(
-                            AbilityOperationDef::AddActivatedAbilitiesOfLinkedExiles(
-                                ObjectPredicateDef::HasType(CardType::Creature),
-                            ),
+                            AbilityOperationDef::AddActivatedAbilitiesOf {
+                                cards: ActivatedAbilityCardsDef::LinkedExiles,
+                                object: ObjectPredicateDef::HasType(CardType::Creature),
+                            },
                         ),
                     ),
                 },

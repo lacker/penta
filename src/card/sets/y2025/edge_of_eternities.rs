@@ -48,7 +48,6 @@ use crate::card::EffectChoiceDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::EmblemCharacteristics;
-use crate::card::GraveyardPlayPermissionDef;
 use crate::card::HalvedValueDef;
 use crate::card::InstalledTriggerDef;
 use crate::card::KeywordAbility;
@@ -68,6 +67,7 @@ use crate::card::ObjectValueAggregateDef;
 use crate::card::ObjectValueDef;
 use crate::card::PayOrDef;
 use crate::card::PlayActionMatcherDef;
+use crate::card::PlayPermissionDef;
 use crate::card::PlayRestrictionDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
@@ -8934,13 +8934,20 @@ pub(in crate::card::sets) static ICETILL_EXPLORER: CardRecord = CardRecord::new(
             "You may play lands from your graveyard.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Controller,
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlayFromGraveyard(
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlay(
                     // Lands only, played the ordinary way: what the permission adds is the
                     // zone, not a way of casting anything out of it.
-                    GraveyardPlayPermissionDef::unlimited(PlayRestrictionDef::new(
-                        PlayActionMatcherDef::PlayLand,
-                        ObjectPredicateDef::HasType(CardType::Land),
-                    )),
+                    PlayPermissionDef::new(
+                        ObjectQueryDef::matching(
+                            ObjectPredicateDef::Any,
+                            &[ZoneKind::Graveyard],
+                            PlayerRelation::You,
+                        ),
+                        PlayRestrictionDef::new(
+                            PlayActionMatcherDef::PlayLand,
+                            ObjectPredicateDef::HasType(CardType::Land),
+                        ),
+                    ),
                 )),
             },
         ),

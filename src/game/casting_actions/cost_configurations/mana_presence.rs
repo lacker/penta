@@ -11,7 +11,7 @@ impl Game {
         offer: Option<CastOfferCost>,
     ) -> bool {
         let base = if self.card_mana_cost_is_replaced(card, player)
-            || self.library_top_cost_is_life(card, option)
+            || self.permission_replaces_mana_with_life(card, option, configuration)
         {
             false
         } else if let Some(selected) = configuration.alternative() {

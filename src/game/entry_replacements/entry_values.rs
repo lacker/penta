@@ -43,7 +43,7 @@ pub(super) fn entry_value(
             // its old zone for this count until the move commits (CR 614.12).
             let include_arriving = from.is_some_and(|zone| {
                 query.zones.contains(&zone)
-                    && query.relative_position.is_none()
+                    && query.position.is_none()
                     && !objects.contains(&Target::Card(permanent.card.id))
                     && permanent.card.clone().into_card().is_some_and(|card| {
                         game.query_player_constraints_match(

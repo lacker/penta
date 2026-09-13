@@ -1,5 +1,12 @@
 //! Innistrad: Midnight Hunt cards cataloged for the Vintage Cube pool.
 
+use crate::card::PlayPermissionDef;
+use crate::card::ZonePositionDef;
+
+use crate::card::AppliedRuleDef;
+use crate::card::PlayActionMatcherDef;
+use crate::card::PlayRestrictionDef;
+
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::ParentBinding;
@@ -494,6 +501,62 @@ pub(in crate::card::sets) static CATHARTIC_PYRE: CardRecord = CardRecord::new(
     )),
 );
 
+// MID 168 — Augur of Autumn
+pub(in crate::card::sets) static AUGUR_OF_AUTUMN: CardRecord = CardRecord::new(
+    "Augur of Autumn",
+    "6aa98767-ae27-4cf0-98ea-93e659f160f4",
+    "Billy Christian",
+    CardRules::new_creature(mana_cost!("{1}{G}{G}"), &["Human", "Druid"], 2, 3).with_abilities(&[
+        abilities::cards_known_to(
+            "You may look at the top card of your library any time.",
+            ObjectQueryDef::matching(
+                ObjectPredicateDef::Any,
+                &[ZoneKind::Library],
+                PlayerRelation::You,
+            )
+            .at(ZonePositionDef::FromTop(0)),
+            PlayerSetDef::Related(PlayerRelation::You),
+        ),
+        abilities::play_from_zone(
+            ObjectQueryDef::matching(
+                ObjectPredicateDef::Any,
+                &[ZoneKind::Library],
+                PlayerRelation::You,
+            )
+            .at(ZonePositionDef::FromTop(0)),
+            "You may play lands from the top of your library.",
+            PlayRestrictionDef::new(
+                PlayActionMatcherDef::PlayLand,
+                ObjectPredicateDef::HasType(CardType::Land),
+            ),
+        ),
+        AbilityDef::static_ability(
+            "Coven — As long as you control three or more creatures with different powers, \
+             you may cast creature spells from the top of your library.",
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::ControlsCreaturesWithDifferentPowers(3),
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Controller,
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlay(
+                        PlayPermissionDef::new(
+                            ObjectQueryDef::matching(
+                                ObjectPredicateDef::Any,
+                                &[ZoneKind::Library],
+                                PlayerRelation::You,
+                            )
+                            .at(ZonePositionDef::FromTop(0)),
+                            PlayRestrictionDef::new(
+                                PlayActionMatcherDef::CastSpell,
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                            ),
+                        ),
+                    )),
+                },
+            },
+        ),
+    ]),
+);
+
 // MID 245 — Teferi, Who Slows the Sunset
 // Audit: unsupported — The emblem requires additional untapping and drawing as turn-based
 // actions during opponents' untap and draw steps. Installed step triggers resolve later and
@@ -770,6 +833,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &STROMKIRK_BLOODTHIEF,
     &ARDENT_ELEMENTALIST,
     &CATHARTIC_PYRE,
+    &AUGUR_OF_AUTUMN,
     &TEFERI_WHO_SLOWS_THE_SUNSET,
     &JACK_O_LANTERN,
     &MOONSILVER_KEY,

@@ -10,7 +10,9 @@ use super::{DamageSourceGroupDef, ObjectRefDef, ObjectSetDef, PlayerSetDef};
 /// zone. Libraries and graveyards are stored bottom/oldest first, so `Above`
 /// means a larger zone index and `Below` a smaller one.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub enum ZoneRelativePositionDef {
+pub enum ZonePositionDef {
+    /// Zero is the first card, counted from the top of an ordered zone.
+    FromTop(u16),
     Above(ObjectRefDef),
     Below(ObjectRefDef),
 }
@@ -180,8 +182,8 @@ pub struct ObjectQueryDef {
     pub related_player: Option<PlayerSetDef>,
     pub controller: Option<PlayerSetDef>,
     pub owner: Option<PlayerSetDef>,
-    /// A position relative to another object in the same ordered zone.
-    pub relative_position: Option<ZoneRelativePositionDef>,
+    /// A position in an ordered zone, evaluated before filtering by characteristics.
+    pub position: Option<ZonePositionDef>,
     /// The object chosen for this target slot does not count, which is the
     /// "other than that creature" a clause adds once it has already named
     /// one. Only a resolving effect knows its targets, so a query read
@@ -214,7 +216,7 @@ impl ObjectQueryDef {
             related_player: None,
             controller: None,
             owner: None,
-            relative_position: None,
+            position: None,
             excluding_target: None,
         }
     }
@@ -231,7 +233,7 @@ impl ObjectQueryDef {
             related_player: None,
             controller: Some(controller),
             owner: None,
-            relative_position: None,
+            position: None,
             excluding_target: None,
         }
     }
@@ -248,7 +250,7 @@ impl ObjectQueryDef {
             related_player: None,
             controller: None,
             owner: Some(owner),
-            relative_position: None,
+            position: None,
             excluding_target: None,
         }
     }
@@ -268,7 +270,7 @@ impl ObjectQueryDef {
             related_player: Some(PlayerSetDef::Related(controller_or_owner)),
             controller: None,
             owner: None,
-            relative_position: None,
+            position: None,
             excluding_target: None,
         }
     }
@@ -282,14 +284,20 @@ impl ObjectQueryDef {
     }
 
     #[must_use]
+    pub const fn at(mut self, position: ZonePositionDef) -> Self {
+        self.position = Some(position);
+        self
+    }
+
+    #[must_use]
     pub const fn above(mut self, object: ObjectRefDef) -> Self {
-        self.relative_position = Some(ZoneRelativePositionDef::Above(object));
+        self.position = Some(ZonePositionDef::Above(object));
         self
     }
 
     #[must_use]
     pub const fn below(mut self, object: ObjectRefDef) -> Self {
-        self.relative_position = Some(ZoneRelativePositionDef::Below(object));
+        self.position = Some(ZonePositionDef::Below(object));
         self
     }
 

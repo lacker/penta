@@ -192,9 +192,9 @@ impl Game {
             .or_else(|| {
                 state
                     .library
-                    .last()
-                    .filter(|card| card.id == card_id)
-                    .map(|card| (card, CastSourceZone::LibraryTop))
+                    .iter()
+                    .find(|card| card.id == card_id)
+                    .map(|card| (card, CastSourceZone::Library))
             })?;
         let definition = self.catalog.get(card.definition)?;
         let offer = self.current_cast_offer(player, card_id, source_zone);
@@ -217,10 +217,10 @@ impl Game {
         {
             return None;
         }
-        if source_zone == CastSourceZone::LibraryTop {
-            self.library_top_play_cost(card, player, option)?;
+        if source_zone == CastSourceZone::Library || choices.costs().permission_source().is_some() {
+            self.selected_play_permission(card, player, option, choices.x(), choices.costs())?;
             if self
-                .library_top_life_cost(card, player, option)
+                .play_life_for_configuration(card, player, option, choices.costs())
                 .is_some_and(|life| i64::from(life) > i64::from(self.players[player.index()].life))
             {
                 return None;
@@ -342,8 +342,8 @@ impl Game {
                 offer.map(|offer| offer.cost),
             )
             .saturating_add(additional_payment.life);
-        let library_life = if source_zone == CastSourceZone::LibraryTop {
-            self.library_top_life_cost(card, player, option)
+        let permission_life = if choices.costs().permission_source().is_some() {
+            self.play_life_for_configuration(card, player, option, choices.costs())
                 .unwrap_or(0)
         } else {
             0
@@ -392,7 +392,7 @@ impl Game {
             spell,
         );
         let total_life = cast_life
-            .saturating_add(library_life)
+            .saturating_add(permission_life)
             .saturating_add(phyrexian_life);
         let life_available = self.life_available_after_payment(player, total_life)?;
         let payment_purpose = ManaPaymentPurpose::Spell {

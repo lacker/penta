@@ -42,7 +42,6 @@ use crate::card::DestroyFollowUpDef;
 use crate::card::DiscardSelectionDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
-use crate::card::GraveyardPlayPermissionDef;
 use crate::card::HalvedValueDef;
 use crate::card::IfNoObjectsDef;
 use crate::card::InstalledTriggerDef;
@@ -63,6 +62,7 @@ use crate::card::PartitionGroupDef;
 use crate::card::PayOrDef;
 use crate::card::PerPlayerSelectionDef;
 use crate::card::PlayActionMatcherDef;
+use crate::card::PlayPermissionDef;
 use crate::card::PlayRestrictionDef;
 use crate::card::PlayerAttachmentQueryDef;
 use crate::card::PlayerRefDef;
@@ -2199,11 +2199,18 @@ pub(in crate::card::sets) static SKAAB_RUINATOR: CardRecord = CardRecord::new(
                 "You may cast this card from your graveyard.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::Controller,
-                    effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlayFromGraveyard(
-                        GraveyardPlayPermissionDef::unlimited(PlayRestrictionDef::new(
-                            PlayActionMatcherDef::CastSpell,
-                            ObjectPredicateDef::Source,
-                        )),
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlay(
+                        PlayPermissionDef::new(
+                            ObjectQueryDef::matching(
+                                ObjectPredicateDef::Any,
+                                &[ZoneKind::Graveyard],
+                                PlayerRelation::You,
+                            ),
+                            PlayRestrictionDef::new(
+                                PlayActionMatcherDef::CastSpell,
+                                ObjectPredicateDef::Source,
+                            ),
+                        ),
                     )),
                 },
             )

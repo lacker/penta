@@ -5,7 +5,7 @@
 #![allow(clippy::wildcard_imports)]
 
 use super::*;
-use crate::card::ZoneRelativePositionDef;
+use crate::card::ZonePositionDef;
 
 impl Game {
     fn ordered_zone_position(&self, object: GameObjectId) -> Option<(ZoneKind, PlayerId, usize)> {
@@ -44,17 +44,28 @@ impl Game {
         }
     }
 
-    fn query_relative_position_matches(
+    fn query_position_matches(
         &self,
         candidate: GameObjectId,
-        relative: ZoneRelativePositionDef,
+        relative: ZonePositionDef,
         source: GameObjectId,
         context: TriggerContext,
         effect_context: Option<(&StackObject, &ScopedEffect, &EffectResolutionContext)>,
     ) -> bool {
+        if let ZonePositionDef::FromTop(offset) = relative {
+            let Some((zone, owner, index)) = self.ordered_zone_position(candidate) else {
+                return false;
+            };
+            let size = match zone {
+                ZoneKind::Library => self.players[owner.index()].library.len(),
+                ZoneKind::Graveyard => self.players[owner.index()].graveyard.len(),
+                _ => return false,
+            };
+            return size.checked_sub(usize::from(offset) + 1) == Some(index);
+        }
         let reference = match relative {
-            ZoneRelativePositionDef::Above(reference)
-            | ZoneRelativePositionDef::Below(reference) => reference,
+            ZonePositionDef::Above(reference) | ZonePositionDef::Below(reference) => reference,
+            ZonePositionDef::FromTop(_) => unreachable!("absolute positions handled above"),
         };
         let Some(anchor) = self.query_reference_object(reference, source, context, effect_context)
         else {
@@ -70,8 +81,9 @@ impl Game {
             return false;
         }
         match relative {
-            ZoneRelativePositionDef::Above(_) => candidate.2 > anchor.2,
-            ZoneRelativePositionDef::Below(_) => candidate.2 < anchor.2,
+            ZonePositionDef::Above(_) => candidate.2 > anchor.2,
+            ZonePositionDef::Below(_) => candidate.2 < anchor.2,
+            ZonePositionDef::FromTop(_) => unreachable!("absolute positions handled above"),
         }
     }
 
@@ -300,14 +312,8 @@ impl Game {
                 continue;
             }
             for card in self.cards_in_zone(zone) {
-                if !query.relative_position.is_none_or(|relative| {
-                    self.query_relative_position_matches(
-                        card.id,
-                        relative,
-                        source,
-                        context,
-                        effect_context,
-                    )
+                if !query.position.is_none_or(|relative| {
+                    self.query_position_matches(card.id, relative, source, context, effect_context)
                 }) {
                     continue;
                 }
@@ -351,7 +357,7 @@ impl Game {
         // distinct reference characteristic semantics.
         if prospective.is_none()
             && effect_context.is_none()
-            && query.relative_position.is_none()
+            && query.position.is_none()
             && query.zones.contains(&ZoneKind::Battlefield)
         {
             self.prepared_engine.predicate(query.object)
@@ -365,8 +371,8 @@ impl Game {
                     "prospective_context"
                 } else if effect_context.is_some() {
                     "resolving_effect_context"
-                } else if query.relative_position.is_some() {
-                    "relative_position"
+                } else if query.position.is_some() {
+                    "position"
                 } else {
                     "no_battlefield_zone"
                 },
@@ -402,7 +408,7 @@ impl Game {
             visitor(candidate)
         };
         let prepared = self.prepared_query_predicate(query, prospective, effect_context);
-        if query.relative_position.is_none() && query.zones.contains(&ZoneKind::Battlefield) {
+        if query.position.is_none() && query.zones.contains(&ZoneKind::Battlefield) {
             for permanent in &self.battlefield {
                 if !self.query_player_constraints_match(
                     Some(permanent.controller),
@@ -445,7 +451,7 @@ impl Game {
                 }
             }
         }
-        if query.relative_position.is_none() && query.zones.contains(&ZoneKind::Stack) {
+        if query.position.is_none() && query.zones.contains(&ZoneKind::Stack) {
             for candidate in self.stack.iter() {
                 if candidate.kind != StackObjectKind::Spell
                     || !self.query_player_constraints_match(

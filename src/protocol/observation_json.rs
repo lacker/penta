@@ -262,7 +262,7 @@ pub fn observation_json_for_format(
     pregame: bool,
     actions: &[Action],
 ) -> Value {
-    json!({
+    let mut value = json!({
         "protocolVersion": PROTOCOL_VERSION,
         "protocolCapabilities": PROTOCOL_CAPABILITIES,
         "engineVersion": ENGINE_VERSION,
@@ -349,7 +349,13 @@ pub fn observation_json_for_format(
             value
         }).collect::<Vec<_>>(),
         "checkpoint": observation.checkpoint,
-    })
+    });
+    value["knownCards"] = json!(observation.known_cards.iter().map(|known| json!({
+        "objectId": known.card.0, "definition": known.definition, "owner": known.owner.index(),
+        "zone": match known.zone { crate::card::ZoneKind::Library => "library", crate::card::ZoneKind::Hand => "hand", _ => unreachable!("only hidden zones need this projection") },
+        "positionFromTop": known.position_from_top,
+    })).collect::<Vec<_>>());
+    value
 }
 
 pub(super) fn stack_object_json(catalog: &CardCatalog, object: &StackObservation) -> Value {

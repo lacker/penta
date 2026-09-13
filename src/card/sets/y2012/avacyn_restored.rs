@@ -1,5 +1,9 @@
 //! Avacyn Restored card records used by the built-in ISD–M14 Standard deck tranche.
 
+use crate::card::AbilityOperationDef;
+use crate::card::ActivatedAbilityCardsDef;
+use crate::card::CharacteristicOperationDef;
+
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::ParentBinding;
@@ -2295,10 +2299,11 @@ pub(in crate::card::sets) static DARK_IMPOSTOR: CardRecord = CardRecord::new(
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::Source,
                     effect: AppliedEffectDef::Characteristic(
-                        crate::card::CharacteristicOperationDef::Abilities(
-                            crate::card::AbilityOperationDef::AddActivatedAbilitiesOfLinkedExiles(
-                                ObjectPredicateDef::HasType(CardType::Creature),
-                            ),
+                        CharacteristicOperationDef::Abilities(
+                            AbilityOperationDef::AddActivatedAbilitiesOf {
+                                cards: ActivatedAbilityCardsDef::LinkedExiles,
+                                object: ObjectPredicateDef::HasType(CardType::Creature),
+                            },
                         ),
                     ),
                 },

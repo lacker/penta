@@ -164,6 +164,9 @@ pub(super) fn permanent_snapshot(
             .as_ref()
             .is_some_and(|cast| cast.exile_if_put_into_graveyard),
         cast_via_suspend: permanent.cast.as_ref().is_some_and(|cast| cast.via_suspend),
+        permission_entry_counters: super::stack::snapshot_permission_entry_counters(
+            permanent.cast.as_ref(),
+        ),
         destroy_at_end: permanent.destroy_at_end,
         counters: permanent
             .counters

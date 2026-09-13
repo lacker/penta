@@ -42,14 +42,14 @@ fn collect_ability_grants(
             );
         }
         EffectDef::ConditionalStatic(conditional) => {
-            collect_applied_ability_grants(conditional.then.effect, grants);
+            collect_applied_ability_grants(conditional.then.effect, grants, tokens, emblems);
         }
         EffectDef::StaticApply { effect, .. } | EffectDef::Apply { effect, .. } => {
-            collect_applied_ability_grants(effect, grants);
+            collect_applied_ability_grants(effect, grants, tokens, emblems);
         }
         EffectDef::DealDamage(damage) => {
             if let Some(effect) = damage.applied_effect() {
-                collect_applied_ability_grants(effect, grants);
+                collect_applied_ability_grants(effect, grants, tokens, emblems);
             }
         }
         EffectDef::CreateToken(crate::card::CreateTokenDef { token, .. }) => match token {
@@ -142,14 +142,18 @@ fn collect_replacement_ability_grants(
     }
 }
 
-fn collect_applied_ability_grants(effect: AppliedEffectDef, grants: &mut Vec<&AbilityDef>) {
+fn collect_applied_ability_grants(effect: AppliedEffectDef, grants: &mut Vec<&AbilityDef>, tokens: &mut Vec<TokenCharacteristics>, emblems: &mut Vec<EmblemCharacteristics>) {
     match effect {
+        AppliedEffectDef::Rule(crate::card::AppliedRuleDef::MayPlay(crate::card::PlayPermissionDef { benefit: Some(benefit), .. })) => {
+            if let Some(ability) = benefit.on_play { collect_program_ability_grants(ability.effect.definition, grants, tokens, emblems); }
+        }
         AppliedEffectDef::Composite(effects) => {
             for effect in effects {
-                collect_applied_ability_grants(*effect, grants);
+                collect_applied_ability_grants(*effect, grants, tokens, emblems);
             }
         }
-        AppliedEffectDef::Characteristic(CharacteristicOperationDef::Abilities(
+        AppliedEffectDef::Rule(crate::card::AppliedRuleDef::MayPlot { ability, .. })
+        | AppliedEffectDef::Characteristic(CharacteristicOperationDef::Abilities(
             AbilityOperationDef::Add(ability),
         )) => grants.push(ability),
         AppliedEffectDef::Rule(_) | AppliedEffectDef::Characteristic(_) => {}

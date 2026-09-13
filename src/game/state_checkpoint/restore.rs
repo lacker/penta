@@ -83,6 +83,8 @@ impl Game {
             &mut exiles,
         )?;
         let mut libraries = [library_one, library_two];
+        wire_decision::rebind_known_cards(observation, &mut libraries, &mut checkpoint_hands)?;
+        wire_decision::rebind_visible_library_tops(observation, viewer, &mut libraries)?;
         // Before the decision's own rebinding: a stack source names a
         // position in the hypothesis, and the decision pass may reorder the
         // very zone it names.
@@ -284,8 +286,8 @@ impl Game {
                 .iter()
                 .map(|pair| (GameObjectId(pair[0]), GameObjectId(pair[1])))
                 .collect(),
-            graveyard_permission_uses: checkpoint
-                .graveyard_permission_uses
+            play_permission_uses: checkpoint
+                .play_permission_uses
                 .iter()
                 .map(|pair| {
                     (

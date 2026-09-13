@@ -129,6 +129,7 @@ pub const PROTOCOL_CAPABILITIES: &[&str] = &[
     "action.concede.v1",
     "actions.forced.v1",
     "match.first-to-two-wins.v1",
+    "observation.known-cards.v1",
     "observation.public-reveals.v1",
     "payments.explicit.v1",
     "reconstruction.checkpoint.v19",

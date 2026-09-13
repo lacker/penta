@@ -332,6 +332,7 @@ subtype_vocabulary! {
     Nomad => ["Nomad"], [Creature];
     Nymph => ["Nymph"], [Creature];
     Octopus => ["Octopus"], [Creature];
+    Officer => ["Officer"], [Creature];
     Ogre => ["Ogre"], [Creature];
     Ooze => ["Ooze"], [Creature];
     Orb => ["Orb"], [Creature];

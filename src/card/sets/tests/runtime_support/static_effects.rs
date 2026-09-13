@@ -693,8 +693,14 @@ pub(in super::super) fn shared_static_applied_effect(
         // land is the chosen type" carries nothing to check either: which
         // type it is comes from the choice made on the way in.
         AppliedEffectDef::Characteristic(CharacteristicOperationDef::Abilities(
-            AbilityOperationDef::AddActivatedAbilitiesOfLinkedExiles(object),
-        )) => shared_object_predicate(object),
+            AbilityOperationDef::AddActivatedAbilitiesOf { cards, object },
+        )) => {
+            shared_object_predicate(object)
+                && match cards {
+                    crate::card::ActivatedAbilityCardsDef::LinkedExiles => true,
+                    crate::card::ActivatedAbilityCardsDef::Query(query) => shared_query(query),
+                }
+        }
         AppliedEffectDef::Characteristic(
             CharacteristicOperationDef::Abilities(AbilityOperationDef::Remove(_))
             | CharacteristicOperationDef::PowerToughness(PowerToughnessOperationDef::Switch)
@@ -793,12 +799,16 @@ fn shared_static_applied_rule(recipient: EffectRecipientDef, rule: AppliedRuleDe
         }
         // The graveyard permission carries what bounds it as well as what it
         // names, and both halves are read where the play is offered.
-        AppliedRuleDef::MayPlayFromGraveyard(permission) => {
+        AppliedRuleDef::KnownCards(query) | AppliedRuleDef::MayPlot { cards: query, .. } => {
             matches!(recipient.0, EffectRecipientSetDef::Players(_))
+                && super::conditions::shared_query(query)
+        }
+        AppliedRuleDef::MayPlay(permission) => {
+            super::conditions::shared_query(permission.cards)
+                && matches!(recipient.0, EffectRecipientSetDef::Players(_))
                 && shared_object_predicate(permission.restriction.object)
         }
-        AppliedRuleDef::CannotPlay(restriction)
-        | AppliedRuleDef::MayPlayFromTopOfLibrary { restriction, .. } => {
+        AppliedRuleDef::CannotPlay(restriction) => {
             matches!(recipient.0, EffectRecipientSetDef::Players(_))
                 && shared_object_predicate(restriction.object)
         }

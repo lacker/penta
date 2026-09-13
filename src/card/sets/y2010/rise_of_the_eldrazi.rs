@@ -1,5 +1,11 @@
 //! Rise of the Eldrazi cards cataloged for the Vintage Cube pool.
 
+use crate::card::ComparisonDef;
+
+use crate::card::ZonePositionDef;
+
+use crate::card::TriggerConditionDef;
+
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::AppliedEffectDef;
@@ -604,6 +610,72 @@ pub(in crate::card::sets) static WORLD_AT_WAR: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// ROE 198 — Mul Daya Channelers
+pub(in crate::card::sets) static MUL_DAYA_CHANNELERS: CardRecord = CardRecord::new(
+    "Mul Daya Channelers",
+    "5d362c3b-f9e1-476b-b5fd-d1292bbc257c",
+    "Jason Chan",
+    CardRules::new_creature(mana_cost!("{1}{G}{G}"), &["Elf", "Druid", "Shaman"], 2, 2)
+        .with_abilities(&[
+            abilities::cards_known_to(
+                "Play with the top card of your library revealed.",
+                ObjectQueryDef::matching(
+                    ObjectPredicateDef::Any,
+                    &[ZoneKind::Library],
+                    PlayerRelation::You,
+                )
+                .at(ZonePositionDef::FromTop(0)),
+                PlayerSetDef::Related(PlayerRelation::Any),
+            ),
+            AbilityDef::static_ability(
+                "As long as the top card of your library is a creature card, this creature gets \
+                 +3/+3.",
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::ObjectCount {
+                        query: ObjectQueryDef::matching(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            &[ZoneKind::Library],
+                            PlayerRelation::You,
+                        )
+                        .at(ZonePositionDef::FromTop(0)),
+                        comparison: ComparisonDef::Greater,
+                        amount: 0,
+                    },
+                    then: &EffectDef::StaticApply {
+                        recipient: EffectRecipientDef::Source,
+                        effect: AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(3),
+                            ValueDef::Constant(3),
+                        ),
+                    },
+                },
+            ),
+            AbilityDef::static_ability(
+                "As long as the top card of your library is a land card, this creature has \
+                 \"{T}: Add two mana of any one color.\"",
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::ObjectCount {
+                        query: ObjectQueryDef::matching(
+                            ObjectPredicateDef::HasType(CardType::Land),
+                            &[ZoneKind::Library],
+                            PlayerRelation::You,
+                        )
+                        .at(ZonePositionDef::FromTop(0)),
+                        comparison: ComparisonDef::Greater,
+                        amount: 0,
+                    },
+                    then: &EffectDef::StaticApply {
+                        recipient: EffectRecipientDef::Source,
+                        effect: AppliedEffectDef::add_ability(&abilities::tap_for_mana(
+                            "{T}: Add two mana of any one color.",
+                            AddManaEffectDef::any_color().with_amount(2),
+                        )),
+                    },
+                },
+            ),
+        ]),
+);
+
 // ROE 201 — Nest Invader
 pub(in crate::card::sets) static NEST_INVADER: CardRecord = CardRecord::new(
     "Nest Invader",
@@ -764,6 +836,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &RAID_BOMBARDMENT,
     &TRAITOROUS_INSTINCT,
     &WORLD_AT_WAR,
+    &MUL_DAYA_CHANNELERS,
     &NEST_INVADER,
     &PELAKKA_WURM,
     &WILDHEART_INVOKER,

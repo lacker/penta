@@ -714,3 +714,36 @@ changed the gift effect. Other enters triggers retain normal ordering choices.
 Target counts and restrictions use the existing optional-cost selection,
 which is available before payment; the promise is the first optional cost in
 these cards. No core resolver recognizes Gift or a Bloomburrow card identity.
+
+## Continuous knowledge and zone play permissions
+
+Describe card locations with `ObjectQueryDef`. `ZonePositionDef::FromTop(0)`
+selects the first card in an ordered zone, before characteristic predicates are
+applied; larger offsets select subsequent cards. The same selector works in a
+library or graveyard. `Above` and `Below` retain their relative-object semantics.
+
+Keep knowledge separate from permission to play. `AppliedRuleDef::KnownCards(query)`
+applies to the players who can see those cards through the ordinary player
+recipient. `abilities::cards_known_to()` supplies this static clause: use `You`
+for private knowledge and `All` for public knowledge. There is no look action or
+stored top-card visibility flag. Observations derive current knowledge from the
+query and invalidate it when the source, controller, condition, or zone changes.
+
+`AppliedRuleDef::MayPlay(PlayPermissionDef)` grants play access to queried cards.
+Library and graveyard clauses use the same definition, ordinary timing and play
+prohibitions. `abilities::play_from_zone()` supplies the unrestricted-cost shape;
+conditional clauses wrap the same rule in `IfCondition`. Keep the location query
+separate from the play restriction: the latter inspects the selected spell form,
+alternative characteristics (including morph and bestow), and chosen X.
+
+A permission can specify a cost, turn limit, grants, and optional `PlayBenefitDef`
+for an on-play trigger or additional creature-entry counters. The engine preserves
+the selected source, spends a use only for that play, and freezes entry counters
+across source removal, payment continuations and checkpoints. Spell copies do not
+inherit those cast-specific counters. `MayPlot { cards, ability }` uses a zone
+query with an ordinary plot program and the shared plotted-exile designation.
+
+Use an `ObjectCount` condition over a position query to test the current card
+without revealing it. `AddActivatedAbilitiesOf` likewise accepts a queried card
+collection or linked exiles. The recipient becomes the source of those activated
+abilities; changing the queried collection does not change a pending activation.

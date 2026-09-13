@@ -416,7 +416,7 @@ impl Game {
         }
         // The bound a limited graveyard permission carries is per turn, so
         // the allowance returns as the turn does.
-        self.graveyard_permission_uses.clear();
+        self.play_permission_uses.clear();
         self.creature_died_this_turn = false;
         self.damage_cannot_be_prevented_this_turn = false;
         self.creatures_died_this_turn = 0;

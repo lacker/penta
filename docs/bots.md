@@ -522,7 +522,8 @@ world it can search.
 | `monarch` | who holds the crown (CR 720) as `"p1"` or `"p2"`, or null while nobody does. The monarch draws a card at the beginning of their end step, and a creature that deals combat damage to them hands the crown to its controller |
 | `hand` | your cards: `{objectId, instance, definition, name}`; `instance` is a compatibility alias for `objectId` |
 | `opponentHandSize` | their current hidden hand as a count; learned snapshots are reported separately in `lastSeenHand` |
-| `revealedLibraryTop` | null unless something lets you look at the top card of your own library, such as Bolas's Citadel; a one-card list in the same shape as `hand` when it does |
+| `knownCards` | Current additional knowledge of library cards and opponents’ hands. Each entry has `objectId`, `definition`, `owner` (seat index), `zone`, and `positionFromTop` (zero is first). It grants information, not permission to play. Advertised by `observation.known-cards.v1`; missing means no supplemental knowledge. |
+| `revealedLibraryTop` | null unless something lets you look at the top card of your own library, such as Bolas's Citadel; a compatibility projection of current knowledge as a one-card list in the same shape as `hand` when it does |
 | `opponentRevealedLibraryTop` | null unless your opponent is playing with the top card of their library revealed, such as under Courser of Kruphix; a one-card list in the same shape as `hand` when they are. Their own view of that card arrives in `revealedLibraryTop`, which reports whichever library belongs to the viewer |
 | `publicReveals` | ordered public reveal history as `{seat, objectId, definition}` entries; retained across later actions and checkpoint reconstruction, reset with a new game or restart. IDs describe objects at reveal time and do not track later hidden moves. An empty list means no recorded reveals, not an empty opponent hand |
 | `lastSeenHand` | null or the most recently revealed hand snapshot as `{seat, cards}`; it records known information and can outlive later hand changes |
@@ -687,7 +688,13 @@ different card, with no error to notice.
 For `CastSpell`, `card` and `sacrifices` are top-level. The canonical nested
 `choices` object contains `playOptionId`, ordered `modeIds`, nullable
 `alternativeCostId`, `additionalCostIds`, `x`, and `targetSelections`. It also
-contains `manaPayment` when a flexible symbol uses an explicitly announced
+contains optional `permissionSource` when a cast selects the permanent whose
+permission supplies its payment and riders. Preserve the value from the offered action;
+permissions on different sources can have different costs and per-turn limits. A land
+play with multiple applicable permissions uses an ordinary `ChooseDecision` before
+the land moves.
+
+It contains `manaPayment` when a flexible symbol uses an explicitly announced
 alternative. Each entry names the printed `symbol`, selected `count`, and
 `payWith` (`life` for Phyrexian mana or `generic` for two-brid). Mana-paid
 copies are omitted, and this payment choice is not copied into the spell's

@@ -544,8 +544,24 @@ impl Game {
         affected_player: PlayerId,
         mut visitor: impl FnMut(GameObjectId, AppliedRuleDef),
     ) {
+        self.visit_player_static_rules_with_origin(affected_player, |source, rule| {
+            visitor(source.object, rule);
+        });
+    }
+
+    pub(in crate::game) fn visit_player_static_rules_with_origin(
+        &self,
+        affected_player: PlayerId,
+        mut visitor: impl FnMut(crate::game::AbilitySourceRef, AppliedRuleDef),
+    ) {
         let land_type_sources = self.land_type_effect_sources(None);
-        for source in self.battlefield.iter().chain(self.emblems.iter()) {
+        let graveyard_sources = self.graveyard_static_sources();
+        for source in self
+            .battlefield
+            .iter()
+            .chain(self.emblems.iter())
+            .chain(graveyard_sources.iter())
+        {
             let Some(rules) = self.effective_rules(source) else {
                 continue;
             };
@@ -554,10 +570,24 @@ impl Game {
                 continue;
             }
             for attached in rules.indexed_abilities() {
-                if !matches!(
-                    attached.definition.definition,
-                    DeclarativeAbilityDef::Static(_)
-                ) {
+                let DeclarativeAbilityDef::Static(definition) = attached.definition.definition
+                else {
+                    continue;
+                };
+                let zone = if graveyard_sources
+                    .iter()
+                    .any(|card| card.card.id == source.card.id)
+                {
+                    crate::card::ZoneKind::Graveyard
+                } else {
+                    crate::card::ZoneKind::Battlefield
+                };
+                if !self
+                    .emblems
+                    .iter()
+                    .any(|emblem| emblem.card.id == source.card.id)
+                    && !definition.source_zones.contains(&zone)
+                {
                     continue;
                 }
                 if !self.ability_survives_resolved_operations(
@@ -566,15 +596,36 @@ impl Game {
                 ) {
                     continue;
                 }
-                let Some(EffectDef::StaticApply { recipient, effect }) =
-                    attached.definition.declarative_effect()
-                else {
+                let Some(mut program) = attached.definition.declarative_effect() else {
+                    continue;
+                };
+                while let Some(conditional) = program.conditional() {
+                    let holds = self.trigger_condition_holds(
+                        conditional.condition,
+                        source.card.id,
+                        source.controller,
+                        crate::game::TriggerContext::empty(),
+                        None,
+                        None,
+                    );
+                    program = conditional
+                        .branch(holds)
+                        .copied()
+                        .unwrap_or(EffectDef::None);
+                }
+                let EffectDef::StaticApply { recipient, effect } = program else {
                     continue;
                 };
                 if !self.static_player_recipient_matches(recipient, source, affected_player) {
                     continue;
                 }
-                Self::visit_player_rule_leaves(effect, source.card.id, &mut visitor);
+                let origin = crate::game::AbilitySourceRef {
+                    object: source.card.id,
+                    ability: Self::authored_ability_origin(source_presentation, attached.id),
+                };
+                Self::visit_player_rule_leaves(effect, source.card.id, &mut |_, rule| {
+                    visitor(origin, rule);
+                });
             }
         }
     }

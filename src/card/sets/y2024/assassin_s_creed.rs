@@ -1,5 +1,9 @@
 //! Assassin's Creed card records required by the cEDH corpus.
 
+use crate::card::ObjectQueryDef;
+use crate::card::PlayPermissionDef;
+use crate::card::ZonePositionDef;
+
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
@@ -21,9 +25,9 @@ use crate::card::ObjectPredicateDef;
 use crate::card::PlayActionMatcherDef;
 use crate::card::PlayRestrictionDef;
 use crate::card::PlayerRelation;
+use crate::card::PlayerSetDef;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::SubtypeDef;
-use crate::card::TopOfLibraryCostDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::ValueDef;
@@ -268,12 +272,15 @@ pub(in crate::card::sets) static CRYSTAL_SKULL_ISU_SPYGLASS: CardRecord = CardRe
     CardRules::new_artifact(mana_cost!("{2}{U}{U}"))
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
-            AbilityDef::static_ability(
+            abilities::cards_known_to(
                 "You may look at the top card of your library any time.",
-                EffectDef::StaticApply {
-                    recipient: EffectRecipientDef::Controller,
-                    effect: AppliedEffectDef::Rule(AppliedRuleDef::MayLookAtTopOfLibrary),
-                },
+                ObjectQueryDef::matching(
+                    ObjectPredicateDef::Any,
+                    &[ZoneKind::Library],
+                    PlayerRelation::You,
+                )
+                .at(ZonePositionDef::FromTop(0)),
+                PlayerSetDef::Related(PlayerRelation::You),
             ),
             AbilityDef::static_ability(
                 "You may play historic lands and cast historic spells from \
@@ -281,17 +288,24 @@ pub(in crate::card::sets) static CRYSTAL_SKULL_ISU_SPYGLASS: CardRecord = CardRe
                  are historic.)",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::Controller,
-                    effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlayFromTopOfLibrary {
-                        restriction: PlayRestrictionDef::new(
-                            PlayActionMatcherDef::Any,
-                            ObjectPredicateDef::AnyOf(&[
-                                ObjectPredicateDef::HasType(CardType::Artifact),
-                                ObjectPredicateDef::Supertype(CardSupertype::Legendary),
-                                ObjectPredicateDef::Subtype(SubtypeDef::from_name("Saga")),
-                            ]),
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlay(
+                        PlayPermissionDef::new(
+                            ObjectQueryDef::matching(
+                                ObjectPredicateDef::Any,
+                                &[ZoneKind::Library],
+                                PlayerRelation::You,
+                            )
+                            .at(ZonePositionDef::FromTop(0)),
+                            PlayRestrictionDef::new(
+                                PlayActionMatcherDef::Any,
+                                ObjectPredicateDef::AnyOf(&[
+                                    ObjectPredicateDef::HasType(CardType::Artifact),
+                                    ObjectPredicateDef::Supertype(CardSupertype::Legendary),
+                                    ObjectPredicateDef::Subtype(SubtypeDef::from_name("Saga")),
+                                ]),
+                            ),
                         ),
-                        cost: TopOfLibraryCostDef::Printed,
-                    }),
+                    )),
                 },
             ),
             abilities::tap_for(ManaColor::Blue),

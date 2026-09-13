@@ -426,6 +426,7 @@ fn stack_signature_json_preserves_forms_modes_costs_and_target_slots() {
             "form": { "kind": "combined", "partIds": [0, 1] },
             "modeIds": [3],
             "alternativeCostId": 4,
+            "permissionSource": null,
             "additionalCostIds": [5],
             "x": 6,
             "targetSelections": [{

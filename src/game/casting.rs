@@ -32,49 +32,18 @@ struct SpellCastProposal {
 }
 
 impl Game {
-    pub(super) fn play_land(
+    pub(in crate::game) fn play_land_using_permission(
         &mut self,
         player: PlayerId,
         card_id: GameObjectId,
         option_id: PlayOptionId,
+        selected_permission: Option<GameObjectId>,
     ) {
-        // A land is ordinarily played from hand; a permission can also offer
-        // one out of a graveyard, out of exile, or off the top of a library.
-        // The exile is looked for in both players' -- a card somebody else
-        // exiled is still played from where it lies.
-        let owner = if self.players[player.index()]
-            .exile
-            .iter()
-            .any(|card| card.id == card_id)
-        {
-            player
-        } else {
-            player.opponent()
-        };
-        let state = &self.players[player.index()];
-        let from = if state.hand.iter().any(|card| card.id == card_id) {
-            ZoneKind::Hand
-        } else if state.graveyard.iter().any(|card| card.id == card_id) {
-            ZoneKind::Graveyard
-        } else if self.players[owner.index()]
-            .exile
-            .iter()
-            .any(|card| card.id == card_id)
-        {
-            ZoneKind::Exile
-        } else {
-            ZoneKind::Library
-        };
-        let definition_id = match from {
-            ZoneKind::Graveyard => &state.graveyard,
-            ZoneKind::Library => &state.library,
-            ZoneKind::Exile => &self.players[owner.index()].exile,
-            _ => &state.hand,
-        }
-        .iter()
-        .find(|card| card.id == card_id)
-        .map(|card| card.definition)
-        .expect("legal land action references a card in a playable zone");
+        let (from, card) = self
+            .card_in_nonbattlefield_zone(card_id)
+            .expect("legal land action references a card in a playable zone");
+        let owner = card.owner;
+        let definition_id = card.definition;
         let definition = self
             .catalog
             .get(definition_id)
@@ -93,6 +62,17 @@ impl Game {
             .part(presented)
             .filter(|part| part.rules.has_type(CardType::Land))
             .expect("land play option references a land part");
+        let selected = if selected_permission.is_some() {
+            self.selected_play_permission(
+                card,
+                player,
+                option,
+                0,
+                &CostConfiguration::default().with_permission_source(selected_permission),
+            )
+        } else {
+            None
+        };
         let source_zone = match from {
             ZoneKind::Graveyard => &mut self.players[player.index()].graveyard,
             ZoneKind::Library => &mut self.players[player.index()].library,
@@ -116,7 +96,7 @@ impl Game {
         // permission, which may allow only so many and may hand the land
         // something as it arrives. A land played from hand is nobody's
         // business but the land-drop count above.
-        if from == ZoneKind::Graveyard {
+        if from == ZoneKind::Graveyard && selected.is_none() {
             let option = option.clone();
             self.spend_graveyard_land_permission(&mut permanent, player, &option);
         }
@@ -126,6 +106,12 @@ impl Game {
         if from == ZoneKind::Exile {
             self.take_answered_cast_offer(card_id);
             self.consume_exile_play_permission(card_id);
+        }
+        if let Some((source, permission)) = selected {
+            if let Some(effect) = permission.grants {
+                self.grant_resolved_ability_to_entering_permanent(&mut permanent, source, *effect);
+            }
+            self.spend_play_permission(source, permission);
         }
         self.enqueue_battlefield_entry(PendingBattlefieldEntry {
             permanent,
@@ -273,12 +259,6 @@ impl Game {
         self.complete_mana_ability(player, &activation, produced_mana);
     }
 
-    /// Which alternative cast, if any, the chosen play option and paid costs
-    /// amount to. Read while the card is still in the zone it is cast from,
-    /// which is why it takes the player rather than the stack object.
-    /// How a spell still on the stack was cast, if it was cast some
-    /// alternative way. Read off the signature rather than from a permanent,
-    /// because a spell that has not resolved has no permanent yet.
     /// Whether this player could cast a sorcery right now (CR 307.1): their
     /// own main phase, with an empty stack.
     pub(super) fn sorcery_speed_available(&self, player: PlayerId) -> bool {
@@ -421,6 +401,20 @@ impl Game {
                 sacrifices,
             );
         let alternative_kind = self.cast_alternative_kind(card_id, &signature, offer);
+        let selected = if signature.costs().permission_source().is_some() {
+            let card = self
+                .card_in_nonbattlefield_zone(card_id)
+                .expect("cast card in a zone")
+                .1;
+            let option = self
+                .catalog
+                .get(card.definition)
+                .and_then(|def| def.play_option(signature.play_option()))
+                .expect("validated play option");
+            self.selected_play_permission(card, player, option, signature.x(), signature.costs())
+        } else {
+            None
+        };
         let exile_if_put_into_graveyard =
             self.cast_exiles_if_put_into_graveyard(card_id, &signature, offer);
         let (granted_by_permission, cast_via_suspend) =
@@ -429,9 +423,9 @@ impl Game {
         let cast_via_flashback = alternative_kind == Some(AlternativeCastKindDef::Flashback);
         let face_down = alternative_kind.and_then(AlternativeCastKindDef::face_down);
         let energy = self.exile_energy_cost(card_id, player).unwrap_or(0);
-        // Read on the library, the only place its permission can be found.
-        let library_top_life = if source_zone == CastSourceZone::LibraryTop {
-            self.library_top_life_for_cast(player, card_id, choices)
+        // Read before moving the card out of the zone its permission names.
+        let permission_life = if signature.costs().permission_source().is_some() {
+            self.permission_life_for_cast(player, card_id, choices)
         } else {
             0
         };
@@ -457,6 +451,20 @@ impl Game {
             phyrexian_life_symbols,
             granted_by_permission,
         );
+        if let Some((source, benefit)) = selected {
+            if let Some(benefit) = benefit.benefit
+                && self
+                    .stack_spell_types(&stack_object)
+                    .is_some_and(|types| types.contains(CardType::Creature))
+            {
+                stack_object
+                    .cast
+                    .as_mut()
+                    .expect("cast context")
+                    .permission_entry_counters = benefit.creature_entry_counters.to_vec();
+            }
+            self.spend_play_permission(source, benefit);
+        }
         let stack_id = stack_object.id;
         let definition = stack_object
             .card
@@ -464,7 +472,7 @@ impl Game {
             .card_definition()
             .expect("a cast spell is backed by a card definition");
         let life = cast_life
-            .saturating_add(library_top_life)
+            .saturating_add(permission_life)
             .saturating_add(phyrexian_life);
         let payment_purpose = ManaPaymentPurpose::Spell {
             object: stack_id,
@@ -557,7 +565,7 @@ impl Game {
                 remove_card(&mut self.players[0].exile, card_id)
                     .or_else(|| remove_card(&mut self.players[1].exile, card_id))
             }
-            CastSourceZone::LibraryTop => {
+            CastSourceZone::Library => {
                 remove_card(&mut self.players[player.index()].library, card_id)
             }
         }
@@ -809,104 +817,6 @@ impl Game {
         self.continue_spell_cast(stack_object, targets, object_payments);
     }
 
-    /// The same bookkeeping for a land, which has no signature to resolve
-    /// and whose permanent is still in hand rather than on the battlefield.
-    fn spend_graveyard_land_permission(
-        &mut self,
-        permanent: &mut Permanent,
-        player: PlayerId,
-        option: &PlayOptionDef,
-    ) {
-        let Some(card) = permanent.card.clone().into_card() else {
-            return;
-        };
-        if let Some((source, effect)) = self.graveyard_play_grant(&card, player, option) {
-            self.grant_resolved_ability_to_entering_permanent(permanent, source, *effect);
-        }
-        self.record_graveyard_permission_use(&card, player, option);
-    }
-
-    /// The graveyard-permission bookkeeping for a cast, resolved from the
-    /// card and the play option the signature names.
-    /// Hands a spell what the permission that allowed it grants, for the
-    /// permanent it will become to carry.
-    fn attach_permission_grant(
-        stack_object: &mut StackObject,
-        granted: Option<(AbilitySourceRef, &'static AppliedEffectDef)>,
-    ) {
-        let Some((granting, effect)) = granted else {
-            return;
-        };
-        stack_object.applied_effects.push(AppliedStackEffect {
-            source: None,
-            granting: Some(granting),
-            effect: *effect,
-        });
-    }
-
-    fn record_cast_context(
-        stack_object: &mut StackObject,
-        via_suspend: bool,
-        phyrexian_life_symbols: u16,
-        granted: Option<(AbilitySourceRef, &'static AppliedEffectDef)>,
-    ) {
-        let cast = stack_object
-            .cast
-            .as_mut()
-            .expect("a proposed cast spell has cast context");
-        cast.via_suspend = via_suspend;
-        cast.phyrexian_symbols_paid_with_life = phyrexian_life_symbols;
-        // "If you do, it gains ...": carry the permission's grant through
-        // the spell into the permanent it becomes.
-        Self::attach_permission_grant(stack_object, granted);
-    }
-
-    /// A cast from a graveyard that is not one of the card's own printed ways
-    /// of being cast is happening under somebody's permission, and a
-    /// permission that allows only so many spends one here.
-    fn spend_cast_permissions(
-        &mut self,
-        player: PlayerId,
-        card_id: GameObjectId,
-        signature: &CastSignature,
-        source_zone: CastSourceZone,
-        alternative_kind: Option<AlternativeCastKindDef>,
-    ) -> (Option<(AbilitySourceRef, &'static AppliedEffectDef)>, bool) {
-        let grants_haste = self.exile_cast_grants_haste(card_id, player);
-        if source_zone != CastSourceZone::Graveyard || alternative_kind.is_some() {
-            return (None, grants_haste);
-        }
-        (
-            self.record_graveyard_permission_use_for_cast(player, card_id, signature),
-            grants_haste,
-        )
-    }
-
-    fn record_graveyard_permission_use_for_cast(
-        &mut self,
-        player: PlayerId,
-        card_id: GameObjectId,
-        signature: &CastSignature,
-    ) -> Option<(AbilitySourceRef, &'static AppliedEffectDef)> {
-        let card = self.players[player.index()]
-            .graveyard
-            .iter()
-            .find(|candidate| candidate.id == card_id)
-            .cloned()?;
-        let option = self
-            .catalog
-            .get(card.definition)
-            .and_then(|definition| definition.play_option(signature.play_option()))
-            .cloned()?;
-        // "If you do, it gains ...": read here, where the card is still in
-        // the graveyard and the permission that names it can still be found.
-        // The spell it becomes does not exist yet, so the caller carries it
-        // the few lines to the stack object.
-        let granted = self.graveyard_play_grant(&card, player, &option);
-        self.record_graveyard_permission_use(&card, player, &option);
-        granted
-    }
-
     fn complete_spell_cast(&mut self, mut stack_object: StackObject, targets: Vec<Target>) {
         self.apply_matching_cast_rules(&mut stack_object);
         let face_down = stack_object.face_down.is_some();
@@ -959,3 +869,5 @@ impl Game {
         self.capture_own_cast_triggers(stack_id);
     }
 }
+
+mod permissions;

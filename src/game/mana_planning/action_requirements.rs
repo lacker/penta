@@ -105,16 +105,12 @@ impl Game {
                     choices.costs(),
                     offer,
                 );
-                let library_life = self
-                    .players
-                    .iter()
-                    .flat_map(|state| &state.library)
-                    .find(|candidate| candidate.id == *card)
-                    .and_then(|held| self.library_top_life_cost(held, player, option))
+                let permission_life = self
+                    .play_life_for_configuration(held, player, option, choices.costs())
                     .unwrap_or(0);
                 let total_life = cast_life
                     .saturating_add(additional_life)
-                    .saturating_add(library_life)
+                    .saturating_add(permission_life)
                     .saturating_add(phyrexian_life);
                 // Emerge's reduction is settled by what the cast sacrifices,
                 // so it is read off the action rather than off the board.

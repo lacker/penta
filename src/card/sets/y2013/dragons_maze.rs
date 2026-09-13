@@ -1,5 +1,8 @@
 //! Dragon's Maze card records used by the built-in ISD–M14 Standard decks.
 
+use crate::card::PlayPermissionDef;
+use crate::card::ZonePositionDef;
+
 use super::CardRecord;
 use super::PrintingRecord;
 use super::gatecrash;
@@ -71,7 +74,6 @@ use crate::card::ScaledValueDef;
 use crate::card::SubtypeDef;
 use crate::card::TokenCharacteristics;
 use crate::card::TokenDef;
-use crate::card::TopOfLibraryCostDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::TurnStepDef;
@@ -2045,14 +2047,15 @@ pub(in crate::card::sets) static MELEK_IZZET_PARAGON: CardRecord = CardRecord::n
     CardRules::new_creature(mana_cost!("{4}{U}{R}"), &["Weird", "Wizard"], 2, 4)
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
-            AbilityDef::static_ability(
+            abilities::cards_known_to(
                 "Play with the top card of your library revealed.",
-                EffectDef::StaticApply {
-                    recipient: EffectRecipientDef::players(PlayerSetDef::Related(
-                        PlayerRelation::You,
-                    )),
-                    effect: AppliedEffectDef::Rule(AppliedRuleDef::PlaysWithTopOfLibraryRevealed),
-                },
+                ObjectQueryDef::matching(
+                    ObjectPredicateDef::Any,
+                    &[ZoneKind::Library],
+                    PlayerRelation::You,
+                )
+                .at(ZonePositionDef::FromTop(0)),
+                PlayerSetDef::Related(PlayerRelation::Any),
             ),
             AbilityDef::static_ability(
                 "You may cast instant and sorcery spells from the top of your library.",
@@ -2060,16 +2063,23 @@ pub(in crate::card::sets) static MELEK_IZZET_PARAGON: CardRecord = CardRecord::n
                     recipient: EffectRecipientDef::players(PlayerSetDef::Related(
                         PlayerRelation::You,
                     )),
-                    effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlayFromTopOfLibrary {
-                        restriction: PlayRestrictionDef::new(
-                            PlayActionMatcherDef::CastSpell,
-                            ObjectPredicateDef::AnyOf(&[
-                                ObjectPredicateDef::HasType(CardType::Instant),
-                                ObjectPredicateDef::HasType(CardType::Sorcery),
-                            ]),
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlay(
+                        PlayPermissionDef::new(
+                            ObjectQueryDef::matching(
+                                ObjectPredicateDef::Any,
+                                &[ZoneKind::Library],
+                                PlayerRelation::You,
+                            )
+                            .at(ZonePositionDef::FromTop(0)),
+                            PlayRestrictionDef::new(
+                                PlayActionMatcherDef::CastSpell,
+                                ObjectPredicateDef::AnyOf(&[
+                                    ObjectPredicateDef::HasType(CardType::Instant),
+                                    ObjectPredicateDef::HasType(CardType::Sorcery),
+                                ]),
+                            ),
                         ),
-                        cost: TopOfLibraryCostDef::Printed,
-                    }),
+                    )),
                 },
             ),
             AbilityDef::triggered(

@@ -1,5 +1,12 @@
 //! Teenage Mutant Ninja Turtles card inventory.
 
+use crate::card::PlayPermissionDef;
+use crate::card::ZonePositionDef;
+
+use crate::card::PlayActionMatcherDef;
+use crate::card::PlayBenefitDef;
+use crate::card::PlayRestrictionDef;
+
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
@@ -61,6 +68,7 @@ use crate::card::PayOrDef;
 use crate::card::PerPlayerSelectionDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
+use crate::card::PlayerSetDef;
 use crate::card::RandomizeObjectOrderDef;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::RevealObjectsDef;
@@ -4387,13 +4395,61 @@ pub(in crate::card::sets) static MECHANIZED_NINJA_CAVALRY: CardRecord = CardReco
 );
 
 // TMT 157 — Mikey & Don, Party Planners
-// Audit: unsupported — Needs the top-of-library cast permission to attach an additional counter
-// to the prospective creature entry, retaining which permission authorized the cast.
 pub(in crate::card::sets) static MIKEY_DON_PARTY_PLANNERS: CardRecord = CardRecord::new(
     "Mikey & Don, Party Planners",
     "6353df1a-9a1b-41fd-985b-8c8acba36c23",
     "Gabriel Rubio",
-    CardRules::unsupported(),
+    CardRules::new_creature(
+        mana_cost!("{2}{G/U}{G/U}"),
+        &["Mutant", "Ninja", "Turtle"],
+        3,
+        3,
+    )
+    .with_supertype(CardSupertype::Legendary)
+    .with_abilities(&[
+        abilities::ward(&[CostDef::Mana(mana_cost!("{2}"))], "Ward {2}"),
+        abilities::cards_known_to(
+            "You may look at the top card of your library any time.",
+            ObjectQueryDef::matching(
+                ObjectPredicateDef::Any,
+                &[ZoneKind::Library],
+                PlayerRelation::You,
+            )
+            .at(ZonePositionDef::FromTop(0)),
+            PlayerSetDef::Related(PlayerRelation::You),
+        ),
+        AbilityDef::static_ability(
+            "You may play lands and cast Mutant, Ninja, or Turtle spells from the top of \
+             your library. If you cast a creature spell this way, that creature enters with \
+             an additional +1/+1 counter on it.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Controller,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlay(
+                    PlayPermissionDef::new(
+                        ObjectQueryDef::matching(
+                            ObjectPredicateDef::Any,
+                            &[ZoneKind::Library],
+                            PlayerRelation::You,
+                        )
+                        .at(ZonePositionDef::FromTop(0)),
+                        PlayRestrictionDef::new(
+                            PlayActionMatcherDef::Any,
+                            ObjectPredicateDef::AnyOf(&[
+                                ObjectPredicateDef::HasType(CardType::Land),
+                                ObjectPredicateDef::Subtype(SubtypeDef::from_name("Mutant")),
+                                ObjectPredicateDef::Subtype(SubtypeDef::from_name("Ninja")),
+                                ObjectPredicateDef::Subtype(SubtypeDef::from_name("Turtle")),
+                            ]),
+                        ),
+                    )
+                    .with_benefit(Some(&PlayBenefitDef {
+                        on_play: None,
+                        creature_entry_counters: &[(CounterKind::PlusOnePlusOne, 1)],
+                    })),
+                )),
+            },
+        ),
+    ]),
 );
 
 // TMT 158 — Mikey & Leo, Chaos & Order

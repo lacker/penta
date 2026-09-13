@@ -408,6 +408,11 @@ impl Game {
                     let right = value(values.right);
                     compare(&left, values.comparison, &right)
                 }
+                TriggerConditionDef::ControlsCreaturesWithDifferentPowers(minimum) => {
+                    let powers = self.battlefield.iter().filter(|p| p.controller == controller)
+                        .filter_map(|p| self.power(p)).collect::<std::collections::HashSet<_>>();
+                    powers.len() >= usize::from(*minimum)
+                }
                 TriggerConditionDef::SourceOnBattlefield => self
                     .battlefield
                     .iter()

@@ -1,5 +1,8 @@
 //! Avatar: The Last Airbender card inventory.
 
+use crate::card::PlayPermissionDef;
+use crate::card::ZonePositionDef;
+
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
@@ -82,7 +85,6 @@ use crate::card::SumValueDef;
 use crate::card::TokenCharacteristics;
 use crate::card::TokenCopyDef;
 use crate::card::TokenDef;
-use crate::card::TopOfLibraryCostDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::TurnStepDef;
@@ -679,22 +681,37 @@ pub(in crate::card::sets) static HAKODA_SELFLESS_COMMANDER: CardRecord = CardRec
                 "You may look at the top card of your library any time.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::Controller,
-                    effect: AppliedEffectDef::Rule(AppliedRuleDef::MayLookAtTopOfLibrary),
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::KnownCards(
+                        ObjectQueryDef::matching(
+                            ObjectPredicateDef::Any,
+                            &[ZoneKind::Library],
+                            PlayerRelation::You,
+                        )
+                        .at(ZonePositionDef::FromTop(0)),
+                    )),
                 },
             ),
             AbilityDef::static_ability(
                 "You may cast Ally spells from the top of your library.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::Controller,
-                    effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlayFromTopOfLibrary {
-                        restriction: PlayRestrictionDef {
-                            action: PlayActionMatcherDef::CastSpell,
-                            object: ObjectPredicateDef::Subtype(SubtypeDef::from_name("Ally")),
-                            only_at_sorcery_speed: false,
-                            minimum_spells_cast_this_turn: 0,
-                        },
-                        cost: TopOfLibraryCostDef::Printed,
-                    }),
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlay(
+                        PlayPermissionDef::new(
+                            ObjectQueryDef::matching(
+                                ObjectPredicateDef::Any,
+                                &[ZoneKind::Library],
+                                PlayerRelation::You,
+                            )
+                            .at(ZonePositionDef::FromTop(0)),
+                            PlayRestrictionDef {
+                                source_zone: None,
+                                action: PlayActionMatcherDef::CastSpell,
+                                object: ObjectPredicateDef::Subtype(SubtypeDef::from_name("Ally")),
+                                only_at_sorcery_speed: false,
+                                minimum_spells_cast_this_turn: 0,
+                            },
+                        ),
+                    )),
                 },
             ),
             AbilityDef::activated(

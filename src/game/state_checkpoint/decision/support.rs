@@ -101,7 +101,8 @@ pub(in crate::game::state_checkpoint) fn decision_referenced_object_ids(
         | DecisionContinuation::LookAtObjectsForEffect {
             object, context, ..
         } => extend_stack_continuation_ids(&mut ids, object, context),
-        DecisionContinuation::PaySpecialAction { source: card, .. }
+        DecisionContinuation::PlayLandPermission { card, .. }
+        | DecisionContinuation::PaySpecialAction { source: card, .. }
         | DecisionContinuation::DrawActionWindow { card }
         | DecisionContinuation::CastSuspended { card, .. }
         | DecisionContinuation::MayCastAlternative { card, .. }

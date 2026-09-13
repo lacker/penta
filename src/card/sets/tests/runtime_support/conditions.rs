@@ -7,25 +7,27 @@
 //! holds.
 
 use super::*;
-use crate::card::ZoneRelativePositionDef;
+use crate::card::ZonePositionDef;
 
-fn shared_query(query: ObjectQueryDef) -> bool {
-    let relative_supported = query.relative_position.is_none_or(|relative| {
+pub(super) fn shared_query(query: ObjectQueryDef) -> bool {
+    let relative_supported = query.position.is_none_or(|relative| {
         query
             .zones
             .iter()
             .all(|zone| matches!(zone, ZoneKind::Library | ZoneKind::Graveyard))
             && matches!(
                 relative,
-                ZoneRelativePositionDef::Above(
-                    ObjectRefDef::Source
-                        | ObjectRefDef::TriggeringObject
-                        | ObjectRefDef::DamagedObject
-                ) | ZoneRelativePositionDef::Below(
-                    ObjectRefDef::Source
-                        | ObjectRefDef::TriggeringObject
-                        | ObjectRefDef::DamagedObject
-                )
+                ZonePositionDef::FromTop(_)
+                    | ZonePositionDef::Above(
+                        ObjectRefDef::Source
+                            | ObjectRefDef::TriggeringObject
+                            | ObjectRefDef::DamagedObject
+                    )
+                    | ZonePositionDef::Below(
+                        ObjectRefDef::Source
+                            | ObjectRefDef::TriggeringObject
+                            | ObjectRefDef::DamagedObject
+                    )
             )
     });
     relative_supported && shared_object_predicate(query.object)
@@ -56,7 +58,7 @@ fn shared_condition_value(value: ValueDef, static_context: bool) -> bool {
         }
         ValueDef::CountSpellsCastThisTurn(query) => shared_object_predicate(query.spell),
         ValueDef::CountMatchingObjects(query) | ValueDef::DistinctNamesAmong(query) => {
-            (!static_context || query.relative_position.is_none()) && shared_query(*query)
+            (!static_context || query.position.is_none_or(|position| matches!(position, ZonePositionDef::FromTop(_)))) && shared_query(*query)
         }
         // A per-turn tally the game keeps and clears with the turn, which a
         // trigger's intervening-if can read before anything is resolving.
@@ -99,7 +101,8 @@ pub(in super::super) fn shared_trigger_condition(condition: TriggerConditionDef)
         | TriggerConditionDef::AttachedPermanentMatches { object } => {
             shared_object_predicate(object)
         }
-        TriggerConditionDef::ControllerHadPermanentLeaveThisTurn
+        TriggerConditionDef::ControlsCreaturesWithDifferentPowers(_)
+        | TriggerConditionDef::ControllerHadPermanentLeaveThisTurn
         | TriggerConditionDef::ControllerHadCardLeaveGraveyardThisTurn
         | TriggerConditionDef::ControllerHasCitysBlessing
         | TriggerConditionDef::ControllerGainedLifeThisTurn
@@ -159,6 +162,9 @@ pub(in super::super) fn shared_static_trigger_condition(condition: TriggerCondit
         }
         _ => {}
     }
+    if let TriggerConditionDef::ControlsCreaturesWithDifferentPowers(_) = condition {
+        return true;
+    }
     // Read live off the battlefield, exactly like the attached-permanent form
     // below, so a static clause tracks the source as it changes.
     if let TriggerConditionDef::SourceMatches { object } = condition {
@@ -175,7 +181,10 @@ pub(in super::super) fn shared_static_trigger_condition(condition: TriggerCondit
     // way "as long as" asks. The predicate still has to be one that does not
     // read back into the layer being computed.
     if let TriggerConditionDef::ObjectCount { query, .. } = condition {
-        return query.relative_position.is_none() && shared_query(query);
+        return query
+            .position
+            .is_none_or(|position| matches!(position, ZonePositionDef::FromTop(_)))
+            && shared_query(query);
     }
     if let TriggerConditionDef::ValueComparison(values) = condition {
         return shared_condition_value(values.left, true)

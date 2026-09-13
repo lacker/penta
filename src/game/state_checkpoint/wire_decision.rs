@@ -327,3 +327,61 @@ fn decision_zone(value: &str) -> Result<DecisionZoneSnapshot, String> {
         other => Err(format!("unknown decision zone {other}")),
     }
 }
+
+/// A continuously visible library top retains its public object identity even
+/// though the remaining library is rebuilt from a hidden-world hypothesis.
+pub(super) fn rebind_visible_library_tops(
+    observation: &Value,
+    viewer: PlayerId,
+    libraries: &mut [Vec<CardInstance>; 2],
+) -> Result<(), String> {
+    for (member, owner) in [
+        ("revealedLibraryTop", viewer),
+        ("opponentRevealedLibraryTop", viewer.opponent()),
+    ] {
+        let Some(value) = observation.get(member).filter(|value| !value.is_null()) else {
+            continue;
+        };
+        let shown = array(value)?;
+        if shown.len() != 1 {
+            return Err("visible library top must contain exactly one card".into());
+        }
+        let top = libraries[owner.index()]
+            .last_mut()
+            .ok_or("visible library top has an empty hypothesis")?;
+        if top.definition != card_definition_id_field(&shown[0], "definition")? {
+            return Err("visible library top disagrees with the hidden library hypothesis".into());
+        }
+        top.id = GameObjectId(u32_field(&shown[0], "objectId")?);
+    }
+    Ok(())
+}
+
+/// Rebind current knowledge before restoring continuations that refer to it.
+pub(super) fn rebind_known_cards(
+    observation: &Value,
+    libraries: &mut [Vec<CardInstance>; 2],
+    hands: &mut [Vec<CardInstance>; 2],
+) -> Result<(), String> {
+    let Some(known) = observation.get("knownCards") else {
+        return Ok(());
+    };
+    for value in array(known)? {
+        let owner = player_from_index(u32_field(value, "owner")? as usize)?;
+        let cards = match str_field(value, "zone")? {
+            "library" => &mut libraries[owner.index()],
+            "hand" => &mut hands[owner.index()],
+            _ => return Err("unknown known-card zone".into()),
+        };
+        let index = cards
+            .len()
+            .checked_sub(u32_field(value, "positionFromTop")? as usize + 1)
+            .ok_or("known-card position lies outside its zone")?;
+        let card = &mut cards[index];
+        if card.definition != card_definition_id_field(value, "definition")? {
+            return Err("known card disagrees with its hidden-zone hypothesis".into());
+        }
+        card.id = GameObjectId(u32_field(value, "objectId")?);
+    }
+    Ok(())
+}

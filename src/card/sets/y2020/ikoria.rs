@@ -22,11 +22,11 @@ use crate::card::DamageSourceMatcherDef;
 use crate::card::DeckConstructionDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
-use crate::card::GraveyardPlayPermissionDef;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
 use crate::card::ObjectRefDef;
 use crate::card::PlayActionMatcherDef;
+use crate::card::PlayPermissionDef;
 use crate::card::PlayRestrictionDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
@@ -384,11 +384,16 @@ pub(in crate::card::sets) static LURRUS_OF_THE_DREAM_DEN: CardRecord = CardRecor
                  or less from your graveyard.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::Controller,
-                    effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlayFromGraveyard(
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlay(
                         // "A permanent spell with mana value 2 or less." The action is a cast, so a
                         // land card in the graveyard is not among them: lands are played rather
                         // than cast, which is what keeps this from being a Crucible.
-                        GraveyardPlayPermissionDef::once_each_of_your_turns(
+                        PlayPermissionDef::once_each_of_your_turns(
+                            ObjectQueryDef::matching(
+                                ObjectPredicateDef::Any,
+                                &[ZoneKind::Graveyard],
+                                PlayerRelation::You,
+                            ),
                             PlayRestrictionDef::new(
                                 PlayActionMatcherDef::CastSpell,
                                 ObjectPredicateDef::All(&[

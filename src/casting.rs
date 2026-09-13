@@ -21,6 +21,9 @@ use crate::ids::{AdditionalCostId, AlternativeCostId, ModeId, PlayOptionId, Targ
 /// allow an additional cost to be selected more than once.
 #[derive(Clone, Debug, Default, Eq, Hash, PartialEq)]
 pub struct CostConfiguration {
+    /// The source of an explicitly selected play permission. This selects
+    /// its alternative payment and riders; it is not a mana payment.
+    permission_source: Option<GameObjectId>,
     alternative: Option<AlternativeCostId>,
     additional: Vec<AdditionalCostId>,
 }
@@ -83,10 +86,21 @@ impl ManaPaymentChoice {
 
 impl CostConfiguration {
     #[must_use]
+    pub const fn with_permission_source(mut self, source: Option<GameObjectId>) -> Self {
+        self.permission_source = source;
+        self
+    }
+    #[must_use]
+    pub const fn permission_source(&self) -> Option<GameObjectId> {
+        self.permission_source
+    }
+
+    #[must_use]
     pub fn new(alternative: Option<AlternativeCostId>, additional: Vec<AdditionalCostId>) -> Self {
         Self {
             alternative,
             additional,
+            permission_source: None,
         }
     }
 

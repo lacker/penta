@@ -1,8 +1,10 @@
 //! Core Set 2020 cards cataloged for the Vintage Cube.
 
+use crate::card::PlayPermissionDef;
+use crate::card::ZonePositionDef;
+
 use super::CardRecord;
 use super::PrintingRecord;
-use crate::ParentBinding;
 use crate::TargetIndex;
 use crate::card::AbilityDef;
 use crate::card::AbilityTargetDef;
@@ -31,7 +33,6 @@ use crate::card::ObjectRefDef;
 use crate::card::ObjectSetDef;
 use crate::card::PlayActionMatcherDef;
 use crate::card::PlayRestrictionDef;
-use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
 use crate::card::PlayerSetDef;
 use crate::card::ReplacementEffectDef;
@@ -42,7 +43,6 @@ use crate::card::StackTargetAggregationDef;
 use crate::card::StackTargetFilterDef;
 use crate::card::TokenCharacteristics;
 use crate::card::TokenDef;
-use crate::card::TopOfLibraryCostDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::ValueComparisonDef;
@@ -765,36 +765,51 @@ pub(in crate::card::sets) static MYSTIC_FORGE: CardRecord = CardRecord::new(
             "You may look at the top card of your library any time.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Controller,
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::MayLookAtTopOfLibrary),
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::KnownCards(
+                    ObjectQueryDef::matching(
+                        ObjectPredicateDef::Any,
+                        &[ZoneKind::Library],
+                        PlayerRelation::You,
+                    )
+                    .at(ZonePositionDef::FromTop(0)),
+                )),
             },
         ),
         AbilityDef::static_ability(
             "You may cast artifact spells and colorless spells from the top of your library.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Controller,
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlayFromTopOfLibrary {
-                    restriction: PlayRestrictionDef::new(
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlay(PlayPermissionDef::new(
+                    ObjectQueryDef::matching(
+                        ObjectPredicateDef::Any,
+                        &[ZoneKind::Library],
+                        PlayerRelation::You,
+                    )
+                    .at(ZonePositionDef::FromTop(0)),
+                    PlayRestrictionDef::new(
                         PlayActionMatcherDef::CastSpell,
                         ObjectPredicateDef::AnyOf(&[
                             ObjectPredicateDef::HasType(CardType::Artifact),
                             ObjectPredicateDef::ColorCount(0),
                         ]),
                     ),
-                    cost: TopOfLibraryCostDef::Printed,
-                }),
+                ))),
             },
         ),
         AbilityDef::activated(
             "{T}, Pay 1 life: Exile the top card of your library.",
             &[CostDef::TapSource, CostDef::PayLife(1)],
-            abilities::bind_top_cards_then(
-                PlayerRefDef::EffectController,
-                ValueDef::Constant(1),
-                &EffectDef::move_to_zone(
-                    EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
-                    ZoneKind::Exile,
-                    ZonePlacement::Top,
-                ),
+            EffectDef::move_to_zone(
+                EffectRecipientDef::objects(ObjectSetDef::Query(
+                    ObjectQueryDef::matching(
+                        ObjectPredicateDef::Any,
+                        &[ZoneKind::Library],
+                        PlayerRelation::You,
+                    )
+                    .at(ZonePositionDef::FromTop(0)),
+                )),
+                ZoneKind::Exile,
+                ZonePlacement::Top,
             ),
         ),
     ]),

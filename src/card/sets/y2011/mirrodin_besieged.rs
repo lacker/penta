@@ -1,5 +1,7 @@
 //! Mirrodin Besieged cards cataloged as cross-format rules-engine test cases.
 
+use crate::card::ActivatedAbilityCardsDef;
+
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::ParentBinding;
@@ -2636,9 +2638,10 @@ pub(in crate::card::sets) static MYR_WELDER: CardRecord = CardRecord::new(
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::Characteristic(CharacteristicOperationDef::Abilities(
-                    AbilityOperationDef::AddActivatedAbilitiesOfLinkedExiles(
-                        ObjectPredicateDef::Any,
-                    ),
+                    AbilityOperationDef::AddActivatedAbilitiesOf {
+                        cards: ActivatedAbilityCardsDef::LinkedExiles,
+                        object: ObjectPredicateDef::Any,
+                    },
                 )),
             },
         ),

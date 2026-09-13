@@ -611,10 +611,7 @@ impl Game {
         self.players[owner.index()]
             .exile
             .iter()
-            .filter(|card| {
-                !self.exiled_card_is_face_down(card.id)
-                    || (viewer == owner && !self.exiled_card_is_hidden_from_owner(card.id))
-            })
+            .filter(|card| self.card_is_known_to(card, ZoneKind::Exile, viewer))
             .map(|card| (card.id, card.definition))
             .collect()
     }

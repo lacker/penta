@@ -920,3 +920,6 @@ include!("abilities/named_cards.rs");
 include!("abilities/suspend.rs");
 include!("abilities/cumulative_upkeep.rs");
 include!("abilities/tests.rs");
+
+mod zone_access;
+pub use zone_access::{cards_known_to, play_from_zone};

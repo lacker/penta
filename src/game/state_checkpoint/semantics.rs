@@ -116,7 +116,22 @@ fn locate_beneath_root(
 ) -> Option<AbilityLocator> {
     let definition = catalog_ability(catalog, &root)?;
     let mut nested = Vec::new();
-    locate_ability(&definition, matches, &mut nested).then(|| with_nested(root, nested))
+    if locate_ability(&definition, matches, &mut nested) {
+        return Some(with_nested(root, nested));
+    }
+    if applied_abilities::has_dynamic_grant(&definition) {
+        let definition = ability_locator(catalog, |candidate| {
+            matches!(
+                candidate.definition,
+                DeclarativeAbilityDef::Activated(_) | DeclarativeAbilityDef::ActivatedMana(_)
+            ) && matches(candidate)
+        })?;
+        return Some(AbilityLocator::DynamicGrant {
+            granting: Box::new(root),
+            definition: Box::new(definition),
+        });
+    }
+    None
 }
 
 pub(super) fn catalog_ability(
@@ -124,6 +139,20 @@ pub(super) fn catalog_ability(
     locator: &AbilityLocator,
 ) -> Option<AbilityDef> {
     let (mut current, nested) = match locator {
+        AbilityLocator::DynamicGrant {
+            granting: source,
+            definition,
+        } => {
+            if !applied_abilities::has_dynamic_grant(&catalog_ability(catalog, source)?) {
+                return None;
+            }
+            let ability = catalog_ability(catalog, definition)?;
+            return matches!(
+                ability.definition,
+                DeclarativeAbilityDef::Activated(_) | DeclarativeAbilityDef::ActivatedMana(_)
+            )
+            .then_some(ability);
+        }
         AbilityLocator::Card {
             definition,
             part_id,
@@ -165,106 +194,9 @@ pub(super) fn catalog_ability(
     Some(current)
 }
 
-pub(super) fn ability_locator_matches_origin(
-    locator: &AbilityLocator,
-    origin: AbilityOrigin,
-) -> bool {
-    match (locator, origin) {
-        (
-            AbilityLocator::Card {
-                definition,
-                part_id,
-                ability_id,
-                ..
-            },
-            AbilityOrigin::Printed {
-                definition: expected_definition,
-                part,
-                ability,
-            },
-        ) => *definition == expected_definition && *part_id == part.0 && *ability_id == ability.0,
-        (
-            AbilityLocator::Card {
-                definition,
-                part_id,
-                ability_id,
-                ..
-            },
-            AbilityOrigin::Granted {
-                source_definition,
-                source_part,
-                source_ability,
-                ..
-            },
-        ) => {
-            *definition == source_definition
-                && *part_id == source_part.0
-                && *ability_id == source_ability.0
-        }
-        (
-            AbilityLocator::Token {
-                part_id,
-                ability_id,
-                ..
-            },
-            AbilityOrigin::Token { part, ability },
-        ) => *part_id == part.0 && *ability_id == ability.0,
-        (
-            AbilityLocator::Token {
-                part_id,
-                ability_id,
-                ..
-            },
-            AbilityOrigin::TokenGranted {
-                source_part,
-                source_ability,
-                ..
-            },
-        ) => *part_id == source_part.0 && *ability_id == source_ability.0,
-        (AbilityLocator::Emblem { ability_id, .. }, AbilityOrigin::Emblem { ability }) => {
-            *ability_id == ability.0
-        }
-        (
-            AbilityLocator::Emblem { ability_id, .. },
-            AbilityOrigin::EmblemGranted { source_ability, .. },
-        ) => *ability_id == source_ability.0,
-        _ => false,
-    }
-}
-
-fn with_nested(locator: AbilityLocator, nested: Vec<usize>) -> AbilityLocator {
-    match locator {
-        AbilityLocator::Card {
-            definition,
-            part_id,
-            ability_id,
-            ..
-        } => AbilityLocator::Card {
-            definition,
-            part_id,
-            ability_id,
-            nested,
-        },
-        AbilityLocator::Token {
-            token,
-            part_id,
-            ability_id,
-            ..
-        } => AbilityLocator::Token {
-            token,
-            part_id,
-            ability_id,
-            nested,
-        },
-        AbilityLocator::Emblem {
-            emblem, ability_id, ..
-        } => AbilityLocator::Emblem {
-            emblem,
-            ability_id,
-            nested,
-        },
-    }
-}
+pub(super) use origin::ability_locator_matches_origin;
+use origin::with_nested;
+mod origin;
 
 pub(super) fn mana_payload_locator(
     catalog: &CardCatalog,
@@ -501,7 +433,7 @@ fn collect_applied_effect(effect: AppliedEffectDef, found: &mut Vec<AppliedEffec
         // the permanent it allowed is a rider like any other, and the
         // permanent keeps it long after the play, so it has to be findable
         // again from the clause that printed it.
-        AppliedEffectDef::Rule(AppliedRuleDef::MayPlayFromGraveyard(permission)) => {
+        AppliedEffectDef::Rule(AppliedRuleDef::MayPlay(permission)) => {
             if let Some(granted) = permission.grants {
                 collect_applied_effect(*granted, found);
             }
@@ -899,19 +831,9 @@ fn collect_replacement_copy_abilities(
         | ReplacementEffectDef::LookAtHand(_) => {}
     }
 }
-fn collect_applied_abilities(effect: AppliedEffectDef, abilities: &mut Vec<&'static AbilityDef>) {
-    match effect {
-        AppliedEffectDef::Composite(effects) => {
-            for effect in effects {
-                collect_applied_abilities(*effect, abilities);
-            }
-        }
-        AppliedEffectDef::Characteristic(CharacteristicOperationDef::Abilities(
-            AbilityOperationDef::Add(ability),
-        )) => abilities.push(ability),
-        AppliedEffectDef::Rule(_) | AppliedEffectDef::Characteristic(_) => {}
-    }
-}
 
 #[cfg(test)]
 mod tests;
+
+mod applied_abilities;
+use applied_abilities::collect_applied_abilities;

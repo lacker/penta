@@ -909,8 +909,13 @@ pub(in crate::card::sets) static ANCIENT_GREENWARDEN: CardRecord = CardRecord::n
             "You may play lands from your graveyard.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Controller,
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlayFromGraveyard(
-                    crate::card::GraveyardPlayPermissionDef::unlimited(
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlay(
+                    crate::card::PlayPermissionDef::new(
+                        ObjectQueryDef::matching(
+                            ObjectPredicateDef::Any,
+                            &[ZoneKind::Graveyard],
+                            PlayerRelation::You,
+                        ),
                         crate::card::PlayRestrictionDef::new(
                             crate::card::PlayActionMatcherDef::PlayLand,
                             ObjectPredicateDef::HasType(CardType::Land),

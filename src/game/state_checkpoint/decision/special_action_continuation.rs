@@ -42,3 +42,15 @@ fn parse_special_action_continuation(
         payment,
     })
 }
+
+fn special_action_continuation_snapshot(continuation: &DecisionContinuation) -> DecisionContinuationSnapshot {
+    match continuation {
+        DecisionContinuation::PlayLandPermission { player, card, option, sources } => DecisionContinuationSnapshot::PlayLandPermission {
+            player: player.index(), card: card.0, option: option.0, sources: sources.iter().map(|id| id.0).collect(),
+        },
+        DecisionContinuation::PaySpecialAction { player, source, action, payment } => DecisionContinuationSnapshot::PaySpecialAction {
+            player: player.index(), source: source.0, action: *action, payment: resolved_effect_payment_snapshot(payment.clone()),
+        },
+        _ => unreachable!("only land and paid special actions are dispatched here"),
+    }
+}

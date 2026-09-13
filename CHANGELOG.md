@@ -30,6 +30,23 @@ the bot-wire epoch.
   `cardsDiscardedThisTurn` and `castBy` preserve discard counts and original
   casting players; protocol and checkpoint epochs are unchanged.
 
+- Unify continuous card knowledge and play permissions through zone queries.
+  `KnownCards` names cards and their viewers; `MayPlay` uses the same position,
+  predicate, cost, quota, and benefit model for library and graveyard access.
+  Implement Fblthp, Lost on the Range, Conspicuous Snoop, Augur of Autumn,
+  Benjamin Sisko, Besieged, Experimental Frenzy, Future Sight, Isu the Abominable,
+  Magus of the Future, Mikey & Don, Party Planners, Mul Daya Channelers, Oracle
+  of Mul Daya, The Fourth Doctor and Verge Rangers alongside the existing
+  Citadel, Courser, Crystal Skull, Glarb, Reality Chip, Chocobo and Mystic Forge
+  paths. Observations add `knownCards` for current knowledge in hidden zones;
+  existing library-top fields remain compatibility projections. Cast choices
+  preserve `permissionSource`, and overlapping land permissions use ordinary
+  decisions. Checkpoints retain selected permissions, entry counters, known
+  card identities, and captured programs from changing ability collections.
+  Permissions inspect the selected spell form and X. The next library card
+  stays hidden during interrupted cast payment. Protocol and checkpoint epochs
+  are unchanged.
+
 - Implement Aven Interrupter and Doc Aurlock, Grizzled Genius. Plotted status
   belongs to the current exile object independently of its abilities and grants
   its owner a free, later-turn, main-phase-only cast. Checkpoints add optional

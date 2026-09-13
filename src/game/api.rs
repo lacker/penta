@@ -19,7 +19,7 @@ impl Game {
                 self.players
                     .iter()
                     .flat_map(|player| &player.exile)
-                    .filter(|card| card.owner == viewer || !self.exiled_card_is_face_down(card.id)),
+                    .filter(|card| self.card_is_known_to(card, ZoneKind::Exile, viewer)),
             )
             .filter(|card| !card.counters.is_empty())
             .map(|card| CardCounterObservation {
@@ -901,29 +901,15 @@ impl Game {
         .is_break()
     }
 
-    /// The top card of `owner`'s library as `viewer` is entitled to see it.
-    /// Two different permissions land here: a private look, which shows the
-    /// card to its owner alone, and a library being played with its top
-    /// revealed, which shows it to everyone.
+    /// Compatibility projection of the general card-knowledge query.
     fn observed_library_top(
         &self,
         viewer: PlayerId,
         owner: PlayerId,
     ) -> Option<(GameObjectId, crate::ids::CardDefinitionId)> {
-        let revealed = self.player_rule_applies(
-            owner,
-            crate::card::AppliedRuleDef::PlaysWithTopOfLibraryRevealed,
-        );
-        let looked_at = viewer == owner
-            && self.player_rule_applies(viewer, crate::card::AppliedRuleDef::MayLookAtTopOfLibrary);
-        (revealed || looked_at)
-            .then(|| {
-                self.players[owner.index()]
-                    .library
-                    .last()
-                    .map(|card| (card.id, card.definition))
-            })
-            .flatten()
+        let card = self.players[owner.index()].library.last()?;
+        self.card_is_known_to(card, ZoneKind::Library, viewer)
+            .then_some((card.id, card.definition))
     }
 
     /// Returns the exact ability currently represented by `origin` on
@@ -969,3 +955,5 @@ impl Game {
 }
 
 include!("api_observation.rs");
+
+mod card_knowledge;

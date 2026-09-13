@@ -81,6 +81,7 @@ pub(super) fn cast_signature_value(signature: &penta::CastSignature, human: Play
         "form": form,
         "modeIds": signature.modes().iter().map(|mode| mode.0).collect::<Vec<_>>(),
         "alternativeCostId": signature.costs().alternative().map(|cost| cost.0),
+        "permissionSource": signature.costs().permission_source().map(|source| source.0),
         "additionalCostIds": signature
             .costs()
             .additional()

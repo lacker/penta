@@ -332,8 +332,8 @@ fn component_lanes(effect: AppliedEffectDef) -> u16 {
             PreparedStaticLane::PlayRestrictions.mask()
         }
         AppliedEffectDef::Rule(
-            AppliedRuleDef::MayPlayFromGraveyard(_)
-            | AppliedRuleDef::MayPlayFromTopOfLibrary { .. }
+            AppliedRuleDef::MayPlay(_)
+            | AppliedRuleDef::MayPlot { .. }
             | AppliedRuleDef::GrantsAlternativeCastFromGraveyard { .. }
             | AppliedRuleDef::MayCastAsThoughItHadFlash(_),
         ) => PreparedStaticLane::PlayPermissions.mask(),

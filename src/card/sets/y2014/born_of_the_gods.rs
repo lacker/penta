@@ -1,5 +1,8 @@
 //! Born of the Gods card records required by supported formats.
 
+use crate::card::PlayPermissionDef;
+use crate::card::ZonePositionDef;
+
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
@@ -28,7 +31,6 @@ use crate::card::PlayerSetDef;
 use crate::card::ReplacementEffectDef;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::SumValueDef;
-use crate::card::TopOfLibraryCostDef;
 use crate::card::TriggerEventDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
@@ -134,14 +136,15 @@ pub(in crate::card::sets) static COURSER_OF_KRUPHIX: CardRecord = CardRecord::ne
             // The reveal is what makes the permission worth having: a top card you
             // cannot see is a land drop you cannot plan. It is public rather than
             // private, so the other player plans around it too.
-            AbilityDef::static_ability(
+            abilities::cards_known_to(
                 "Play with the top card of your library revealed.",
-                EffectDef::StaticApply {
-                    recipient: EffectRecipientDef::players(PlayerSetDef::Related(
-                        PlayerRelation::You,
-                    )),
-                    effect: AppliedEffectDef::Rule(AppliedRuleDef::PlaysWithTopOfLibraryRevealed),
-                },
+                ObjectQueryDef::matching(
+                    ObjectPredicateDef::Any,
+                    &[ZoneKind::Library],
+                    PlayerRelation::You,
+                )
+                .at(ZonePositionDef::FromTop(0)),
+                PlayerSetDef::Related(PlayerRelation::Any),
             ),
             AbilityDef::static_ability(
                 "You may play lands from the top of your library.",
@@ -149,15 +152,20 @@ pub(in crate::card::sets) static COURSER_OF_KRUPHIX: CardRecord = CardRecord::ne
                     recipient: EffectRecipientDef::players(PlayerSetDef::Related(
                         PlayerRelation::You,
                     )),
-                    effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlayFromTopOfLibrary {
-                        // Lands only, and at their printed cost -- which for a land is no cost at
-                        // all beyond the land drop it still has to spend.
-                        restriction: PlayRestrictionDef::new(
-                            PlayActionMatcherDef::PlayLand,
-                            ObjectPredicateDef::HasType(CardType::Land),
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlay(
+                        PlayPermissionDef::new(
+                            ObjectQueryDef::matching(
+                                ObjectPredicateDef::Any,
+                                &[ZoneKind::Library],
+                                PlayerRelation::You,
+                            )
+                            .at(ZonePositionDef::FromTop(0)),
+                            PlayRestrictionDef::new(
+                                PlayActionMatcherDef::PlayLand,
+                                ObjectPredicateDef::HasType(CardType::Land),
+                            ),
                         ),
-                        cost: TopOfLibraryCostDef::Printed,
-                    }),
+                    )),
                 },
             ),
             AbilityDef::triggered(

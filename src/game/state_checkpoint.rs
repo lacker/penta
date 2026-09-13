@@ -564,8 +564,8 @@ impl Game {
                 .iter()
                 .map(|(source, card)| [source.0, card.0])
                 .collect(),
-            graveyard_permission_uses: self
-                .graveyard_permission_uses
+            play_permission_uses: self
+                .play_permission_uses
                 .iter()
                 .map(|(source, uses)| [source.0, u32::from(*uses)])
                 .collect(),

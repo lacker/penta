@@ -1,5 +1,8 @@
 //! Onslaught cards used by the staged Premodern deck tranche.
 
+use crate::card::PlayActionMatcherDef;
+use crate::card::PlayRestrictionDef;
+
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::KeywordAbility;
@@ -48,6 +51,7 @@ use crate::card::TriggerEventDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
 use crate::card::ZonePlacement;
+use crate::card::ZonePositionDef;
 use crate::card::abilities;
 use crate::card::sets::y1993::alpha as catalog_lea;
 use crate::card::sets::y1994::legends as catalog_leg;
@@ -1522,12 +1526,32 @@ pub(in crate::card::sets) static FLEETING_AVEN: CardRecord = CardRecord::new(
 );
 
 // ONS 84 — Future Sight
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FUTURE_SIGHT: CardRecord = CardRecord::new(
     "Future Sight",
     "688bd665-4948-4961-aec5-f17782257f9b",
     "Matt Cavotta",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{2}{U}{U}{U}")).with_abilities(&[
+        abilities::cards_known_to(
+            "Play with the top card of your library revealed.",
+            ObjectQueryDef::matching(
+                ObjectPredicateDef::Any,
+                &[ZoneKind::Library],
+                PlayerRelation::You,
+            )
+            .at(ZonePositionDef::FromTop(0)),
+            PlayerSetDef::Related(PlayerRelation::Any),
+        ),
+        abilities::play_from_zone(
+            ObjectQueryDef::matching(
+                ObjectPredicateDef::Any,
+                &[ZoneKind::Library],
+                PlayerRelation::You,
+            )
+            .at(ZonePositionDef::FromTop(0)),
+            "You may play lands and cast spells from the top of your library.",
+            PlayRestrictionDef::new(PlayActionMatcherDef::Any, ObjectPredicateDef::Any),
+        ),
+    ]),
 );
 
 // ONS 85 — Ghosthelm Courier

@@ -14,7 +14,7 @@ use crate::card::{
     SpellCostModificationDef, StackObjectEventDef, StackTargetFilterDef, TriggerConditionDef,
     TriggerEventDef, ValueDef, ZoneChangeEventMatcherDef, ZoneKind,
 };
-use crate::card::{GameActionDef, ZoneRelativePositionDef};
+use crate::card::{GameActionDef, ZonePositionDef};
 use crate::{Binding, TargetIndex};
 
 include!("targeting/references.rs");

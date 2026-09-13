@@ -23,6 +23,8 @@ fn visible_decision_card_origins(
                 std::iter::once(action.source).chain(action.cost_objects.iter().copied())
             })
             .collect::<Vec<_>>(),
+        DecisionContinuation::PaySpecialAction { source, action: crate::game::special_action_payments::PaidSpecialAction::Plot, .. }
+            if game.card_in_nonbattlefield_zone(*source).is_some_and(|(zone, card)| zone == crate::card::ZoneKind::Library && card.owner == viewer) => vec![*source],
         _ => Vec::new(),
     };
     // A chained choice may currently offer only one slice of a group that an

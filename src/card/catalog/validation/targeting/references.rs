@@ -315,10 +315,11 @@ fn validate_query(
     if let Some(related_player) = query.related_player {
         validate_player_set(related_player, target_count, scope)?;
     }
-    if let Some(relative) = query.relative_position {
+    if let Some(relative @ (ZonePositionDef::Above(_) | ZonePositionDef::Below(_))) = query.position {
         let reference = match relative {
-            ZoneRelativePositionDef::Above(reference)
-            | ZoneRelativePositionDef::Below(reference) => reference,
+            ZonePositionDef::Above(reference)
+            | ZonePositionDef::Below(reference) => reference,
+            ZonePositionDef::FromTop(_) => unreachable!("relative positions only"),
         };
         validate_object_reference(reference, target_count, scope)?;
     }
@@ -386,7 +387,8 @@ fn validate_trigger_condition(
                 )
             }
         }
-        TriggerConditionDef::ControllerHadPermanentLeaveThisTurn
+        TriggerConditionDef::ControlsCreaturesWithDifferentPowers(_)
+        | TriggerConditionDef::ControllerHadPermanentLeaveThisTurn
         | TriggerConditionDef::ControllerHadCardLeaveGraveyardThisTurn
         | TriggerConditionDef::ControllerHasCitysBlessing
         | TriggerConditionDef::ControllerGainedLifeThisTurn
@@ -675,6 +677,14 @@ fn validate_applied_effect_target_references(
             }
             Ok(())
         }
+        AppliedEffectDef::Characteristic(CharacteristicOperationDef::Abilities(
+            AbilityOperationDef::AddActivatedAbilitiesOf { cards, object },
+        )) => {
+            if let crate::card::ActivatedAbilityCardsDef::Query(query) = cards {
+                validate_query(query, target_count, scope)?;
+            }
+            validate_object_predicate_references(object, target_count, scope)
+        }
         AppliedEffectDef::Characteristic(CharacteristicOperationDef::PowerToughness(
             PowerToughnessOperationDef::SetBase { power, toughness }
             | PowerToughnessOperationDef::Modify { power, toughness },
@@ -687,6 +697,13 @@ fn validate_applied_effect_target_references(
         )) => {
             validate_object_predicate_references(object, target_count, scope)?;
             validate_applied_effect_target_references(*effect, target_count, scope)
+        }
+        AppliedEffectDef::Rule(AppliedRuleDef::KnownCards(query) | AppliedRuleDef::MayPlot { cards: query, .. }) => {
+            validate_query(query, target_count, scope)
+        }
+        AppliedEffectDef::Rule(AppliedRuleDef::MayPlay(permission)) => {
+            validate_query(permission.cards, target_count, scope)?;
+            validate_object_predicate_references(permission.restriction.object, target_count, scope)
         }
         AppliedEffectDef::Rule(AppliedRuleDef::PreventDamage(matcher)) => {
             validate_damage_matcher_references(matcher, target_count, scope)

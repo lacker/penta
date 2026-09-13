@@ -22,9 +22,11 @@ fn a_spell_copy_keeps_choices_and_payment_objects_but_not_actual_payment_facts()
         via_flashback: true,
         exile_if_put_into_graveyard: true,
         via_suspend: true,
+        permission_entry_counters: vec![(CounterKind::PlusOnePlusOne, 1)],
     };
 
     let copied = original.for_spell_copy();
+    assert!(copied.permission_entry_counters.is_empty());
 
     assert_eq!(copied.source_zone, None);
     assert_eq!(copied.caster, None);

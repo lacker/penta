@@ -1,5 +1,19 @@
 //! Doctor Who cards cataloged for legend-rule coverage.
 
+use crate::card::ObjectQueryDef;
+use crate::card::PlayPermissionDef;
+use crate::card::PlayerRelation;
+use crate::card::ZonePositionDef;
+
+use crate::card::CardArt;
+use crate::card::CreateTokenDef;
+use crate::card::PlayActionMatcherDef;
+use crate::card::PlayBenefitDef;
+use crate::card::PlayRestrictionDef;
+use crate::card::SubtypeDef;
+use crate::card::TokenDef;
+use crate::card::TriggerEventDef;
+
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
@@ -21,6 +35,7 @@ use crate::card::ManaColor;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectRefDef;
 use crate::card::PlayerRefDef;
+use crate::card::PlayerSetDef;
 use crate::card::ReplacementEffectDef;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::ValueDef;
@@ -37,6 +52,66 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
+// WHO 2 — The Fourth Doctor
+pub(in crate::card::sets) static THE_FOURTH_DOCTOR: CardRecord = CardRecord::new(
+    "The Fourth Doctor",
+    "c84ea0fd-efc7-4614-9f8f-41a3c71fceaa",
+    "David Auden Nash",
+    CardRules::new_creature(mana_cost!("{2}{G}{U}"), &["Time Lord", "Doctor"], 4, 4)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::cards_known_to(
+                "You may look at the top card of your library any time.",
+                ObjectQueryDef::matching(
+                    ObjectPredicateDef::Any,
+                    &[ZoneKind::Library],
+                    PlayerRelation::You,
+                )
+                .at(ZonePositionDef::FromTop(0)),
+                PlayerSetDef::Related(PlayerRelation::You),
+            ),
+            AbilityDef::static_ability(
+                "Would You Like A...? — Once each turn, you may play a historic land or cast a \
+                 historic spell from the top of your library. When you do, create a Food token.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Controller,
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlay(
+                        PlayPermissionDef::new(
+                            ObjectQueryDef::matching(
+                                ObjectPredicateDef::Any,
+                                &[ZoneKind::Library],
+                                PlayerRelation::You,
+                            )
+                            .at(ZonePositionDef::FromTop(0)),
+                            PlayRestrictionDef::new(
+                                PlayActionMatcherDef::Any,
+                                ObjectPredicateDef::AnyOf(&[
+                                    ObjectPredicateDef::HasType(CardType::Artifact),
+                                    ObjectPredicateDef::Supertype(CardSupertype::Legendary),
+                                    ObjectPredicateDef::Subtype(SubtypeDef::from_name("Saga")),
+                                ]),
+                            ),
+                        )
+                        .with_benefit(Some(&PlayBenefitDef {
+                            on_play: Some(&AbilityDef::triggered(
+                                "When you do, create a Food token.",
+                                TriggerEventDef::Reflexive,
+                                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                                    crate::card::tokens::food().with_art(CardArt::new(
+                                        "883a8ba9-6a3c-4f3b-876e-ec47a08dbb8a",
+                                        "David Auden Nash",
+                                    )),
+                                ))),
+                            )),
+                            creature_entry_counters: &[],
+                        }))
+                        .with_limit(1, false),
+                    )),
+                },
+            ),
+        ]),
+);
 
 // WHO 146 — The Master, Multiplied
 // Audit: unsupported — Needs a player rule that prevents triggered abilities from causing
@@ -210,6 +285,7 @@ pub(in crate::card::sets) static GALLIFREY_COUNCIL_CHAMBER: CardRecord = CardRec
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &THE_FOURTH_DOCTOR,
     &THE_MASTER_MULTIPLIED,
     &SONIC_SCREWDRIVER,
     &OMINOUS_CEMETERY,

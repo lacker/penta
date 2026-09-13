@@ -671,8 +671,8 @@ pub(in crate::card::sets) static SIGN_IN_BLOOD: CardRecord = CardRecord::new(
 );
 
 // M10 118 — Vampire Nocturnus
-// Audit: unsupported — PlaysWithTopOfLibraryRevealed exists, but static conditions cannot
-// inspect the top card's color for the Vampire mass bonus and flying grant.
+// Audit: unsupported — Not yet declared and verified with queried top-card knowledge,
+// a color condition, and the conditional Vampire power/toughness and flying grants.
 pub(in crate::card::sets) static VAMPIRE_NOCTURNUS: CardRecord = CardRecord::new(
     "Vampire Nocturnus",
     "9df4f1ea-dbaa-456c-884c-97f03b64fa17",

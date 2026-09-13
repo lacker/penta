@@ -235,6 +235,13 @@ pub(in crate::game::state_checkpoint) enum DecisionContinuationSnapshot {
         #[serde(default, skip_serializing_if = "Vec::is_empty")]
         private_chosen: Vec<DiscardChoiceSnapshot>,
     },
+    #[serde(alias = "libraryLandPermission")]
+    PlayLandPermission {
+        player: usize,
+        card: u32,
+        option: u8,
+        sources: Vec<u32>,
+    },
     PaySpecialAction {
         player: usize,
         source: u32,

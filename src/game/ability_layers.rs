@@ -390,33 +390,55 @@ impl Game {
         if matches!(
             applied.effect,
             AppliedEffectDef::Characteristic(CharacteristicOperationDef::Abilities(
-                AbilityOperationDef::AddActivatedAbilitiesOfLinkedExiles(_),
+                AbilityOperationDef::AddActivatedAbilitiesOf { .. },
             ))
         ) {
-            self.push_linked_exile_ability_grants(applied, operations);
+            self.push_card_ability_grants(applied, operations);
             return;
         }
         operations.extend(Self::static_ability_layer_operation(applied));
     }
 
-    /// One Add operation for each activated ability of each matching card
-    /// exiled with the granting object, in exile order. The grant identity is
-    /// that position, which is stable because the pile only ever grows while
-    /// the granting object is on the battlefield: an ability keeps the same
-    /// identity from the moment it appears until the whole pile goes home.
-    fn push_linked_exile_ability_grants(
+    /// Enumerate matching cards and their activated clauses in source order.
+    /// The live grant identity identifies a slot; an activation freezes the
+    /// selected definition so changing the top card cannot change its program.
+    fn push_card_ability_grants(
         &self,
         applied: &StaticAppliedEffect,
         operations: &mut Vec<AbilityLayerOperation>,
     ) {
         let AppliedEffectDef::Characteristic(CharacteristicOperationDef::Abilities(
-            AbilityOperationDef::AddActivatedAbilitiesOfLinkedExiles(predicate),
+            AbilityOperationDef::AddActivatedAbilitiesOf {
+                cards,
+                object: predicate,
+            },
         )) = applied.effect
         else {
             return;
         };
         let mut position = 0_usize;
-        for exiled in self.linked_exile_ids(applied.source) {
+        let objects = match cards {
+            crate::card::ActivatedAbilityCardsDef::LinkedExiles => {
+                self.linked_exile_ids(applied.source)
+            }
+            crate::card::ActivatedAbilityCardsDef::Query(query) => self
+                .objects_matching_query(
+                    query,
+                    self.battlefield
+                        .iter()
+                        .find(|p| p.card.id == applied.source)
+                        .map_or(crate::PlayerId::One, |p| p.controller),
+                    applied.source,
+                    super::TriggerContext::empty(),
+                )
+                .into_iter()
+                .filter_map(|target| match target {
+                    crate::Target::Card(id) => Some(id),
+                    _ => None,
+                })
+                .collect(),
+        };
+        for exiled in objects {
             let Some((zone, card)) = self.card_in_nonbattlefield_zone(exiled) else {
                 continue;
             };

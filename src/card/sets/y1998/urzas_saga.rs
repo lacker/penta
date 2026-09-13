@@ -33,7 +33,6 @@ use crate::card::DiscardFollowUpDef;
 use crate::card::DiscardSelectionDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
-use crate::card::GraveyardPlayPermissionDef;
 use crate::card::InstalledTriggerDef;
 use crate::card::KeywordAbility;
 use crate::card::ManaColor;
@@ -44,6 +43,7 @@ use crate::card::ObjectRefDef;
 use crate::card::ObjectSetDef;
 use crate::card::OngoingEffectDef;
 use crate::card::PlayActionMatcherDef;
+use crate::card::PlayPermissionDef;
 use crate::card::PlayRestrictionDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
@@ -2563,13 +2563,17 @@ pub(in crate::card::sets) static YAWGMOTH_S_WILL: CardRecord = CardRecord::new(
         EffectDef::Sequence(&[
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Controller,
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlayFromGraveyard(
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlay(
                     // Everything, played every way: the permission names no card type and no
                     // one play action, which is the whole of "play lands and cast spells".
-                    GraveyardPlayPermissionDef::unlimited(PlayRestrictionDef::new(
-                        PlayActionMatcherDef::Any,
-                        ObjectPredicateDef::Any,
-                    )),
+                    PlayPermissionDef::new(
+                        ObjectQueryDef::matching(
+                            ObjectPredicateDef::Any,
+                            &[ZoneKind::Graveyard],
+                            PlayerRelation::You,
+                        ),
+                        PlayRestrictionDef::new(PlayActionMatcherDef::Any, ObjectPredicateDef::Any),
+                    ),
                 )),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },

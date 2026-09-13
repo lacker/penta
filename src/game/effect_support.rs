@@ -454,8 +454,7 @@ impl Game {
         expiration: ContinuousEffectExpiration,
     ) -> bool {
         match rule {
-            AppliedRuleDef::MayPlayFromGraveyard(_)
-            | AppliedRuleDef::MayPlayFromTopOfLibrary { .. }
+            AppliedRuleDef::MayPlay(_)
             | AppliedRuleDef::MayCastAsThoughItHadFlash(_)
             | AppliedRuleDef::GrantsAlternativeCastFromGraveyard { .. } => {
                 if let Target::Player(affected_player) = target {
@@ -682,7 +681,7 @@ impl Game {
             // chosen land type is read live off the permanent that made the
             // choice.
             CharacteristicOperationDef::Abilities(
-                AbilityOperationDef::AddActivatedAbilitiesOfLinkedExiles(_),
+                AbilityOperationDef::AddActivatedAbilitiesOf { .. },
             )
             | CharacteristicOperationDef::SetChosenBasicLandType
             | CharacteristicOperationDef::AddChosenBasicLandType

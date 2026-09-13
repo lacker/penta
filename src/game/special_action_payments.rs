@@ -20,6 +20,37 @@ impl Game {
         source: GameObjectId,
         action: PaidSpecialAction,
     ) -> Option<ResolvedEffectPayment> {
+        if action == PaidSpecialAction::Plot
+            && let Some((zone, top)) = self.card_in_nonbattlefield_zone(source)
+            && zone != crate::card::ZoneKind::Hand
+        {
+            let granted = self.zone_plot_ability(top, player)?;
+            let rules = &self.catalog.get(top.definition)?.rules;
+            if rules.has_type(crate::card::CardType::Land) {
+                return None;
+            }
+            let printed = rules.mana_cost();
+            let mut choices = Vec::new();
+            if let Some(effective) = self.card_plot_ability(top)
+                && let super::DeclarativeAbilityDef::AlternativeCast(alternative) =
+                    effective.ability.definition
+                && let Some(cost) = resolve_list(alternative.costs, 0, printed)
+            {
+                choices.push(cost);
+            }
+            if let super::DeclarativeAbilityDef::AlternativeCast(alternative) =
+                granted.ability.definition
+                && let Some(cost) = resolve_list(alternative.costs, 0, printed)
+                && !choices.contains(&cost)
+            {
+                choices.push(cost);
+            }
+            return match choices.len() {
+                0 => None,
+                1 => choices.pop(),
+                _ => Some(ResolvedEffectPayment::Choice(choices)),
+            };
+        }
         let (costs, x, printed_mana) = match action {
             PaidSpecialAction::TurnFaceUp => {
                 let permanent = self.battlefield.iter().find(|p| {
@@ -122,11 +153,14 @@ impl Game {
         };
         let options = self.special_action_payment_options(player, source, payment.clone());
         if options.len() == 1 {
+            let plot = (action == PaidSpecialAction::Plot)
+                .then(|| self.prepare_plot(player, source))
+                .flatten();
             if self
                 .settle_payment_decision(player, payment, &[options[0].id], &options)
                 .is_some()
             {
-                self.finish_paid_special_action(player, source, action);
+                self.finish_paid_special_action(player, source, action, plot);
             }
         } else if !options.is_empty() {
             self.queue_decision(
@@ -152,9 +186,17 @@ impl Game {
         player: PlayerId,
         source: GameObjectId,
         action: PaidSpecialAction,
+        plot: Option<super::StackObject>,
     ) {
         match action {
-            PaidSpecialAction::Plot => self.finish_plot(player, source),
+            PaidSpecialAction::Plot => {
+                if let Some(object) = plot
+                    && let Some(payload) = &object.ability
+                    && let super::StackAbilityResolver::Declarative(effect) = payload.resolver
+                {
+                    self.resolve_effect_def(effect, &object, payload.context.clone());
+                }
+            }
             PaidSpecialAction::TurnFaceUp => self.finish_turn_face_up(source),
             PaidSpecialAction::Suspend { ability, x } => {
                 self.finish_suspend(player, source, ability, x);

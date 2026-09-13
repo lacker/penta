@@ -1,5 +1,9 @@
 //! Guilds of Ravnica cards used as cross-format rules-engine test cases.
 
+use crate::card::AppliedRuleDef;
+use crate::card::PlayActionMatcherDef;
+use crate::card::PlayRestrictionDef;
+
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
@@ -29,6 +33,7 @@ use crate::card::ObjectRefDef;
 use crate::card::ObjectSetDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
+use crate::card::PlayerSetDef;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::RevealObjectsDef;
 use crate::card::SpellCastQueryDef;
@@ -42,6 +47,7 @@ use crate::card::ValueComparisonDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
 use crate::card::ZonePlacement;
+use crate::card::ZonePositionDef;
 use crate::card::abilities;
 use crate::mana_cost;
 
@@ -283,13 +289,50 @@ pub(in crate::card::sets) static ARCLIGHT_PHOENIX: CardRecord = CardRecord::new(
 );
 
 // GRN 99 — Experimental Frenzy
-// Audit: unsupported — PlayRestrictionDef has no source-zone selector, so it cannot prohibit
-// plays from hand while preserving the separate permission to play the top card.
 pub(in crate::card::sets) static EXPERIMENTAL_FRENZY: CardRecord = CardRecord::new(
     "Experimental Frenzy",
     "4b8f32e2-5dc8-4f1b-8a69-d3ae06378ed8",
     "Simon Dominic",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{3}{R}")).with_abilities(&[
+        abilities::cards_known_to(
+            "You may look at the top card of your library any time.",
+            ObjectQueryDef::matching(
+                ObjectPredicateDef::Any,
+                &[ZoneKind::Library],
+                PlayerRelation::You,
+            )
+            .at(ZonePositionDef::FromTop(0)),
+            PlayerSetDef::Related(PlayerRelation::You),
+        ),
+        abilities::play_from_zone(
+            ObjectQueryDef::matching(
+                ObjectPredicateDef::Any,
+                &[ZoneKind::Library],
+                PlayerRelation::You,
+            )
+            .at(ZonePositionDef::FromTop(0)),
+            "You may play lands and cast spells from the top of your library.",
+            PlayRestrictionDef::new(PlayActionMatcherDef::Any, ObjectPredicateDef::Any),
+        ),
+        AbilityDef::static_ability(
+            "You can't play lands or cast spells from your hand.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Controller,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotPlay(
+                    PlayRestrictionDef::new(PlayActionMatcherDef::Any, ObjectPredicateDef::Any)
+                        .from_zone(ZoneKind::Hand),
+                )),
+            },
+        ),
+        AbilityDef::activated(
+            "{3}{R}: Destroy this enchantment.",
+            &[CostDef::Mana(mana_cost!("{3}{R}"))],
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Source,
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // GRN 103 — Goblin Cratermaker

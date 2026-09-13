@@ -747,6 +747,18 @@ fn parse_continuation(
                 candidates: state.candidates,
             }
         }
+        DecisionContinuationSnapshot::PlayLandPermission { player: payer, card, option, sources } => {
+            let payer = player(*payer)?;
+            let card = GameObjectId(*card);
+            let option = crate::PlayOptionId(*option);
+            let (expected, options) = game.land_permission_options(payer, card, option);
+            if expected.len() < 2 || expected.iter().map(|id| id.0).collect::<Vec<_>>() != *sources {
+                return Err("land permissions disagree with their sources".into());
+            }
+            validate_authored_decision(observation, payer, "Choose a permission to play this land",
+                crate::DecisionVisibility::Private, DecisionPreference::Neutral, 1, 1, &options, "land permission")?;
+            DecisionContinuation::PlayLandPermission { player: payer, card, option, sources: expected }
+        },
         special @ DecisionContinuationSnapshot::PaySpecialAction { .. } => {
             parse_special_action_continuation(game, observation, special)?
         }

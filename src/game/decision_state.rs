@@ -628,6 +628,12 @@ pub(super) enum DecisionContinuation {
     },
     /// A mana payment offered during effect resolution, with either branch
     /// able to continue the same effect program.
+    PlayLandPermission {
+        player: PlayerId,
+        card: GameObjectId,
+        option: crate::PlayOptionId,
+        sources: Vec<GameObjectId>,
+    },
     PaySpecialAction {
         player: PlayerId,
         source: GameObjectId,

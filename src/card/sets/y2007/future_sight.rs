@@ -1,5 +1,8 @@
 //! Future Sight cards cataloged as cross-format rules-engine test cases.
 
+use crate::card::PlayActionMatcherDef;
+use crate::card::PlayRestrictionDef;
+
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
@@ -25,9 +28,11 @@ use crate::card::EffectRecipientDef;
 use crate::card::InstalledTriggerDef;
 use crate::card::ManaColor;
 use crate::card::ObjectPredicateDef;
+use crate::card::ObjectQueryDef;
 use crate::card::ObjectRefDef;
 use crate::card::PayOrDef;
 use crate::card::PlayerRelation;
+use crate::card::PlayerSetDef;
 use crate::card::ReplacementConditionDef;
 use crate::card::ReplacementEffectDef;
 use crate::card::ResolvedEffectDurationDef;
@@ -41,6 +46,7 @@ use crate::card::TurnStepDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
 use crate::card::ZonePlacement;
+use crate::card::ZonePositionDef;
 use crate::card::abilities;
 use crate::mana_cost;
 
@@ -72,6 +78,37 @@ pub(in crate::card::sets) static DELAY: CardRecord = CardRecord::new(
     "e821d337-4bc5-4401-ac9b-34adf4012b73",
     "Ron Spears",
     crate::card::CardRules::unsupported(),
+);
+
+// FUT 40 — Magus of the Future
+pub(in crate::card::sets) static MAGUS_OF_THE_FUTURE: CardRecord = CardRecord::new(
+    "Magus of the Future",
+    "7025e614-7d08-4915-a985-3b876f1bdd1c",
+    "Anthony Francisco",
+    CardRules::new_creature(mana_cost!("{2}{U}{U}{U}"), &["Human", "Wizard"], 2, 3).with_abilities(
+        &[
+            abilities::cards_known_to(
+                "Play with the top card of your library revealed.",
+                ObjectQueryDef::matching(
+                    ObjectPredicateDef::Any,
+                    &[ZoneKind::Library],
+                    PlayerRelation::You,
+                )
+                .at(ZonePositionDef::FromTop(0)),
+                PlayerSetDef::Related(PlayerRelation::Any),
+            ),
+            abilities::play_from_zone(
+                ObjectQueryDef::matching(
+                    ObjectPredicateDef::Any,
+                    &[ZoneKind::Library],
+                    PlayerRelation::You,
+                )
+                .at(ZonePositionDef::FromTop(0)),
+                "You may play lands and cast spells from the top of your library.",
+                PlayRestrictionDef::new(PlayActionMatcherDef::Any, ObjectPredicateDef::Any),
+            ),
+        ],
+    ),
 );
 
 // FUT 42 — Pact of Negation
@@ -1049,6 +1086,7 @@ pub(in crate::card::sets) static RIVER_OF_TEARS: CardRecord = CardRecord::new(
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &AVEN_MINDCENSOR,
     &DELAY,
+    &MAGUS_OF_THE_FUTURE,
     &PACT_OF_NEGATION,
     &REALITY_STROBE,
     &VENSER_SHAPER_SAVANT,

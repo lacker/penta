@@ -339,7 +339,7 @@ const LANDS_YOU_CONTROL_BUT_DONT_OWN: ValueDef = ValueDef::CountMatchingObjects(
     related_player: None,
     controller: Some(PlayerSetDef::Related(PlayerRelation::You)),
     owner: Some(PlayerSetDef::Related(PlayerRelation::NotYou)),
-    relative_position: None,
+    position: None,
     excluding_target: None,
 });
 
@@ -379,7 +379,7 @@ pub(in crate::card::sets) static HERALD_OF_LESHRAC: CardRecord = CardRecord::new
                         related_player: None,
                         controller: Some(PlayerSetDef::Related(PlayerRelation::You)),
                         owner: None,
-                        relative_position: None,
+                        position: None,
                         excluding_target: None,
                     },
                 )),

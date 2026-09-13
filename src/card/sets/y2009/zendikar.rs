@@ -1,5 +1,8 @@
 //! Zendikar cards cataloged for the Vintage Cube pool.
 
+use crate::card::PlayActionMatcherDef;
+use crate::card::PlayRestrictionDef;
+
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::ControlDurationDef;
@@ -37,6 +40,7 @@ use crate::card::ObjectSetDef;
 use crate::card::PerPlayerSelectionDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
+use crate::card::PlayerSetDef;
 use crate::card::QuantifierDef;
 use crate::card::ReplacementEffectDef;
 use crate::card::ResolvedEffectDurationDef;
@@ -51,6 +55,7 @@ use crate::card::ValueComparisonDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
 use crate::card::ZonePlacement;
+use crate::card::ZonePositionDef;
 use crate::card::abilities;
 use crate::ids::ParentBinding;
 use crate::ids::TargetIndex;
@@ -946,6 +951,45 @@ pub(in crate::card::sets) static LOTUS_COBRA: CardRecord = CardRecord::new(
     ),
 );
 
+// ZEN 172 — Oracle of Mul Daya
+pub(in crate::card::sets) static ORACLE_OF_MUL_DAYA: CardRecord = CardRecord::new(
+    "Oracle of Mul Daya",
+    "7f89a173-0b2f-4a6a-b706-9aed8dbcabec",
+    "Vance Kovacs",
+    CardRules::new_creature(mana_cost!("{3}{G}"), &["Elf", "Shaman"], 2, 2).with_abilities(&[
+        AbilityDef::static_ability(
+            "You may play an additional land on each of your turns.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Controller,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlayAdditionalLands(1)),
+            },
+        ),
+        abilities::cards_known_to(
+            "Play with the top card of your library revealed.",
+            ObjectQueryDef::matching(
+                ObjectPredicateDef::Any,
+                &[ZoneKind::Library],
+                PlayerRelation::You,
+            )
+            .at(ZonePositionDef::FromTop(0)),
+            PlayerSetDef::Related(PlayerRelation::Any),
+        ),
+        abilities::play_from_zone(
+            ObjectQueryDef::matching(
+                ObjectPredicateDef::Any,
+                &[ZoneKind::Library],
+                PlayerRelation::You,
+            )
+            .at(ZonePositionDef::FromTop(0)),
+            "You may play lands from the top of your library.",
+            PlayRestrictionDef::new(
+                PlayActionMatcherDef::PlayLand,
+                ObjectPredicateDef::HasType(CardType::Land),
+            ),
+        ),
+    ]),
+);
+
 // ZEN 178 — Rampaging Baloths
 pub(in crate::card::sets) static RAMPAGING_BALOTHS: CardRecord = CardRecord::new(
     "Rampaging Baloths",
@@ -1271,6 +1315,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &SLAUGHTER_CRY,
     &WARREN_INSTIGATOR,
     &LOTUS_COBRA,
+    &ORACLE_OF_MUL_DAYA,
     &RAMPAGING_BALOTHS,
     &VASTWOOD_GORGER,
     &VINES_OF_VASTWOOD,

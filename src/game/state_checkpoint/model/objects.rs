@@ -14,6 +14,11 @@ use super::{BasicLandTypeSnapshot, ManaColorSnapshot};
     rename_all_fields = "camelCase"
 )]
 pub(in crate::game::state_checkpoint) enum AbilityLocator {
+    /// A live grant and the printed program captured when it was activated.
+    DynamicGrant {
+        granting: Box<AbilityLocator>,
+        definition: Box<AbilityLocator>,
+    },
     Card {
         definition: CardDefinitionId,
         part_id: u8,

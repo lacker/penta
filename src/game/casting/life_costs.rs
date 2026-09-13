@@ -189,9 +189,9 @@ impl Game {
             .or_else(|| {
                 state
                     .library
-                    .last()
-                    .filter(|card| card.id == card_id)
-                    .map(|card| (card, CastSourceZone::LibraryTop))
+                    .iter()
+                    .find(|card| card.id == card_id)
+                    .map(|card| (card, CastSourceZone::Library))
             })?;
         let definition = self.catalog.get(card.definition)?;
         let option = definition.play_option(choices.play_option())?;
@@ -204,31 +204,24 @@ impl Game {
             self.current_cast_offer(player, card_id, source_zone)
                 .map(|offer| offer.cost),
         );
-        let library_life = (source_zone == CastSourceZone::LibraryTop)
-            .then(|| self.library_top_life_cost(card, player, option))
+        let permission_life = (choices.costs().permission_source().is_some())
+            .then(|| self.play_life_for_configuration(card, player, option, choices.costs()))
             .flatten()
             .unwrap_or(0);
-        self.life_available_after_payment(player, cast_life.saturating_add(library_life))
+        self.life_available_after_payment(player, cast_life.saturating_add(permission_life))
     }
 
-    /// The life a spell cast off the top of a library owes, read while it
-    /// is still up there.
-    pub(super) fn library_top_life_for_cast(
+    /// The selected permission's life payment, read before the card moves.
+    pub(super) fn permission_life_for_cast(
         &self,
         player: PlayerId,
         card_id: GameObjectId,
         choices: &CastChoices,
     ) -> u16 {
-        self.players[player.index()]
-            .library
-            .last()
-            .filter(|top| top.id == card_id)
-            .and_then(|top| {
-                let definition = self.catalog.get(top.definition)?;
-                let option = definition.play_option(choices.play_option())?;
-                self.library_top_life_cost(top, player, option)
-            })
-            .unwrap_or(0)
+        self.card_in_nonbattlefield_zone(card_id).and_then(|(_, card)| {
+            let option = self.catalog.get(card.definition)?.play_option(choices.play_option())?;
+            self.play_life_for_configuration(card, player, option, choices.costs())
+        }).unwrap_or(0)
     }
 
     pub(in crate::game) fn cast_object_payments_and_life(
@@ -254,10 +247,10 @@ impl Game {
                 .iter()
                 .flat_map(|state| &state.exile)
                 .find(|card| card.id == card_id),
-            CastSourceZone::LibraryTop => self.players[player.index()]
+            CastSourceZone::Library => self.players[player.index()]
                 .library
-                .last()
-                .filter(|card| card.id == card_id),
+                .iter()
+                .find(|card| card.id == card_id),
         }
         .expect("the validated cast card remains in its source zone");
         let definition = self

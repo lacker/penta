@@ -10,6 +10,9 @@
 /// ability would go on the stack, and again as it resolves.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum TriggerConditionDef {
+    /// Read the current top card without revealing it. An empty library never matches.
+    /// At least this many different powers among creatures you control (coven).
+    ControlsCreaturesWithDifferentPowers(u8),
     /// Every listed condition holds. A card whose clause names two facts at
     /// once -- "if an opponent controls an Island and you control a Mountain"
     /// -- is one condition made of two rather than two clauses.

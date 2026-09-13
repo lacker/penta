@@ -169,6 +169,7 @@ fn source_for_locator(object: GameObjectId, locator: &model::AbilityLocator) -> 
 
 fn locator_nested(locator: &model::AbilityLocator) -> &[usize] {
     match locator {
+        model::AbilityLocator::DynamicGrant { definition, .. } => locator_nested(definition),
         model::AbilityLocator::Card { nested, .. }
         | model::AbilityLocator::Token { nested, .. }
         | model::AbilityLocator::Emblem { nested, .. } => nested,

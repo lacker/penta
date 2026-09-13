@@ -1,4 +1,5 @@
 mod conditions;
+
 mod costs;
 mod mana_effects;
 mod names;
@@ -89,7 +90,7 @@ fn shared_static_player_set(players: PlayerSetDef) -> bool {
 }
 
 fn shared_static_query(query: ObjectQueryDef) -> bool {
-    query.relative_position.is_none()
+    query.position.is_none()
         && [query.related_player, query.controller, query.owner]
             .into_iter()
             .flatten()

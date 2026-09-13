@@ -198,10 +198,11 @@ fn validate_query_shape(
     {
         validate_player_set_shape(players, targets)?;
     }
-    if let Some(relative) = query.relative_position {
+    if let Some(relative @ (ZonePositionDef::Above(_) | ZonePositionDef::Below(_))) = query.position {
         let reference = match relative {
-            ZoneRelativePositionDef::Above(reference)
-            | ZoneRelativePositionDef::Below(reference) => reference,
+            ZonePositionDef::Above(reference)
+            | ZonePositionDef::Below(reference) => reference,
+            ZonePositionDef::FromTop(_) => unreachable!("relative positions only"),
         };
         validate_object_reference_shape(reference, targets)?;
     }
@@ -534,7 +535,8 @@ fn validate_trigger_condition_shape(
             validate_target_shape(slot, targets, RecipientExpectation::Object, false)?;
             validate_object_predicate_shape(object, targets)
         }
-        TriggerConditionDef::ControllerHadPermanentLeaveThisTurn
+        TriggerConditionDef::ControlsCreaturesWithDifferentPowers(_)
+        | TriggerConditionDef::ControllerHadPermanentLeaveThisTurn
         | TriggerConditionDef::ControllerHadCardLeaveGraveyardThisTurn
         | TriggerConditionDef::ControllerHasCitysBlessing
         | TriggerConditionDef::ControllerGainedLifeThisTurn
@@ -840,6 +842,8 @@ fn static_play_rule_recipient_supported(recipient: EffectRecipientDef) -> bool {
     )
 }
 
+// Keep the applied vocabulary's exhaustive shape validation in one match.
+#[allow(clippy::too_many_lines)]
 fn validate_applied_effect_shapes(
     recipient: EffectRecipientDef,
     effect: AppliedEffectDef,
@@ -868,19 +872,21 @@ fn validate_applied_effect_shapes(
             validate_recipient_shape(recipient, targets, RecipientExpectation::Player)?;
             validate_object_predicate_shape(permission.object, targets)
         }
-        AppliedEffectDef::Rule(AppliedRuleDef::MayPlayFromGraveyard(permission)) => {
+        AppliedEffectDef::Rule(AppliedRuleDef::MayPlay(permission)) => {
             validate_recipient_shape(recipient, targets, RecipientExpectation::Player)?;
-            validate_object_predicate_shape(permission.restriction.object, targets)
+            validate_query_shape(permission.cards, targets)?;
+            validate_play_permission_shapes(recipient, permission.restriction, permission.benefit, targets, static_effect)
+        }
+        AppliedEffectDef::Rule(AppliedRuleDef::KnownCards(query) | AppliedRuleDef::MayPlot { cards: query, .. }) => {
+            validate_recipient_shape(recipient, targets, RecipientExpectation::Player)?;
+            validate_query_shape(query, targets)
         }
         AppliedEffectDef::Rule(AppliedRuleDef::ModifyTriggers(modification)) => {
             validate_recipient_shape(recipient, targets, RecipientExpectation::Player)?;
             validate_trigger_event_references(modification.cause, targets.len(), BindingScope::empty(&BindingRegistry::default()))?;
             modification.permanent.map_or(Ok(()), |predicate| validate_object_predicate_shape(predicate, targets))
         }
-        AppliedEffectDef::Rule(
-            AppliedRuleDef::CannotPlay(restriction)
-            | AppliedRuleDef::MayPlayFromTopOfLibrary { restriction, .. },
-        ) => {
+        AppliedEffectDef::Rule(AppliedRuleDef::CannotPlay(restriction)) => {
             validate_recipient_shape(recipient, targets, RecipientExpectation::Player)?;
             validate_object_predicate_shape(restriction.object, targets)?;
             if static_effect && !static_play_rule_recipient_supported(recipient) {
@@ -898,8 +904,6 @@ fn validate_applied_effect_shapes(
         // Each names a player and carries nothing else.
         AppliedEffectDef::Rule(
             AppliedRuleDef::Ascend
-            | AppliedRuleDef::MayLookAtTopOfLibrary
-            | AppliedRuleDef::PlaysWithTopOfLibraryRevealed
             | AppliedRuleDef::MaySpendManaAsAnyColorForCreatureAbilities
             | AppliedRuleDef::MayPlayAdditionalLands(_)
             | AppliedRuleDef::MayPlayAnyNumberOfLands
@@ -953,8 +957,37 @@ fn validate_applied_effect_shapes(
             validate_value_shape(power, targets)?;
             validate_value_shape(toughness, targets)
         }
+        AppliedEffectDef::Characteristic(CharacteristicOperationDef::Abilities(
+            AbilityOperationDef::AddActivatedAbilitiesOf { cards, object },
+        )) => {
+            if let crate::card::ActivatedAbilityCardsDef::Query(query) = cards {
+                validate_query_shape(query, targets)?;
+            }
+            validate_object_predicate_shape(object, targets)?;
+            validate_recipient_shape(recipient, targets, RecipientExpectation::Object)
+        }
         AppliedEffectDef::Rule(_) | AppliedEffectDef::Characteristic(_) => {
             validate_recipient_shape(recipient, targets, RecipientExpectation::Object)
         }
     }
+}
+
+fn validate_play_permission_shapes(
+    recipient: EffectRecipientDef,
+    restriction: crate::card::PlayRestrictionDef,
+    benefit: Option<&crate::card::PlayBenefitDef>,
+    targets: &[AbilityTargetDef],
+    static_effect: bool,
+) -> Result<(), GrantedAbilityValidationError> {
+    validate_recipient_shape(recipient, targets, RecipientExpectation::Player)?;
+    if static_effect && !static_play_rule_recipient_supported(recipient) {
+        return Err(GrantedAbilityValidationError::UnsupportedStaticPlayerRecipient { recipient: Box::new(recipient) });
+    }
+    validate_object_predicate_shape(restriction.object, targets)?;
+    if let Some(ability) = benefit.and_then(|benefit| benefit.on_play) {
+        let definition = reflexive_trigger_definition(ability)?;
+        validate_reflexive_trigger_references(ability, BindingScope::empty(&BindingRegistry::default()))?;
+        validate_program_target_shapes(ability.effect.definition, definition.targets, None)?;
+    }
+    Ok(())
 }

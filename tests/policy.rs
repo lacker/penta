@@ -42,6 +42,7 @@ fn policy_observation(
     legal_actions: Vec<Action>,
 ) -> PlayerObservation {
     PlayerObservation {
+        known_cards: Vec::new(),
         viewer: PlayerId::One,
         turn: 3,
         active_turn: 2,

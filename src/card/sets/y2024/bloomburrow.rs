@@ -1,5 +1,8 @@
 //! Bloomburrow card inventory.
 
+use crate::card::PlayPermissionDef;
+use crate::card::ZonePositionDef;
+
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::card::AbilityDef;
@@ -68,6 +71,7 @@ use crate::card::PlayRestrictionDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
 use crate::card::PlayerRuleDef;
+use crate::card::PlayerSetDef;
 use crate::card::QuantifierDef;
 use crate::card::RandomizeObjectOrderDef;
 use crate::card::ReplacementChoiceDef;
@@ -82,7 +86,6 @@ use crate::card::TokenCharacteristics;
 use crate::card::TokenCopyDef;
 use crate::card::TokenCountersDef;
 use crate::card::TokenDef;
-use crate::card::TopOfLibraryCostDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::TurnStepDef;
@@ -7043,28 +7046,40 @@ pub(in crate::card::sets) static GLARB_CALAMITY_S_AUGUR: CardRecord = CardRecord
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
             abilities::deathtouch(),
-            AbilityDef::static_ability(
+            abilities::cards_known_to(
                 "You may look at the top card of your library any time.",
-                EffectDef::StaticApply {
-                    recipient: EffectRecipientDef::Controller,
-                    effect: AppliedEffectDef::Rule(AppliedRuleDef::MayLookAtTopOfLibrary),
-                },
+                ObjectQueryDef::matching(
+                    ObjectPredicateDef::Any,
+                    &[ZoneKind::Library],
+                    PlayerRelation::You,
+                )
+                .at(ZonePositionDef::FromTop(0)),
+                PlayerSetDef::Related(PlayerRelation::You),
             ),
             AbilityDef::static_ability(
                 "You may play lands and cast spells with mana value 4 or \
                  greater from the top of your library.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::Controller,
-                    effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlayFromTopOfLibrary {
-                        restriction: PlayRestrictionDef::new(
-                            PlayActionMatcherDef::Any,
-                            ObjectPredicateDef::AnyOf(&[
-                                ObjectPredicateDef::HasType(CardType::Land),
-                                ObjectPredicateDef::Not(&ObjectPredicateDef::ManaValueAtMost(3)),
-                            ]),
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlay(
+                        PlayPermissionDef::new(
+                            ObjectQueryDef::matching(
+                                ObjectPredicateDef::Any,
+                                &[ZoneKind::Library],
+                                PlayerRelation::You,
+                            )
+                            .at(ZonePositionDef::FromTop(0)),
+                            PlayRestrictionDef::new(
+                                PlayActionMatcherDef::Any,
+                                ObjectPredicateDef::AnyOf(&[
+                                    ObjectPredicateDef::HasType(CardType::Land),
+                                    ObjectPredicateDef::Not(&ObjectPredicateDef::ManaValueAtMost(
+                                        3,
+                                    )),
+                                ]),
+                            ),
                         ),
-                        cost: TopOfLibraryCostDef::Printed,
-                    }),
+                    )),
                 },
             ),
             AbilityDef::activated(

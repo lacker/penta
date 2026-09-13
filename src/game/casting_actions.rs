@@ -170,8 +170,9 @@ impl Game {
             .chain(
                 state
                     .library
-                    .last()
-                    .map(|card| (card, CastSourceZone::LibraryTop)),
+                    .iter()
+                    .filter(|card| !self.play_permission_sources(card.id, player).is_empty())
+                    .map(|card| (card, CastSourceZone::Library)),
             )
         {
             if offer.is_some_and(|offer| offer.card != card.id || offer.source_zone != source_zone)
@@ -212,22 +213,6 @@ impl Game {
                     && !self.exile_play_is_permitted(definition, option, card.id, player)
                 {
                     continue;
-                }
-                if source_zone == CastSourceZone::LibraryTop {
-                    if self.library_top_play_cost(card, player, option).is_none() {
-                        continue;
-                    }
-                    // Life replaces the mana cost rather than joining it, so
-                    // a spell nobody has the life for is not castable this
-                    // way at all. Paying down to exactly zero is allowed.
-                    if self
-                        .library_top_life_cost(card, player, option)
-                        .is_some_and(|life| {
-                            i64::from(life) > i64::from(self.players[player.index()].life)
-                        })
-                    {
-                        continue;
-                    }
                 }
                 if offer.is_none() && !self.play_timing_allows(player, option.restriction) {
                     continue;
@@ -383,6 +368,8 @@ impl Game {
                                 );
                                 for x in self.payment_query.x_values(min_x, max_x) {
                                     let spell = super::SpellView { x, ..spell };
+
+                                    if (source_zone == CastSourceZone::Library || costs.permission_source().is_some()) && self.selected_play_permission(card, player, option, x, &costs).is_none() { continue; }
                                     // A permission that bounds what it
                                     // reaches by mana value reads the spell
                                     // as it will be on the stack, so an X
@@ -409,9 +396,9 @@ impl Game {
                                         &costs,
                                         offer.map(|offer| offer.cost),
                                     );
-                                    let library_life = if source_zone == CastSourceZone::LibraryTop
+                                    let permission_life = if costs.permission_source().is_some()
                                     {
-                                        self.library_top_life_cost(card, player, option)
+                                        self.play_life_for_configuration(card, player, option, &costs)
                                             .unwrap_or(0)
                                     } else {
                                         0
@@ -509,7 +496,7 @@ impl Game {
                                                     .life_available_after_payment(
                                                         player,
                                                         cast_life
-                                                            .saturating_add(library_life)
+                                                            .saturating_add(permission_life)
                                                             .saturating_add(phyrexian_life),
                                                     )
                                                 else {
@@ -522,7 +509,7 @@ impl Game {
                                                     controller: player,
                                                     form: option.form.clone(),
                                                     reserved_life_payment: cast_life
-                                                        .saturating_add(library_life)
+                                                        .saturating_add(permission_life)
                                                         .saturating_add(phyrexian_life),
                                                 };
                                                 let sacrifices = additional_payment.object_ids();

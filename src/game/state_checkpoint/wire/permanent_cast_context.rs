@@ -57,6 +57,8 @@ fn restore_permanent_cast_context(
         catalog,
     )?;
     let caster = state.cast_by.map(player_from_index).transpose()?;
+    let permission_entry_counters =
+        super::stack::parse_permission_entry_counters(&state.permission_entry_counters)?;
     permanent.cast = has_cast_context.then(|| CastContext {
         caster,
         source_zone,
@@ -78,6 +80,7 @@ fn restore_permanent_cast_context(
         via_flashback: state.cast_via_flashback,
         exile_if_put_into_graveyard: state.cast_exile_if_put_into_graveyard,
         via_suspend: state.cast_via_suspend,
+        permission_entry_counters,
     });
     Ok(())
 }

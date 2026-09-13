@@ -1,5 +1,8 @@
 //! War of the Spark cards cataloged for the Vintage Cube pool.
 
+use crate::card::PlayPermissionDef;
+use crate::card::ZonePositionDef;
+
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
@@ -46,6 +49,7 @@ use crate::card::ObjectQueryDef;
 use crate::card::ObjectRefDef;
 use crate::card::ObjectSetDef;
 use crate::card::PlayActionMatcherDef;
+use crate::card::PlayCostDef;
 use crate::card::PlayRestrictionDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
@@ -57,7 +61,6 @@ use crate::card::SpellCostModificationDef;
 use crate::card::SumValueDef;
 use crate::card::TokenCharacteristics;
 use crate::card::TokenDef;
-use crate::card::TopOfLibraryCostDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::TurnStepDef;
@@ -346,14 +349,15 @@ pub(in crate::card::sets) static BOLASS_CITADEL: CardRecord = CardRecord::new(
     CardRules::new_artifact(mana_cost!("{3}{B}{B}{B}"))
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
-            AbilityDef::static_ability(
+            abilities::cards_known_to(
                 "You may look at the top card of your library any time.",
-                EffectDef::StaticApply {
-                    recipient: EffectRecipientDef::players(PlayerSetDef::Related(
-                        PlayerRelation::You,
-                    )),
-                    effect: AppliedEffectDef::Rule(AppliedRuleDef::MayLookAtTopOfLibrary),
-                },
+                ObjectQueryDef::matching(
+                    ObjectPredicateDef::Any,
+                    &[ZoneKind::Library],
+                    PlayerRelation::You,
+                )
+                .at(ZonePositionDef::FromTop(0)),
+                PlayerSetDef::Related(PlayerRelation::You),
             ),
             AbilityDef::static_ability(
                 "You may play lands and cast spells from the top of your \
@@ -363,15 +367,21 @@ pub(in crate::card::sets) static BOLASS_CITADEL: CardRecord = CardRecord::new(
                     recipient: EffectRecipientDef::players(PlayerSetDef::Related(
                         PlayerRelation::You,
                     )),
-                    effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlayFromTopOfLibrary {
-                        // Anything at all, which is what "lands and spells" comes to once the top
-                        // of the library is the only place being named.
-                        restriction: PlayRestrictionDef::new(
-                            PlayActionMatcherDef::Any,
-                            ObjectPredicateDef::Any,
-                        ),
-                        cost: TopOfLibraryCostDef::LifeEqualToManaValue,
-                    }),
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlay(
+                        PlayPermissionDef::new(
+                            ObjectQueryDef::matching(
+                                ObjectPredicateDef::Any,
+                                &[ZoneKind::Library],
+                                PlayerRelation::You,
+                            )
+                            .at(ZonePositionDef::FromTop(0)),
+                            PlayRestrictionDef::new(
+                                PlayActionMatcherDef::Any,
+                                ObjectPredicateDef::Any,
+                            ),
+                        )
+                        .with_cost(PlayCostDef::LifeEqualToManaValue),
+                    )),
                 },
             ),
             AbilityDef::activated(

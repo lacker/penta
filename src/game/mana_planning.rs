@@ -442,7 +442,10 @@ impl Game {
             if applied.restriction.only_at_sorcery_speed && self.sorcery_speed_window(controller) {
                 return ControlFlow::Continue(());
             }
-            if applied.restriction.action.matches(option.action)
+            if applied.restriction.source_zone.is_none_or(|zone| {
+                self.card_in_nonbattlefield_zone(card.id)
+                    .is_some_and(|(actual, _)| actual == zone)
+            }) && applied.restriction.action.matches(option.action)
                 && self.spells_cast_this_turn[controller.index()]
                     >= applied.restriction.minimum_spells_cast_this_turn
                 && self.trigger_object_matches(

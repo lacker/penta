@@ -46,7 +46,7 @@ pub(super) fn parse_cast_signature(value: &Value) -> Result<CastSignature, Strin
         u8::try_from(usize_field(value, "playOptionId")?).map_err(|_| "play option too large")?,
     ))
     .with_modes(modes)
-    .with_costs(CostConfiguration::new(alternative, additional))
+    .with_costs(CostConfiguration::new(alternative, additional).with_permission_source(value.get("permissionSource").filter(|v| !v.is_null()).map(|v| read_u32(v).map(GameObjectId)).transpose()?))
     .with_x(u16::try_from(usize_field(value, "x")?).map_err(|_| "x too large")?)
     .with_targets(selections)
     .with_spliced(spliced);

@@ -21,8 +21,7 @@ impl Game {
         // A graveyard is walked too, for the permissions that reach into it.
         // Nothing there is playable without one, so the ordinary game pays
         // only the cost of the filter below.
-        // The top of the library is walked for the same reason, and named
-        // one card at a time.
+        // Library cards pass through the same permission query.
         for (card, zone) in state
             .hand
             .iter()
@@ -33,7 +32,7 @@ impl Game {
                     .iter()
                     .map(|card| (card, ZoneKind::Graveyard)),
             )
-            .chain(state.library.last().map(|card| (card, ZoneKind::Library)))
+            .chain(state.library.iter().map(|card| (card, ZoneKind::Library)))
             // Exile is walked for both players, the way the cast offers walk
             // it: a permission to *play* a card reaches a land, and a land
             // somebody else exiled is still played from where it lies. A
@@ -105,7 +104,7 @@ impl Game {
             .filter(|option| !self.play_is_prohibited(card, player, option))
             .filter(|option| match zone {
                 ZoneKind::Graveyard => self.graveyard_play_is_permitted(card, player, option),
-                ZoneKind::Library => self.library_top_play_cost(card, player, option).is_some(),
+                ZoneKind::Library => self.zone_play_cost(card, player, option).is_some(),
                 // The permission was already checked to get here.
                 _ => true,
             })

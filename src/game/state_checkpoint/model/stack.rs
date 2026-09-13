@@ -42,6 +42,8 @@ pub(in crate::game::state_checkpoint) struct StackSnapshot {
     pub(in crate::game::state_checkpoint) cast_exile_if_put_into_graveyard: bool,
     #[serde(default)]
     pub(in crate::game::state_checkpoint) cast_via_suspend: bool,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub(in crate::game::state_checkpoint) permission_entry_counters: Vec<(String, u16)>,
     /// Additive: a payload written before the flag existed restores as
     /// false, which is what an ordinary sorcery-speed cast means anyway.
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
@@ -165,6 +167,8 @@ pub(in crate::game::state_checkpoint) struct DetachedStackSnapshot {
     pub(in crate::game::state_checkpoint) cast_exile_if_put_into_graveyard: bool,
     #[serde(default)]
     pub(in crate::game::state_checkpoint) cast_via_suspend: bool,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub(in crate::game::state_checkpoint) permission_entry_counters: Vec<(String, u16)>,
     /// Additive: a payload written before the flag existed restores as
     /// false, which is what an ordinary sorcery-speed cast means anyway.
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
@@ -226,6 +230,8 @@ pub(in crate::game::state_checkpoint) struct CastSignatureSnapshot {
     pub(in crate::game::state_checkpoint) form: SpellFormSnapshot,
     pub(in crate::game::state_checkpoint) modes: Vec<u8>,
     pub(in crate::game::state_checkpoint) alternative_cost: Option<u8>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(in crate::game::state_checkpoint) permission_source: Option<u32>,
     pub(in crate::game::state_checkpoint) additional_costs: Vec<u8>,
     pub(in crate::game::state_checkpoint) x: u16,
     pub(in crate::game::state_checkpoint) targets: Vec<TargetSelectionSnapshot>,

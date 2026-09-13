@@ -282,8 +282,20 @@ pub struct StackObservation {
     pub x: u16,
 }
 
+/// A currently known card in an otherwise hidden zone. Position is counted
+/// from the top/end of its zone, with zero naming the first card.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct KnownCardObservation {
+    pub card: GameObjectId,
+    pub definition: CardDefinitionId,
+    pub owner: PlayerId,
+    pub zone: crate::card::ZoneKind,
+    pub position_from_top: usize,
+}
+
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct PlayerObservation {
+    pub known_cards: Vec<KnownCardObservation>,
     pub viewer: PlayerId,
     pub turn: u32,
     /// The number of turns the active player has started, including extras.

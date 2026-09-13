@@ -19,11 +19,11 @@ use crate::card::CounterKind;
 use crate::card::CreatureTypeSetDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
-use crate::card::GraveyardPlayPermissionDef;
 use crate::card::ManaColor;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
 use crate::card::PlayActionMatcherDef;
+use crate::card::PlayPermissionDef;
 use crate::card::PlayRestrictionDef;
 use crate::card::PlayerRelation;
 use crate::card::ReplacementEffectDef;
@@ -31,6 +31,7 @@ use crate::card::TriggerEventDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
 use crate::card::ZonePlacement;
+use crate::card::ZonePositionDef;
 use crate::card::abilities;
 use crate::mana_cost;
 
@@ -467,13 +468,20 @@ pub(in crate::card::sets) static CRUCIBLE_OF_WORLDS: CardRecord = CardRecord::ne
         "You may play lands from your graveyard.",
         EffectDef::StaticApply {
             recipient: EffectRecipientDef::Controller,
-            effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlayFromGraveyard(
+            effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlay(
                 // A permission rather than a prohibition, in the same vocabulary: which
                 // action it opens, and which cards it opens it for.
-                GraveyardPlayPermissionDef::unlimited(PlayRestrictionDef::new(
-                    PlayActionMatcherDef::PlayLand,
-                    ObjectPredicateDef::HasType(CardType::Land),
-                )),
+                PlayPermissionDef::new(
+                    ObjectQueryDef::matching(
+                        ObjectPredicateDef::Any,
+                        &[ZoneKind::Graveyard],
+                        PlayerRelation::You,
+                    ),
+                    PlayRestrictionDef::new(
+                        PlayActionMatcherDef::PlayLand,
+                        ObjectPredicateDef::HasType(CardType::Land),
+                    ),
+                ),
             )),
         },
     )),
@@ -698,7 +706,14 @@ pub(in crate::card::sets) static LANTERN_OF_INSIGHT: CardRecord = CardRecord::ne
             "Players play with the top card of their libraries revealed.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::EachPlayer,
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::PlaysWithTopOfLibraryRevealed),
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::KnownCards(
+                    ObjectQueryDef::matching(
+                        ObjectPredicateDef::Any,
+                        &[ZoneKind::Library],
+                        PlayerRelation::Any,
+                    )
+                    .at(ZonePositionDef::FromTop(0)),
+                )),
             },
         ),
         AbilityDef::activated_with_targets(

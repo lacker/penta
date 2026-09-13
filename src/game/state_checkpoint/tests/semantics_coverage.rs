@@ -10,11 +10,11 @@
 use super::super::ScopedEffect;
 use super::super::model::AbilityLocator;
 use super::super::semantics::{
-    ability_locator, ability_locator_index, applied_effect_locator_index, applied_effects,
-    catalog_ability, catalog_applied_effect, catalog_mana_payload, catalog_replacement_effect,
-    catalog_scoped_effect, child_abilities, mana_effects, mana_payload_key,
-    mana_payload_locator_index, replacement_effect_locator_index, replacement_effects,
-    scoped_effect_snapshot,
+    ability_locator, ability_locator_for_origin, ability_locator_index,
+    applied_effect_locator_index, applied_effects, catalog_ability, catalog_applied_effect,
+    catalog_mana_payload, catalog_replacement_effect, catalog_scoped_effect, child_abilities,
+    mana_effects, mana_payload_key, mana_payload_locator_index, replacement_effect_locator_index,
+    replacement_effects, scoped_effect_snapshot,
 };
 use crate::card::{
     AbilityDef, AbilityProgramDef, AddManaEffectDef, EffectDef, ManaColor, ManaSelectionDef,
@@ -104,8 +104,18 @@ fn one_shot_cast_grant_has_a_stable_locator() {
         })
         .expect("Dreadhorde Arcanist has a one-shot cast grant");
 
-    let locator = ability_locator(&catalog, |candidate| std::ptr::eq(candidate, granted))
-        .expect("the exact granted ability has a locator");
+    // Identical promoted constants may share an address across card declarations.
+    // Source identity comes from the authored origin, as it does at runtime.
+    let locator = ability_locator_for_origin(
+        &catalog,
+        crate::AbilityOrigin::Printed {
+            definition: cards::DREADHORDE_ARCANIST,
+            part: CardPartId::PRIMARY,
+            ability: source_ability,
+        },
+        |candidate| candidate == granted,
+    )
+    .expect("the granted ability has a locator beneath its authored source");
     assert_eq!(
         locator,
         AbilityLocator::Card {

@@ -326,6 +326,9 @@ pub(super) fn cast_choices_json(choices: &CastChoices) -> Value {
         "x": choices.x(),
         "targetSelections": target_selections_json(choices.targets()),
     });
+    if let Some(source) = choices.costs().permission_source() {
+        value["permissionSource"] = json!(source.0);
+    }
     // Present only when something was spliced, which is nearly never: an
     // older consumer reads a cast without the field exactly as before.
     if !choices.spliced().is_empty() {
@@ -380,6 +383,7 @@ pub(super) fn cast_signature_json(signature: &CastSignature) -> Value {
             .collect::<Vec<_>>(),
         "x": signature.x(),
         "targetSelections": target_selections_json(signature.targets()),
+        "permissionSource": signature.costs().permission_source().map(|source| source.0),
         "splicedCards": signature
             .spliced()
             .iter()

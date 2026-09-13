@@ -187,6 +187,11 @@ impl Game {
             }
             permanent.chosen_player = chosen_player;
             permanent.cast.clone_from(&object.cast);
+            if let Some(cast) = &object.cast {
+                for (kind, amount) in &cast.permission_entry_counters {
+                    permanent.add_counters(*kind, *amount);
+                }
+            }
             // "It gains haste until end of turn": an ability granted by the
             // mana that paid for a permanent spell keeps applying to the
             // permanent it becomes (CR 611.2c). Only keyword grants are

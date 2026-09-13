@@ -7,6 +7,7 @@ impl Game {
         let player = &self.players[viewer.index()];
         let opponent = &self.players[viewer.opponent().index()];
         PlayerObservation {
+            known_cards: self.observed_known_cards(viewer),
             viewer,
             turn: self.turn,
             active_turn: self.turns_started[self.active_player.index()],

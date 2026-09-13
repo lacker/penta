@@ -116,6 +116,8 @@ pub(super) struct PermanentSnapshot {
     pub(super) cast_exile_if_put_into_graveyard: bool,
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub(super) cast_via_suspend: bool,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub(super) permission_entry_counters: Vec<(String, u16)>,
     /// Which zone this spell was cast from, by its stable label. Additive:
     /// a checkpoint written before the zone was recorded restores as
     /// nothing, which is what a permanent nobody cast carries anyway.

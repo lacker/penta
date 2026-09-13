@@ -36,6 +36,9 @@ impl Game {
             self.players[player.index()]
                 .hand
                 .iter()
+                .chain(self.cards_in_zone(crate::card::ZoneKind::Library))
+                .chain(self.cards_in_zone(crate::card::ZoneKind::Graveyard))
+                .chain(self.cards_in_zone(crate::card::ZoneKind::Exile))
                 .filter(|card| {
                     self.can_pay_special_action(
                         player,
@@ -55,21 +58,16 @@ impl Game {
         );
     }
 
-    pub(in crate::game) fn finish_plot(&mut self, player: PlayerId, card: GameObjectId) {
-        let Some(source_card) = self.players[player.index()]
-            .hand
-            .iter()
-            .find(|candidate| candidate.id == card)
-            .cloned()
-        else {
-            return;
-        };
-        let Some(effective) = self.card_plot_ability(&source_card) else {
-            return;
-        };
-        let Some(effect) = effective.ability.declarative_effect() else {
-            return;
-        };
+    pub(in crate::game) fn prepare_plot(
+        &mut self,
+        player: PlayerId,
+        card: GameObjectId,
+    ) -> Option<StackObject> {
+        let source_card = self.card_in_nonbattlefield_zone(card)?.1.clone();
+        let effective = self
+            .card_plot_ability(&source_card)
+            .or_else(|| self.zone_plot_ability(&source_card, player))?;
+        let effect = effective.ability.declarative_effect()?;
         let scoped = ScopedEffect::primary(effect);
         let context = EffectResolutionContext::new(TriggerContext::empty());
         let presentation = Self::ability_presentation(
@@ -79,7 +77,7 @@ impl Game {
         let resolution = self.unbacked_ability_object(presentation, player);
         // This is an interpreter frame, never an object placed on the stack.
         // Retain the authored clause and origin for any suspended continuation.
-        let object = StackObject {
+        Some(StackObject {
             id: resolution.id,
             kind: StackObjectKind::TriggeredAbility,
             card: resolution,
@@ -108,8 +106,7 @@ impl Game {
             cast: None,
             face_down: None,
             is_copy: false,
-        };
-        self.resolve_effect_def(scoped, &object, context);
+        })
     }
 }
 

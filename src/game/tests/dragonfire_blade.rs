@@ -12,7 +12,7 @@ fn board(colors: &'static [ManaColor], prepared: bool) -> Game {
         .push(creature(BLADE.0, cards::DRAGONFIRE_BLADE, PlayerId::One));
     game.battlefield.push(token_permanent(
         HOST.0,
-        crate::card::TokenCharacteristics::creature(&["Test"], colors, 2, 2),
+        crate::card::TokenCharacteristics::creature(&[], colors, 2, 2),
         PlayerId::One,
     ));
     game
@@ -205,7 +205,7 @@ fn dragonfire_blade_mana_preview_uses_the_chosen_targets_discount() {
     game.battlefield.push(mountain);
     game.battlefield.push(token_permanent(
         240_031,
-        crate::card::TokenCharacteristics::creature(&["Test"], &[], 2, 2),
+        crate::card::TokenCharacteristics::creature(&[], &[], 2, 2),
         PlayerId::One,
     ));
     assert!(equip(&game, GameObjectId(240_031)).is_none());
@@ -309,7 +309,7 @@ fn target_color_discount_locks_combined_mana_before_tapping_changes_colors() {
         ),
     ];
     let (mut game, source) = cost_lists::game_with_cost_rules(
-        &CardRules::new_creature(mana_cost!("{U}"), &["Test"], 2, 2).with_abilities(ABILITIES),
+        &CardRules::new_creature(mana_cost!("{U}"), &[], 2, 2).with_abilities(ABILITIES),
     );
     game.prepared_engine = crate::prepared_engine::PreparedEngine::compile(&game.catalog);
     game.turns_started = [3, 3];

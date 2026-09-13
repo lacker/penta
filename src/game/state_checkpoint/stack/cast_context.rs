@@ -56,6 +56,10 @@ pub(super) fn stack_cast_context(
                 .and_then(crate::Binding::label)
                 .map(str::to_owned)
         });
+    let gift_recipient = state
+        .gift_recipient
+        .map(super::super::wire::player_from_index)
+        .transpose()?;
     let signature_cost_counts = signature.and_then(|signature| {
         let definition = card.definition.card_definition()?;
         let option = game
@@ -74,6 +78,7 @@ pub(super) fn stack_cast_context(
             .and_then(cast_source_zone_from_label),
         alternative,
         alternative_cost_binding,
+        gift_recipient,
         at_instant_speed: state.cast_at_instant_speed,
         x: if state.cast_x == 0 {
             signature.map_or(0, CastSignature::x)
@@ -153,6 +158,10 @@ pub(super) fn detached_cast_context(
                 .and_then(crate::Binding::label)
                 .map(str::to_owned)
         });
+    let gift_recipient = state
+        .gift_recipient
+        .map(super::super::wire::player_from_index)
+        .transpose()?;
     let signature_cost_counts = signature.and_then(|signature| {
         let definition = card.definition.card_definition()?;
         let option = game
@@ -172,6 +181,7 @@ pub(super) fn detached_cast_context(
                 .and_then(cast_source_zone_from_label),
             alternative,
             alternative_cost_binding,
+            gift_recipient,
             at_instant_speed: state.cast_at_instant_speed,
             x: if state.cast_x == 0 {
                 signature.map_or(0, CastSignature::x)

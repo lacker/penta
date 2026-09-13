@@ -293,7 +293,8 @@ fn shared_static_effect_at(source_zones: &[ZoneKind], effect: EffectDef, root: b
                 | EffectRecipientSetDef::Players(
                     PlayerSetDef::LegalTargets(_)
                     | PlayerSetDef::One(
-                        PlayerRefDef::EventPlayer
+                        PlayerRefDef::GiftRecipient
+                        | PlayerRefDef::EventPlayer
                         | PlayerRefDef::Target(_)
                         | PlayerRefDef::ControllerOf(_)
                         | PlayerRefDef::OpponentOf(_)

@@ -223,6 +223,7 @@ fn validate_player_reference(
             validate_object_reference(reference, target_count, scope)
         }
         PlayerRefDef::EffectController
+        | PlayerRefDef::GiftRecipient
         | PlayerRefDef::EnchantedPlayer
         | PlayerRefDef::EventPlayer
         | PlayerRefDef::Opponent => Ok(()),

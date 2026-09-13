@@ -137,6 +137,11 @@ pub(super) fn permanent_snapshot(
             .as_ref()
             .and_then(|cast| cast.alternative)
             .map(|kind| kind.label().to_owned()),
+        gift_recipient: permanent
+            .cast
+            .as_ref()
+            .and_then(|cast| cast.gift_recipient)
+            .map(crate::PlayerId::index),
         cast_alternative_cost_binding: permanent
             .cast
             .as_ref()

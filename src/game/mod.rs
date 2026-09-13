@@ -105,6 +105,7 @@ mod face_down;
 mod forced_actions;
 mod foretell;
 mod game_actions;
+mod gift;
 mod land_type_layers;
 mod land_type_substitution;
 mod legacy_resolution;

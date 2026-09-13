@@ -780,7 +780,8 @@ impl Game {
             | EffectRecipientSetDef::Players(
                 PlayerSetDef::LegalTargets(_)
                 | PlayerSetDef::One(
-                    PlayerRefDef::EventPlayer
+                    PlayerRefDef::GiftRecipient
+                    | PlayerRefDef::EventPlayer
                     | PlayerRefDef::Target(_)
                     | PlayerRefDef::ControllerOf(_)
                     | PlayerRefDef::OpponentOf(_)

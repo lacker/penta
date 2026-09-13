@@ -659,3 +659,22 @@ level condition around a directly executable static effect is not a substitute
 for an actual ability grant. Keep such cards wholly unsupported until their
 readers can evaluate the granted clauses, and identify that gap in the inline
 audit.
+
+## Gift promises
+
+Bloomburrow owns the `gift` and `gift_arrival` constructors and the `GIFT`
+completion identity. Under CR 702.174, choosing an opponent is an optional
+additional cost. The two-player cast procedure freezes the sole opponent in
+`CastContext`; `PlayerRefDef::GiftRecipient` reads that choice independently of
+the source's current controller. It survives spell copies and the stack-to-
+battlefield transition, but is not a copiable permanent characteristic.
+
+For an instant or sorcery, the Gift cost clause carries the gift's ordinary
+draw or token effect. The shared resolver runs it before the spell's effects,
+after checking target legality, and resumes through normal continuations.
+For a permanent, the cost clause carries `EffectDef::None` and `gift_arrival`
+supplies the separate, labeled enters trigger. Capture the gift completion
+only when the spell or that trigger finishes resolving, even if its draw or
+token creation was replaced. The remaining card clauses use the existing
+additional-cost conditions, target predicates, and computed target counts;
+Gift is the first optional additional cost in these declarations.

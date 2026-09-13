@@ -597,7 +597,7 @@ impl Game {
         let option = timing_option
             .as_ref()
             .expect("a validated cast signature names a play option");
-        let cast = CastContext::for_cast(
+        let mut cast = CastContext::for_cast(
             source_zone,
             alternative,
             cast_at_instant_speed,
@@ -606,6 +606,12 @@ impl Game {
             cast_via_flashback,
             exile_if_put_into_graveyard,
         );
+        if self
+            .selected_gift_ability(card.definition, &signature)
+            .is_some()
+        {
+            cast.gift_recipient = Some(player.opponent());
+        }
         StackObject {
             id,
             kind: StackObjectKind::Spell,

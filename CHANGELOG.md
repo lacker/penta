@@ -38,6 +38,15 @@ the bot-wire epoch.
   the effect and its original ability source; wire and checkpoint epochs are
   unchanged.
 
+- Implement Bloomburrow Gift promises as optional additional costs, retaining
+  the chosen opponent through spell copies, battlefield arrival, control
+  changes, and checkpoints. Gifts resolve before an instant or sorcery's other
+  effects or through a permanent's enters trigger; successful resolution
+  publishes the gift event used by Jolly Gerbils. Implement 21 Gift-blocked
+  identities, including Dawn's Truce, and update the remaining Dewdrop Cure and
+  Cruelclaw's Heist audits. Checkpoints add optional `giftRecipient` state;
+  ordinary action vocabulary and protocol/artifact versions are unchanged.
+
 - Implement Firemind Vessel, Guild Globe, and Component Pouch. A shared
   `RollDieDef` executes fair seeded dice and inclusive result tables. The public
   event stream adds the open-vocabulary `DieRolled` event with `seat`, `sides`,

@@ -778,6 +778,9 @@ impl Game {
         event: &CommittedTriggerEvent,
     ) -> Option<PlayerId> {
         match reference {
+            PlayerRefDef::GiftRecipient => self
+                .cast_context_for(ability_source, None)
+                .and_then(|cast| cast.gift_recipient),
             PlayerRefDef::EffectController => controller,
             PlayerRefDef::EnchantedPlayer => {
                 self.current_or_last_known_enchanted_player(ability_source)

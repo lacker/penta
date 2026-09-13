@@ -11,6 +11,8 @@ use super::SpellResolutionDestinationDef;
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum OptionalAdditionalCostKindDef {
+    /// CR 702.174: choose an opponent now, give the gift on resolution or entry.
+    Gift,
     /// Kicker (CR 702.33a): a cost that may be paid once in addition to
     /// whichever ordinary or alternative cost is paying for the spell.
     Kicker,
@@ -51,6 +53,7 @@ impl OptionalAdditionalCostKindDef {
     #[must_use]
     pub const fn label(self) -> &'static str {
         match self {
+            Self::Gift => "Gift",
             Self::Kicker => "Kicker",
             Self::Offspring => "Offspring",
             Self::Buyback => "Buyback",
@@ -137,6 +140,7 @@ impl OptionalAdditionalCostAbilityDef {
                  copies of it.)"
             ),
             (OptionalAdditionalCostKindDef::Squad, None) => "Squad".into(),
+            (OptionalAdditionalCostKindDef::Gift, _) => "Gift".into(),
             (OptionalAdditionalCostKindDef::Conspire, _) => "Conspire".into(),
             (OptionalAdditionalCostKindDef::Bargain, _) => "Bargain".into(),
         }

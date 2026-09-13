@@ -129,6 +129,60 @@ const fn forage() -> crate::card::GameActionDef {
     ACTION.named(FORAGE)
 }
 
+/// Completion identity for CR 702.174c; independent of whether the gift's
+/// draw or token creation was replaced.
+pub(crate) const GIFT: crate::card::MechanicId = crate::card::MechanicId::from_name("mtg:gift");
+
+/// Choosing the sole opponent pays this cost in the two-player engine. The
+/// engine freezes that recipient and executes this program before a resolving
+/// instant or sorcery's other effects.
+const fn gift(text: &'static str, effect: EffectDef) -> AbilityDef {
+    AbilityDef::defined(
+        text,
+        crate::card::DeclarativeAbilityDef::OptionalAdditionalCost(
+            OptionalAdditionalCostAbilityDef {
+                kind: OptionalAdditionalCostKindDef::Gift,
+                label: text,
+                costs: &[],
+                resolution_destination: SpellResolutionDestinationDef::Graveyard,
+            },
+        ),
+        effect,
+    )
+}
+
+const fn gift_arrival(effect: EffectDef) -> AbilityDef {
+    AbilityDef::triggered_if(
+        "When this permanent enters, if the gift was promised, give the chosen opponent the gift.",
+        TriggerEventDef::zone_changed(
+            ObjectPredicateDef::Source,
+            None,
+            Some(ZoneKind::Battlefield),
+        ),
+        &TriggerConditionDef::SourcePaidAdditionalCost(crate::AdditionalCostIndex::PRIMARY),
+        effect,
+    )
+    .labeled(GIFT)
+}
+
+const GIFT_CARD: EffectDef = EffectDef::DrawCards {
+    recipient: EffectRecipientDef::player(PlayerRefDef::GiftRecipient),
+    amount: ValueDef::Constant(1),
+};
+
+const GIFT_FOOD: EffectDef = EffectDef::CreateToken(
+    CreateTokenDef::new(TokenDef::Literal(FOOD_TOKEN)).with_controller(PlayerRefDef::GiftRecipient),
+);
+const GIFT_FISH: EffectDef = EffectDef::CreateToken(
+    CreateTokenDef::new(TokenDef::Literal(FISH_TOKEN))
+        .with_controller(PlayerRefDef::GiftRecipient)
+        .entering_tapped(),
+);
+const GIFT_TREASURE: EffectDef = EffectDef::CreateToken(
+    CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+        .with_controller(PlayerRefDef::GiftRecipient),
+);
+
 const fn offspring(costs: &'static [CostDef], text: &'static str) -> AbilityDef {
     AbilityDef::optional_additional_cost(
         text,
@@ -443,31 +497,99 @@ pub(in crate::card::sets) static CARROT_CAKE: CardRecord = CardRecord::new(
 );
 
 // BLB 8 — Crumb and Get It
-// Audit: unsupported — Needs an optional casting-time gift promise independent of additional
-// costs and a committed give-gift action at the correct resolution or entry timing; the current
-// cost and named-action vocabulary does not represent that promise and gift event.
 pub(in crate::card::sets) static CRUMB_AND_GET_IT: CardRecord = CardRecord::new(
     "Crumb and Get It",
     "3c7b3b25-d4b3-4451-9f5c-6eb369541175",
     "Justyna Dura",
-    CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{W}")).with_abilities(&[
+        gift("Gift a Food", GIFT_FOOD),
+        AbilityDef::spell_with_targets(
+            "Target creature you control gets +2/+2 until end of turn. If the gift was \
+            promised, that creature also gains indestructible until end of turn.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                },
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex(0)),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(2),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::SourcePaidAdditionalCost(
+                        crate::AdditionalCostIndex::PRIMARY,
+                    ),
+                    then: &EffectDef::Apply {
+                        recipient: EffectRecipientDef::Target(TargetIndex(0)),
+                        effect: AppliedEffectDef::add_ability(&abilities::indestructible()),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                },
+            ]),
+        ),
+    ]),
 );
 
 // BLB 9 — Dawn's Truce
-// Audit: unsupported — Needs an optional casting-time gift promise independent of additional
-// costs and a committed give-gift action at the correct resolution or entry timing; the current
-// cost and named-action vocabulary does not represent that promise and gift event.
 pub(in crate::card::sets) static DAWN_S_TRUCE: CardRecord = CardRecord::new(
     "Dawn's Truce",
     "8f72bfa0-efef-48ce-aff8-d5818ed71ba6",
     "Justin Gerard",
-    CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{W}")).with_abilities(&[
+        gift("Gift a card", GIFT_CARD),
+        AbilityDef::spell(
+            "You and permanents you control gain hexproof until end of turn. If the gift was \
+            promised, permanents you control also gain indestructible until end of turn.",
+            EffectDef::Sequence(&[
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Controller,
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::PlayerRule(
+                        PlayerRuleDef::Hexproof,
+                    )),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                        ObjectQueryDef::matching(
+                            ObjectPredicateDef::Any,
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        ),
+                    )),
+                    effect: AppliedEffectDef::add_ability(&abilities::hexproof()),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::SourcePaidAdditionalCost(
+                        crate::AdditionalCostIndex::PRIMARY,
+                    ),
+                    then: &EffectDef::Apply {
+                        recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                            ObjectQueryDef::matching(
+                                ObjectPredicateDef::Any,
+                                &[ZoneKind::Battlefield],
+                                PlayerRelation::You,
+                            ),
+                        )),
+                        effect: AppliedEffectDef::add_ability(&abilities::indestructible()),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                },
+            ]),
+        ),
+    ]),
 );
 
 // BLB 10 — Dewdrop Cure
-// Audit: unsupported — Needs an optional casting-time gift promise independent of additional
-// costs and a committed give-gift action at the correct resolution or entry timing; the current
-// cost and named-action vocabulary does not represent that promise and gift event.
+// Audit: unsupported — Gift promises and gift effects are supported. Still needs a cast-dependent maximum target count (up to two without the promise, up to three with it); current computed target counts require an exact count.
 pub(in crate::card::sets) static DEWDROP_CURE: CardRecord = CardRecord::new(
     "Dewdrop Cure",
     "666aefc2-44e0-4c27-88d5-7906f245a71f",
@@ -616,14 +738,20 @@ pub(in crate::card::sets) static JACKDAW_SAVIOR: CardRecord = CardRecord::new(
 );
 
 // BLB 19 — Jolly Gerbils
-// Audit: unsupported — Needs an optional casting-time gift promise independent of additional
-// costs and a committed give-gift action at the correct resolution or entry timing; the current
-// cost and named-action vocabulary does not represent that promise and gift event.
 pub(in crate::card::sets) static JOLLY_GERBILS: CardRecord = CardRecord::new(
     "Jolly Gerbils",
     "0eab51d6-ba17-4a8c-8834-25db363f2b6b",
     "Manuel Castañón",
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Hamster", "Citizen"], 2, 3).with_ability(
+        AbilityDef::triggered(
+            "Whenever you give a gift, draw a card.",
+            TriggerEventDef::MechanicPerformed {
+                mechanic: GIFT,
+                player: PlayerRelation::You,
+            },
+            abilities::draw_cards(ValueDef::Constant(1)),
+        ),
+    ),
 );
 
 // BLB 20 — Lifecreed Duo
@@ -723,14 +851,63 @@ pub(in crate::card::sets) static NETTLE_GUARD: CardRecord = CardRecord::new(
 );
 
 // BLB 24 — Parting Gust
-// Audit: unsupported — Needs an optional casting-time gift promise independent of additional
-// costs and a committed give-gift action at the correct resolution or entry timing; the current
-// cost and named-action vocabulary does not represent that promise and gift event.
 pub(in crate::card::sets) static PARTING_GUST: CardRecord = CardRecord::new(
     "Parting Gust",
     "1086e826-94b8-4398-8a38-d8eacca56a43",
     "Nils Hamm",
-    CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{W}{W}")).with_abilities(&[
+        gift("Gift a tapped Fish", GIFT_FISH),
+        AbilityDef::spell_with_targets(
+            "Exile target nontoken creature. If the gift wasn't promised, \
+             return that card to the battlefield under its owner's control \
+             with a +1/+1 counter on it at the beginning of the next end step.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
+                    ]),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+            )],
+            EffectDef::ExileLinkedToSource {
+                until_source_leaves: false,
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                face_down: false,
+                then: Some(&EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::Not(
+                        &TriggerConditionDef::SourcePaidAdditionalCost(
+                            crate::AdditionalCostIndex::PRIMARY,
+                        ),
+                    ),
+                    then: &EffectDef::InstallTrigger(InstalledTriggerDef::once(
+                        &AbilityDef::triggered(
+                            "At the beginning of the next end step, return the exiled \
+                             card to the battlefield under its owner's control \
+                             with a +1/+1 counter on it.",
+                            TriggerEventDef::StepBegins {
+                                step: TurnStepDef::End,
+                                player: PlayerRelation::Any,
+                            },
+                            EffectDef::ReturnLinkedExiles {
+                                object: ObjectPredicateDef::Any,
+                                zone: ZoneKind::Battlefield,
+                                grant: None,
+                                counters: Some(TokenCountersDef {
+                                    kind: CounterKind::PlusOnePlusOne,
+                                    amount: ValueDef::Constant(1),
+                                }),
+                                transformed: false,
+                                controller: None,
+                            },
+                        ),
+                    )),
+                }),
+            },
+        ),
+    ]),
 );
 
 // BLB 25 — Pileated Provisioner
@@ -1010,14 +1187,59 @@ pub(in crate::card::sets) static STAR_CHARTER: CardRecord = CardRecord::new(
 );
 
 // BLB 34 — Starfall Invocation
-// Audit: unsupported — Needs an optional casting-time gift promise independent of additional
-// costs and a committed give-gift action at the correct resolution or entry timing; the current
-// cost and named-action vocabulary does not represent that promise and gift event.
 pub(in crate::card::sets) static STARFALL_INVOCATION: CardRecord = CardRecord::new(
     "Starfall Invocation",
     "2aea38e6-ec58-4091-b27c-2761bdd12b13",
     "Rob Rey",
-    CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{3}{W}{W}")).with_abilities(&[
+        gift("Gift a card", GIFT_CARD),
+        AbilityDef::spell_with_targets(
+            "Destroy all creatures. If the gift was promised, return a creature card put into \
+            your graveyard this way to the battlefield under your control.",
+            &[],
+            EffectDef::Destroy {
+                object: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                then: Some(crate::card::DestroyFollowUpDef {
+                    binding: crate::Binding!("destroyed"),
+                    effect: &EffectDef::IfCondition {
+                        condition: &TriggerConditionDef::SourcePaidAdditionalCost(
+                            crate::AdditionalCostIndex::PRIMARY,
+                        ),
+                        then: &EffectDef::Choose(ChooseDef {
+                            binding: ObjectChoiceBindingDef::Object(crate::Binding!("return")),
+                            unchosen: None,
+                            chooser: PlayerRefDef::EffectController,
+                            candidates: ObjectSetDef::Matching {
+                                objects: &ObjectSetDef::ZoneChangeSuccessorsOfBinding(
+                                    crate::Binding!("destroyed"),
+                                ),
+                                object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::All(&[
+                                    ObjectPredicateDef::HasType(CardType::Creature),
+                                    ObjectPredicateDef::OwnedBy(PlayerRelation::You),
+                                    ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
+                                ])),
+                            },
+                            exclude: None,
+                            minimum: 1,
+                            maximum: 1,
+                            visibility: ChoiceVisibilityDef::Public,
+                            then: &EffectDef::move_to_zone(
+                                EffectRecipientDef::object(ObjectRefDef::Binding(crate::Binding!(
+                                    "return"
+                                ))),
+                                ZoneKind::Battlefield,
+                                ZonePlacement::Top,
+                            ),
+                        }),
+                    },
+                }),
+            },
+        ),
+    ]),
 );
 
 // BLB 35 — Thistledown Players
@@ -1556,25 +1778,87 @@ pub(in crate::card::sets) static GOSSIP_S_TALENT: CardRecord = CardRecord::new(
 );
 
 // BLB 52 — Into the Flood Maw
-// Audit: unsupported — Needs an optional casting-time gift promise independent of additional
-// costs and a committed give-gift action at the correct resolution or entry timing; the current
-// cost and named-action vocabulary does not represent that promise and gift event.
 pub(in crate::card::sets) static INTO_THE_FLOOD_MAW: CardRecord = CardRecord::new(
     "Into the Flood Maw",
     "50b9575a-53d9-4df7-b86c-cda021107d3f",
     "Danny Schwartz",
-    CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{U}")).with_abilities(&[
+        gift("Gift a tapped Fish", GIFT_FISH),
+        AbilityDef::spell_with_targets(
+            "Return target creature an opponent controls to its owner's hand. If the gift was \
+            promised, instead return target nonland permanent an opponent controls to its \
+            owner's hand.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::IfAdditionalCostPaid {
+                    cost: crate::AdditionalCostIndex::PRIMARY,
+                    if_paid: &AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(
+                            CardType::Land,
+                        )),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::Opponent),
+                        owner: None,
+                    },
+                    otherwise: &AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::Opponent),
+                        owner: None,
+                    },
+                },
+            )],
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex(0)),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
+        ),
+    ]),
 );
 
 // BLB 53 — Kitnap
-// Audit: unsupported — Needs an optional casting-time gift promise independent of additional
-// costs and a committed give-gift action at the correct resolution or entry timing; the current
-// cost and named-action vocabulary does not represent that promise and gift event.
 pub(in crate::card::sets) static KITNAP: CardRecord = CardRecord::new(
     "Kitnap",
     "085be5d1-fd85-46d1-ad39-a8aa75a06a96",
     "Irina Nordsol",
-    CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{2}{U}{U}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            gift("Gift a card", EffectDef::None),
+            gift_arrival(GIFT_CARD),
+            abilities::enchant_creature(),
+            abilities::enters_trigger(
+                "When this Aura enters, tap enchanted creature. If the gift wasn't promised, put \
+            three stun counters on it.",
+                EffectDef::Sequence(&[
+                    EffectDef::Tap {
+                        object: EffectRecipientDef::AttachedPermanent,
+                    },
+                    EffectDef::IfCondition {
+                        condition: &TriggerConditionDef::Not(
+                            &TriggerConditionDef::SourcePaidAdditionalCost(
+                                crate::AdditionalCostIndex::PRIMARY,
+                            ),
+                        ),
+                        then: &EffectDef::AddCounters {
+                            object: EffectRecipientDef::AttachedPermanent,
+                            kind: CounterKind::Stun,
+                            amount: ValueDef::Constant(3),
+                        },
+                    },
+                ]),
+            ),
+            AbilityDef::static_ability(
+                "You control enchanted creature.",
+                EffectDef::gain_control(
+                    EffectRecipientDef::AttachedPermanent,
+                    PlayerRefDef::EffectController,
+                    ControlDurationDef::WhileSourceRemains {
+                        while_tapped: false,
+                    },
+                ),
+            ),
+        ]),
 );
 
 // BLB 54 — Kitsa, Otterball Elite
@@ -1703,25 +1987,90 @@ pub(in crate::card::sets) static LONG_RIVER_LURKER: CardRecord = CardRecord::new
 );
 
 // BLB 58 — Long River's Pull
-// Audit: unsupported — Needs an optional casting-time gift promise independent of additional
-// costs and a committed give-gift action at the correct resolution or entry timing; the current
-// cost and named-action vocabulary does not represent that promise and gift event.
 pub(in crate::card::sets) static LONG_RIVER_S_PULL: CardRecord = CardRecord::new(
     "Long River's Pull",
     "1c81d0fa-81a1-4f9b-a5fd-5a648fd01dea",
     "Raph Lomotan",
-    CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{U}{U}")).with_abilities(&[
+        gift("Gift a card", GIFT_CARD),
+        AbilityDef::spell_with_targets(
+            "Counter target creature spell. If the gift was promised, \
+            instead counter target spell.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::IfAdditionalCostPaid {
+                    cost: crate::AdditionalCostIndex::PRIMARY,
+                    if_paid: &AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::Spell,
+                        zones: &[ZoneKind::Stack],
+                        controller: None,
+                        owner: None,
+                    },
+                    otherwise: &AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::Spell,
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                        ]),
+                        zones: &[ZoneKind::Stack],
+                        controller: None,
+                        owner: None,
+                    },
+                },
+            )],
+            EffectDef::counter_target(TargetIndex::PRIMARY),
+        ),
+    ]),
 );
 
 // BLB 59 — Mind Spiral
-// Audit: unsupported — Needs an optional casting-time gift promise independent of additional
-// costs and a committed give-gift action at the correct resolution or entry timing; the current
-// cost and named-action vocabulary does not represent that promise and gift event.
 pub(in crate::card::sets) static MIND_SPIRAL: CardRecord = CardRecord::new(
     "Mind Spiral",
     "7e24fe6a-607b-49b8-9fca-cecb1e40de7f",
     "Filip Burburan",
-    CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{4}{U}")).with_abilities(&[
+        gift("Gift a tapped Fish", GIFT_FISH),
+        AbilityDef::spell_with_targets(
+            "Target player draws three cards. If the gift was promised, tap target creature an \
+            opponent controls and put a stun counter on it. (If a permanent with a stun \
+            counter would become untapped, remove one from it instead.)",
+            &[
+                AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(PlayerRelation::Any)),
+                AbilityTargetDef::exactly_value(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::Opponent),
+                        owner: None,
+                    },
+                    ValueDef::IfAdditionalCostPaid(&crate::card::AdditionalCostValueDef::new(
+                        crate::AdditionalCostIndex::PRIMARY,
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(0),
+                    )),
+                ),
+            ],
+            EffectDef::Sequence(&[
+                EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Target(TargetIndex(0)),
+                    amount: ValueDef::Constant(3),
+                },
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::SourcePaidAdditionalCost(
+                        crate::AdditionalCostIndex::PRIMARY,
+                    ),
+                    then: &EffectDef::Sequence(&[
+                        EffectDef::Tap {
+                            object: EffectRecipientDef::Target(TargetIndex(1)),
+                        },
+                        EffectDef::AddCounters {
+                            object: EffectRecipientDef::Target(TargetIndex(1)),
+                            kind: CounterKind::Stun,
+                            amount: ValueDef::Constant(1),
+                        },
+                    ]),
+                },
+            ]),
+        ),
+    ]),
 );
 
 // BLB 60 — Mindwhisker
@@ -2606,31 +2955,118 @@ pub(in crate::card::sets) static BONECACHE_OVERSEER: CardRecord = CardRecord::ne
 );
 
 // BLB 86 — Coiling Rebirth
-// Audit: unsupported — Needs an optional casting-time gift promise independent of additional
-// costs and a committed give-gift action at the correct resolution or entry timing; the current
-// cost and named-action vocabulary does not represent that promise and gift event.
 pub(in crate::card::sets) static COILING_REBIRTH: CardRecord = CardRecord::new(
     "Coiling Rebirth",
     "96d5de3e-0440-4dd1-899c-ab40c0752343",
     "Rovina Cai",
-    CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{3}{B}{B}")).with_abilities(&[
+        gift("Gift a card", GIFT_CARD),
+        AbilityDef::spell_with_targets(
+            "Return target creature card from your graveyard to the battlefield. Then if the \
+            gift was promised and that creature isn't legendary, create a token that's a copy \
+            of that creature, except it's 1/1.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: Some(PlayerRelation::You),
+                },
+            )],
+            EffectDef::PutOntoBattlefieldThen {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                binding: crate::Binding!("returned"),
+                counters: None,
+                then: &EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::SourcePaidAdditionalCost(
+                        crate::AdditionalCostIndex::PRIMARY,
+                    ),
+                    then: &EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Copy(
+                        &TokenCopyDef {
+                            object: &EffectRecipientDef::objects(ObjectSetDef::MatchingBinding {
+                                binding: crate::Binding!("returned"),
+                                object: ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(
+                                    CardSupertype::Legendary,
+                                )),
+                            }),
+                            exceptions: CopyExceptionsDef::power_toughness(1, 1),
+                        },
+                    ))),
+                },
+            },
+        ),
+    ]),
 );
 
 // BLB 87 — Consumed by Greed
-// Audit: unsupported — Needs an optional casting-time gift promise independent of additional
-// costs and a committed give-gift action at the correct resolution or entry timing; the current
-// cost and named-action vocabulary does not represent that promise and gift event.
 pub(in crate::card::sets) static CONSUMED_BY_GREED: CardRecord = CardRecord::new(
     "Consumed by Greed",
     "e50acc41-3517-42db-b1d3-1bdfd7294d84",
     "Mathias Kollros",
-    CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{B}{B}")).with_abilities(&[
+        gift("Gift a card", GIFT_CARD),
+        AbilityDef::spell_with_targets(
+            "Target opponent sacrifices a creature with the greatest power among creatures \
+            they control. If the gift was promised, return target creature card from your \
+            graveyard to your hand.",
+            &[
+                AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
+                    PlayerRelation::Opponent,
+                )),
+                AbilityTargetDef::exactly_value(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        zones: &[ZoneKind::Graveyard],
+                        controller: None,
+                        owner: Some(PlayerRelation::You),
+                    },
+                    ValueDef::IfAdditionalCostPaid(&crate::card::AdditionalCostValueDef::new(
+                        crate::AdditionalCostIndex::PRIMARY,
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(0),
+                    )),
+                ),
+            ],
+            EffectDef::Sequence(&[
+                EffectDef::SacrificeOfChoice {
+                    player: EffectRecipientDef::Target(TargetIndex(0)),
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::PowerLessThan(
+                            ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
+                                objects: ObjectSetDef::Query(ObjectQueryDef::matching(
+                                    ObjectPredicateDef::HasType(CardType::Creature),
+                                    &[ZoneKind::Battlefield],
+                                    PlayerRelation::Opponent,
+                                )),
+                                select: ObjectValueDef::Power,
+                                operation: AggregateOperationDef::Maximum,
+                            }),
+                        )),
+                    ]),
+                    count: ValueDef::Constant(1),
+                    then: None,
+                    amount: crate::card::SacrificedAmountDef::Power,
+                    otherwise: None,
+                    optional: false,
+                },
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::SourcePaidAdditionalCost(
+                        crate::AdditionalCostIndex::PRIMARY,
+                    ),
+                    then: &EffectDef::move_to_zone(
+                        EffectRecipientDef::Target(TargetIndex(1)),
+                        ZoneKind::Hand,
+                        ZonePlacement::Top,
+                    ),
+                },
+            ]),
+        ),
+    ]),
 );
 
 // BLB 88 — Cruelclaw's Heist
-// Audit: unsupported — Needs an optional casting-time gift promise independent of additional
-// costs and a committed give-gift action at the correct resolution or entry timing; the current
-// cost and named-action vocabulary does not represent that promise and gift event.
+// Audit: unsupported — Gift promises and gift effects are supported. Still needs a persistent caster-owned permission to cast the specifically chosen exiled card for as long as it remains exiled, including spending mana of any type; the current controller-owned permission is limited to this turn.
 pub(in crate::card::sets) static CRUELCLAW_S_HEIST: CardRecord = CardRecord::new(
     "Cruelclaw's Heist",
     "cab4539a-0157-4cbe-b50f-6e2575df74e9",
@@ -3042,14 +3478,41 @@ pub(in crate::card::sets) static MOONSTONE_HARBINGER: CardRecord = CardRecord::n
 );
 
 // BLB 102 — Nocturnal Hunger
-// Audit: unsupported — Needs an optional casting-time gift promise independent of additional
-// costs and a committed give-gift action at the correct resolution or entry timing; the current
-// cost and named-action vocabulary does not represent that promise and gift event.
 pub(in crate::card::sets) static NOCTURNAL_HUNGER: CardRecord = CardRecord::new(
     "Nocturnal Hunger",
     "742c0409-9abd-4559-b52e-932cc90c531a",
     "Sam Guay",
-    CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{2}{B}")).with_abilities(&[
+        gift("Gift a Food", GIFT_FOOD),
+        AbilityDef::spell_with_targets(
+            "Destroy target creature. If the gift wasn't promised, you lose 2 life.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex(0)),
+                    then: None,
+                },
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::Not(
+                        &TriggerConditionDef::SourcePaidAdditionalCost(
+                            crate::AdditionalCostIndex::PRIMARY,
+                        ),
+                    ),
+                    then: &EffectDef::LoseLife {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(2),
+                    },
+                },
+            ]),
+        ),
+    ]),
 );
 
 // BLB 103 — Osteomancer Adept
@@ -3770,14 +4233,41 @@ pub(in crate::card::sets) static BLACKSMITH_S_TALENT: CardRecord = CardRecord::n
 );
 
 // BLB 126 — Blooming Blast
-// Audit: unsupported — Needs an optional casting-time gift promise independent of additional
-// costs and a committed give-gift action at the correct resolution or entry timing; the current
-// cost and named-action vocabulary does not represent that promise and gift event.
 pub(in crate::card::sets) static BLOOMING_BLAST: CardRecord = CardRecord::new(
     "Blooming Blast",
     "0cd92a83-cec3-4085-a929-3f204e3e0140",
     "Jakob Eirich",
-    CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{R}")).with_abilities(&[
+        gift("Gift a Treasure", GIFT_TREASURE),
+        AbilityDef::spell_with_targets(
+            "Blooming Blast deals 2 damage to target creature. If the gift was promised, \
+            Blooming Blast also deals 3 damage to that creature's controller.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+            )],
+            EffectDef::damage_simultaneously(&[
+                crate::card::DamageAssignmentDef::from_effect(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(2),
+                ),
+                crate::card::DamageAssignmentDef::from_effect(
+                    EffectRecipientDef::player(PlayerRefDef::ControllerOf(ObjectRefDef::Target(
+                        TargetIndex::PRIMARY,
+                    ))),
+                    ValueDef::IfAdditionalCostPaid(&crate::card::AdditionalCostValueDef::new(
+                        crate::AdditionalCostIndex::PRIMARY,
+                        ValueDef::Constant(3),
+                        ValueDef::Constant(0),
+                    )),
+                ),
+            ]),
+        ),
+    ]),
 );
 
 // BLB 127 — Brambleguard Captain
@@ -4400,14 +4890,54 @@ pub(in crate::card::sets) static ROUGHSHOD_DUO: CardRecord = CardRecord::new(
 );
 
 // BLB 151 — Sazacap's Brew
-// Audit: unsupported — Needs an optional casting-time gift promise independent of additional
-// costs and a committed give-gift action at the correct resolution or entry timing; the current
-// cost and named-action vocabulary does not represent that promise and gift event.
 pub(in crate::card::sets) static SAZACAP_S_BREW: CardRecord = CardRecord::new(
     "Sazacap's Brew",
     "6d963080-b3ec-467d-82f7-39db6ecd6bbc",
     "Sam Guay",
-    CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{R}")).with_abilities(&[
+        gift("Gift a tapped Fish", GIFT_FISH),
+        AbilityDef::spell_with_targets(
+            "As an additional cost to cast this spell, discard a card.\nTarget player draws \
+            two cards. If the gift was promised, target creature you control gets +2/+0 until \
+            end of turn.",
+            &[
+                AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(PlayerRelation::Any)),
+                AbilityTargetDef::exactly_value(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::You),
+                        owner: None,
+                    },
+                    ValueDef::IfAdditionalCostPaid(&crate::card::AdditionalCostValueDef::new(
+                        crate::AdditionalCostIndex::PRIMARY,
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(0),
+                    )),
+                ),
+            ],
+            EffectDef::Sequence(&[
+                EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Target(TargetIndex(0)),
+                    amount: ValueDef::Constant(2),
+                },
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::SourcePaidAdditionalCost(
+                        crate::AdditionalCostIndex::PRIMARY,
+                    ),
+                    then: &EffectDef::Apply {
+                        recipient: EffectRecipientDef::Target(TargetIndex(1)),
+                        effect: AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(2),
+                            ValueDef::Constant(0),
+                        ),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                },
+            ]),
+        )
+        .with_spell_additional_cost(&CostDef::DiscardCards(1)),
+    ]),
 );
 
 // BLB 152 — Season of the Bold
@@ -4615,14 +5145,56 @@ pub(in crate::card::sets) static VALLEY_FLAMECALLER: CardRecord = CardRecord::ne
 );
 
 // BLB 159 — Valley Rally
-// Audit: unsupported — Needs an optional casting-time gift promise independent of additional
-// costs and a committed give-gift action at the correct resolution or entry timing; the current
-// cost and named-action vocabulary does not represent that promise and gift event.
 pub(in crate::card::sets) static VALLEY_RALLY: CardRecord = CardRecord::new(
     "Valley Rally",
     "b6178258-1ad6-4122-a56f-6eb7d0611e84",
     "Sidharth Chaturvedi",
-    CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{2}{R}")).with_abilities(&[
+        gift("Gift a Food", GIFT_FOOD),
+        AbilityDef::spell_with_targets(
+            "Creatures you control get +2/+0 until end of turn. If the gift was promised, \
+            target creature you control gains first strike until end of turn.",
+            &[AbilityTargetDef::exactly_value(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                },
+                ValueDef::IfAdditionalCostPaid(&crate::card::AdditionalCostValueDef::new(
+                    crate::AdditionalCostIndex::PRIMARY,
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(0),
+                )),
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                        ObjectQueryDef::matching(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        ),
+                    )),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(0),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::SourcePaidAdditionalCost(
+                        crate::AdditionalCostIndex::PRIMARY,
+                    ),
+                    then: &EffectDef::Apply {
+                        recipient: EffectRecipientDef::Target(TargetIndex(0)),
+                        effect: AppliedEffectDef::add_ability(&abilities::first_strike()),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                },
+            ]),
+        ),
+    ]),
 );
 
 // BLB 160 — War Squeak
@@ -4679,14 +5251,43 @@ pub(in crate::card::sets) static WHISKERQUILL_SCRIBE: CardRecord = CardRecord::n
 );
 
 // BLB 162 — Wildfire Howl
-// Audit: unsupported — Needs an optional casting-time gift promise independent of additional
-// costs and a committed give-gift action at the correct resolution or entry timing; the current
-// cost and named-action vocabulary does not represent that promise and gift event.
 pub(in crate::card::sets) static WILDFIRE_HOWL: CardRecord = CardRecord::new(
     "Wildfire Howl",
     "7392d397-9836-4df2-944d-c930c9566811",
     "Manuel Castañón",
-    CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{1}{R}{R}")).with_abilities(&[
+        gift("Gift a card", GIFT_CARD),
+        AbilityDef::spell_with_targets(
+            "Wildfire Howl deals 2 damage to each creature. If the gift was promised, instead \
+            Wildfire Howl deals 1 damage to any target and 2 damage to each creature.",
+            &[AbilityTargetDef::exactly_value(
+                AbilityTargetPredicate::AnyTarget,
+                ValueDef::IfAdditionalCostPaid(&crate::card::AdditionalCostValueDef::new(
+                    crate::AdditionalCostIndex::PRIMARY,
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(0),
+                )),
+            )],
+            EffectDef::damage_simultaneously(&[
+                crate::card::DamageAssignmentDef::from_effect(
+                    EffectRecipientDef::Target(TargetIndex(0)),
+                    ValueDef::IfAdditionalCostPaid(&crate::card::AdditionalCostValueDef::new(
+                        crate::AdditionalCostIndex::PRIMARY,
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(0),
+                    )),
+                ),
+                crate::card::DamageAssignmentDef::from_effect(
+                    EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    ))),
+                    ValueDef::Constant(2),
+                ),
+            ]),
+        ),
+    ]),
 );
 
 // BLB 163 — Bakersbane Duo
@@ -5475,14 +6076,49 @@ const KEEN_EYED_CURATOR_ALTERNATE_1: PrintingRecord = PrintingRecord::alternate(
 );
 
 // BLB 182 — Longstalk Brawl
-// Audit: unsupported — Needs an optional casting-time gift promise independent of additional
-// costs and a committed give-gift action at the correct resolution or entry timing; the current
-// cost and named-action vocabulary does not represent that promise and gift event.
 pub(in crate::card::sets) static LONGSTALK_BRAWL: CardRecord = CardRecord::new(
     "Longstalk Brawl",
     "c7ef748c-b5e5-4e7d-bf2e-d3e6c08edb42",
     "Serena Malyon",
-    CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{G}")).with_abilities(&[
+        gift("Gift a tapped Fish", GIFT_FISH),
+        AbilityDef::spell_with_targets(
+            "Choose target creature you control and target creature you don't control. Put a \
+            +1/+1 counter on the creature you control if the gift was promised. Then those \
+            creatures fight each other.",
+            &[
+                AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                }),
+                AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::Opponent),
+                    owner: None,
+                }),
+            ],
+            EffectDef::Sequence(&[
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::SourcePaidAdditionalCost(
+                        crate::AdditionalCostIndex::PRIMARY,
+                    ),
+                    then: &EffectDef::AddCounters {
+                        object: EffectRecipientDef::Target(TargetIndex(0)),
+                        kind: CounterKind::PlusOnePlusOne,
+                        amount: ValueDef::Constant(1),
+                    },
+                },
+                EffectDef::Fight {
+                    first: ObjectRefDef::Target(TargetIndex::PRIMARY),
+                    second: ObjectRefDef::Target(TargetIndex(1)),
+                    excess: None,
+                },
+            ]),
+        ),
+    ]),
 );
 
 // BLB 183 — Lumra, Bellow of the Woods
@@ -5707,14 +6343,42 @@ pub(in crate::card::sets) static PAWPATCH_RECRUIT: CardRecord = CardRecord::new(
 );
 
 // BLB 188 — Peerless Recycling
-// Audit: unsupported — Needs an optional casting-time gift promise independent of additional
-// costs and a committed give-gift action at the correct resolution or entry timing; the current
-// cost and named-action vocabulary does not represent that promise and gift event.
 pub(in crate::card::sets) static PEERLESS_RECYCLING: CardRecord = CardRecord::new(
     "Peerless Recycling",
     "5f72466c-505b-4371-9366-0fde525a37e6",
     "Jeff Miracola",
-    CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{G}")).with_abilities(&[
+        gift("Gift a card", GIFT_CARD),
+        AbilityDef::spell_with_targets(
+            "Return target permanent card from your graveyard to your hand. If the gift was \
+            promised, instead return two target permanent cards from your graveyard to your \
+            hand.",
+            &[AbilityTargetDef::exactly_value(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::HasType(CardType::Enchantment),
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::HasType(CardType::Planeswalker),
+                    ]),
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: Some(PlayerRelation::You),
+                },
+                ValueDef::IfAdditionalCostPaid(&crate::card::AdditionalCostValueDef::new(
+                    crate::AdditionalCostIndex::PRIMARY,
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(1),
+                )),
+            )],
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex(0)),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
+        ),
+    ]),
 );
 
 // BLB 189 — Polliwallop
@@ -5787,14 +6451,42 @@ pub(in crate::card::sets) static RUST_SHIELD_RAMPAGER: CardRecord = CardRecord::
 );
 
 // BLB 191 — Scrapshooter
-// Audit: unsupported — Needs an optional casting-time gift promise independent of additional
-// costs and a committed give-gift action at the correct resolution or entry timing; the current
-// cost and named-action vocabulary does not represent that promise and gift event.
 pub(in crate::card::sets) static SCRAPSHOOTER: CardRecord = CardRecord::new(
     "Scrapshooter",
     "c42ab407-e72d-4c48-9a9e-2055b5e71c69",
     "Chris Rahn",
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{G}{G}"), &["Raccoon", "Archer"], 4, 4).with_abilities(
+        &[
+            gift("Gift a card", EffectDef::None),
+            gift_arrival(GIFT_CARD),
+            abilities::reach(),
+            AbilityDef::triggered_if_with_targets(
+                "When this creature enters, if the gift was promised, destroy target artifact or \
+            enchantment an opponent controls.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::Source,
+                    None,
+                    Some(ZoneKind::Battlefield),
+                ),
+                &TriggerConditionDef::SourcePaidAdditionalCost(crate::AdditionalCostIndex::PRIMARY),
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Artifact),
+                            ObjectPredicateDef::HasType(CardType::Enchantment),
+                        ]),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::Opponent),
+                        owner: None,
+                    },
+                )],
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex(0)),
+                    then: None,
+                },
+            ),
+        ],
+    ),
 );
 
 // BLB 192 — Season of Gathering
@@ -6077,14 +6769,37 @@ pub(in crate::card::sets) static VALLEY_MIGHTCALLER: CardRecord = CardRecord::ne
 );
 
 // BLB 203 — Wear Down
-// Audit: unsupported — Needs an optional casting-time gift promise independent of additional
-// costs and a committed give-gift action at the correct resolution or entry timing; the current
-// cost and named-action vocabulary does not represent that promise and gift event.
 pub(in crate::card::sets) static WEAR_DOWN: CardRecord = CardRecord::new(
     "Wear Down",
     "fded2b83-3b7d-4c8c-83c4-0624a1069628",
     "Iris Compiet",
-    CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{1}{G}")).with_abilities(&[
+        gift("Gift a card", GIFT_CARD),
+        AbilityDef::spell_with_targets(
+            "Destroy target artifact or enchantment. If the gift was promised, instead destroy \
+            two target artifacts and/or enchantments.",
+            &[AbilityTargetDef::exactly_value(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        ObjectPredicateDef::HasType(CardType::Enchantment),
+                    ]),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+                ValueDef::IfAdditionalCostPaid(&crate::card::AdditionalCostValueDef::new(
+                    crate::AdditionalCostIndex::PRIMARY,
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(1),
+                )),
+            )],
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex(0)),
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // BLB 204 — Alania, Divergent Storm
@@ -7203,14 +7918,53 @@ pub(in crate::card::sets) static SHORT_BOW: CardRecord = CardRecord::new(
 );
 
 // BLB 249 — Starforged Sword
-// Audit: unsupported — Needs an optional casting-time gift promise independent of additional
-// costs and a committed give-gift action at the correct resolution or entry timing; the current
-// cost and named-action vocabulary does not represent that promise and gift event.
 pub(in crate::card::sets) static STARFORGED_SWORD: CardRecord = CardRecord::new(
     "Starforged Sword",
     "c23d8e96-b972-4c6c-b0c4-b6627621f048",
     "Mark Poole",
-    CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{4}"))
+        .with_subtypes(&["Equipment"])
+        .with_abilities(&[
+            gift("Gift a tapped Fish", EffectDef::None),
+            gift_arrival(GIFT_FISH),
+            AbilityDef::triggered_if_with_targets(
+                "When this Equipment enters, if the gift was promised, attach this Equipment to \
+            target creature you control.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::Source,
+                    None,
+                    Some(ZoneKind::Battlefield),
+                ),
+                &TriggerConditionDef::SourcePaidAdditionalCost(crate::AdditionalCostIndex::PRIMARY),
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::You),
+                        owner: None,
+                    },
+                )],
+                EffectDef::Attach {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                },
+            ),
+            AbilityDef::static_ability(
+                "Equipped creature gets +3/+3 and loses flying.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(3),
+                            ValueDef::Constant(3),
+                        ),
+                        AppliedEffectDef::remove_abilities(AbilityPredicateDef::Keyword(
+                            KeywordAbility::Flying,
+                        )),
+                    ]),
+                },
+            ),
+            abilities::equip(&[CostDef::Mana(mana_cost!("{3}"))], "Equip {3}"),
+        ]),
 );
 
 // BLB 250 — Tangle Tumbler

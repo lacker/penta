@@ -753,6 +753,7 @@ fn parse_permanent(
     };
     let has_cast_context = source_zone.is_some()
         || alternative.is_some()
+        || state.gift_recipient.is_some()
         || state.cast_alternative_cost_binding.is_some()
         || state.cast_x > 0
         || state.cast_kicks > 0
@@ -769,10 +770,12 @@ fn parse_permanent(
         permanent.card.definition.card_definition(),
         catalog,
     )?;
+    let gift_recipient = state.gift_recipient.map(player_from_index).transpose()?;
     permanent.cast = has_cast_context.then(|| CastContext {
         source_zone,
         alternative,
         alternative_cost_binding,
+        gift_recipient,
         at_instant_speed: state.cast_at_instant_speed,
         x: state.cast_x,
         repeatable_additional_costs: state.cast_kicks,

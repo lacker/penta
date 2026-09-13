@@ -848,12 +848,13 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
             // No card prints it, so no card may claim it.
         }
         }
-        // Neither clause resolves anything: a cost clause has already been
-        // paid where the spell was announced, and a deck-construction
-        // permission is read while a deck is assembled and never while a
-        // game runs. Both are shared exactly when they do nothing.
+        // Ordinary optional costs carry no resolution effect. Gift carries
+        // its deferred benefit, executed before the spell's other effects.
+        // Deck construction remains silent during gameplay.
         DeclarativeAbilityDef::OptionalAdditionalCost(cost) => {
-            effect == EffectDef::None
+            (effect == EffectDef::None
+                || (cost.kind == crate::card::OptionalAdditionalCostKindDef::Gift
+                    && shared_stack_effect(effect)))
                 && cost.costs.iter().all(|cost| {
                     matches!(cost, CostDef::ManaCostOf(crate::ObjectRefDef::Source))
                         || shared_spell_additional_cost(Some(*cost))

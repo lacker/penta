@@ -100,6 +100,8 @@ pub(super) struct PermanentSnapshot {
     /// Name of the chosen alternative cost; absent for unlabeled or external costs.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub(super) cast_alternative_cost_binding: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(in crate::game::state_checkpoint) gift_recipient: Option<usize>,
     /// Semantic cast facts by stable name. Additive: an absent collection is
     /// an ordinary untagged cast.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]

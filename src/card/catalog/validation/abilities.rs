@@ -24,6 +24,7 @@ use crate::{
 
 include!("abilities/target_choosers.rs");
 include!("abilities/entry_values.rs");
+include!("abilities/granted_static.rs");
 include!("abilities/cost_bindings.rs");
 
 pub(super) fn validate_alternative_cast_abilities(
@@ -323,7 +324,12 @@ fn validate_granted_abilities(
         let grant = GrantId::from_index(index)
             .expect("the containing ability's grant-site capacity was validated");
         path.push(grant);
-        if matches!(granted.definition, DeclarativeAbilityDef::Static(_)) {
+        if let DeclarativeAbilityDef::Static(static_definition) = granted.definition
+            && (static_definition.source_zones != [ZoneKind::Battlefield]
+                || !granted
+                    .declarative_effect()
+                    .is_some_and(granted_static_power_toughness_supported))
+        {
             return Err(CatalogError::InvalidGrantedAbility {
                 definition: definition.id,
                 part,

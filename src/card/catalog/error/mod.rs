@@ -123,10 +123,8 @@ pub enum GrantedAbilityValidationError {
     ObjectSetBindingReferenceOutOfScope {
         binding: Binding,
     },
-    /// Runtime static-effect discovery currently starts from attached printed
-    /// or copied clauses. Reject an executable static ability granted by
-    /// another ability until continuous effects have guarded fixed-point
-    /// evaluation rather than silently claiming support.
+    /// Granted static effects outside the supported power/toughness lane
+    /// require additional live discovery or dependency evaluation.
     ExecutableStaticAbility,
 }
 
@@ -250,7 +248,7 @@ impl fmt::Display for GrantedAbilityValidationError {
                 "references object-set binding {binding:?} outside its scope"
             ),
             Self::ExecutableStaticAbility => formatter.write_str(
-                "is an executable static ability, but granted static abilities are not evaluated yet",
+                "is a granted static ability outside the supported battlefield power/toughness lane",
             ),
         }
     }

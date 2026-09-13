@@ -115,6 +115,11 @@ shift all later component and grant identifiers. Its entire static ability
 therefore retains the reference walker. The prepared catalog still retains
 the reference effect for that fallback.
 
+Battlefield power/toughness evaluation also visits surviving layer-6 static
+ability grants through the reference walker. Intrinsic catalog lane summaries
+cannot reject these runtime-derived sources; intrinsic effects continue to
+use their existing prepared or reference traversal.
+
 Catalog programs apply only when the runtime has the matching catalog-backed
 card characteristics. Tokens, emblems, face-down characteristics, copy-added
 abilities, and other runtime-derived structures continue through the general

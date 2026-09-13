@@ -399,3 +399,5 @@ fn cleric_class_reads_returned_creatures_battlefield_toughness_before_life_trigg
         "the level-2 ability remains granted at level 3"
     );
 }
+
+mod caretakers_talent;

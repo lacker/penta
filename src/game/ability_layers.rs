@@ -96,6 +96,40 @@ impl Game {
         ControlFlow::Continue(())
     }
 
+    /// Visits surviving layer-6 grants with the later of the host's timestamp
+    /// and the granting effect's timestamp for static effects (CR 613.7a).
+    pub(super) fn visit_effective_granted_abilities(
+        &self,
+        permanent: &Permanent,
+        prospective: Option<&Permanent>,
+        mut visitor: impl FnMut(EffectiveAbility, super::ContinuousEffectTimestamp) -> ControlFlow<()>,
+    ) -> ControlFlow<()> {
+        let operations = self.collect_ability_layer_operations(permanent, prospective);
+        if !operations
+            .iter()
+            .any(|operation| matches!(operation.kind, AbilityLayerOperationKind::Add { .. }))
+        {
+            return ControlFlow::Continue(());
+        }
+        let mut abilities = self.collect_base_effective_abilities(permanent, prospective);
+        for operation in &operations {
+            Self::apply_ability_layer_operation(&mut abilities, operation);
+        }
+        for effective in abilities {
+            let Some(timestamp) = operations.iter().rev().find_map(|operation| {
+                matches!(operation.kind, AbilityLayerOperationKind::Add { origin, .. }
+                    if origin == effective.origin)
+                .then_some(operation.timestamp)
+            }) else {
+                continue;
+            };
+            if visitor(effective, timestamp.max(permanent.timestamp)).is_break() {
+                return ControlFlow::Break(());
+            }
+        }
+        ControlFlow::Continue(())
+    }
+
     fn collect_effective_abilities(
         &self,
         permanent: &Permanent,

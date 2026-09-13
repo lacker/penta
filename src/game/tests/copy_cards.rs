@@ -290,6 +290,9 @@ fn progenitor_mimic_adds_an_upkeep_copy_trigger() {
 #[test]
 fn lithoform_engine_copies_a_permanent_spell_into_a_token() {
     let mut game = ready_game();
+    game.put_onto_battlefield(PlayerId::One, cards::CARETAKER_S_TALENT)
+        .unwrap();
+    game.players[0].library = game.build_zone(PlayerId::One, &[cards::ISLAND; 4]).unwrap();
     let engine = CardInstanceId(160_030);
     let angel = card(160_031, cards::SERRA_ANGEL, PlayerId::One);
     game.battlefield
@@ -336,7 +339,12 @@ fn lithoform_engine_copies_a_permanent_spell_into_a_token() {
     );
     assert!(game.has_flying(token));
 
-    pass_priority_pair(&mut game);
+    drain_pending(&mut game);
+    assert_eq!(
+        game.players[0].hand.len(),
+        1,
+        "a resolving permanent-spell copy enters as a token without being created"
+    );
     assert_eq!(
         game.battlefield
             .iter()

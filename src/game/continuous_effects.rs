@@ -1,3 +1,4 @@
+mod effective_power_toughness;
 mod player_rules;
 mod source_visitation;
 mod untap_limits;

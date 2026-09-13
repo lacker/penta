@@ -615,7 +615,7 @@ fn replacement_program_grants_count_toward_the_structural_address_space() {
 }
 
 #[test]
-fn executable_granted_static_abilities_are_rejected_until_fixed_point_evaluation_exists() {
+fn granted_static_abilities_outside_the_supported_lane_are_rejected() {
     static GRANTED: AbilityDef =
         AbilityDef::static_ability("This object gets +1/+1.", EffectDef::None);
 
@@ -930,3 +930,4 @@ fn face_up_in_exile_rejects_trigger_and_static_contexts() {
         }
     }
 }
+include!("abilities_grants/static_power_toughness.rs");

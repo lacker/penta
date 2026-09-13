@@ -324,13 +324,76 @@ pub(in crate::card::sets) static BUILDER_S_TALENT: CardRecord = CardRecord::new(
 );
 
 // BLB 6 — Caretaker's Talent
-// Audit: unsupported — Needs level-granted static token anthem evaluation and one-or-more token
-// entry events rather than token-creation events.
 pub(in crate::card::sets) static CARETAKER_S_TALENT: CardRecord = CardRecord::new(
     "Caretaker's Talent",
     "ad5ea98a-e36e-4ab9-b4da-cc572f3777db",
     "Lindsey Look",
-    CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{2}{W}"))
+        .with_subtypes(&["Class"])
+        .with_abilities(&crate::ability_list![
+            [AbilityDef::triggered(
+                "Whenever one or more tokens you control enter, draw a card. \
+                 This ability triggers only once each turn.",
+                // The per-turn limit also coalesces simultaneous token entries.
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Token,
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ]),
+                    None,
+                    Some(ZoneKind::Battlefield),
+                ),
+                EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+            )
+            .triggering_at_most(1)],
+            class_level!(
+                "{W}: Level 2",
+                "{W}",
+                2,
+                [AbilityDef::triggered_with_targets(
+                    "When this Class becomes level 2, create a token that's a \
+                     copy of target token you control.",
+                    TriggerEventDef::BecomesLevel(2),
+                    &[AbilityTargetDef::exactly_one(
+                        AbilityTargetPredicate::Object {
+                            object: ObjectPredicateDef::Token,
+                            zones: &[ZoneKind::Battlefield],
+                            controller: Some(PlayerRelation::You),
+                            owner: None,
+                        }
+                    )],
+                    EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Copy(&TokenCopyDef {
+                        object: &EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        exceptions: CopyExceptionsDef::NONE,
+                    }))),
+                )],
+            ),
+            class_level!(
+                "{3}{W}: Level 3",
+                "{3}{W}",
+                3,
+                [AbilityDef::static_ability(
+                    "Creature tokens you control get +2/+2.",
+                    EffectDef::StaticApply {
+                        recipient: EffectRecipientDef::matching_objects(
+                            ObjectPredicateDef::All(&[
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                ObjectPredicateDef::Token,
+                            ]),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        ),
+                        effect: AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(2),
+                            ValueDef::Constant(2),
+                        ),
+                    },
+                )],
+            ),
+        ]),
 );
 
 // BLB 7 — Carrot Cake

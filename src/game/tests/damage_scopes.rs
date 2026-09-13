@@ -74,3 +74,60 @@ fn steam_blast_reaches_the_board_and_both_players() {
         "the 4/4 survives two damage and both smaller creatures do not"
     );
 }
+
+#[test]
+fn price_of_progress_counts_each_controllers_nonbasic_lands_at_resolution() {
+    let (mut game, spell) = staged(cards::PRICE_OF_PROGRESS);
+    game.battlefield.extend([
+        creature(69_100, cards::TAIGA, PlayerId::One),
+        creature(69_101, cards::MOUNTAIN, PlayerId::One),
+        creature(69_102, cards::MISHRA_S_FACTORY, PlayerId::Two),
+        creature(69_103, cards::TUNDRA, PlayerId::Two),
+        creature(69_104, cards::ISLAND, PlayerId::Two),
+        creature(69_105, cards::SOL_RING, PlayerId::Two),
+        creature(69_106, cards::BLOOD_MOON, PlayerId::One),
+    ]);
+    game.players[1]
+        .hand
+        .push(card(69_107, cards::TUNDRA, PlayerId::Two));
+    let action = cast_action(spell, Vec::new(), Vec::new(), 0);
+    assert!(game.legal_actions(PlayerId::One).contains(&action));
+    game.apply(PlayerId::One, action).unwrap();
+
+    // Change control while the spell is on the stack. The land's owner stays
+    // the same, and Blood Moon gives it a basic land type but not Basic.
+    game.battlefield
+        .iter_mut()
+        .find(|permanent| permanent.card.id == GameObjectId(69_103))
+        .unwrap()
+        .controller = PlayerId::One;
+    pass_priority_pair(&mut game);
+
+    assert_eq!((game.players[0].life, game.players[1].life), (16, 18));
+}
+
+#[test]
+fn price_of_progress_deals_no_damage_for_basic_lands() {
+    let (mut game, spell) = staged(cards::PRICE_OF_PROGRESS);
+    game.battlefield.extend([
+        creature(69_100, cards::MOUNTAIN, PlayerId::One),
+        creature(69_101, cards::ISLAND, PlayerId::Two),
+    ]);
+    cast_no_target(&mut game, spell);
+    assert_eq!((game.players[0].life, game.players[1].life), (20, 20));
+}
+
+#[test]
+fn price_of_progress_can_kill_both_players() {
+    let (mut game, spell) = staged(cards::PRICE_OF_PROGRESS);
+    game.players[0].life = 2;
+    game.players[1].life = 4;
+    game.battlefield.extend([
+        creature(69_100, cards::TAIGA, PlayerId::One),
+        creature(69_101, cards::TUNDRA, PlayerId::Two),
+        creature(69_102, cards::MISHRA_S_FACTORY, PlayerId::Two),
+    ]);
+    cast_no_target(&mut game, spell);
+    assert_eq!((game.players[0].life, game.players[1].life), (0, 0));
+    assert_eq!(game.result, Some(GameResult::Draw));
+}

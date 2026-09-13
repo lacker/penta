@@ -27,6 +27,7 @@ use crate::card::CostDef;
 use crate::card::CostQuantityDef;
 use crate::card::CounterKind;
 use crate::card::CreateTokenDef;
+use crate::card::DamageAssignmentDef;
 use crate::card::DiscardSelectionDef;
 use crate::card::EffectChoiceDef;
 use crate::card::EffectDef;
@@ -2237,13 +2238,47 @@ CardRules::new_enchantment(mana_cost!("{1}{R}"))
 );
 
 // EXO 95 — Price of Progress
-// Audit: unsupported — Damage amounts cannot yet be evaluated separately for each
-// recipient from that player's own nonbasic-land count.
 pub(in crate::card::sets) static PRICE_OF_PROGRESS: CardRecord = CardRecord::new(
     "Price of Progress",
     "8e5283db-3e22-4862-9d95-56d03d09c2ae",
     "Richard Kane Ferguson",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{R}")).with_ability(AbilityDef::spell(
+        "Price of Progress deals damage to each player equal to twice the number of nonbasic lands that player controls.",
+        EffectDef::damage_simultaneously(&[
+            DamageAssignmentDef::from_effect(
+                EffectRecipientDef::Controller,
+                ValueDef::Scaled(&ScaledValueDef::new(
+                    ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Land),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(
+                                CardSupertype::Basic,
+                            )),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    )),
+                    2,
+                )),
+            ),
+            DamageAssignmentDef::from_effect(
+                EffectRecipientDef::Opponent,
+                ValueDef::Scaled(&ScaledValueDef::new(
+                    ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Land),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(
+                                CardSupertype::Basic,
+                            )),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Opponent,
+                    )),
+                    2,
+                )),
+            ),
+        ]),
+    )),
 );
 
 // EXO 96 — Raging Goblin (reprint)

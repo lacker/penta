@@ -337,6 +337,7 @@ impl Game {
                                                         locked,
                                                         self.spell_cost_reduction(
                                                             definition.id,
+                                                            &option.form,
                                                             player,
                                                             card.id,
                                                             &[],
@@ -513,6 +514,7 @@ impl Game {
                                                     locked_cost,
                                                     self.spell_cost_reduction(
                                                         definition.id,
+                                                        &option.form,
                                                         player,
                                                         card.id,
                                                         targets,

@@ -391,7 +391,13 @@ impl Game {
         let cost = reduce_generic(
             Self::apply_spell_cost_reduction(
                 cost,
-                self.spell_cost_reduction(definition.id, player, card_id, choices.targets()),
+                self.spell_cost_reduction(
+                    definition.id,
+                    &option.form,
+                    player,
+                    card_id,
+                    choices.targets(),
+                ),
             ),
             self.emerge_generic_reduction(alternative_kind, sacrifices),
         );

@@ -18,8 +18,14 @@ fn generic_cost_reduction_counts_matching_cards_outside_the_battlefield() {
         .push(card(10_004, cards::BLACK_VISE, PlayerId::One));
 
     assert_eq!(
-        game.spell_cost_reduction(cards::GHOULTREE, PlayerId::One, source, &[])
-            .generic(),
+        game.spell_cost_reduction(
+            cards::GHOULTREE,
+            &SpellForm::Part(CardPartId::PRIMARY),
+            PlayerId::One,
+            source,
+            &[]
+        )
+        .generic(),
         3,
         "Ghoultree reads creature cards in its controller's graveyard rather than only battlefield permanents",
     );

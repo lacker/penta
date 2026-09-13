@@ -270,6 +270,19 @@ pub enum CardStructure {
     },
 }
 
+impl CardStructure {
+    /// Whether this part has an adventurer card's alternative characteristics.
+    /// The Adventure part itself does not have another Adventure (CR 715).
+    #[must_use]
+    pub fn part_has_adventure(&self, part: CardPartId) -> bool {
+        matches!(self, Self::AlternateSpell {
+            main,
+            kind: AlternateSpellKind::Adventure,
+            ..
+        } if *main == part)
+    }
+}
+
 /// One named-object condition and one physical-card requirement in a future
 /// meld recipe.
 ///

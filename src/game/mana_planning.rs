@@ -147,6 +147,7 @@ impl Game {
                             locked,
                             self.spell_cost_reduction(
                                 definition.id,
+                                &option.form,
                                 player,
                                 *card,
                                 choices.targets(),

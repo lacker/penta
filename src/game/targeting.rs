@@ -140,6 +140,8 @@ impl Game {
                 token,
             )?;
             view.controller = object.controller;
+            // Abilities borrow their source presentation, but have no Adventure.
+            view.has_adventure = false;
             Some(view)
         })
     }
@@ -175,6 +177,7 @@ impl Game {
         Some(TriggerEventObject {
             id,
             token,
+            has_adventure: self.presentation_has_adventure(presentation),
             types: rules.types(),
             controller,
             colors: rules.colors(),
@@ -338,6 +341,9 @@ impl Game {
         let mut object = TriggerEventObject {
             id,
             token: false,
+            has_adventure: parts
+                .iter()
+                .any(|part| definition.structure.part_has_adventure(*part)),
             types,
             controller,
             colors,

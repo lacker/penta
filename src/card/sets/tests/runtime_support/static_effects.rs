@@ -179,7 +179,8 @@ pub(in super::super) fn shared_static_non_apply_effect(
         }
         EffectDef::ModifyCost(modification) => shared_cost_modification(source_zones, modification),
         EffectDef::ReduceGenericCostBy(value) => {
-            source_zones == [ZoneKind::Hand] && shared_source_cost_reduction_value(value)
+            (source_zones == [ZoneKind::Stack] || source_zones == [ZoneKind::Hand])
+                && shared_source_cost_reduction_value(value)
         }
         EffectDef::Sequence(effects) => {
             !effects.is_empty()

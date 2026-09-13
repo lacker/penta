@@ -445,6 +445,7 @@ impl From<TriggerContext> for EffectResolutionContext {
 pub(super) struct TriggerEventObject {
     pub(super) id: GameObjectId,
     pub(super) token: bool,
+    pub(super) has_adventure: bool,
     pub(super) types: CardTypeSet,
     pub(super) controller: PlayerId,
     pub(super) colors: [bool; 5],

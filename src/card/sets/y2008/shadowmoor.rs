@@ -89,7 +89,7 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // SHM 31 — Cerulean Wisps
-pub(in crate::card::sets) static CERULEAN_WISPS_31: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static CERULEAN_WISPS: CardRecord = CardRecord::new(
     "Cerulean Wisps",
     "0dca4f46-0aad-484f-b4ea-ed61a4fc1a89",
     "Jim Nelson",
@@ -117,64 +117,84 @@ pub(in crate::card::sets) static COUNTERBORE: CardRecord = CardRecord::new(
     "Counterbore",
     "f4228b80-d87d-4ebe-ae92-04e4a7d0dc43",
     "Wayne England",
-CardRules::new_instant(mana_cost!("{3}{U}{U}")).with_ability(
-        AbilityDef::spell_with_targets(
-            "Counter target spell. Search its controller's graveyard, hand, and library for all cards with the same name as that spell and exile them. Then that player shuffles.",
-            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+    CardRules::new_instant(mana_cost!("{3}{U}{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Counter target spell. Search its controller's graveyard, \
+         hand, and library for all cards with the same name as that \
+         spell and exile them. Then that player shuffles.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
                 object: ObjectPredicateDef::Spell,
                 zones: &[ZoneKind::Stack],
                 controller: None,
                 owner: None,
-            })],
-            EffectDef::Choose(ChooseDef {
-                binding: ObjectChoiceBindingDef::Object(Binding!("counterbore_target")),
-                unchosen: None,
-                chooser: PlayerRefDef::EffectController,
-                candidates: ObjectSetDef::One(ObjectRefDef::Target(TargetIndex::PRIMARY)),
-                exclude: None,
-                minimum: 1,
-                maximum: 1,
-                visibility: ChoiceVisibilityDef::Public,
-                then: &EffectDef::Sequence(&[
-                    EffectDef::Counter {
-                        object: EffectRecipientDef::object(ObjectRefDef::Binding(Binding!(
-                            "counterbore_target"
-                        ))),
-                        zone: ZoneKind::Graveyard,
-                        placement: ZonePlacement::Top,
-                    },
-                    abilities::search_controllers_zone_and_exile(
-                        ZoneKind::Graveyard,
-                        Binding!("counterbore_target"),
-                    ),
-                    abilities::search_controllers_zone_and_exile(
-                        ZoneKind::Hand,
-                        Binding!("counterbore_target"),
-                    ),
-                    abilities::search_controllers_zone_and_exile(
-                        ZoneKind::Library,
-                        Binding!("counterbore_target"),
-                    ),
-                    EffectDef::ShuffleLibrary {
-                        player: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
-                            ObjectRefDef::Binding(Binding!("counterbore_target")),
-                        )),
-                    },
-                ]),
-            }),
-        ),
-    ),
+            },
+        )],
+        EffectDef::Choose(ChooseDef {
+            binding: ObjectChoiceBindingDef::Object(Binding!("counterbore_target")),
+            unchosen: None,
+            chooser: PlayerRefDef::EffectController,
+            candidates: ObjectSetDef::One(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+            exclude: None,
+            minimum: 1,
+            maximum: 1,
+            visibility: ChoiceVisibilityDef::Public,
+            then: &EffectDef::Sequence(&[
+                EffectDef::Counter {
+                    object: EffectRecipientDef::object(ObjectRefDef::Binding(Binding!(
+                        "counterbore_target"
+                    ))),
+                    zone: ZoneKind::Graveyard,
+                    placement: ZonePlacement::Top,
+                },
+                abilities::search_controllers_zone_and_exile(
+                    ZoneKind::Graveyard,
+                    Binding!("counterbore_target"),
+                ),
+                abilities::search_controllers_zone_and_exile(
+                    ZoneKind::Hand,
+                    Binding!("counterbore_target"),
+                ),
+                abilities::search_controllers_zone_and_exile(
+                    ZoneKind::Library,
+                    Binding!("counterbore_target"),
+                ),
+                EffectDef::ShuffleLibrary {
+                    player: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
+                        ObjectRefDef::Binding(Binding!("counterbore_target")),
+                    )),
+                },
+            ]),
+        }),
+    )),
 );
 
 // SHM 42 — Knacksaw Clique
-pub(in crate::card::sets) static KNACKSAW_CLIQUE_42: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static KNACKSAW_CLIQUE: CardRecord = CardRecord::new(
     "Knacksaw Clique",
     "22353590-f248-460e-a1a5-0b7431a4c82d",
     "Steven Belledin",
     CardRules::new_creature(mana_cost!("{3}{U}"), &["Faerie", "Rogue"], 1, 4).with_abilities(&[
-abilities::flying(),
-AbilityDef::activated_with_targets("{1}{U}, {Q}: Target opponent exiles the top card of their library. Until end of turn, you may play that card. ({Q} is the untap symbol.)", &[CostDef::Mana(mana_cost!("{1}{U}")), CostDef::UntapSource], &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(PlayerRelation::Opponent))], EffectDef::ExileTopOfLibraryToPlay { player: EffectRecipientDef::Target(TargetIndex::PRIMARY), amount: ValueDef::Constant(1), free: false, face_down: false, duration: ExilePlayDurationDef::ThisTurn, spend_any_color: false, play_condition: None, cast_only: false })
-]),
+        abilities::flying(),
+        AbilityDef::activated_with_targets(
+            "{1}{U}, {Q}: Target opponent exiles the top card of their \
+             library. Until end of turn, you may play that card. ({Q} is \
+             the untap symbol.)",
+            &[CostDef::Mana(mana_cost!("{1}{U}")), CostDef::UntapSource],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+            )],
+            EffectDef::ExileTopOfLibraryToPlay {
+                player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(1),
+                free: false,
+                face_down: false,
+                duration: ExilePlayDurationDef::ThisTurn,
+                spend_any_color: false,
+                play_condition: None,
+                cast_only: false,
+            },
+        ),
+    ]),
 );
 
 // SHM 57 — Beseech the Queen
@@ -182,8 +202,10 @@ pub(in crate::card::sets) static BESEECH_THE_QUEEN: CardRecord = CardRecord::new
     "Beseech the Queen",
     "64ee0a93-0f6d-42be-bdca-1de5422d8d54",
     "Jason Chan",
-CardRules::new_sorcery(mana_cost!("{2/B}{2/B}{2/B}")).with_ability(AbilityDef::spell(
-        "Search your library for a card with mana value less than or equal to the number of lands you control, reveal it, put it into your hand, then shuffle.",
+    CardRules::new_sorcery(mana_cost!("{2/B}{2/B}{2/B}")).with_ability(AbilityDef::spell(
+        "Search your library for a card with mana value less than or \
+         equal to the number of lands you control, reveal it, put it \
+         into your hand, then shuffle.",
         EffectDef::SearchZone {
             player: EffectRecipientDef::Controller,
             source: ZoneKind::Library,
@@ -210,7 +232,7 @@ CardRules::new_sorcery(mana_cost!("{2/B}{2/B}{2/B}")).with_ability(AbilityDef::s
 );
 
 // SHM 66 — Faerie Macabre
-pub(in crate::card::sets) static FAERIE_MACABRE_66: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static FAERIE_MACABRE: CardRecord = CardRecord::new(
     "Faerie Macabre",
     "ead8befa-27dd-4ec4-b317-1c231407e0ac",
     "rk post",
@@ -265,18 +287,35 @@ pub(in crate::card::sets) static BURN_TRAIL: CardRecord = CardRecord::new(
 );
 
 // SHM 88 — Crimson Wisps
-pub(in crate::card::sets) static CRIMSON_WISPS_88: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static CRIMSON_WISPS: CardRecord = CardRecord::new(
     "Crimson Wisps",
     "a65c81ff-fc5d-4191-93fb-52eb806457b7",
     "Jim Nelson",
-    CardRules::new_instant(mana_cost!("{R}")).with_abilities(&[
-AbilityDef::spell_with_targets("Target creature becomes red and gains haste until end of turn. (It can attack and {T} this turn.)\nDraw a card.", &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Creature))], EffectDef::Sequence(&[EffectDef::Apply { recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY), effect: AppliedEffectDef::Composite(&[AppliedEffectDef::set_colors(ColorSet::from_colors(&[ManaColor::Red])), AppliedEffectDef::add_ability(&abilities::haste())]), duration: ResolvedEffectDurationDef::UntilEndOfTurn }, abilities::draw_cards(ValueDef::Constant(1))]))
-]),
+    CardRules::new_instant(mana_cost!("{R}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Target creature becomes red and gains haste until end of \
+         turn. (It can attack and {T} this turn.)\nDraw a card.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::set_colors(ColorSet::from_colors(&[ManaColor::Red])),
+                    AppliedEffectDef::add_ability(&abilities::haste()),
+                ]),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+            abilities::draw_cards(ValueDef::Constant(1)),
+        ]),
+    )]),
 );
 
 // SHM 110 — Devoted Druid
-// Audit: unsupported — PutCountersOnSource is supported in resolving payments but not activation-cost enumeration or payment; the counter must be paid before this ability goes on the stack.
-pub(in crate::card::sets) static DEVOTED_DRUID_110: CardRecord = CardRecord::new(
+// Audit: unsupported — PutCountersOnSource is supported in resolving payments but not
+// activation-cost enumeration or payment; the counter must be paid before this ability goes on
+// the stack.
+pub(in crate::card::sets) static DEVOTED_DRUID: CardRecord = CardRecord::new(
     "Devoted Druid",
     "820e2f07-f637-4144-b45a-0e1430dcf55e",
     "Darrell Riche",
@@ -329,12 +368,12 @@ pub(in crate::card::sets) static MOSSBRIDGE_TROLL: CardRecord = CardRecord::new(
     "Mossbridge Troll",
     "537c39cc-44d3-4869-9e76-dd9c2c68ee90",
     "Jeremy Jarvis",
-CardRules::new_creature(mana_cost!("{5}{G}{G}"), &["Troll"], 5, 5).with_abilities(&[
-        abilities::regenerates_if_destroyed(
-            "If this creature would be destroyed, regenerate it.",
-        ),
+    CardRules::new_creature(mana_cost!("{5}{G}{G}"), &["Troll"], 5, 5).with_abilities(&[
+        abilities::regenerates_if_destroyed("If this creature would be destroyed, regenerate it."),
         AbilityDef::activated(
-            "Tap any number of untapped creatures you control other than this creature with total power 10 or greater: This creature gets +20/+20 until end of turn.",
+            "Tap any number of untapped creatures you control other than \
+             this creature with total power 10 or greater: This creature \
+             gets +20/+20 until end of turn.",
             &[CostDef::TapCreaturesWithTotalPower { minimum: 10 }],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
@@ -375,19 +414,87 @@ pub(in crate::card::sets) static WOODFALL_PRIMUS: CardRecord = CardRecord::new(
 );
 
 // SHM 166 — Helm of the Ghastlord
-pub(in crate::card::sets) static HELM_OF_THE_GHASTLORD_166: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static HELM_OF_THE_GHASTLORD: CardRecord = CardRecord::new(
     "Helm of the Ghastlord",
     "653dd5b7-1ad3-4df1-bd2a-4e6ae362a8a2",
     "Franz Vohwinkel",
-    CardRules::new_enchantment(mana_cost!("{3}{U/B}")).with_subtypes(&["Aura"]).with_abilities(&[
-abilities::aura_spell("Enchant creature", &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Creature))]),
-AbilityDef::static_ability("As long as enchanted creature is blue, it gets +1/+1 and has \"Whenever this creature deals damage to an opponent, draw a card.\"", EffectDef::IfCondition { condition: &TriggerConditionDef::AttachedPermanentMatches { object: ObjectPredicateDef::Color(ManaColor::Blue) }, then: &EffectDef::StaticApply { recipient: EffectRecipientDef::AttachedPermanent, effect: AppliedEffectDef::Composite(&[AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(1)), AppliedEffectDef::add_ability(&AbilityDef::triggered("Whenever this creature deals damage to an opponent, draw a card.", TriggerEventDef::damage_to_player(ObjectPredicateDef::Source, PlayerRelation::Opponent), abilities::draw_cards(ValueDef::Constant(1))))]) } }),
-AbilityDef::static_ability("As long as enchanted creature is black, it gets +1/+1 and has \"Whenever this creature deals damage to an opponent, that player discards a card.\"", EffectDef::IfCondition { condition: &TriggerConditionDef::AttachedPermanentMatches { object: ObjectPredicateDef::Color(ManaColor::Black) }, then: &EffectDef::StaticApply { recipient: EffectRecipientDef::AttachedPermanent, effect: AppliedEffectDef::Composite(&[AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(1)), AppliedEffectDef::add_ability(&AbilityDef::triggered("Whenever this creature deals damage to an opponent, that player discards a card.", TriggerEventDef::damage_to_player(ObjectPredicateDef::Source, PlayerRelation::Opponent), EffectDef::Discard { recipient: EffectRecipientDef::player(PlayerRefDef::EventPlayer), amount: ValueDef::Constant(1), selection: crate::card::DiscardSelectionDef::RecipientChooses, then: None }))]) } })
-]),
+    CardRules::new_enchantment(mana_cost!("{3}{U/B}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::aura_spell(
+                "Enchant creature",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )],
+            ),
+            AbilityDef::static_ability(
+                "As long as enchanted creature is blue, it gets +1/+1 and \
+                 has \"Whenever this creature deals damage to an opponent, \
+                 draw a card.\"",
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::AttachedPermanentMatches {
+                        object: ObjectPredicateDef::Color(ManaColor::Blue),
+                    },
+                    then: &EffectDef::StaticApply {
+                        recipient: EffectRecipientDef::AttachedPermanent,
+                        effect: AppliedEffectDef::Composite(&[
+                            AppliedEffectDef::modify_power_toughness(
+                                ValueDef::Constant(1),
+                                ValueDef::Constant(1),
+                            ),
+                            AppliedEffectDef::add_ability(&AbilityDef::triggered(
+                                "Whenever this creature deals damage to an opponent, draw a \
+                                 card.",
+                                TriggerEventDef::damage_to_player(
+                                    ObjectPredicateDef::Source,
+                                    PlayerRelation::Opponent,
+                                ),
+                                abilities::draw_cards(ValueDef::Constant(1)),
+                            )),
+                        ]),
+                    },
+                },
+            ),
+            AbilityDef::static_ability(
+                "As long as enchanted creature is black, it gets +1/+1 and \
+                 has \"Whenever this creature deals damage to an opponent, \
+                 that player discards a card.\"",
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::AttachedPermanentMatches {
+                        object: ObjectPredicateDef::Color(ManaColor::Black),
+                    },
+                    then: &EffectDef::StaticApply {
+                        recipient: EffectRecipientDef::AttachedPermanent,
+                        effect: AppliedEffectDef::Composite(&[
+                            AppliedEffectDef::modify_power_toughness(
+                                ValueDef::Constant(1),
+                                ValueDef::Constant(1),
+                            ),
+                            AppliedEffectDef::add_ability(&AbilityDef::triggered(
+                                "Whenever this creature deals damage to an opponent, that \
+                                 player discards a card.",
+                                TriggerEventDef::damage_to_player(
+                                    ObjectPredicateDef::Source,
+                                    PlayerRelation::Opponent,
+                                ),
+                                EffectDef::Discard {
+                                    recipient: EffectRecipientDef::player(
+                                        PlayerRefDef::EventPlayer,
+                                    ),
+                                    amount: ValueDef::Constant(1),
+                                    selection: crate::card::DiscardSelectionDef::RecipientChooses,
+                                    then: None,
+                                },
+                            )),
+                        ]),
+                    },
+                },
+            ),
+        ]),
 );
 
 // SHM 192 — Murderous Redcap
-pub(in crate::card::sets) static MURDEROUS_REDCAP_192: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static MURDEROUS_REDCAP: CardRecord = CardRecord::new(
     "Murderous Redcap",
     "5f7171f0-7d42-47c9-ab46-93c2bb42c914",
     "Dave Allsop",
@@ -408,7 +515,7 @@ pub(in crate::card::sets) static MURDEROUS_REDCAP_192: CardRecord = CardRecord::
 );
 
 // SHM 208 — Guttural Response
-pub(in crate::card::sets) static GUTTURAL_RESPONSE_208: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static GUTTURAL_RESPONSE: CardRecord = CardRecord::new(
     "Guttural Response",
     "e0662ab6-b475-4b8d-ae77-a9b654e611da",
     "Matt Cavotta",
@@ -491,7 +598,7 @@ pub(in crate::card::sets) static BARKSHELL_BLESSING: CardRecord = CardRecord::ne
 );
 
 // SHM 241 — Seedcradle Witch
-pub(in crate::card::sets) static SEEDCRADLE_WITCH_241: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static SEEDCRADLE_WITCH: CardRecord = CardRecord::new(
     "Seedcradle Witch",
     "a0ae8525-ce10-40bd-8980-a05fb81a0fac",
     "Steven Belledin",
@@ -520,7 +627,9 @@ pub(in crate::card::sets) static SEEDCRADLE_WITCH_241: CardRecord = CardRecord::
 );
 
 // SHM 245 — Wilt-Leaf Liege
-// Audit: unsupported — Needs a prospective discard event carrying the causing spell or ability's controller, then replacing the discard destination with battlefield entry; a generic graveyard move cannot distinguish discard from other moves.
+// Audit: unsupported — Needs a prospective discard event carrying the causing spell or
+// ability's controller, then replacing the discard destination with battlefield entry; a
+// generic graveyard move cannot distinguish discard from other moves.
 pub(in crate::card::sets) static WILT_LEAF_LIEGE: CardRecord = CardRecord::new(
     "Wilt-Leaf Liege",
     "e6a2881f-e771-47d7-a39e-692054ee727f",
@@ -532,7 +641,7 @@ pub(in crate::card::sets) static WILT_LEAF_LIEGE: CardRecord = CardRecord::new(
 // Audit: unsupported — Needs one chosen-color addition across cards in every zone, spells, and
 // permanents, with that binding carried through the distinct card and battlefield characteristic
 // walks.
-pub(in crate::card::sets) static PAINTER_S_SERVANT_257: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static PAINTER_S_SERVANT: CardRecord = CardRecord::new(
     "Painter's Servant",
     "be407a81-b25a-4e5d-845e-be0cc0d18db8",
     "Mike Dringenberg",
@@ -540,8 +649,9 @@ pub(in crate::card::sets) static PAINTER_S_SERVANT_257: CardRecord = CardRecord:
 );
 
 // SHM 258 — Pili-Pala
-// Audit: unsupported — The mana-ability eligibility/payment path rejects UntapSource costs; ordinary nonmana untap-symbol activations do not make this mana ability executable.
-pub(in crate::card::sets) static PILI_PALA_258: CardRecord = CardRecord::new(
+// Audit: unsupported — The mana-ability eligibility/payment path rejects UntapSource costs;
+// ordinary nonmana untap-symbol activations do not make this mana ability executable.
+pub(in crate::card::sets) static PILI_PALA: CardRecord = CardRecord::new(
     "Pili-Pala",
     "4892c152-1f4a-4616-8e7f-0ca4911e621a",
     "Ron Spencer",
@@ -549,19 +659,40 @@ pub(in crate::card::sets) static PILI_PALA_258: CardRecord = CardRecord::new(
 );
 
 // SHM 267 — Umbral Mantle
-pub(in crate::card::sets) static UMBRAL_MANTLE_267: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static UMBRAL_MANTLE: CardRecord = CardRecord::new(
     "Umbral Mantle",
     "10e35711-aec9-4024-a2a6-9efff8c71df2",
     "Richard Sardinha",
-    CardRules::new_artifact(mana_cost!("{3}")).with_subtypes(&["Equipment"]).with_abilities(&[
-AbilityDef::static_ability("Equipped creature has \"{3}, {Q}: This creature gets +2/+2 until end of turn.\" ({Q} is the untap symbol.)", EffectDef::StaticApply { recipient: EffectRecipientDef::object(ObjectRefDef::AttachedToSource), effect: AppliedEffectDef::add_ability(&AbilityDef::activated("{3}, {Q}: This creature gets +2/+2 until end of turn.", &[CostDef::Mana(mana_cost!("{3}")), CostDef::UntapSource], EffectDef::Apply { recipient: EffectRecipientDef::Source, effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(2), ValueDef::Constant(2)), duration: ResolvedEffectDurationDef::UntilEndOfTurn })) }),
-abilities::equip(&[CostDef::Mana(mana_cost!("{0}"))], "Equip {0}")
-]),
+    CardRules::new_artifact(mana_cost!("{3}"))
+        .with_subtypes(&["Equipment"])
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Equipped creature has \"{3}, {Q}: This creature gets +2/+2 \
+                 until end of turn.\" ({Q} is the untap symbol.)",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::object(ObjectRefDef::AttachedToSource),
+                    effect: AppliedEffectDef::add_ability(&AbilityDef::activated(
+                        "{3}, {Q}: This creature gets +2/+2 until end of turn.",
+                        &[CostDef::Mana(mana_cost!("{3}")), CostDef::UntapSource],
+                        EffectDef::Apply {
+                            recipient: EffectRecipientDef::Source,
+                            effect: AppliedEffectDef::modify_power_toughness(
+                                ValueDef::Constant(2),
+                                ValueDef::Constant(2),
+                            ),
+                            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                        },
+                    )),
+                },
+            ),
+            abilities::equip(&[CostDef::Mana(mana_cost!("{0}"))], "Equip {0}"),
+        ]),
 );
 
 // SHM 271 — Fire-Lit Thicket
-// Audit: unsupported — Mana-ability payment rejects hybrid symbols in activation costs; it cannot choose which half of the filter cost to pay.
-pub(in crate::card::sets) static FIRE_LIT_THICKET_271: CardRecord = CardRecord::new(
+// Audit: unsupported — Mana-ability payment rejects hybrid symbols in activation costs; it
+// cannot choose which half of the filter cost to pay.
+pub(in crate::card::sets) static FIRE_LIT_THICKET: CardRecord = CardRecord::new(
     "Fire-Lit Thicket",
     "0ab9d6ad-f819-4a1e-b4ff-8dc00791f0fd",
     "Ralph Horsley",
@@ -569,8 +700,9 @@ pub(in crate::card::sets) static FIRE_LIT_THICKET_271: CardRecord = CardRecord::
 );
 
 // SHM 277 — Mystic Gate
-// Audit: unsupported — Mana-ability payment rejects hybrid symbols in activation costs; it cannot choose which half of the filter cost to pay.
-pub(in crate::card::sets) static MYSTIC_GATE_277: CardRecord = CardRecord::new(
+// Audit: unsupported — Mana-ability payment rejects hybrid symbols in activation costs; it
+// cannot choose which half of the filter cost to pay.
+pub(in crate::card::sets) static MYSTIC_GATE: CardRecord = CardRecord::new(
     "Mystic Gate",
     "3dfa866b-93e2-4365-91b0-f12d1f7c5395",
     "Fred Fields",
@@ -578,8 +710,9 @@ pub(in crate::card::sets) static MYSTIC_GATE_277: CardRecord = CardRecord::new(
 );
 
 // SHM 280 — Sunken Ruins
-// Audit: unsupported — Mana-ability payment rejects hybrid symbols in activation costs; it cannot choose which half of the filter cost to pay.
-pub(in crate::card::sets) static SUNKEN_RUINS_280: CardRecord = CardRecord::new(
+// Audit: unsupported — Mana-ability payment rejects hybrid symbols in activation costs; it
+// cannot choose which half of the filter cost to pay.
+pub(in crate::card::sets) static SUNKEN_RUINS: CardRecord = CardRecord::new(
     "Sunken Ruins",
     "9d91a31c-b70a-45bd-a8dd-48d49b277f24",
     "Warren Mahy",
@@ -589,7 +722,7 @@ pub(in crate::card::sets) static SUNKEN_RUINS_280: CardRecord = CardRecord::new(
 // SHM 281 — Wooded Bastion
 // Audit: unsupported — The immediate mana-ability payment path rejects hybrid symbols in
 // activation costs, so it cannot pay either half of the filter cost.
-pub(in crate::card::sets) static WOODED_BASTION_281: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static WOODED_BASTION: CardRecord = CardRecord::new(
     "Wooded Bastion",
     "7e088fe6-e47a-4e27-b07e-ec35db045359",
     "Christopher Moeller",
@@ -597,32 +730,32 @@ pub(in crate::card::sets) static WOODED_BASTION_281: CardRecord = CardRecord::ne
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
-    &CERULEAN_WISPS_31,
+    &CERULEAN_WISPS,
     &COUNTERBORE,
-    &KNACKSAW_CLIQUE_42,
+    &KNACKSAW_CLIQUE,
     &BESEECH_THE_QUEEN,
-    &FAERIE_MACABRE_66,
+    &FAERIE_MACABRE,
     &BURN_TRAIL,
-    &CRIMSON_WISPS_88,
-    &DEVOTED_DRUID_110,
+    &CRIMSON_WISPS,
+    &DEVOTED_DRUID,
     &GLOOMWIDOW,
     &HOWL_OF_THE_NIGHT_PACK,
     &MOSSBRIDGE_TROLL,
     &WOODFALL_PRIMUS,
-    &HELM_OF_THE_GHASTLORD_166,
-    &MURDEROUS_REDCAP_192,
-    &GUTTURAL_RESPONSE_208,
+    &HELM_OF_THE_GHASTLORD,
+    &MURDEROUS_REDCAP,
+    &GUTTURAL_RESPONSE,
     &MANAMORPHOSE,
     &BARKSHELL_BLESSING,
-    &SEEDCRADLE_WITCH_241,
+    &SEEDCRADLE_WITCH,
     &WILT_LEAF_LIEGE,
-    &PAINTER_S_SERVANT_257,
-    &PILI_PALA_258,
-    &UMBRAL_MANTLE_267,
-    &FIRE_LIT_THICKET_271,
-    &MYSTIC_GATE_277,
-    &SUNKEN_RUINS_280,
-    &WOODED_BASTION_281,
+    &PAINTER_S_SERVANT,
+    &PILI_PALA,
+    &UMBRAL_MANTLE,
+    &FIRE_LIT_THICKET,
+    &MYSTIC_GATE,
+    &SUNKEN_RUINS,
+    &WOODED_BASTION,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

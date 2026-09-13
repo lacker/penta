@@ -159,7 +159,7 @@ pub(in crate::card::sets) static DECREE_OF_JUSTICE: CardRecord = CardRecord::new
     "Decree of Justice",
     "5e8a7e5c-f252-4de8-94d7-e7327210bf26",
     "Adam Rex",
-// Cast for Angels when the game went long, cycled for Soldiers at the end
+    // Cast for Angels when the game went long, cycled for Soldiers at the end
     // of an opponent's turn when it did not. Landstill wants the second mode
     // far more often than the first.
     CardRules::new_sorcery(mana_cost!("{X}{X}{2}{W}{W}")).with_abilities(&[
@@ -182,16 +182,20 @@ pub(in crate::card::sets) static DECREE_OF_JUSTICE: CardRecord = CardRecord::new
             &[CostDef::Mana(mana_cost!("{2}{W}"))],
         ),
         AbilityDef::triggered(
-            "When you cycle this card, you may pay {X}. If you do, create X 1/1 white Soldier creature tokens.",
+            "When you cycle this card, you may pay {X}. If you do, \
+             create X 1/1 white Soldier creature tokens.",
             TriggerEventDef::DiscardedToActivate(crate::card::abilities::CYCLING),
             EffectDef::PayOr(PayOrDef::optional(
-                &[CostDef::ChosenGenericMana], // The cycling half: X is settled by the payment rather than by a cast, so
+                &[CostDef::ChosenGenericMana],
+                // The cycling half: X is settled by the payment rather than by a cast, so
                 // the branch that makes the tokens reads back what was actually paid.
                 &EffectDef::CreateToken(
                     CreateTokenDef::new(TokenDef::Literal(
-                        TokenCharacteristics::creature(&["Soldier"], &[ManaColor::White], 1, 1).with_art(
-                            CardArt::new("70205fb6-7722-4974-a8c6-8909dbb1c96d", "Bachzim"),
-                        ),
+                        TokenCharacteristics::creature(&["Soldier"], &[ManaColor::White], 1, 1)
+                            .with_art(CardArt::new(
+                                "70205fb6-7722-4974-a8c6-8909dbb1c96d",
+                                "Bachzim",
+                            )),
                     ))
                     .with_count(ValueDef::PaidAmount),
                 ),
@@ -241,29 +245,32 @@ pub(in crate::card::sets) static ETERNAL_DRAGON: CardRecord = CardRecord::new(
     "Eternal Dragon",
     "0596928c-2b20-4dbb-aa78-3ab6c3ce0d72",
     "Justin Sweet",
-// Three cards in one: a land early, a threat late, and a threat again
+    // Three cards in one: a land early, a threat late, and a threat again
     // every turn after that. Control decks play it as a one-of because it
     // never runs out.
-    CardRules::new_creature(mana_cost!("{5}{W}{W}"), &["Dragon", "Spirit"], 5, 5).with_abilities(&[
-        abilities::flying(),
-        AbilityDef::activated(
-            "{3}{W}{W}: Return this card from your graveyard to your hand. Activate only during your upkeep.",
-            &[CostDef::Mana(mana_cost!("{3}{W}{W}"))],
-            EffectDef::move_to_zone(
-                EffectRecipientDef::Source,
-                ZoneKind::Hand,
-                ZonePlacement::Top,
-),
-        )
-        .with_source_zones(&[ZoneKind::Graveyard])
-        .with_activation_timing(ActivationTimingDef::YourUpkeep),
-        abilities::typecycling!(
-            "Plainscycling {2} ({2}, Discard this card: Search your library for a Plains card, \
-                reveal it, put it into your hand, then shuffle.)",
-            &[CostDef::Mana(mana_cost!("{2}"))],
-            ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Plains]),
-        ),
-    ]),
+    CardRules::new_creature(mana_cost!("{5}{W}{W}"), &["Dragon", "Spirit"], 5, 5).with_abilities(
+        &[
+            abilities::flying(),
+            AbilityDef::activated(
+                "{3}{W}{W}: Return this card from your graveyard to your \
+                 hand. Activate only during your upkeep.",
+                &[CostDef::Mana(mana_cost!("{3}{W}{W}"))],
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Source,
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
+            )
+            .with_source_zones(&[ZoneKind::Graveyard])
+            .with_activation_timing(ActivationTimingDef::YourUpkeep),
+            abilities::typecycling!(
+                "Plainscycling {2} ({2}, Discard this card: Search your library for a Plains card, \
+                 reveal it, put it into your hand, then shuffle.)",
+                &[CostDef::Mana(mana_cost!("{2}"))],
+                ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Plains]),
+            ),
+        ],
+    ),
 );
 
 // SCG 13 — Exiled Doomsayer
@@ -321,20 +328,21 @@ pub(in crate::card::sets) static GUILTY_CONSCIENCE: CardRecord = CardRecord::new
     "Guilty Conscience",
     "67b8701c-0f03-4ad0-9097-3caf885abd59",
     "Christopher Moeller",
-// It kills anything that deals damage equal to its own toughness, which
+    // It kills anything that deals damage equal to its own toughness, which
     // is most of what a big attacker is.
     CardRules::new_enchantment(mana_cost!("{W}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
             abilities::enchant_creature(),
             AbilityDef::triggered(
-            "Whenever enchanted creature deals damage, this Aura deals that much damage to that creature.",
-            TriggerEventDef::damage_dealt_by(ObjectPredicateDef::AttachedToSource),
-            EffectDef::damage(
-                EffectRecipientDef::AttachedPermanent,
-                ValueDef::TriggerEventAmount,
+                "Whenever enchanted creature deals damage, this Aura deals \
+                 that much damage to that creature.",
+                TriggerEventDef::damage_dealt_by(ObjectPredicateDef::AttachedToSource),
+                EffectDef::damage(
+                    EffectRecipientDef::AttachedPermanent,
+                    ValueDef::TriggerEventAmount,
+                ),
             ),
-        ),
         ]),
 );
 
@@ -359,7 +367,7 @@ pub(in crate::card::sets) static NOBLE_TEMPLAR: CardRecord = CardRecord::new(
             abilities::vigilance(),
             abilities::typecycling!(
                 "Plainscycling {2} ({2}, Discard this card: Search your library for a Plains card, \
-                reveal it, put it into your hand, then shuffle.)",
+                 reveal it, put it into your hand, then shuffle.)",
                 &[CostDef::Mana(mana_cost!("{2}"))],
                 ObjectPredicateDef::Subtype(SubtypeDef::Literal("Plains")),
             ),
@@ -548,14 +556,15 @@ pub(in crate::card::sets) static DECREE_OF_SILENCE: CardRecord = CardRecord::new
     "Decree of Silence",
     "f2fc46e2-5e19-4999-a4cd-1e84697066c1",
     "Adam Rex",
-// Eight mana is not what the deck pays: it cycles this to counter one
+    // Eight mana is not what the deck pays: it cycles this to counter one
     // spell, and Replenish puts it onto the battlefield afterwards.
     CardRules::new_enchantment(mana_cost!("{6}{U}{U}")).with_abilities(&[
         AbilityDef::triggered(
-            "Whenever an opponent casts a spell, counter that spell and put a depletion counter on this enchantment. If there are three or more depletion counters on this enchantment, sacrifice it.",
-            TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(
-                PlayerRelation::Opponent,
-            )),
+            "Whenever an opponent casts a spell, counter that spell and \
+             put a depletion counter on this enchantment. If there are \
+             three or more depletion counters on this enchantment, \
+             sacrifice it.",
+            TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent)),
             // Counter the spell, mark the enchantment, and go when the third mark
             // lands. The sacrifice is checked in the same resolution rather than as a
             // state trigger, which is what the printed clause says.
@@ -572,10 +581,10 @@ pub(in crate::card::sets) static DECREE_OF_SILENCE: CardRecord = CardRecord::new
                 },
                 EffectDef::IfCondition {
                     condition: &TriggerConditionDef::SourceCounters {
-                            kind: CounterKind::named("depletion"),
-                            comparison: ComparisonDef::GreaterOrEqual,
-                            amount: 3,
-                        },
+                        kind: CounterKind::named("depletion"),
+                        comparison: ComparisonDef::GreaterOrEqual,
+                        amount: 3,
+                    },
                     then: &EffectDef::sacrifice(EffectRecipientDef::Source),
                 },
             ]),
@@ -587,12 +596,14 @@ pub(in crate::card::sets) static DECREE_OF_SILENCE: CardRecord = CardRecord::new
         AbilityDef::triggered_with_targets(
             "When you cycle this card, you may counter target spell.",
             TriggerEventDef::DiscardedToActivate(crate::card::abilities::CYCLING),
-            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
-                object: ObjectPredicateDef::Spell,
-                zones: &[ZoneKind::Stack],
-                controller: None,
-                owner: None,
-            })],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Spell,
+                    zones: &[ZoneKind::Stack],
+                    controller: None,
+                    owner: None,
+                },
+            )],
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
                 effect: &EffectDef::Counter {
@@ -789,7 +800,7 @@ pub(in crate::card::sets) static SHORELINE_RANGER: CardRecord = CardRecord::new(
         abilities::flying(),
         abilities::typecycling!(
             "Islandcycling {2} ({2}, Discard this card: Search your library for a Island card, \
-            reveal it, put it into your hand, then shuffle.)",
+             reveal it, put it into your hand, then shuffle.)",
             &[CostDef::Mana(mana_cost!("{2}"))],
             ObjectPredicateDef::Subtype(SubtypeDef::Literal("Island")),
         ),
@@ -867,7 +878,8 @@ pub(in crate::card::sets) static CABAL_INTERROGATOR: CardRecord = CardRecord::ne
 );
 
 // SCG 58 — Call to the Grave
-// Audit: unsupported — Needs each active player to make an APNAP-ordered non-Zombie sacrifice choice before any chosen creature moves.
+// Audit: unsupported — Needs each active player to make an APNAP-ordered non-Zombie sacrifice
+// choice before any chosen creature moves.
 pub(in crate::card::sets) static CALL_TO_THE_GRAVE: CardRecord = CardRecord::new(
     "Call to the Grave",
     "2a346b4a-ac8a-4f99-9ed7-dd41102e56ce",
@@ -1117,7 +1129,7 @@ pub(in crate::card::sets) static TWISTED_ABOMINATION: CardRecord = CardRecord::n
         ),
         abilities::typecycling!(
             "Swampcycling {2} ({2}, Discard this card: Search your library for a Swamp card, \
-            reveal it, put it into your hand, then shuffle.)",
+             reveal it, put it into your hand, then shuffle.)",
             &[CostDef::Mana(mana_cost!("{2}"))],
             ObjectPredicateDef::Subtype(SubtypeDef::Literal("Swamp")),
         ),
@@ -1254,7 +1266,7 @@ pub(in crate::card::sets) static CHARTOOTH_COUGAR: CardRecord = CardRecord::new(
         ),
         abilities::typecycling!(
             "Mountaincycling {2} ({2}, Discard this card: Search your library for a Mountain card, \
-            reveal it, put it into your hand, then shuffle.)",
+             reveal it, put it into your hand, then shuffle.)",
             &[CostDef::Mana(mana_cost!("{2}"))],
             ObjectPredicateDef::Subtype(SubtypeDef::Literal("Mountain")),
         ),
@@ -1275,7 +1287,7 @@ pub(in crate::card::sets) static DRAGON_BREATH: CardRecord = CardRecord::new(
     "Dragon Breath",
     "1832aaed-e164-4f78-9bc9-ec6c015835f5",
     "Greg Staples",
-// Nobody casts it. It is discarded on the way to filling a graveyard and
+    // Nobody casts it. It is discarded on the way to filling a graveyard and
     // comes back for free the turn something enormous arrives.
     CardRules::new_enchantment(mana_cost!("{1}{R}"))
         .with_subtypes(&["Aura"])
@@ -1301,7 +1313,9 @@ pub(in crate::card::sets) static DRAGON_BREATH: CardRecord = CardRecord::new(
                 },
             ),
             AbilityDef::triggered(
-                "When a creature with mana value 6 or greater enters, you may return this card from your graveyard to the battlefield attached to that creature.",
+                "When a creature with mana value 6 or greater enters, you \
+                 may return this card from your graveyard to the battlefield \
+                 attached to that creature.",
                 TriggerEventDef::zone_changed(
                     // Six or more, which the deck reaches by assembling a creature rather than
                     // by paying for one: the Ghoul arrives enormous and the Breath comes back
@@ -1840,7 +1854,7 @@ pub(in crate::card::sets) static ELVISH_ABERRATION: CardRecord = CardRecord::new
         ),
         abilities::typecycling!(
             "Forestcycling {2} ({2}, Discard this card: Search your library for a Forest card, \
-            reveal it, put it into your hand, then shuffle.)",
+             reveal it, put it into your hand, then shuffle.)",
             &[CostDef::Mana(mana_cost!("{2}"))],
             ObjectPredicateDef::Subtype(SubtypeDef::Literal("Forest")),
         ),
@@ -1988,7 +2002,7 @@ pub(in crate::card::sets) static TITANIC_BULVOX: CardRecord = CardRecord::new(
     "Titanic Bulvox",
     "3f42c4d7-b555-449c-a539-119c1ae62232",
     "Wayne England",
-// Seven trampling power either way, and the morph cost buys the turn it
+    // Seven trampling power either way, and the morph cost buys the turn it
     // arrives rather than the mana it costs.
     CardRules::new_creature(mana_cost!("{6}{G}{G}"), &["Beast"], 7, 4)
         .with_morph(&[CostDef::Mana(mana_cost!("{4}{G}{G}{G}"))])
@@ -1997,11 +2011,14 @@ pub(in crate::card::sets) static TITANIC_BULVOX: CardRecord = CardRecord::new(
                 &[CostDef::Mana(mana_cost!("{3}"))],
                 crate::card::face_down::morph_cast(),
                 Some(
-                    "Morph {4}{G}{G}{G} (You may cast this card face down as a 2/2 creature for {3}. \
-                     Turn it face up any time for its morph cost.)",
+                    "Morph {4}{G}{G}{G} (You may cast this card face down as a \
+                     2/2 creature for {3}. Turn it face up any time for its \
+                     morph cost.)",
                 ),
                 EffectDef::None,
-            ),abilities::trample()]),
+            ),
+            abilities::trample(),
+        ]),
 );
 
 // SCG 130 — Treetop Scout
@@ -2048,7 +2065,7 @@ pub(in crate::card::sets) static WIREWOOD_GUARDIAN: CardRecord = CardRecord::new
     CardRules::new_creature(mana_cost!("{5}{G}{G}"), &["Giant"], 6, 6).with_ability(
         abilities::typecycling!(
             "Forestcycling {2} ({2}, Discard this card: Search your library for a Forest card, \
-            reveal it, put it into your hand, then shuffle.)",
+             reveal it, put it into your hand, then shuffle.)",
             &[CostDef::Mana(mana_cost!("{2}"))],
             ObjectPredicateDef::Subtype(SubtypeDef::Literal("Forest")),
         ),
@@ -2096,9 +2113,12 @@ pub(in crate::card::sets) static EDGEWALKER: CardRecord = CardRecord::new(
     "Edgewalker",
     "c8b477c2-2cd5-41f2-8754-d4d5000df58d",
     "Ben Thompson",
-CardRules::new_creature(mana_cost!("{1}{W}{B}"), &["Human", "Cleric"], 2, 2).with_ability(
+    CardRules::new_creature(mana_cost!("{1}{W}{B}"), &["Human", "Cleric"], 2, 2).with_ability(
         abilities::spell_colored_cost_reduction(
-            "Cleric spells you cast cost {W}{B} less to cast. This effect reduces only the amount of colored mana you pay. (For example, if you cast a Cleric spell with mana cost {1}{W}, it costs {1} to cast.)",
+            "Cleric spells you cast cost {W}{B} less to cast. This \
+             effect reduces only the amount of colored mana you pay. \
+             (For example, if you cast a Cleric spell with mana cost \
+             {1}{W}, it costs {1} to cast.)",
             ObjectPredicateDef::Subtype(SubtypeDef::Literal("Cleric")),
             PlayerRelation::You,
             mana_cost!("{W}{B}"),

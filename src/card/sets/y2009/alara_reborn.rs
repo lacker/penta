@@ -88,7 +88,7 @@ pub(in crate::card::sets) static SOUL_MANIPULATION: CardRecord = CardRecord::new
 );
 
 // ARB 31 — Time Sieve
-pub(in crate::card::sets) static TIME_SIEVE_31: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static TIME_SIEVE: CardRecord = CardRecord::new(
     "Time Sieve",
     "c620e565-f5e1-467c-a1d1-8d05228b2f37",
     "Franz Vohwinkel",
@@ -152,13 +152,35 @@ pub(in crate::card::sets) static PUTRID_LEECH: CardRecord = CardRecord::new(
 );
 
 // ARB 129 — Wargate
-pub(in crate::card::sets) static WARGATE_129: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static WARGATE: CardRecord = CardRecord::new(
     "Wargate",
     "8f4fe11d-c404-489a-b17f-34f33b1597e8",
     "Franz Vohwinkel",
-    CardRules::new_sorcery(mana_cost!("{X}{G}{W}{U}")).with_abilities(&[
-AbilityDef::spell("Search your library for a permanent card with mana value X or less, put it onto the battlefield, then shuffle.", EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Library, object: ObjectPredicateDef::All(&[ObjectPredicateDef::Not(&ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Instant), ObjectPredicateDef::HasType(CardType::Sorcery)])), ObjectPredicateDef::ManaValueAtMostValue(ValueDef::ChosenX)]), minimum: 0, maximum: ValueDef::Constant(1), reveal: false, destination: ZoneKind::Battlefield, placement: ZonePlacement::Top, shuffle: true, enters_tapped: false, attachment: None, binding: None, then: None })
-]),
+    CardRules::new_sorcery(mana_cost!("{X}{G}{W}{U}")).with_abilities(&[AbilityDef::spell(
+        "Search your library for a permanent card with mana value X \
+         or less, put it onto the battlefield, then shuffle.",
+        EffectDef::SearchZone {
+            player: EffectRecipientDef::Controller,
+            source: ZoneKind::Library,
+            object: ObjectPredicateDef::All(&[
+                ObjectPredicateDef::Not(&ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Instant),
+                    ObjectPredicateDef::HasType(CardType::Sorcery),
+                ])),
+                ObjectPredicateDef::ManaValueAtMostValue(ValueDef::ChosenX),
+            ]),
+            minimum: 0,
+            maximum: ValueDef::Constant(1),
+            reveal: false,
+            destination: ZoneKind::Battlefield,
+            placement: ZonePlacement::Top,
+            shuffle: true,
+            enters_tapped: false,
+            attachment: None,
+            binding: None,
+            then: None,
+        },
+    )]),
 );
 
 // ARB 133 — Thopter Foundry
@@ -199,10 +221,10 @@ pub(in crate::card::sets) static THOPTER_FOUNDRY: CardRecord = CardRecord::new(
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &SOUL_MANIPULATION,
-    &TIME_SIEVE_31,
+    &TIME_SIEVE,
     &MAELSTROM_PULSE,
     &PUTRID_LEECH,
-    &WARGATE_129,
+    &WARGATE,
     &THOPTER_FOUNDRY,
 ];
 

@@ -32,17 +32,17 @@ fn on_board(game: &Game, id: GameObjectId) -> bool {
 #[test]
 fn deafening_silence_counts_noncreatures_separately_for_each_player() {
     let mut game = ready_game();
-    game.put_onto_battlefield(PlayerId::One, cards::DEAFENING_SILENCE_10)
+    game.put_onto_battlefield(PlayerId::One, cards::DEAFENING_SILENCE)
         .unwrap();
     for player in [PlayerId::One, PlayerId::Two] {
         game.add_unrestricted_mana(player, ManaColor::Green, 10);
         let bears = hold(&mut game, player, cards::GRIZZLY_BEARS);
         cast(&mut game, player, bears, 0);
         drain_pending(&mut game);
-        let vial = hold(&mut game, player, cards::AETHER_VIAL_91);
+        let vial = hold(&mut game, player, cards::AETHER_VIAL);
         cast(&mut game, player, vial, 0);
         drain_pending(&mut game);
-        let second = hold(&mut game, player, cards::AETHER_VIAL_91);
+        let second = hold(&mut game, player, cards::AETHER_VIAL);
         let creature = hold(&mut game, player, cards::GRIZZLY_BEARS);
         game.priority = player;
         let actions = game.legal_actions(player);
@@ -57,7 +57,7 @@ fn deafening_silence_counts_noncreatures_separately_for_each_player() {
 fn aether_vial_chooses_at_resolution_without_casting() {
     let mut game = ready_game();
     let vial = game
-        .put_onto_battlefield(PlayerId::One, cards::AETHER_VIAL_91)
+        .put_onto_battlefield(PlayerId::One, cards::AETHER_VIAL)
         .unwrap();
     game.battlefield
         .iter_mut()
@@ -100,7 +100,7 @@ fn temporary_lockdown_returns_both_players_permanents_when_removed() {
     let mut game = ready_game();
     game.put_onto_battlefield(PlayerId::One, cards::GRIZZLY_BEARS)
         .unwrap();
-    game.put_onto_battlefield(PlayerId::Two, cards::AETHER_VIAL_91)
+    game.put_onto_battlefield(PlayerId::Two, cards::AETHER_VIAL)
         .unwrap();
     let land = game
         .put_onto_battlefield(PlayerId::Two, cards::MOUNTAIN)
@@ -123,7 +123,7 @@ fn temporary_lockdown_returns_both_players_permanents_when_removed() {
     assert!(game.players.iter().all(|player| player.exile.is_empty()));
     for (definition, owner) in [
         (cards::GRIZZLY_BEARS, PlayerId::One),
-        (cards::AETHER_VIAL_91, PlayerId::Two),
+        (cards::AETHER_VIAL, PlayerId::Two),
     ] {
         assert!(
             game.battlefield
@@ -140,7 +140,7 @@ fn canoptek_counts_an_artifact_land_once_and_only_cards_actually_exiled() {
         .build_zone(
             PlayerId::Two,
             &[
-                cards::VAULT_OF_WHISPERS_286,
+                cards::VAULT_OF_WHISPERS,
                 cards::MOUNTAIN,
                 cards::GRIZZLY_BEARS,
             ],
@@ -209,7 +209,7 @@ fn pre_war_formalwear_attaches_to_the_returned_incarnation() {
         .build_zone(PlayerId::One, &[cards::GRIZZLY_BEARS])
         .unwrap();
     let equipment = game
-        .put_onto_battlefield(PlayerId::One, cards::PRE_WAR_FORMALWEAR_21)
+        .put_onto_battlefield(PlayerId::One, cards::PRE_WAR_FORMALWEAR)
         .unwrap();
     drain_pending(&mut game);
     let bears = game
@@ -252,12 +252,12 @@ fn infernal_tutor_uses_the_revealed_name_or_an_unrestricted_hellbent_search() {
 
 #[test]
 fn consign_can_replicate_a_colorless_counter_but_cannot_target_a_blue_spell() {
-    for (spell, legal) in [(cards::AETHER_VIAL_91, true), (cards::PONDER, false)] {
+    for (spell, legal) in [(cards::AETHER_VIAL, true), (cards::PONDER, false)] {
         let mut game = ready_game();
         let theirs = hold(&mut game, PlayerId::Two, spell);
         game.add_unrestricted_mana(PlayerId::Two, ManaColor::Blue, 1);
         cast(&mut game, PlayerId::Two, theirs, 0);
-        let held = hold(&mut game, PlayerId::One, cards::CONSIGN_TO_MEMORY_54);
+        let held = hold(&mut game, PlayerId::One, cards::CONSIGN_TO_MEMORY);
         game.add_unrestricted_mana(PlayerId::One, ManaColor::Blue, 2);
         game.priority = PlayerId::One;
         let cast = game
@@ -298,7 +298,7 @@ fn fantasticar_counts_only_noncreature_spells_and_sacrifices_for_four_tokens() {
     cast(&mut game, PlayerId::One, creature, 0);
     drain_pending(&mut game);
     for count in 1..=4 {
-        let held = hold(&mut game, PlayerId::One, cards::AETHER_VIAL_91);
+        let held = hold(&mut game, PlayerId::One, cards::AETHER_VIAL);
         cast(&mut game, PlayerId::One, held, 0);
         for _ in 0..32 {
             if let Some(decision) = game

@@ -424,7 +424,9 @@ pub(in crate::card::sets) static BULWARK_OX: CardRecord = CardRecord::new(
 );
 
 // DFT 8 — Canyon Vaulter
-// Audit: unsupported — Needs a committed crew/saddle contribution event naming the paying creature and the Mount or Vehicle during the main phase; the current total-power tap payment only emits ordinary tapped events and does not retain that relationship.
+// Audit: unsupported — Needs a committed crew/saddle contribution event naming the paying
+// creature and the Mount or Vehicle during the main phase; the current total-power tap payment
+// only emits ordinary tapped events and does not retain that relationship.
 pub(in crate::card::sets) static CANYON_VAULTER: CardRecord = CardRecord::new(
     "Canyon Vaulter",
     "cc0b15da-a45c-42f5-aafc-20ad9e38bf24",
@@ -433,7 +435,9 @@ pub(in crate::card::sets) static CANYON_VAULTER: CardRecord = CardRecord::new(
 );
 
 // DFT 9 — Cloudspire Captain
-// Audit: unsupported — Needs the printed power contribution bonus for both saddling Mounts and crewing Vehicles; CrewsAsThoughPowerGreater is deliberately limited to Vehicles and does not increase saddle payment contributions.
+// Audit: unsupported — Needs the printed power contribution bonus for both saddling Mounts and
+// crewing Vehicles; CrewsAsThoughPowerGreater is deliberately limited to Vehicles and does not
+// increase saddle payment contributions.
 pub(in crate::card::sets) static CLOUDSPIRE_CAPTAIN: CardRecord = CardRecord::new(
     "Cloudspire Captain",
     "3380d87a-c460-409c-8d47-9b2fc5ddd2ea",
@@ -507,7 +511,9 @@ pub(in crate::card::sets) static DARING_MECHANIC: CardRecord = CardRecord::new(
 );
 
 // DFT 12 — Detention Chariot
-// Audit: unsupported — Needs an exile-until-source-leaves duration that returns the card immediately when the duration ends (CR 610.3); an ordinary leaves trigger would return it later through the stack.
+// Audit: unsupported — Needs an exile-until-source-leaves duration that returns the card
+// immediately when the duration ends (CR 610.3); an ordinary leaves trigger would return it
+// later through the stack.
 pub(in crate::card::sets) static DETENTION_CHARIOT: CardRecord = CardRecord::new(
     "Detention Chariot",
     "75d5e64f-7af2-4cb4-abd1-23992e346bee",
@@ -662,7 +668,8 @@ pub(in crate::card::sets) static GUIDELIGHT_SYNERGIST: CardRecord = CardRecord::
 );
 
 // DFT 17 — Interface Ace
-// Audit: unsupported — Needs a toughness-based contribution rule for both crew and saddle payments; current total-power tap payments read power plus Vehicle-only power bonuses.
+// Audit: unsupported — Needs a toughness-based contribution rule for both crew and saddle
+// payments; current total-power tap payments read power plus Vehicle-only power bonuses.
 pub(in crate::card::sets) static INTERFACE_ACE: CardRecord = CardRecord::new(
     "Interface Ace",
     "fcfd487a-a9e6-44e3-80af-bc384316106f",
@@ -671,7 +678,9 @@ pub(in crate::card::sets) static INTERFACE_ACE: CardRecord = CardRecord::new(
 );
 
 // DFT 18 — Leonin Surveyor
-// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once
+// during each of that player's turns when an opponent loses life, and capping at 4; current
+// player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static LEONIN_SURVEYOR: CardRecord = CardRecord::new(
     "Leonin Surveyor",
     "e08e4107-213f-491b-a032-8e3367009ba8",
@@ -707,7 +716,9 @@ pub(in crate::card::sets) static LIGHTSHIELD_PARRY: CardRecord = CardRecord::new
 );
 
 // DFT 20 — Lightwheel Enhancements
-// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once
+// during each of that player's turns when an opponent loses life, and capping at 4; current
+// player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static LIGHTWHEEL_ENHANCEMENTS: CardRecord = CardRecord::new(
     "Lightwheel Enhancements",
     "9ab169c1-4e25-4a5d-8961-4f06298c3781",
@@ -744,7 +755,9 @@ pub(in crate::card::sets) static LOTUSGUARD_DISCIPLE: CardRecord = CardRecord::n
 );
 
 // DFT 22 — Nesting Bot
-// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once
+// during each of that player's turns when an opponent loses life, and capping at 4; current
+// player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static NESTING_BOT: CardRecord = CardRecord::new(
     "Nesting Bot",
     "7829c0ae-f72f-4195-ad43-775d7218565c",
@@ -753,7 +766,11 @@ pub(in crate::card::sets) static NESTING_BOT: CardRecord = CardRecord::new(
 );
 
 // DFT 23 — Perilous Snare
-// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed. Also needs the exile-until-source-leaves duration returning its exiled card immediately when that duration ends.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once
+// during each of that player's turns when an opponent loses life, and capping at 4; current
+// player state and value predicates do not represent speed or max speed. Also needs the
+// exile-until-source-leaves duration returning its exiled card immediately when that duration
+// ends.
 pub(in crate::card::sets) static PERILOUS_SNARE: CardRecord = CardRecord::new(
     "Perilous Snare",
     "47f7e468-2196-4960-a612-37ab326e2a17",
@@ -762,7 +779,9 @@ pub(in crate::card::sets) static PERILOUS_SNARE: CardRecord = CardRecord::new(
 );
 
 // DFT 24 — Pride of the Road
-// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once
+// during each of that player's turns when an opponent loses life, and capping at 4; current
+// player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static PRIDE_OF_THE_ROAD: CardRecord = CardRecord::new(
     "Pride of the Road",
     "4172222f-d871-4354-9a02-7af0001d8956",
@@ -771,7 +790,8 @@ pub(in crate::card::sets) static PRIDE_OF_THE_ROAD: CardRecord = CardRecord::new
 );
 
 // DFT 25 — Ride's End
-// Audit: unsupported — Needs a self spell-cost condition inspecting whether any declared target is tapped; existing spell-cost predicates only test targeting the external cost source.
+// Audit: unsupported — Needs a self spell-cost condition inspecting whether any declared target
+// is tapped; existing spell-cost predicates only test targeting the external cost source.
 pub(in crate::card::sets) static RIDE_S_END: CardRecord = CardRecord::new(
     "Ride's End",
     "2f96b33b-c952-45ac-9626-40169b2bd4ef",
@@ -780,7 +800,9 @@ pub(in crate::card::sets) static RIDE_S_END: CardRecord = CardRecord::new(
 );
 
 // DFT 26 — Roadside Assistance
-// Audit: unsupported — Needs the printed power contribution bonus for both saddling Mounts and crewing Vehicles; CrewsAsThoughPowerGreater is deliberately limited to Vehicles and does not increase saddle payment contributions.
+// Audit: unsupported — Needs the printed power contribution bonus for both saddling Mounts and
+// crewing Vehicles; CrewsAsThoughPowerGreater is deliberately limited to Vehicles and does not
+// increase saddle payment contributions.
 pub(in crate::card::sets) static ROADSIDE_ASSISTANCE: CardRecord = CardRecord::new(
     "Roadside Assistance",
     "8f2a9154-7b43-4b8d-9d81-d11cfda5d597",
@@ -838,7 +860,9 @@ pub(in crate::card::sets) static SALVATION_ENGINE: CardRecord = CardRecord::new(
 );
 
 // DFT 28 — Skyseer's Chariot
-// Audit: unsupported — Needs a generic activation-cost increase applying to matching named sources in every zone and to mana abilities; existing cost modification structures do not cover that activation family.
+// Audit: unsupported — Needs a generic activation-cost increase applying to matching named
+// sources in every zone and to mana abilities; existing cost modification structures do not
+// cover that activation family.
 pub(in crate::card::sets) static SKYSEER_S_CHARIOT: CardRecord = CardRecord::new(
     "Skyseer's Chariot",
     "96ed5b66-8e74-4a90-ad4e-c39d15993994",
@@ -925,7 +949,9 @@ pub(in crate::card::sets) static SUNDIAL_DAWN_TYRANT: CardRecord = CardRecord::n
 );
 
 // DFT 32 — Swiftwing Assailant
-// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once
+// during each of that player's turns when an opponent loses life, and capping at 4; current
+// player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static SWIFTWING_ASSAILANT: CardRecord = CardRecord::new(
     "Swiftwing Assailant",
     "72db9bb9-d930-40e5-b144-01ebfd377996",
@@ -1019,7 +1045,9 @@ pub(in crate::card::sets) static UNSWERVING_SLOTH: CardRecord = CardRecord::new(
 );
 
 // DFT 35 — Valor's Flagship
-// Audit: unsupported — Needs the printed power contribution bonus for both saddling Mounts and crewing Vehicles; CrewsAsThoughPowerGreater is deliberately limited to Vehicles and does not increase saddle payment contributions.
+// Audit: unsupported — Needs the printed power contribution bonus for both saddling Mounts and
+// crewing Vehicles; CrewsAsThoughPowerGreater is deliberately limited to Vehicles and does not
+// increase saddle payment contributions.
 pub(in crate::card::sets) static VALOR_S_FLAGSHIP: CardRecord = CardRecord::new(
     "Valor's Flagship",
     "8af1dddf-6c95-448b-acc8-df5a99202e9a",
@@ -1091,7 +1119,9 @@ pub(in crate::card::sets) static VOYAGER_QUICKWELDER: CardRecord = CardRecord::n
 );
 
 // DFT 38 — Aether Syphon
-// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once
+// during each of that player's turns when an opponent loses life, and capping at 4; current
+// player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static AETHER_SYPHON: CardRecord = CardRecord::new(
     "Aether Syphon",
     "d7033739-4cd8-4727-b9b5-099fb597006b",
@@ -1201,7 +1231,9 @@ const GEARSEEKER_SERPENT_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // DFT 44 — Glitch Ghost Surveyor
-// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once
+// during each of that player's turns when an opponent loses life, and capping at 4; current
+// player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static GLITCH_GHOST_SURVEYOR: CardRecord = CardRecord::new(
     "Glitch Ghost Surveyor",
     "b9bb89b9-50dd-4b36-aa10-aba585e50246",
@@ -1210,7 +1242,9 @@ pub(in crate::card::sets) static GLITCH_GHOST_SURVEYOR: CardRecord = CardRecord:
 );
 
 // DFT 45 — Guidelight Optimizer
-// Audit: unsupported — Needs a union of mana spending permissions: cast an artifact spell or activate any ability; current mana restrictions allow one use family, while CannotCastSpell would also allow unrelated resolving payments.
+// Audit: unsupported — Needs a union of mana spending permissions: cast an artifact spell or
+// activate any ability; current mana restrictions allow one use family, while CannotCastSpell
+// would also allow unrelated resolving payments.
 pub(in crate::card::sets) static GUIDELIGHT_OPTIMIZER: CardRecord = CardRecord::new(
     "Guidelight Optimizer",
     "e9fc07dd-05b1-49ed-a3ee-46c31b8e0a3d",
@@ -1387,7 +1421,9 @@ pub(in crate::card::sets) static MINDSPRING_MERFOLK: CardRecord = CardRecord::ne
 );
 
 // DFT 52 — Mu Yanling, Wind Rider
-// Audit: unsupported — Needs a single trigger per damaged player for a simultaneous batch from one or more controlled flying creatures; current damage grouping coalesces only an unfiltered Any-source matcher and cannot group this source predicate.
+// Audit: unsupported — Needs a single trigger per damaged player for a simultaneous batch from
+// one or more controlled flying creatures; current damage grouping coalesces only an unfiltered
+// Any-source matcher and cannot group this source predicate.
 pub(in crate::card::sets) static MU_YANLING_WIND_RIDER: CardRecord = CardRecord::new(
     "Mu Yanling, Wind Rider",
     "76423446-d62f-4cc5-a23a-3175be88bd73",
@@ -1413,7 +1449,9 @@ pub(in crate::card::sets) static NIMBLE_THOPTERIST: CardRecord = CardRecord::new
 );
 
 // DFT 54 — Possession Engine
-// Audit: unsupported — Needs control and attack/block restriction durations ending when this player stops controlling the source Vehicle; current continuous duration vocabulary tracks source existence or tapping, not that control relationship.
+// Audit: unsupported — Needs control and attack/block restriction durations ending when this
+// player stops controlling the source Vehicle; current continuous duration vocabulary tracks
+// source existence or tapping, not that control relationship.
 pub(in crate::card::sets) static POSSESSION_ENGINE: CardRecord = CardRecord::new(
     "Possession Engine",
     "f206b0a1-50d8-4d53-850d-fb15fd328267",
@@ -1422,7 +1460,9 @@ pub(in crate::card::sets) static POSSESSION_ENGINE: CardRecord = CardRecord::new
 );
 
 // DFT 55 — Rangers' Refueler
-// Audit: unsupported — Needs a committed activation event filtered by the exhaust mechanic label, including mana abilities; current trigger events do not observe labeled ability activations.
+// Audit: unsupported — Needs a committed activation event filtered by the exhaust mechanic
+// label, including mana abilities; current trigger events do not observe labeled ability
+// activations.
 pub(in crate::card::sets) static RANGERS_REFUELER: CardRecord = CardRecord::new(
     "Rangers' Refueler",
     "67d2d713-8acb-4e3d-bd1d-0416fe9b9ef6",
@@ -1543,7 +1583,9 @@ pub(in crate::card::sets) static RIVERCHURN_MONUMENT: CardRecord = CardRecord::n
 );
 
 // DFT 58 — Roadside Blowout
-// Audit: unsupported — Needs a self spell-cost condition inspecting whether a declared target has mana value 1; existing spell-cost predicates only test targeting the external cost source.
+// Audit: unsupported — Needs a self spell-cost condition inspecting whether a declared target
+// has mana value 1; existing spell-cost predicates only test targeting the external cost
+// source.
 pub(in crate::card::sets) static ROADSIDE_BLOWOUT: CardRecord = CardRecord::new(
     "Roadside Blowout",
     "d6153a76-56f7-46ee-bba5-b62c0143388a",
@@ -1552,7 +1594,9 @@ pub(in crate::card::sets) static ROADSIDE_BLOWOUT: CardRecord = CardRecord::new(
 );
 
 // DFT 59 — Sabotage Strategist
-// Audit: unsupported — Needs a grouped attack declaration event carrying exactly the creatures attacking this player, with a bound set retained for resolution; current attack events do not publish that filtered attacker group.
+// Audit: unsupported — Needs a grouped attack declaration event carrying exactly the creatures
+// attacking this player, with a bound set retained for resolution; current attack events do not
+// publish that filtered attacker group.
 pub(in crate::card::sets) static SABOTAGE_STRATEGIST: CardRecord = CardRecord::new(
     "Sabotage Strategist",
     "c8bb15e2-e1ad-4645-aab0-df4a1a68563d",
@@ -1605,7 +1649,9 @@ pub(in crate::card::sets) static SKYSTREAK_ENGINEER: CardRecord = CardRecord::ne
 );
 
 // DFT 62 — Slick Imitator
-// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once
+// during each of that player's turns when an opponent loses life, and capping at 4; current
+// player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static SLICK_IMITATOR: CardRecord = CardRecord::new(
     "Slick Imitator",
     "3e86ef50-4939-4e7c-853d-438f0f3e0411",
@@ -1644,7 +1690,9 @@ const SPELL_PIERCE_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // DFT 65 — Spikeshell Harrier
-// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once
+// during each of that player's turns when an opponent loses life, and capping at 4; current
+// player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static SPIKESHELL_HARRIER: CardRecord = CardRecord::new(
     "Spikeshell Harrier",
     "8f1ece22-ca32-45bb-b5f4-480f9b366cb5",
@@ -1691,10 +1739,12 @@ pub(in crate::card::sets) static STOCK_UP: CardRecord = CardRecord::new(
     "Stock Up",
     "0a786855-6eb4-42c0-a528-4842db46809d",
     "Izzy",
-// Two cards for three mana at sorcery speed is unremarkable; seeing five
+    // Two cards for three mana at sorcery speed is unremarkable; seeing five
     // to find them is what puts it in a deck built around one or two cards.
     CardRules::new_sorcery(mana_cost!("{2}{U}")).with_ability(AbilityDef::spell(
-        "Look at the top five cards of your library. Put two of them into your hand and the rest on the bottom of your library in any order.",
+        "Look at the top five cards of your library. Put two of them \
+         into your hand and the rest on the bottom of your library \
+         in any order.",
         abilities::look_at_top_cards_choose_to_hand_rest_bottom(
             ValueDef::Constant(5),
             ObjectPredicateDef::Any,
@@ -1870,7 +1920,9 @@ pub(in crate::card::sets) static UNSTOPPABLE_PLAN: CardRecord = CardRecord::new(
 );
 
 // DFT 73 — Vnwxt, Verbose Host
-// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once
+// during each of that player's turns when an opponent loses life, and capping at 4; current
+// player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static VNWXT_VERBOSE_HOST: CardRecord = CardRecord::new(
     "Vnwxt, Verbose Host",
     "893254c7-64cc-4cb9-b79f-2c41a8935ea0",
@@ -1907,7 +1959,9 @@ pub(in crate::card::sets) static WAXEN_SHAPETHIEF: CardRecord = CardRecord::new(
 );
 
 // DFT 75 — Ancient Vendetta
-// Audit: unsupported — Needs one bounded search selecting up to four named cards across a target opponent's graveyard, hand, and library; current zone searches do not share one combined selection limit across those zones.
+// Audit: unsupported — Needs one bounded search selecting up to four named cards across a
+// target opponent's graveyard, hand, and library; current zone searches do not share one
+// combined selection limit across those zones.
 pub(in crate::card::sets) static ANCIENT_VENDETTA: CardRecord = CardRecord::new(
     "Ancient Vendetta",
     "230301f2-f288-4b13-9f62-e649ad8357bb",
@@ -1916,7 +1970,9 @@ pub(in crate::card::sets) static ANCIENT_VENDETTA: CardRecord = CardRecord::new(
 );
 
 // DFT 76 — Back on Track
-// Audit: unsupported — Needs the printed power contribution bonus for both saddling Mounts and crewing Vehicles; CrewsAsThoughPowerGreater is deliberately limited to Vehicles and does not increase saddle payment contributions.
+// Audit: unsupported — Needs the printed power contribution bonus for both saddling Mounts and
+// crewing Vehicles; CrewsAsThoughPowerGreater is deliberately limited to Vehicles and does not
+// increase saddle payment contributions.
 pub(in crate::card::sets) static BACK_ON_TRACK: CardRecord = CardRecord::new(
     "Back on Track",
     "884c0032-9c62-4028-a55f-6a3da2545654",
@@ -1987,21 +2043,20 @@ pub(in crate::card::sets) static CHITIN_GRAVESTALKER: CardRecord = CardRecord::n
     "Chitin Gravestalker",
     "903b4141-04a3-44c4-9d3e-aa2a773d9883",
     "Slawomir Maniak",
-// Cycling is what makes the discount reachable: the card fills the
+    // Cycling is what makes the discount reachable: the card fills the
     // graveyard it later reads, including with copies of itself.
     CardRules::new_creature(mana_cost!("{5}{B}"), &["Insect", "Warrior"], 5, 4).with_abilities(&[
         abilities::this_spell_cost_reduction(
-            "This spell costs {1} less to cast for each artifact and/or creature card in your graveyard.",
-            ValueDef::CountMatchingObjects(
-                &ObjectQueryDef::matching(
-                    ObjectPredicateDef::AnyOf(&[
-                        ObjectPredicateDef::HasType(CardType::Artifact),
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                    ]),
-                    &[ZoneKind::Graveyard],
-                    PlayerRelation::You,
-                ),
-            ),
+            "This spell costs {1} less to cast for each artifact and/or \
+             creature card in your graveyard.",
+            ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                ]),
+                &[ZoneKind::Graveyard],
+                PlayerRelation::You,
+            )),
         ),
         abilities::cycling!(
             "Cycling {2} ({2}, Discard this card: Draw a card.)",
@@ -2037,7 +2092,9 @@ pub(in crate::card::sets) static CRYPTCALLER_CHARIOT: CardRecord = CardRecord::n
 );
 
 // DFT 81 — Cursecloth Wrappings
-// Audit: unsupported — Needs granting a graveyard card an embalm activation with costs derived from its mana cost and the complete embalm copy exceptions; current static ability grants do not expose that computed-cost graveyard activation.
+// Audit: unsupported — Needs granting a graveyard card an embalm activation with costs derived
+// from its mana cost and the complete embalm copy exceptions; current static ability grants do
+// not expose that computed-cost graveyard activation.
 pub(in crate::card::sets) static CURSECLOTH_WRAPPINGS: CardRecord = CardRecord::new(
     "Cursecloth Wrappings",
     "d5803b32-4a81-46c2-9b10-3198a709611d",
@@ -2046,7 +2103,9 @@ pub(in crate::card::sets) static CURSECLOTH_WRAPPINGS: CardRecord = CardRecord::
 );
 
 // DFT 82 — Deathless Pilot
-// Audit: unsupported — Needs the printed power contribution bonus for both saddling Mounts and crewing Vehicles; CrewsAsThoughPowerGreater is deliberately limited to Vehicles and does not increase saddle payment contributions.
+// Audit: unsupported — Needs the printed power contribution bonus for both saddling Mounts and
+// crewing Vehicles; CrewsAsThoughPowerGreater is deliberately limited to Vehicles and does not
+// increase saddle payment contributions.
 pub(in crate::card::sets) static DEATHLESS_PILOT: CardRecord = CardRecord::new(
     "Deathless Pilot",
     "e704fb95-17b7-432a-831c-18abe7d9cc73",
@@ -2055,7 +2114,10 @@ pub(in crate::card::sets) static DEATHLESS_PILOT: CardRecord = CardRecord::new(
 );
 
 // DFT 83 — Demonic Junker
-// Audit: unsupported — Needs a destruction result retaining which destroyed creatures this player controlled, including destruction whose graveyard move is replaced; WithZoneMoveResult does not wrap destruction, and DestroyFollowUp binds only resulting graveyard cards without their former controllers.
+// Audit: unsupported — Needs a destruction result retaining which destroyed creatures this
+// player controlled, including destruction whose graveyard move is replaced; WithZoneMoveResult
+// does not wrap destruction, and DestroyFollowUp binds only resulting graveyard cards without
+// their former controllers.
 pub(in crate::card::sets) static DEMONIC_JUNKER: CardRecord = CardRecord::new(
     "Demonic Junker",
     "4aad569e-4acb-4416-9d4f-64e6991de3ed",
@@ -2082,7 +2144,9 @@ pub(in crate::card::sets) static ENGINE_RAT: CardRecord = CardRecord::new(
 );
 
 // DFT 85 — Gas Guzzler
-// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once
+// during each of that player's turns when an opponent loses life, and capping at 4; current
+// player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static GAS_GUZZLER: CardRecord = CardRecord::new(
     "Gas Guzzler",
     "4db3a28c-e4b4-4b18-8d56-e3842184d105",
@@ -2091,7 +2155,9 @@ pub(in crate::card::sets) static GAS_GUZZLER: CardRecord = CardRecord::new(
 );
 
 // DFT 86 — Gastal Raider
-// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once
+// during each of that player's turns when an opponent loses life, and capping at 4; current
+// player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static GASTAL_RAIDER: CardRecord = CardRecord::new(
     "Gastal Raider",
     "6e4877b5-4ce5-466a-810f-6501f2a0f217",
@@ -2100,7 +2166,9 @@ pub(in crate::card::sets) static GASTAL_RAIDER: CardRecord = CardRecord::new(
 );
 
 // DFT 87 — Gonti, Night Minister
-// Audit: unsupported — Needs hidden exile-play permission assigned to the damaging creature's controller with mana of any type and lasting while the card remains exiled; current exile grants assume the resolving ability's controller or a bounded turn duration.
+// Audit: unsupported — Needs hidden exile-play permission assigned to the damaging creature's
+// controller with mana of any type and lasting while the card remains exiled; current exile
+// grants assume the resolving ability's controller or a bounded turn duration.
 pub(in crate::card::sets) static GONTI_NIGHT_MINISTER: CardRecord = CardRecord::new(
     "Gonti, Night Minister",
     "d79ca40a-e5c0-4956-8df0-ecbd2a25656f",
@@ -2151,7 +2219,9 @@ pub(in crate::card::sets) static GRIM_BAUBLE: CardRecord = CardRecord::new(
 );
 
 // DFT 89 — Grim Javelineer
-// Audit: unsupported — Needs a delayed death trigger tied to the chosen object that survives losing its abilities and expires this turn; installed event predicates cannot refer to an object binding, and granting a dies ability is not equivalent.
+// Audit: unsupported — Needs a delayed death trigger tied to the chosen object that survives
+// losing its abilities and expires this turn; installed event predicates cannot refer to an
+// object binding, and granting a dies ability is not equivalent.
 pub(in crate::card::sets) static GRIM_JAVELINEER: CardRecord = CardRecord::new(
     "Grim Javelineer",
     "87154116-e306-4e15-bd5a-dcdb5ddbcd36",
@@ -2202,7 +2272,9 @@ pub(in crate::card::sets) static HELLISH_SIDESWIPE: CardRecord = CardRecord::new
 );
 
 // DFT 91 — Hour of Victory
-// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once
+// during each of that player's turns when an opponent loses life, and capping at 4; current
+// player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static HOUR_OF_VICTORY: CardRecord = CardRecord::new(
     "Hour of Victory",
     "9192abc8-05a3-4e72-a634-fc5acbe97b26",
@@ -2247,7 +2319,9 @@ pub(in crate::card::sets) static KALAKSCION_HUNGER_TYRANT: CardRecord = CardReco
 );
 
 // DFT 94 — The Last Ride
-// Audit: unsupported — Needs a continuous power/toughness modifier reading the controller's current life total; LifeTotal is available to resolving effects but the static value evaluator cannot supply it.
+// Audit: unsupported — Needs a continuous power/toughness modifier reading the controller's
+// current life total; LifeTotal is available to resolving effects but the static value
+// evaluator cannot supply it.
 pub(in crate::card::sets) static THE_LAST_RIDE: CardRecord = CardRecord::new(
     "The Last Ride",
     "9cbb7b4e-bd32-44a0-9396-16738c5e4381",
@@ -2312,7 +2386,9 @@ pub(in crate::card::sets) static MAXIMUM_OVERDRIVE: CardRecord = CardRecord::new
 );
 
 // DFT 97 — Momentum Breaker
-// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once
+// during each of that player's turns when an opponent loses life, and capping at 4; current
+// player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static MOMENTUM_BREAKER: CardRecord = CardRecord::new(
     "Momentum Breaker",
     "38513b53-384f-45e7-9905-80dd2c3c4918",
@@ -2321,7 +2397,9 @@ pub(in crate::card::sets) static MOMENTUM_BREAKER: CardRecord = CardRecord::new(
 );
 
 // DFT 98 — Mutant Surveyor
-// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once
+// during each of that player's turns when an opponent loses life, and capping at 4; current
+// player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static MUTANT_SURVEYOR: CardRecord = CardRecord::new(
     "Mutant Surveyor",
     "7cec5105-3907-40d2-8e46-95acfaaaa0cc",
@@ -2429,7 +2507,9 @@ pub(in crate::card::sets) static RIPCLAW_WRANGLER: CardRecord = CardRecord::new(
 );
 
 // DFT 102 — Risen Necroregent
-// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once
+// during each of that player's turns when an opponent loses life, and capping at 4; current
+// player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static RISEN_NECROREGENT: CardRecord = CardRecord::new(
     "Risen Necroregent",
     "5a68482a-401d-48e7-854e-46e3db07ff35",
@@ -2490,7 +2570,9 @@ pub(in crate::card::sets) static SHEFET_ARCHFIEND: CardRecord = CardRecord::new(
 );
 
 // DFT 105 — The Speed Demon
-// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once
+// during each of that player's turns when an opponent loses life, and capping at 4; current
+// player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static THE_SPEED_DEMON: CardRecord = CardRecord::new(
     "The Speed Demon",
     "62242a80-0444-4a0e-a868-97eabcc77648",
@@ -2521,7 +2603,9 @@ pub(in crate::card::sets) static SPIN_OUT: CardRecord = CardRecord::new(
 );
 
 // DFT 107 — Streaking Oilgorger
-// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once
+// during each of that player's turns when an opponent loses life, and capping at 4; current
+// player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static STREAKING_OILGORGER: CardRecord = CardRecord::new(
     "Streaking Oilgorger",
     "6ff120a2-e2bb-42a2-bcb7-a48eb7a6d9b2",
@@ -2557,7 +2641,9 @@ pub(in crate::card::sets) static SYPHON_FUEL: CardRecord = CardRecord::new(
 );
 
 // DFT 109 — Wickerfolk Indomitable
-// Audit: unsupported — Needs a graveyard cast permission with required additional life and sacrifice costs that also compose with other alternative costs; encoding a new complete alternative cost would incorrectly replace those other casting choices.
+// Audit: unsupported — Needs a graveyard cast permission with required additional life and
+// sacrifice costs that also compose with other alternative costs; encoding a new complete
+// alternative cost would incorrectly replace those other casting choices.
 pub(in crate::card::sets) static WICKERFOLK_INDOMITABLE: CardRecord = CardRecord::new(
     "Wickerfolk Indomitable",
     "ba78e076-8962-4b3f-b86f-04400b062951",
@@ -2597,7 +2683,9 @@ pub(in crate::card::sets) static WRETCHED_DOLL: CardRecord = CardRecord::new(
 );
 
 // DFT 112 — Adrenaline Jockey
-// Audit: unsupported — Needs a committed activation event filtered by the exhaust mechanic label, including mana abilities; current trigger events do not observe labeled ability activations.
+// Audit: unsupported — Needs a committed activation event filtered by the exhaust mechanic
+// label, including mana abilities; current trigger events do not observe labeled ability
+// activations.
 pub(in crate::card::sets) static ADRENALINE_JOCKEY: CardRecord = CardRecord::new(
     "Adrenaline Jockey",
     "c8655373-320d-440d-b700-d03413f743fd",
@@ -2686,7 +2774,9 @@ pub(in crate::card::sets) static BURNER_ROCKET: CardRecord = CardRecord::new(
 );
 
 // DFT 115 — Burnout Bashtronaut
-// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once
+// during each of that player's turns when an opponent loses life, and capping at 4; current
+// player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static BURNOUT_BASHTRONAUT: CardRecord = CardRecord::new(
     "Burnout Bashtronaut",
     "4db66e7b-cb7a-4d86-a563-d570946aeb0d",
@@ -3046,7 +3136,9 @@ pub(in crate::card::sets) static DRACOSAUR_AUXILIARY: CardRecord = CardRecord::n
 );
 
 // DFT 123 — Dynamite Diver
-// Audit: unsupported — Needs the printed power contribution bonus for both saddling Mounts and crewing Vehicles; CrewsAsThoughPowerGreater is deliberately limited to Vehicles and does not increase saddle payment contributions.
+// Audit: unsupported — Needs the printed power contribution bonus for both saddling Mounts and
+// crewing Vehicles; CrewsAsThoughPowerGreater is deliberately limited to Vehicles and does not
+// increase saddle payment contributions.
 pub(in crate::card::sets) static DYNAMITE_DIVER: CardRecord = CardRecord::new(
     "Dynamite Diver",
     "5a4f96f6-dd91-4357-ae19-1c35db2c2bcb",
@@ -3055,7 +3147,9 @@ pub(in crate::card::sets) static DYNAMITE_DIVER: CardRecord = CardRecord::new(
 );
 
 // DFT 124 — Endrider Catalyzer
-// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once
+// during each of that player's turns when an opponent loses life, and capping at 4; current
+// player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static ENDRIDER_CATALYZER: CardRecord = CardRecord::new(
     "Endrider Catalyzer",
     "55a5a67b-d969-4ba4-9dcc-32d0c2e5c04a",
@@ -3064,7 +3158,9 @@ pub(in crate::card::sets) static ENDRIDER_CATALYZER: CardRecord = CardRecord::ne
 );
 
 // DFT 125 — Endrider Spikespitter
-// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once
+// during each of that player's turns when an opponent loses life, and capping at 4; current
+// player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static ENDRIDER_SPIKESPITTER: CardRecord = CardRecord::new(
     "Endrider Spikespitter",
     "4e58cb18-f216-4248-8f0d-65b0263c5c28",
@@ -3097,7 +3193,9 @@ pub(in crate::card::sets) static FUEL_THE_FLAMES: CardRecord = CardRecord::new(
 );
 
 // DFT 127 — Full Throttle
-// Audit: unsupported — Needs scheduling two additional combats after a main phase while installing an untap trigger at every combat start this turn; the current phase schedule accepts extra phases but does not condition insertion on resolving during a main phase.
+// Audit: unsupported — Needs scheduling two additional combats after a main phase while
+// installing an untap trigger at every combat start this turn; the current phase schedule
+// accepts extra phases but does not condition insertion on resolving during a main phase.
 pub(in crate::card::sets) static FULL_THROTTLE: CardRecord = CardRecord::new(
     "Full Throttle",
     "d91f7cad-89e8-45cb-a78e-b35b0ee64783",
@@ -3106,7 +3204,9 @@ pub(in crate::card::sets) static FULL_THROTTLE: CardRecord = CardRecord::new(
 );
 
 // DFT 128 — Gastal Blockbuster
-// Audit: unsupported — Needs a resolution-created reflexive trigger that chooses its target after the sacrifice and survives the source leaving; OptionalEffectTaken watches battlefield listeners and does not represent this payment-specific continuation.
+// Audit: unsupported — Needs a resolution-created reflexive trigger that chooses its target
+// after the sacrifice and survives the source leaving; OptionalEffectTaken watches battlefield
+// listeners and does not represent this payment-specific continuation.
 pub(in crate::card::sets) static GASTAL_BLOCKBUSTER: CardRecord = CardRecord::new(
     "Gastal Blockbuster",
     "dca41ec6-8f8f-42ef-abac-cc645c6440b7",
@@ -3115,7 +3215,9 @@ pub(in crate::card::sets) static GASTAL_BLOCKBUSTER: CardRecord = CardRecord::ne
 );
 
 // DFT 129 — Gastal Thrillroller
-// Audit: unsupported — Needs an ordinary activation from the graveyard that pays a chosen hand-card discard in addition to mana; current nonbattlefield activation enumeration does not support that discard cost.
+// Audit: unsupported — Needs an ordinary activation from the graveyard that pays a chosen
+// hand-card discard in addition to mana; current nonbattlefield activation enumeration does not
+// support that discard cost.
 pub(in crate::card::sets) static GASTAL_THRILLROLLER: CardRecord = CardRecord::new(
     "Gastal Thrillroller",
     "d8b1762b-ff03-4312-afcc-cb6b5f280ade",
@@ -3154,7 +3256,9 @@ pub(in crate::card::sets) static GILDED_GHODA: CardRecord = CardRecord::new(
 );
 
 // DFT 131 — Goblin Surveyor
-// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once
+// during each of that player's turns when an opponent loses life, and capping at 4; current
+// player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static GOBLIN_SURVEYOR: CardRecord = CardRecord::new(
     "Goblin Surveyor",
     "e1efffe9-00f8-4177-a9e6-4ad62887d32f",
@@ -3207,7 +3311,9 @@ pub(in crate::card::sets) static GREASEWRENCH_GOBLIN: CardRecord = CardRecord::n
 );
 
 // DFT 133 — Hazoret, Godseeker
-// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once
+// during each of that player's turns when an opponent loses life, and capping at 4; current
+// player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static HAZORET_GODSEEKER: CardRecord = CardRecord::new(
     "Hazoret, Godseeker",
     "e2f66043-0872-4334-a91f-0e9bbbdddf66",
@@ -3216,7 +3322,9 @@ pub(in crate::card::sets) static HAZORET_GODSEEKER: CardRecord = CardRecord::new
 );
 
 // DFT 134 — Howlsquad Heavy
-// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once
+// during each of that player's turns when an opponent loses life, and capping at 4; current
+// player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static HOWLSQUAD_HEAVY: CardRecord = CardRecord::new(
     "Howlsquad Heavy",
     "df582f80-7b9a-4f71-95a9-70548ec7d2d7",
@@ -3225,7 +3333,9 @@ pub(in crate::card::sets) static HOWLSQUAD_HEAVY: CardRecord = CardRecord::new(
 );
 
 // DFT 135 — Kickoff Celebrations
-// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once
+// during each of that player's turns when an opponent loses life, and capping at 4; current
+// player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static KICKOFF_CELEBRATIONS: CardRecord = CardRecord::new(
     "Kickoff Celebrations",
     "4e5590e1-0ac0-4bdd-815b-136bf24ced03",
@@ -3290,7 +3400,9 @@ pub(in crate::card::sets) static MARAUDING_MAKO: CardRecord = CardRecord::new(
 );
 
 // DFT 139 — Outpace Oblivion
-// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once
+// during each of that player's turns when an opponent loses life, and capping at 4; current
+// player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static OUTPACE_OBLIVION: CardRecord = CardRecord::new(
     "Outpace Oblivion",
     "c22e415f-636f-4394-9b21-600ab720ac98",
@@ -3438,7 +3550,9 @@ pub(in crate::card::sets) static PUSH_THE_LIMIT: CardRecord = CardRecord::new(
 );
 
 // DFT 144 — Reckless Velocitaur
-// Audit: unsupported — Needs a committed crew/saddle contribution event naming the paying creature and the Mount or Vehicle during the main phase; the current total-power tap payment only emits ordinary tapped events and does not retain that relationship.
+// Audit: unsupported — Needs a committed crew/saddle contribution event naming the paying
+// creature and the Mount or Vehicle during the main phase; the current total-power tap payment
+// only emits ordinary tapped events and does not retain that relationship.
 pub(in crate::card::sets) static RECKLESS_VELOCITAUR: CardRecord = CardRecord::new(
     "Reckless Velocitaur",
     "8edd18be-3861-4510-ba6d-38ccba60bb5b",
@@ -3582,7 +3696,9 @@ pub(in crate::card::sets) static TYROX_SAURID_TYRANT: CardRecord = CardRecord::n
 );
 
 // DFT 150 — Afterburner Expert
-// Audit: unsupported — Needs a committed activation event filtered by the exhaust mechanic label, including mana abilities; current trigger events do not observe labeled ability activations.
+// Audit: unsupported — Needs a committed activation event filtered by the exhaust mechanic
+// label, including mana abilities; current trigger events do not observe labeled ability
+// activations.
 pub(in crate::card::sets) static AFTERBURNER_EXPERT: CardRecord = CardRecord::new(
     "Afterburner Expert",
     "555e1bfc-6d07-4979-a914-b2bd1fb031f2",
@@ -3764,7 +3880,9 @@ const BROKEN_WINGS_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // DFT 157 — Defend the Rider
-// Audit: unsupported — Needs the printed power contribution bonus for both saddling Mounts and crewing Vehicles; CrewsAsThoughPowerGreater is deliberately limited to Vehicles and does not increase saddle payment contributions.
+// Audit: unsupported — Needs the printed power contribution bonus for both saddling Mounts and
+// crewing Vehicles; CrewsAsThoughPowerGreater is deliberately limited to Vehicles and does not
+// increase saddle payment contributions.
 pub(in crate::card::sets) static DEFEND_THE_RIDER: CardRecord = CardRecord::new(
     "Defend the Rider",
     "59ed23a2-6153-47b2-ab73-062195cafb74",
@@ -3828,7 +3946,9 @@ pub(in crate::card::sets) static DISTRICT_MASCOT: CardRecord = CardRecord::new(
 );
 
 // DFT 159 — Dredger's Insight
-// Audit: unsupported — Needs one trigger for a simultaneous group of artifact or creature cards leaving this player's graveyard; current zone-change matchers emit a trigger for each card and do not coalesce the matching group.
+// Audit: unsupported — Needs one trigger for a simultaneous group of artifact or creature cards
+// leaving this player's graveyard; current zone-change matchers emit a trigger for each card
+// and do not coalesce the matching group.
 pub(in crate::card::sets) static DREDGER_S_INSIGHT: CardRecord = CardRecord::new(
     "Dredger's Insight",
     "148400a0-7819-4551-9815-9357eed1db4d",
@@ -3875,7 +3995,9 @@ pub(in crate::card::sets) static EARTHRUMBLER: CardRecord = CardRecord::new(
 );
 
 // DFT 161 — Elvish Refueler
-// Audit: unsupported — Needs a player-wide exception to once-per-object activation history for exhaust plus an exhaust-activation count for the current turn; neither is represented by existing activation permissions.
+// Audit: unsupported — Needs a player-wide exception to once-per-object activation history for
+// exhaust plus an exhaust-activation count for the current turn; neither is represented by
+// existing activation permissions.
 pub(in crate::card::sets) static ELVISH_REFUELER: CardRecord = CardRecord::new(
     "Elvish Refueler",
     "25dfbcb6-9b67-4151-b10f-dde70c5fd16d",
@@ -3920,7 +4042,10 @@ pub(in crate::card::sets) static FANG_GUARDIAN: CardRecord = CardRecord::new(
 );
 
 // DFT 163 — Fang-Druid Summoner
-// Audit: unsupported — Needs one optional quality-constrained search across library and/or graveyard with a single-card combined limit and shuffling only when the library is searched; ordinary Choose over a library would bypass search restrictions, while separate searches permit two cards.
+// Audit: unsupported — Needs one optional quality-constrained search across library and/or
+// graveyard with a single-card combined limit and shuffling only when the library is searched;
+// ordinary Choose over a library would bypass search restrictions, while separate searches
+// permit two cards.
 pub(in crate::card::sets) static FANG_DRUID_SUMMONER: CardRecord = CardRecord::new(
     "Fang-Druid Summoner",
     "496442f6-48c7-464e-bcf3-4c14f49fa065",
@@ -3989,7 +4114,9 @@ pub(in crate::card::sets) static JIBBIRIK_OMNIVORE: CardRecord = CardRecord::new
 );
 
 // DFT 167 — Loxodon Surveyor
-// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once
+// during each of that player's turns when an opponent loses life, and capping at 4; current
+// player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static LOXODON_SURVEYOR: CardRecord = CardRecord::new(
     "Loxodon Surveyor",
     "cd1cecb1-6776-4495-be56-b7dde65453f1",
@@ -4117,7 +4244,9 @@ pub(in crate::card::sets) static MIGRATING_KETRADON: CardRecord = CardRecord::ne
 );
 
 // DFT 171 — Molt Tender
-// Audit: unsupported — Needs a mana activation cost choosing and exiling a card from the controller's graveyard; the mana planner does not enumerate graveyard MoveToZone costs, although ordinary stack activations do.
+// Audit: unsupported — Needs a mana activation cost choosing and exiling a card from the
+// controller's graveyard; the mana planner does not enumerate graveyard MoveToZone costs,
+// although ordinary stack activations do.
 pub(in crate::card::sets) static MOLT_TENDER: CardRecord = CardRecord::new(
     "Molt Tender",
     "f800bf4e-4bfb-45b6-950b-c76952f52bb1",
@@ -4277,7 +4406,9 @@ pub(in crate::card::sets) static PLOW_THROUGH: CardRecord = CardRecord::new(
 );
 
 // DFT 175 — Point the Way
-// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once
+// during each of that player's turns when an opponent loses life, and capping at 4; current
+// player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static POINT_THE_WAY: CardRecord = CardRecord::new(
     "Point the Way",
     "8fd4c73d-0e9a-4ffe-8062-f2f4d0e601fe",
@@ -4423,7 +4554,9 @@ pub(in crate::card::sets) static RISE_FROM_THE_WRECK: CardRecord = CardRecord::n
 );
 
 // DFT 179 — Run Over
-// Audit: unsupported — Needs a self spell-cost condition inspecting whether a declared target is a controlled Mount or Vehicle; existing spell-cost predicates only test targeting the external cost source.
+// Audit: unsupported — Needs a self spell-cost condition inspecting whether a declared target
+// is a controlled Mount or Vehicle; existing spell-cost predicates only test targeting the
+// external cost source.
 pub(in crate::card::sets) static RUN_OVER: CardRecord = CardRecord::new(
     "Run Over",
     "642f8fdd-6c58-49a3-904c-27f717cae980",
@@ -4623,7 +4756,8 @@ pub(in crate::card::sets) static VENOMSAC_LAGAC: CardRecord = CardRecord::new(
 );
 
 // DFT 186 — Webstrike Elite
-// Audit: unsupported — Needs the cycling activation's chosen X captured in its discard-trigger context and target validation; current DiscardedToActivate capture resets X to zero.
+// Audit: unsupported — Needs the cycling activation's chosen X captured in its discard-trigger
+// context and target validation; current DiscardedToActivate capture resets X to zero.
 pub(in crate::card::sets) static WEBSTRIKE_ELITE: CardRecord = CardRecord::new(
     "Webstrike Elite",
     "064cc22d-d424-4bc9-b8f0-88b170fd6c28",
@@ -4735,7 +4869,9 @@ pub(in crate::card::sets) static APOCALYPSE_RUNNER: CardRecord = CardRecord::new
 );
 
 // DFT 189 — Boom Scholar
-// Audit: unsupported — Needs a generic activation-cost reduction filtered by the exhaust mechanic label; existing spell cost reductions do not alter costs of activated or mana abilities.
+// Audit: unsupported — Needs a generic activation-cost reduction filtered by the exhaust
+// mechanic label; existing spell cost reductions do not alter costs of activated or mana
+// abilities.
 pub(in crate::card::sets) static BOOM_SCHOLAR: CardRecord = CardRecord::new(
     "Boom Scholar",
     "f2b84684-10c9-4635-a922-620f04809bb1",
@@ -4784,7 +4920,7 @@ pub(in crate::card::sets) static BRIGHTGLASS_GEARHULK: CardRecord = CardRecord::
     "Brightglass Gearhulk",
     "3dea5b45-925c-4732-8e9d-fa8232792736",
     "José Parodi",
-// A 4/4 first striker with trample that also finds the two one-drops the
+    // A 4/4 first striker with trample that also finds the two one-drops the
     // deck is built around, which is what four coloured pips buy.
     CardRules::new_artifact_creature(mana_cost!("{G}{G}{W}{W}"), &["Construct"], 4, 4)
         .with_abilities(&[
@@ -4794,9 +4930,10 @@ pub(in crate::card::sets) static BRIGHTGLASS_GEARHULK: CardRecord = CardRecord::
             // finding nothing look the same from the outside, and the card offers
             // both because a library nobody wants to shuffle is a real answer.
             abilities::enters_trigger(
-                "When this creature enters, you may search your library for up to two artifact, creature, \
-                 and/or enchantment cards with mana value 1 or less, reveal them, put them into your \
-                 hand, then shuffle.",
+                "When this creature enters, you may search your library for \
+                 up to two artifact, creature, and/or enchantment cards with \
+                 mana value 1 or less, reveal them, put them into your hand, \
+                 then shuffle.",
                 EffectDef::May {
                     player: EffectRecipientDef::Controller,
                     // "Up to two" and revealed: a minimum of none, and everything taken is
@@ -4908,7 +5045,9 @@ pub(in crate::card::sets) static BROODHEART_ENGINE: CardRecord = CardRecord::new
 );
 
 // DFT 194 — Captain Howler, Sea Scourge
-// Audit: unsupported — Needs a turn-long delayed damage trigger bound to the chosen creature and surviving ability removal; installed triggers cannot match a bound object identity, while granting an ability changes that behavior.
+// Audit: unsupported — Needs a turn-long delayed damage trigger bound to the chosen creature
+// and surviving ability removal; installed triggers cannot match a bound object identity, while
+// granting an ability changes that behavior.
 pub(in crate::card::sets) static CAPTAIN_HOWLER_SEA_SCOURGE: CardRecord = CardRecord::new(
     "Captain Howler, Sea Scourge",
     "0957c90f-e10d-40f8-a4be-9e9ef623dd43",
@@ -4917,7 +5056,9 @@ pub(in crate::card::sets) static CAPTAIN_HOWLER_SEA_SCOURGE: CardRecord = CardRe
 );
 
 // DFT 195 — Caradora, Heart of Alacria
-// Audit: unsupported — Needs a prospective +1/+1 counter placement replacement that adds one to each qualifying counter batch, including entry counters; existing counter operations modify counters as effects rather than replacing their placement.
+// Audit: unsupported — Needs a prospective +1/+1 counter placement replacement that adds one to
+// each qualifying counter batch, including entry counters; existing counter operations modify
+// counters as effects rather than replacing their placement.
 pub(in crate::card::sets) static CARADORA_HEART_OF_ALACRIA: CardRecord = CardRecord::new(
     "Caradora, Heart of Alacria",
     "1256d22d-a2a9-41fb-b669-0661ba230bc7",
@@ -4926,7 +5067,8 @@ pub(in crate::card::sets) static CARADORA_HEART_OF_ALACRIA: CardRecord = CardRec
 );
 
 // DFT 196 — Cloudspire Coordinator
-// Audit: unsupported — Needs a committed entry count for Mounts and Vehicles controlled by this player this turn, including departed objects, plus a saddle power bonus for its Pilot tokens.
+// Audit: unsupported — Needs a committed entry count for Mounts and Vehicles controlled by this
+// player this turn, including departed objects, plus a saddle power bonus for its Pilot tokens.
 pub(in crate::card::sets) static CLOUDSPIRE_COORDINATOR: CardRecord = CardRecord::new(
     "Cloudspire Coordinator",
     "eef16cda-9150-4e7d-8490-d9f287b81b62",
@@ -5118,7 +5260,9 @@ pub(in crate::card::sets) static DUNE_DRIFTER: CardRecord = CardRecord::new(
 );
 
 // DFT 201 — Embalmed Ascendant
-// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once
+// during each of that player's turns when an opponent loses life, and capping at 4; current
+// player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static EMBALMED_ASCENDANT: CardRecord = CardRecord::new(
     "Embalmed Ascendant",
     "5cf181ae-daa7-42f9-b667-5e679d80cf34",
@@ -5167,7 +5311,11 @@ pub(in crate::card::sets) static EXPLOSIVE_GETAWAY: CardRecord = CardRecord::new
 );
 
 // DFT 203 — Far Fortune, End Boss
-// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed. Also needs a prospective damage replacement that adds 1 to each qualifying damage event rather than modifying life afterward.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once
+// during each of that player's turns when an opponent loses life, and capping at 4; current
+// player state and value predicates do not represent speed or max speed. Also needs a
+// prospective damage replacement that adds 1 to each qualifying damage event rather than
+// modifying life afterward.
 pub(in crate::card::sets) static FAR_FORTUNE_END_BOSS: CardRecord = CardRecord::new(
     "Far Fortune, End Boss",
     "f523e96d-9df1-4854-accb-9876aef787e5",
@@ -5176,7 +5324,9 @@ pub(in crate::card::sets) static FAR_FORTUNE_END_BOSS: CardRecord = CardRecord::
 );
 
 // DFT 204 — Fearless Swashbuckler
-// Audit: unsupported — Needs a predicate over this combat's complete attacker declaration, requiring both a Pirate and a Vehicle, including attackers that already left; current conditions count attackers or individual predicates without that stored declaration query.
+// Audit: unsupported — Needs a predicate over this combat's complete attacker declaration,
+// requiring both a Pirate and a Vehicle, including attackers that already left; current
+// conditions count attackers or individual predicates without that stored declaration query.
 pub(in crate::card::sets) static FEARLESS_SWASHBUCKLER: CardRecord = CardRecord::new(
     "Fearless Swashbuckler",
     "0d86d66b-481f-44ec-86d8-6fc91b52ef38",
@@ -5185,7 +5335,9 @@ pub(in crate::card::sets) static FEARLESS_SWASHBUCKLER: CardRecord = CardRecord:
 );
 
 // DFT 205 — Gastal Thrillseeker
-// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once
+// during each of that player's turns when an opponent loses life, and capping at 4; current
+// player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static GASTAL_THRILLSEEKER: CardRecord = CardRecord::new(
     "Gastal Thrillseeker",
     "a8e5205d-d734-4292-a3c8-70cf5f131289",
@@ -5343,7 +5495,9 @@ pub(in crate::card::sets) static HAUNTED_HELLRIDE: CardRecord = CardRecord::new(
 );
 
 // DFT 209 — Ketramose, the New Dawn
-// Audit: unsupported — Needs one trigger per simultaneous exile batch across both battlefield and graveyards during this player's turn; existing zone-change triggers observe individual transitions and cannot merge that group.
+// Audit: unsupported — Needs one trigger per simultaneous exile batch across both battlefield
+// and graveyards during this player's turn; existing zone-change triggers observe individual
+// transitions and cannot merge that group.
 pub(in crate::card::sets) static KETRAMOSE_THE_NEW_DAWN: CardRecord = CardRecord::new(
     "Ketramose, the New Dawn",
     "cffae8d0-7b4e-42ed-8124-24a86b38f490",
@@ -5463,7 +5617,7 @@ pub(in crate::card::sets) static LOOT_THE_PATHFINDER: CardRecord = CardRecord::n
     "Loot, the Pathfinder",
     "33c59c04-4c0b-4a60-826e-3a7757d0b2a2",
     "Ernanda Souza",
-// Five mana for a hasty double striker that also unloads three cards,
+    // Five mana for a hasty double striker that also unloads three cards,
     // three mana, or three damage -- once each, and never twice, because
     // every one of them taps it.
     CardRules::new_creature(mana_cost!("{2}{G}{U}{R}"), &["Beast", "Noble"], 2, 4)
@@ -5473,20 +5627,14 @@ pub(in crate::card::sets) static LOOT_THE_PATHFINDER: CardRecord = CardRecord::n
             abilities::vigilance(),
             abilities::haste(),
             exhaust(AbilityDef::activated_mana(
-                "Exhaust — {G}, {T}: Add three mana of any one color. (Activate each exhaust ability \
-                 only once.)",
-                &[
-                    CostDef::Mana(mana_cost!("{G}")),
-                    CostDef::TapSource,
-                ],
+                "Exhaust — {G}, {T}: Add three mana of any one color. \
+                 (Activate each exhaust ability only once.)",
+                &[CostDef::Mana(mana_cost!("{G}")), CostDef::TapSource],
                 EffectDef::AddMana(AddManaEffectDef::any_color().with_amount(3)),
             )),
             exhaust(AbilityDef::activated(
                 "Exhaust — {U}, {T}: Draw three cards.",
-                &[
-                    CostDef::Mana(mana_cost!("{U}")),
-                    CostDef::TapSource,
-                ],
+                &[CostDef::Mana(mana_cost!("{U}")), CostDef::TapSource],
                 EffectDef::DrawCards {
                     recipient: EffectRecipientDef::Controller,
                     amount: ValueDef::Constant(3),
@@ -5494,11 +5642,10 @@ pub(in crate::card::sets) static LOOT_THE_PATHFINDER: CardRecord = CardRecord::n
             )),
             exhaust(AbilityDef::activated_with_targets(
                 "Exhaust — {R}, {T}: This creature deals 3 damage to any target.",
-                &[
-                    CostDef::Mana(mana_cost!("{R}")),
-                    CostDef::TapSource,
-                ],
-                &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)],
+                &[CostDef::Mana(mana_cost!("{R}")), CostDef::TapSource],
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::AnyTarget,
+                )],
                 EffectDef::damage(
                     EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     ValueDef::Constant(3),
@@ -5508,7 +5655,9 @@ pub(in crate::card::sets) static LOOT_THE_PATHFINDER: CardRecord = CardRecord::n
 );
 
 // DFT 213 — Mendicant Core, Guidelight
-// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once
+// during each of that player's turns when an opponent loses life, and capping at 4; current
+// player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static MENDICANT_CORE_GUIDELIGHT: CardRecord = CardRecord::new(
     "Mendicant Core, Guidelight",
     "f434b103-490f-424e-a0a1-efb1b931c8e6",
@@ -5517,7 +5666,9 @@ pub(in crate::card::sets) static MENDICANT_CORE_GUIDELIGHT: CardRecord = CardRec
 );
 
 // DFT 214 — Mimeoplasm, Revered One
-// Audit: unsupported — Needs an as-entry choice exiling up to X creature cards, linking those exiles and deriving entry counters from the completed exile group; current entry replacements cannot execute that variable linked-exile selection.
+// Audit: unsupported — Needs an as-entry choice exiling up to X creature cards, linking those
+// exiles and deriving entry counters from the completed exile group; current entry replacements
+// cannot execute that variable linked-exile selection.
 pub(in crate::card::sets) static MIMEOPLASM_REVERED_ONE: CardRecord = CardRecord::new(
     "Mimeoplasm, Revered One",
     "34e4c342-dc22-4e9c-81fc-a691ae9e21c1",
@@ -5621,7 +5772,9 @@ pub(in crate::card::sets) static PYREWOOD_GEARHULK: CardRecord = CardRecord::new
 );
 
 // DFT 217 — Rangers' Aetherhive
-// Audit: unsupported — Needs a committed activation event filtered by the exhaust mechanic label, including mana abilities; current trigger events do not observe labeled ability activations.
+// Audit: unsupported — Needs a committed activation event filtered by the exhaust mechanic
+// label, including mana abilities; current trigger events do not observe labeled ability
+// activations.
 pub(in crate::card::sets) static RANGERS_AETHERHIVE: CardRecord = CardRecord::new(
     "Rangers' Aetherhive",
     "1b238d2c-d10f-496d-aa34-5a1536e056b5",
@@ -5687,7 +5840,9 @@ pub(in crate::card::sets) static REDSHIFT_ROCKETEER_CHIEF: CardRecord = CardReco
 );
 
 // DFT 219 — Riptide Gearhulk
-// Audit: unsupported — Needs a zone placement inserting a card third from the top of its owner's library, or at the bottom when fewer than three cards exist; current placements only expose top and bottom.
+// Audit: unsupported — Needs a zone placement inserting a card third from the top of its
+// owner's library, or at the bottom when fewer than three cards exist; current placements only
+// expose top and bottom.
 pub(in crate::card::sets) static RIPTIDE_GEARHULK: CardRecord = CardRecord::new(
     "Riptide Gearhulk",
     "44bfb0f7-18ca-4f6e-ba64-92120010456e",
@@ -5737,7 +5892,9 @@ pub(in crate::card::sets) static ROCKETEER_BOOSTBUGGY: CardRecord = CardRecord::
 );
 
 // DFT 221 — Sab-Sunen, Luxa Embodied
-// Audit: unsupported — Needs parity of the total number of counters across all counter kinds, both in static attack/block restrictions and resolution conditions; existing values select particular kinds and do not provide odd/even predicates.
+// Audit: unsupported — Needs parity of the total number of counters across all counter kinds,
+// both in static attack/block restrictions and resolution conditions; existing values select
+// particular kinds and do not provide odd/even predicates.
 pub(in crate::card::sets) static SAB_SUNEN_LUXA_EMBODIED: CardRecord = CardRecord::new(
     "Sab-Sunen, Luxa Embodied",
     "2ef555b1-666d-4386-8983-0e88f9b6cdec",
@@ -5746,7 +5903,9 @@ pub(in crate::card::sets) static SAB_SUNEN_LUXA_EMBODIED: CardRecord = CardRecor
 );
 
 // DFT 222 — Samut, the Driving Force
-// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once
+// during each of that player's turns when an opponent loses life, and capping at 4; current
+// player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static SAMUT_THE_DRIVING_FORCE: CardRecord = CardRecord::new(
     "Samut, the Driving Force",
     "8efd8222-5c37-46d8-a2ec-1d7aae25320b",
@@ -5798,7 +5957,9 @@ pub(in crate::card::sets) static SITA_VARMA_MASKED_RACER: CardRecord = CardRecor
 );
 
 // DFT 224 — Skyserpent Seeker
-// Audit: unsupported — Needs revealing one library collection through its second matching land before moving both lands together and randomizing the rest; current collection sources stop at the first match or a fixed count.
+// Audit: unsupported — Needs revealing one library collection through its second matching land
+// before moving both lands together and randomizing the rest; current collection sources stop
+// at the first match or a fixed count.
 pub(in crate::card::sets) static SKYSERPENT_SEEKER: CardRecord = CardRecord::new(
     "Skyserpent Seeker",
     "8dbd9fc0-c0df-4119-a0d3-2e1790998c21",
@@ -5912,7 +6073,9 @@ pub(in crate::card::sets) static VOYAGE_HOME: CardRecord = CardRecord::new(
 );
 
 // DFT 228 — Winter, Cursed Rider
-// Audit: unsupported — Needs an activated cost exiling an arbitrary chosen number of artifact cards from the graveyard and carrying that paid count as X; the ordinary activation planner currently supports only fixed single-card exile selections.
+// Audit: unsupported — Needs an activated cost exiling an arbitrary chosen number of artifact
+// cards from the graveyard and carrying that paid count as X; the ordinary activation planner
+// currently supports only fixed single-card exile selections.
 pub(in crate::card::sets) static WINTER_CURSED_RIDER: CardRecord = CardRecord::new(
     "Winter, Cursed Rider",
     "02d46d0e-3161-45b5-a49e-5cd592c67ddd",
@@ -5921,7 +6084,9 @@ pub(in crate::card::sets) static WINTER_CURSED_RIDER: CardRecord = CardRecord::n
 );
 
 // DFT 229 — Zahur, Glory's Past
-// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once
+// during each of that player's turns when an opponent loses life, and capping at 4; current
+// player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static ZAHUR_GLORY_S_PAST: CardRecord = CardRecord::new(
     "Zahur, Glory's Past",
     "31944ea5-045d-481d-9aff-3c7ed663813a",
@@ -5961,7 +6126,9 @@ pub(in crate::card::sets) static AETHERJACKET: CardRecord = CardRecord::new(
 );
 
 // DFT 231 — The Aetherspark
-// Audit: unsupported — Needs a planeswalker attack prohibition that applies while it is attached to a creature, plus legal Equipment planeswalker attachment state; ordinary creature attack/block restrictions do not prevent attacks against this permanent.
+// Audit: unsupported — Needs a planeswalker attack prohibition that applies while it is
+// attached to a creature, plus legal Equipment planeswalker attachment state; ordinary creature
+// attack/block restrictions do not prevent attacks against this permanent.
 pub(in crate::card::sets) static THE_AETHERSPARK: CardRecord = CardRecord::new(
     "The Aetherspark",
     "05690d52-06c4-40b1-8360-380418a83250",
@@ -6187,7 +6354,9 @@ pub(in crate::card::sets) static MARSHALS_PATHCRUISER: CardRecord = CardRecord::
 );
 
 // DFT 237 — Monument to Endurance
-// Audit: unsupported — Needs a per-source, per-turn history of modes chosen, enforced while choosing triggered modes; existing modal triggers can constrain mode count but cannot exclude previously chosen modes.
+// Audit: unsupported — Needs a per-source, per-turn history of modes chosen, enforced while
+// choosing triggered modes; existing modal triggers can constrain mode count but cannot exclude
+// previously chosen modes.
 pub(in crate::card::sets) static MONUMENT_TO_ENDURANCE: CardRecord = CardRecord::new(
     "Monument to Endurance",
     "d21433ba-0a14-42bc-ad0b-a4ef823a3295",
@@ -6196,7 +6365,9 @@ pub(in crate::card::sets) static MONUMENT_TO_ENDURANCE: CardRecord = CardRecord:
 );
 
 // DFT 238 — Pit Automaton
-// Audit: unsupported — Needs an event identifying a nonmana exhaust activation and a delayed trigger consumed by the next such event before end of turn; neither the activation event nor that combined lifetime is represented.
+// Audit: unsupported — Needs an event identifying a nonmana exhaust activation and a delayed
+// trigger consumed by the next such event before end of turn; neither the activation event nor
+// that combined lifetime is represented.
 pub(in crate::card::sets) static PIT_AUTOMATON: CardRecord = CardRecord::new(
     "Pit Automaton",
     "c72527ef-ac05-44c8-8c76-10532ce3da6e",
@@ -6205,7 +6376,9 @@ pub(in crate::card::sets) static PIT_AUTOMATON: CardRecord = CardRecord::new(
 );
 
 // DFT 239 — Racers' Scoreboard
-// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once
+// during each of that player's turns when an opponent loses life, and capping at 4; current
+// player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static RACERS_SCOREBOARD: CardRecord = CardRecord::new(
     "Racers' Scoreboard",
     "50bae2ba-a6a0-4a6a-96e9-0e0372e55108",
@@ -6214,7 +6387,9 @@ pub(in crate::card::sets) static RACERS_SCOREBOARD: CardRecord = CardRecord::new
 );
 
 // DFT 240 — Radiant Lotus
-// Audit: unsupported — Needs a targeted mana-producing activation with one-or-more artifact sacrifice selection and output scaled by the completed payment; ordinary sacrifice activations support fixed counts, not this chosen group.
+// Audit: unsupported — Needs a targeted mana-producing activation with one-or-more artifact
+// sacrifice selection and output scaled by the completed payment; ordinary sacrifice
+// activations support fixed counts, not this chosen group.
 pub(in crate::card::sets) static RADIANT_LOTUS: CardRecord = CardRecord::new(
     "Radiant Lotus",
     "be6dac83-39c2-40dc-a322-76a3ea4e7aee",
@@ -6312,7 +6487,9 @@ pub(in crate::card::sets) static SKYBOX_FERRY: CardRecord = CardRecord::new(
 );
 
 // DFT 244 — Starting Column
-// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once
+// during each of that player's turns when an opponent loses life, and capping at 4; current
+// player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static STARTING_COLUMN: CardRecord = CardRecord::new(
     "Starting Column",
     "0530b343-98c2-440a-b32e-d1566d318c3b",
@@ -6358,7 +6535,9 @@ pub(in crate::card::sets) static TICKET_TORTOISE: CardRecord = CardRecord::new(
 );
 
 // DFT 246 — Walking Sarcophagus
-// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once
+// during each of that player's turns when an opponent loses life, and capping at 4; current
+// player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static WALKING_SARCOPHAGUS: CardRecord = CardRecord::new(
     "Walking Sarcophagus",
     "89ccbd73-9414-48a3-bdcf-e838fcffc08f",
@@ -6412,7 +6591,9 @@ pub(in crate::card::sets) static WRECK_REMOVER: CardRecord = CardRecord::new(
 );
 
 // DFT 248 — Amonkhet Raceway
-// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once
+// during each of that player's turns when an opponent loses life, and capping at 4; current
+// player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static AMONKHET_RACEWAY: CardRecord = CardRecord::new(
     "Amonkhet Raceway",
     "4f312807-ea2a-4385-8774-4e23b4a5d4a6",
@@ -6421,7 +6602,9 @@ pub(in crate::card::sets) static AMONKHET_RACEWAY: CardRecord = CardRecord::new(
 );
 
 // DFT 249 — Avishkar Raceway
-// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once
+// during each of that player's turns when an opponent loses life, and capping at 4; current
+// player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static AVISHKAR_RACEWAY: CardRecord = CardRecord::new(
     "Avishkar Raceway",
     "08a6b378-c7fa-4226-a310-4ee7e550b4d6",
@@ -6479,7 +6662,9 @@ const BLOSSOMING_SANDS_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // DFT 253 — Country Roads
-// Audit: unsupported — Needs the printed power contribution bonus for both saddling Mounts and crewing Vehicles; CrewsAsThoughPowerGreater is deliberately limited to Vehicles and does not increase saddle payment contributions.
+// Audit: unsupported — Needs the printed power contribution bonus for both saddling Mounts and
+// crewing Vehicles; CrewsAsThoughPowerGreater is deliberately limited to Vehicles and does not
+// increase saddle payment contributions.
 pub(in crate::card::sets) static COUNTRY_ROADS: CardRecord = CardRecord::new(
     "Country Roads",
     "897acd91-12ba-4fa8-a26e-c09f009167a8",
@@ -6495,7 +6680,9 @@ const DISMAL_BACKWATER_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // DFT 255 — Foul Roads
-// Audit: unsupported — Needs the printed power contribution bonus for both saddling Mounts and crewing Vehicles; CrewsAsThoughPowerGreater is deliberately limited to Vehicles and does not increase saddle payment contributions.
+// Audit: unsupported — Needs the printed power contribution bonus for both saddling Mounts and
+// crewing Vehicles; CrewsAsThoughPowerGreater is deliberately limited to Vehicles and does not
+// increase saddle payment contributions.
 pub(in crate::card::sets) static FOUL_ROADS: CardRecord = CardRecord::new(
     "Foul Roads",
     "a37c026a-c89f-41f3-8812-424124dd3760",
@@ -6511,7 +6698,9 @@ const JUNGLE_HOLLOW_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // DFT 257 — Muraganda Raceway
-// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once during each of that player's turns when an opponent loses life, and capping at 4; current player state and value predicates do not represent speed or max speed.
+// Audit: unsupported — Needs the speed player designation: starting at 1, increasing once
+// during each of that player's turns when an opponent loses life, and capping at 4; current
+// player state and value predicates do not represent speed or max speed.
 pub(in crate::card::sets) static MURAGANDA_RACEWAY: CardRecord = CardRecord::new(
     "Muraganda Raceway",
     "5041ae16-29ff-4ad5-8a37-4736e9409294",
@@ -6547,7 +6736,9 @@ pub(in crate::card::sets) static NIGHT_MARKET: CardRecord = CardRecord::new(
 );
 
 // DFT 259 — Reef Roads
-// Audit: unsupported — Needs the printed power contribution bonus for both saddling Mounts and crewing Vehicles; CrewsAsThoughPowerGreater is deliberately limited to Vehicles and does not increase saddle payment contributions.
+// Audit: unsupported — Needs the printed power contribution bonus for both saddling Mounts and
+// crewing Vehicles; CrewsAsThoughPowerGreater is deliberately limited to Vehicles and does not
+// increase saddle payment contributions.
 pub(in crate::card::sets) static REEF_ROADS: CardRecord = CardRecord::new(
     "Reef Roads",
     "73a8171a-2629-4356-ae86-b4d03aa14bd3",
@@ -6591,7 +6782,9 @@ pub(in crate::card::sets) static RIVERPYRE_VERGE: CardRecord = CardRecord::new(
 );
 
 // DFT 261 — Rocky Roads
-// Audit: unsupported — Needs the printed power contribution bonus for both saddling Mounts and crewing Vehicles; CrewsAsThoughPowerGreater is deliberately limited to Vehicles and does not increase saddle payment contributions.
+// Audit: unsupported — Needs the printed power contribution bonus for both saddling Mounts and
+// crewing Vehicles; CrewsAsThoughPowerGreater is deliberately limited to Vehicles and does not
+// increase saddle payment contributions.
 pub(in crate::card::sets) static ROCKY_ROADS: CardRecord = CardRecord::new(
     "Rocky Roads",
     "6f0d4e8a-aab5-458e-bc0e-2b6b0054646a",
@@ -6706,7 +6899,9 @@ pub(in crate::card::sets) static WASTEWOOD_VERGE: CardRecord = CardRecord::new(
 );
 
 // DFT 269 — Wild Roads
-// Audit: unsupported — Needs the printed power contribution bonus for both saddling Mounts and crewing Vehicles; CrewsAsThoughPowerGreater is deliberately limited to Vehicles and does not increase saddle payment contributions.
+// Audit: unsupported — Needs the printed power contribution bonus for both saddling Mounts and
+// crewing Vehicles; CrewsAsThoughPowerGreater is deliberately limited to Vehicles and does not
+// increase saddle payment contributions.
 pub(in crate::card::sets) static WILD_ROADS: CardRecord = CardRecord::new(
     "Wild Roads",
     "4d3d48d1-a98e-40af-b04c-c40b9d52e9ee",

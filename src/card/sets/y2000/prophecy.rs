@@ -228,32 +228,36 @@ pub(in crate::card::sets) static FLOWERING_FIELD: CardRecord = CardRecord::new(
     "Flowering Field",
     "c241fd76-f52d-48fc-864c-57caffa700f6",
     "Jeff Miracola",
-// The white member of the Field cycle, and the one whose land is worth
+    // The white member of the Field cycle, and the one whose land is worth
     // tapping on the opponent's turn rather than your own.
     CardRules::new_enchantment(mana_cost!("{1}{W}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
             abilities::enchant_land(),
             AbilityDef::static_ability(
-            "Enchanted land has \"{T}: Prevent the next 1 damage that would be dealt to any target this turn.\"",
-            EffectDef::StaticApply {
-                recipient: EffectRecipientDef::AttachedPermanent,
-                effect: AppliedEffectDef::add_ability(&AbilityDef::activated_with_targets(
-                            "{T}: Prevent the next 1 damage that would be dealt to any target this turn.",
-                            &[CostDef::TapSource],
-                            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)],
-                            EffectDef::PreventDamage {
-                                prevention: DamagePreventionDef::amount(
-                                    DamageEventMatcherDef::to(EffectRecipientDef::Target(
-                                        TargetIndex::PRIMARY,
-                                    )),
-                                    ValueDef::Constant(1),
-                                ),
-                                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                            },
-                        )),
-            },
-        ),
+                "Enchanted land has \"{T}: Prevent the next 1 damage that \
+                 would be dealt to any target this turn.\"",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::add_ability(&AbilityDef::activated_with_targets(
+                        "{T}: Prevent the next 1 damage that would be dealt to any \
+                         target this turn.",
+                        &[CostDef::TapSource],
+                        &[AbilityTargetDef::exactly_one(
+                            AbilityTargetPredicate::AnyTarget,
+                        )],
+                        EffectDef::PreventDamage {
+                            prevention: DamagePreventionDef::amount(
+                                DamageEventMatcherDef::to(EffectRecipientDef::Target(
+                                    TargetIndex::PRIMARY,
+                                )),
+                                ValueDef::Constant(1),
+                            ),
+                            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                        },
+                    )),
+                },
+            ),
         ]),
 );
 
@@ -556,13 +560,14 @@ pub(in crate::card::sets) static DENYING_WIND: CardRecord = CardRecord::new(
     "Denying Wind",
     "15f236ce-41ad-4a49-a6f9-7853a2395a84",
     "Tony Szczudlo",
-// Nine mana to take the seven cards the opponent's deck is built around,
+    // Nine mana to take the seven cards the opponent's deck is built around,
     // which is a win condition rather than a spell.
     CardRules::new_sorcery(mana_cost!("{7}{U}{U}")).with_ability(AbilityDef::spell_with_targets(
-        "Search target player's library for up to seven cards and exile them. Then that player shuffles.",
-        &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
-            PlayerRelation::Any,
-        ))],
+        "Search target player's library for up to seven cards and \
+         exile them. Then that player shuffles.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Player(PlayerRelation::Any),
+        )],
         EffectDef::SearchZone {
             player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             source: ZoneKind::Library,
@@ -1152,31 +1157,35 @@ pub(in crate::card::sets) static NOXIOUS_FIELD: CardRecord = CardRecord::new(
     "Noxious Field",
     "10c84d09-555c-472b-b445-5dd5a44cd555",
     "Eric Peterson",
-// The same land, pointed at everything at once, which only a deck
+    // The same land, pointed at everything at once, which only a deck
     // with no creatures of its own can keep using.
     CardRules::new_enchantment(mana_cost!("{1}{B}{B}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
             abilities::enchant_land(),
             AbilityDef::static_ability(
-                "Enchanted land has \"{T}: This land deals 1 damage to each creature and each player.\"",
+                "Enchanted land has \"{T}: This land deals 1 damage to each \
+                 creature and each player.\"",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::AttachedPermanent,
                     effect: AppliedEffectDef::add_ability(&AbilityDef::activated(
-                            "{T}: This land deals 1 damage to each creature and each player.",
-                            &[CostDef::TapSource],
-                            EffectDef::Sequence(&[
-                                EffectDef::damage(
-                                    EffectRecipientDef::matching_objects(
-                                        ObjectPredicateDef::HasType(CardType::Creature),
-                                        &[ZoneKind::Battlefield],
-                                        PlayerRelation::Any,
-                                    ),
-                                    ValueDef::Constant(1),
+                        "{T}: This land deals 1 damage to each creature and each player.",
+                        &[CostDef::TapSource],
+                        EffectDef::Sequence(&[
+                            EffectDef::damage(
+                                EffectRecipientDef::matching_objects(
+                                    ObjectPredicateDef::HasType(CardType::Creature),
+                                    &[ZoneKind::Battlefield],
+                                    PlayerRelation::Any,
                                 ),
-                                EffectDef::damage(EffectRecipientDef::EachPlayer, ValueDef::Constant(1)),
-                            ]),
-                        )),
+                                ValueDef::Constant(1),
+                            ),
+                            EffectDef::damage(
+                                EffectRecipientDef::EachPlayer,
+                                ValueDef::Constant(1),
+                            ),
+                        ]),
+                    )),
                 },
             ),
         ]),
@@ -1196,18 +1205,19 @@ pub(in crate::card::sets) static PIT_RAPTOR: CardRecord = CardRecord::new(
     "Pit Raptor",
     "e37cd150-1064-43b7-919b-8922d8a18f21",
     "Thomas Gianni",
-// A 4/3 flier with first strike for four, rented rather than bought --
+    // A 4/3 flier with first strike for four, rented rather than bought --
     // the rent is most of a turn every turn.
     CardRules::new_creature(mana_cost!("{2}{B}{B}"), &["Bird", "Mercenary"], 4, 3).with_abilities(
         &[
             abilities::flying(),
             abilities::first_strike(),
             AbilityDef::triggered(
-                "At the beginning of your upkeep, sacrifice this creature unless you pay {2}{B}{B}.",
+                "At the beginning of your upkeep, sacrifice this creature \
+                 unless you pay {2}{B}{B}.",
                 TriggerEventDef::StepBegins {
-                step: TurnStepDef::Upkeep,
-                player: PlayerRelation::You,
-            },
+                    step: TurnStepDef::Upkeep,
+                    player: PlayerRelation::You,
+                },
                 EffectDef::PayOr(PayOrDef::unless(
                     &[CostDef::Mana(mana_cost!("{2}{B}{B}"))],
                     &EffectDef::sacrifice(EffectRecipientDef::Source),
@@ -1312,10 +1322,11 @@ pub(in crate::card::sets) static STEAL_STRENGTH: CardRecord = CardRecord::new(
     "Steal Strength",
     "5470b3bb-5061-4beb-9f44-b56c3b2fd816",
     "D. Alexander Gregory",
-// It moves a point from one creature to another, so it wins a combat
+    // It moves a point from one creature to another, so it wins a combat
     // and a race in the same card.
     CardRules::new_instant(mana_cost!("{1}{B}")).with_ability(AbilityDef::spell_with_targets(
-        "Target creature gets +1/+1 until end of turn. Another target creature gets -1/-1 until end of turn.",
+        "Target creature gets +1/+1 until end of turn. Another \
+         target creature gets -1/-1 until end of turn.",
         &[
             AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
                 CardType::Creature,
@@ -2049,23 +2060,26 @@ pub(in crate::card::sets) static THRESHER_BEAST: CardRecord = CardRecord::new(
     "Thresher Beast",
     "57996732-c9e4-4271-9d5f-2a8c77f8d177",
     "Jeff Easley",
-// Four mana of land destruction for anyone who blocks it, which is
+    // Four mana of land destruction for anyone who blocks it, which is
     // why the sensible answer is to take four.
-    CardRules::new_creature(mana_cost!("{3}{G}{G}"), &["Beast"], 4, 4).with_ability(AbilityDef::triggered(
-        "Whenever this creature becomes blocked, defending player sacrifices a land of their choice.",
-        TriggerEventDef::BecomesBlocked(ObjectPredicateDef::Source),
-        EffectDef::SacrificeOfChoice {
-            player: EffectRecipientDef::players(PlayerSetDef::Related(
-                PlayerRelation::DefendingPlayer,
-            )),
-            object: ObjectPredicateDef::HasType(CardType::Land),
-            count: ValueDef::Constant(1),
-            then: None,
-            amount: SacrificedAmountDef::Power,
-            otherwise: None,
-            optional: false,
-        },
-    )),
+    CardRules::new_creature(mana_cost!("{3}{G}{G}"), &["Beast"], 4, 4).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature becomes blocked, defending player \
+             sacrifices a land of their choice.",
+            TriggerEventDef::BecomesBlocked(ObjectPredicateDef::Source),
+            EffectDef::SacrificeOfChoice {
+                player: EffectRecipientDef::players(PlayerSetDef::Related(
+                    PlayerRelation::DefendingPlayer,
+                )),
+                object: ObjectPredicateDef::HasType(CardType::Land),
+                count: ValueDef::Constant(1),
+                then: None,
+                amount: SacrificedAmountDef::Power,
+                otherwise: None,
+                optional: false,
+            },
+        ),
+    ),
 );
 
 // PCY 129 — Thrive

@@ -204,7 +204,7 @@ const WIZARD_TOKEN: TokenCharacteristics =
     TokenCharacteristics::creature(&["Wizard"], &[ManaColor::Black], 0, 1)
         .with_abilities(&[AbilityDef::triggered(
             "Whenever you cast a noncreature spell, this token deals 1 \
-                     damage to each opponent.",
+             damage to each opponent.",
             TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
                 ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
                 ObjectPredicateDef::ControlledBy(PlayerRelation::You),
@@ -224,7 +224,7 @@ const BIRD_TOKEN: TokenCharacteristics =
     TokenCharacteristics::creature(&["Bird"], &[ManaColor::Green], 2, 2)
         .with_abilities(&[AbilityDef::triggered(
             "Whenever a land you control enters, this token gets +1/+0 \
-                         until end of turn.",
+             until end of turn.",
             TriggerEventDef::zone_changed(
                 ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Land),
@@ -248,7 +248,9 @@ const BIRD_TOKEN: TokenCharacteristics =
         ));
 
 // FIN 1 — Summon: Bahamut
-// Audit: unsupported — Needs one printed Saga ability to represent several chapter numbers and to remain identifiable to the Saga final-chapter rules; the current Saga authoring and recognition path represents exactly one chapter per ability.
+// Audit: unsupported — Needs one printed Saga ability to represent several chapter numbers and
+// to remain identifiable to the Saga final-chapter rules; the current Saga authoring and
+// recognition path represents exactly one chapter per ability.
 pub(in crate::card::sets) static SUMMON_BAHAMUT: CardRecord = CardRecord::new(
     "Summon: Bahamut",
     "95318d85-4a08-47ac-a43d-ea83c0bea81c",
@@ -257,7 +259,9 @@ pub(in crate::card::sets) static SUMMON_BAHAMUT: CardRecord = CardRecord::new(
 );
 
 // FIN 2 — Ultima, Origin of Oblivion
-// Audit: unsupported — Needs a resolved land-type and ability overwrite that lasts only while the affected land retains a blight counter; existing resolved effects have turn, source, or permanent durations without a counter-presence lifetime.
+// Audit: unsupported — Needs a resolved land-type and ability overwrite that lasts only while
+// the affected land retains a blight counter; existing resolved effects have turn, source, or
+// permanent durations without a counter-presence lifetime.
 pub(in crate::card::sets) static ULTIMA_ORIGIN_OF_OBLIVION: CardRecord = CardRecord::new(
     "Ultima, Origin of Oblivion",
     "d55a4c02-1aa4-454c-9041-84937377a53b",
@@ -603,7 +607,9 @@ pub(in crate::card::sets) static BATTLE_MENU: CardRecord = CardRecord::new(
 );
 
 // FIN 10 — Cloud, Midgar Mercenary
-// Audit: unsupported — Needs triggered-ability duplication scoped to this equipped creature and Equipment attached to it; the current extra-trigger rules match entering or dying objects, not arbitrary triggered abilities on that attachment group.
+// Audit: unsupported — Needs triggered-ability duplication scoped to this equipped creature and
+// Equipment attached to it; the current extra-trigger rules match entering or dying objects,
+// not arbitrary triggered abilities on that attachment group.
 pub(in crate::card::sets) static CLOUD_MIDGAR_MERCENARY: CardRecord = CardRecord::new(
     "Cloud, Midgar Mercenary",
     "2cf7e8a3-fad7-413d-b17c-7519a9cf5fb5",
@@ -661,7 +667,9 @@ pub(in crate::card::sets) static COEURL: CardRecord = CardRecord::new(
 );
 
 // FIN 13 — Crystal Fragments // Summon: Alexander
-// Audit: unsupported — Needs one printed Saga ability to represent several chapter numbers and to remain identifiable to the Saga final-chapter rules; the current Saga authoring and recognition path represents exactly one chapter per ability.
+// Audit: unsupported — Needs one printed Saga ability to represent several chapter numbers and
+// to remain identifiable to the Saga final-chapter rules; the current Saga authoring and
+// recognition path represents exactly one chapter per ability.
 pub(in crate::card::sets) static CRYSTAL_FRAGMENTS: CardRecord = CardRecord::new(
     "Crystal Fragments // Summon: Alexander",
     "5f51c853-949d-44e9-a3a2-02e1ce69a147",
@@ -697,17 +705,119 @@ pub(in crate::card::sets) static THE_CRYSTAL_S_CHOSEN: CardRecord = CardRecord::
 
 // FIN 15 — Delivery Moogle
 pub(in crate::card::sets) static DELIVERY_MOOGLE: CardRecord = CardRecord::new(
-"Delivery Moogle",
-"f58840dc-c641-4092-8b67-9c0d449af715",
-"Joseph Weston",
-CardRules::new_creature(mana_cost!("{3}{W}"), &["Moogle"], 3, 2).with_abilities(&[
-abilities::flying(),
-abilities::enters_trigger("When this creature enters, search your library and/or graveyard for an artifact card with mana value 2 or less, reveal it, and put it into your hand. If you search your library this way, shuffle.", EffectDef::ChooseEffect { player: EffectRecipientDef::Controller, choices: &[EffectChoiceDef { label: "Search your library.", effect: EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Library, object: ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Artifact), ObjectPredicateDef::ManaValueAtMost(2)]), minimum: 0, maximum: ValueDef::Constant(1), reveal: true, destination: ZoneKind::Hand, placement: ZonePlacement::Top, shuffle: true, enters_tapped: false, attachment: None, binding: None, then: None } }, EffectChoiceDef { label: "Search your graveyard.", effect: EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Graveyard, object: ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Artifact), ObjectPredicateDef::ManaValueAtMost(2)]), minimum: 1, maximum: ValueDef::Constant(1), reveal: true, destination: ZoneKind::Hand, placement: ZonePlacement::Top, shuffle: false, enters_tapped: false, attachment: None, binding: None, then: None } }, EffectChoiceDef { label: "Search both zones.", effect: EffectDef::Sequence(&[EffectDef::Choose(ChooseDef { chooser: PlayerRefDef::EffectController, candidates: ObjectSetDef::Union(&[ObjectSetDef::Query(ObjectQueryDef::matching(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Artifact), ObjectPredicateDef::ManaValueAtMost(2)]), &[ZoneKind::Library], PlayerRelation::You)), ObjectSetDef::Query(ObjectQueryDef::matching(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Artifact), ObjectPredicateDef::ManaValueAtMost(2)]), &[ZoneKind::Graveyard], PlayerRelation::You))]), exclude: None, minimum: 0, maximum: 1, binding: ObjectChoiceBindingDef::Objects(Binding!("moogle_found")), unchosen: None, visibility: ChoiceVisibilityDef::Private, then: &EffectDef::Sequence(&[EffectDef::RevealObjects(RevealObjectsDef { input: ObjectSetDef::Binding(Binding!("moogle_found")), then: &EffectDef::None }), EffectDef::move_to_zone(EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!("moogle_found"))), ZoneKind::Hand, ZonePlacement::Top)]) }), EffectDef::ShuffleLibrary { player: EffectRecipientDef::Controller }]) }] })
-]),
+    "Delivery Moogle",
+    "f58840dc-c641-4092-8b67-9c0d449af715",
+    "Joseph Weston",
+    CardRules::new_creature(mana_cost!("{3}{W}"), &["Moogle"], 3, 2).with_abilities(&[
+        abilities::flying(),
+        abilities::enters_trigger(
+            "When this creature enters, search your library and/or \
+             graveyard for an artifact card with mana value 2 or less, \
+             reveal it, and put it into your hand. If you search your \
+             library this way, shuffle.",
+            EffectDef::ChooseEffect {
+                player: EffectRecipientDef::Controller,
+                choices: &[
+                    EffectChoiceDef {
+                        label: "Search your library.",
+                        effect: EffectDef::SearchZone {
+                            player: EffectRecipientDef::Controller,
+                            source: ZoneKind::Library,
+                            object: ObjectPredicateDef::All(&[
+                                ObjectPredicateDef::HasType(CardType::Artifact),
+                                ObjectPredicateDef::ManaValueAtMost(2),
+                            ]),
+                            minimum: 0,
+                            maximum: ValueDef::Constant(1),
+                            reveal: true,
+                            destination: ZoneKind::Hand,
+                            placement: ZonePlacement::Top,
+                            shuffle: true,
+                            enters_tapped: false,
+                            attachment: None,
+                            binding: None,
+                            then: None,
+                        },
+                    },
+                    EffectChoiceDef {
+                        label: "Search your graveyard.",
+                        effect: EffectDef::SearchZone {
+                            player: EffectRecipientDef::Controller,
+                            source: ZoneKind::Graveyard,
+                            object: ObjectPredicateDef::All(&[
+                                ObjectPredicateDef::HasType(CardType::Artifact),
+                                ObjectPredicateDef::ManaValueAtMost(2),
+                            ]),
+                            minimum: 1,
+                            maximum: ValueDef::Constant(1),
+                            reveal: true,
+                            destination: ZoneKind::Hand,
+                            placement: ZonePlacement::Top,
+                            shuffle: false,
+                            enters_tapped: false,
+                            attachment: None,
+                            binding: None,
+                            then: None,
+                        },
+                    },
+                    EffectChoiceDef {
+                        label: "Search both zones.",
+                        effect: EffectDef::Sequence(&[
+                            EffectDef::Choose(ChooseDef {
+                                chooser: PlayerRefDef::EffectController,
+                                candidates: ObjectSetDef::Union(&[
+                                    ObjectSetDef::Query(ObjectQueryDef::matching(
+                                        ObjectPredicateDef::All(&[
+                                            ObjectPredicateDef::HasType(CardType::Artifact),
+                                            ObjectPredicateDef::ManaValueAtMost(2),
+                                        ]),
+                                        &[ZoneKind::Library],
+                                        PlayerRelation::You,
+                                    )),
+                                    ObjectSetDef::Query(ObjectQueryDef::matching(
+                                        ObjectPredicateDef::All(&[
+                                            ObjectPredicateDef::HasType(CardType::Artifact),
+                                            ObjectPredicateDef::ManaValueAtMost(2),
+                                        ]),
+                                        &[ZoneKind::Graveyard],
+                                        PlayerRelation::You,
+                                    )),
+                                ]),
+                                exclude: None,
+                                minimum: 0,
+                                maximum: 1,
+                                binding: ObjectChoiceBindingDef::Objects(Binding!("moogle_found")),
+                                unchosen: None,
+                                visibility: ChoiceVisibilityDef::Private,
+                                then: &EffectDef::Sequence(&[
+                                    EffectDef::RevealObjects(RevealObjectsDef {
+                                        input: ObjectSetDef::Binding(Binding!("moogle_found")),
+                                        then: &EffectDef::None,
+                                    }),
+                                    EffectDef::move_to_zone(
+                                        EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                            Binding!("moogle_found"),
+                                        )),
+                                        ZoneKind::Hand,
+                                        ZonePlacement::Top,
+                                    ),
+                                ]),
+                            }),
+                            EffectDef::ShuffleLibrary {
+                                player: EffectRecipientDef::Controller,
+                            },
+                        ]),
+                    },
+                ],
+            },
+        ),
+    ]),
 );
 
 // FIN 16 — Dion, Bahamut's Dominant // Bahamut, Warden of Light
-// Audit: unsupported — Needs one printed Saga ability to represent several chapter numbers and to remain identifiable to the Saga final-chapter rules; the current Saga authoring and recognition path represents exactly one chapter per ability.
+// Audit: unsupported — Needs one printed Saga ability to represent several chapter numbers and
+// to remain identifiable to the Saga final-chapter rules; the current Saga authoring and
+// recognition path represents exactly one chapter per ability.
 pub(in crate::card::sets) static DION_BAHAMUT_S_DOMINANT: CardRecord = CardRecord::new(
     "Dion, Bahamut's Dominant // Bahamut, Warden of Light",
     "8c0f9306-2058-476d-a711-bd37a6e15e42",
@@ -769,7 +879,8 @@ pub(in crate::card::sets) static DWARVEN_CASTLE_GUARD: CardRecord = CardRecord::
 );
 
 // FIN 19 — Fate of the Sun-Cryst
-// Audit: unsupported — Needs self spell-cost reduction to inspect the chosen target and whether it is a tapped creature; self-cost evaluation cannot read selected targets.
+// Audit: unsupported — Needs self spell-cost reduction to inspect the chosen target and whether
+// it is a tapped creature; self-cost evaluation cannot read selected targets.
 pub(in crate::card::sets) static FATE_OF_THE_SUN_CRYST: CardRecord = CardRecord::new(
     "Fate of the Sun-Cryst",
     "900cdf11-b42e-4dcc-97c3-2e4d8e406a70",
@@ -1448,7 +1559,9 @@ pub(in crate::card::sets) static SNOW_VILLIERS: CardRecord = CardRecord::new(
 );
 
 // FIN 34 — Stiltzkin, Moogle Merchant
-// Audit: unsupported — Needs an actual gain-control result binding so drawing happens only when the opponent gains control; testing the final controller cannot distinguish a successful change from a prevented or redundant change.
+// Audit: unsupported — Needs an actual gain-control result binding so drawing happens only when
+// the opponent gains control; testing the final controller cannot distinguish a successful
+// change from a prevented or redundant change.
 pub(in crate::card::sets) static STILTZKIN_MOOGLE_MERCHANT: CardRecord = CardRecord::new(
     "Stiltzkin, Moogle Merchant",
     "06a972a4-0c1b-4f12-a5a5-fdea47c4cd35",
@@ -1457,7 +1570,9 @@ pub(in crate::card::sets) static STILTZKIN_MOOGLE_MERCHANT: CardRecord = CardRec
 );
 
 // FIN 35 — Summon: Choco/Mog
-// Audit: unsupported — Needs one printed Saga ability to represent several chapter numbers and to remain identifiable to the Saga final-chapter rules; the current Saga authoring and recognition path represents exactly one chapter per ability.
+// Audit: unsupported — Needs one printed Saga ability to represent several chapter numbers and
+// to remain identifiable to the Saga final-chapter rules; the current Saga authoring and
+// recognition path represents exactly one chapter per ability.
 pub(in crate::card::sets) static SUMMON_CHOCO_MOG: CardRecord = CardRecord::new(
     "Summon: Choco/Mog",
     "00546117-018a-4286-bc20-b5446c5be56f",
@@ -1466,7 +1581,9 @@ pub(in crate::card::sets) static SUMMON_CHOCO_MOG: CardRecord = CardRecord::new(
 );
 
 // FIN 36 — Summon: Knights of Round
-// Audit: unsupported — Needs one printed Saga ability to represent several chapter numbers and to remain identifiable to the Saga final-chapter rules; the current Saga authoring and recognition path represents exactly one chapter per ability.
+// Audit: unsupported — Needs one printed Saga ability to represent several chapter numbers and
+// to remain identifiable to the Saga final-chapter rules; the current Saga authoring and
+// recognition path represents exactly one chapter per ability.
 pub(in crate::card::sets) static SUMMON_KNIGHTS_OF_ROUND: CardRecord = CardRecord::new(
     "Summon: Knights of Round",
     "44d23652-077e-4c1f-b640-b284685db911",
@@ -1475,7 +1592,9 @@ pub(in crate::card::sets) static SUMMON_KNIGHTS_OF_ROUND: CardRecord = CardRecor
 );
 
 // FIN 37 — Summon: Primal Garuda
-// Audit: unsupported — Needs one printed Saga ability to represent several chapter numbers and to remain identifiable to the Saga final-chapter rules; the current Saga authoring and recognition path represents exactly one chapter per ability.
+// Audit: unsupported — Needs one printed Saga ability to represent several chapter numbers and
+// to remain identifiable to the Saga final-chapter rules; the current Saga authoring and
+// recognition path represents exactly one chapter per ability.
 pub(in crate::card::sets) static SUMMON_PRIMAL_GARUDA: CardRecord = CardRecord::new(
     "Summon: Primal Garuda",
     "e44497a8-067e-454e-a9c0-684f03df55ff",
@@ -1484,7 +1603,9 @@ pub(in crate::card::sets) static SUMMON_PRIMAL_GARUDA: CardRecord = CardRecord::
 );
 
 // FIN 38 — Ultima
-// Audit: unsupported — Needs an end-the-turn procedure that exiles the stack, ends pending actions, and runs cleanup including hand-size discards and expiring effects; scheduling ordinary phases cannot end the turn this way.
+// Audit: unsupported — Needs an end-the-turn procedure that exiles the stack, ends pending
+// actions, and runs cleanup including hand-size discards and expiring effects; scheduling
+// ordinary phases cannot end the turn this way.
 pub(in crate::card::sets) static ULTIMA: CardRecord = CardRecord::new(
     "Ultima",
     "39504a0e-f63f-4907-afd7-c4492f6b8a3b",
@@ -1587,7 +1708,9 @@ pub(in crate::card::sets) static VENAT_HEART_OF_HYDAELYN: CardRecord = CardRecor
 );
 
 // FIN 40 — Weapons Vendor
-// Audit: unsupported — Needs a reflexive trigger after an optional payment that survives the original source leaving, plus attachment between two independently selected permanents; OptionalEffectTaken currently discovers only battlefield listeners.
+// Audit: unsupported — Needs a reflexive trigger after an optional payment that survives the
+// original source leaving, plus attachment between two independently selected permanents;
+// OptionalEffectTaken currently discovers only battlefield listeners.
 pub(in crate::card::sets) static WEAPONS_VENDOR: CardRecord = CardRecord::new(
     "Weapons Vendor",
     "c9e6b374-3e44-4df7-b0a3-4ef98dc08267",
@@ -1596,7 +1719,9 @@ pub(in crate::card::sets) static WEAPONS_VENDOR: CardRecord = CardRecord::new(
 );
 
 // FIN 41 — White Auracite
-// Audit: unsupported — Needs immediate return of the linked exiled object as part of the source leaving the battlefield; the current linked-exile helper uses a separate leaves trigger that can be responded to or countered.
+// Audit: unsupported — Needs immediate return of the linked exiled object as part of the source
+// leaving the battlefield; the current linked-exile helper uses a separate leaves trigger that
+// can be responded to or countered.
 pub(in crate::card::sets) static WHITE_AURACITE: CardRecord = CardRecord::new(
     "White Auracite",
     "2df6f515-9d21-4769-b1c4-c219611bccbb",
@@ -1732,7 +1857,9 @@ pub(in crate::card::sets) static YOU_RE_NOT_ALONE: CardRecord = CardRecord::new(
 );
 
 // FIN 45 — Zack Fair
-// Audit: unsupported — Needs transfer of the sacrificed source's complete counter inventory and an Equipment chosen from its last-known attachments; current counter effects name a fixed counter kind and attachment queries read the current battlefield.
+// Audit: unsupported — Needs transfer of the sacrificed source's complete counter inventory and
+// an Equipment chosen from its last-known attachments; current counter effects name a fixed
+// counter kind and attachment queries read the current battlefield.
 pub(in crate::card::sets) static ZACK_FAIR: CardRecord = CardRecord::new(
     "Zack Fair",
     "f21f9161-5945-40da-8da0-446f6a4a1c23",
@@ -1749,7 +1876,9 @@ const ASTROLOGIAN_S_PLANISPHERE_ALTERNATE_1: PrintingRecord = PrintingRecord::al
 );
 
 // FIN 47 — Cargo Ship
-// Audit: unsupported — Needs a mana restriction allowing either casting an artifact spell or activating an artifact ability; multiple current restrictions are conjunctive rather than alternative spending permissions.
+// Audit: unsupported — Needs a mana restriction allowing either casting an artifact spell or
+// activating an artifact ability; multiple current restrictions are conjunctive rather than
+// alternative spending permissions.
 pub(in crate::card::sets) static CARGO_SHIP: CardRecord = CardRecord::new(
     "Cargo Ship",
     "932b865c-bfe7-4bb7-82e9-2403cf0e0522",
@@ -1822,7 +1951,9 @@ pub(in crate::card::sets) static DREAMS_OF_LAGUNA: CardRecord = CardRecord::new(
 );
 
 // FIN 51 — Edgar, King of Figaro
-// Audit: unsupported — Needs a replacement for the first coin-flip batch of each turn that forces every coin to heads and every flip to be won, including flips that happened before Edgar entered.
+// Audit: unsupported — Needs a replacement for the first coin-flip batch of each turn that
+// forces every coin to heads and every flip to be won, including flips that happened before
+// Edgar entered.
 pub(in crate::card::sets) static EDGAR_KING_OF_FIGARO: CardRecord = CardRecord::new(
     "Edgar, King of Figaro",
     "950ee302-5512-43c5-ac7c-b2b06f4177bf",
@@ -1856,7 +1987,9 @@ pub(in crate::card::sets) static EJECT: CardRecord = CardRecord::new(
 );
 
 // FIN 53 — Ether
-// Audit: unsupported — Needs a source-independent delayed trigger that fires only on the next matching spell this turn and expires if unused; installed Once and ThisTurn lifetimes cannot currently be combined.
+// Audit: unsupported — Needs a source-independent delayed trigger that fires only on the next
+// matching spell this turn and expires if unused; installed Once and ThisTurn lifetimes cannot
+// currently be combined.
 pub(in crate::card::sets) static ETHER: CardRecord = CardRecord::new(
     "Ether",
     "896ee6e9-15a9-4974-b576-50f4759fac38",
@@ -1865,7 +1998,8 @@ pub(in crate::card::sets) static ETHER: CardRecord = CardRecord::new(
 );
 
 // FIN 54 — Gogo, Master of Mimicry
-// Audit: unsupported — Needs a rule preventing the activated ability itself from being copied; copying a targeted ability is supported but the copying prohibition is not represented.
+// Audit: unsupported — Needs a rule preventing the activated ability itself from being copied;
+// copying a targeted ability is supported but the copying prohibition is not represented.
 pub(in crate::card::sets) static GOGO_MASTER_OF_MIMICRY: CardRecord = CardRecord::new(
     "Gogo, Master of Mimicry",
     "cce4eb99-d960-4ab7-911a-bb4ea74d1775",
@@ -2014,7 +2148,9 @@ pub(in crate::card::sets) static IL_MHEG_PIXIE: CardRecord = CardRecord::new(
 );
 
 // FIN 58 — Jill, Shiva's Dominant // Shiva, Warden of Ice
-// Audit: unsupported — Needs one printed Saga ability to represent several chapter numbers and to remain identifiable to the Saga final-chapter rules; the current Saga authoring and recognition path represents exactly one chapter per ability.
+// Audit: unsupported — Needs one printed Saga ability to represent several chapter numbers and
+// to remain identifiable to the Saga final-chapter rules; the current Saga authoring and
+// recognition path represents exactly one chapter per ability.
 pub(in crate::card::sets) static JILL_SHIVA_S_DOMINANT: CardRecord = CardRecord::new(
     "Jill, Shiva's Dominant // Shiva, Warden of Ice",
     "1f163763-4802-4a96-a5bc-f3c381db7b5c",
@@ -2130,7 +2266,8 @@ pub(in crate::card::sets) static MAGIC_DAMPER: CardRecord = CardRecord::new(
 );
 
 // FIN 62 — Matoya, Archon Elder
-// Audit: unsupported — Needs completed-scry and completed-surveil events, emitted after those choices finish; neither action currently exposes a trigger event.
+// Audit: unsupported — Needs completed-scry and completed-surveil events, emitted after those
+// choices finish; neither action currently exposes a trigger event.
 pub(in crate::card::sets) static MATOYA_ARCHON_ELDER: CardRecord = CardRecord::new(
     "Matoya, Archon Elder",
     "1dd61cf6-2fb5-4cff-ab00-7677ac85774c",
@@ -2256,7 +2393,9 @@ pub(in crate::card::sets) static MEMORIES_RETURNING: CardRecord = CardRecord::ne
 );
 
 // FIN 64 — The Prima Vista
-// Audit: unsupported — Needs total mana spent recorded with a spell-cast event and readable by its triggered ability, including additional costs and cost reductions; the current cast-event values expose mana value and colors spent, not the amount paid.
+// Audit: unsupported — Needs total mana spent recorded with a spell-cast event and readable by
+// its triggered ability, including additional costs and cost reductions; the current cast-event
+// values expose mana value and colors spent, not the amount paid.
 pub(in crate::card::sets) static THE_PRIMA_VISTA: CardRecord = CardRecord::new(
     "The Prima Vista",
     "e3998132-5746-4dde-9529-97d3ad7d7361",
@@ -2305,7 +2444,9 @@ pub(in crate::card::sets) static QIQIRN_MERCHANT: CardRecord = CardRecord::new(
 );
 
 // FIN 66 — Quistis Trepe
-// Audit: unsupported — Needs an immediate targeted graveyard-cast offer at the printed cost that permits mana of any type; the granted alternative-cast offer has no per-offer unrestricted-mana payment policy.
+// Audit: unsupported — Needs an immediate targeted graveyard-cast offer at the printed cost
+// that permits mana of any type; the granted alternative-cast offer has no per-offer
+// unrestricted-mana payment policy.
 pub(in crate::card::sets) static QUISTIS_TREPE: CardRecord = CardRecord::new(
     "Quistis Trepe",
     "61784cbd-92e9-43c7-a1a8-4004b1bf4dae",
@@ -2456,7 +2597,9 @@ pub(in crate::card::sets) static SAGE_S_NOULITHS: CardRecord = CardRecord::new(
 );
 
 // FIN 71 — Sahagin
-// Audit: unsupported — Needs total mana spent recorded with a spell-cast event and readable by its triggered ability, including additional costs and cost reductions; the current cast-event values expose mana value and colors spent, not the amount paid.
+// Audit: unsupported — Needs total mana spent recorded with a spell-cast event and readable by
+// its triggered ability, including additional costs and cost reductions; the current cast-event
+// values expose mana value and colors spent, not the amount paid.
 pub(in crate::card::sets) static SAHAGIN: CardRecord = CardRecord::new(
     "Sahagin",
     "516940c7-c271-4f64-af75-c7ba98548382",
@@ -2592,7 +2735,9 @@ pub(in crate::card::sets) static SLEEP_MAGIC: CardRecord = CardRecord::new(
 );
 
 // FIN 75 — Stolen Uniform
-// Audit: unsupported — Needs attachment between independently selected objects and a delayed control-loss listener bound to that Equipment for this turn; existing attach operations use the ability source and delayed event matchers cannot retain the selected object.
+// Audit: unsupported — Needs attachment between independently selected objects and a delayed
+// control-loss listener bound to that Equipment for this turn; existing attach operations use
+// the ability source and delayed event matchers cannot retain the selected object.
 pub(in crate::card::sets) static STOLEN_UNIFORM: CardRecord = CardRecord::new(
     "Stolen Uniform",
     "0d80c511-2f4d-4f77-8143-7b49b2b19fae",
@@ -2639,7 +2784,9 @@ pub(in crate::card::sets) static STUCK_IN_SUMMONER_S_SANCTUM: CardRecord = CardR
 );
 
 // FIN 77 — Summon: Leviathan
-// Audit: unsupported — Needs one printed Saga ability to represent several chapter numbers and to remain identifiable to the Saga final-chapter rules; the current Saga authoring and recognition path represents exactly one chapter per ability.
+// Audit: unsupported — Needs one printed Saga ability to represent several chapter numbers and
+// to remain identifiable to the Saga final-chapter rules; the current Saga authoring and
+// recognition path represents exactly one chapter per ability.
 pub(in crate::card::sets) static SUMMON_LEVIATHAN: CardRecord = CardRecord::new(
     "Summon: Leviathan",
     "ea7f26a9-b203-4ee7-88f1-3d9c77a25bcb",
@@ -2648,7 +2795,9 @@ pub(in crate::card::sets) static SUMMON_LEVIATHAN: CardRecord = CardRecord::new(
 );
 
 // FIN 78 — Summon: Shiva
-// Audit: unsupported — Needs one printed Saga ability to represent several chapter numbers and to remain identifiable to the Saga final-chapter rules; the current Saga authoring and recognition path represents exactly one chapter per ability.
+// Audit: unsupported — Needs one printed Saga ability to represent several chapter numbers and
+// to remain identifiable to the Saga final-chapter rules; the current Saga authoring and
+// recognition path represents exactly one chapter per ability.
 pub(in crate::card::sets) static SUMMON_SHIVA: CardRecord = CardRecord::new(
     "Summon: Shiva",
     "a80511f8-7cb1-4974-afde-8a5cebe13ad7",
@@ -2760,7 +2909,9 @@ pub(in crate::card::sets) static TRAVEL_THE_OVERWORLD: CardRecord = CardRecord::
 );
 
 // FIN 83 — Ultros, Obnoxious Octopus
-// Audit: unsupported — Needs total mana spent recorded with a spell-cast event and readable by its triggered ability, including additional costs and cost reductions; the current cast-event values expose mana value and colors spent, not the amount paid.
+// Audit: unsupported — Needs total mana spent recorded with a spell-cast event and readable by
+// its triggered ability, including additional costs and cost reductions; the current cast-event
+// values expose mana value and colors spent, not the amount paid.
 pub(in crate::card::sets) static ULTROS_OBNOXIOUS_OCTOPUS: CardRecord = CardRecord::new(
     "Ultros, Obnoxious Octopus",
     "14379198-9a0a-4853-9d51-fb074a24b1c0",
@@ -2796,7 +2947,9 @@ pub(in crate::card::sets) static VALKYRIE_AERIAL_UNIT: CardRecord = CardRecord::
 );
 
 // FIN 85 — The Water Crystal
-// Audit: unsupported — Needs a prospective mill-batch replacement adding four cards once per mill instruction; replacing individual draws or reacting after milling gives different events and quantities.
+// Audit: unsupported — Needs a prospective mill-batch replacement adding four cards once per
+// mill instruction; replacing individual draws or reacting after milling gives different events
+// and quantities.
 pub(in crate::card::sets) static THE_WATER_CRYSTAL: CardRecord = CardRecord::new(
     "The Water Crystal",
     "e0af8436-797b-4e1f-b21a-d8e93701c3c9",
@@ -2805,7 +2958,9 @@ pub(in crate::card::sets) static THE_WATER_CRYSTAL: CardRecord = CardRecord::new
 );
 
 // FIN 86 — Y'shtola Rhul
-// Audit: unsupported — Needs end-step ordinal history and insertion of an additional end step after the current step; current phase scheduling does not insert individual ending-phase steps.
+// Audit: unsupported — Needs end-step ordinal history and insertion of an additional end step
+// after the current step; current phase scheduling does not insert individual ending-phase
+// steps.
 pub(in crate::card::sets) static Y_SHTOLA_RHUL: CardRecord = CardRecord::new(
     "Y'shtola Rhul",
     "aef218fa-13a4-4653-95d6-6b3ef1b33a92",
@@ -2881,7 +3036,8 @@ pub(in crate::card::sets) static AL_BHED_SALVAGERS: CardRecord = CardRecord::new
 );
 
 // FIN 89 — Ardyn, the Usurper
-// Audit: unsupported — Needs a token-copy exception replacing all creature types with Demon; copy exceptions currently add creature types rather than replace the copied type set.
+// Audit: unsupported — Needs a token-copy exception replacing all creature types with Demon;
+// copy exceptions currently add creature types rather than replace the copied type set.
 pub(in crate::card::sets) static ARDYN_THE_USURPER: CardRecord = CardRecord::new(
     "Ardyn, the Usurper",
     "4627072e-9c72-4084-8021-690777342548",
@@ -2940,42 +3096,48 @@ pub(in crate::card::sets) static CECIL_DARK_KNIGHT: CardRecord = CardRecord::new
             "Cecil, Dark Knight",
             const {
                 CardRules::new_creature(mana_cost!("{B}"), &["Human", "Knight"], 2, 3)
-                .with_supertype(CardSupertype::Legendary)
-                .with_abilities(&const { [
-                    abilities::deathtouch(),
-                    AbilityDef::triggered(
-                        "Darkness — Whenever Cecil deals damage, you lose that much life. Then if your life total is less than or equal to half your starting life total, untap Cecil and transform it.",
-                        TriggerEventDef::DamageDealt(DamageEventMatcherDef {
-                            kind: DamageKindDef::Any,
-                            source: DamageSourceMatcherDef::Object(ObjectRefDef::Source),
-                            recipient: DamageRecipientMatcherDef::Any,
-                        }),
-                        // "You lose that much life. Then if ..." is one clause resolving in order:
-                        // the life is lost first, so the very damage that cost it can be what brings
-                        // the total low enough to turn the card over.
-                        EffectDef::Sequence(&[
-                            EffectDef::LoseLife {
-                                recipient: EffectRecipientDef::Controller,
-                                amount: ValueDef::TriggerEventAmount,
-                            },
-                            EffectDef::IfCondition {
-                                condition: &TriggerConditionDef::ControllerLifeAtMostHalfStartingLife,
-                                // The front half's payoff, and the reason the card is played: hitting hard
-                                // enough to halve your own life is what turns Cecil over. Untapping is part
-                                // of the same clause, so a Cecil that traded its attack for the transform
-                                // comes back ready to block.
-                                then: &EffectDef::Sequence(&[
-                                    EffectDef::Untap {
-                                        object: EffectRecipientDef::Source,
-                                    },
-                                    EffectDef::Transform {
-                                        object: EffectRecipientDef::Source,
-                                    },
-                                ]),
-                            },
-                        ]),
-                    ),
-                ] })
+                    .with_supertype(CardSupertype::Legendary)
+                    .with_abilities(
+                        &const {
+                            [
+                                abilities::deathtouch(),
+                                AbilityDef::triggered(
+                                    "Darkness — Whenever Cecil deals damage, you lose that much \
+                                     life. Then if your life total is less than or equal to half \
+                                     your starting life total, untap Cecil and transform it.",
+                                    TriggerEventDef::DamageDealt(DamageEventMatcherDef {
+                                        kind: DamageKindDef::Any,
+                                        source: DamageSourceMatcherDef::Object(ObjectRefDef::Source),
+                                        recipient: DamageRecipientMatcherDef::Any,
+                                    }),
+                                    // "You lose that much life. Then if ..." is one clause resolving in order:
+                                    // the life is lost first, so the very damage that cost it can be what brings
+                                    // the total low enough to turn the card over.
+                                    EffectDef::Sequence(&[
+                                        EffectDef::LoseLife {
+                                            recipient: EffectRecipientDef::Controller,
+                                            amount: ValueDef::TriggerEventAmount,
+                                        },
+                                        EffectDef::IfCondition {
+                                            condition: &TriggerConditionDef::ControllerLifeAtMostHalfStartingLife,
+                                            // The front half's payoff, and the reason the card is played: hitting hard
+                                            // enough to halve your own life is what turns Cecil over. Untapping is part
+                                            // of the same clause, so a Cecil that traded its attack for the transform
+                                            // comes back ready to block.
+                                            then: &EffectDef::Sequence(&[
+                                                EffectDef::Untap {
+                                                    object: EffectRecipientDef::Source,
+                                                },
+                                                EffectDef::Transform {
+                                                    object: EffectRecipientDef::Source,
+                                                },
+                                            ]),
+                                        },
+                                    ]),
+                                ),
+                            ]
+                        },
+                    )
             },
         ),
         // The back face has no printed mana cost and is white, where the front is
@@ -2984,32 +3146,39 @@ pub(in crate::card::sets) static CECIL_DARK_KNIGHT: CardRecord = CardRecord::new
             "Cecil, Redeemed Paladin",
             const {
                 CardRules::new_creature_without_mana_cost(&["Human", "Knight"], 4, 4)
-                .printed_colors(&[ManaColor::White])
-                .with_supertype(CardSupertype::Legendary)
-                .with_abilities(&const { [
-                    abilities::lifelink(),
-                    AbilityDef::triggered(
-                        "Protect — Whenever Cecil attacks, other attacking creatures gain indestructible until end of turn.",
-                        TriggerEventDef::attacks(ObjectPredicateDef::Source),
-                        EffectDef::Apply {
-                            // "Other attacking creatures" excludes Cecil and takes in the opponent's
-                            // too, on the rare turn both sides are attacking at once.
-                            recipient: EffectRecipientDef::matching_objects(
-                                ObjectPredicateDef::All(&[
-                                    ObjectPredicateDef::HasType(CardType::Creature),
-                                    ObjectPredicateDef::Attacking,
-                                    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-                                ]),
-                                &[ZoneKind::Battlefield],
-                                PlayerRelation::Any,
-                            ),
-                            effect: AppliedEffectDef::add_ability(&const {
-                                abilities::indestructible()
-                            }),
-                            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    .printed_colors(&[ManaColor::White])
+                    .with_supertype(CardSupertype::Legendary)
+                    .with_abilities(
+                        &const {
+                            [
+                                abilities::lifelink(),
+                                AbilityDef::triggered(
+                                    "Protect — Whenever Cecil attacks, other attacking creatures \
+                                     gain indestructible until end of turn.",
+                                    TriggerEventDef::attacks(ObjectPredicateDef::Source),
+                                    EffectDef::Apply {
+                                        // "Other attacking creatures" excludes Cecil and takes in the opponent's
+                                        // too, on the rare turn both sides are attacking at once.
+                                        recipient: EffectRecipientDef::matching_objects(
+                                            ObjectPredicateDef::All(&[
+                                                ObjectPredicateDef::HasType(CardType::Creature),
+                                                ObjectPredicateDef::Attacking,
+                                                ObjectPredicateDef::Not(
+                                                    &ObjectPredicateDef::Source,
+                                                ),
+                                            ]),
+                                            &[ZoneKind::Battlefield],
+                                            PlayerRelation::Any,
+                                        ),
+                                        effect: AppliedEffectDef::add_ability(
+                                            &const { abilities::indestructible() },
+                                        ),
+                                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                                    },
+                                ),
+                            ]
                         },
-                    ),
-                ] })
+                    )
             },
         ),
     ],
@@ -3127,7 +3296,9 @@ pub(in crate::card::sets) static DARK_KNIGHT_S_GREATSWORD: CardRecord = CardReco
 );
 
 // FIN 96 — The Darkness Crystal
-// Audit: unsupported — Needs a death replacement that both exiles and links each replaced object to this source and gains life in that same replacement; ordinary linked-exile effects do not expose the prospective dying object as a linkable result.
+// Audit: unsupported — Needs a death replacement that both exiles and links each replaced
+// object to this source and gains life in that same replacement; ordinary linked-exile effects
+// do not expose the prospective dying object as a linkable result.
 pub(in crate::card::sets) static THE_DARKNESS_CRYSTAL: CardRecord = CardRecord::new(
     "The Darkness Crystal",
     "0f93b6ac-54ce-45d0-8549-19307406e6e5",
@@ -3203,7 +3374,9 @@ pub(in crate::card::sets) static EVIL_REAWAKENED: CardRecord = CardRecord::new(
 );
 
 // FIN 99 — Fang, Fearless l'Cie
-// Audit: unsupported — Needs meld topology combining two physical cards into one permanent, together with splitting and tracking both components when that permanent changes zones; transforming double-faced cards do not represent a melded permanent.
+// Audit: unsupported — Needs meld topology combining two physical cards into one permanent,
+// together with splitting and tracking both components when that permanent changes zones;
+// transforming double-faced cards do not represent a melded permanent.
 pub(in crate::card::sets) static FANG_FEARLESS_L_CIE: CardRecord = CardRecord::new(
     "Fang, Fearless l'Cie",
     "f73a5cbb-905f-4b99-8d23-9d1b6bd47ee8",
@@ -3212,7 +3385,9 @@ pub(in crate::card::sets) static FANG_FEARLESS_L_CIE: CardRecord = CardRecord::n
 );
 
 // FIN 99b — Ragnarok, Divine Deliverance
-// Audit: unsupported — Needs meld topology combining two physical cards into one permanent, together with splitting and tracking both components when that permanent changes zones; transforming double-faced cards do not represent a melded permanent.
+// Audit: unsupported — Needs meld topology combining two physical cards into one permanent,
+// together with splitting and tracking both components when that permanent changes zones;
+// transforming double-faced cards do not represent a melded permanent.
 pub(in crate::card::sets) static RAGNAROK_DIVINE_DELIVERANCE: CardRecord = CardRecord::new(
     "Ragnarok, Divine Deliverance",
     "01c5bafe-c995-4cef-90fb-7ccb95858511",
@@ -3367,7 +3542,9 @@ pub(in crate::card::sets) static HECTEYES: CardRecord = CardRecord::new(
 );
 
 // FIN 104 — Jecht, Reluctant Guardian // Braska's Final Aeon
-// Audit: unsupported — Needs one printed Saga ability to represent several chapter numbers and to remain identifiable to the Saga final-chapter rules; the current Saga authoring and recognition path represents exactly one chapter per ability.
+// Audit: unsupported — Needs one printed Saga ability to represent several chapter numbers and
+// to remain identifiable to the Saga final-chapter rules; the current Saga authoring and
+// recognition path represents exactly one chapter per ability.
 pub(in crate::card::sets) static JECHT_RELUCTANT_GUARDIAN: CardRecord = CardRecord::new(
     "Jecht, Reluctant Guardian // Braska's Final Aeon",
     "4ec91fe8-b3da-47fa-b45e-94b62a260aba",
@@ -3376,7 +3553,9 @@ pub(in crate::card::sets) static JECHT_RELUCTANT_GUARDIAN: CardRecord = CardReco
 );
 
 // FIN 105 — Kain, Traitorous Dragoon
-// Audit: unsupported — Needs a gain-control success result to gate its draw, Treasure, and life-loss continuation; gain control currently returns no result for the following effect to inspect.
+// Audit: unsupported — Needs a gain-control success result to gate its draw, Treasure, and
+// life-loss continuation; gain control currently returns no result for the following effect to
+// inspect.
 pub(in crate::card::sets) static KAIN_TRAITOROUS_DRAGOON: CardRecord = CardRecord::new(
     "Kain, Traitorous Dragoon",
     "f8c86be0-e1b3-4a78-9254-238dd936914b",
@@ -3638,7 +3817,8 @@ pub(in crate::card::sets) static POISON_THE_WATERS: CardRecord = CardRecord::new
 );
 
 // FIN 112 — Qutrub Forayer
-// Audit: unsupported — Needs an optional two-card graveyard target group constrained to one shared graveyard owner; current target slots cannot compare the owners of two selected cards.
+// Audit: unsupported — Needs an optional two-card graveyard target group constrained to one
+// shared graveyard owner; current target slots cannot compare the owners of two selected cards.
 pub(in crate::card::sets) static QUTRUB_FORAYER: CardRecord = CardRecord::new(
     "Qutrub Forayer",
     "7475ecf6-23f5-45af-9ef0-ac7923bbc9cb",
@@ -3647,7 +3827,10 @@ pub(in crate::card::sets) static QUTRUB_FORAYER: CardRecord = CardRecord::new(
 );
 
 // FIN 113 — Reno and Rude
-// Audit: unsupported — Needs a permission granting play and unrestricted mana spending to an already-exiled bound card after the sacrifice succeeds; the current combined exile-permission effect attempts a new exile move and cannot grant this permission to that existing exile object.
+// Audit: unsupported — Needs a permission granting play and unrestricted mana spending to an
+// already-exiled bound card after the sacrifice succeeds; the current combined exile-permission
+// effect attempts a new exile move and cannot grant this permission to that existing exile
+// object.
 pub(in crate::card::sets) static RENO_AND_RUDE: CardRecord = CardRecord::new(
     "Reno and Rude",
     "b5eb0064-c7c4-4e3e-add2-b86269de3fb9",
@@ -3680,7 +3863,9 @@ pub(in crate::card::sets) static RESENTFUL_REVELATION: CardRecord = CardRecord::
 );
 
 // FIN 115 — Sephiroth, Fabled SOLDIER // Sephiroth, One-Winged Angel
-// Audit: unsupported — Needs an as-transforms replacement that creates the emblem during the transformation, without an extra counterable trigger; current entry replacements and after-transform events do not model that timing.
+// Audit: unsupported — Needs an as-transforms replacement that creates the emblem during the
+// transformation, without an extra counterable trigger; current entry replacements and
+// after-transform events do not model that timing.
 pub(in crate::card::sets) static SEPHIROTH_FABLED_SOLDIER: CardRecord = CardRecord::new(
     "Sephiroth, Fabled SOLDIER // Sephiroth, One-Winged Angel",
     "85eaf5e7-77dc-4842-a70c-ce4ac7f724df",
@@ -3763,7 +3948,8 @@ pub(in crate::card::sets) static SHINRA_REINFORCEMENTS: CardRecord = CardRecord:
 );
 
 // FIN 119 — Sidequest: Hunt the Mark // Yiazmat, Ultimate Mark
-// Audit: unsupported — Needs a this-turn creature-death predicate retaining the dying permanent's former controller; the shared death tally and morbid condition are global.
+// Audit: unsupported — Needs a this-turn creature-death predicate retaining the dying
+// permanent's former controller; the shared death tally and morbid condition are global.
 pub(in crate::card::sets) static SIDEQUEST_HUNT_THE_MARK: CardRecord = CardRecord::new(
     "Sidequest: Hunt the Mark // Yiazmat, Ultimate Mark",
     "c3eb2ae5-10de-4c3d-91c8-8734befc80b2",
@@ -3772,7 +3958,9 @@ pub(in crate::card::sets) static SIDEQUEST_HUNT_THE_MARK: CardRecord = CardRecor
 );
 
 // FIN 120 — Summon: Anima
-// Audit: unsupported — Needs one printed Saga ability to represent several chapter numbers and to remain identifiable to the Saga final-chapter rules; the current Saga authoring and recognition path represents exactly one chapter per ability.
+// Audit: unsupported — Needs one printed Saga ability to represent several chapter numbers and
+// to remain identifiable to the Saga final-chapter rules; the current Saga authoring and
+// recognition path represents exactly one chapter per ability.
 pub(in crate::card::sets) static SUMMON_ANIMA: CardRecord = CardRecord::new(
     "Summon: Anima",
     "aa4f6703-21f8-4c29-ad5a-5afb54188ade",
@@ -4136,7 +4324,9 @@ pub(in crate::card::sets) static VINCENT_S_LIMIT_BREAK: CardRecord = CardRecord:
 );
 
 // FIN 127 — Zenos yae Galvus // Shinryu, Transcendent Rival
-// Audit: unsupported — Needs a persistent chosen-creature leaves listener, an as-transforms opponent choice, and a player-loses-the-game event; current object bindings, replacement timing, and trigger events do not cover those clauses.
+// Audit: unsupported — Needs a persistent chosen-creature leaves listener, an as-transforms
+// opponent choice, and a player-loses-the-game event; current object bindings, replacement
+// timing, and trigger events do not cover those clauses.
 pub(in crate::card::sets) static ZENOS_YAE_GALVUS: CardRecord = CardRecord::new(
     "Zenos yae Galvus // Shinryu, Transcendent Rival",
     "b65ffce4-bb58-418a-9bad-81533a5f2ba2",
@@ -4145,7 +4335,9 @@ pub(in crate::card::sets) static ZENOS_YAE_GALVUS: CardRecord = CardRecord::new(
 );
 
 // FIN 128 — Zodiark, Umbral God
-// Audit: unsupported — Needs simultaneous per-player sacrifice choices with each count computed from that player's own candidate set; current ChooseForEachPlayer evaluates its count in one shared resolution context, not once relative to each choosing player.
+// Audit: unsupported — Needs simultaneous per-player sacrifice choices with each count computed
+// from that player's own candidate set; current ChooseForEachPlayer evaluates its count in one
+// shared resolution context, not once relative to each choosing player.
 pub(in crate::card::sets) static ZODIARK_UMBRAL_GOD: CardRecord = CardRecord::new(
     "Zodiark, Umbral God",
     "9ba292d5-5139-42ea-950d-0a638445277f",
@@ -4154,7 +4346,8 @@ pub(in crate::card::sets) static ZODIARK_UMBRAL_GOD: CardRecord = CardRecord::ne
 );
 
 // FIN 129 — Barret Wallace
-// Audit: unsupported — Needs a count of creatures with an Equipment attached; current attachment predicates select attached objects or Aura-enchanted hosts, not equipped hosts.
+// Audit: unsupported — Needs a count of creatures with an Equipment attached; current
+// attachment predicates select attached objects or Aura-enchanted hosts, not equipped hosts.
 pub(in crate::card::sets) static BARRET_WALLACE: CardRecord = CardRecord::new(
     "Barret Wallace",
     "1a504dff-5857-4a61-ab99-616d5df7cf5a",
@@ -4163,7 +4356,9 @@ pub(in crate::card::sets) static BARRET_WALLACE: CardRecord = CardRecord::new(
 );
 
 // FIN 130 — Blazing Bomb
-// Audit: unsupported — Needs total mana spent recorded with a spell-cast event and readable by its triggered ability, including additional costs and cost reductions; the current cast-event values expose mana value and colors spent, not the amount paid.
+// Audit: unsupported — Needs total mana spent recorded with a spell-cast event and readable by
+// its triggered ability, including additional costs and cost reductions; the current cast-event
+// values expose mana value and colors spent, not the amount paid.
 pub(in crate::card::sets) static BLAZING_BOMB: CardRecord = CardRecord::new(
     "Blazing Bomb",
     "70f47277-ca47-428a-808f-0fb32e820a71",
@@ -4230,7 +4425,9 @@ pub(in crate::card::sets) static CHOCO_COMET: CardRecord = CardRecord::new(
 );
 
 // FIN 133 — Clive, Ifrit's Dominant // Ifrit, Warden of Inferno
-// Audit: unsupported — Needs one printed Saga ability to represent several chapter numbers and to remain identifiable to the Saga final-chapter rules; the current Saga authoring and recognition path represents exactly one chapter per ability.
+// Audit: unsupported — Needs one printed Saga ability to represent several chapter numbers and
+// to remain identifiable to the Saga final-chapter rules; the current Saga authoring and
+// recognition path represents exactly one chapter per ability.
 pub(in crate::card::sets) static CLIVE_IFRIT_S_DOMINANT: CardRecord = CardRecord::new(
     "Clive, Ifrit's Dominant // Ifrit, Warden of Inferno",
     "9a069e96-2786-493d-aca8-f70611435dbe",
@@ -4405,7 +4602,9 @@ pub(in crate::card::sets) static FIRE_MAGIC: CardRecord = CardRecord::new(
 );
 
 // FIN 137 — Firion, Wild Rose Warrior
-// Audit: unsupported — Needs an activated-cost reduction restricted to equip abilities on each copied Equipment; current permanent ability-cost reductions apply to every activated ability of the matching permanent.
+// Audit: unsupported — Needs an activated-cost reduction restricted to equip abilities on each
+// copied Equipment; current permanent ability-cost reductions apply to every activated ability
+// of the matching permanent.
 pub(in crate::card::sets) static FIRION_WILD_ROSE_WARRIOR: CardRecord = CardRecord::new(
     "Firion, Wild Rose Warrior",
     "98366937-d15b-4a66-b9f6-878d50b63871",
@@ -4414,7 +4613,9 @@ pub(in crate::card::sets) static FIRION_WILD_ROSE_WARRIOR: CardRecord = CardReco
 );
 
 // FIN 138 — Freya Crescent
-// Audit: unsupported — Needs one mana permission accepting either an Equipment spell or an equip ability; current restrictions combine with AND and cannot identify an equip ability as an alternative spending destination.
+// Audit: unsupported — Needs one mana permission accepting either an Equipment spell or an
+// equip ability; current restrictions combine with AND and cannot identify an equip ability as
+// an alternative spending destination.
 pub(in crate::card::sets) static FREYA_CRESCENT: CardRecord = CardRecord::new(
     "Freya Crescent",
     "9921f646-e893-44db-ac89-0633c1009788",
@@ -4423,7 +4624,9 @@ pub(in crate::card::sets) static FREYA_CRESCENT: CardRecord = CardRecord::new(
 );
 
 // FIN 139 — Gilgamesh, Master-at-Arms
-// Audit: unsupported — Needs a reflexive trigger after the selected Equipment enter, retained if Gilgamesh leaves, and an attachment operation between an independently chosen Equipment and Samurai.
+// Audit: unsupported — Needs a reflexive trigger after the selected Equipment enter, retained
+// if Gilgamesh leaves, and an attachment operation between an independently chosen Equipment
+// and Samurai.
 pub(in crate::card::sets) static GILGAMESH_MASTER_AT_ARMS: CardRecord = CardRecord::new(
     "Gilgamesh, Master-at-Arms",
     "1eb81329-fb7a-4347-b96c-9960a5c48e87",
@@ -4432,7 +4635,9 @@ pub(in crate::card::sets) static GILGAMESH_MASTER_AT_ARMS: CardRecord = CardReco
 );
 
 // FIN 140 — Haste Magic
-// Audit: unsupported — Needs exile-play permission to expire as the holder's next end step begins; the existing UntilYourNextEndStep path shares a turn-count expiry with end-of-next-turn permissions and remains usable after that end step.
+// Audit: unsupported — Needs exile-play permission to expire as the holder's next end step
+// begins; the existing UntilYourNextEndStep path shares a turn-count expiry with
+// end-of-next-turn permissions and remains usable after that end step.
 pub(in crate::card::sets) static HASTE_MAGIC: CardRecord = CardRecord::new(
     "Haste Magic",
     "3af9d100-70ee-4c6c-a762-11a0c4f3ef6f",
@@ -4457,7 +4662,9 @@ pub(in crate::card::sets) static HILL_GIGAS: CardRecord = CardRecord::new(
 );
 
 // FIN 142 — Item Shopkeep
-// Audit: unsupported — Needs a target predicate for a creature with at least one Equipment attached; the existing attachment predicates select attachments or Aura-enchanted hosts, not equipped hosts.
+// Audit: unsupported — Needs a target predicate for a creature with at least one Equipment
+// attached; the existing attachment predicates select attachments or Aura-enchanted hosts, not
+// equipped hosts.
 pub(in crate::card::sets) static ITEM_SHOPKEEP: CardRecord = CardRecord::new(
     "Item Shopkeep",
     "bd2db3f5-fd0d-4817-af90-6bea1f07e16b",
@@ -4481,7 +4688,9 @@ pub(in crate::card::sets) static LAUGHING_MAD: CardRecord = CardRecord::new(
 );
 
 // FIN 144 — Light of Judgment
-// Audit: unsupported — Needs selection of an Equipment attached to the referenced target creature; AttachedTo accepts an object predicate and cannot identify a previously selected target or bound host.
+// Audit: unsupported — Needs selection of an Equipment attached to the referenced target
+// creature; AttachedTo accepts an object predicate and cannot identify a previously selected
+// target or bound host.
 pub(in crate::card::sets) static LIGHT_OF_JUDGMENT: CardRecord = CardRecord::new(
     "Light of Judgment",
     "98bb716d-ca66-445f-9cb3-0fc656c8ebff",
@@ -4558,7 +4767,8 @@ pub(in crate::card::sets) static NIBELHEIM_AFLAME: CardRecord = CardRecord::new(
 );
 
 // FIN 147 — Opera Love Song
-// Audit: unsupported — Needs exile-play permission that ends as the holder's next end step begins; the current next-end-step permission survives beyond that step.
+// Audit: unsupported — Needs exile-play permission that ends as the holder's next end step
+// begins; the current next-end-step permission survives beyond that step.
 pub(in crate::card::sets) static OPERA_LOVE_SONG: CardRecord = CardRecord::new(
     "Opera Love Song",
     "0343916d-1b65-4e95-aef1-e72dbcebf0c4",
@@ -4567,7 +4777,9 @@ pub(in crate::card::sets) static OPERA_LOVE_SONG: CardRecord = CardRecord::new(
 );
 
 // FIN 148 — Prompto Argentum
-// Audit: unsupported — Needs total mana spent recorded with a spell-cast event and readable by its triggered ability, including additional costs and cost reductions; the current cast-event values expose mana value and colors spent, not the amount paid.
+// Audit: unsupported — Needs total mana spent recorded with a spell-cast event and readable by
+// its triggered ability, including additional costs and cost reductions; the current cast-event
+// values expose mana value and colors spent, not the amount paid.
 pub(in crate::card::sets) static PROMPTO_ARGENTUM: CardRecord = CardRecord::new(
     "Prompto Argentum",
     "4c617bcd-05f8-40c2-bb38-489bc863ce6b",
@@ -4595,7 +4807,9 @@ pub(in crate::card::sets) static QUEEN_BRAHNE: CardRecord = CardRecord::new(
 );
 
 // FIN 150 — Random Encounter
-// Audit: unsupported — Needs a permanent haste grant to the specific creatures returned by the mill result; the production boundary rejects permanent ability grants to bound recipients that can name objects outside the battlefield.
+// Audit: unsupported — Needs a permanent haste grant to the specific creatures returned by the
+// mill result; the production boundary rejects permanent ability grants to bound recipients
+// that can name objects outside the battlefield.
 pub(in crate::card::sets) static RANDOM_ENCOUNTER: CardRecord = CardRecord::new(
     "Random Encounter",
     "3618e283-2df9-4eb9-97b0-96b55ee31cc0",
@@ -4604,7 +4818,9 @@ pub(in crate::card::sets) static RANDOM_ENCOUNTER: CardRecord = CardRecord::new(
 );
 
 // FIN 151 — Raubahn, Bull of Ala Mhigo
-// Audit: unsupported — Needs attachment between an independently targeted Equipment and attacking creature; current Attach and AttachToSource operations require one side of the attachment to be the ability source.
+// Audit: unsupported — Needs attachment between an independently targeted Equipment and
+// attacking creature; current Attach and AttachToSource operations require one side of the
+// attachment to be the ability source.
 pub(in crate::card::sets) static RAUBAHN_BULL_OF_ALA_MHIGO: CardRecord = CardRecord::new(
     "Raubahn, Bull of Ala Mhigo",
     "7035d11b-525f-4120-8dcb-610095196681",
@@ -4852,7 +5068,8 @@ pub(in crate::card::sets) static SELF_DESTRUCT: CardRecord = CardRecord::new(
 );
 
 // FIN 158 — Sidequest: Play Blitzball // World Champion, Celestial Weapon
-// Audit: unsupported — Needs per-player combat-damage totals for the current turn; the available damage history does not separately total combat damage to each player.
+// Audit: unsupported — Needs per-player combat-damage totals for the current turn; the
+// available damage history does not separately total combat damage to each player.
 pub(in crate::card::sets) static SIDEQUEST_PLAY_BLITZBALL: CardRecord = CardRecord::new(
     "Sidequest: Play Blitzball // World Champion, Celestial Weapon",
     "31e2ad37-73cf-4858-8a3a-fc1165cd21a7",
@@ -4861,7 +5078,8 @@ pub(in crate::card::sets) static SIDEQUEST_PLAY_BLITZBALL: CardRecord = CardReco
 );
 
 // FIN 159 — Sorceress's Schemes
-// Audit: unsupported — Needs an exile-card predicate for a printed or granted flashback ability; current object predicates cannot inspect that alternative-cast capability.
+// Audit: unsupported — Needs an exile-card predicate for a printed or granted flashback
+// ability; current object predicates cannot inspect that alternative-cast capability.
 pub(in crate::card::sets) static SORCERESS_S_SCHEMES: CardRecord = CardRecord::new(
     "Sorceress's Schemes",
     "7efd7627-0754-4685-9d04-8f5f82f45632",
@@ -4870,7 +5088,11 @@ pub(in crate::card::sets) static SORCERESS_S_SCHEMES: CardRecord = CardRecord::n
 );
 
 // FIN 160 — Summon: Brynhildr
-// Audit: unsupported — Needs one printed Saga ability to represent several chapter numbers and to remain identifiable to the Saga final-chapter rules; the current Saga authoring and recognition path represents exactly one chapter per ability. Also needs exile-play permission conditioned on this Saga receiving a lore counter during the current turn and a next-creature trigger with an end-of-turn expiry.
+// Audit: unsupported — Needs one printed Saga ability to represent several chapter numbers and
+// to remain identifiable to the Saga final-chapter rules; the current Saga authoring and
+// recognition path represents exactly one chapter per ability. Also needs exile-play permission
+// conditioned on this Saga receiving a lore counter during the current turn and a next-creature
+// trigger with an end-of-turn expiry.
 pub(in crate::card::sets) static SUMMON_BRYNHILDR: CardRecord = CardRecord::new(
     "Summon: Brynhildr",
     "8ab5429a-1075-49aa-9608-0610080fbf7a",
@@ -4879,7 +5101,9 @@ pub(in crate::card::sets) static SUMMON_BRYNHILDR: CardRecord = CardRecord::new(
 );
 
 // FIN 161 — Summon: Esper Ramuh
-// Audit: unsupported — Needs one printed Saga ability to represent several chapter numbers and to remain identifiable to the Saga final-chapter rules; the current Saga authoring and recognition path represents exactly one chapter per ability.
+// Audit: unsupported — Needs one printed Saga ability to represent several chapter numbers and
+// to remain identifiable to the Saga final-chapter rules; the current Saga authoring and
+// recognition path represents exactly one chapter per ability.
 pub(in crate::card::sets) static SUMMON_ESPER_RAMUH: CardRecord = CardRecord::new(
     "Summon: Esper Ramuh",
     "840659ee-1493-4190-a514-c2c9ae14e331",
@@ -4888,7 +5112,9 @@ pub(in crate::card::sets) static SUMMON_ESPER_RAMUH: CardRecord = CardRecord::ne
 );
 
 // FIN 162 — Summon: G.F. Cerberus
-// Audit: unsupported — Needs a source-independent delayed trigger for only the next instant or sorcery spell this turn, expiring if unused; installed Once and ThisTurn lifetimes cannot currently be combined.
+// Audit: unsupported — Needs a source-independent delayed trigger for only the next instant or
+// sorcery spell this turn, expiring if unused; installed Once and ThisTurn lifetimes cannot
+// currently be combined.
 pub(in crate::card::sets) static SUMMON_G_F_CERBERUS: CardRecord = CardRecord::new(
     "Summon: G.F. Cerberus",
     "d0e5cbd4-401b-4456-80bf-d90beadfd1f8",
@@ -4897,7 +5123,9 @@ pub(in crate::card::sets) static SUMMON_G_F_CERBERUS: CardRecord = CardRecord::n
 );
 
 // FIN 163 — Summon: G.F. Ifrit
-// Audit: unsupported — Needs one printed Saga ability to represent several chapter numbers and to remain identifiable to the Saga final-chapter rules; the current Saga authoring and recognition path represents exactly one chapter per ability.
+// Audit: unsupported — Needs one printed Saga ability to represent several chapter numbers and
+// to remain identifiable to the Saga final-chapter rules; the current Saga authoring and
+// recognition path represents exactly one chapter per ability.
 pub(in crate::card::sets) static SUMMON_G_F_IFRIT: CardRecord = CardRecord::new(
     "Summon: G.F. Ifrit",
     "c6c73092-5195-4bdc-b039-a699f6e297b2",
@@ -4910,14 +5138,14 @@ pub(in crate::card::sets) static SUPLEX: CardRecord = CardRecord::new(
     "Suplex",
     "f61693a2-7042-44e0-85ba-9bf12ab94e7e",
     "Fang Xinyu",
-// Three damage that answers a recursive creature for good, or the
+    // Three damage that answers a recursive creature for good, or the
     // artifact half when there is nothing to throw.
     CardRules::new_sorcery(mana_cost!("{1}{R}")).with_ability(AbilityDef::modal_spell(
         "Choose one —",
         &[
             AbilityDef::spell_with_targets(
-                "Suplex deals 3 damage to target creature. If that creature would die this turn, exile it \
-                 instead.",
+                "Suplex deals 3 damage to target creature. If that creature \
+                 would die this turn, exile it instead.",
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Creature),
                 )],
@@ -5009,65 +5237,81 @@ pub(in crate::card::sets) static TRIPLE_TRIAD: CardRecord = CardRecord::new(
     "Triple Triad",
     "d9a1de36-7f47-4b28-bb56-38d7e5bed82f",
     "Ben Wootten",
-CardRules::new_enchantment(mana_cost!("{3}{R}{R}{R}")).with_abilities(&[
-AbilityDef::triggered("At the beginning of your upkeep, each player exiles the top \
- card of their library. Until end of turn, you may play the \
- card you own exiled this way and each other card exiled this \
- way with lesser mana value than it without paying their mana \
- costs.",
-TriggerEventDef::StepBegins {
-step:TurnStepDef::Upkeep,
-player:PlayerRelation::You}
-,
-EffectDef::BindObjects(BindObjectsDef {
-source:ObjectCollectionSourceDef::TopCards {
-player:PlayerRefDef::EffectController,
-count:ValueDef::Constant(1)}
-,
-binding:crate::Binding!("mine"),
-then:&EffectDef::BindObjects(BindObjectsDef {
-source:ObjectCollectionSourceDef::TopCards {
-player:PlayerRefDef::Opponent,
-count:ValueDef::Constant(1)}
-,
-binding:crate::Binding!("theirs"),
-then:&EffectDef::WithZoneMoveResult {
-effect:&EffectDef::move_to_zone(EffectRecipientDef::objects(ObjectSetDef::Union(&[
-ObjectSetDef::Binding(crate::Binding!("mine")),
-ObjectSetDef::Binding(crate::Binding!("theirs"))])),
-ZoneKind::Exile,
-ZonePlacement::Top),
-binding:crate::Binding!("exiled"),
-then:&EffectDef::MayPlayWithoutPaying(FreePlayDef {
-objects:ObjectSetDef::Union(&[
-ObjectSetDef::Matching {
-objects:&ObjectSetDef::ZoneChangeSuccessorsOfBinding(crate::Binding!("exiled")),
-object:ObjectSetFilterDef::Predicate(&ObjectPredicateDef::OwnedBy(PlayerRelation::You))}
-,
-ObjectSetDef::Matching {
-objects:&ObjectSetDef::ZoneChangeSuccessorsOfBinding(crate::Binding!("exiled")),
-object:ObjectSetFilterDef::Predicate(&ObjectPredicateDef::ManaValueAtMostValue(ValueDef::Sum(&SumValueDef::new(ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
-objects:ObjectSetDef::Matching {
-objects:&ObjectSetDef::ZoneChangeSuccessorsOfBinding(crate::Binding!("exiled")),
-object:ObjectSetFilterDef::Predicate(&ObjectPredicateDef::OwnedBy(PlayerRelation::You))}
-,
-select:ObjectValueDef::ManaValue,
-operation:AggregateOperationDef::Sum}
-),
-ValueDef::Constant(-1)))))}
-]),
-duration:FreePlayDurationDef::UntilEndOfTurn,
-mandatory:false,
-grants_haste:false}
-)}
-}
-)}
-))]),
-
+    CardRules::new_enchantment(mana_cost!("{3}{R}{R}{R}")).with_abilities(&[AbilityDef::triggered(
+        "At the beginning of your upkeep, each player exiles the top \
+         card of their library. Until end of turn, you may play the \
+         card you own exiled this way and each other card exiled this \
+         way with lesser mana value than it without paying their mana \
+         costs.",
+        TriggerEventDef::StepBegins {
+            step: TurnStepDef::Upkeep,
+            player: PlayerRelation::You,
+        },
+        EffectDef::BindObjects(BindObjectsDef {
+            source: ObjectCollectionSourceDef::TopCards {
+                player: PlayerRefDef::EffectController,
+                count: ValueDef::Constant(1),
+            },
+            binding: crate::Binding!("mine"),
+            then: &EffectDef::BindObjects(BindObjectsDef {
+                source: ObjectCollectionSourceDef::TopCards {
+                    player: PlayerRefDef::Opponent,
+                    count: ValueDef::Constant(1),
+                },
+                binding: crate::Binding!("theirs"),
+                then: &EffectDef::WithZoneMoveResult {
+                    effect: &EffectDef::move_to_zone(
+                        EffectRecipientDef::objects(ObjectSetDef::Union(&[
+                            ObjectSetDef::Binding(crate::Binding!("mine")),
+                            ObjectSetDef::Binding(crate::Binding!("theirs")),
+                        ])),
+                        ZoneKind::Exile,
+                        ZonePlacement::Top,
+                    ),
+                    binding: crate::Binding!("exiled"),
+                    then: &EffectDef::MayPlayWithoutPaying(FreePlayDef {
+                        objects: ObjectSetDef::Union(&[
+                            ObjectSetDef::Matching {
+                                objects: &ObjectSetDef::ZoneChangeSuccessorsOfBinding(crate::Binding!("exiled")),
+                                object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::OwnedBy(
+                                    PlayerRelation::You,
+                                )),
+                            },
+                            ObjectSetDef::Matching {
+                                objects: &ObjectSetDef::ZoneChangeSuccessorsOfBinding(crate::Binding!("exiled")),
+                                object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::ManaValueAtMostValue(
+                                    ValueDef::Sum(&SumValueDef::new(
+                                        ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
+                                            objects: ObjectSetDef::Matching {
+                                                objects: &ObjectSetDef::ZoneChangeSuccessorsOfBinding(crate::Binding!(
+                                                    "exiled"
+                                                )),
+                                                object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::OwnedBy(
+                                                    PlayerRelation::You,
+                                                )),
+                                            },
+                                            select: ObjectValueDef::ManaValue,
+                                            operation: AggregateOperationDef::Sum,
+                                        }),
+                                        ValueDef::Constant(-1),
+                                    )),
+                                )),
+                            },
+                        ]),
+                        duration: FreePlayDurationDef::UntilEndOfTurn,
+                        mandatory: false,
+                        grants_haste: false,
+                    }),
+                },
+            }),
+        }),
+    )]),
 );
 
 // FIN 167 — Unexpected Request
-// Audit: unsupported — Needs attachment between the independently selected Equipment and targeted creature; current Attach and AttachToSource require the ability source to be one of those objects.
+// Audit: unsupported — Needs attachment between the independently selected Equipment and
+// targeted creature; current Attach and AttachToSource require the ability source to be one of
+// those objects.
 pub(in crate::card::sets) static UNEXPECTED_REQUEST: CardRecord = CardRecord::new(
     "Unexpected Request",
     "0265fd20-a85d-49ce-b338-4c40843a5b18",
@@ -5076,7 +5320,9 @@ pub(in crate::card::sets) static UNEXPECTED_REQUEST: CardRecord = CardRecord::ne
 );
 
 // FIN 168 — Vaan, Street Thief
-// Audit: unsupported — Needs one combat-damage event per player for the group of Scouts, Pirates, and Rogues dealing damage simultaneously; per-creature triggers would create too many exile and Treasure offers.
+// Audit: unsupported — Needs one combat-damage event per player for the group of Scouts,
+// Pirates, and Rogues dealing damage simultaneously; per-creature triggers would create too
+// many exile and Treasure offers.
 pub(in crate::card::sets) static VAAN_STREET_THIEF: CardRecord = CardRecord::new(
     "Vaan, Street Thief",
     "50e1ec29-9de3-4f1b-b818-057e030d475b",
@@ -5206,7 +5452,8 @@ pub(in crate::card::sets) static AIRSHIP_CRASH: CardRecord = CardRecord::new(
 );
 
 // FIN 172 — Ancient Adamantoise
-// Audit: unsupported — Needs marked damage to persist through cleanup steps on this creature; the cleanup procedure currently removes damage without a per-permanent retention rule.
+// Audit: unsupported — Needs marked damage to persist through cleanup steps on this creature;
+// the cleanup procedure currently removes damage without a per-permanent retention rule.
 pub(in crate::card::sets) static ANCIENT_ADAMANTOISE: CardRecord = CardRecord::new(
     "Ancient Adamantoise",
     "4c139f30-5ecd-48fd-ae7c-ec2cc98889ff",
@@ -5269,7 +5516,9 @@ pub(in crate::card::sets) static BARD_S_BOW: CardRecord = CardRecord::new(
 );
 
 // FIN 175 — Bartz and Boko
-// Audit: unsupported — Needs simultaneous damage from a dynamically selected collection of Birds, each using its own power; damage assignments name individual object references rather than iterate a live source collection.
+// Audit: unsupported — Needs simultaneous damage from a dynamically selected collection of
+// Birds, each using its own power; damage assignments name individual object references rather
+// than iterate a live source collection.
 pub(in crate::card::sets) static BARTZ_AND_BOKO: CardRecord = CardRecord::new(
     "Bartz and Boko",
     "d818d574-2832-4a7a-a13b-aa6e695fdaa5",
@@ -5394,7 +5643,7 @@ pub(in crate::card::sets) static CHOCOBO_RACETRACK: CardRecord = CardRecord::new
             TokenCharacteristics::creature(&["Bird"], &[ManaColor::Green], 2, 2).with_abilities(&[
                 AbilityDef::triggered(
                     "Whenever a land you control enters, this token gets +1/+0 \
-                 until end of turn.",
+                     until end of turn.",
                     TriggerEventDef::zone_changed(
                         ObjectPredicateDef::All(&[
                             ObjectPredicateDef::HasType(CardType::Land),
@@ -5619,7 +5868,9 @@ pub(in crate::card::sets) static DIAMOND_WEAPON: CardRecord = CardRecord::new(
 );
 
 // FIN 184 — The Earth Crystal
-// Audit: unsupported — Needs a prospective +1/+1 counter-placement replacement that doubles each placement on a controlled creature; doubling counters afterward incorrectly counts existing counters and changes counter-placement events.
+// Audit: unsupported — Needs a prospective +1/+1 counter-placement replacement that doubles
+// each placement on a controlled creature; doubling counters afterward incorrectly counts
+// existing counters and changes counter-placement events.
 pub(in crate::card::sets) static THE_EARTH_CRYSTAL: CardRecord = CardRecord::new(
     "The Earth Crystal",
     "d585e218-3dc8-4fbd-8ad2-795fbc9b2155",
@@ -5628,7 +5879,9 @@ pub(in crate::card::sets) static THE_EARTH_CRYSTAL: CardRecord = CardRecord::new
 );
 
 // FIN 185 — Esper Origins // Summon: Esper Maduin
-// Audit: unsupported — Needs an instruction that exiles the currently resolving sorcery and returns that spell card transformed before resolution ends; linked exile handles battlefield and nonstack card recipients, and cannot move the resolving spell.
+// Audit: unsupported — Needs an instruction that exiles the currently resolving sorcery and
+// returns that spell card transformed before resolution ends; linked exile handles battlefield
+// and nonstack card recipients, and cannot move the resolving spell.
 pub(in crate::card::sets) static ESPER_ORIGINS: CardRecord = CardRecord::new(
     "Esper Origins // Summon: Esper Maduin",
     "0f503360-216a-4629-89b2-d32072850aef",
@@ -5838,7 +6091,9 @@ pub(in crate::card::sets) static LOPORRIT_SCOUT: CardRecord = CardRecord::new(
 );
 
 // FIN 193 — Prishe's Wanderings
-// Audit: unsupported — Needs a reflexive trigger caused by actually searching the library, with its creature target chosen only after that search; an ordinary spell target would be announced too early.
+// Audit: unsupported — Needs a reflexive trigger caused by actually searching the library, with
+// its creature target chosen only after that search; an ordinary spell target would be
+// announced too early.
 pub(in crate::card::sets) static PRISHE_S_WANDERINGS: CardRecord = CardRecord::new(
     "Prishe's Wanderings",
     "d6e1dee0-e2cd-4899-a3ea-7d0df717c9ab",
@@ -5847,7 +6102,8 @@ pub(in crate::card::sets) static PRISHE_S_WANDERINGS: CardRecord = CardRecord::n
 );
 
 // FIN 194 — Quina, Qu Gourmet
-// Audit: unsupported — Needs token replacement that adds one Frog to the same prospective token batch; creating a Frog in a follow-up changes replacement ordering and entry events.
+// Audit: unsupported — Needs token replacement that adds one Frog to the same prospective token
+// batch; creating a Frog in a follow-up changes replacement ordering and entry events.
 pub(in crate::card::sets) static QUINA_QU_GOURMET: CardRecord = CardRecord::new(
     "Quina, Qu Gourmet",
     "4f352b5e-9731-4a8e-b872-db5d3bf32211",
@@ -5856,7 +6112,8 @@ pub(in crate::card::sets) static QUINA_QU_GOURMET: CardRecord = CardRecord::new(
 );
 
 // FIN 195 — Reach the Horizon
-// Audit: unsupported — Needs one qualified search selecting up to two cards with distinct names; current search selection constrains each card independently.
+// Audit: unsupported — Needs one qualified search selecting up to two cards with distinct
+// names; current search selection constrains each card independently.
 pub(in crate::card::sets) static REACH_THE_HORIZON: CardRecord = CardRecord::new(
     "Reach the Horizon",
     "c25960e0-5779-4e20-89f3-03950ad9d91c",
@@ -6185,7 +6442,9 @@ pub(in crate::card::sets) static SIDEQUEST_RAISE_A_CHOCOBO: CardRecord = CardRec
 );
 
 // FIN 202 — Summon: Fat Chocobo
-// Audit: unsupported — Needs one printed Saga ability to represent several chapter numbers and to remain identifiable to the Saga final-chapter rules; the current Saga authoring and recognition path represents exactly one chapter per ability.
+// Audit: unsupported — Needs one printed Saga ability to represent several chapter numbers and
+// to remain identifiable to the Saga final-chapter rules; the current Saga authoring and
+// recognition path represents exactly one chapter per ability.
 pub(in crate::card::sets) static SUMMON_FAT_CHOCOBO: CardRecord = CardRecord::new(
     "Summon: Fat Chocobo",
     "32eb192b-de6b-4814-8077-628d343d014e",
@@ -6194,7 +6453,9 @@ pub(in crate::card::sets) static SUMMON_FAT_CHOCOBO: CardRecord = CardRecord::ne
 );
 
 // FIN 203 — Summon: Fenrir
-// Audit: unsupported — Needs a source-independent next-creature-spell trigger that expires this turn if unused and modifies that spell's future battlefield arrival; installed Once and ThisTurn lifetimes cannot currently be combined.
+// Audit: unsupported — Needs a source-independent next-creature-spell trigger that expires this
+// turn if unused and modifies that spell's future battlefield arrival; installed Once and
+// ThisTurn lifetimes cannot currently be combined.
 pub(in crate::card::sets) static SUMMON_FENRIR: CardRecord = CardRecord::new(
     "Summon: Fenrir",
     "93feb9d5-d004-4598-a448-b3488c869c05",
@@ -6279,7 +6540,9 @@ pub(in crate::card::sets) static SUMMON_TITAN: CardRecord = CardRecord::new(
 );
 
 // FIN 205 — Summoner's Grimoire
-// Audit: unsupported — Needs an arbitrary chosen hand card to enter tapped and attacking when it is an enchantment; current attacking-entry support covers tokens and the ninjutsu source, not a chosen card's battlefield arrival.
+// Audit: unsupported — Needs an arbitrary chosen hand card to enter tapped and attacking when
+// it is an enchantment; current attacking-entry support covers tokens and the ninjutsu source,
+// not a chosen card's battlefield arrival.
 pub(in crate::card::sets) static SUMMONER_S_GRIMOIRE: CardRecord = CardRecord::new(
     "Summoner's Grimoire",
     "d9fda3fc-569d-49f8-a2ed-e0b1d6668426",
@@ -6292,20 +6555,25 @@ pub(in crate::card::sets) static TIFA_LOCKHART: CardRecord = CardRecord::new(
     "Tifa Lockhart",
     "fb781323-2746-405d-a9b2-e778c037a6e9",
     "Laurel Austin",
-CardRules::new_creature(mana_cost!("{1}{G}"), &["Human", "Monk"], 1, 2)
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Human", "Monk"], 1, 2)
         .with_supertype(CardSupertype::Legendary)
         // Doubling is +X/+0 where X is her power as this resolves, so two landfalls
         // in a turn compound: the second reads the size the first left behind.
         .with_abilities(&[
             abilities::trample(),
             AbilityDef::triggered(
-                "Landfall — Whenever a land you control enters, double Tifa Lockhart's power until end of turn.",
+                "Landfall — Whenever a land you control enters, double Tifa \
+                 Lockhart's power until end of turn.",
                 // A land you control, not any land: the opponent's fetchland does nothing
                 // for her.
-                TriggerEventDef::zone_changed(ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::HasType(CardType::Land),
-                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                ]), None, Some(ZoneKind::Battlefield)),
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ]),
+                    None,
+                    Some(ZoneKind::Battlefield),
+                ),
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::Source,
                     effect: AppliedEffectDef::modify_power_toughness(
@@ -6390,7 +6658,9 @@ pub(in crate::card::sets) static TIFA_S_LIMIT_BREAK: CardRecord = CardRecord::ne
 );
 
 // FIN 208 — Torgal, A Fine Hound
-// Audit: unsupported — Needs a resolved cast-trigger instruction modifying that specific spell's future battlefield arrival with a computed counter amount; WithBattlefieldArrival wraps a zone move and cannot attach an entry modification to a waiting spell.
+// Audit: unsupported — Needs a resolved cast-trigger instruction modifying that specific
+// spell's future battlefield arrival with a computed counter amount; WithBattlefieldArrival
+// wraps a zone move and cannot attach an entry modification to a waiting spell.
 pub(in crate::card::sets) static TORGAL_A_FINE_HOUND: CardRecord = CardRecord::new(
     "Torgal, A Fine Hound",
     "0f5725aa-42bb-4dfd-9c15-135b38b33da3",
@@ -6473,7 +6743,9 @@ const TRAVELING_CHOCOBO_ALTERNATE_1: PrintingRecord = PrintingRecord::alternate(
 );
 
 // FIN 211 — Vanille, Cheerful l'Cie
-// Audit: unsupported — Needs meld topology combining two physical cards into one permanent, together with splitting and tracking both components when that permanent changes zones; transforming double-faced cards do not represent a melded permanent.
+// Audit: unsupported — Needs meld topology combining two physical cards into one permanent,
+// together with splitting and tracking both components when that permanent changes zones;
+// transforming double-faced cards do not represent a melded permanent.
 pub(in crate::card::sets) static VANILLE_CHEERFUL_L_CIE: CardRecord = CardRecord::new(
     "Vanille, Cheerful l'Cie",
     "91226c1a-63a0-494e-bcf0-77c2d6f49213",
@@ -6482,7 +6754,9 @@ pub(in crate::card::sets) static VANILLE_CHEERFUL_L_CIE: CardRecord = CardRecord
 );
 
 // FIN 212 — Absolute Virtue
-// Audit: unsupported — Needs continuously derived player protection while this creature remains in play; player protection is currently read only from resolved effects with durations, not battlefield static abilities.
+// Audit: unsupported — Needs continuously derived player protection while this creature remains
+// in play; player protection is currently read only from resolved effects with durations, not
+// battlefield static abilities.
 pub(in crate::card::sets) static ABSOLUTE_VIRTUE: CardRecord = CardRecord::new(
     "Absolute Virtue",
     "aa192912-c9ee-403f-8a46-a338c9edb4b9",
@@ -6491,7 +6765,8 @@ pub(in crate::card::sets) static ABSOLUTE_VIRTUE: CardRecord = CardRecord::new(
 );
 
 // FIN 213 — Balthier and Fran
-// Audit: unsupported — Needs history identifying which Vehicle this creature crewed this turn and whether the attack is in the turn's first combat phase.
+// Audit: unsupported — Needs history identifying which Vehicle this creature crewed this turn
+// and whether the attack is in the turn's first combat phase.
 pub(in crate::card::sets) static BALTHIER_AND_FRAN: CardRecord = CardRecord::new(
     "Balthier and Fran",
     "afcaed7d-7ea3-4f2a-a7f5-ee3315226369",
@@ -6522,7 +6797,9 @@ pub(in crate::card::sets) static BLACK_WALTZ_NO_3: CardRecord = CardRecord::new(
 );
 
 // FIN 215 — Choco, Seeker of Paradise
-// Audit: unsupported — Needs a batched attack trigger to retain the number of matching Birds declared as attackers; its current event amount is the complete declaration size, including non-Birds, and a later battlefield count loses attackers that have left.
+// Audit: unsupported — Needs a batched attack trigger to retain the number of matching Birds
+// declared as attackers; its current event amount is the complete declaration size, including
+// non-Birds, and a later battlefield count loses attackers that have left.
 pub(in crate::card::sets) static CHOCO_SEEKER_OF_PARADISE: CardRecord = CardRecord::new(
     "Choco, Seeker of Paradise",
     "409c305a-52dc-4538-8e72-efcd568eaf49",
@@ -6531,7 +6808,9 @@ pub(in crate::card::sets) static CHOCO_SEEKER_OF_PARADISE: CardRecord = CardReco
 );
 
 // FIN 216 — Cid, Timeless Artificer
-// Audit: unsupported — Needs a deck-construction permission overriding the four-copy limit for this exact card name; the deck-construction vocabulary currently has commander and companion clauses but no unrestricted copy allowance.
+// Audit: unsupported — Needs a deck-construction permission overriding the four-copy limit for
+// this exact card name; the deck-construction vocabulary currently has commander and companion
+// clauses but no unrestricted copy allowance.
 pub(in crate::card::sets) static CID_TIMELESS_ARTIFICER: CardRecord = CardRecord::new(
     "Cid, Timeless Artificer",
     "7fb99393-d2b6-40a6-8de7-317efdc4c50b",
@@ -6698,7 +6977,9 @@ pub(in crate::card::sets) static EMET_SELCH_UNSUNDERED: CardRecord = CardRecord:
 );
 
 // FIN 219 — The Emperor of Palamecia // The Lord Master of Hell
-// Audit: unsupported — Needs total mana spent recorded with a spell-cast event and readable by its triggered ability, including additional costs and cost reductions; the current cast-event values expose mana value and colors spent, not the amount paid.
+// Audit: unsupported — Needs total mana spent recorded with a spell-cast event and readable by
+// its triggered ability, including additional costs and cost reductions; the current cast-event
+// values expose mana value and colors spent, not the amount paid.
 pub(in crate::card::sets) static THE_EMPEROR_OF_PALAMECIA: CardRecord = CardRecord::new(
     "The Emperor of Palamecia // The Lord Master of Hell",
     "3d75e8fd-6139-4b10-9ce3-195b47d72e0c",
@@ -6785,7 +7066,9 @@ pub(in crate::card::sets) static EXDEATH_VOID_WARLOCK: CardRecord = CardRecord::
 );
 
 // FIN 221 — Garland, Knight of Cornelia // Chaos, the Endless
-// Audit: unsupported — Needs direct graveyard-to-battlefield entry on the transformed face; current transformed returns follow linked exiles, and transforming after entry would expose the wrong entering characteristics and triggers.
+// Audit: unsupported — Needs direct graveyard-to-battlefield entry on the transformed face;
+// current transformed returns follow linked exiles, and transforming after entry would expose
+// the wrong entering characteristics and triggers.
 pub(in crate::card::sets) static GARLAND_KNIGHT_OF_CORNELIA: CardRecord = CardRecord::new(
     "Garland, Knight of Cornelia // Chaos, the Endless",
     "dd463dbe-5f2c-4d4f-86f8-ad8ff407af62",
@@ -6794,7 +7077,9 @@ pub(in crate::card::sets) static GARLAND_KNIGHT_OF_CORNELIA: CardRecord = CardRe
 );
 
 // FIN 222 — Garnet, Princess of Alexandria
-// Audit: unsupported — Needs the number of lore counters actually removed from the selected Sagas as an effect result; counting selected Sagas is wrong when removal is prevented or no counter is removed.
+// Audit: unsupported — Needs the number of lore counters actually removed from the selected
+// Sagas as an effect result; counting selected Sagas is wrong when removal is prevented or no
+// counter is removed.
 pub(in crate::card::sets) static GARNET_PRINCESS_OF_ALEXANDRIA: CardRecord = CardRecord::new(
     "Garnet, Princess of Alexandria",
     "b883df14-8d7b-4f6a-9a6a-2f71f5b6ddda",
@@ -7155,7 +7440,9 @@ pub(in crate::card::sets) static JENOVA_ANCIENT_CALAMITY: CardRecord = CardRecor
 );
 
 // FIN 229 — Joshua, Phoenix's Dominant // Phoenix, Warden of Fire
-// Audit: unsupported — Needs one printed Saga ability to represent several chapter numbers and to remain identifiable to the Saga final-chapter rules; the current Saga authoring and recognition path represents exactly one chapter per ability.
+// Audit: unsupported — Needs one printed Saga ability to represent several chapter numbers and
+// to remain identifiable to the Saga final-chapter rules; the current Saga authoring and
+// recognition path represents exactly one chapter per ability.
 pub(in crate::card::sets) static JOSHUA_PHOENIX_S_DOMINANT: CardRecord = CardRecord::new(
     "Joshua, Phoenix's Dominant // Phoenix, Warden of Fire",
     "457fdbb9-5439-460f-8e37-176f8919362c",
@@ -7199,7 +7486,9 @@ pub(in crate::card::sets) static JUDGE_MAGISTER_GABRANTH: CardRecord = CardRecor
 );
 
 // FIN 231 — Kefka, Court Mage // Kefka, Ruler of Ruin
-// Audit: unsupported — Needs a life-loss event carrying the amount actually lost, including life payments and life-total changes, for the transformed face; damage and life-gain events do not cover life loss.
+// Audit: unsupported — Needs a life-loss event carrying the amount actually lost, including
+// life payments and life-total changes, for the transformed face; damage and life-gain events
+// do not cover life loss.
 pub(in crate::card::sets) static KEFKA_COURT_MAGE: CardRecord = CardRecord::new(
     "Kefka, Court Mage // Kefka, Ruler of Ruin",
     "8fcf3fbb-1ddd-437e-81c1-f5a3133f5ee8",
@@ -7208,7 +7497,9 @@ pub(in crate::card::sets) static KEFKA_COURT_MAGE: CardRecord = CardRecord::new(
 );
 
 // FIN 232 — Kuja, Genome Sorcerer // Trance Kuja, Fate Defied
-// Audit: unsupported — Needs a prospective damage multiplier filtered to Wizard sources you control; the shared damage rules provide prevention, redirection, and limits, but no multiplication replacement.
+// Audit: unsupported — Needs a prospective damage multiplier filtered to Wizard sources you
+// control; the shared damage rules provide prevention, redirection, and limits, but no
+// multiplication replacement.
 pub(in crate::card::sets) static KUJA_GENOME_SORCERER: CardRecord = CardRecord::new(
     "Kuja, Genome Sorcerer // Trance Kuja, Fate Defied",
     "008782d2-72b0-4554-b1ce-2db99969a4d8",
@@ -7225,7 +7516,9 @@ const KUJA_GENOME_SORCERER_ALTERNATE_1: PrintingRecord = PrintingRecord::alterna
 );
 
 // FIN 233 — Lightning, Army of One
-// Audit: unsupported — Needs a temporary prospective damage multiplier covering a particular damaged player and that player's permanents; current damage rules do not represent multiplication replacements.
+// Audit: unsupported — Needs a temporary prospective damage multiplier covering a particular
+// damaged player and that player's permanents; current damage rules do not represent
+// multiplication replacements.
 pub(in crate::card::sets) static LIGHTNING_ARMY_OF_ONE: CardRecord = CardRecord::new(
     "Lightning, Army of One",
     "1103da9c-300c-406b-997d-9e5bb7cd02d6",
@@ -7261,7 +7554,9 @@ pub(in crate::card::sets) static LOCKE_COLE: CardRecord = CardRecord::new(
 );
 
 // FIN 235 — Noctis, Prince of Lucis
-// Audit: unsupported — Needs a graveyard casting permission with a mandatory additional life cost that composes with every chosen casting cost and gives that cast a finality-counter arrival; a granted alternative cost is not equivalent.
+// Audit: unsupported — Needs a graveyard casting permission with a mandatory additional life
+// cost that composes with every chosen casting cost and gives that cast a finality-counter
+// arrival; a granted alternative cost is not equivalent.
 pub(in crate::card::sets) static NOCTIS_PRINCE_OF_LUCIS: CardRecord = CardRecord::new(
     "Noctis, Prince of Lucis",
     "1881a66b-956d-4bab-b578-5b2d3407c972",
@@ -7428,7 +7723,9 @@ pub(in crate::card::sets) static RUFUS_SHINRA: CardRecord = CardRecord::new(
 );
 
 // FIN 239 — Rydia, Summoner of Mist
-// Audit: unsupported — Needs a haste grant to the returned creature through a graveyard-targeted zone-move continuation; the production grant boundary treats these target-derived recipients as nonbattlefield and rejects the grant.
+// Audit: unsupported — Needs a haste grant to the returned creature through a
+// graveyard-targeted zone-move continuation; the production grant boundary treats these
+// target-derived recipients as nonbattlefield and rejects the grant.
 pub(in crate::card::sets) static RYDIA_SUMMONER_OF_MIST: CardRecord = CardRecord::new(
     "Rydia, Summoner of Mist",
     "99450143-6ab5-463d-9e04-e8e6703a8b92",
@@ -7437,7 +7734,9 @@ pub(in crate::card::sets) static RYDIA_SUMMONER_OF_MIST: CardRecord = CardRecord
 );
 
 // FIN 240 — Serah Farron // Crystallized Serah
-// Audit: unsupported — Needs spell-cost evaluation to recognize the first legendary creature spell of the turn from persistent player cast history; a source-local use limit would be wrong after Serah enters or transforms.
+// Audit: unsupported — Needs spell-cost evaluation to recognize the first legendary creature
+// spell of the turn from persistent player cast history; a source-local use limit would be
+// wrong after Serah enters or transforms.
 pub(in crate::card::sets) static SERAH_FARRON: CardRecord = CardRecord::new(
     "Serah Farron // Crystallized Serah",
     "62fa74c0-43ae-445c-8039-ca9d00e9709a",
@@ -7446,7 +7745,9 @@ pub(in crate::card::sets) static SERAH_FARRON: CardRecord = CardRecord::new(
 );
 
 // FIN 241 — Shantotto, Tactician Magician
-// Audit: unsupported — Needs total mana spent recorded with a spell-cast event and readable by its triggered ability, including additional costs and cost reductions; the current cast-event values expose mana value and colors spent, not the amount paid.
+// Audit: unsupported — Needs total mana spent recorded with a spell-cast event and readable by
+// its triggered ability, including additional costs and cost reductions; the current cast-event
+// values expose mana value and colors spent, not the amount paid.
 pub(in crate::card::sets) static SHANTOTTO_TACTICIAN_MAGICIAN: CardRecord = CardRecord::new(
     "Shantotto, Tactician Magician",
     "eff984b2-6ea9-4471-91c5-99c47f87f10b",
@@ -7455,7 +7756,9 @@ pub(in crate::card::sets) static SHANTOTTO_TACTICIAN_MAGICIAN: CardRecord = Card
 );
 
 // FIN 242 — Sin, Spira's Punishment
-// Audit: unsupported — Needs a loop that randomly exiles a permanent card from the graveyard, creates its tapped copy, and repeats only for a land; existing recursive mill loops do not perform random graveyard selection.
+// Audit: unsupported — Needs a loop that randomly exiles a permanent card from the graveyard,
+// creates its tapped copy, and repeats only for a land; existing recursive mill loops do not
+// perform random graveyard selection.
 pub(in crate::card::sets) static SIN_SPIRA_S_PUNISHMENT: CardRecord = CardRecord::new(
     "Sin, Spira's Punishment",
     "659be746-bd31-4a70-8cec-7798da78b0b5",
@@ -7525,7 +7828,9 @@ pub(in crate::card::sets) static SQUALL_SEED_MERCENARY: CardRecord = CardRecord:
 );
 
 // FIN 244 — Tellah, Great Sage
-// Audit: unsupported — Needs total mana spent recorded with a spell-cast event and readable by its triggered ability, including additional costs and cost reductions; the current cast-event values expose mana value and colors spent, not the amount paid.
+// Audit: unsupported — Needs total mana spent recorded with a spell-cast event and readable by
+// its triggered ability, including additional costs and cost reductions; the current cast-event
+// values expose mana value and colors spent, not the amount paid.
 pub(in crate::card::sets) static TELLAH_GREAT_SAGE: CardRecord = CardRecord::new(
     "Tellah, Great Sage",
     "a67793ef-ef80-4434-9c54-e3fd8a270bbe",
@@ -7534,7 +7839,9 @@ pub(in crate::card::sets) static TELLAH_GREAT_SAGE: CardRecord = CardRecord::new
 );
 
 // FIN 245 — Terra, Magical Adept // Esper Terra
-// Audit: unsupported — Needs one printed Saga ability to represent several chapter numbers and to remain identifiable to the Saga final-chapter rules; the current Saga authoring and recognition path represents exactly one chapter per ability.
+// Audit: unsupported — Needs one printed Saga ability to represent several chapter numbers and
+// to remain identifiable to the Saga final-chapter rules; the current Saga authoring and
+// recognition path represents exactly one chapter per ability.
 pub(in crate::card::sets) static TERRA_MAGICAL_ADEPT: CardRecord = CardRecord::new(
     "Terra, Magical Adept // Esper Terra",
     "fbd447aa-588d-4c4d-925e-a7d3bdf6a65c",
@@ -7658,22 +7965,28 @@ pub(in crate::card::sets) static VIVI_ORNITIER: CardRecord = CardRecord::new(
     "Vivi Ornitier",
     "ecc1027a-8c07-44a0-bdde-fa2844cff694",
     "Toni Infante",
-CardRules::new_creature(mana_cost!("{1}{U}{R}"), &["Wizard"], 0, 3)
+    CardRules::new_creature(mana_cost!("{1}{U}{R}"), &["Wizard"], 0, 3)
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
             AbilityDef::activated_mana(
-                "{0}: Add X mana in any combination of {U} and/or {R}, where X is this creature's power. Activate only during your turn and only once each turn.",
+                "{0}: Add X mana in any combination of {U} and/or {R}, where \
+                 X is this creature's power. Activate only during your turn \
+                 and only once each turn.",
                 &[CostDef::Mana(mana_cost!("{0}"))],
                 // "Add X mana in any combination of {U} and/or {R}" divides one amount
                 // across two types, so the runtime offers the ability once per division.
                 // Vivi enters with no power at all, so the first activation worth making
                 // comes after a noncreature spell has grown it.
-                EffectDef::AddMana(AddManaEffectDef::combination(&[ManaColor::Blue, ManaColor::Red], 0).with_variable_amount(ValueDef::SourcePower)),
+                EffectDef::AddMana(
+                    AddManaEffectDef::combination(&[ManaColor::Blue, ManaColor::Red], 0)
+                        .with_variable_amount(ValueDef::SourcePower),
+                ),
             )
             .with_activation_timing(ActivationTimingDef::YourTurn)
             .activations_each_turn(1),
             AbilityDef::triggered(
-                "Whenever you cast a noncreature spell, put a +1/+1 counter on this creature and it deals 1 damage to each opponent.",
+                "Whenever you cast a noncreature spell, put a +1/+1 counter \
+                 on this creature and it deals 1 damage to each opponent.",
                 TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
                     ObjectPredicateDef::NoncreatureSpell,
                     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
@@ -7694,7 +8007,9 @@ CardRules::new_creature(mana_cost!("{1}{U}{R}"), &["Wizard"], 0, 3)
 );
 
 // FIN 249 — The Wandering Minstrel
-// Audit: unsupported — Needs an entry replacement making lands enter untapped, including interaction and ordering with other tapped-entry replacements; a triggered untap happens after entry and is not equivalent.
+// Audit: unsupported — Needs an entry replacement making lands enter untapped, including
+// interaction and ordering with other tapped-entry replacements; a triggered untap happens
+// after entry and is not equivalent.
 pub(in crate::card::sets) static THE_WANDERING_MINSTREL: CardRecord = CardRecord::new(
     "The Wandering Minstrel",
     "77bc419d-ff69-4e7c-afe6-faca383a5ed7",
@@ -7778,7 +8093,9 @@ pub(in crate::card::sets) static YUNA_HOPE_OF_SPIRA: CardRecord = CardRecord::ne
 );
 
 // FIN 251 — Zidane, Tantalus Thief
-// Audit: unsupported — Needs a control-change event that records the former and new controllers of a permanent, including control effects expiring; the current trigger vocabulary has no such event.
+// Audit: unsupported — Needs a control-change event that records the former and new controllers
+// of a permanent, including control effects expiring; the current trigger vocabulary has no
+// such event.
 pub(in crate::card::sets) static ZIDANE_TANTALUS_THIEF: CardRecord = CardRecord::new(
     "Zidane, Tantalus Thief",
     "e42c7d9d-8685-415b-8c5d-6ab2165863b9",
@@ -7816,7 +8133,9 @@ pub(in crate::card::sets) static ADVENTURER_S_AIRSHIP: CardRecord = CardRecord::
 );
 
 // FIN 253 — Aettir and Priwen
-// Audit: unsupported — Needs continuous power and toughness evaluation to read the controller's life total; life totals are supported by resolving effects and conditions, but not static characteristic values.
+// Audit: unsupported — Needs continuous power and toughness evaluation to read the controller's
+// life total; life totals are supported by resolving effects and conditions, but not static
+// characteristic values.
 pub(in crate::card::sets) static AETTIR_AND_PRIWEN: CardRecord = CardRecord::new(
     "Aettir and Priwen",
     "038710ca-c756-4e66-a9de-278e676c9f5b",
@@ -7825,7 +8144,9 @@ pub(in crate::card::sets) static AETTIR_AND_PRIWEN: CardRecord = CardRecord::new
 );
 
 // FIN 254 — Blitzball
-// Audit: unsupported — Needs this-turn combat-damage history filtered by both an opposing player recipient and a legendary creature source; current damage-history conditions cannot retain that source quality.
+// Audit: unsupported — Needs this-turn combat-damage history filtered by both an opposing
+// player recipient and a legendary creature source; current damage-history conditions cannot
+// retain that source quality.
 pub(in crate::card::sets) static BLITZBALL: CardRecord = CardRecord::new(
     "Blitzball",
     "92f4ad73-42bf-45c0-8bb6-0b44043c81ef",
@@ -7834,7 +8155,9 @@ pub(in crate::card::sets) static BLITZBALL: CardRecord = CardRecord::new(
 );
 
 // FIN 255 — Buster Sword
-// Audit: unsupported — Needs an immediate free-cast offer for a chosen card in hand; MayPlayWithoutPaying currently grants exile-only permission, and moving the chosen card to exile first would add an unprinted zone change.
+// Audit: unsupported — Needs an immediate free-cast offer for a chosen card in hand;
+// MayPlayWithoutPaying currently grants exile-only permission, and moving the chosen card to
+// exile first would add an unprinted zone change.
 pub(in crate::card::sets) static BUSTER_SWORD: CardRecord = CardRecord::new(
     "Buster Sword",
     "374d7383-a1a7-4eea-91f7-290180e14cc9",
@@ -7921,7 +8244,8 @@ pub(in crate::card::sets) static EXCALIBUR_II: CardRecord = CardRecord::new(
 );
 
 // FIN 258 — Genji Glove
-// Audit: unsupported — Needs a first-combat-phase predicate; scheduling an extra combat without it would trigger again on every additional attack.
+// Audit: unsupported — Needs a first-combat-phase predicate; scheduling an extra combat without
+// it would trigger again on every additional attack.
 pub(in crate::card::sets) static GENJI_GLOVE: CardRecord = CardRecord::new(
     "Genji Glove",
     "f724dde1-84b0-4e3b-a9b8-44cd22bb9f79",
@@ -8071,7 +8395,9 @@ pub(in crate::card::sets) static MAGIC_POT: CardRecord = CardRecord::new(
 );
 
 // FIN 264 — The Masamune
-// Audit: unsupported — Needs death-trigger duplication restricted to the equipped creature and its controller's emblems; the existing extra-death-trigger rule lacks that source and emblem scope.
+// Audit: unsupported — Needs death-trigger duplication restricted to the equipped creature and
+// its controller's emblems; the existing extra-death-trigger rule lacks that source and emblem
+// scope.
 pub(in crate::card::sets) static THE_MASAMUNE: CardRecord = CardRecord::new(
     "The Masamune",
     "fc408575-8ef7-4043-b6b7-b38cef7c97d1",
@@ -8530,7 +8856,9 @@ pub(in crate::card::sets) static CROSSROADS_VILLAGE: CardRecord = CardRecord::ne
 );
 
 // FIN 277 — Eden, Seat of the Sanctum
-// Audit: unsupported — Needs a reflexive trigger after sacrificing this land that exists independently of the departed source; OptionalEffectTaken currently finds only battlefield listeners.
+// Audit: unsupported — Needs a reflexive trigger after sacrificing this land that exists
+// independently of the departed source; OptionalEffectTaken currently finds only battlefield
+// listeners.
 pub(in crate::card::sets) static EDEN_SEAT_OF_THE_SANCTUM: CardRecord = CardRecord::new(
     "Eden, Seat of the Sanctum",
     "e28eac1e-adc7-4f8d-b206-bef09ba07d38",
@@ -8774,7 +9102,7 @@ pub(in crate::card::sets) static LINDBLUM_INDUSTRIAL_REGENCY: CardRecord = CardR
                                 &const {
                                     [AbilityDef::triggered(
                                         "Whenever you cast a noncreature spell, this token deals 1 \
-                                     damage to each opponent.",
+                                         damage to each opponent.",
                                         TriggerEventDef::spell_cast(ObjectPredicateDef::All(
                                             &const {
                                                 [
@@ -10092,7 +10420,9 @@ const ASHE_PRINCESS_OF_DALMASCA_ALTERNATE_1: PrintingRecord = PrintingRecord::al
 );
 
 // FIN 426 — Beatrix, Loyal General
-// Audit: unsupported — Needs an attachment operation between a selected collection of Equipment and an independently targeted creature; current attachment effects require the ability source as the Equipment or host.
+// Audit: unsupported — Needs an attachment operation between a selected collection of Equipment
+// and an independently targeted creature; current attachment effects require the ability source
+// as the Equipment or host.
 pub(in crate::card::sets) static BEATRIX_LOYAL_GENERAL: CardRecord = CardRecord::new(
     "Beatrix, Loyal General",
     "ab1b24dd-ab23-41b0-a074-e77e8d9c5564",
@@ -10467,7 +10797,9 @@ const GILGAMESH_MASTER_AT_ARMS_ALTERNATE_2: PrintingRecord = PrintingRecord::alt
 );
 
 // FIN 462 — Lightning, Security Sergeant
-// Audit: unsupported — Needs exile-play permission tied to continuous control of this source, expiring when control is lost and remaining expired if it is regained; current exile permissions have no source-control lifetime.
+// Audit: unsupported — Needs exile-play permission tied to continuous control of this source,
+// expiring when control is lost and remaining expired if it is regained; current exile
+// permissions have no source-control lifetime.
 pub(in crate::card::sets) static LIGHTNING_SECURITY_SERGEANT: CardRecord = CardRecord::new(
     "Lightning, Security Sergeant",
     "40cce7b4-1d5d-4d91-90c5-71b79b5be1ac",
@@ -10628,7 +10960,9 @@ const CLOUD_OF_DARKNESS_ALTERNATE_1: PrintingRecord = PrintingRecord::alternate(
 );
 
 // FIN 482 — Cloud, Planet's Champion
-// Audit: unsupported — Needs equip-cost reduction to inspect that activation's selected creature target; current ability-cost reductions filter source permanents rather than targets.
+// Audit: unsupported — Needs equip-cost reduction to inspect that activation's selected
+// creature target; current ability-cost reductions filter source permanents rather than
+// targets.
 pub(in crate::card::sets) static CLOUD_PLANET_S_CHAMPION: CardRecord = CardRecord::new(
     "Cloud, Planet's Champion",
     "75180e47-064e-4dd6-adcf-d4fb497a445b",
@@ -11314,69 +11648,69 @@ pub(in crate::card::sets) static TRAVELING_CHOCOBO: CardRecord = CardRecord::new
     "Traveling Chocobo",
     "156cfd45-1556-4804-becf-039cfff7de3d",
     "Toni Infante",
-// Three mana for a body, a land engine, and a Panharmonicon that only
+    // Three mana for a body, a land engine, and a Panharmonicon that only
     // reads lands and its own kind -- which in a deck built for it is most
     // of what enters.
-    CardRules::new_creature(mana_cost!("{2}{G}"), &["Bird"], 3, 2)
-        .with_abilities(&[
-            AbilityDef::static_ability(
-                "You may look at the top card of your library any time.",
-                EffectDef::StaticApply {
-                    recipient: EffectRecipientDef::players(PlayerSetDef::Related(PlayerRelation::You)),
-                    effect: AppliedEffectDef::Rule(AppliedRuleDef::MayLookAtTopOfLibrary),
-                },
-            ),
-            AbilityDef::static_ability(
-                "You may play lands and cast Bird spells from the top of your library.",
-                EffectDef::StaticApply {
-                    recipient: EffectRecipientDef::players(PlayerSetDef::Related(PlayerRelation::You)),
-                    effect: AppliedEffectDef::Composite(&[
-                        AppliedEffectDef::Rule(AppliedRuleDef::MayPlayFromTopOfLibrary {
-                            // Two permissions rather than one: the printed sentence names two kinds of
-                            // play, and the restriction each carries is a single action and a single
-                            // predicate. Lands cost nothing beyond the land drop; a Bird pays its own
-                            // mana cost, since nothing here says otherwise.
-                            restriction: PlayRestrictionDef::new(
-                                PlayActionMatcherDef::PlayLand,
-                                ObjectPredicateDef::HasType(CardType::Land),
-                            ),
-                            cost: TopOfLibraryCostDef::Printed,
-                        }),
-                        AppliedEffectDef::Rule(AppliedRuleDef::MayPlayFromTopOfLibrary {
-                            restriction: PlayRestrictionDef::new(
-                                PlayActionMatcherDef::CastSpell,
-                                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Bird")),
-                            ),
-                            cost: TopOfLibraryCostDef::Printed,
-                        }),
-                    ]),
-                },
-            ),
-            AbilityDef::static_ability(
-                "If a land or Bird you control entering the battlefield causes a triggered ability of a \
-                 permanent you control to trigger, that ability triggers an additional time.",
-                EffectDef::StaticApply {
-                    recipient: EffectRecipientDef::Controller,
-                    effect: AppliedEffectDef::Rule(AppliedRuleDef::ModifyTriggers(
-                        &TriggerModificationDef {
-                            cause: TriggerEventDef::zone_changed(
-                                ObjectPredicateDef::All(&[
-                                    ObjectPredicateDef::AnyOf(&[
-                                        ObjectPredicateDef::HasType(CardType::Land),
-                                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Bird")),
-                                    ]),
-                                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Bird"], 3, 2).with_abilities(&[
+        AbilityDef::static_ability(
+            "You may look at the top card of your library any time.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::players(PlayerSetDef::Related(PlayerRelation::You)),
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::MayLookAtTopOfLibrary),
+            },
+        ),
+        AbilityDef::static_ability(
+            "You may play lands and cast Bird spells from the top of your library.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::players(PlayerSetDef::Related(PlayerRelation::You)),
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::Rule(AppliedRuleDef::MayPlayFromTopOfLibrary {
+                        // Two permissions rather than one: the printed sentence names two kinds of
+                        // play, and the restriction each carries is a single action and a single
+                        // predicate. Lands cost nothing beyond the land drop; a Bird pays its own
+                        // mana cost, since nothing here says otherwise.
+                        restriction: PlayRestrictionDef::new(
+                            PlayActionMatcherDef::PlayLand,
+                            ObjectPredicateDef::HasType(CardType::Land),
+                        ),
+                        cost: TopOfLibraryCostDef::Printed,
+                    }),
+                    AppliedEffectDef::Rule(AppliedRuleDef::MayPlayFromTopOfLibrary {
+                        restriction: PlayRestrictionDef::new(
+                            PlayActionMatcherDef::CastSpell,
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Bird")),
+                        ),
+                        cost: TopOfLibraryCostDef::Printed,
+                    }),
+                ]),
+            },
+        ),
+        AbilityDef::static_ability(
+            "If a land or Bird you control entering the battlefield \
+             causes a triggered ability of a permanent you control to \
+             trigger, that ability triggers an additional time.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Controller,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::ModifyTriggers(
+                    &TriggerModificationDef {
+                        cause: TriggerEventDef::zone_changed(
+                            ObjectPredicateDef::All(&[
+                                ObjectPredicateDef::AnyOf(&[
+                                    ObjectPredicateDef::HasType(CardType::Land),
+                                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Bird")),
                                 ]),
-                                None,
-                                Some(ZoneKind::Battlefield),
-                            ),
-                            permanent: Some(ObjectPredicateDef::Any),
-                            kind: TriggerModificationKindDef::Additional,
-                        },
-                    )),
-                },
-            ),
-        ]),
+                                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                            ]),
+                            None,
+                            Some(ZoneKind::Battlefield),
+                        ),
+                        permanent: Some(ObjectPredicateDef::Any),
+                        kind: TriggerModificationKindDef::Additional,
+                    },
+                )),
+            },
+        ),
+    ]),
 );
 
 // FIN 551d — Traveling Chocobo (alternate printing)
@@ -11521,7 +11855,9 @@ const XANDE_DARK_MAGE_ALTERNATE_1: PrintingRecord = PrintingRecord::alternate(
 );
 
 // FIN 562 — Magitek Scythe
-// Audit: unsupported — Needs an attack requirement that the equipped creature be blocked by at least one creature if able; MustBeBlockedBy requires every matching creature to block, and minimum-blocker restrictions alone do not require a block.
+// Audit: unsupported — Needs an attack requirement that the equipped creature be blocked by at
+// least one creature if able; MustBeBlockedBy requires every matching creature to block, and
+// minimum-blocker restrictions alone do not require a block.
 pub(in crate::card::sets) static MAGITEK_SCYTHE: CardRecord = CardRecord::new(
     "Magitek Scythe",
     "8b691d42-3498-4d47-9a46-f7c376df8886",
@@ -11710,27 +12046,31 @@ pub(in crate::card::sets) static ASTROLOGIAN_S_PLANISPHERE: CardRecord = CardRec
     "Astrologian's Planisphere",
     "a0f6e2d7-58b5-4a7d-8c42-e25185cd173f",
     "Josephine Chang",
-// Two mana for a 1/1 that grows on the turns a blue deck was having
+    // Two mana for a 1/1 that grows on the turns a blue deck was having
     // anyway, and an Equipment left over when it dies.
     CardRules::new_artifact(mana_cost!("{1}{U}"))
         .with_subtypes(&["Equipment"])
         .with_abilities(&[
             abilities::job_select(),
             AbilityDef::static_ability(
-                "Equipped creature is a Wizard in addition to its other types and has \"Whenever you \
-                 cast a noncreature spell and whenever you draw your third card each turn, put a +1/+1 \
+                "Equipped creature is a Wizard in addition to its other \
+                 types and has \"Whenever you cast a noncreature spell and \
+                 whenever you draw your third card each turn, put a +1/+1 \
                  counter on this creature.\"",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::AttachedPermanent,
                     effect: AppliedEffectDef::Composite(&[
-                        AppliedEffectDef::Characteristic(CharacteristicOperationDef::CreatureTypes(
-                            SetOperationDef::Add(CreatureTypeSetDef::named(&["Wizard"])),
-                        )),
+                        AppliedEffectDef::Characteristic(
+                            CharacteristicOperationDef::CreatureTypes(SetOperationDef::Add(
+                                CreatureTypeSetDef::named(&["Wizard"]),
+                            )),
+                        ),
                         // Granted to the equipped creature, so "this creature" is the creature
                         // rather than the Equipment: the counter goes where the ability lives.
                         AppliedEffectDef::add_ability(&AbilityDef::triggered(
-                            "Whenever you cast a noncreature spell and whenever you draw your third card each turn, put \
-                             a +1/+1 counter on this creature.",
+                            "Whenever you cast a noncreature spell and whenever you draw \
+                             your third card each turn, put a +1/+1 counter on this \
+                             creature.",
                             // Two events, one clause, one counter each: a noncreature spell, and the
                             // third card of the turn however it was drawn. The Hero's own draw step
                             // counts toward the third, which is why the card wants a turn with two
@@ -11740,7 +12080,10 @@ pub(in crate::card::sets) static ASTROLOGIAN_S_PLANISPHERE: CardRecord = CardRec
                                     ObjectPredicateDef::NoncreatureSpell,
                                     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                                 ])),
-                                TriggerEventDef::DrewCard(DrawEventMatcherDef::nth_each_turn(PlayerRelation::You, 3)),
+                                TriggerEventDef::DrewCard(DrawEventMatcherDef::nth_each_turn(
+                                    PlayerRelation::You,
+                                    3,
+                                )),
                             ]),
                             EffectDef::AddCounters {
                                 object: EffectRecipientDef::Source,

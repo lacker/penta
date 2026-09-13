@@ -94,12 +94,13 @@ pub(in crate::card::sets) static LEYLINE_OF_SANCTITY: CardRecord = CardRecord::n
     "Leyline of Sanctity",
     "262de9ae-d641-4f0e-af6a-03ce0e1c91d3",
     "Ryan Pancoast",
-// Four mana for nothing at all, or nothing at all for a wall the
+    // Four mana for nothing at all, or nothing at all for a wall the
     // discard and the burn cannot see past.
     CardRules::new_enchantment(mana_cost!("{2}{W}{W}")).with_abilities(&[
         abilities::begin_game_on_battlefield(),
         AbilityDef::static_ability(
-            "You have hexproof. (You can't be the target of spells or abilities your opponents control.)",
+            "You have hexproof. (You can't be the target of spells or \
+             abilities your opponents control.)",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Controller,
                 // The player, not the permanents: what this stops is a spell
@@ -155,7 +156,7 @@ pub(in crate::card::sets) static ROC_EGG: CardRecord = CardRecord::new(
 );
 
 // M11 28 — Serra Ascendant
-pub(in crate::card::sets) static SERRA_ASCENDANT_28: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static SERRA_ASCENDANT: CardRecord = CardRecord::new(
     "Serra Ascendant",
     "1ee65b44-eeb6-418b-b022-a0aef587c738",
     "Anthony Palumbo",
@@ -194,10 +195,12 @@ pub(in crate::card::sets) static SUN_TITAN: CardRecord = CardRecord::new(
     "Sun Titan",
     "d8db2b8e-dce9-49b7-833f-381ee55288cb",
     "Todd Lockwood",
-CardRules::new_creature(mana_cost!("{4}{W}{W}"), &["Giant"], 6, 6).with_abilities(&[
+    CardRules::new_creature(mana_cost!("{4}{W}{W}"), &["Giant"], 6, 6).with_abilities(&[
         abilities::vigilance(),
         AbilityDef::triggered_with_targets(
-            "Whenever this creature enters or attacks, you may return target permanent card with mana value 3 or less from your graveyard to the battlefield.",
+            "Whenever this creature enters or attacks, you may return \
+             target permanent card with mana value 3 or less from your \
+             graveyard to the battlefield.",
             TriggerEventDef::AnyOf(&[
                 TriggerEventDef::zone_changed(
                     ObjectPredicateDef::Source,
@@ -324,16 +327,22 @@ pub(in crate::card::sets) static FROST_TITAN: CardRecord = CardRecord::new(
     "Frost Titan",
     "065addc8-c235-43cc-a54f-b582826e5df1",
     "Mike Bierek",
-CardRules::new_creature(mana_cost!("{4}{U}{U}"), &["Giant"], 6, 6).with_abilities(&[
+    CardRules::new_creature(mana_cost!("{4}{U}{U}"), &["Giant"], 6, 6).with_abilities(&[
         AbilityDef::triggered(
-            "Whenever this permanent becomes the target of a spell or ability an opponent controls, counter that spell or ability unless its controller pays {2}.",
-            TriggerEventDef::becomes_targeted(
-                ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
-            ),
-            abilities::counter_triggering_spell_unless_paid(&[CostDef::GenericMana(ValueDef::Constant(2))]),
+            "Whenever this permanent becomes the target of a spell or \
+             ability an opponent controls, counter that spell or ability \
+             unless its controller pays {2}.",
+            TriggerEventDef::becomes_targeted(ObjectPredicateDef::ControlledBy(
+                PlayerRelation::Opponent,
+            )),
+            abilities::counter_triggering_spell_unless_paid(&[CostDef::GenericMana(
+                ValueDef::Constant(2),
+            )]),
         ),
         AbilityDef::triggered_with_targets(
-            "Whenever this creature enters or attacks, tap target permanent. It doesn't untap during its controller's next untap step.",
+            "Whenever this creature enters or attacks, tap target \
+             permanent. It doesn't untap during its controller's next \
+             untap step.",
             TriggerEventDef::AnyOf(&[
                 TriggerEventDef::zone_changed(
                     ObjectPredicateDef::Source,
@@ -342,7 +351,9 @@ CardRules::new_creature(mana_cost!("{4}{U}{U}"), &["Giant"], 6, 6).with_abilitie
                 ),
                 TriggerEventDef::attacks(ObjectPredicateDef::Source),
             ]),
-            &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Any)],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::Any,
+            )],
             EffectDef::Sequence(&[
                 EffectDef::Tap {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -434,12 +445,13 @@ pub(in crate::card::sets) static MERFOLK_SPY: CardRecord = CardRecord::new(
     "Merfolk Spy",
     "b5ae05cc-116b-4268-ba78-709aeff36ab1",
     "Matt Cavotta & Richard Whitters",
-// Islandwalk against the deck it most wants to look at, and the reveal
+    // Islandwalk against the deck it most wants to look at, and the reveal
     // is at random, so it reports rather than chooses.
     CardRules::new_creature(mana_cost!("{U}"), &["Merfolk", "Rogue"], 1, 1).with_abilities(&[
         abilities::landwalk(BasicLandType::Island),
         AbilityDef::triggered(
-            "Whenever this creature deals combat damage to a player, that player reveals a card at random from their hand.",
+            "Whenever this creature deals combat damage to a player, \
+             that player reveals a card at random from their hand.",
             TriggerEventDef::CombatDamageDealtToPlayers {
                 sources: ObjectPredicateDef::Source,
                 players: PlayerRelation::Opponent,
@@ -522,9 +534,10 @@ pub(in crate::card::sets) static TIME_REVERSAL: CardRecord = CardRecord::new(
     "Time Reversal",
     "1468c851-b20e-4c78-9fcb-45e60b7149db",
     "Howard Lyon",
-CardRules::new_sorcery(mana_cost!("{3}{U}{U}")).with_ability(
+    CardRules::new_sorcery(mana_cost!("{3}{U}{U}")).with_ability(
         AbilityDef::spell(
-            "Each player shuffles their hand and graveyard into their library, then draws seven cards. Exile Time Reversal.",
+            "Each player shuffles their hand and graveyard into their \
+             library, then draws seven cards. Exile Time Reversal.",
             abilities::shuffle_back_and_draw_seven(),
         )
         .with_resolution_destination(SpellResolutionDestinationDef::Exile),
@@ -569,35 +582,35 @@ pub(in crate::card::sets) static GRAVE_TITAN: CardRecord = CardRecord::new(
     "Grave Titan",
     "5fa6d385-6b8e-45ad-83dc-b477799c05a5",
     "Nils Hamm",
-// Ten power over three bodies for six mana, and killing the Titan still
+    // Ten power over three bodies for six mana, and killing the Titan still
     // leaves four of it behind.
-    CardRules::new_creature(mana_cost!("{4}{B}{B}"), &["Giant"], 6, 6)
-        .with_abilities(&[
-            abilities::deathtouch(),
-            AbilityDef::triggered(
-                "Whenever this creature enters or attacks, create two 2/2 black Zombie creature tokens.",
-                // One printed ability with two ways in, the way every Titan prints it: a
-                // Titan that lands and then attacks makes four Zombies, and it makes them
-                // as two separate triggers.
-                TriggerEventDef::AnyOf(&[
-                    TriggerEventDef::zone_changed(
-                        ObjectPredicateDef::Source,
-                        None,
-                        Some(ZoneKind::Battlefield),
-                    ),
-                    TriggerEventDef::attacks(ObjectPredicateDef::Source),
-                ]),
-                EffectDef::CreateToken(
-                    CreateTokenDef::new(TokenDef::Literal(TokenCharacteristics::creature(
-                        &["Zombie"],
-                        &[ManaColor::Black],
-                        2,
-                        2,
-                    )))
-                    .with_amount(2),
+    CardRules::new_creature(mana_cost!("{4}{B}{B}"), &["Giant"], 6, 6).with_abilities(&[
+        abilities::deathtouch(),
+        AbilityDef::triggered(
+            "Whenever this creature enters or attacks, create two 2/2 \
+             black Zombie creature tokens.",
+            // One printed ability with two ways in, the way every Titan prints it: a
+            // Titan that lands and then attacks makes four Zombies, and it makes them
+            // as two separate triggers.
+            TriggerEventDef::AnyOf(&[
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::Source,
+                    None,
+                    Some(ZoneKind::Battlefield),
                 ),
+                TriggerEventDef::attacks(ObjectPredicateDef::Source),
+            ]),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(TokenCharacteristics::creature(
+                    &["Zombie"],
+                    &[ManaColor::Black],
+                    2,
+                    2,
+                )))
+                .with_amount(2),
             ),
-        ]),
+        ),
+    ]),
 );
 
 // M11 104 — Liliana's Specter
@@ -690,17 +703,25 @@ pub(in crate::card::sets) static QUAG_SICKNESS: CardRecord = CardRecord::new(
 );
 
 // M11 120 — Viscera Seer
-pub(in crate::card::sets) static VISCERA_SEER_120: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static VISCERA_SEER: CardRecord = CardRecord::new(
     "Viscera Seer",
     "6179f847-e334-4f7f-9a4e-0013942a394f",
     "John Stanko",
     CardRules::new_creature(mana_cost!("{B}"), &["Vampire", "Wizard"], 1, 1).with_abilities(&[
-AbilityDef::activated("Sacrifice a creature: Scry 1. (Look at the top card of your library. You may put that card on the bottom.)", &[CostDef::sacrifice_permanent(ObjectPredicateDef::HasType(CardType::Creature))], abilities::scry(ValueDef::Constant(1)))
-]),
+        AbilityDef::activated(
+            "Sacrifice a creature: Scry 1. (Look at the top card of your \
+             library. You may put that card on the bottom.)",
+            &[CostDef::sacrifice_permanent(ObjectPredicateDef::HasType(
+                CardType::Creature,
+            ))],
+            abilities::scry(ValueDef::Constant(1)),
+        ),
+    ]),
 );
 
 // M11 130 — Combust
-// Audit: unsupported — Needs only this spell's damage to be unpreventable, without making other damage unpreventable for the turn.
+// Audit: unsupported — Needs only this spell's damage to be unpreventable, without making other
+// damage unpreventable for the turn.
 pub(in crate::card::sets) static COMBUST: CardRecord = CardRecord::new(
     "Combust",
     "cf23a422-25a7-4c8a-9cff-24563ec20ea7",
@@ -769,7 +790,7 @@ pub(in crate::card::sets) static INFERNO_TITAN: CardRecord = CardRecord::new(
     "Inferno Titan",
     "f1e4a028-6462-4373-9864-a8adfc78d52b",
     "Kev Walker",
-CardRules::new_creature(mana_cost!("{4}{R}{R}"), &["Giant"], 6, 6).with_abilities(&[
+    CardRules::new_creature(mana_cost!("{4}{R}{R}"), &["Giant"], 6, 6).with_abilities(&[
         AbilityDef::activated(
             "{R}: This creature gets +1/+0 until end of turn.",
             &[CostDef::Mana(mana_cost!("{R}"))],
@@ -783,7 +804,8 @@ CardRules::new_creature(mana_cost!("{4}{R}{R}"), &["Giant"], 6, 6).with_abilitie
             },
         ),
         AbilityDef::triggered_with_targets(
-            "Whenever this creature enters or attacks, it deals 3 damage divided as you choose among one, two, or three targets.",
+            "Whenever this creature enters or attacks, it deals 3 damage \
+             divided as you choose among one, two, or three targets.",
             TriggerEventDef::AnyOf(&[
                 TriggerEventDef::zone_changed(
                     ObjectPredicateDef::Source,
@@ -852,7 +874,7 @@ pub(in crate::card::sets) static MANIC_VANDAL: CardRecord = CardRecord::new(
 );
 
 // M11 153 — Pyretic Ritual
-pub(in crate::card::sets) static PYRETIC_RITUAL_153: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static PYRETIC_RITUAL: CardRecord = CardRecord::new(
     "Pyretic Ritual",
     "1e577638-a7ed-4bcc-90fb-0cffe87d5a28",
     "James Paick",
@@ -922,37 +944,47 @@ pub(in crate::card::sets) static VOLCANIC_STRENGTH: CardRecord = CardRecord::new
     "Volcanic Strength",
     "bda0bffa-c58c-4630-8899-a1b332a7b8dc",
     "Izzy",
-CardRules::new_enchantment(mana_cost!("{1}{R}"))
+    CardRules::new_enchantment(mana_cost!("{1}{R}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
-        AbilityDef::spell_with_targets("Enchant creature", &[AbilityTargetDef::exactly_one(
-            AbilityTargetPredicate::Object {
-                object: ObjectPredicateDef::HasType(CardType::Creature),
-                zones: &[ZoneKind::Battlefield],
-                controller: None,
-                owner: None,
-            },
-        )], EffectDef::Attach {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            }),
-        AbilityDef::static_ability(
-            "Enchanted creature gets +2/+2 and has mountainwalk. (It can't be blocked as long as defending player controls a Mountain.)",
-            EffectDef::Sequence(&[
-                EffectDef::StaticApply {
-                    recipient: EffectRecipientDef::AttachedPermanent,
-                    effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(2), ValueDef::Constant(2)),
+            AbilityDef::spell_with_targets(
+                "Enchant creature",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: None,
+                        owner: None,
+                    },
+                )],
+                EffectDef::Attach {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 },
-                EffectDef::StaticApply {
-                    recipient: EffectRecipientDef::AttachedPermanent,
-                    effect: AppliedEffectDef::add_ability(&abilities::mountainwalk()),
-                },
-            ]),
-        ),
-    ]),
+            ),
+            AbilityDef::static_ability(
+                "Enchanted creature gets +2/+2 and has mountainwalk. (It \
+                 can't be blocked as long as defending player controls a \
+                 Mountain.)",
+                EffectDef::Sequence(&[
+                    EffectDef::StaticApply {
+                        recipient: EffectRecipientDef::AttachedPermanent,
+                        effect: AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(2),
+                            ValueDef::Constant(2),
+                        ),
+                    },
+                    EffectDef::StaticApply {
+                        recipient: EffectRecipientDef::AttachedPermanent,
+                        effect: AppliedEffectDef::add_ability(&abilities::mountainwalk()),
+                    },
+                ]),
+            ),
+        ]),
 );
 
 // M11 162 — Autumn's Veil
-// Audit: unsupported — Needs turn-long spell restrictions and protection keyed specifically to blue and black spells.
+// Audit: unsupported — Needs turn-long spell restrictions and protection keyed specifically to
+// blue and black spells.
 pub(in crate::card::sets) static AUTUMN_S_VEIL: CardRecord = CardRecord::new(
     "Autumn's Veil",
     "7e354ce5-b4c1-4a9c-99d1-7624301b594b",
@@ -978,13 +1010,71 @@ pub(in crate::card::sets) static BRINDLE_BOAR: CardRecord = CardRecord::new(
 );
 
 // M11 168 — Cultivate
-pub(in crate::card::sets) static CULTIVATE_168: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static CULTIVATE: CardRecord = CardRecord::new(
     "Cultivate",
     "2ef3dbe4-5c03-4be4-ab48-45b6689b6712",
     "Anthony Palumbo",
-    CardRules::new_sorcery(mana_cost!("{2}{G}")).with_abilities(&[
-AbilityDef::spell("Search your library for up to two basic land cards, reveal those cards, put one onto the battlefield tapped and the other into your hand, then shuffle.", EffectDef::Sequence(&[EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Library, object: ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Land), ObjectPredicateDef::Supertype(CardSupertype::Basic)]), minimum: 0, maximum: ValueDef::Constant(2), reveal: true, destination: ZoneKind::Library, placement: ZonePlacement::Top, shuffle: false, enters_tapped: false, attachment: None, binding: Some(Binding!("cultivate_found")), then: Some(&EffectDef::Choose(ChooseDef { chooser: PlayerRefDef::EffectController, candidates: ObjectSetDef::Binding(Binding!("cultivate_found")), exclude: None, minimum: 1, maximum: 1, binding: ObjectChoiceBindingDef::Objects(Binding!("cultivate_field")), unchosen: Some(Binding!("cultivate_hand")), visibility: ChoiceVisibilityDef::Private, then: &EffectDef::Sequence(&[EffectDef::WithBattlefieldArrival { effect: &EffectDef::move_to_zone(EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!("cultivate_field"))), ZoneKind::Battlefield, ZonePlacement::Top), arrival: BattlefieldArrivalDef { controller: None, modifications: &[BattlefieldEntryModificationDef::Tapped], attachment: None, counters: None } }, EffectDef::move_to_zone(EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!("cultivate_hand"))), ZoneKind::Hand, ZonePlacement::Top)]) })) }, EffectDef::ShuffleLibrary { player: EffectRecipientDef::Controller }]))
-]),
+    CardRules::new_sorcery(mana_cost!("{2}{G}")).with_abilities(&[AbilityDef::spell(
+        "Search your library for up to two basic land cards, reveal \
+         those cards, put one onto the battlefield tapped and the \
+         other into your hand, then shuffle.",
+        EffectDef::Sequence(&[
+            EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                ]),
+                minimum: 0,
+                maximum: ValueDef::Constant(2),
+                reveal: true,
+                destination: ZoneKind::Library,
+                placement: ZonePlacement::Top,
+                shuffle: false,
+                enters_tapped: false,
+                attachment: None,
+                binding: Some(Binding!("cultivate_found")),
+                then: Some(&EffectDef::Choose(ChooseDef {
+                    chooser: PlayerRefDef::EffectController,
+                    candidates: ObjectSetDef::Binding(Binding!("cultivate_found")),
+                    exclude: None,
+                    minimum: 1,
+                    maximum: 1,
+                    binding: ObjectChoiceBindingDef::Objects(Binding!("cultivate_field")),
+                    unchosen: Some(Binding!("cultivate_hand")),
+                    visibility: ChoiceVisibilityDef::Private,
+                    then: &EffectDef::Sequence(&[
+                        EffectDef::WithBattlefieldArrival {
+                            effect: &EffectDef::move_to_zone(
+                                EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!(
+                                    "cultivate_field"
+                                ))),
+                                ZoneKind::Battlefield,
+                                ZonePlacement::Top,
+                            ),
+                            arrival: BattlefieldArrivalDef {
+                                controller: None,
+                                modifications: &[BattlefieldEntryModificationDef::Tapped],
+                                attachment: None,
+                                counters: None,
+                            },
+                        },
+                        EffectDef::move_to_zone(
+                            EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!(
+                                "cultivate_hand"
+                            ))),
+                            ZoneKind::Hand,
+                            ZonePlacement::Top,
+                        ),
+                    ]),
+                })),
+            },
+            EffectDef::ShuffleLibrary {
+                player: EffectRecipientDef::Controller,
+            },
+        ]),
+    )]),
 );
 
 // M11 169 — Dryad's Favor
@@ -997,7 +1087,8 @@ pub(in crate::card::sets) static DRYADS_FAVOR: CardRecord = CardRecord::new(
         .with_abilities(&[
             abilities::enchant_creature(),
             AbilityDef::static_ability(
-                "Enchanted creature has forestwalk. (It can't be blocked as long as defending player controls a Forest.)",
+                "Enchanted creature has forestwalk. (It can't be blocked as \
+                 long as defending player controls a Forest.)",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::AttachedPermanent,
                     effect: AppliedEffectDef::add_ability(&abilities::landwalk(
@@ -1009,13 +1100,37 @@ pub(in crate::card::sets) static DRYADS_FAVOR: CardRecord = CardRecord::new(
 );
 
 // M11 172 — Fauna Shaman
-pub(in crate::card::sets) static FAUNA_SHAMAN_172: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static FAUNA_SHAMAN: CardRecord = CardRecord::new(
     "Fauna Shaman",
     "c685e4c3-eb7b-4b9e-9676-395d69d80974",
     "Steve Prescott",
     CardRules::new_creature(mana_cost!("{1}{G}"), &["Elf", "Shaman"], 2, 2).with_abilities(&[
-AbilityDef::activated("{G}, {T}, Discard a creature card: Search your library for a creature card, reveal it, put it into your hand, then shuffle.", &[CostDef::Mana(mana_cost!("{G}")), CostDef::TapSource, CostDef::discard(ObjectPredicateDef::HasType(CardType::Creature))], EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Library, object: ObjectPredicateDef::HasType(CardType::Creature), minimum: 0, maximum: ValueDef::Constant(1), reveal: true, destination: ZoneKind::Hand, placement: ZonePlacement::Top, shuffle: true, enters_tapped: false, attachment: None, binding: None, then: None })
-]),
+        AbilityDef::activated(
+            "{G}, {T}, Discard a creature card: Search your library for \
+             a creature card, reveal it, put it into your hand, then \
+             shuffle.",
+            &[
+                CostDef::Mana(mana_cost!("{G}")),
+                CostDef::TapSource,
+                CostDef::discard(ObjectPredicateDef::HasType(CardType::Creature)),
+            ],
+            EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                minimum: 0,
+                maximum: ValueDef::Constant(1),
+                reveal: true,
+                destination: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+                shuffle: true,
+                enters_tapped: false,
+                attachment: None,
+                binding: None,
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // M11 176 — Garruk's Companion
@@ -1092,10 +1207,12 @@ pub(in crate::card::sets) static PRIMEVAL_TITAN: CardRecord = CardRecord::new(
     "Primeval Titan",
     "feee9327-b937-46ba-a2aa-6c015ab6cdd5",
     "Aleksi Briclot",
-CardRules::new_creature(mana_cost!("{4}{G}{G}"), &["Giant"], 6, 6).with_abilities(&[
+    CardRules::new_creature(mana_cost!("{4}{G}{G}"), &["Giant"], 6, 6).with_abilities(&[
         abilities::trample(),
         AbilityDef::triggered(
-            "Whenever this creature enters or attacks, you may search your library for up to two land cards, put them onto the battlefield tapped, then shuffle.",
+            "Whenever this creature enters or attacks, you may search \
+             your library for up to two land cards, put them onto the \
+             battlefield tapped, then shuffle.",
             // One printed ability with two ways in, not two abilities: the card says
             // "enters or attacks", and a Titan that does both in a turn triggers twice
             // for the same reason it would have anyway.
@@ -1145,12 +1262,10 @@ pub(in crate::card::sets) static ELIXIR_OF_IMMORTALITY: CardRecord = CardRecord:
     "Elixir of Immortality",
     "99bd4740-9b1f-40a6-a14d-2c0d642b848b",
     "Zoltan Boros & Gabor Szikszai",
-CardRules::new_artifact(mana_cost!("{1}")).with_ability(AbilityDef::activated(
-        "{2}, {T}: You gain 5 life. Shuffle this artifact and your graveyard into their owner's library.",
-        &[
-            CostDef::Mana(mana_cost!("{2}")),
-            CostDef::TapSource,
-        ],
+    CardRules::new_artifact(mana_cost!("{1}")).with_ability(AbilityDef::activated(
+        "{2}, {T}: You gain 5 life. Shuffle this artifact and your \
+         graveyard into their owner's library.",
+        &[CostDef::Mana(mana_cost!("{2}")), CostDef::TapSource],
         EffectDef::Sequence(&[
             EffectDef::GainLife {
                 recipient: EffectRecipientDef::Controller,
@@ -1178,7 +1293,7 @@ CardRules::new_artifact(mana_cost!("{1}")).with_ability(AbilityDef::activated(
 );
 
 // M11 214 — Steel Overseer
-pub(in crate::card::sets) static STEEL_OVERSEER_214: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static STEEL_OVERSEER: CardRecord = CardRecord::new(
     "Steel Overseer",
     "b9da673d-7cc0-4435-b5a5-5098630f7712",
     "Chris Rahn",
@@ -1232,7 +1347,7 @@ pub(in crate::card::sets) static SWORD_OF_VENGEANCE: CardRecord = CardRecord::ne
 );
 
 // M11 217 — Temple Bell
-pub(in crate::card::sets) static TEMPLE_BELL_217: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static TEMPLE_BELL: CardRecord = CardRecord::new(
     "Temple Bell",
     "8c99cde3-8ba5-44bf-bbaa-1a12c6cac925",
     "Mark Tedin",
@@ -1252,7 +1367,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &LEYLINE_OF_SANCTITY,
     &MIGHTY_LEAP,
     &ROC_EGG,
-    &SERRA_ASCENDANT_28,
+    &SERRA_ASCENDANT,
     &SUN_TITAN,
     &WAR_PRIEST_OF_THUNE,
     &AETHER_ADEPT,
@@ -1274,21 +1389,21 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &NIGHTWING_SHADE,
     &PHYLACTERY_LICH,
     &QUAG_SICKNESS,
-    &VISCERA_SEER_120,
+    &VISCERA_SEER,
     &COMBUST,
     &HOARDING_DRAGON,
     &INFERNO_TITAN,
     &LEYLINE_OF_PUNISHMENT,
     &MANIC_VANDAL,
-    &PYRETIC_RITUAL_153,
+    &PYRETIC_RITUAL,
     &REVERBERATE,
     &THUNDER_STRIKE,
     &VOLCANIC_STRENGTH,
     &AUTUMN_S_VEIL,
     &BRINDLE_BOAR,
-    &CULTIVATE_168,
+    &CULTIVATE,
     &DRYADS_FAVOR,
-    &FAUNA_SHAMAN_172,
+    &FAUNA_SHAMAN,
     &GARRUK_S_COMPANION,
     &GARRUK_S_PACKLEADER,
     &GREATER_BASILISK,
@@ -1296,9 +1411,9 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &PRIMEVAL_TITAN,
     &SACRED_WOLF,
     &ELIXIR_OF_IMMORTALITY,
-    &STEEL_OVERSEER_214,
+    &STEEL_OVERSEER,
     &SWORD_OF_VENGEANCE,
-    &TEMPLE_BELL_217,
+    &TEMPLE_BELL,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[SILENCE_REPRINT];

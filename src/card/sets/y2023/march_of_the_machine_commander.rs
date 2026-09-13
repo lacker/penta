@@ -41,34 +41,40 @@ pub(in crate::card::sets) static DEATH_GREETER_S_CHAMPION: CardRecord = CardReco
     "Death-Greeter's Champion",
     "7cb2b582-1c45-4bb2-8aef-59a71a5a9e94",
     "Jason Rainville",
-// Three mana for four damage a turn on its own, and a dash cost for the
+    // Three mana for four damage a turn on its own, and a dash cost for the
     // turns when the double strike is better spent on something already out.
-    CardRules::new_creature(mana_cost!("{2}{R}"), &["Human", "Warrior"], 2, 1)
-        .with_abilities(&[
-            abilities::dash(
-                &[crate::CostDef::Mana(mana_cost!("{3}{R}"))],
-                "Dash {3}{R} (You may cast this spell for its dash cost. If you do, it gains haste, and \
-                it's returned from the battlefield to its owner's hand at the beginning of the next end \
-                step.)",
-            ),
-            abilities::dashed_haste(),
-            abilities::dashed_return(),
-            abilities::backup(
-                "Backup 1 (When this creature enters, put a +1/+1 counter on target creature. If that's \
-                 another creature, it gains the following ability until end of turn.)",
-                &abilities::backup_steps(1, &EffectDef::Apply {
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Human", "Warrior"], 2, 1).with_abilities(&[
+        abilities::dash(
+            &[crate::CostDef::Mana(mana_cost!("{3}{R}"))],
+            "Dash {3}{R} (You may cast this spell for its dash cost. If \
+             you do, it gains haste, and it's returned from the \
+             battlefield to its owner's hand at the beginning of the \
+             next end step.)",
+        ),
+        abilities::dashed_haste(),
+        abilities::dashed_return(),
+        abilities::backup(
+            "Backup 1 (When this creature enters, put a +1/+1 counter on \
+             target creature. If that's another creature, it gains the \
+             following ability until end of turn.)",
+            &abilities::backup_steps(
+                1,
+                &EffectDef::Apply {
                     recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     effect: AppliedEffectDef::add_ability(&CHAMPION_DOUBLE_STRIKE),
                     duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                }),
+                },
             ),
-            CHAMPION_DOUBLE_STRIKE,
-        ]),
+        ),
+        CHAMPION_DOUBLE_STRIKE,
+    ]),
 );
 
 // MOC 34 — Path of the Pyromancer
-// Audit: unsupported — The engine has no planar deck, planeswalk action, or chaos event. Those are required for the voting result even though the discard, mana, and draw instructions are expressible.
-pub(in crate::card::sets) static PATH_OF_THE_PYROMANCER_34: CardRecord = CardRecord::new(
+// Audit: unsupported — The engine has no planar deck, planeswalk action, or chaos event. Those
+// are required for the voting result even though the discard, mana, and draw instructions are
+// expressible.
+pub(in crate::card::sets) static PATH_OF_THE_PYROMANCER: CardRecord = CardRecord::new(
     "Path of the Pyromancer",
     "4eeaf326-4521-4508-8032-627677a82dd4",
     "Dominik Mayer",
@@ -76,20 +82,61 @@ pub(in crate::card::sets) static PATH_OF_THE_PYROMANCER_34: CardRecord = CardRec
 );
 
 // MOC 118 — Hedron Detonator
-pub(in crate::card::sets) static HEDRON_DETONATOR_118: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static HEDRON_DETONATOR: CardRecord = CardRecord::new(
     "Hedron Detonator",
     "5194978a-ebc3-442f-97f3-012b3edd92da",
     "Caroline Gariba",
-    CardRules::new_creature(mana_cost!("{2}{R}"), &["Goblin", "Artificer"], 2, 3).with_abilities(&[
-AbilityDef::triggered_with_targets("Whenever an artifact you control enters, this creature deals 1 damage to target opponent.", TriggerEventDef::zone_changed(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Artifact), ObjectPredicateDef::ControlledBy(PlayerRelation::You)]), None, Some(ZoneKind::Battlefield)), &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(PlayerRelation::Opponent))], EffectDef::damage(EffectRecipientDef::Target(TargetIndex::PRIMARY), ValueDef::Constant(1))),
-AbilityDef::activated("{T}, Sacrifice two artifacts: Exile the top card of your library. You may play that card this turn.", &[CostDef::TapSource, CostDef::SacrificePermanents { object: ObjectPredicateDef::HasType(CardType::Artifact), controller: PlayerRelation::You, count: 2 }], EffectDef::ExileTopOfLibraryToPlay { player: EffectRecipientDef::Controller, amount: ValueDef::Constant(1), free: false, face_down: false, duration: ExilePlayDurationDef::ThisTurn, spend_any_color: false, play_condition: None, cast_only: false })
-]),
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Goblin", "Artificer"], 2, 3).with_abilities(
+        &[
+            AbilityDef::triggered_with_targets(
+                "Whenever an artifact you control enters, this creature \
+                 deals 1 damage to target opponent.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ]),
+                    None,
+                    Some(ZoneKind::Battlefield),
+                ),
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+                )],
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(1),
+                ),
+            ),
+            AbilityDef::activated(
+                "{T}, Sacrifice two artifacts: Exile the top card of your \
+                 library. You may play that card this turn.",
+                &[
+                    CostDef::TapSource,
+                    CostDef::SacrificePermanents {
+                        object: ObjectPredicateDef::HasType(CardType::Artifact),
+                        controller: PlayerRelation::You,
+                        count: 2,
+                    },
+                ],
+                EffectDef::ExileTopOfLibraryToPlay {
+                    player: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                    free: false,
+                    face_down: false,
+                    duration: ExilePlayDurationDef::ThisTurn,
+                    spend_any_color: false,
+                    play_condition: None,
+                    cast_only: false,
+                },
+            ),
+        ],
+    ),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &DEATH_GREETER_S_CHAMPION,
-    &PATH_OF_THE_PYROMANCER_34,
-    &HEDRON_DETONATOR_118,
+    &PATH_OF_THE_PYROMANCER,
+    &HEDRON_DETONATOR,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

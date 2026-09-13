@@ -221,7 +221,9 @@ pub(in crate::card::sets) static FIRESPITTER_WHELP: CardRecord = CardRecord::new
 );
 
 // J25 19 — Scholar of Combustion
-// Audit: unsupported — Needs an effect that exiles a targeted card and grants a timed permission to cast it. PermitCastFromGraveyardThisTurn leaves the card in the graveyard and lasts one turn; the exile-to-play effects read the top of a library rather than a target.
+// Audit: unsupported — Needs an effect that exiles a targeted card and grants a timed
+// permission to cast it. PermitCastFromGraveyardThisTurn leaves the card in the graveyard and
+// lasts one turn; the exile-to-play effects read the top of a library rather than a target.
 pub(in crate::card::sets) static SCHOLAR_OF_COMBUSTION: CardRecord = CardRecord::new(
     "Scholar of Combustion",
     "23660e44-8546-438d-a2c4-e1cef6e50855",
@@ -299,7 +301,7 @@ pub(in crate::card::sets) static SHARDLESS_OUTLANDER: CardRecord = CardRecord::n
             abilities::trample(),
             abilities::typecycling!(
                 "Basic landcycling {2} ({2}, Discard this card: Search your library for a basic \
-                land card, reveal it, put it into your hand, then shuffle.)",
+                 land card, reveal it, put it into your hand, then shuffle.)",
                 &[CostDef::Mana(mana_cost!("{2}"))],
                 // "Basic land card" is the conjunction, not the Basic supertype
                 // alone: a basic Snow-Covered land qualifies and a legendary
@@ -313,7 +315,7 @@ pub(in crate::card::sets) static SHARDLESS_OUTLANDER: CardRecord = CardRecord::n
 );
 
 // J25 34 — Urdnan, Dromoka Warrior
-pub(in crate::card::sets) static URDNAN_DROMOKA_WARRIOR_34: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static URDNAN_DROMOKA_WARRIOR: CardRecord = CardRecord::new(
     "Urdnan, Dromoka Warrior",
     "f239682a-2b81-4f62-a474-60e8db343200",
     "Yakotakos",
@@ -387,8 +389,9 @@ pub(in crate::card::sets) static URDNAN_DROMOKA_WARRIOR_34: CardRecord = CardRec
 );
 
 // J25 36 — Neerdiv, Devious Diver
-// Audit: unsupported — TriggerEventDef has no activated-ability event carrying its activation source zone. A graveyard spell-cast trigger cannot cover activating a card there.
-pub(in crate::card::sets) static NEERDIV_DEVIOUS_DIVER_36: CardRecord = CardRecord::new(
+// Audit: unsupported — TriggerEventDef has no activated-ability event carrying its activation
+// source zone. A graveyard spell-cast trigger cannot cover activating a card there.
+pub(in crate::card::sets) static NEERDIV_DEVIOUS_DIVER: CardRecord = CardRecord::new(
     "Neerdiv, Devious Diver",
     "070e0081-b0fe-4417-b943-d0496e3b8cd7",
     "Yuchi Yuki",
@@ -448,7 +451,7 @@ pub(in crate::card::sets) static PLAGON_LORD_OF_THE_BEACH: CardRecord = CardReco
 );
 
 // J25 48 — General Kreat, the Boltbringer
-pub(in crate::card::sets) static GENERAL_KREAT_THE_BOLTBRINGER_48: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static GENERAL_KREAT_THE_BOLTBRINGER: CardRecord = CardRecord::new(
     "General Kreat, the Boltbringer",
     "226fc101-abcc-4ed4-8c0b-3677dc8d8f0a",
     "Takeuchi Moto",
@@ -456,7 +459,8 @@ pub(in crate::card::sets) static GENERAL_KREAT_THE_BOLTBRINGER_48: CardRecord = 
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
             AbilityDef::triggered(
-                "Whenever one or more Goblins you control attack, create a 1/1 red Goblin creature token that's tapped and attacking.",
+                "Whenever one or more Goblins you control attack, create a \
+                 1/1 red Goblin creature token that's tapped and attacking.",
                 TriggerEventDef::attack_declared(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
@@ -466,10 +470,22 @@ pub(in crate::card::sets) static GENERAL_KREAT_THE_BOLTBRINGER_48: CardRecord = 
                     1,
                     None,
                 ),
-                EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(crate::card::TokenCharacteristics::creature(&["Goblin"], &[crate::card::ManaColor::Red], 1, 1))).entering_tapped().entering_attacking()),
+                EffectDef::CreateToken(
+                    crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(
+                        crate::card::TokenCharacteristics::creature(
+                            &["Goblin"],
+                            &[crate::card::ManaColor::Red],
+                            1,
+                            1,
+                        ),
+                    ))
+                    .entering_tapped()
+                    .entering_attacking(),
+                ),
             ),
             AbilityDef::triggered(
-                "Whenever another creature you control enters, General Kreat deals 1 damage to each opponent.",
+                "Whenever another creature you control enters, General Kreat \
+                 deals 1 damage to each opponent.",
                 TriggerEventDef::zone_changed(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
@@ -485,8 +501,10 @@ pub(in crate::card::sets) static GENERAL_KREAT_THE_BOLTBRINGER_48: CardRecord = 
 );
 
 // J25 49 — Gornog, the Red Reaper
-// Audit: unsupported — AttackDeclared has no defender-kind filter to exclude Warriors attacking planeswalkers from its grouped event. Per-attacker triggers would turn too many creatures into Cowards when several Warriors attack the player together.
-pub(in crate::card::sets) static GORNOG_THE_RED_REAPER_49: CardRecord = CardRecord::new(
+// Audit: unsupported — AttackDeclared has no defender-kind filter to exclude Warriors attacking
+// planeswalkers from its grouped event. Per-attacker triggers would turn too many creatures
+// into Cowards when several Warriors attack the player together.
+pub(in crate::card::sets) static GORNOG_THE_RED_REAPER: CardRecord = CardRecord::new(
     "Gornog, the Red Reaper",
     "c80a88ae-f2f2-426a-88f3-76b5d598c25f",
     "Ishikawa Kenta",
@@ -498,12 +516,13 @@ pub(in crate::card::sets) static IVORA_INSATIABLE_HEIR: CardRecord = CardRecord:
     "Ivora, Insatiable Heir",
     "2ba70366-b6ae-423a-a8d8-29d2b8afd939",
     "Canata Katana",
-CardRules::new_creature(mana_cost!("{1}{R}"), &["Vampire", "Warrior"], 1, 1)
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Vampire", "Warrior"], 1, 1)
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
             abilities::trample(),
             AbilityDef::triggered(
-                "When Ivora enters and whenever it deals combat damage to a player, create a Blood token.",
+                "When Ivora enters and whenever it deals combat damage to a \
+                 player, create a Blood token.",
                 // One printed ability with two ways in, which is what "when it enters and
                 // whenever it deals combat damage" says. Splitting it would make her two
                 // triggered abilities where the card has one.
@@ -515,9 +534,7 @@ CardRules::new_creature(mana_cost!("{1}{R}"), &["Vampire", "Warrior"], 1, 1)
                     ),
                     TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
                 ]),
-                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
-                    BLOOD_TOKEN,
-                ))),
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(BLOOD_TOKEN))),
             ),
             // Any discard, including one paid as a cost -- which is how her own Blood
             // token feeds her.
@@ -591,11 +608,11 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &SCHOLAR_OF_COMBUSTION,
     &SCYTHECAT_CUB,
     &SHARDLESS_OUTLANDER,
-    &URDNAN_DROMOKA_WARRIOR_34,
-    &NEERDIV_DEVIOUS_DIVER_36,
+    &URDNAN_DROMOKA_WARRIOR,
+    &NEERDIV_DEVIOUS_DIVER,
     &PLAGON_LORD_OF_THE_BEACH,
-    &GENERAL_KREAT_THE_BOLTBRINGER_48,
-    &GORNOG_THE_RED_REAPER_49,
+    &GENERAL_KREAT_THE_BOLTBRINGER,
+    &GORNOG_THE_RED_REAPER,
     &IVORA_INSATIABLE_HEIR,
 ];
 

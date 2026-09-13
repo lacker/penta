@@ -247,12 +247,11 @@ pub(in crate::card::sets) static CLERGY_OF_THE_HOLY_NIMBUS: CardRecord = CardRec
     "Clergy of the Holy Nimbus",
     "db1f578f-fa3b-4447-953b-1490852b6c80",
     "Daniel Gelon",
-CardRules::new_creature(mana_cost!("{W}"), &["Human", "Cleric"], 1, 1).with_abilities(&[
-        abilities::regenerates_if_destroyed(
-            "If this creature would be destroyed, regenerate it.",
-        ),
+    CardRules::new_creature(mana_cost!("{W}"), &["Human", "Cleric"], 1, 1).with_abilities(&[
+        abilities::regenerates_if_destroyed("If this creature would be destroyed, regenerate it."),
         AbilityDef::activated(
-            "{1}: This creature can't be regenerated this turn. Only your opponents may activate this ability.",
+            "{1}: This creature can't be regenerated this turn. Only \
+             your opponents may activate this ability.",
             &[CostDef::Mana(mana_cost!("{1}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
@@ -287,7 +286,8 @@ pub(in crate::card::sets) static DAVENANT_ARCHER: CardRecord = CardRecord::new(
 );
 
 // LEG 8 — Divine Intervention
-// Audit: unsupported — Needs card-specific counter state and counter-consuming effects for “When you remove the last intervention counter from this enchantment, the game is a draw”.
+// Audit: unsupported — Needs card-specific counter state and counter-consuming effects for
+// “When you remove the last intervention counter from this enchantment, the game is a draw”.
 pub(in crate::card::sets) static DIVINE_INTERVENTION: CardRecord = CardRecord::new(
     "Divine Intervention",
     "9eae0ba1-1383-4505-b4e7-4f17dd8f20c5",
@@ -390,7 +390,8 @@ pub(in crate::card::sets) static ENCHANTED_BEING: CardRecord = CardRecord::new(
 );
 
 // LEG 13 — Equinox
-// Audit: unsupported — Needs a granted ability that can target a spell by prospectively determining whether that spell would destroy one of its controller's lands.
+// Audit: unsupported — Needs a granted ability that can target a spell by prospectively
+// determining whether that spell would destroy one of its controller's lands.
 pub(in crate::card::sets) static EQUINOX: CardRecord = CardRecord::new(
     "Equinox",
     "840c6586-a7a9-4ae8-96be-a995a0693eb6",
@@ -425,7 +426,9 @@ pub(in crate::card::sets) static FORTIFIED_AREA: CardRecord = CardRecord::new(
 );
 
 // LEG 15 — Glyph of Life
-// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “Choose target Wall creature. Whenever that creature is dealt damage by an attacking creature this turn, you gain that much life”.
+// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “Choose
+// target Wall creature. Whenever that creature is dealt damage by an attacking creature this
+// turn, you gain that much life”.
 pub(in crate::card::sets) static GLYPH_OF_LIFE: CardRecord = CardRecord::new(
     "Glyph of Life",
     "ba1384e5-d140-4074-9548-250af09cb413",
@@ -470,16 +473,15 @@ pub(in crate::card::sets) static GREATER_REALM_OF_PRESERVATION: CardRecord = Car
     "Greater Realm of Preservation",
     "5e236816-0c49-4b48-b18b-03add5a80d72",
     "NéNé Thomas",
-CardRules::new_enchantment(mana_cost!("{1}{W}")).with_ability(
-        abilities::circle_of_protection(
-            "{1}{W}: The next time a black or red source of your choice would deal damage to you this turn, prevent that damage.",
-            &[CostDef::Mana(mana_cost!("{1}{W}"))],
-            ObjectPredicateDef::AnyOf(&[
-                ObjectPredicateDef::Color(ManaColor::Black),
-                ObjectPredicateDef::Color(ManaColor::Red),
-            ]),
-        ),
-    ),
+    CardRules::new_enchantment(mana_cost!("{1}{W}")).with_ability(abilities::circle_of_protection(
+        "{1}{W}: The next time a black or red source of your choice \
+         would deal damage to you this turn, prevent that damage.",
+        &[CostDef::Mana(mana_cost!("{1}{W}"))],
+        ObjectPredicateDef::AnyOf(&[
+            ObjectPredicateDef::Color(ManaColor::Black),
+            ObjectPredicateDef::Color(ManaColor::Red),
+        ]),
+    )),
 );
 
 // LEG 19 — Heaven's Gate
@@ -532,7 +534,9 @@ pub(in crate::card::sets) static INDESTRUCTIBLE_AURA: CardRecord = CardRecord::n
 );
 
 // LEG 22 — Infinite Authority
-// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “Whenever enchanted creature blocks or becomes blocked by a creature with toughness 3 or less, destroy the other creature at end of combat. At the beginning of the next end step, if that…”.
+// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “Whenever
+// enchanted creature blocks or becomes blocked by a creature with toughness 3 or less, destroy
+// the other creature at end of combat. At the beginning of the next end step, if that…”.
 pub(in crate::card::sets) static INFINITE_AUTHORITY: CardRecord = CardRecord::new(
     "Infinite Authority",
     "dc60077f-d577-4a6c-a78f-697317024c40",
@@ -615,7 +619,9 @@ pub(in crate::card::sets) static KISMET: CardRecord = CardRecord::new(
 );
 
 // LEG 26 — Land Tax
-// Audit: unsupported — Needs ordered-library inspection, selection, and visibility handling for “At the beginning of your upkeep, if an opponent controls more lands than you, you may search your library for up to three basic land reveal them, put them into your hand, then shuffle”.
+// Audit: unsupported — Needs ordered-library inspection, selection, and visibility handling for
+// “At the beginning of your upkeep, if an opponent controls more lands than you, you may search
+// your library for up to three basic land reveal them, put them into your hand, then shuffle”.
 pub(in crate::card::sets) static LAND_TAX: CardRecord = CardRecord::new(
     "Land Tax",
     "d53b20b0-67bc-4587-817b-efbf21cb2512",
@@ -707,7 +713,10 @@ pub(in crate::card::sets) static OSAI_VULTURES: CardRecord = CardRecord::new(
 );
 
 // LEG 30 — Petra Sphinx
-// Audit: unsupported — Needs ordered-library inspection, selection, and visibility handling for “{T}: Target player chooses a card name, then reveals the top card of their library. If that card has the chosen name, that player puts it into their hand. If it doesn't, the player puts…”.
+// Audit: unsupported — Needs ordered-library inspection, selection, and visibility handling for
+// “{T}: Target player chooses a card name, then reveals the top card of their library. If that
+// card has the chosen name, that player puts it into their hand. If it doesn't, the player
+// puts…”.
 pub(in crate::card::sets) static PETRA_SPHINX: CardRecord = CardRecord::new(
     "Petra Sphinx",
     "5ef99f07-c987-451a-b18a-2719eea654cd",
@@ -732,7 +741,9 @@ pub(in crate::card::sets) static PRESENCE_OF_THE_MASTER: CardRecord = CardRecord
 );
 
 // LEG 32 — Rapid Fire
-// Audit: unsupported — Needs a conditional grant that checks whether the target already has rampage before granting rampage 2, and a cast restriction limiting the spell to before blockers are declared.
+// Audit: unsupported — Needs a conditional grant that checks whether the target already has
+// rampage before granting rampage 2, and a cast restriction limiting the spell to before
+// blockers are declared.
 pub(in crate::card::sets) static RAPID_FIRE: CardRecord = CardRecord::new(
     "Rapid Fire",
     "e26e7c9c-e6de-47f4-8394-7e853408f84c",
@@ -741,7 +752,10 @@ pub(in crate::card::sets) static RAPID_FIRE: CardRecord = CardRecord::new(
 );
 
 // LEG 33 — Remove Enchantments
-// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “Return to your hand all enchantments you both own and control, all Auras you own attached to permanents you control, and all Auras you own attached to attacking creatures your opponents…”.
+// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “Return
+// to your hand all enchantments you both own and control, all Auras you own attached to
+// permanents you control, and all Auras you own attached to attacking creatures your
+// opponents…”.
 pub(in crate::card::sets) static REMOVE_ENCHANTMENTS: CardRecord = CardRecord::new(
     "Remove Enchantments",
     "bf2e3a8a-b386-474d-b8e9-4c2d56a2b742",
@@ -763,12 +777,13 @@ pub(in crate::card::sets) static SEEKER: CardRecord = CardRecord::new(
     "Seeker",
     "df608b59-cc07-4e1d-b6d6-f15e69b15b92",
     "Mark Poole",
-CardRules::new_enchantment(mana_cost!("{2}{W}{W}"))
+    CardRules::new_enchantment(mana_cost!("{2}{W}{W}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
             abilities::enchant_creature(),
             AbilityDef::static_ability(
-                "Enchanted creature can't be blocked except by artifact creatures and/or white creatures.",
+                "Enchanted creature can't be blocked except by artifact \
+                 creatures and/or white creatures.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::AttachedPermanent,
                     effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
@@ -829,28 +844,27 @@ pub(in crate::card::sets) static SPIRITUAL_SANCTUARY: CardRecord = CardRecord::n
     "Spiritual Sanctuary",
     "654dd1e0-a91d-44ee-af20-c025bf360c3f",
     "Amy Weber",
-CardRules::new_enchantment(mana_cost!("{2}{W}{W}")).with_ability(
-        AbilityDef::triggered_if(
-            "At the beginning of each player's upkeep, if that player controls a Plains, they gain 1 life.",
-            TriggerEventDef::StepBegins {
-                step: TurnStepDef::Upkeep,
-                player: PlayerRelation::Any,
-            },
-            &TriggerConditionDef::ObjectCount {
-                query: ObjectQueryDef::matching(
-                    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Plains]),
-                    &[ZoneKind::Battlefield],
-                    PlayerRelation::EventPlayer,
-                ),
-                comparison: ComparisonDef::Greater,
-                amount: 0,
-            },
-            EffectDef::GainLife {
-                recipient: EffectRecipientDef::EventPlayer,
-                amount: ValueDef::Constant(1),
-            },
-        ),
-    ),
+    CardRules::new_enchantment(mana_cost!("{2}{W}{W}")).with_ability(AbilityDef::triggered_if(
+        "At the beginning of each player's upkeep, if that player \
+         controls a Plains, they gain 1 life.",
+        TriggerEventDef::StepBegins {
+            step: TurnStepDef::Upkeep,
+            player: PlayerRelation::Any,
+        },
+        &TriggerConditionDef::ObjectCount {
+            query: ObjectQueryDef::matching(
+                ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Plains]),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::EventPlayer,
+            ),
+            comparison: ComparisonDef::Greater,
+            amount: 0,
+        },
+        EffectDef::GainLife {
+            recipient: EffectRecipientDef::EventPlayer,
+            amount: ValueDef::Constant(1),
+        },
+    )),
 );
 
 // LEG 39 — Thunder Spirit
@@ -898,7 +912,9 @@ pub(in crate::card::sets) static VISIONS: CardRecord = CardRecord::new(
 );
 
 // LEG 42 — Wall of Caltrops
-// Audit: unsupported — Needs an intervening-if that counts the other creatures blocking the same attacker by subtype for “if at least one other Wall creature is blocking that creature and no non-Wall creatures are blocking that creature”. Granting banding is implemented.
+// Audit: unsupported — Needs an intervening-if that counts the other creatures blocking the
+// same attacker by subtype for “if at least one other Wall creature is blocking that creature
+// and no non-Wall creatures are blocking that creature”. Granting banding is implemented.
 pub(in crate::card::sets) static WALL_OF_CALTROPS: CardRecord = CardRecord::new(
     "Wall of Caltrops",
     "664ad588-3002-4f63-93bd-38663171018f",
@@ -936,7 +952,9 @@ pub(in crate::card::sets) static ACID_RAIN: CardRecord = CardRecord::new(
 );
 
 // LEG 45 — Anti-Magic Aura
-// Audit: unsupported — Needs the card's exact Aura targeting/attachment restriction rather than the broader existing cannot-be-enchanted effect for “Enchanted creature can't be the target of spells and can't be enchanted by other Auras”.
+// Audit: unsupported — Needs the card's exact Aura targeting/attachment restriction rather than
+// the broader existing cannot-be-enchanted effect for “Enchanted creature can't be the target
+// of spells and can't be enchanted by other Auras”.
 pub(in crate::card::sets) static ANTI_MAGIC_AURA: CardRecord = CardRecord::new(
     "Anti-Magic Aura",
     "ff78eef1-efaa-4a12-bf5d-fec83c14aff8",
@@ -954,7 +972,9 @@ pub(in crate::card::sets) static AZURE_DRAKE: CardRecord = CardRecord::new(
 );
 
 // LEG 47 — Backfire
-// Audit: unsupported — Needs damage-history/source tracking or card-specific damage processing for “Whenever enchanted creature deals damage to you, this Aura deals that much damage to that creature's controller”.
+// Audit: unsupported — Needs damage-history/source tracking or card-specific damage processing
+// for “Whenever enchanted creature deals damage to you, this Aura deals that much damage to
+// that creature's controller”.
 pub(in crate::card::sets) static BACKFIRE: CardRecord = CardRecord::new(
     "Backfire",
     "04bc57aa-d4d9-4bd9-ba09-984370c7e23b",
@@ -981,7 +1001,9 @@ pub(in crate::card::sets) static BOOMERANG: CardRecord = CardRecord::new(
 );
 
 // LEG 49 — Brine Hag
-// Audit: unsupported — Needs a characteristic-layer effect or dynamic value for “When this creature dies, change the base power and toughness of all creatures that dealt damage to it this turn to 0/2”.
+// Audit: unsupported — Needs a characteristic-layer effect or dynamic value for “When this
+// creature dies, change the base power and toughness of all creatures that dealt damage to it
+// this turn to 0/2”.
 pub(in crate::card::sets) static BRINE_HAG: CardRecord = CardRecord::new(
     "Brine Hag",
     "2a1e7796-fbfb-4976-879f-bb748429d5c7",
@@ -999,7 +1021,8 @@ pub(in crate::card::sets) static DEVOURING_DEEP: CardRecord = CardRecord::new(
 );
 
 // LEG 51 — Dream Coat
-// Audit: unsupported — Needs a per-object, per-turn activation quota for “{0}: Enchanted creature becomes the color or colors of your choice. Activate only once each turn”.
+// Audit: unsupported — Needs a per-object, per-turn activation quota for “{0}: Enchanted
+// creature becomes the color or colors of your choice. Activate only once each turn”.
 pub(in crate::card::sets) static DREAM_COAT: CardRecord = CardRecord::new(
     "Dream Coat",
     "07edbbf4-c3d6-4ec1-ae9b-4ae202fb6998",
@@ -1048,7 +1071,9 @@ pub(in crate::card::sets) static ELDER_SPAWN: CardRecord = CardRecord::new(
 );
 
 // LEG 53 — Enchantment Alteration
-// Audit: unsupported — Needs Aura reattachment targeting, enchant-legality validation, and attachment movement for “Attach target Aura attached to a creature or land to another permanent of that type”.
+// Audit: unsupported — Needs Aura reattachment targeting, enchant-legality validation, and
+// attachment movement for “Attach target Aura attached to a creature or land to another
+// permanent of that type”.
 pub(in crate::card::sets) static ENCHANTMENT_ALTERATION: CardRecord = CardRecord::new(
     "Enchantment Alteration",
     "bf52f8a0-d027-47f1-bb91-508ef1a74409",
@@ -1091,7 +1116,8 @@ pub(in crate::card::sets) static ENERGY_TAP: CardRecord = CardRecord::new(
 );
 
 // LEG 55 — Field of Dreams
-// Audit: unsupported — Needs ordered-library inspection, selection, and visibility handling for “Players play with the top card of their libraries revealed”.
+// Audit: unsupported — Needs ordered-library inspection, selection, and visibility handling for
+// “Players play with the top card of their libraries revealed”.
 pub(in crate::card::sets) static FIELD_OF_DREAMS: CardRecord = CardRecord::new(
     "Field of Dreams",
     "6a63e119-3b1b-4964-a4b9-b10170ff542b",
@@ -1197,7 +1223,9 @@ pub(in crate::card::sets) static GASEOUS_FORM: CardRecord = CardRecord::new(
 );
 
 // LEG 60 — Glyph of Delusion
-// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “Put X glyph counters on target creature that target Wall blocked this turn, where X is the power of that blocked creature. The creature gains "This creature doesn't untap during your…”.
+// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “Put X
+// glyph counters on target creature that target Wall blocked this turn, where X is the power of
+// that blocked creature. The creature gains "This creature doesn't untap during your…”.
 pub(in crate::card::sets) static GLYPH_OF_DELUSION: CardRecord = CardRecord::new(
     "Glyph of Delusion",
     "ee39da13-4b8a-4796-a7c2-aaa11992d573",
@@ -1206,7 +1234,8 @@ pub(in crate::card::sets) static GLYPH_OF_DELUSION: CardRecord = CardRecord::new
 );
 
 // LEG 61 — In the Eye of Chaos
-// Audit: unsupported — Needs a cast trigger that counters an instant unless its controller pays that spell's dynamically read mana value.
+// Audit: unsupported — Needs a cast trigger that counters an instant unless its controller pays
+// that spell's dynamically read mana value.
 pub(in crate::card::sets) static IN_THE_EYE_OF_CHAOS: CardRecord = CardRecord::new(
     "In the Eye of Chaos",
     "733933dd-c871-4f75-8b08-d7c010dddbe6",
@@ -1215,7 +1244,8 @@ pub(in crate::card::sets) static IN_THE_EYE_OF_CHAOS: CardRecord = CardRecord::n
 );
 
 // LEG 62 — Invoke Prejudice
-// Audit: unsupported — Needs cross-object color comparison and a mana-value-based counter-unless payment on the triggering creature spell.
+// Audit: unsupported — Needs cross-object color comparison and a mana-value-based
+// counter-unless payment on the triggering creature spell.
 pub(in crate::card::sets) static INVOKE_PREJUDICE: CardRecord = CardRecord::new(
     "Invoke Prejudice",
     "903d9fde-d7da-4a0e-a337-b63023c6d74b",
@@ -1224,7 +1254,9 @@ pub(in crate::card::sets) static INVOKE_PREJUDICE: CardRecord = CardRecord::new(
 );
 
 // LEG 63 — Juxtapose
-// Audit: unsupported — Needs duration-aware control-changing continuous effects for “You and target player exchange control of the creature you each control with the greatest mana value. Then exchange control of artifacts the same way. If two or more permanents a player…”.
+// Audit: unsupported — Needs duration-aware control-changing continuous effects for “You and
+// target player exchange control of the creature you each control with the greatest mana value.
+// Then exchange control of artifacts the same way. If two or more permanents a player…”.
 pub(in crate::card::sets) static JUXTAPOSE: CardRecord = CardRecord::new(
     "Juxtapose",
     "c48d78db-d982-4c28-9308-2d57dc2b947e",
@@ -1233,7 +1265,9 @@ pub(in crate::card::sets) static JUXTAPOSE: CardRecord = CardRecord::new(
 );
 
 // LEG 64 — Land Equilibrium
-// Audit: unsupported — Needs a duration-scoped replacement/prevention effect for “If an opponent who controls at least as many lands as you do would put a land onto the battlefield, that player instead puts that land onto the battlefield then sacrifices a land of…”.
+// Audit: unsupported — Needs a duration-scoped replacement/prevention effect for “If an
+// opponent who controls at least as many lands as you do would put a land onto the battlefield,
+// that player instead puts that land onto the battlefield then sacrifices a land of…”.
 pub(in crate::card::sets) static LAND_EQUILIBRIUM: CardRecord = CardRecord::new(
     "Land Equilibrium",
     "9c406b25-03f8-4aaa-9ea7-48bf754166b7",
@@ -1246,45 +1280,49 @@ pub(in crate::card::sets) static MANA_DRAIN: CardRecord = CardRecord::new(
     "Mana Drain",
     "e691adef-3027-4e6a-889f-9f4e2df36a7c",
     "Mark Tedin",
-CardRules::new_instant(mana_cost!("{U}{U}"))
-        .with_abilities(&[AbilityDef::spell_with_targets(
-            "Counter target spell. At the beginning of your next main phase, add an amount of {C} equal to that spell's mana value.",
-            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+    CardRules::new_instant(mana_cost!("{U}{U}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Counter target spell. At the beginning of your next main \
+         phase, add an amount of {C} equal to that spell's mana \
+         value.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
                 object: ObjectPredicateDef::Spell,
                 zones: &[ZoneKind::Stack],
                 controller: None,
                 owner: None,
-            })],
-            // The mana arrives later, so the amount is read from what the countered
-            // spell was rather than from anything still on the stack.
-            EffectDef::Sequence(&[
-                EffectDef::Counter {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Graveyard,
-                    placement: ZonePlacement::Top,
-                },
-                EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
-                    "At the beginning of your next main phase, add an amount of {C} equal to that spell's mana value.",
-                    // "Your next main phase" is whichever main phase comes next: a Drain cast
-                    // in your own precombat main, or during your combat, pays out in that same
-                    // turn's postcombat main rather than waiting a turn.
-                    TriggerEventDef::AnyOf(&[
-                        TriggerEventDef::StepBegins {
-                            step: TurnStepDef::PrecombatMain,
-                            player: PlayerRelation::You,
-                        },
-                        TriggerEventDef::StepBegins {
-                            step: TurnStepDef::PostcombatMain,
-                            player: PlayerRelation::You,
-                        },
-                    ]),
-                    EffectDef::AddManaEqualTo {
-                        color: ManaColor::Colorless,
-                        amount: ValueDef::TargetManaValue(TargetIndex::PRIMARY),
+            },
+        )],
+        // The mana arrives later, so the amount is read from what the countered
+        // spell was rather than from anything still on the stack.
+        EffectDef::Sequence(&[
+            EffectDef::Counter {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Graveyard,
+                placement: ZonePlacement::Top,
+            },
+            EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
+                "At the beginning of your next main phase, add an amount of \
+                 {C} equal to that spell's mana value.",
+                // "Your next main phase" is whichever main phase comes next: a Drain cast
+                // in your own precombat main, or during your combat, pays out in that same
+                // turn's postcombat main rather than waiting a turn.
+                TriggerEventDef::AnyOf(&[
+                    TriggerEventDef::StepBegins {
+                        step: TurnStepDef::PrecombatMain,
+                        player: PlayerRelation::You,
                     },
-                ))),
-            ]),
-        )]),
+                    TriggerEventDef::StepBegins {
+                        step: TurnStepDef::PostcombatMain,
+                        player: PlayerRelation::You,
+                    },
+                ]),
+                EffectDef::AddManaEqualTo {
+                    color: ManaColor::Colorless,
+                    amount: ValueDef::TargetManaValue(TargetIndex::PRIMARY),
+                },
+            ))),
+        ]),
+    )]),
 );
 
 // LEG 66 — Part Water
@@ -1336,7 +1374,8 @@ pub(in crate::card::sets) static PSIONIC_ENTITY: CardRecord = CardRecord::new(
 );
 
 // LEG 68 — Psychic Purge
-// Audit: unsupported — Needs a hidden-zone decision and continuation for “When a spell or ability an opponent controls causes you to discard this card, that player loses 5 life”.
+// Audit: unsupported — Needs a hidden-zone decision and continuation for “When a spell or
+// ability an opponent controls causes you to discard this card, that player loses 5 life”.
 pub(in crate::card::sets) static PSYCHIC_PURGE: CardRecord = CardRecord::new(
     "Psychic Purge",
     "b1103d4d-b50a-4e2c-b18a-a181bc819881",
@@ -1345,7 +1384,9 @@ pub(in crate::card::sets) static PSYCHIC_PURGE: CardRecord = CardRecord::new(
 );
 
 // LEG 69 — Puppet Master
-// Audit: unsupported — Needs a zone-object query and identity-preserving continuation for “When enchanted creature dies, return that card to its owner's hand. If that card is returned to its owner's hand this way, you may pay {U}{U}{U}. If you do, return this card to its…”.
+// Audit: unsupported — Needs a zone-object query and identity-preserving continuation for “When
+// enchanted creature dies, return that card to its owner's hand. If that card is returned to
+// its owner's hand this way, you may pay {U}{U}{U}. If you do, return this card to its…”.
 pub(in crate::card::sets) static PUPPET_MASTER: CardRecord = CardRecord::new(
     "Puppet Master",
     "b5d26ddc-ad1e-4a97-85fb-34da685c3142",
@@ -1358,42 +1399,37 @@ pub(in crate::card::sets) static RECALL: CardRecord = CardRecord::new(
     "Recall",
     "33296718-0625-4422-a65c-b21cf99c52ec",
     "Brian Snõddy",
-CardRules::new_sorcery(mana_cost!("{X}{X}{U}")).with_abilities(&[
-        AbilityDef::spell(
-            "Discard X cards, then return a card from your graveyard to your hand for each card discarded this way. Exile Recall.",
-            EffectDef::Discard {
-                recipient: EffectRecipientDef::Controller,
-                amount: ValueDef::ChosenX,
-                selection: DiscardSelectionDef::RecipientChooses,
-                then: Some(DiscardFollowUpDef {
-                    counted: ObjectPredicateDef::Any,
-                    bound: Some(ParentBinding),
-                    effect: &EffectDef::ChooseExact(ChooseExactDef {
-                        binding: ParentBinding,
-                        chooser: PlayerRefDef::EffectController,
-                        candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
-                            ObjectPredicateDef::Any,
-                            &[ZoneKind::Graveyard],
-                            PlayerSetDef::Related(PlayerRelation::You),
-                        )),
-                        exclude: None,
-                        amount: ValueDef::CountObjects(&ObjectSetDef::Binding(
-                            ParentBinding,
-                        )),
-                        visibility: ChoiceVisibilityDef::Private,
-                        then: &EffectDef::move_to_zone(
-                            EffectRecipientDef::objects(ObjectSetDef::Binding(
-                                ParentBinding,
-                            )),
-                            ZoneKind::Hand,
-                            ZonePlacement::Top,
-                        ),
-                    }),
+    CardRules::new_sorcery(mana_cost!("{X}{X}{U}")).with_abilities(&[AbilityDef::spell(
+        "Discard X cards, then return a card from your graveyard to \
+         your hand for each card discarded this way. Exile Recall.",
+        EffectDef::Discard {
+            recipient: EffectRecipientDef::Controller,
+            amount: ValueDef::ChosenX,
+            selection: DiscardSelectionDef::RecipientChooses,
+            then: Some(DiscardFollowUpDef {
+                counted: ObjectPredicateDef::Any,
+                bound: Some(ParentBinding),
+                effect: &EffectDef::ChooseExact(ChooseExactDef {
+                    binding: ParentBinding,
+                    chooser: PlayerRefDef::EffectController,
+                    candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
+                        ObjectPredicateDef::Any,
+                        &[ZoneKind::Graveyard],
+                        PlayerSetDef::Related(PlayerRelation::You),
+                    )),
+                    exclude: None,
+                    amount: ValueDef::CountObjects(&ObjectSetDef::Binding(ParentBinding)),
+                    visibility: ChoiceVisibilityDef::Private,
+                    then: &EffectDef::move_to_zone(
+                        EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
+                        ZoneKind::Hand,
+                        ZonePlacement::Top,
+                    ),
                 }),
-            },
-        )
-        .with_resolution_destination(SpellResolutionDestinationDef::Exile),
-    ]),
+            }),
+        },
+    )
+    .with_resolution_destination(SpellResolutionDestinationDef::Exile)]),
 );
 
 // LEG 71 — Relic Bind
@@ -1496,7 +1532,9 @@ pub(in crate::card::sets) static RESET: CardRecord = CardRecord::new(
 );
 
 // LEG 74 — Reverberation
-// Audit: unsupported — Needs a duration-scoped replacement/prevention effect for “All damage that would be dealt this turn by target sorcery spell is dealt to that spell's controller instead”.
+// Audit: unsupported — Needs a duration-scoped replacement/prevention effect for “All damage
+// that would be dealt this turn by target sorcery spell is dealt to that spell's controller
+// instead”.
 pub(in crate::card::sets) static REVERBERATION: CardRecord = CardRecord::new(
     "Reverberation",
     "a3d1f470-058d-41b7-acaf-4f68431de9ed",
@@ -1530,7 +1568,9 @@ pub(in crate::card::sets) static SEGOVIAN_LEVIATHAN: CardRecord = CardRecord::ne
 );
 
 // LEG 77 — Silhouette
-// Audit: unsupported — Needs a duration-scoped replacement/prevention effect for “Choose target creature. If a spell or ability that targets that creature would cause a source to deal damage to that creature this turn, prevent that damage”.
+// Audit: unsupported — Needs a duration-scoped replacement/prevention effect for “Choose target
+// creature. If a spell or ability that targets that creature would cause a source to deal
+// damage to that creature this turn, prevent that damage”.
 pub(in crate::card::sets) static SILHOUETTE: CardRecord = CardRecord::new(
     "Silhouette",
     "e6d6fac6-9a23-465f-a813-92e1ed1cd742",
@@ -1623,7 +1663,8 @@ pub(in crate::card::sets) static TELEPORT: CardRecord = CardRecord::new(
 );
 
 // LEG 81 — Time Elemental
-// Audit: unsupported — Needs a zone-object query and identity-preserving continuation for “{2}{U}{U}, {T}: Return target permanent that isn't enchanted to its owner's hand”.
+// Audit: unsupported — Needs a zone-object query and identity-preserving continuation for
+// “{2}{U}{U}, {T}: Return target permanent that isn't enchanted to its owner's hand”.
 pub(in crate::card::sets) static TIME_ELEMENTAL: CardRecord = CardRecord::new(
     "Time Elemental",
     "61510e88-97d0-410a-9431-ebf12990e33d",
@@ -1775,7 +1816,9 @@ pub(in crate::card::sets) static ABOMINATION: CardRecord = CardRecord::new(
 );
 
 // LEG 88 — All Hallow's Eve
-// Audit: unsupported — Needs card-specific counter state and counter-consuming effects for “At the beginning of your upkeep, if this card is exiled with a scream counter on it, remove a scream counter from it. If there are no more scream counters on it, put it into your…”.
+// Audit: unsupported — Needs card-specific counter state and counter-consuming effects for “At
+// the beginning of your upkeep, if this card is exiled with a scream counter on it, remove a
+// scream counter from it. If there are no more scream counters on it, put it into your…”.
 pub(in crate::card::sets) static ALL_HALLOW_S_EVE: CardRecord = CardRecord::new(
     "All Hallow's Eve",
     "18787a2d-6688-47e9-94bc-ccf229df823f",
@@ -1829,46 +1872,47 @@ pub(in crate::card::sets) static CHAINS_OF_MEPHISTOPHELES: CardRecord = CardReco
     "Chains of Mephistopheles",
     "2bb0e884-5bb4-41f3-b04b-6f638357c166",
     "Heather Hudson",
-CardRules::new_enchantment(mana_cost!("{1}{B}")).with_ability(
-        AbilityDef::defined_replacement(
-            "If a player would draw a card except the first one they draw in each of their draw steps, that player discards a card instead. If the player discards a card this way, they draw a card. If the player doesn't discard a card this way, they mill a card.",
-            ReplacementAbilityDef::new().with_event(ReplacementEventDef::WouldDraw {
-                player: PlayerRelation::Any,
-                during_own_draw_step: false,
-                except_first_in_draw_step: true,
-            }),
-            ReplacementEffectDef::Sequence(&[
-                ReplacementEffectDef::ReplaceEventWithNothing,
-                ReplacementEffectDef::Perform(&EffectDef::Discard {
-                    recipient: EffectRecipientDef::EventPlayer,
-                    amount: ValueDef::Constant(1),
-                    selection: DiscardSelectionDef::RecipientChooses,
-                    then: Some(DiscardFollowUpDef {
-                        counted: ObjectPredicateDef::Any,
-                        bound: Some(ParentBinding),
-                        effect: &EffectDef::IfElseCondition {
-                            condition: &TriggerConditionDef::ValueComparison(
-                                &ValueComparisonDef {
-                                    left: ValueDef::BoundObjectCount(ParentBinding),
-                                    comparison: ComparisonDef::GreaterOrEqual,
-                                    right: ValueDef::Constant(1),
-                                },
-                            ),
-                            then: &EffectDef::ContinueReplacedDraw,
-                            otherwise: &EffectDef::Mill {
-                                player: EffectRecipientDef::EventPlayer,
-                                amount: ValueDef::Constant(1),
-                            },
+    CardRules::new_enchantment(mana_cost!("{1}{B}")).with_ability(AbilityDef::defined_replacement(
+        "If a player would draw a card except the first one they \
+         draw in each of their draw steps, that player discards a \
+         card instead. If the player discards a card this way, they \
+         draw a card. If the player doesn't discard a card this way, \
+         they mill a card.",
+        ReplacementAbilityDef::new().with_event(ReplacementEventDef::WouldDraw {
+            player: PlayerRelation::Any,
+            during_own_draw_step: false,
+            except_first_in_draw_step: true,
+        }),
+        ReplacementEffectDef::Sequence(&[
+            ReplacementEffectDef::ReplaceEventWithNothing,
+            ReplacementEffectDef::Perform(&EffectDef::Discard {
+                recipient: EffectRecipientDef::EventPlayer,
+                amount: ValueDef::Constant(1),
+                selection: DiscardSelectionDef::RecipientChooses,
+                then: Some(DiscardFollowUpDef {
+                    counted: ObjectPredicateDef::Any,
+                    bound: Some(ParentBinding),
+                    effect: &EffectDef::IfElseCondition {
+                        condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                            left: ValueDef::BoundObjectCount(ParentBinding),
+                            comparison: ComparisonDef::GreaterOrEqual,
+                            right: ValueDef::Constant(1),
+                        }),
+                        then: &EffectDef::ContinueReplacedDraw,
+                        otherwise: &EffectDef::Mill {
+                            player: EffectRecipientDef::EventPlayer,
+                            amount: ValueDef::Constant(1),
                         },
-                    }),
+                    },
                 }),
-            ]),
-        ),
-    ),
+            }),
+        ]),
+    )),
 );
 
 // LEG 92 — Cosmic Horror
-// Audit: unsupported — Needs an unless-paid destruction sequence that deals damage only when this ability actually destroys its source.
+// Audit: unsupported — Needs an unless-paid destruction sequence that deals damage only when
+// this ability actually destroys its source.
 pub(in crate::card::sets) static COSMIC_HORROR: CardRecord = CardRecord::new(
     "Cosmic Horror",
     "18bc6ac2-19e0-4765-852b-e303a5bb4040",
@@ -2021,7 +2065,8 @@ pub(in crate::card::sets) static GHOSTS_OF_THE_DAMNED: CardRecord = CardRecord::
 );
 
 // LEG 99 — Giant Slug
-// Audit: unsupported — Needs a delayed upkeep trigger that makes a basic-land-type choice on resolution and grants the matching walk; granting a named walk is available.
+// Audit: unsupported — Needs a delayed upkeep trigger that makes a basic-land-type choice on
+// resolution and grants the matching walk; granting a named walk is available.
 pub(in crate::card::sets) static GIANT_SLUG: CardRecord = CardRecord::new(
     "Giant Slug",
     "43a612e5-a680-4c5b-8ce7-432a86240a6c",
@@ -2030,7 +2075,9 @@ pub(in crate::card::sets) static GIANT_SLUG: CardRecord = CardRecord::new(
 );
 
 // LEG 100 — Glyph of Doom
-// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “Choose target Wall creature. At this turn's next end of combat, destroy all creatures that were blocked by that creature this turn”.
+// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “Choose
+// target Wall creature. At this turn's next end of combat, destroy all creatures that were
+// blocked by that creature this turn”.
 pub(in crate::card::sets) static GLYPH_OF_DOOM: CardRecord = CardRecord::new(
     "Glyph of Doom",
     "332bfce9-052d-42e9-a407-4a1dd59e0f2a",
@@ -2118,7 +2165,9 @@ pub(in crate::card::sets) static HELLS_CARETAKER: CardRecord = CardRecord::new(
 );
 
 // LEG 105 — Hellfire
-// Audit: unsupported — Needs damage-history/source tracking or card-specific damage processing for “Destroy all nonblack creatures. Hellfire deals X plus 3 damage to you, where X is the number of creatures that died this way”.
+// Audit: unsupported — Needs damage-history/source tracking or card-specific damage processing
+// for “Destroy all nonblack creatures. Hellfire deals X plus 3 damage to you, where X is the
+// number of creatures that died this way”.
 pub(in crate::card::sets) static HELLFIRE: CardRecord = CardRecord::new(
     "Hellfire",
     "362f1fe9-20af-434c-9957-7a1a564d89e6",
@@ -2152,7 +2201,9 @@ pub(in crate::card::sets) static HORROR_OF_HORRORS: CardRecord = CardRecord::new
 );
 
 // LEG 107 — Imprison
-// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “Whenever enchanted creature attacks or blocks, you may pay {1}. If you do, tap the creature, remove it from combat, and creatures it was blocking that had become blocked by only that…”.
+// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “Whenever
+// enchanted creature attacks or blocks, you may pay {1}. If you do, tap the creature, remove it
+// from combat, and creatures it was blocking that had become blocked by only that…”.
 pub(in crate::card::sets) static IMPRISON: CardRecord = CardRecord::new(
     "Imprison",
     "12671381-beb7-41b8-9484-97f8aca5c981",
@@ -2189,7 +2240,8 @@ pub(in crate::card::sets) static INFERNAL_MEDUSA: CardRecord = CardRecord::new(
 );
 
 // LEG 109 — Jovial Evil
-// Audit: unsupported — Needs a dynamic count of white creatures controlled by the targeted opponent and multiplication for the damage value.
+// Audit: unsupported — Needs a dynamic count of white creatures controlled by the targeted
+// opponent and multiplication for the damage value.
 pub(in crate::card::sets) static JOVIAL_EVIL: CardRecord = CardRecord::new(
     "Jovial Evil",
     "c993c74c-a574-423b-81c8-96b0a7a6e529",
@@ -2198,7 +2250,9 @@ pub(in crate::card::sets) static JOVIAL_EVIL: CardRecord = CardRecord::new(
 );
 
 // LEG 110 — Lesser Werewolf
-// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “{B}: If this creature's power is 1 or more, it gets -1/-0 until end of turn and put a -0/-1 counter on target creature blocking or blocked by this creature. Activate only during the…”.
+// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “{B}: If
+// this creature's power is 1 or more, it gets -1/-0 until end of turn and put a -0/-1 counter
+// on target creature blocking or blocked by this creature. Activate only during the…”.
 pub(in crate::card::sets) static LESSER_WEREWOLF: CardRecord = CardRecord::new(
     "Lesser Werewolf",
     "baae02e4-7db9-4a7b-a4ee-ecb22fcb77bd",
@@ -2216,7 +2270,8 @@ pub(in crate::card::sets) static LOST_SOUL: CardRecord = CardRecord::new(
 );
 
 // LEG 112 — Mold Demon
-// Audit: unsupported — Needs linked sacrifice/destruction accounting for “When this creature enters, sacrifice it unless you sacrifice two Swamps”.
+// Audit: unsupported — Needs linked sacrifice/destruction accounting for “When this creature
+// enters, sacrifice it unless you sacrifice two Swamps”.
 pub(in crate::card::sets) static MOLD_DEMON: CardRecord = CardRecord::new(
     "Mold Demon",
     "649a33aa-7eac-4161-ae1a-fcbc758abccf",
@@ -2312,7 +2367,9 @@ pub(in crate::card::sets) static SPIRIT_SHACKLE: CardRecord = CardRecord::new(
 );
 
 // LEG 118 — Syphon Soul
-// Audit: unsupported — Needs damage-history/source tracking or card-specific damage processing for “Syphon Soul deals 2 damage to each other player. You gain life equal to the damage dealt this way”.
+// Audit: unsupported — Needs damage-history/source tracking or card-specific damage processing
+// for “Syphon Soul deals 2 damage to each other player. You gain life equal to the damage dealt
+// this way”.
 pub(in crate::card::sets) static SYPHON_SOUL: CardRecord = CardRecord::new(
     "Syphon Soul",
     "f3020304-7a39-411e-b055-3ade72b4bff8",
@@ -2321,7 +2378,9 @@ pub(in crate::card::sets) static SYPHON_SOUL: CardRecord = CardRecord::new(
 );
 
 // LEG 119 — Takklemaggot
-// Audit: unsupported — Needs duration-aware control-changing continuous effects for “When enchanted creature dies, that creature's controller chooses a creature that this card could enchant. If the player does, return this card to the battlefield under your control…”.
+// Audit: unsupported — Needs duration-aware control-changing continuous effects for “When
+// enchanted creature dies, that creature's controller chooses a creature that this card could
+// enchant. If the player does, return this card to the battlefield under your control…”.
 pub(in crate::card::sets) static TAKKLEMAGGOT: CardRecord = CardRecord::new(
     "Takklemaggot",
     "d8f49b3d-7fcb-4169-9298-cdf7a1dbe3f5",
@@ -2334,10 +2393,12 @@ pub(in crate::card::sets) static THE_ABYSS: CardRecord = CardRecord::new(
     "The Abyss",
     "86a27d68-3e58-4ade-976d-36381beed451",
     "Pete Venters",
-CardRules::new_enchantment(mana_cost!("{3}{B}"))
+    CardRules::new_enchantment(mana_cost!("{3}{B}"))
         .with_supertype(CardSupertype::World)
         .with_ability(AbilityDef::triggered(
-            "At the beginning of each player's upkeep, destroy target nonartifact creature that player controls of their choice. It can't be regenerated.",
+            "At the beginning of each player's upkeep, destroy target \
+             nonartifact creature that player controls of their choice. \
+             It can't be regenerated.",
             TriggerEventDef::StepBegins {
                 step: TurnStepDef::Upkeep,
                 player: PlayerRelation::Any,
@@ -2510,7 +2571,8 @@ pub(in crate::card::sets) static WALL_OF_PUTRID_FLESH: CardRecord = CardRecord::
 );
 
 // LEG 128 — Wall of Shadows
-// Audit: unsupported — Targeting restrictions cannot be conditioned on how narrow the targeting spell or ability is.
+// Audit: unsupported — Targeting restrictions cannot be conditioned on how narrow the targeting
+// spell or ability is.
 pub(in crate::card::sets) static WALL_OF_SHADOWS: CardRecord = CardRecord::new(
     "Wall of Shadows",
     "eb351900-cffd-4d23-b82f-5fb12a4874d9",
@@ -2519,7 +2581,9 @@ pub(in crate::card::sets) static WALL_OF_SHADOWS: CardRecord = CardRecord::new(
 );
 
 // LEG 129 — Wall of Tombstones
-// Audit: unsupported — Needs a zone-object query and identity-preserving continuation for “At the beginning of your upkeep, change this creature's base toughness to 1 plus the number of creature cards in your graveyard”.
+// Audit: unsupported — Needs a zone-object query and identity-preserving continuation for “At
+// the beginning of your upkeep, change this creature's base toughness to 1 plus the number of
+// creature cards in your graveyard”.
 pub(in crate::card::sets) static WALL_OF_TOMBSTONES: CardRecord = CardRecord::new(
     "Wall of Tombstones",
     "55da1e86-fe18-486a-b510-f941e6f6e378",
@@ -2570,7 +2634,10 @@ pub(in crate::card::sets) static AERATHI_BERSERKER: CardRecord = CardRecord::new
 );
 
 // LEG 132 — Backdraft
-// Audit: unsupported — Needs damage-history/source tracking or card-specific damage processing for “Choose a player who cast one or more sorcery spells this turn. Backdraft deals damage to that player equal to half the damage dealt by one of those sorcery spells this turn, rounded down”.
+// Audit: unsupported — Needs damage-history/source tracking or card-specific damage processing
+// for “Choose a player who cast one or more sorcery spells this turn. Backdraft deals damage to
+// that player equal to half the damage dealt by one of those sorcery spells this turn, rounded
+// down”.
 pub(in crate::card::sets) static BACKDRAFT: CardRecord = CardRecord::new(
     "Backdraft",
     "58d5b9fe-b66a-48c9-94c4-db783e605f37",
@@ -2615,7 +2682,9 @@ pub(in crate::card::sets) static BEASTS_OF_BOGARDAN: CardRecord = CardRecord::ne
 );
 
 // LEG 134 — Blazing Effigy
-// Audit: unsupported — Needs damage-history/source tracking or card-specific damage processing for “When this creature dies, it deals X damage to target creature, where X is 3 plus the amount of damage dealt to this creature this turn by other sources named Blazing Effigy”.
+// Audit: unsupported — Needs damage-history/source tracking or card-specific damage processing
+// for “When this creature dies, it deals X damage to target creature, where X is 3 plus the
+// amount of damage dealt to this creature this turn by other sources named Blazing Effigy”.
 pub(in crate::card::sets) static BLAZING_EFFIGY: CardRecord = CardRecord::new(
     "Blazing Effigy",
     "921011ff-1696-4575-9198-abe993a0ee7a",
@@ -2624,7 +2693,9 @@ pub(in crate::card::sets) static BLAZING_EFFIGY: CardRecord = CardRecord::new(
 );
 
 // LEG 135 — Blood Lust
-// Audit: unsupported — Needs a characteristic-layer effect or dynamic value for “If target creature has toughness 5 or greater, it gets +4/-4 until end of turn. Otherwise, it gets +4/-X until end of turn, where X is its toughness minus 1”.
+// Audit: unsupported — Needs a characteristic-layer effect or dynamic value for “If target
+// creature has toughness 5 or greater, it gets +4/-4 until end of turn. Otherwise, it gets
+// +4/-X until end of turn, where X is its toughness minus 1”.
 pub(in crate::card::sets) static BLOOD_LUST: CardRecord = CardRecord::new(
     "Blood Lust",
     "fbbf1a9c-8b94-4ee7-92db-65b531149990",
@@ -2633,7 +2704,8 @@ pub(in crate::card::sets) static BLOOD_LUST: CardRecord = CardRecord::new(
 );
 
 // LEG 136 — Caverns of Despair
-// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “No more than two creatures can attack each combat”.
+// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “No more
+// than two creatures can attack each combat”.
 pub(in crate::card::sets) static CAVERNS_OF_DESPAIR: CardRecord = CardRecord::new(
     "Caverns of Despair",
     "209f7479-b3a0-4c27-9602-78babb8d2e99",
@@ -2646,13 +2718,19 @@ pub(in crate::card::sets) static CHAIN_LIGHTNING: CardRecord = CardRecord::new(
     "Chain Lightning",
     "b5883762-ca0a-4932-8d2a-41a45796a5f8",
     "Sandra Everingham",
-CardRules::new_sorcery(mana_cost!("{R}")).with_ability(AbilityDef::spell_with_targets(
-        "Chain Lightning deals 3 damage to any target. Then that player or that permanent's controller may pay {R}{R}. If the player does, they may copy this spell and may choose a new target for that copy.",
+    CardRules::new_sorcery(mana_cost!("{R}")).with_ability(AbilityDef::spell_with_targets(
+        "Chain Lightning deals 3 damage to any target. Then that \
+         player or that permanent's controller may pay {R}{R}. If \
+         the player does, they may copy this spell and may choose a \
+         new target for that copy.",
         &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::AnyTarget,
         )],
         EffectDef::Sequence(&[
-            EffectDef::damage(EffectRecipientDef::Target(TargetIndex::PRIMARY), ValueDef::Constant(3)),
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(3),
+            ),
             EffectDef::PayOr(
                 PayOrDef::optional(
                     &[CostDef::Mana(mana_cost!("{R}{R}"))],
@@ -2660,7 +2738,9 @@ CardRules::new_sorcery(mana_cost!("{R}")).with_ability(AbilityDef::spell_with_ta
                         player: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
                         effect: &EffectDef::CopyStackObject(&crate::card::CopyStackObjectDef {
                             object: EffectRecipientDef::object(ObjectRefDef::ResolvingObject),
-                            controller: PlayerRefDef::ControllerOf(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+                            controller: PlayerRefDef::ControllerOf(ObjectRefDef::Target(
+                                TargetIndex::PRIMARY,
+                            )),
                             count: ValueDef::Constant(1),
                             retarget: true,
                             colors: None,
@@ -2804,7 +2884,8 @@ pub(in crate::card::sets) static ETERNAL_WARRIOR: CardRecord = CardRecord::new(
 );
 
 // LEG 145 — Falling Star
-// Audit: unsupported — Needs the EC physical flip, overlap, and landing evaluation needed to choose which creatures take damage and become tapped.
+// Audit: unsupported — Needs the EC physical flip, overlap, and landing evaluation needed to
+// choose which creatures take damage and become tapped.
 pub(in crate::card::sets) static FALLING_STAR: CardRecord = CardRecord::new(
     "Falling Star",
     "f2b9983e-20d4-4d12-9e2c-ec6d9a345787",
@@ -2813,7 +2894,9 @@ pub(in crate::card::sets) static FALLING_STAR: CardRecord = CardRecord::new(
 );
 
 // LEG 146 — Feint
-// Audit: unsupported — Needs a duration-scoped replacement/prevention effect for “Tap all creatures blocking target attacking creature. Prevent all combat damage that would be dealt this turn by that creature and each creature blocking it”.
+// Audit: unsupported — Needs a duration-scoped replacement/prevention effect for “Tap all
+// creatures blocking target attacking creature. Prevent all combat damage that would be dealt
+// this turn by that creature and each creature blocking it”.
 pub(in crate::card::sets) static FEINT: CardRecord = CardRecord::new(
     "Feint",
     "95b265bc-a94d-403b-8232-8fdfa0f8d9d5",
@@ -2822,7 +2905,9 @@ pub(in crate::card::sets) static FEINT: CardRecord = CardRecord::new(
 );
 
 // LEG 147 — Firestorm Phoenix
-// Audit: unsupported — Needs ordered-library inspection, selection, and visibility handling for “If this creature would die, return it to its owner's hand instead. Until that player's next turn, that player plays with that card revealed in their hand and can't play it”.
+// Audit: unsupported — Needs ordered-library inspection, selection, and visibility handling for
+// “If this creature would die, return it to its owner's hand instead. Until that player's next
+// turn, that player plays with that card revealed in their hand and can't play it”.
 pub(in crate::card::sets) static FIRESTORM_PHOENIX: CardRecord = CardRecord::new(
     "Firestorm Phoenix",
     "3247a7dd-f48c-4cb4-8475-4864acccef7a",
@@ -2936,7 +3021,8 @@ pub(in crate::card::sets) static GRAVITY_SPHERE: CardRecord = CardRecord::new(
 );
 
 // LEG 152 — Hyperion Blacksmith
-// Audit: unsupported — Needs a persistent tap/untap restriction or event relation for “{T}: You may tap or untap target artifact an opponent controls”.
+// Audit: unsupported — Needs a persistent tap/untap restriction or event relation for “{T}: You
+// may tap or untap target artifact an opponent controls”.
 pub(in crate::card::sets) static HYPERION_BLACKSMITH: CardRecord = CardRecord::new(
     "Hyperion Blacksmith",
     "44d499a9-fe7c-4a1a-9eb3-a7fd9f85ae08",
@@ -3057,7 +3143,8 @@ pub(in crate::card::sets) static KOBOLDS_OF_KHER_KEEP: CardRecord = CardRecord::
 );
 
 // LEG 158 — Land's Edge
-// Audit: unsupported — Needs an ability any player may activate and a conditional keyed to the type of the card the discard cost actually took.
+// Audit: unsupported — Needs an ability any player may activate and a conditional keyed to the
+// type of the card the discard cost actually took.
 pub(in crate::card::sets) static LAND_S_EDGE: CardRecord = CardRecord::new(
     "Land's Edge",
     "fb3d9b29-948c-4768-b5ea-db2512817c30",
@@ -3140,7 +3227,8 @@ pub(in crate::card::sets) static PYROTECHNICS: CardRecord = CardRecord::new(
 );
 
 // LEG 162 — Quarum Trench Gnomes
-// Audit: unsupported — Needs a duration-scoped replacement/prevention effect for “{T}: If target Plains is tapped for mana, it produces colorless mana instead of white mana”.
+// Audit: unsupported — Needs a duration-scoped replacement/prevention effect for “{T}: If
+// target Plains is tapped for mana, it produces colorless mana instead of white mana”.
 pub(in crate::card::sets) static QUARUM_TRENCH_GNOMES: CardRecord = CardRecord::new(
     "Quarum Trench Gnomes",
     "1c3b33bf-3074-406e-86f3-2a9843cf4862",
@@ -3180,7 +3268,9 @@ pub(in crate::card::sets) static SPINAL_VILLAIN: CardRecord = CardRecord::new(
 );
 
 // LEG 165 — Storm World
-// Audit: unsupported — Needs damage-history/source tracking or card-specific damage processing for “At the beginning of each player's upkeep, this enchantment deals X damage to that player, where X is 4 minus the number of cards in their hand”.
+// Audit: unsupported — Needs damage-history/source tracking or card-specific damage processing
+// for “At the beginning of each player's upkeep, this enchantment deals X damage to that
+// player, where X is 4 minus the number of cards in their hand”.
 pub(in crate::card::sets) static STORM_WORLD: CardRecord = CardRecord::new(
     "Storm World",
     "cdf0afa6-7003-454d-9b8a-e3328aaf29ed",
@@ -3189,7 +3279,8 @@ pub(in crate::card::sets) static STORM_WORLD: CardRecord = CardRecord::new(
 );
 
 // LEG 166 — Tempest Efreet
-// Audit: unsupported — Needs random hand reveal, an opponent life-payment choice, and a permanent ownership exchange between cards in different zones.
+// Audit: unsupported — Needs random hand reveal, an opponent life-payment choice, and a
+// permanent ownership exchange between cards in different zones.
 pub(in crate::card::sets) static TEMPEST_EFREET: CardRecord = CardRecord::new(
     "Tempest Efreet",
     "eb562143-fdf0-4eed-83ac-551627c576d2",
@@ -3227,7 +3318,9 @@ pub(in crate::card::sets) static THE_BRUTE: CardRecord = CardRecord::new(
 );
 
 // LEG 168 — Wall of Dust
-// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “Whenever this creature blocks a creature, that creature can't attack during its controller's next turn”.
+// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “Whenever
+// this creature blocks a creature, that creature can't attack during its controller's next
+// turn”.
 pub(in crate::card::sets) static WALL_OF_DUST: CardRecord = CardRecord::new(
     "Wall of Dust",
     "aaf53dfe-5d48-4811-b2f5-5a5c1cb462ca",
@@ -3276,7 +3369,8 @@ pub(in crate::card::sets) static WALL_OF_OPPOSITION: CardRecord = CardRecord::ne
 );
 
 // LEG 172 — Winds of Change
-// Audit: unsupported — Needs a hidden-zone decision and continuation for “Each player shuffles the cards from their hand into their library, then draws that many cards”.
+// Audit: unsupported — Needs a hidden-zone decision and continuation for “Each player shuffles
+// the cards from their hand into their library, then draws that many cards”.
 pub(in crate::card::sets) static WINDS_OF_CHANGE: CardRecord = CardRecord::new(
     "Winds of Change",
     "186fd917-8d65-4de5-8546-a32a5f6d3bab",
@@ -3307,7 +3401,9 @@ pub(in crate::card::sets) static AISLING_LEPRECHAUN: CardRecord = CardRecord::ne
 );
 
 // LEG 174 — Arboria
-// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “Creatures can't attack a player unless that player cast a spell or put a nontoken permanent onto the battlefield during their last turn”.
+// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for
+// “Creatures can't attack a player unless that player cast a spell or put a nontoken permanent
+// onto the battlefield during their last turn”.
 pub(in crate::card::sets) static ARBORIA: CardRecord = CardRecord::new(
     "Arboria",
     "095078b0-0f26-442f-9d3b-45e30cdb33c4",
@@ -3316,7 +3412,9 @@ pub(in crate::card::sets) static ARBORIA: CardRecord = CardRecord::new(
 );
 
 // LEG 175 — Avoid Fate
-// Audit: unsupported — Needs a spell-on-stack target predicate that expresses the printed instant/Aura restriction for “Counter target instant or Aura spell that targets a permanent you control”.
+// Audit: unsupported — Needs a spell-on-stack target predicate that expresses the printed
+// instant/Aura restriction for “Counter target instant or Aura spell that targets a permanent
+// you control”.
 pub(in crate::card::sets) static AVOID_FATE: CardRecord = CardRecord::new(
     "Avoid Fate",
     "92f1509e-6ed5-4009-a031-ea84b43cbd1b",
@@ -3503,7 +3601,9 @@ pub(in crate::card::sets) static EMERALD_DRAGONFLY: CardRecord = CardRecord::new
 );
 
 // LEG 185 — Eureka
-// Audit: unsupported — Needs a hidden-zone decision and continuation for “Starting with you, each player may put a permanent card from their hand onto the battlefield. Repeat this process until no one puts a card onto the battlefield”.
+// Audit: unsupported — Needs a hidden-zone decision and continuation for “Starting with you,
+// each player may put a permanent card from their hand onto the battlefield. Repeat this
+// process until no one puts a card onto the battlefield”.
 pub(in crate::card::sets) static EUREKA: CardRecord = CardRecord::new(
     "Eureka",
     "520db5fb-d961-45a3-af74-6f054b8be3ab",
@@ -3592,7 +3692,9 @@ pub(in crate::card::sets) static GIANT_TURTLE: CardRecord = CardRecord::new(
 );
 
 // LEG 189 — Glyph of Reincarnation
-// Audit: unsupported — Needs a record of which creatures a Wall blocked this turn, and a per-creature graveyard return keyed to whoever controlled each one when it was blocked. AppliedRuleDef::CannotRegenerate covers only the regeneration clause.
+// Audit: unsupported — Needs a record of which creatures a Wall blocked this turn, and a
+// per-creature graveyard return keyed to whoever controlled each one when it was blocked.
+// AppliedRuleDef::CannotRegenerate covers only the regeneration clause.
 pub(in crate::card::sets) static GLYPH_OF_REINCARNATION: CardRecord = CardRecord::new(
     "Glyph of Reincarnation",
     "a67e8214-a192-4143-9d5e-d0e254e1bf6e",
@@ -3794,7 +3896,8 @@ pub(in crate::card::sets) static RADJAN_SPIRIT: CardRecord = CardRecord::new(
 );
 
 // LEG 200 — Rebirth
-// Audit: unsupported — Needs a separate optional ante choice for each player and a conditional life-total-setting continuation for each player who antes.
+// Audit: unsupported — Needs a separate optional ante choice for each player and a conditional
+// life-total-setting continuation for each player who antes.
 pub(in crate::card::sets) static REBIRTH: CardRecord = CardRecord::new(
     "Rebirth",
     "a0d3ce01-e344-4608-b709-320be3600019",
@@ -3803,7 +3906,9 @@ pub(in crate::card::sets) static REBIRTH: CardRecord = CardRecord::new(
 );
 
 // LEG 201 — Reincarnation
-// Audit: unsupported — Needs duration-aware control-changing continuous effects for “Choose target creature. When that creature dies this turn, return a creature card from its owner's graveyard to the battlefield under the control of that creature's owner”.
+// Audit: unsupported — Needs duration-aware control-changing continuous effects for “Choose
+// target creature. When that creature dies this turn, return a creature card from its owner's
+// graveyard to the battlefield under the control of that creature's owner”.
 pub(in crate::card::sets) static REINCARNATION: CardRecord = CardRecord::new(
     "Reincarnation",
     "969c104e-daf4-480d-99a2-dd93c498b48e",
@@ -3812,7 +3917,8 @@ pub(in crate::card::sets) static REINCARNATION: CardRecord = CardRecord::new(
 );
 
 // LEG 202 — Revelation
-// Audit: unsupported — Needs ordered-library inspection, selection, and visibility handling for “Players play with their hands revealed”.
+// Audit: unsupported — Needs ordered-library inspection, selection, and visibility handling for
+// “Players play with their hands revealed”.
 pub(in crate::card::sets) static REVELATION: CardRecord = CardRecord::new(
     "Revelation",
     "07892b6c-08d2-47b5-8d64-0e4d1bdc3080",
@@ -3821,7 +3927,8 @@ pub(in crate::card::sets) static REVELATION: CardRecord = CardRecord::new(
 );
 
 // LEG 203 — Rust
-// Audit: unsupported — Needs stack targeting and countering of ability objects for “Counter target activated ability from an artifact source”.
+// Audit: unsupported — Needs stack targeting and countering of ability objects for “Counter
+// target activated ability from an artifact source”.
 pub(in crate::card::sets) static RUST: CardRecord = CardRecord::new(
     "Rust",
     "ad4974c8-34c5-4290-b325-7586a67f6d56",
@@ -3853,7 +3960,9 @@ pub(in crate::card::sets) static SHELKIN_BROWNIE: CardRecord = CardRecord::new(
 );
 
 // LEG 205 — Storm Seeker
-// Audit: unsupported — Needs damage-history/source tracking or card-specific damage processing for “Storm Seeker deals damage to target player equal to the number of cards in that player's hand”.
+// Audit: unsupported — Needs damage-history/source tracking or card-specific damage processing
+// for “Storm Seeker deals damage to target player equal to the number of cards in that player's
+// hand”.
 pub(in crate::card::sets) static STORM_SEEKER: CardRecord = CardRecord::new(
     "Storm Seeker",
     "3b66d0cc-84d7-41ad-b0e7-74ebf604543f",
@@ -3896,9 +4005,11 @@ pub(in crate::card::sets) static SYLVAN_LIBRARY: CardRecord = CardRecord::new(
     "Sylvan Library",
     "f486df00-7c4a-4ff0-bb0b-c8b5432ac742",
     "Harold McNeill",
-CardRules::new_enchantment(mana_cost!("{1}{G}"))
-    .with_abilities(&[AbilityDef::triggered(
-        "At the beginning of your draw step, you may draw two additional cards. If you do, choose two cards in your hand drawn this turn. For each of those pay 4 life or put the card on top of your library.",
+    CardRules::new_enchantment(mana_cost!("{1}{G}")).with_abilities(&[AbilityDef::triggered(
+        "At the beginning of your draw step, you may draw two \
+         additional cards. If you do, choose two cards in your hand \
+         drawn this turn. For each of those pay 4 life or put the \
+         card on top of your library.",
         TriggerEventDef::StepBegins {
             step: TurnStepDef::Draw,
             player: PlayerRelation::You,
@@ -3906,37 +4017,35 @@ CardRules::new_enchantment(mana_cost!("{1}{G}"))
         EffectDef::May {
             player: EffectRecipientDef::Controller,
             effect: &EffectDef::Sequence(&[
-                    EffectDef::DrawCards {
-                        recipient: EffectRecipientDef::Controller,
-                        amount: ValueDef::Constant(2),
+                EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(2),
+                },
+                EffectDef::Choose(ChooseDef {
+                    binding: ObjectChoiceBindingDef::OrderedObjects(ParentBinding),
+                    unchosen: None,
+                    chooser: PlayerRefDef::EffectController,
+                    candidates: ObjectSetDef::CardsDrawnThisTurnInHand(
+                        PlayerRefDef::EffectController,
+                    ),
+                    exclude: None,
+                    minimum: 2,
+                    maximum: 2,
+                    visibility: ChoiceVisibilityDef::Private,
+                    then: &EffectDef::ForEachInBinding {
+                        objects: ParentBinding,
+                        binding: ParentBinding,
+                        effect: &EffectDef::PayOr(PayOrDef::unless(
+                            &[CostDef::PayLife(4)],
+                            &EffectDef::move_to_zone(
+                                EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
+                                ZoneKind::Library,
+                                ZonePlacement::Top,
+                            ),
+                        )),
                     },
-                    EffectDef::Choose(ChooseDef {
-                        binding: ObjectChoiceBindingDef::OrderedObjects(
-                            ParentBinding,
-                        ),
-                        unchosen: None,
-                        chooser: PlayerRefDef::EffectController,
-                        candidates: ObjectSetDef::CardsDrawnThisTurnInHand(
-                            PlayerRefDef::EffectController,
-                        ),
-                        exclude: None,
-                        minimum: 2,
-                        maximum: 2,
-                        visibility: ChoiceVisibilityDef::Private,
-                        then: &EffectDef::ForEachInBinding {
-                                objects: ParentBinding,
-                                binding: ParentBinding,
-                                effect: &EffectDef::PayOr(PayOrDef::unless(
-                                        &[CostDef::PayLife(4)],
-                                        &EffectDef::move_to_zone(
-                                                EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
-                                                ZoneKind::Library,
-                                                ZonePlacement::Top,
-                                            ),
-                                    )),
-                            },
-                    }),
-                ]),
+                }),
+            ]),
         },
     )]),
 );
@@ -3962,8 +4071,9 @@ pub(in crate::card::sets) static TYPHOON: CardRecord = CardRecord::new(
     "Typhoon",
     "254e0403-67d8-4e73-8d89-c901ebeba49f",
     "Anson Maddocks",
-CardRules::new_sorcery(mana_cost!("{2}{G}")).with_ability(AbilityDef::spell(
-        "Typhoon deals damage to each opponent equal to the number of Islands that player controls.",
+    CardRules::new_sorcery(mana_cost!("{2}{G}")).with_ability(AbilityDef::spell(
+        "Typhoon deals damage to each opponent equal to the number \
+         of Islands that player controls.",
         EffectDef::damage(
             EffectRecipientDef::Opponent,
             ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
@@ -3980,8 +4090,9 @@ pub(in crate::card::sets) static UNTAMED_WILDS: CardRecord = CardRecord::new(
     "Untamed Wilds",
     "887f22af-8b92-422a-9cd5-f3977674bcdc",
     "NéNé Thomas",
-CardRules::new_sorcery(mana_cost!("{2}{G}")).with_ability(AbilityDef::spell(
-        "Search your library for a basic land card, put that card onto the battlefield, then shuffle.",
+    CardRules::new_sorcery(mana_cost!("{2}{G}")).with_ability(AbilityDef::spell(
+        "Search your library for a basic land card, put that card \
+         onto the battlefield, then shuffle.",
         EffectDef::SearchZone {
             player: EffectRecipientDef::Controller,
             source: ZoneKind::Library,
@@ -4008,23 +4119,23 @@ pub(in crate::card::sets) static WHIRLING_DERVISH: CardRecord = CardRecord::new(
     "Whirling Dervish",
     "eba294e7-7097-4bc3-b396-72e85dd4f441",
     "Susan Van Camp",
-CardRules::new_creature(mana_cost!("{G}{G}"), &["Human", "Monk"], 1, 1)
-        .with_abilities(&[
-            abilities::protection_from_color(ManaColor::Black),
-            AbilityDef::triggered_if(
-                "At the beginning of each end step, if this creature dealt damage to an opponent this turn, put a +1/+1 counter on it.",
-                TriggerEventDef::StepBegins {
-                    step: TurnStepDef::End,
-                    player: PlayerRelation::Any,
-                },
-                &TriggerConditionDef::SourceDealtDamageToOpponentThisTurn,
-                EffectDef::AddCounters {
-                    object: EffectRecipientDef::Source,
-                    kind: CounterKind::PlusOnePlusOne,
-                    amount: ValueDef::Constant(1),
-                },
-            ),
-        ]),
+    CardRules::new_creature(mana_cost!("{G}{G}"), &["Human", "Monk"], 1, 1).with_abilities(&[
+        abilities::protection_from_color(ManaColor::Black),
+        AbilityDef::triggered_if(
+            "At the beginning of each end step, if this creature dealt \
+             damage to an opponent this turn, put a +1/+1 counter on it.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::End,
+                player: PlayerRelation::Any,
+            },
+            &TriggerConditionDef::SourceDealtDamageToOpponentThisTurn,
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // LEG 212 — Willow Satyr
@@ -4042,7 +4153,7 @@ pub(in crate::card::sets) static WILLOW_SATYR: CardRecord = CardRecord::new(
         ),
         AbilityDef::activated_with_targets(
             "{T}: Gain control of target legendary creature for as long as you control this \
-                 creature and this creature remains tapped.",
+             creature and this creature remains tapped.",
             &[CostDef::TapSource],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::All(&[
@@ -4060,7 +4171,8 @@ pub(in crate::card::sets) static WILLOW_SATYR: CardRecord = CardRecord::new(
 );
 
 // LEG 213 — Winter Blast
-// Audit: unsupported — Needs one chosen-X target set with a flying-dependent damage follow-up linked to the creatures it tapped.
+// Audit: unsupported — Needs one chosen-X target set with a flying-dependent damage follow-up
+// linked to the creatures it tapped.
 pub(in crate::card::sets) static WINTER_BLAST: CardRecord = CardRecord::new(
     "Winter Blast",
     "fb846366-2105-4999-8af1-a11687f42e17",
@@ -4078,7 +4190,9 @@ pub(in crate::card::sets) static WOLVERINE_PACK: CardRecord = CardRecord::new(
 );
 
 // LEG 215 — Wood Elemental
-// Audit: unsupported — Needs a characteristic-layer effect or dynamic value for “Wood Elemental's power and toughness are each equal to the number of Forests sacrificed as it entered”.
+// Audit: unsupported — Needs a characteristic-layer effect or dynamic value for “Wood
+// Elemental's power and toughness are each equal to the number of Forests sacrificed as it
+// entered”.
 pub(in crate::card::sets) static WOOD_ELEMENTAL: CardRecord = CardRecord::new(
     "Wood Elemental",
     "edc71122-2951-43eb-8ca8-1cda6d231013",
@@ -4198,36 +4312,35 @@ pub(in crate::card::sets) static AXELROD_GUNNARSON: CardRecord = CardRecord::new
     "Axelrod Gunnarson",
     "acce83cf-965b-4e45-8efb-63f814df7a35",
     "Scott Kirschner",
-CardRules::new_creature(
-        mana_cost!("{4}{B}{B}{R}{R}"),
-        &["Giant"],
-        5,
-        5,
-    )
-    .with_supertype(CardSupertype::Legendary)
-    .with_abilities(&[
-        abilities::trample(),
-        abilities::creature_damaged_by_source_dies_trigger_with_targets(
-            "Whenever a creature dealt damage by Axelrod Gunnarson this turn dies, you gain 1 life and Axelrod Gunnarson deals 1 damage to any target.",
-            &[AbilityTargetDef::exactly_one(
-                AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
-            )],
-            EffectDef::Sequence(&[
-                EffectDef::GainLife {
-                    recipient: EffectRecipientDef::Controller,
-                    amount: ValueDef::Constant(1),
-                },
-                EffectDef::damage(
-                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    ValueDef::Constant(1),
-                ),
-            ]),
-        ),
-    ]),
+    CardRules::new_creature(mana_cost!("{4}{B}{B}{R}{R}"), &["Giant"], 5, 5)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::trample(),
+            abilities::creature_damaged_by_source_dies_trigger_with_targets(
+                "Whenever a creature dealt damage by Axelrod Gunnarson this \
+                 turn dies, you gain 1 life and Axelrod Gunnarson deals 1 \
+                 damage to any target.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
+                )],
+                EffectDef::Sequence(&[
+                    EffectDef::GainLife {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    },
+                    EffectDef::damage(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ValueDef::Constant(1),
+                    ),
+                ]),
+            ),
+        ]),
 );
 
 // LEG 220 — Ayesha Tanaka
-// Audit: unsupported — Needs stack targeting and countering of ability objects for “{T}: Counter target activated ability from an artifact source unless that ability's controller pays {W}”.
+// Audit: unsupported — Needs stack targeting and countering of ability objects for “{T}:
+// Counter target activated ability from an artifact source unless that ability's controller
+// pays {W}”.
 pub(in crate::card::sets) static AYESHA_TANAKA: CardRecord = CardRecord::new(
     "Ayesha Tanaka",
     "03bd3d4b-d01a-475d-bf3b-cf96f43bc9ef",
@@ -4245,7 +4358,9 @@ pub(in crate::card::sets) static BARKTOOTH_WARBEARD: CardRecord = CardRecord::ne
 );
 
 // LEG 222 — Bartel Runeaxe
-// Audit: unsupported — Needs the card's exact Aura targeting/attachment restriction rather than the broader existing cannot-be-enchanted effect for “Bartel Runeaxe can't be the target of Aura spells”.
+// Audit: unsupported — Needs the card's exact Aura targeting/attachment restriction rather than
+// the broader existing cannot-be-enchanted effect for “Bartel Runeaxe can't be the target of
+// Aura spells”.
 pub(in crate::card::sets) static BARTEL_RUNEAXE: CardRecord = CardRecord::new(
     "Bartel Runeaxe",
     "f1a42691-98bb-4234-9b56-085e6677f3e4",
@@ -4331,7 +4446,8 @@ pub(in crate::card::sets) static DAKKON_BLACKBLADE: CardRecord = CardRecord::new
 );
 
 // LEG 226 — Gabriel Angelfire
-// Audit: unsupported — Needs a random choice among four named abilities and a grant of the chosen one; the randomized effect vocabulary selects between two branches, not among four.
+// Audit: unsupported — Needs a random choice among four named abilities and a grant of the
+// chosen one; the randomized effect vocabulary selects between two branches, not among four.
 pub(in crate::card::sets) static GABRIEL_ANGELFIRE: CardRecord = CardRecord::new(
     "Gabriel Angelfire",
     "3b4ce350-b6ed-4e0e-8c70-efc6e5f18a5d",
@@ -4381,7 +4497,9 @@ pub(in crate::card::sets) static GWENDLYN_DI_CORCI: CardRecord = CardRecord::new
 );
 
 // LEG 229 — Halfdane
-// Audit: unsupported — Needs a characteristic-layer effect or dynamic value for “At the beginning of your upkeep, change Halfdane's base power and toughness to the power and toughness of target creature other than Halfdane until the end of your next upkeep”.
+// Audit: unsupported — Needs a characteristic-layer effect or dynamic value for “At the
+// beginning of your upkeep, change Halfdane's base power and toughness to the power and
+// toughness of target creature other than Halfdane until the end of your next upkeep”.
 pub(in crate::card::sets) static HALFDANE: CardRecord = CardRecord::new(
     "Halfdane",
     "2e939761-3542-4044-9038-d1d30c6a38fc",
@@ -4390,7 +4508,10 @@ pub(in crate::card::sets) static HALFDANE: CardRecord = CardRecord::new(
 );
 
 // LEG 230 — Hazezon Tamar
-// Audit: unsupported — Needs delayed token creation that determines X at the future upkeep for “When Hazezon enters, create X 1/1 Sand Warrior creature tokens that are red, green, and white at the beginning of your next upkeep, where X is the number of lands you control at that time”.
+// Audit: unsupported — Needs delayed token creation that determines X at the future upkeep for
+// “When Hazezon enters, create X 1/1 Sand Warrior creature tokens that are red, green, and
+// white at the beginning of your next upkeep, where X is the number of lands you control at
+// that time”.
 pub(in crate::card::sets) static HAZEZON_TAMAR: CardRecord = CardRecord::new(
     "Hazezon Tamar",
     "17fc3a85-c6b9-4fd2-a6a2-d3210708e5ea",
@@ -4462,7 +4583,9 @@ pub(in crate::card::sets) static JERRARD_OF_THE_CLOSED_FIST: CardRecord = CardRe
 );
 
 // LEG 236 — Johan
-// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “At the beginning of combat on your turn, you may have Johan gain "Johan can't attack" until end of combat. If you do, attacking doesn't cause creatures you control to tap this combat if…”.
+// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “At the
+// beginning of combat on your turn, you may have Johan gain "Johan can't attack" until end of
+// combat. If you do, attacking doesn't cause creatures you control to tap this combat if…”.
 pub(in crate::card::sets) static JOHAN: CardRecord = CardRecord::new(
     "Johan",
     "b851d5b4-7991-49d4-8a52-bf233f960cbf",
@@ -4530,14 +4653,12 @@ pub(in crate::card::sets) static LADY_EVANGELA: CardRecord = CardRecord::new(
     "Lady Evangela",
     "f3e122e9-ffa3-48dd-94d6-8f2886668e59",
     "Mark Poole",
-CardRules::new_creature(mana_cost!("{W}{U}{B}"), &["Human", "Cleric"], 1, 2)
+    CardRules::new_creature(mana_cost!("{W}{U}{B}"), &["Human", "Cleric"], 1, 2)
         .with_supertype(CardSupertype::Legendary)
         .with_ability(AbilityDef::activated_with_targets(
-            "{W}{B}, {T}: Prevent all combat damage that would be dealt by target creature this turn.",
-            &[
-                CostDef::Mana(mana_cost!("{W}{B}")),
-                CostDef::TapSource,
-            ],
+            "{W}{B}, {T}: Prevent all combat damage that would be dealt \
+             by target creature this turn.",
+            &[CostDef::Mana(mana_cost!("{W}{B}")), CostDef::TapSource],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
@@ -4600,7 +4721,9 @@ pub(in crate::card::sets) static MARHAULT_ELSDRAGON: CardRecord = CardRecord::ne
 );
 
 // LEG 245 — Nebuchadnezzar
-// Audit: unsupported — Needs seeded random selection with replay-visible provenance for “{X}, {T}: Choose a card name. Target opponent reveals X cards at random from their hand. Then that player discards all cards with that name revealed this way. Activate only during your turn”.
+// Audit: unsupported — Needs seeded random selection with replay-visible provenance for “{X},
+// {T}: Choose a card name. Target opponent reveals X cards at random from their hand. Then that
+// player discards all cards with that name revealed this way. Activate only during your turn”.
 pub(in crate::card::sets) static NEBUCHADNEZZAR: CardRecord = CardRecord::new(
     "Nebuchadnezzar",
     "e3f17ce3-711b-4bd9-addf-dd440fa7d2b7",
@@ -4759,7 +4882,8 @@ pub(in crate::card::sets) static RAMSES_OVERDARK: CardRecord = CardRecord::new(
 );
 
 // LEG 253 — Rasputin Dreamweaver
-// Audit: unsupported — Needs dream counters that both pay for and restore themselves across several abilities. Each individual prevention and mana effect is available.
+// Audit: unsupported — Needs dream counters that both pay for and restore themselves across
+// several abilities. Each individual prevention and mana effect is available.
 pub(in crate::card::sets) static RASPUTIN_DREAMWEAVER: CardRecord = CardRecord::new(
     "Rasputin Dreamweaver",
     "503256f8-3aab-49d0-b78b-6502aa29ce52",
@@ -4778,7 +4902,9 @@ pub(in crate::card::sets) static RIVEN_TURNBULL: CardRecord = CardRecord::new(
 );
 
 // LEG 255 — Rohgahh of Kher Keep
-// Audit: unsupported — Needs duration-aware control-changing continuous effects for “At the beginning of your upkeep, you may pay {R}{R}{R}. If you don't, tap Rohgahh and all creatures named Kobolds of Kher Keep, then an opponent gains control of them”.
+// Audit: unsupported — Needs duration-aware control-changing continuous effects for “At the
+// beginning of your upkeep, you may pay {R}{R}{R}. If you don't, tap Rohgahh and all creatures
+// named Kobolds of Kher Keep, then an opponent gains control of them”.
 pub(in crate::card::sets) static ROHGAHH_OF_KHER_KEEP: CardRecord = CardRecord::new(
     "Rohgahh of Kher Keep",
     "ea0891f0-83ce-4eb7-b0a9-cbc8168bafff",
@@ -4858,7 +4984,10 @@ pub(in crate::card::sets) static SOLKANAR_THE_SWAMP_KING: CardRecord = CardRecor
 );
 
 // LEG 260 — Stangg
-// Audit: unsupported — Needs a zone-object query and identity-preserving continuation for “When Stangg enters, create Stangg Twin, a legendary 3/4 red and green Human Warrior creature token. Exile that token when Stangg leaves the battlefield. Sacrifice Stangg when that token…”.
+// Audit: unsupported — Needs a zone-object query and identity-preserving continuation for “When
+// Stangg enters, create Stangg Twin, a legendary 3/4 red and green Human Warrior creature
+// token. Exile that token when Stangg leaves the battlefield. Sacrifice Stangg when that
+// token…”.
 pub(in crate::card::sets) static STANGG: CardRecord = CardRecord::new(
     "Stangg",
     "a277775a-6b48-4238-a618-3ae94c4cc85c",
@@ -5179,7 +5308,10 @@ pub(in crate::card::sets) static ARENA_OF_THE_ANCIENTS: CardRecord = CardRecord:
 );
 
 // LEG 274 — Black Mana Battery
-// Audit: unsupported — Needs the number of counters removed as a value. Its mana ability pays a tap and RemoveAnyNumberOfCountersFromSource, both of which the boundary allows; what it cannot say is "add one, then one more for each counter removed", where the storage lands add exactly one per counter.
+// Audit: unsupported — Needs the number of counters removed as a value. Its mana ability pays a
+// tap and RemoveAnyNumberOfCountersFromSource, both of which the boundary allows; what it
+// cannot say is "add one, then one more for each counter removed", where the storage lands add
+// exactly one per counter.
 pub(in crate::card::sets) static BLACK_MANA_BATTERY: CardRecord = CardRecord::new(
     "Black Mana Battery",
     "d0c66e64-e357-457d-8302-b3a1fc0c56ce",
@@ -5188,7 +5320,10 @@ pub(in crate::card::sets) static BLACK_MANA_BATTERY: CardRecord = CardRecord::ne
 );
 
 // LEG 275 — Blue Mana Battery
-// Audit: unsupported — Needs the number of counters removed as a value. Its mana ability pays a tap and RemoveAnyNumberOfCountersFromSource, both of which the boundary allows; what it cannot say is "add one, then one more for each counter removed", where the storage lands add exactly one per counter.
+// Audit: unsupported — Needs the number of counters removed as a value. Its mana ability pays a
+// tap and RemoveAnyNumberOfCountersFromSource, both of which the boundary allows; what it
+// cannot say is "add one, then one more for each counter removed", where the storage lands add
+// exactly one per counter.
 pub(in crate::card::sets) static BLUE_MANA_BATTERY: CardRecord = CardRecord::new(
     "Blue Mana Battery",
     "35393661-2c53-46f0-bb33-2390d552b060",
@@ -5197,7 +5332,9 @@ pub(in crate::card::sets) static BLUE_MANA_BATTERY: CardRecord = CardRecord::new
 );
 
 // LEG 276 — Bronze Horse
-// Audit: unsupported — Needs a duration-scoped replacement/prevention effect for “As long as you control another creature, prevent all damage that would be dealt to this creature by spells that target it”.
+// Audit: unsupported — Needs a duration-scoped replacement/prevention effect for “As long as
+// you control another creature, prevent all damage that would be dealt to this creature by
+// spells that target it”.
 pub(in crate::card::sets) static BRONZE_HORSE: CardRecord = CardRecord::new(
     "Bronze Horse",
     "936a03a5-73ba-436c-9d49-70e176d118e6",
@@ -5246,7 +5383,9 @@ pub(in crate::card::sets) static FORETHOUGHT_AMULET: CardRecord = CardRecord::ne
 );
 
 // LEG 278 — Gauntlets of Chaos
-// Audit: unsupported — Needs duration-aware control-changing continuous effects for “{5}, Sacrifice this artifact: Exchange control of target artifact, creature, or land you control and target permanent an opponent controls that shares one of those types with it. If…”.
+// Audit: unsupported — Needs duration-aware control-changing continuous effects for “{5},
+// Sacrifice this artifact: Exchange control of target artifact, creature, or land you control
+// and target permanent an opponent controls that shares one of those types with it. If…”.
 pub(in crate::card::sets) static GAUNTLETS_OF_CHAOS: CardRecord = CardRecord::new(
     "Gauntlets of Chaos",
     "6f8f11b5-3ba8-4913-b76a-fb469a74864d",
@@ -5255,7 +5394,10 @@ pub(in crate::card::sets) static GAUNTLETS_OF_CHAOS: CardRecord = CardRecord::ne
 );
 
 // LEG 279 — Green Mana Battery
-// Audit: unsupported — Needs the number of counters removed as a value. Its mana ability pays a tap and RemoveAnyNumberOfCountersFromSource, both of which the boundary allows; what it cannot say is "add one, then one more for each counter removed", where the storage lands add exactly one per counter.
+// Audit: unsupported — Needs the number of counters removed as a value. Its mana ability pays a
+// tap and RemoveAnyNumberOfCountersFromSource, both of which the boundary allows; what it
+// cannot say is "add one, then one more for each counter removed", where the storage lands add
+// exactly one per counter.
 pub(in crate::card::sets) static GREEN_MANA_BATTERY: CardRecord = CardRecord::new(
     "Green Mana Battery",
     "4671fa01-4a9e-4cd9-8154-b0d45e11b702",
@@ -5284,7 +5426,8 @@ pub(in crate::card::sets) static HORN_OF_DEAFENING: CardRecord = CardRecord::new
 );
 
 // LEG 281 — Knowledge Vault
-// Audit: unsupported — Needs ordered-library inspection, selection, and visibility handling for “{2}, {T}: Exile the top card of your library face down”.
+// Audit: unsupported — Needs ordered-library inspection, selection, and visibility handling for
+// “{2}, {T}: Exile the top card of your library face down”.
 pub(in crate::card::sets) static KNOWLEDGE_VAULT: CardRecord = CardRecord::new(
     "Knowledge Vault",
     "65947312-75c2-4baa-805c-238a154156ef",
@@ -5356,7 +5499,10 @@ pub(in crate::card::sets) static LIFE_CHISEL: CardRecord = CardRecord::new(
 );
 
 // LEG 284 — Life Matrix
-// Audit: unsupported — Needs granting a counter-consuming activated ability to a targeted creature and an activation window restricted to your upkeep for “{4}, {T}: Put a matrix counter on target creature and that creature gains "Remove a matrix counter from this creature: Regenerate this creature." Activate only during your upkeep”.
+// Audit: unsupported — Needs granting a counter-consuming activated ability to a targeted
+// creature and an activation window restricted to your upkeep for “{4}, {T}: Put a matrix
+// counter on target creature and that creature gains "Remove a matrix counter from this
+// creature: Regenerate this creature." Activate only during your upkeep”.
 pub(in crate::card::sets) static LIFE_MATRIX: CardRecord = CardRecord::new(
     "Life Matrix",
     "c99a3abc-e2a3-4eee-8f72-b1b25dcd1d0b",
@@ -5410,7 +5556,8 @@ pub(in crate::card::sets) static MARBLE_PRIEST: CardRecord = CardRecord::new(
 );
 
 // LEG 287 — Mirror Universe
-// Audit: unsupported — Needs linked sacrifice/destruction accounting for “{T}, Sacrifice this artifact: Exchange life totals with target opponent. Activate only during your upkeep”.
+// Audit: unsupported — Needs linked sacrifice/destruction accounting for “{T}, Sacrifice this
+// artifact: Exchange life totals with target opponent. Activate only during your upkeep”.
 pub(in crate::card::sets) static MIRROR_UNIVERSE: CardRecord = CardRecord::new(
     "Mirror Universe",
     "a8f05d5e-bb7d-4554-b880-f0c6b4688357",
@@ -5419,7 +5566,9 @@ pub(in crate::card::sets) static MIRROR_UNIVERSE: CardRecord = CardRecord::new(
 );
 
 // LEG 288 — North Star
-// Audit: unsupported — Needs cost/mana provenance or dynamic payment support for “{4}, {T}: For one spell this turn, you may spend mana as though it were mana of any type to pay that spell's mana cost”.
+// Audit: unsupported — Needs cost/mana provenance or dynamic payment support for “{4}, {T}: For
+// one spell this turn, you may spend mana as though it were mana of any type to pay that
+// spell's mana cost”.
 pub(in crate::card::sets) static NORTH_STAR: CardRecord = CardRecord::new(
     "North Star",
     "daac2a6b-27c8-4567-9e0c-7b262628d331",
@@ -5428,7 +5577,10 @@ pub(in crate::card::sets) static NORTH_STAR: CardRecord = CardRecord::new(
 );
 
 // LEG 289 — Nova Pentacle
-// Audit: unsupported — Needs a shield keyed to a source chosen as the ability resolves; prevention shields attach to a recipient and spend on the next damage from any source, not from one named source for “{3}, {T}: The next time a source of your choice would deal damage to you this turn, that damage is dealt to target creature of an opponent's choice instead”.
+// Audit: unsupported — Needs a shield keyed to a source chosen as the ability resolves;
+// prevention shields attach to a recipient and spend on the next damage from any source, not
+// from one named source for “{3}, {T}: The next time a source of your choice would deal damage
+// to you this turn, that damage is dealt to target creature of an opponent's choice instead”.
 pub(in crate::card::sets) static NOVA_PENTACLE: CardRecord = CardRecord::new(
     "Nova Pentacle",
     "bc60e209-aa29-48aa-9128-9bb175403c0c",
@@ -5452,7 +5604,10 @@ pub(in crate::card::sets) static PLANAR_GATE: CardRecord = CardRecord::new(
 );
 
 // LEG 291 — Red Mana Battery
-// Audit: unsupported — Needs the number of counters removed as a value. Its mana ability pays a tap and RemoveAnyNumberOfCountersFromSource, both of which the boundary allows; what it cannot say is "add one, then one more for each counter removed", where the storage lands add exactly one per counter.
+// Audit: unsupported — Needs the number of counters removed as a value. Its mana ability pays a
+// tap and RemoveAnyNumberOfCountersFromSource, both of which the boundary allows; what it
+// cannot say is "add one, then one more for each counter removed", where the storage lands add
+// exactly one per counter.
 pub(in crate::card::sets) static RED_MANA_BATTERY: CardRecord = CardRecord::new(
     "Red Mana Battery",
     "363cc5d6-70f8-4a3c-92bd-8f49774bdce2",
@@ -5485,7 +5640,9 @@ pub(in crate::card::sets) static RELIC_BARRIER: CardRecord = CardRecord::new(
 );
 
 // LEG 293 — Ring of Immortals
-// Audit: unsupported — Needs a spell-on-stack target predicate that expresses the printed instant/Aura restriction for “{3}, {T}: Counter target instant or Aura spell that targets a permanent you control”.
+// Audit: unsupported — Needs a spell-on-stack target predicate that expresses the printed
+// instant/Aura restriction for “{3}, {T}: Counter target instant or Aura spell that targets a
+// permanent you control”.
 pub(in crate::card::sets) static RING_OF_IMMORTALS: CardRecord = CardRecord::new(
     "Ring of Immortals",
     "61706102-67fd-4167-bd7d-ec6da41db362",
@@ -5533,18 +5690,18 @@ pub(in crate::card::sets) static SERPENT_GENERATOR: CardRecord = CardRecord::new
     "Serpent Generator",
     "7c350c38-6cbb-4b8b-823f-45d6a16568cc",
     "Mark Tedin",
-CardRules::new_artifact(mana_cost!("{6}")).with_ability(AbilityDef::activated(
-        "{4}, {T}: Create a 1/1 colorless Snake artifact creature token. It has \"Whenever \
-         this creature deals damage to a player, that player gets a poison counter.\" (A player with ten or more poison counters loses the game.)",
-        &[
-            CostDef::Mana(mana_cost!("{4}")),
-            CostDef::TapSource,
-        ],
+    CardRules::new_artifact(mana_cost!("{6}")).with_ability(AbilityDef::activated(
+        "{4}, {T}: Create a 1/1 colorless Snake artifact creature \
+         token. It has \"Whenever this creature deals damage to a \
+         player, that player gets a poison counter.\" (A player with \
+         ten or more poison counters loses the game.)",
+        &[CostDef::Mana(mana_cost!("{4}")), CostDef::TapSource],
         EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
             TokenCharacteristics::artifact_creature(&["Snake"], &[], 1, 1).with_abilities(&[
                 abilities::poisonous_damage(
                     1,
-                    "Whenever this creature deals damage to a player, that player gets a poison counter.",
+                    "Whenever this creature deals damage to a player, that \
+                     player gets a poison counter.",
                 ),
             ]),
         ))),
@@ -5552,7 +5709,9 @@ CardRules::new_artifact(mana_cost!("{6}")).with_ability(AbilityDef::activated(
 );
 
 // LEG 296 — Sword of the Ages
-// Audit: unsupported — Needs a characteristic-layer effect or dynamic value for “{T}, Sacrifice this artifact and any number of creatures you control: This artifact deals X damage to any target, where X is the total power of the creatures sacrificed this way, then…”.
+// Audit: unsupported — Needs a characteristic-layer effect or dynamic value for “{T}, Sacrifice
+// this artifact and any number of creatures you control: This artifact deals X damage to any
+// target, where X is the total power of the creatures sacrificed this way, then…”.
 pub(in crate::card::sets) static SWORD_OF_THE_AGES: CardRecord = CardRecord::new(
     "Sword of the Ages",
     "b37fd4cc-ab5c-4c65-80ff-8f905b31e801",
@@ -5561,7 +5720,9 @@ pub(in crate::card::sets) static SWORD_OF_THE_AGES: CardRecord = CardRecord::new
 );
 
 // LEG 297 — Triassic Egg
-// Audit: unsupported — Needs card-specific counter state and counter-consuming effects for “Sacrifice this artifact: Choose one. Activate only if there are two or more hatchling counters on this artifact”.
+// Audit: unsupported — Needs card-specific counter state and counter-consuming effects for
+// “Sacrifice this artifact: Choose one. Activate only if there are two or more hatchling
+// counters on this artifact”.
 pub(in crate::card::sets) static TRIASSIC_EGG: CardRecord = CardRecord::new(
     "Triassic Egg",
     "ce3756f7-0d99-4562-b32d-66de18a58fdf",
@@ -5570,7 +5731,10 @@ pub(in crate::card::sets) static TRIASSIC_EGG: CardRecord = CardRecord::new(
 );
 
 // LEG 298 — Voodoo Doll
-// Audit: unsupported — Needs a mana activation cost whose amount is read from the source rather than printed, for “{X}{X}, {T}: ... X is the number of pin counters on this artifact”. The upkeep tick, the untapped intervening-if, and damage equal to a counter count are all available.
+// Audit: unsupported — Needs a mana activation cost whose amount is read from the source rather
+// than printed, for “{X}{X}, {T}: ... X is the number of pin counters on this artifact”. The
+// upkeep tick, the untapped intervening-if, and damage equal to a counter count are all
+// available.
 pub(in crate::card::sets) static VOODOO_DOLL: CardRecord = CardRecord::new(
     "Voodoo Doll",
     "0418672d-056e-416d-91b4-8ee6e47201dc",
@@ -5579,7 +5743,10 @@ pub(in crate::card::sets) static VOODOO_DOLL: CardRecord = CardRecord::new(
 );
 
 // LEG 299 — White Mana Battery
-// Audit: unsupported — Needs the number of counters removed as a value. Its mana ability pays a tap and RemoveAnyNumberOfCountersFromSource, both of which the boundary allows; what it cannot say is "add one, then one more for each counter removed", where the storage lands add exactly one per counter.
+// Audit: unsupported — Needs the number of counters removed as a value. Its mana ability pays a
+// tap and RemoveAnyNumberOfCountersFromSource, both of which the boundary allows; what it
+// cannot say is "add one, then one more for each counter removed", where the storage lands add
+// exactly one per counter.
 pub(in crate::card::sets) static WHITE_MANA_BATTERY: CardRecord = CardRecord::new(
     "White Mana Battery",
     "35fbbe41-d21b-4028-905f-054c44d30eb2",
@@ -5776,12 +5943,17 @@ pub(in crate::card::sets) static THE_TABERNACLE_AT_PENDRELL_VALE: CardRecord = C
     "The Tabernacle at Pendrell Vale",
     "64bc9b1d-5818-4d9e-b771-e49af4ff9a5c",
     "Nicola Leonard",
-CardRules::new_land(&[])
+    CardRules::new_land(&[])
         .with_supertype(CardSupertype::Legendary)
         .with_ability(AbilityDef::static_ability(
-            "All creatures have \"At the beginning of your upkeep, destroy this creature unless you pay {1}.\"",
+            "All creatures have \"At the beginning of your upkeep, \
+             destroy this creature unless you pay {1}.\"",
             EffectDef::StaticApply {
-                recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::HasType(CardType::Creature), &[ZoneKind::Battlefield], PlayerRelation::Any),
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
                 effect: AppliedEffectDef::add_ability(&AbilityDef::triggered(
                     "At the beginning of your upkeep, destroy this creature unless you pay {1}.",
                     TriggerEventDef::StepBegins {
@@ -5859,7 +6031,8 @@ pub(in crate::card::sets) static UNHOLY_CITADEL: CardRecord = CardRecord::new(
 );
 
 // LEG 310 — Urborg
-// Audit: unsupported — Needs a modal choice between two named abilities and the removal of the chosen one; the vocabulary grants named abilities but does not take them away.
+// Audit: unsupported — Needs a modal choice between two named abilities and the removal of the
+// chosen one; the vocabulary grants named abilities but does not take them away.
 pub(in crate::card::sets) static URBORG: CardRecord = CardRecord::new(
     "Urborg",
     "d0a261d0-7678-46f7-9285-d541486567d8",

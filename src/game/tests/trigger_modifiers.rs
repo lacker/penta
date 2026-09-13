@@ -16,9 +16,9 @@ fn counts(game: &Game, source: GameObjectId) -> usize {
 fn suppression_uses_the_entering_object_and_wins_over_additional_occurrences() {
     for suppressor in [
         cards::TORPOR_ORB,
-        cards::HUSHWING_GRYFF_15,
+        cards::HUSHWING_GRYFF,
         cards::DOORKEEPER_THRULL,
-        cards::HUSHBRINGER_18,
+        cards::HUSHBRINGER,
     ] {
         let mut game = ready_game();
         put(&mut game, PlayerId::One, cards::TRAVELING_CHOCOBO);
@@ -47,7 +47,7 @@ fn elesh_norn_reads_the_ability_controller_independently_of_the_arrival_controll
     put(
         &mut game,
         PlayerId::One,
-        cards::ELESH_NORN_MOTHER_OF_MACHINES_416,
+        cards::ELESH_NORN_MOTHER_OF_MACHINES,
     );
     assert_eq!(counts(&game, ours), 2);
     assert_eq!(counts(&game, theirs), 0);
@@ -58,7 +58,7 @@ fn elesh_norn_reads_the_ability_controller_independently_of_the_arrival_controll
     put(
         &mut game,
         PlayerId::Two,
-        cards::ELESH_NORN_MOTHER_OF_MACHINES_416,
+        cards::ELESH_NORN_MOTHER_OF_MACHINES,
     );
     game.pending_triggers.clear();
     put(&mut game, PlayerId::One, cards::GRIZZLY_BEARS);
@@ -68,7 +68,7 @@ fn elesh_norn_reads_the_ability_controller_independently_of_the_arrival_controll
 #[test]
 fn gandalf_uses_predeparture_sources_and_adds_once_for_artifact_legends() {
     let mut game = ready_game();
-    let gandalf = put(&mut game, PlayerId::One, cards::GANDALF_THE_WHITE_305);
+    let gandalf = put(&mut game, PlayerId::One, cards::GANDALF_THE_WHITE);
     let artist = put(&mut game, PlayerId::One, cards::BLOOD_ARTIST);
     let strix = put(&mut game, PlayerId::Two, cards::BALEFUL_STRIX);
     game.pending_triggers.clear();
@@ -83,13 +83,13 @@ fn gandalf_uses_predeparture_sources_and_adds_once_for_artifact_legends() {
 #[test]
 fn hushbringer_suppresses_a_simultaneous_death_but_does_not_suppress_exile() {
     let mut game = ready_game();
-    let hush = put(&mut game, PlayerId::One, cards::HUSHBRINGER_18);
+    let hush = put(&mut game, PlayerId::One, cards::HUSHBRINGER);
     let artist = put(&mut game, PlayerId::Two, cards::BLOOD_ARTIST);
     game.destroy_permanents(&[hush, artist], false);
     assert!(game.pending_triggers.is_empty());
 
     let mut game = ready_game();
-    put(&mut game, PlayerId::One, cards::HUSHBRINGER_18);
+    put(&mut game, PlayerId::One, cards::HUSHBRINGER);
     let sculler = put(&mut game, PlayerId::One, cards::TIDEHOLLOW_SCULLER);
     assert!(game.pending_triggers.is_empty());
     game.exile_permanent(sculler);
@@ -107,7 +107,7 @@ fn entry_replacements_still_apply_with_suppression_and_multiplication() {
     put(
         &mut game,
         PlayerId::One,
-        cards::ELESH_NORN_MOTHER_OF_MACHINES_416,
+        cards::ELESH_NORN_MOTHER_OF_MACHINES,
     );
     let depths = put(&mut game, PlayerId::One, cards::DARK_DEPTHS);
     let permanent = game
@@ -167,7 +167,7 @@ fn proctor_game(
         put(
             &mut game,
             PlayerId::Two,
-            cards::ELESH_NORN_MOTHER_OF_MACHINES_416,
+            cards::ELESH_NORN_MOTHER_OF_MACHINES,
         );
     }
     let strix = put(&mut game, PlayerId::Two, cards::BALEFUL_STRIX);
@@ -255,7 +255,7 @@ fn simultaneous_entries_see_suppressors_and_late_arriving_type_effects() {
     game.pending_triggers.clear();
     game.entering_together(|game| {
         put(game, PlayerId::One, cards::GRIZZLY_BEARS);
-        put(game, PlayerId::One, cards::ASHAYA_SOUL_OF_THE_WILD_179);
+        put(game, PlayerId::One, cards::ASHAYA_SOUL_OF_THE_WILD);
     });
     assert_eq!(
         counts(&game, watcher),
@@ -268,7 +268,7 @@ fn simultaneous_entries_see_suppressors_and_late_arriving_type_effects() {
 fn death_suppression_preserves_the_new_cards_own_from_anywhere_trigger() {
     for simultaneous in [false, true] {
         let mut game = ready_game();
-        let hush = put(&mut game, PlayerId::One, cards::HUSHBRINGER_18);
+        let hush = put(&mut game, PlayerId::One, cards::HUSHBRINGER);
         let wurm = put(&mut game, PlayerId::One, cards::WORLDSPINE_WURM);
         let deaths = if simultaneous {
             vec![hush, wurm]
@@ -312,7 +312,7 @@ fn additional_occurrences_respect_per_turn_limits() {
     put(
         &mut game,
         PlayerId::One,
-        cards::ELESH_NORN_MOTHER_OF_MACHINES_416,
+        cards::ELESH_NORN_MOTHER_OF_MACHINES,
     );
     let watcher = game.create_token_from(
         PlayerId::One,
@@ -337,7 +337,7 @@ fn grouped_deaths_add_one_occurrence_per_modifier() {
         },
     )];
     let mut game = ready_game();
-    let gandalf = put(&mut game, PlayerId::One, cards::GANDALF_THE_WHITE_305);
+    let gandalf = put(&mut game, PlayerId::One, cards::GANDALF_THE_WHITE);
     let watcher = game.create_token_from(
         PlayerId::One,
         crate::card::TokenCharacteristics::creature(&[], &[], 1, 1).with_abilities(ABILITIES),
@@ -421,7 +421,7 @@ fn thrull_suppresses_artifact_entries_that_torpor_orb_allows() {
 #[test]
 fn gandalf_grants_flash_to_legendary_and_artifact_spells() {
     let mut game = ready_game();
-    put(&mut game, PlayerId::One, cards::GANDALF_THE_WHITE_305);
+    put(&mut game, PlayerId::One, cards::GANDALF_THE_WHITE);
     game.active_player = PlayerId::Two;
     game.priority = PlayerId::One;
     game.add_unrestricted_mana(PlayerId::One, ManaColor::White, 10);
@@ -452,7 +452,7 @@ fn a_suppressed_delayed_trigger_waits_and_is_not_multiplied_as_a_permanent_abili
     put(
         &mut game,
         PlayerId::One,
-        cards::ELESH_NORN_MOTHER_OF_MACHINES_416,
+        cards::ELESH_NORN_MOTHER_OF_MACHINES,
     );
     let warden = put(&mut game, PlayerId::One, cards::SOUL_WARDEN);
     let listener = game
@@ -525,7 +525,7 @@ fn false_intervening_if_preserves_per_turn_allowances_with_additional_occurrence
                 put(
                     &mut game,
                     PlayerId::One,
-                    cards::ELESH_NORN_MOTHER_OF_MACHINES_416,
+                    cards::ELESH_NORN_MOTHER_OF_MACHINES,
                 );
                 let watcher = game.create_token_from(
                     PlayerId::One,

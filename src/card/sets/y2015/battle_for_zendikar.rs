@@ -64,20 +64,52 @@ const ELDRAZI_SCION_TOKEN: TokenCharacteristics =
         .with_art(CardArt::new("b999a0fe-d2d0-4367-9abb-6ce5f3764f19", "Izzy"));
 
 // BFZ 15 — Ulamog, the Ceaseless Hunger
-pub(in crate::card::sets) static ULAMOG_THE_CEASELESS_HUNGER_15: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static ULAMOG_THE_CEASELESS_HUNGER: CardRecord = CardRecord::new(
     "Ulamog, the Ceaseless Hunger",
     "1192f7a9-102e-4b3a-b154-18c8eb332217",
     "Michael Komarck",
-    CardRules::new_creature(mana_cost!("{10}"), &["Eldrazi"], 10, 10).with_supertype(CardSupertype::Legendary).with_abilities(&[
-AbilityDef::triggered_with_targets("When you cast this spell, exile two target permanents.", TriggerEventDef::spell_cast(ObjectPredicateDef::Source), &[AbilityTargetDef { minimum: 2, maximum: 2, ..AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Any) }], EffectDef::move_to_zone(EffectRecipientDef::Target(TargetIndex::PRIMARY), ZoneKind::Exile, ZonePlacement::Top)),
-abilities::indestructible(),
-AbilityDef::triggered("Whenever Ulamog attacks, defending player exiles the top twenty cards of their library.", TriggerEventDef::attacks(ObjectPredicateDef::Source), EffectDef::BindObjects(BindObjectsDef { source: ObjectCollectionSourceDef::TopCards { player: PlayerRefDef::Opponent, count: ValueDef::Constant(20) }, binding: ParentBinding, then: &EffectDef::move_to_zone(EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)), ZoneKind::Exile, ZonePlacement::Top) }))
-]),
+    CardRules::new_creature(mana_cost!("{10}"), &["Eldrazi"], 10, 10)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::triggered_with_targets(
+                "When you cast this spell, exile two target permanents.",
+                TriggerEventDef::spell_cast(ObjectPredicateDef::Source),
+                &[AbilityTargetDef {
+                    minimum: 2,
+                    maximum: 2,
+                    ..AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Any)
+                }],
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Exile,
+                    ZonePlacement::Top,
+                ),
+            ),
+            abilities::indestructible(),
+            AbilityDef::triggered(
+                "Whenever Ulamog attacks, defending player exiles the top \
+                 twenty cards of their library.",
+                TriggerEventDef::attacks(ObjectPredicateDef::Source),
+                EffectDef::BindObjects(BindObjectsDef {
+                    source: ObjectCollectionSourceDef::TopCards {
+                        player: PlayerRefDef::Opponent,
+                        count: ValueDef::Constant(20),
+                    },
+                    binding: ParentBinding,
+                    then: &EffectDef::move_to_zone(
+                        EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
+                        ZoneKind::Exile,
+                        ZonePlacement::Top,
+                    ),
+                }),
+            ),
+        ]),
 );
 
 // BFZ 17 — Void Winnower
-// Audit: unsupported — Spell and blocker predicates have mana-value comparisons but no parity predicate for all even mana values, including arbitrary chosen X values.
-pub(in crate::card::sets) static VOID_WINNOWER_17: CardRecord = CardRecord::new(
+// Audit: unsupported — Spell and blocker predicates have mana-value comparisons but no parity
+// predicate for all even mana values, including arbitrary chosen X values.
+pub(in crate::card::sets) static VOID_WINNOWER: CardRecord = CardRecord::new(
     "Void Winnower",
     "8cbedb0a-34ca-4d42-bb43-cbea0f3c6d02",
     "Chase Stone",
@@ -105,7 +137,9 @@ pub(in crate::card::sets) static FELIDAR_CUB: CardRecord = CardRecord::new(
 );
 
 // BFZ 50 — Stasis Snare
-// Audit: unsupported — Needs an exile-until-source-leaves duration with immediate return when that duration ends (CR 610.3); an ordinary leaves trigger returns the card later through the stack.
+// Audit: unsupported — Needs an exile-until-source-leaves duration with immediate return when
+// that duration ends (CR 610.3); an ordinary leaves trigger returns the card later through the
+// stack.
 pub(in crate::card::sets) static STASIS_SNARE: CardRecord = CardRecord::new(
     "Stasis Snare",
     "ff820544-f4a3-40c4-a48e-84b5e2d06caa",
@@ -118,13 +152,15 @@ pub(in crate::card::sets) static ELDRAZI_SKYSPAWNER: CardRecord = CardRecord::ne
     "Eldrazi Skyspawner",
     "9c9c1a10-446e-492a-95cc-a459dc6c08a0",
     "Chase Stone",
-// Three mana for two bodies and a ritual: the Scion is what turns the
+    // Three mana for two bodies and a ritual: the Scion is what turns the
     // flier into a fourth-turn six-drop.
     CardRules::new_creature(mana_cost!("{2}{U}"), &["Eldrazi", "Drone"], 2, 1).with_abilities(&[
         abilities::devoid(),
         abilities::flying(),
         abilities::enters_trigger(
-            "When this creature enters, create a 1/1 colorless Eldrazi Scion creature token. It has \"Sacrifice this token: Add {C}.\"",
+            "When this creature enters, create a 1/1 colorless Eldrazi \
+             Scion creature token. It has \"Sacrifice this token: Add \
+             {C}.\"",
             EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(ELDRAZI_SCION_TOKEN))),
         ),
     ]),
@@ -135,12 +171,14 @@ pub(in crate::card::sets) static CARRIER_THRALL: CardRecord = CardRecord::new(
     "Carrier Thrall",
     "bd2ab895-9225-4eba-90c3-4023db4f8b70",
     "Lius Lasahido",
-// Two mana that trades and still leaves a mana behind, which is why the
+    // Two mana that trades and still leaves a mana behind, which is why the
     // body is aggressive and the death trigger is not.
     CardRules::new_creature(mana_cost!("{1}{B}"), &["Vampire"], 2, 1).with_abilities(&[
         abilities::devoid(),
         abilities::dies_trigger(
-            "When this creature dies, create a 1/1 colorless Eldrazi Scion creature token. It has \"Sacrifice this token: Add {C}.\"",
+            "When this creature dies, create a 1/1 colorless Eldrazi \
+             Scion creature token. It has \"Sacrifice this token: Add \
+             {C}.\"",
             EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(ELDRAZI_SCION_TOKEN))),
         ),
     ]),
@@ -198,12 +236,14 @@ pub(in crate::card::sets) static UNNATURAL_AGGRESSION: CardRecord = CardRecord::
     "Unnatural Aggression",
     "8293c66d-9a9b-4817-9bc3-ffd57fda290c",
     "James Ryman",
-CardRules::new_instant(mana_cost!("{2}{G}"))
+    CardRules::new_instant(mana_cost!("{2}{G}"))
         .printed_colors(&[])
         .with_abilities(&[
             abilities::devoid(),
             AbilityDef::spell_with_targets(
-                "Target creature you control fights target creature an opponent controls. If the creature an opponent controls would die this turn, exile it instead.",
+                "Target creature you control fights target creature an \
+                 opponent controls. If the creature an opponent controls \
+                 would die this turn, exile it instead.",
                 &[
                     AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
                         object: ObjectPredicateDef::HasType(CardType::Creature),
@@ -238,13 +278,46 @@ CardRules::new_instant(mana_cost!("{2}{G}"))
 );
 
 // BFZ 209 — Bring to Light
-pub(in crate::card::sets) static BRING_TO_LIGHT_209: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static BRING_TO_LIGHT: CardRecord = CardRecord::new(
     "Bring to Light",
     "d25b13a4-6282-4426-8b01-9550f7d52d16",
     "Jonas De Ro",
-    CardRules::new_sorcery(mana_cost!("{3}{G}{U}")).with_abilities(&[
-AbilityDef::spell("Converge — Search your library for a creature, instant, or sorcery card with mana value less than or equal to the number of colors of mana spent to cast this spell, exile that card, then shuffle. You may cast that card without paying its mana cost.", EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Library, object: ObjectPredicateDef::All(&[ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Instant), ObjectPredicateDef::HasType(CardType::Sorcery)])]), ObjectPredicateDef::ManaValueAtMostValue(ValueDef::ColorsOfManaSpent)]), minimum: 0, maximum: ValueDef::Constant(1), reveal: true, destination: ZoneKind::Exile, placement: ZonePlacement::Top, shuffle: true, enters_tapped: false, attachment: None, binding: Some(Binding!("bring_card")), then: Some(&EffectDef::MayPlayWithoutPaying(FreePlayDef { objects: ObjectSetDef::Binding(Binding!("bring_card")), duration: FreePlayDurationDef::WhileResolving, mandatory: false, grants_haste: false })) })
-]),
+    CardRules::new_sorcery(mana_cost!("{3}{G}{U}")).with_abilities(&[AbilityDef::spell(
+        "Converge — Search your library for a creature, instant, or \
+         sorcery card with mana value less than or equal to the \
+         number of colors of mana spent to cast this spell, exile \
+         that card, then shuffle. You may cast that card without \
+         paying its mana cost.",
+        EffectDef::SearchZone {
+            player: EffectRecipientDef::Controller,
+            source: ZoneKind::Library,
+            object: ObjectPredicateDef::All(&[
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Instant),
+                        ObjectPredicateDef::HasType(CardType::Sorcery),
+                    ]),
+                ]),
+                ObjectPredicateDef::ManaValueAtMostValue(ValueDef::ColorsOfManaSpent),
+            ]),
+            minimum: 0,
+            maximum: ValueDef::Constant(1),
+            reveal: true,
+            destination: ZoneKind::Exile,
+            placement: ZonePlacement::Top,
+            shuffle: true,
+            enters_tapped: false,
+            attachment: None,
+            binding: Some(Binding!("bring_card")),
+            then: Some(&EffectDef::MayPlayWithoutPaying(FreePlayDef {
+                objects: ObjectSetDef::Binding(Binding!("bring_card")),
+                duration: FreePlayDurationDef::WhileResolving,
+                mandatory: false,
+                grants_haste: false,
+            })),
+        },
+    )]),
 );
 
 // BFZ 223 — Hedron Archive
@@ -271,18 +344,49 @@ pub(in crate::card::sets) static HEDRON_ARCHIVE: CardRecord = CardRecord::new(
 );
 
 // BFZ 242 — Sanctum of Ugin
-pub(in crate::card::sets) static SANCTUM_OF_UGIN_242: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static SANCTUM_OF_UGIN: CardRecord = CardRecord::new(
     "Sanctum of Ugin",
     "86798d03-9f2d-46bd-a660-13c8dd5535ce",
     "James Paick",
     CardRules::new_land(&[]).with_abilities(&[
-abilities::tap_for(ManaColor::Colorless),
-AbilityDef::triggered("Whenever you cast a colorless spell with mana value 7 or greater, you may sacrifice this land. If you do, search your library for a colorless creature card, reveal it, put it into your hand, then shuffle.", TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[ObjectPredicateDef::ControlledBy(PlayerRelation::You), ObjectPredicateDef::ColorCount(0), ObjectPredicateDef::Not(&ObjectPredicateDef::ManaValueAtMost(6))])), EffectDef::PayOr(PayOrDef::optional(&[CostDef::sacrifice_permanent(ObjectPredicateDef::Source)], &EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Library, object: ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::ColorCount(0)]), minimum: 0, maximum: ValueDef::Constant(1), reveal: true, destination: ZoneKind::Hand, placement: ZonePlacement::Top, shuffle: true, enters_tapped: false, attachment: None, binding: None, then: None })))
-]),
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::triggered(
+            "Whenever you cast a colorless spell with mana value 7 or \
+             greater, you may sacrifice this land. If you do, search \
+             your library for a colorless creature card, reveal it, put \
+             it into your hand, then shuffle.",
+            TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ObjectPredicateDef::ColorCount(0),
+                ObjectPredicateDef::Not(&ObjectPredicateDef::ManaValueAtMost(6)),
+            ])),
+            EffectDef::PayOr(PayOrDef::optional(
+                &[CostDef::sacrifice_permanent(ObjectPredicateDef::Source)],
+                &EffectDef::SearchZone {
+                    player: EffectRecipientDef::Controller,
+                    source: ZoneKind::Library,
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::ColorCount(0),
+                    ]),
+                    minimum: 0,
+                    maximum: ValueDef::Constant(1),
+                    reveal: true,
+                    destination: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                    shuffle: true,
+                    enters_tapped: false,
+                    attachment: None,
+                    binding: None,
+                    then: None,
+                },
+            )),
+        ),
+    ]),
 );
 
 // BFZ 249 — Sunken Hollow
-pub(in crate::card::sets) static SUNKEN_HOLLOW_249: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static SUNKEN_HOLLOW: CardRecord = CardRecord::new(
     "Sunken Hollow",
     "0dd1726f-b899-491a-8b0e-8e3d25f17d3d",
     "Adam Paquette",
@@ -311,8 +415,8 @@ pub(in crate::card::sets) static SUNKEN_HOLLOW_249: CardRecord = CardRecord::new
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
-    &ULAMOG_THE_CEASELESS_HUNGER_15,
-    &VOID_WINNOWER_17,
+    &ULAMOG_THE_CEASELESS_HUNGER,
+    &VOID_WINNOWER,
     &FELIDAR_CUB,
     &STASIS_SNARE,
     &ELDRAZI_SKYSPAWNER,
@@ -320,10 +424,10 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &VAMPIRIC_RITES,
     &SURE_STRIKE,
     &UNNATURAL_AGGRESSION,
-    &BRING_TO_LIGHT_209,
+    &BRING_TO_LIGHT,
     &HEDRON_ARCHIVE,
-    &SANCTUM_OF_UGIN_242,
-    &SUNKEN_HOLLOW_249,
+    &SANCTUM_OF_UGIN,
+    &SUNKEN_HOLLOW,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

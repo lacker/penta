@@ -69,14 +69,32 @@ const BLOOD_TOKEN: TokenCharacteristics = tokens::blood().with_art(CardArt::new(
 ));
 
 // VOW 46 — Welcoming Vampire
-pub(in crate::card::sets) static WELCOMING_VAMPIRE_46: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static WELCOMING_VAMPIRE: CardRecord = CardRecord::new(
     "Welcoming Vampire",
     "d8f69cea-823c-482b-a605-8138b3d950e6",
     "Lorenzo Mastroianni",
     CardRules::new_creature(mana_cost!("{2}{W}"), &["Vampire"], 2, 3).with_abilities(&[
-abilities::flying(),
-AbilityDef::triggered("Whenever one or more other creatures you control with power 2 or less enter, draw a card. This ability triggers only once each turn.", TriggerEventDef::zone_changed(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::ControlledBy(PlayerRelation::You), ObjectPredicateDef::Not(&ObjectPredicateDef::Source), ObjectPredicateDef::Not(&ObjectPredicateDef::PowerGreaterThan(ValueDef::Constant(2)))]), None, Some(ZoneKind::Battlefield)), abilities::draw_cards(ValueDef::Constant(1))).triggering_at_most(1)
-]),
+        abilities::flying(),
+        AbilityDef::triggered(
+            "Whenever one or more other creatures you control with power \
+             2 or less enter, draw a card. This ability triggers only \
+             once each turn.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::PowerGreaterThan(
+                        ValueDef::Constant(2),
+                    )),
+                ]),
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            abilities::draw_cards(ValueDef::Constant(1)),
+        )
+        .triggering_at_most(1),
+    ]),
 );
 
 // VOW 55 — Cruel Witness
@@ -102,8 +120,10 @@ pub(in crate::card::sets) static CRUEL_WITNESS: CardRecord = CardRecord::new(
 );
 
 // VOW 87 — Wash Away
-// Audit: unsupported — The targeting vocabulary cannot inspect the targeted spell's cast source zone. Cleave is also absent from AlternativeCastKindDef, so its ordinary restriction and alternate cast cannot be declared.
-pub(in crate::card::sets) static WASH_AWAY_87: CardRecord = CardRecord::new(
+// Audit: unsupported — The targeting vocabulary cannot inspect the targeted spell's cast source
+// zone. Cleave is also absent from AlternativeCastKindDef, so its ordinary restriction and
+// alternate cast cannot be declared.
+pub(in crate::card::sets) static WASH_AWAY: CardRecord = CardRecord::new(
     "Wash Away",
     "43411ade-be80-4535-8baa-7055e78496df",
     "Brian Valeza",
@@ -184,56 +204,80 @@ pub(in crate::card::sets) static CONCEALING_CURTAINS: CardRecord = CardRecord::n
                     // A back face has no mana cost to read a colour off; the
                     // colour indicator is what says she is still black.
                     .printed_colors(&[ManaColor::Black])
-                .with_abilities(&const { [
-                    abilities::menace(),
-                    AbilityDef::triggered_with_targets(
-                        "When this creature transforms into Revealing Eye, target opponent reveals their hand. \
-                         You may choose a nonland card from it. If you do, that player discards that card, then \
-                         draws a card.",
-                        TriggerEventDef::transforms(ObjectPredicateDef::Source),
-                        &const { [AbilityTargetDef::exactly_one(
-                            AbilityTargetPredicate::Player(PlayerRelation::Opponent),
-                        )] },
-                        // "You may choose a nonland card from it": a choice of none is a legal
-                        // answer, which is why the minimum is zero rather than one.
-                        EffectDef::Sequence(&const { [
-                            EffectDef::RevealHand {
-                                player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                            },
-                            EffectDef::Choose(ChooseDef {
-                                binding: ObjectChoiceBindingDef::Objects(ParentBinding),
-                                unchosen: None,
-                                chooser: PlayerRefDef::EffectController,
-                                candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
-                                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
-                                    &[ZoneKind::Hand],
-                                    PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
-                                )),
-                                exclude: None,
-                                minimum: 0,
-                                maximum: 1,
-                                visibility: ChoiceVisibilityDef::Public,
-                                then: &EffectDef::ForEachInBinding {
-                                    objects: ParentBinding,
-                                    binding: ParentBinding,
-                                    // What the Eye does with the card it picked. Written as a walk over the
-                                    // chosen set rather than a plain sequence, because "if you do" gates the
-                                    // draw as well as the discard: an Eye that looked and took nothing leaves
-                                    // the opponent with the hand they had.
-                                    effect: &EffectDef::Sequence(&const { [
-                                        EffectDef::discard_cards(EffectRecipientDef::object(
-                                                ObjectRefDef::Binding(ParentBinding),
-                                            )),
-                                        EffectDef::DrawCards {
-                                            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                                            amount: ValueDef::Constant(1),
+                    .with_abilities(
+                        &const {
+                            [
+                                abilities::menace(),
+                                AbilityDef::triggered_with_targets(
+                                    "When this creature transforms into Revealing Eye, target \
+                                     opponent reveals their hand. You may choose a nonland card \
+                                     from it. If you do, that player discards that card, then \
+                                     draws a card.",
+                                    TriggerEventDef::transforms(ObjectPredicateDef::Source),
+                                    &const {
+                                        [AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
+                                            PlayerRelation::Opponent,
+                                        ))]
+                                    },
+                                    // "You may choose a nonland card from it": a choice of none is a legal
+                                    // answer, which is why the minimum is zero rather than one.
+                                    EffectDef::Sequence(
+                                        &const {
+                                            [
+                                                EffectDef::RevealHand {
+                                                    player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                                },
+                                                EffectDef::Choose(ChooseDef {
+                                                    binding: ObjectChoiceBindingDef::Objects(ParentBinding),
+                                                    unchosen: None,
+                                                    chooser: PlayerRefDef::EffectController,
+                                                    candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
+                                                        ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(
+                                                            CardType::Land,
+                                                        )),
+                                                        &[ZoneKind::Hand],
+                                                        PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                                                    )),
+                                                    exclude: None,
+                                                    minimum: 0,
+                                                    maximum: 1,
+                                                    visibility: ChoiceVisibilityDef::Public,
+                                                    then: &EffectDef::ForEachInBinding {
+                                                        objects: ParentBinding,
+                                                        binding: ParentBinding,
+                                                        // What the Eye does with the card it picked. Written as a walk
+                                                        // over the
+                                                        // chosen set rather than a plain sequence, because "if you do"
+                                                        // gates the
+                                                        // draw as well as the discard: an Eye that looked and took
+                                                        // nothing leaves
+                                                        // the opponent with the hand they had.
+                                                        effect: &EffectDef::Sequence(
+                                                            &const {
+                                                                [
+                                                                    EffectDef::discard_cards(
+                                                                        EffectRecipientDef::object(
+                                                                            ObjectRefDef::Binding(ParentBinding),
+                                                                        ),
+                                                                    ),
+                                                                    EffectDef::DrawCards {
+                                                                        recipient: EffectRecipientDef::Target(
+                                                                            TargetIndex::PRIMARY,
+                                                                        ),
+                                                                        amount: ValueDef::Constant(1),
+                                                                    },
+                                                                ]
+                                                            },
+                                                        ),
+                                                    },
+                                                }),
+                                            ]
                                         },
-                                    ] }),
-                                },
-                            }),
-                        ] }),
-                    ),
-                ] })
+                                    ),
+                                ),
+                            ]
+                        },
+                    )
             },
         ),
     ],
@@ -329,7 +373,7 @@ pub(in crate::card::sets) static ANCESTRAL_ANGER: CardRecord = CardRecord::new(
 );
 
 // VOW 164 — Kessig Flamebreather
-pub(in crate::card::sets) static KESSIG_FLAMEBREATHER_164: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static KESSIG_FLAMEBREATHER: CardRecord = CardRecord::new(
     "Kessig Flamebreather",
     "303ad78a-b02a-44dc-afe6-7f95781a5062",
     "Lius Lasahido",
@@ -458,34 +502,45 @@ pub(in crate::card::sets) static ULVENWALD_ODDITY: CardRecord = CardRecord::new_
                 CardRules::new_creature_without_mana_cost(&["Beast", "Horror"], 8, 8)
                     // Same again: the indicator keeps the Behemoth green.
                     .printed_colors(&[ManaColor::Green])
-                .with_abilities(&const { [
-                    abilities::trample(),
-                    abilities::haste(),
-                    AbilityDef::static_ability(
-                        "Other creatures you control get +1/+1 and have trample and haste.",
-                        EffectDef::StaticApply {
-                            recipient: EffectRecipientDef::matching_objects(
-                                // "Other creatures you control", which excludes the Behemoth itself: it
-                                // already has both keywords and does not need the counters.
-                                ObjectPredicateDef::All(&[
-                                    ObjectPredicateDef::HasType(CardType::Creature),
-                                    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-                                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                                ]),
-                                &[ZoneKind::Battlefield],
-                                PlayerRelation::You,
-                            ),
-                            // What the back face hands the rest of the board. The keywords are the ones
-                            // it already has, which is the joke: the 8/8 makes everything else look
-                            // like a smaller version of itself.
-                            effect: AppliedEffectDef::Composite(&const { [
-                                AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(1)),
-                                AppliedEffectDef::add_ability(&const { abilities::trample() }),
-                                AppliedEffectDef::add_ability(&const { abilities::haste() }),
-                            ] }),
+                    .with_abilities(
+                        &const {
+                            [
+                                abilities::trample(),
+                                abilities::haste(),
+                                AbilityDef::static_ability(
+                                    "Other creatures you control get +1/+1 and have trample and haste.",
+                                    EffectDef::StaticApply {
+                                        recipient: EffectRecipientDef::matching_objects(
+                                            // "Other creatures you control", which excludes the Behemoth itself: it
+                                            // already has both keywords and does not need the counters.
+                                            ObjectPredicateDef::All(&[
+                                                ObjectPredicateDef::HasType(CardType::Creature),
+                                                ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                                                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                                            ]),
+                                            &[ZoneKind::Battlefield],
+                                            PlayerRelation::You,
+                                        ),
+                                        // What the back face hands the rest of the board. The keywords are the ones
+                                        // it already has, which is the joke: the 8/8 makes everything else look
+                                        // like a smaller version of itself.
+                                        effect: AppliedEffectDef::Composite(
+                                            &const {
+                                                [
+                                                    AppliedEffectDef::modify_power_toughness(
+                                                        ValueDef::Constant(1),
+                                                        ValueDef::Constant(1),
+                                                    ),
+                                                    AppliedEffectDef::add_ability(&const { abilities::trample() }),
+                                                    AppliedEffectDef::add_ability(&const { abilities::haste() }),
+                                                ]
+                                            },
+                                        ),
+                                    },
+                                ),
+                            ]
                         },
-                    ),
-                ] })
+                    )
             },
         ),
     ],
@@ -537,7 +592,7 @@ pub(in crate::card::sets) static HALANA_AND_ALENA_PARTNERS: CardRecord = CardRec
 );
 
 // VOW 259 — Lantern of the Lost
-pub(in crate::card::sets) static LANTERN_OF_THE_LOST_259: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static LANTERN_OF_THE_LOST: CardRecord = CardRecord::new(
     "Lantern of the Lost",
     "c2303f11-2c82-44d5-893a-8e71dece7746",
     "Chris Cold",
@@ -794,37 +849,38 @@ pub(in crate::card::sets) static BLOODTITHE_HARVESTER: CardRecord = CardRecord::
     "Bloodtithe Harvester",
     "01182501-2b50-4b87-835a-fea3c5e6e330",
     "Sami Makkonen",
-// Two mana for a 3/2 that replaces itself with a card later, and can
+    // Two mana for a 3/2 that replaces itself with a card later, and can
     // instead be spent as removal the turn it stops attacking.
-    CardRules::new_creature(mana_cost!("{B}{R}"), &["Vampire"], 3, 2)
-        .with_abilities(&[
-            abilities::enters_trigger(
-                "When this creature enters, create a Blood token.",
-                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
-                    BLOOD_TOKEN,
-                ))),
-            ),
-            // Sacrificing the Harvester is what pays for the removal, so the body
-            // and the answer are the same card twice rather than both at once.
-            AbilityDef::activated_with_targets(
-                "{T}, Sacrifice this creature: Target creature gets -X/-X until end of turn, where X is \
-                 twice the number of Blood tokens you control. Activate only as a sorcery.",
-                &[CostDef::TapSource, CostDef::SacrificeSource],
-                &[AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                )],
-                EffectDef::Apply {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    effect: AppliedEffectDef::modify_power_toughness(HARVESTER_PENALTY, HARVESTER_PENALTY),
-                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                },
-            )
-            .with_activation_timing(ActivationTimingDef::SorcerySpeed),
-        ]),
+    CardRules::new_creature(mana_cost!("{B}{R}"), &["Vampire"], 3, 2).with_abilities(&[
+        abilities::enters_trigger(
+            "When this creature enters, create a Blood token.",
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(BLOOD_TOKEN))),
+        ),
+        // Sacrificing the Harvester is what pays for the removal, so the body
+        // and the answer are the same card twice rather than both at once.
+        AbilityDef::activated_with_targets(
+            "{T}, Sacrifice this creature: Target creature gets -X/-X \
+             until end of turn, where X is twice the number of Blood \
+             tokens you control. Activate only as a sorcery.",
+            &[CostDef::TapSource, CostDef::SacrificeSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    HARVESTER_PENALTY,
+                    HARVESTER_PENALTY,
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        )
+        .with_activation_timing(ActivationTimingDef::SorcerySpeed),
+    ]),
 );
 
 // VOW 359 — Hullbreaker Horror
-pub(in crate::card::sets) static HULLBREAKER_HORROR_359: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static HULLBREAKER_HORROR: CardRecord = CardRecord::new(
     "Hullbreaker Horror",
     "2e073047-fba8-41bd-b260-1eefb084fc80",
     "Svetlin Velinov",
@@ -870,8 +926,10 @@ pub(in crate::card::sets) static HULLBREAKER_HORROR_359: CardRecord = CardRecord
 );
 
 // VOW 374 — Alchemist's Gambit
-// Audit: unsupported — There is no delayed-loss trigger bound to the specific extra turn this spell creates, and cleave is not an existing alternative-cast kind. It does not have flashback.
-pub(in crate::card::sets) static ALCHEMIST_S_GAMBIT_374: CardRecord = CardRecord::new(
+// Audit: unsupported — There is no delayed-loss trigger bound to the specific extra turn this
+// spell creates, and cleave is not an existing alternative-cast kind. It does not have
+// flashback.
+pub(in crate::card::sets) static ALCHEMIST_S_GAMBIT: CardRecord = CardRecord::new(
     "Alchemist's Gambit",
     "9eab8938-57c9-4e08-b808-09eb02b040a0",
     "Zoltan Boros",
@@ -879,28 +937,28 @@ pub(in crate::card::sets) static ALCHEMIST_S_GAMBIT_374: CardRecord = CardRecord
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
-    &WELCOMING_VAMPIRE_46,
+    &WELCOMING_VAMPIRE,
     &CRUEL_WITNESS,
-    &WASH_AWAY_87,
+    &WASH_AWAY,
     &BLOOD_FOUNTAIN,
     &CONCEALING_CURTAINS,
     &UNDYING_MALICE,
     &ANCESTRAL_ANGER,
-    &KESSIG_FLAMEBREATHER_164,
+    &KESSIG_FLAMEBREATHER,
     &RECKLESS_IMPULSE,
     &VOLDAREN_EPICURE,
     &BRAMBLE_WURM,
     &ULVENWALD_ODDITY,
     &HALANA_AND_ALENA_PARTNERS,
-    &LANTERN_OF_THE_LOST_259,
+    &LANTERN_OF_THE_LOST,
     &DEATHCAP_GLADE,
     &DREAMROOT_CASCADE,
     &SHATTERED_SANCTUM,
     &STORMCARVED_COAST,
     &SUNDOWN_PASS,
     &BLOODTITHE_HARVESTER,
-    &HULLBREAKER_HORROR_359,
-    &ALCHEMIST_S_GAMBIT_374,
+    &HULLBREAKER_HORROR,
+    &ALCHEMIST_S_GAMBIT,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

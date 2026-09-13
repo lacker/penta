@@ -42,7 +42,7 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // CMD 46 — Flusterstorm
-pub(in crate::card::sets) static FLUSTERSTORM_46: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static FLUSTERSTORM: CardRecord = CardRecord::new(
     "Flusterstorm",
     "1e2e09bf-e7c8-4f13-bcee-f9c8cbc57993",
     "Erica Yang",
@@ -70,13 +70,66 @@ pub(in crate::card::sets) static FLUSTERSTORM_46: CardRecord = CardRecord::new(
 );
 
 // CMD 114 — Chaos Warp
-pub(in crate::card::sets) static CHAOS_WARP_114: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static CHAOS_WARP: CardRecord = CardRecord::new(
     "Chaos Warp",
     "042431bc-0b21-4920-802f-6dd02e4c8721",
     "Trevor Claxton",
-    CardRules::new_instant(mana_cost!("{2}{R}")).with_abilities(&[
-AbilityDef::spell_with_targets("The owner of target permanent shuffles it into their library, then reveals the top card of their library. If it's a permanent card, they put it onto the battlefield.", &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Any)], EffectDef::Sequence(&[EffectDef::move_to_zone(EffectRecipientDef::Target(TargetIndex::PRIMARY), ZoneKind::Library, ZonePlacement::Top), EffectDef::ShuffleLibrary { player: EffectRecipientDef::player(PlayerRefDef::OwnerOf(ObjectRefDef::Target(TargetIndex::PRIMARY))) }, EffectDef::BindObjects(BindObjectsDef { source: ObjectCollectionSourceDef::TopCards { player: PlayerRefDef::OwnerOf(ObjectRefDef::Target(TargetIndex::PRIMARY)), count: ValueDef::Constant(1) }, binding: Binding!("warp_revealed"), then: &EffectDef::Sequence(&[EffectDef::RevealObjects(RevealObjectsDef { input: ObjectSetDef::Binding(Binding!("warp_revealed")), then: &EffectDef::None }), EffectDef::ForEachInBinding { objects: Binding!("warp_revealed"), binding: Binding!("warp_card"), effect: &EffectDef::IfCondition { condition: &TriggerConditionDef::BoundObjectMatches { binding: Binding!("warp_card"), object: ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Artifact), ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::HasType(CardType::Enchantment), ObjectPredicateDef::HasType(CardType::Land), ObjectPredicateDef::HasType(CardType::Planeswalker)]) }, then: &EffectDef::move_to_zone(EffectRecipientDef::object(ObjectRefDef::Binding(Binding!("warp_card"))), ZoneKind::Battlefield, ZonePlacement::Top) } }]) })]))
-]),
+    CardRules::new_instant(mana_cost!("{2}{R}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "The owner of target permanent shuffles it into their \
+         library, then reveals the top card of their library. If \
+         it's a permanent card, they put it onto the battlefield.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::Any,
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Library,
+                ZonePlacement::Top,
+            ),
+            EffectDef::ShuffleLibrary {
+                player: EffectRecipientDef::player(PlayerRefDef::OwnerOf(ObjectRefDef::Target(
+                    TargetIndex::PRIMARY,
+                ))),
+            },
+            EffectDef::BindObjects(BindObjectsDef {
+                source: ObjectCollectionSourceDef::TopCards {
+                    player: PlayerRefDef::OwnerOf(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+                    count: ValueDef::Constant(1),
+                },
+                binding: Binding!("warp_revealed"),
+                then: &EffectDef::Sequence(&[
+                    EffectDef::RevealObjects(RevealObjectsDef {
+                        input: ObjectSetDef::Binding(Binding!("warp_revealed")),
+                        then: &EffectDef::None,
+                    }),
+                    EffectDef::ForEachInBinding {
+                        objects: Binding!("warp_revealed"),
+                        binding: Binding!("warp_card"),
+                        effect: &EffectDef::IfCondition {
+                            condition: &TriggerConditionDef::BoundObjectMatches {
+                                binding: Binding!("warp_card"),
+                                object: ObjectPredicateDef::AnyOf(&[
+                                    ObjectPredicateDef::HasType(CardType::Artifact),
+                                    ObjectPredicateDef::HasType(CardType::Creature),
+                                    ObjectPredicateDef::HasType(CardType::Enchantment),
+                                    ObjectPredicateDef::HasType(CardType::Land),
+                                    ObjectPredicateDef::HasType(CardType::Planeswalker),
+                                ]),
+                            },
+                            then: &EffectDef::move_to_zone(
+                                EffectRecipientDef::object(ObjectRefDef::Binding(Binding!(
+                                    "warp_card"
+                                ))),
+                                ZoneKind::Battlefield,
+                                ZonePlacement::Top,
+                            ),
+                        },
+                    },
+                ]),
+            }),
+        ]),
+    )]),
 );
 
 // CMD 170 — Scavenging Ooze
@@ -92,21 +145,20 @@ pub(in crate::card::sets) static SCAVENGING_OOZE: CardRecord = CardRecord::new(
     "Scavenging Ooze",
     "371ceb58-f498-4616-a7f0-eb118fe2e4ff",
     "Austin Hsu",
-CardRules::new_creature(
-        mana_cost!("{1}{G}"),
-        &["Ooze"],
-        2,
-        2,
-    )
-    .with_ability(
-        AbilityDef::activated_with_targets("{G}: Exile target card from a graveyard. If it was a creature card, put a +1/+1 counter on this creature and you gain 1 life.", &[CostDef::Mana(mana_cost!("{G}"))], &[AbilityTargetDef::exactly_one(
-            AbilityTargetPredicate::Object {
-                object: ObjectPredicateDef::Any,
-                zones: &[ZoneKind::Graveyard],
-                controller: None,
-                owner: None,
-            },
-        )], // The counter and the life come first so the card is still in the
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Ooze"], 2, 2).with_ability(
+        AbilityDef::activated_with_targets(
+            "{G}: Exile target card from a graveyard. If it was a \
+             creature card, put a +1/+1 counter on this creature and you \
+             gain 1 life.",
+            &[CostDef::Mana(mana_cost!("{G}"))],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Any,
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: None,
+                },
+            )], // The counter and the life come first so the card is still in the
             // graveyard to be asked what it was. Exiling it first would leave
             // nothing to look at, and nothing here can observe the order.
             EffectDef::Sequence(&[
@@ -123,8 +175,9 @@ CardRules::new_creature(
                     EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     ZoneKind::Exile,
                     ZonePlacement::Top,
-),
-            ])),
+                ),
+            ]),
+        ),
     ),
 );
 
@@ -133,7 +186,7 @@ pub(in crate::card::sets) static CHAMPIONS_HELM: CardRecord = CardRecord::new(
     "Champion's Helm",
     "dcad6846-0b35-4193-b647-16e597357f9b",
     "Alan Pollack",
-CardRules::new_artifact(mana_cost!("{3}"))
+    CardRules::new_artifact(mana_cost!("{3}"))
         .with_subtypes(&["Equipment"])
         .with_abilities(&[
             AbilityDef::static_ability(
@@ -147,7 +200,9 @@ CardRules::new_artifact(mana_cost!("{3}"))
                 },
             ),
             AbilityDef::static_ability(
-                "As long as equipped creature is legendary, it has hexproof. (It can't be the target of spells or abilities your opponents control.)",
+                "As long as equipped creature is legendary, it has hexproof. \
+                 (It can't be the target of spells or abilities your \
+                 opponents control.)",
                 EffectDef::IfCondition {
                     condition: &TriggerConditionDef::AttachedPermanentMatches {
                         object: ObjectPredicateDef::Supertype(CardSupertype::Legendary),
@@ -163,8 +218,9 @@ CardRules::new_artifact(mana_cost!("{3}"))
 );
 
 // CMD 269 — Command Tower
-// Audit: unsupported — Commander designation is recorded, but mana selectors cannot derive the commander pair’s color identity (including rules-text mana symbols and reverse faces).
-pub(in crate::card::sets) static COMMAND_TOWER_269: CardRecord = CardRecord::new(
+// Audit: unsupported — Commander designation is recorded, but mana selectors cannot derive the
+// commander pair’s color identity (including rules-text mana symbols and reverse faces).
+pub(in crate::card::sets) static COMMAND_TOWER: CardRecord = CardRecord::new(
     "Command Tower",
     "46982091-cc78-4171-8b3d-d07592684728",
     "Ryan Yee",
@@ -172,7 +228,7 @@ pub(in crate::card::sets) static COMMAND_TOWER_269: CardRecord = CardRecord::new
 );
 
 // CMD 277 — Homeward Path
-pub(in crate::card::sets) static HOMEWARD_PATH_277: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static HOMEWARD_PATH: CardRecord = CardRecord::new(
     "Homeward Path",
     "b5fb67ed-f4ea-47d6-876a-2ad6a3fc9a18",
     "Tomasz Jedruszek",
@@ -209,12 +265,12 @@ pub(in crate::card::sets) static HOMEWARD_PATH_277: CardRecord = CardRecord::new
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
-    &FLUSTERSTORM_46,
-    &CHAOS_WARP_114,
+    &FLUSTERSTORM,
+    &CHAOS_WARP,
     &SCAVENGING_OOZE,
     &CHAMPIONS_HELM,
-    &COMMAND_TOWER_269,
-    &HOMEWARD_PATH_277,
+    &COMMAND_TOWER,
+    &HOMEWARD_PATH,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

@@ -76,8 +76,11 @@ const PEST_TOKEN: TokenCharacteristics =
         ));
 
 // STX 6 — Wandering Archaic // Explore the Vastlands
-// Audit: unsupported — The tax-or-copy front face is expressible. The reverse face needs APNAP private selections from each player's own top-five collection before the cards are revealed and moved. ChooseForEachPlayer cannot restrict its candidates to that frozen top-five subset or make each one-of-each choice optional.
-pub(in crate::card::sets) static WANDERING_ARCHAIC_EXPLORE_THE_VASTLANDS_6: CardRecord =
+// Audit: unsupported — The tax-or-copy front face is expressible. The reverse face needs APNAP
+// private selections from each player's own top-five collection before the cards are revealed
+// and moved. ChooseForEachPlayer cannot restrict its candidates to that frozen top-five subset
+// or make each one-of-each choice optional.
+pub(in crate::card::sets) static WANDERING_ARCHAIC_EXPLORE_THE_VASTLANDS: CardRecord =
     CardRecord::new(
         "Wandering Archaic // Explore the Vastlands",
         "18a2bdc8-b705-4eb5-b3a5-ff2e2ab8f312",
@@ -90,50 +93,50 @@ pub(in crate::card::sets) static ELITE_SPELLBINDER: CardRecord = CardRecord::new
     "Elite Spellbinder",
     "9d3a7998-ccac-45ad-a4e9-3a2cb057f63b",
     "Ryan Pancoast",
-// A three-mana 3/1 flier that also buys a turn: the card comes back, but
+    // A three-mana 3/1 flier that also buys a turn: the card comes back, but
     // a turn later and two mana worse, which is often the whole game.
-    CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Cleric"], 3, 1)
-        .with_abilities(&[
-            abilities::flying(),
-            abilities::enters_trigger_with_targets(
-                "When this creature enters, look at target opponent's hand. You may exile a nonland card \
-                 from it. For as long as that card remains exiled, its owner may play it. A spell cast \
-                 this way costs {2} more to cast.",
-                &[AbilityTargetDef::exactly_one(
-                    AbilityTargetPredicate::Player(PlayerRelation::Opponent),
-                )],
-                // "You may exile" -- a minimum of none, so a hand of nothing worth taking
-                // is looked at and left alone.
-                EffectDef::Sequence(&[
-                    EffectDef::LookAtHand {
-                        player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Cleric"], 3, 1).with_abilities(&[
+        abilities::flying(),
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, look at target opponent's hand. \
+             You may exile a nonland card from it. For as long as that \
+             card remains exiled, its owner may play it. A spell cast \
+             this way costs {2} more to cast.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+            )],
+            // "You may exile" -- a minimum of none, so a hand of nothing worth taking
+            // is looked at and left alone.
+            EffectDef::Sequence(&[
+                EffectDef::LookAtHand {
+                    player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                },
+                EffectDef::Choose(ChooseDef {
+                    binding: ObjectChoiceBindingDef::Object(ParentBinding),
+                    unchosen: None,
+                    chooser: PlayerRefDef::EffectController,
+                    candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                        &[ZoneKind::Hand],
+                        PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                    )),
+                    exclude: None,
+                    minimum: 0,
+                    maximum: 1,
+                    // The card lands in exile face up, so which one was taken stops
+                    // being private the moment it is taken.
+                    visibility: ChoiceVisibilityDef::Public,
+                    // Not linked to the Spellbinder: killing it does not give the card back,
+                    // and the tax outlives it. What the owner keeps is the card itself, one
+                    // turn later and two mana worse.
+                    then: &EffectDef::ExileGrantingOwnerPlay {
+                        object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
+                        surcharge: mana_cost!("{2}"),
                     },
-                    EffectDef::Choose(ChooseDef {
-                        binding: ObjectChoiceBindingDef::Object(ParentBinding),
-                        unchosen: None,
-                        chooser: PlayerRefDef::EffectController,
-                        candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
-                            ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
-                            &[ZoneKind::Hand],
-                            PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
-                        )),
-                        exclude: None,
-                        minimum: 0,
-                        maximum: 1,
-                        // The card lands in exile face up, so which one was taken stops
-                        // being private the moment it is taken.
-                        visibility: ChoiceVisibilityDef::Public,
-                        // Not linked to the Spellbinder: killing it does not give the card back,
-                        // and the tax outlives it. What the owner keeps is the card itself, one
-                        // turn later and two mana worse.
-                        then: &EffectDef::ExileGrantingOwnerPlay {
-                            object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
-                            surcharge: mana_cost!("{2}"),
-                        },
-                    }),
-                ]),
-            ),
-        ]),
+                }),
+            ]),
+        ),
+    ]),
 );
 
 // STX 33 — Strict Proctor
@@ -145,7 +148,7 @@ pub(in crate::card::sets) static STRICT_PROCTOR: CardRecord = CardRecord::new(
         abilities::flying(),
         AbilityDef::triggered(
             "Whenever a permanent entering causes a triggered ability to trigger, \
-                 counter that ability unless its controller pays {2}.",
+             counter that ability unless its controller pays {2}.",
             TriggerEventDef::AbilityTriggeredBy(&TriggerEventDef::zone_changed(
                 ObjectPredicateDef::Any,
                 None,
@@ -201,12 +204,14 @@ pub(in crate::card::sets) static FROST_TRICKSTER: CardRecord = CardRecord::new(
     "Frost Trickster",
     "fd79c9cc-0a8c-4d88-96e2-cb177134a18d",
     "Uriah Voth",
-// A Frost Lynx with wings: the tap buys the turn the flier needs to
+    // A Frost Lynx with wings: the tap buys the turn the flier needs to
     // start attacking through an empty board.
     CardRules::new_creature(mana_cost!("{2}{U}"), &["Bird", "Wizard"], 2, 2).with_abilities(&[
         abilities::flying(),
         abilities::enters_trigger_with_targets(
-            "When this creature enters, tap target creature an opponent controls. That creature doesn't untap during its controller's next untap step.",
+            "When this creature enters, tap target creature an opponent \
+             controls. That creature doesn't untap during its \
+             controller's next untap step.",
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Object {
                     object: ObjectPredicateDef::HasType(CardType::Creature),
@@ -231,28 +236,68 @@ pub(in crate::card::sets) static FROST_TRICKSTER: CardRecord = CardRecord::new(
 );
 
 // STX 51 — Resculpt
-pub(in crate::card::sets) static RESCULPT_51: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static RESCULPT: CardRecord = CardRecord::new(
     "Resculpt",
     "1bfb1fcb-a411-4c1c-b8fc-496242ae3a9b",
     "Torstein Nordstrand",
     CardRules::new_instant(mana_cost!("{1}{U}")).with_ability(AbilityDef::spell_with_targets(
-        "Exile target artifact or creature. Its controller creates a 4/4 blue and red Elemental creature token.",
-        &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Artifact), ObjectPredicateDef::HasType(CardType::Creature)]))],
+        "Exile target artifact or creature. Its controller creates a \
+         4/4 blue and red Elemental creature token.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::AnyOf(&[
+                ObjectPredicateDef::HasType(CardType::Artifact),
+                ObjectPredicateDef::HasType(CardType::Creature),
+            ]),
+        )],
         EffectDef::Sequence(&[
-            EffectDef::move_to_zone(EffectRecipientDef::Target(TargetIndex::PRIMARY), ZoneKind::Exile, ZonePlacement::Top),
-            EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(crate::card::TokenCharacteristics::creature(&["Elemental"], &[ManaColor::Blue, ManaColor::Red], 4, 4))).with_controller(PlayerRefDef::ControllerOf(ObjectRefDef::Target(TargetIndex::PRIMARY)))),
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Exile,
+                ZonePlacement::Top,
+            ),
+            EffectDef::CreateToken(
+                crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(
+                    crate::card::TokenCharacteristics::creature(
+                        &["Elemental"],
+                        &[ManaColor::Blue, ManaColor::Red],
+                        4,
+                        4,
+                    ),
+                ))
+                .with_controller(PlayerRefDef::ControllerOf(
+                    ObjectRefDef::Target(TargetIndex::PRIMARY),
+                )),
+            ),
         ]),
     )),
 );
 
 // STX 54 — Solve the Equation
-pub(in crate::card::sets) static SOLVE_THE_EQUATION_54: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static SOLVE_THE_EQUATION: CardRecord = CardRecord::new(
     "Solve the Equation",
     "66c04ee2-c1e0-45fb-aaf5-1b4459df80fc",
     "Lie Setiawan",
     CardRules::new_sorcery(mana_cost!("{2}{U}")).with_ability(AbilityDef::spell(
-        "Search your library for an instant or sorcery card, reveal it, put it into your hand, then shuffle.",
-        EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Library, object: ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Instant), ObjectPredicateDef::HasType(CardType::Sorcery)]), minimum: 1, maximum: ValueDef::Constant(1), reveal: true, destination: ZoneKind::Hand, placement: ZonePlacement::Top, shuffle: true, enters_tapped: false, attachment: None, binding: None, then: None },
+        "Search your library for an instant or sorcery card, reveal \
+         it, put it into your hand, then shuffle.",
+        EffectDef::SearchZone {
+            player: EffectRecipientDef::Controller,
+            source: ZoneKind::Library,
+            object: ObjectPredicateDef::AnyOf(&[
+                ObjectPredicateDef::HasType(CardType::Instant),
+                ObjectPredicateDef::HasType(CardType::Sorcery),
+            ]),
+            minimum: 1,
+            maximum: ValueDef::Constant(1),
+            reveal: true,
+            destination: ZoneKind::Hand,
+            placement: ZonePlacement::Top,
+            shuffle: true,
+            enters_tapped: false,
+            attachment: None,
+            binding: None,
+            then: None,
+        },
     )),
 );
 
@@ -261,11 +306,12 @@ pub(in crate::card::sets) static BALEFUL_MASTERY: CardRecord = CardRecord::new(
     "Baleful Mastery",
     "35f1a6ba-e46f-44fb-93f4-fb883d677b36",
     "Chris Cold",
-// Exile at instant speed answers anything, and the choice of price is
+    // Exile at instant speed answers anything, and the choice of price is
     // the card: four mana clean, or two and a card for them.
     CardRules::new_instant(mana_cost!("{3}{B}")).with_abilities(&[
         AbilityDef::spell_with_targets(
-            "If the {1}{B} cost was paid, an opponent draws a card.\nExile target creature or planeswalker.",
+            "If the {1}{B} cost was paid, an opponent draws a \
+             card.\nExile target creature or planeswalker.",
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Object {
                     object: ObjectPredicateDef::AnyOf(&[
@@ -284,7 +330,9 @@ pub(in crate::card::sets) static BALEFUL_MASTERY: CardRecord = CardRecord::new(
                     // and the opponent gets the card back. Which cast was used is read off the
                     // spell itself, so the rider is part of one resolution rather than a
                     // second clause.
-                    condition: &TriggerConditionDef::SourceCastWith(AlternativeCastKindDef::AlternativeCost),
+                    condition: &TriggerConditionDef::SourceCastWith(
+                        AlternativeCastKindDef::AlternativeCost,
+                    ),
                     then: &EffectDef::DrawCards {
                         recipient: EffectRecipientDef::Opponent,
                         amount: ValueDef::Constant(1),
@@ -307,11 +355,129 @@ pub(in crate::card::sets) static BALEFUL_MASTERY: CardRecord = CardRecord::new(
 );
 
 // STX 83 — Professor Onyx
-pub(in crate::card::sets) static PROFESSOR_ONYX_83: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static PROFESSOR_ONYX: CardRecord = CardRecord::new(
     "Professor Onyx",
     "013eeb99-1b66-4fba-ad96-78deee901ea4",
     "Kieran Yanner",
-    CardRules::new_planeswalker(mana_cost!("{4}{B}{B}"), &["Liliana"], 5).with_supertype(CardSupertype::Legendary).with_abilities(&[AbilityDef::triggered("Magecraft — Whenever you cast or copy an instant or sorcery spell, each opponent loses 2 life and you gain 2 life.", TriggerEventDef::AnyOf(&[TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Instant), ObjectPredicateDef::HasType(CardType::Sorcery)]), ObjectPredicateDef::ControlledBy(PlayerRelation::You)])), TriggerEventDef::spell_copied(ObjectPredicateDef::All(&[ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Instant), ObjectPredicateDef::HasType(CardType::Sorcery)]), ObjectPredicateDef::ControlledBy(PlayerRelation::You)]))]), EffectDef::Sequence(&[EffectDef::LoseLife { recipient: EffectRecipientDef::Opponent, amount: ValueDef::Constant(2) }, EffectDef::GainLife { recipient: EffectRecipientDef::Controller, amount: ValueDef::Constant(2) }])), AbilityDef::activated("+1: You lose 1 life. Look at the top three cards of your library. Put one of them into your hand and the rest into your graveyard.", &[CostDef::Loyalty(1)], EffectDef::Sequence(&[EffectDef::LoseLife { recipient: EffectRecipientDef::Controller, amount: ValueDef::Constant(1) }, EffectDef::ChooseCardsFromCollection(ChooseCardsFromCollectionDef { source: ObjectCollectionSourceDef::TopCards { player: PlayerRefDef::EffectController, count: ValueDef::Constant(3) }, actor: PlayerRefDef::EffectController, inspection: CollectionInspectionDef::Look, object: ObjectPredicateDef::Any, minimum: 1, maximum: 1, chosen: Binding!("onyx_hand"), remainder: Binding!("onyx_grave"), then: &EffectDef::Sequence(&[EffectDef::move_to_zone(EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!("onyx_hand"))), ZoneKind::Hand, ZonePlacement::Top), EffectDef::move_to_zone(EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!("onyx_grave"))), ZoneKind::Graveyard, ZonePlacement::Top)]) })])), AbilityDef::activated("−3: Each opponent sacrifices a creature with the greatest power among creatures that player controls.", &[CostDef::Loyalty(-3)], EffectDef::SacrificeOfChoice { player: EffectRecipientDef::Opponent, object: ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::Not(&ObjectPredicateDef::PowerLessThan(ValueDef::AggregateObjectValues(&ObjectValueAggregateDef { objects: ObjectSetDef::Query(ObjectQueryDef::matching(ObjectPredicateDef::HasType(CardType::Creature), &[ZoneKind::Battlefield], PlayerRelation::Opponent)), select: ObjectValueDef::Power, operation: AggregateOperationDef::Maximum })))]), count: ValueDef::Constant(1), then: None, amount: SacrificedAmountDef::Power, otherwise: None, optional: false }), AbilityDef::activated("−8: Each opponent may discard a card. If they don't, they lose 3 life. Repeat this process six more times.", &[CostDef::Loyalty(-8)], EffectDef::Sequence(&[EffectDef::PayOr(PayOrDef::unless(&[CostDef::DiscardCards(1)], &EffectDef::LoseLife { recipient: EffectRecipientDef::Opponent, amount: ValueDef::Constant(3) }).with_payer(PlayerSetDef::One(PlayerRefDef::Opponent))); 7]))]),
+    CardRules::new_planeswalker(mana_cost!("{4}{B}{B}"), &["Liliana"], 5)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::triggered(
+                "Magecraft — Whenever you cast or copy an instant or sorcery \
+                 spell, each opponent loses 2 life and you gain 2 life.",
+                TriggerEventDef::AnyOf(&[
+                    TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Instant),
+                            ObjectPredicateDef::HasType(CardType::Sorcery),
+                        ]),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ])),
+                    TriggerEventDef::spell_copied(ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Instant),
+                            ObjectPredicateDef::HasType(CardType::Sorcery),
+                        ]),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ])),
+                ]),
+                EffectDef::Sequence(&[
+                    EffectDef::LoseLife {
+                        recipient: EffectRecipientDef::Opponent,
+                        amount: ValueDef::Constant(2),
+                    },
+                    EffectDef::GainLife {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(2),
+                    },
+                ]),
+            ),
+            AbilityDef::activated(
+                "+1: You lose 1 life. Look at the top three cards of your \
+                 library. Put one of them into your hand and the rest into \
+                 your graveyard.",
+                &[CostDef::Loyalty(1)],
+                EffectDef::Sequence(&[
+                    EffectDef::LoseLife {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    },
+                    EffectDef::ChooseCardsFromCollection(ChooseCardsFromCollectionDef {
+                        source: ObjectCollectionSourceDef::TopCards {
+                            player: PlayerRefDef::EffectController,
+                            count: ValueDef::Constant(3),
+                        },
+                        actor: PlayerRefDef::EffectController,
+                        inspection: CollectionInspectionDef::Look,
+                        object: ObjectPredicateDef::Any,
+                        minimum: 1,
+                        maximum: 1,
+                        chosen: Binding!("onyx_hand"),
+                        remainder: Binding!("onyx_grave"),
+                        then: &EffectDef::Sequence(&[
+                            EffectDef::move_to_zone(
+                                EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!(
+                                    "onyx_hand"
+                                ))),
+                                ZoneKind::Hand,
+                                ZonePlacement::Top,
+                            ),
+                            EffectDef::move_to_zone(
+                                EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!(
+                                    "onyx_grave"
+                                ))),
+                                ZoneKind::Graveyard,
+                                ZonePlacement::Top,
+                            ),
+                        ]),
+                    }),
+                ]),
+            ),
+            AbilityDef::activated(
+                "−3: Each opponent sacrifices a creature with the greatest \
+                 power among creatures that player controls.",
+                &[CostDef::Loyalty(-3)],
+                EffectDef::SacrificeOfChoice {
+                    player: EffectRecipientDef::Opponent,
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::PowerLessThan(
+                            ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
+                                objects: ObjectSetDef::Query(ObjectQueryDef::matching(
+                                    ObjectPredicateDef::HasType(CardType::Creature),
+                                    &[ZoneKind::Battlefield],
+                                    PlayerRelation::Opponent,
+                                )),
+                                select: ObjectValueDef::Power,
+                                operation: AggregateOperationDef::Maximum,
+                            }),
+                        )),
+                    ]),
+                    count: ValueDef::Constant(1),
+                    then: None,
+                    amount: SacrificedAmountDef::Power,
+                    otherwise: None,
+                    optional: false,
+                },
+            ),
+            AbilityDef::activated(
+                "−8: Each opponent may discard a card. If they don't, they \
+                 lose 3 life. Repeat this process six more times.",
+                &[CostDef::Loyalty(-8)],
+                EffectDef::Sequence(
+                    &[EffectDef::PayOr(
+                        PayOrDef::unless(
+                            &[CostDef::DiscardCards(1)],
+                            &EffectDef::LoseLife {
+                                recipient: EffectRecipientDef::Opponent,
+                                amount: ValueDef::Constant(3),
+                            },
+                        )
+                        .with_payer(PlayerSetDef::One(PlayerRefDef::Opponent)),
+                    ); 7],
+                ),
+            ),
+        ]),
 );
 
 // STX 90 — Unwilling Ingredient
@@ -344,19 +510,56 @@ pub(in crate::card::sets) static UNWILLING_INGREDIENT: CardRecord = CardRecord::
 );
 
 // STX 115 — Storm-Kiln Artist
-pub(in crate::card::sets) static STORM_KILN_ARTIST_115: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static STORM_KILN_ARTIST: CardRecord = CardRecord::new(
     "Storm-Kiln Artist",
     "fa96b8dc-233a-4884-ab84-235cbc7df0b6",
     "Manuel Castañón",
     CardRules::new_creature(mana_cost!("{3}{R}"), &["Dwarf", "Shaman"], 2, 2).with_abilities(&[
-AbilityDef::static_ability("This creature gets +1/+0 for each artifact you control.", EffectDef::StaticApply { recipient: EffectRecipientDef::Source, effect: AppliedEffectDef::modify_power_toughness(ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(ObjectPredicateDef::HasType(CardType::Artifact), &[ZoneKind::Battlefield], PlayerRelation::You)), ValueDef::Constant(0)) }),
-AbilityDef::triggered("Magecraft — Whenever you cast or copy an instant or sorcery spell, create a Treasure token. (It's an artifact with \"{T}, Sacrifice this token: Add one mana of any color.\")", TriggerEventDef::AnyOf(&[TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Instant), ObjectPredicateDef::HasType(CardType::Sorcery)]), ObjectPredicateDef::ControlledBy(PlayerRelation::You)])), TriggerEventDef::spell_copied(ObjectPredicateDef::All(&[ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Instant), ObjectPredicateDef::HasType(CardType::Sorcery)]), ObjectPredicateDef::ControlledBy(PlayerRelation::You)]))]), EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(crate::card::tokens::treasure()))))
-]),
+        AbilityDef::static_ability(
+            "This creature gets +1/+0 for each artifact you control.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    )),
+                    ValueDef::Constant(0),
+                ),
+            },
+        ),
+        AbilityDef::triggered(
+            "Magecraft — Whenever you cast or copy an instant or sorcery \
+             spell, create a Treasure token. (It's an artifact with \
+             \"{T}, Sacrifice this token: Add one mana of any color.\")",
+            TriggerEventDef::AnyOf(&[
+                TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Instant),
+                        ObjectPredicateDef::HasType(CardType::Sorcery),
+                    ]),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ])),
+                TriggerEventDef::spell_copied(ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Instant),
+                        ObjectPredicateDef::HasType(CardType::Sorcery),
+                    ]),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ])),
+            ]),
+            EffectDef::CreateToken(crate::card::CreateTokenDef::new(
+                crate::card::TokenDef::Literal(crate::card::tokens::treasure()),
+            )),
+        ),
+    ]),
 );
 
 // STX 128 — Ecological Appreciation
-// Audit: unsupported — Its four-name library selection and opponent split choice procedure is unavailable.
-pub(in crate::card::sets) static ECOLOGICAL_APPRECIATION_128: CardRecord = CardRecord::new(
+// Audit: unsupported — Its four-name library selection and opponent split choice procedure is
+// unavailable.
+pub(in crate::card::sets) static ECOLOGICAL_APPRECIATION: CardRecord = CardRecord::new(
     "Ecological Appreciation",
     "115f3d72-1aaf-4237-91b9-389256e5e5c8",
     "Lie Setiawan",
@@ -364,8 +567,10 @@ pub(in crate::card::sets) static ECOLOGICAL_APPRECIATION_128: CardRecord = CardR
 );
 
 // STX 150 — Flamescroll Celebrant // Revel in Silence
-// Audit: unsupported — The front face needs an event for an opponent activating a nonmana ability. TriggerEventDef has no activated-ability event; modal double-faced composition itself is supported.
-pub(in crate::card::sets) static FLAMESCROLL_CELEBRANT_REVEL_IN_SILENCE_150: CardRecord =
+// Audit: unsupported — The front face needs an event for an opponent activating a nonmana
+// ability. TriggerEventDef has no activated-ability event; modal double-faced composition
+// itself is supported.
+pub(in crate::card::sets) static FLAMESCROLL_CELEBRANT_REVEL_IN_SILENCE: CardRecord =
     CardRecord::new(
         "Flamescroll Celebrant // Revel in Silence",
         "0dba25e3-2b4f-45d4-965f-3834bcb359ee",
@@ -374,7 +579,7 @@ pub(in crate::card::sets) static FLAMESCROLL_CELEBRANT_REVEL_IN_SILENCE_150: Car
     );
 
 // STX 165 — Blade Historian
-pub(in crate::card::sets) static BLADE_HISTORIAN_165: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static BLADE_HISTORIAN: CardRecord = CardRecord::new(
     "Blade Historian",
     "a46d64ec-aca4-428e-bce6-66cd755c8cc3",
     "Cristi Balanescu",
@@ -401,7 +606,9 @@ pub(in crate::card::sets) static BLADE_HISTORIAN_165: CardRecord = CardRecord::n
 );
 
 // STX 176 — Deadly Brew
-// Audit: unsupported — Needs a sacrifice result binding containing the actual sacrificed objects and their player attribution, retained across each player's sacrifice and the later graveyard choice.
+// Audit: unsupported — Needs a sacrifice result binding containing the actual sacrificed
+// objects and their player attribution, retained across each player's sacrifice and the later
+// graveyard choice.
 pub(in crate::card::sets) static DEADLY_BREW: CardRecord = CardRecord::new(
     "Deadly Brew",
     "87d33e48-90fc-4aac-b09a-68050bc053b5",
@@ -526,7 +733,8 @@ pub(in crate::card::sets) static QUANDRIX_PLEDGEMAGE: CardRecord = CardRecord::n
 );
 
 // STX 241 — Teach by Example
-// Audit: unsupported — Needs a delayed trigger expiring after either one matching spell or this turn; installed triggers provide separate once and turn lifetimes without their intersection.
+// Audit: unsupported — Needs a delayed trigger expiring after either one matching spell or this
+// turn; installed triggers provide separate once and turn lifetimes without their intersection.
 pub(in crate::card::sets) static TEACH_BY_EXAMPLE: CardRecord = CardRecord::new(
     "Teach by Example",
     "aa7fbb9b-50a8-4d18-a667-fe965468ca16",
@@ -649,11 +857,11 @@ pub(in crate::card::sets) static SEDGEMOOR_WITCH: CardRecord = CardRecord::new(
         abilities::ward(
             &[CostDef::PayLife(3)],
             "Ward—Pay 3 life. (Whenever this creature becomes the target of a spell or ability an \
-            opponent controls, counter it unless that player pays 3 life.)",
+             opponent controls, counter it unless that player pays 3 life.)",
         ),
         AbilityDef::triggered(
             "Magecraft — Whenever you cast or copy an instant or sorcery spell, create a 1/1 black \
-                 and green Pest creature token with \"When this token dies, you gain 1 life.\"",
+             and green Pest creature token with \"When this token dies, you gain 1 life.\"",
             MAGECRAFT,
             EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(PEST_TOKEN))),
         ),
@@ -661,8 +869,9 @@ pub(in crate::card::sets) static SEDGEMOOR_WITCH: CardRecord = CardRecord::new(
 );
 
 // STX 308 — Crackle with Power
-// Audit: unsupported — The casting planner enumerates only a single X mana symbol, so it cannot pay the tripled {X}{X}{X} cost. Target selection also has no dynamic up-to-X maximum.
-pub(in crate::card::sets) static CRACKLE_WITH_POWER_308: CardRecord = CardRecord::new(
+// Audit: unsupported — The casting planner enumerates only a single X mana symbol, so it cannot
+// pay the tripled {X}{X}{X} cost. Target selection also has no dynamic up-to-X maximum.
+pub(in crate::card::sets) static CRACKLE_WITH_POWER: CardRecord = CardRecord::new(
     "Crackle with Power",
     "d1c038e6-2346-4544-bea1-b64098f63f23",
     "Micah Epstein",
@@ -670,30 +879,50 @@ pub(in crate::card::sets) static CRACKLE_WITH_POWER_308: CardRecord = CardRecord
 );
 
 // STX 337 — Culling Ritual
-pub(in crate::card::sets) static CULLING_RITUAL_337: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static CULLING_RITUAL: CardRecord = CardRecord::new(
     "Culling Ritual",
     "1ba72e51-ca69-48d4-96dc-df9519468c01",
     "Lorenzo Mastroianni",
-    CardRules::new_sorcery(mana_cost!("{2}{B}{G}")).with_abilities(&[
-AbilityDef::spell("Destroy each nonland permanent with mana value 2 or less. Add {B} or {G} for each permanent destroyed this way.", EffectDef::Destroy { object: EffectRecipientDef::matching_objects(ObjectPredicateDef::All(&[ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)), ObjectPredicateDef::ManaValueAtMost(2)]), &[ZoneKind::Battlefield], PlayerRelation::Any), then: Some(DestroyFollowUpDef { binding: Binding!("ritual_destroyed"), effect: &EffectDef::AddMana(AddManaEffectDef::combination(&[ManaColor::Black, ManaColor::Green], 1).with_variable_amount(ValueDef::BoundObjectCount(Binding!("ritual_destroyed")))) }) })
-]),
+    CardRules::new_sorcery(mana_cost!("{2}{B}{G}")).with_abilities(&[AbilityDef::spell(
+        "Destroy each nonland permanent with mana value 2 or less. \
+         Add {B} or {G} for each permanent destroyed this way.",
+        EffectDef::Destroy {
+            object: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                    ObjectPredicateDef::ManaValueAtMost(2),
+                ]),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
+            ),
+            then: Some(DestroyFollowUpDef {
+                binding: Binding!("ritual_destroyed"),
+                effect: &EffectDef::AddMana(
+                    AddManaEffectDef::combination(&[ManaColor::Black, ManaColor::Green], 1)
+                        .with_variable_amount(ValueDef::BoundObjectCount(Binding!(
+                            "ritual_destroyed"
+                        ))),
+                ),
+            }),
+        },
+    )]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
-    &WANDERING_ARCHAIC_EXPLORE_THE_VASTLANDS_6,
+    &WANDERING_ARCHAIC_EXPLORE_THE_VASTLANDS,
     &ELITE_SPELLBINDER,
     &STRICT_PROCTOR,
     &BURROG_BEFUDDLER,
     &FROST_TRICKSTER,
-    &RESCULPT_51,
-    &SOLVE_THE_EQUATION_54,
+    &RESCULPT,
+    &SOLVE_THE_EQUATION,
     &BALEFUL_MASTERY,
-    &PROFESSOR_ONYX_83,
+    &PROFESSOR_ONYX,
     &UNWILLING_INGREDIENT,
-    &STORM_KILN_ARTIST_115,
-    &ECOLOGICAL_APPRECIATION_128,
-    &FLAMESCROLL_CELEBRANT_REVEL_IN_SILENCE_150,
-    &BLADE_HISTORIAN_165,
+    &STORM_KILN_ARTIST,
+    &ECOLOGICAL_APPRECIATION,
+    &FLAMESCROLL_CELEBRANT_REVEL_IN_SILENCE,
+    &BLADE_HISTORIAN,
     &DEADLY_BREW,
     &EXPRESSIVE_ITERATION,
     &QUANDRIX_PLEDGEMAGE,
@@ -703,8 +932,8 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &QUANDRIX_CAMPUS,
     &WITHERBLOOM_CAMPUS,
     &SEDGEMOOR_WITCH,
-    &CRACKLE_WITH_POWER_308,
-    &CULLING_RITUAL_337,
+    &CRACKLE_WITH_POWER,
+    &CULLING_RITUAL,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

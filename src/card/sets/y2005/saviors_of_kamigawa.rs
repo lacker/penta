@@ -58,7 +58,7 @@ pub(in crate::card::sets) static ARABA_MOTHRIDER: CardRecord = CardRecord::new(
 );
 
 // SOK 38 — Freed from the Real
-pub(in crate::card::sets) static FREED_FROM_THE_REAL_38: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static FREED_FROM_THE_REAL: CardRecord = CardRecord::new(
     "Freed from the Real",
     "e9ecee02-12c0-4aed-a679-41bce95e0cda",
     "Scott M. Fischer",
@@ -84,8 +84,9 @@ pub(in crate::card::sets) static FREED_FROM_THE_REAL_38: CardRecord = CardRecord
 );
 
 // SOK 48 — Oboro Breezecaller
-// Audit: unsupported — Returning a chosen battlefield permanent is not supported by the activated-cost planner; ReturnToHand currently has a casting-cost path only.
-pub(in crate::card::sets) static OBORO_BREEZECALLER_48: CardRecord = CardRecord::new(
+// Audit: unsupported — Returning a chosen battlefield permanent is not supported by the
+// activated-cost planner; ReturnToHand currently has a casting-cost path only.
+pub(in crate::card::sets) static OBORO_BREEZECALLER: CardRecord = CardRecord::new(
     "Oboro Breezecaller",
     "a382a9b8-0b19-46c2-a547-a22d6e23d0ac",
     "Rebecca Guay",
@@ -116,25 +117,30 @@ pub(in crate::card::sets) static SAKASHIMA_THE_IMPOSTOR: CardRecord = CardRecord
     "Sakashima the Impostor",
     "61dc2f54-3637-4caa-9741-36ff14dc5527",
     "rk post",
-CardRules::new_creature(mana_cost!("{2}{U}{U}"), &["Human", "Rogue"], 3, 1)
+    CardRules::new_creature(mana_cost!("{2}{U}{U}"), &["Human", "Rogue"], 3, 1)
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
             AbilityDef::replacement(
-            "You may have Sakashima the Impostor enter as a copy of any creature on the battlefield, except its name is Sakashima the Impostor, it's legendary in addition to its other types, and it has \"{2}{U}{U}: Return Sakashima the Impostor to its owner's hand at the beginning of the next end step.\"",
-            ReplacementEffectDef::CopyEntering {
-                object: ObjectPredicateDef::HasType(CardType::Creature),
-                exceptions: CopyExceptionsDef::NONE
-                    .with_name("Sakashima the Impostor")
-                    .with_added_supertypes(&[CardSupertype::Legendary])
-                    .with_abilities(&[CopyAbilityDef::Ability(&SAKASHIMA_RETURN)]),
-            },
+                "You may have Sakashima the Impostor enter as a copy of any \
+                 creature on the battlefield, except its name is Sakashima \
+                 the Impostor, it's legendary in addition to its other \
+                 types, and it has \"{2}{U}{U}: Return Sakashima the \
+                 Impostor to its owner's hand at the beginning of the next \
+                 end step.\"",
+                ReplacementEffectDef::CopyEntering {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    exceptions: CopyExceptionsDef::NONE
+                        .with_name("Sakashima the Impostor")
+                        .with_added_supertypes(&[CardSupertype::Legendary])
+                        .with_abilities(&[CopyAbilityDef::Ability(&SAKASHIMA_RETURN)]),
+                },
             ),
             SAKASHIMA_RETURN,
         ]),
 );
 
 // SOK 60 — Twincast
-pub(in crate::card::sets) static TWINCAST_60: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static TWINCAST: CardRecord = CardRecord::new(
     "Twincast",
     "1a367559-1d84-4f6f-9e6e-ff90de420389",
     "Christopher Moeller",
@@ -195,7 +201,8 @@ pub(in crate::card::sets) static DEATH_DENIED: CardRecord = CardRecord::new(
 );
 
 // SOK 102 — Hidetsugu's Second Rite
-// Audit: unsupported — Needs a value expression reading the life total of an indexed target player; LifeTotal accepts source and event player relations but cannot resolve a target slot.
+// Audit: unsupported — Needs a value expression reading the life total of an indexed target
+// player; LifeTotal accepts source and event player relations but cannot resolve a target slot.
 pub(in crate::card::sets) static HIDETSUGU_S_SECOND_RITE: CardRecord = CardRecord::new(
     "Hidetsugu's Second Rite",
     "2e48eb77-3bd7-444a-9262-799cc706c05a",
@@ -208,12 +215,13 @@ pub(in crate::card::sets) static IIZUKA_THE_RUTHLESS: CardRecord = CardRecord::n
     "Iizuka the Ruthless",
     "9ce461f7-385d-4379-83de-49571247c30d",
     "Darrell Riche",
-CardRules::new_creature(mana_cost!("{3}{R}{R}"), &["Human", "Samurai"], 3, 3)
+    CardRules::new_creature(mana_cost!("{3}{R}{R}"), &["Human", "Samurai"], 3, 3)
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
             abilities::bushido(ValueDef::Constant(2)),
             AbilityDef::activated(
-                "{2}{R}, Sacrifice a Samurai: Samurai creatures you control gain double strike until end of turn.",
+                "{2}{R}, Sacrifice a Samurai: Samurai creatures you control \
+                 gain double strike until end of turn.",
                 &[
                     CostDef::Mana(mana_cost!("{2}{R}")),
                     CostDef::SacrificePermanent {
@@ -238,7 +246,7 @@ CardRules::new_creature(mana_cost!("{3}{R}{R}"), &["Human", "Samurai"], 3, 3)
 );
 
 // SOK 118 — Thoughts of Ruin
-pub(in crate::card::sets) static THOUGHTS_OF_RUIN_118: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static THOUGHTS_OF_RUIN: CardRecord = CardRecord::new(
     "Thoughts of Ruin",
     "2a0f2db3-41a6-4283-9812-46b6ae6d1df6",
     "John Avon",
@@ -267,8 +275,9 @@ pub(in crate::card::sets) static SEEK_THE_HORIZON: CardRecord = CardRecord::new(
     "Seek the Horizon",
     "49f8a9e7-f505-4fc5-b820-0af1ee1960c7",
     "Eric Polak",
-CardRules::new_sorcery(mana_cost!("{3}{G}")).with_ability(AbilityDef::spell(
-        "Search your library for up to three basic land reveal them, put them into your hand, then shuffle.",
+    CardRules::new_sorcery(mana_cost!("{3}{G}")).with_ability(AbilityDef::spell(
+        "Search your library for up to three basic land reveal them, \
+         put them into your hand, then shuffle.",
         EffectDef::SearchZone {
             player: EffectRecipientDef::Controller,
             source: ZoneKind::Library,
@@ -295,7 +304,7 @@ pub(in crate::card::sets) static PITHING_NEEDLE: CardRecord = CardRecord::new(
     "Pithing Needle",
     "78eb9e1d-113e-45ff-8435-32ee42fa5631",
     "Pete Venters",
-CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
+    CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
         AbilityDef::as_enters(
             "As this artifact enters, choose a card name.",
             crate::card::ReplacementEffectDef::BindOutput {
@@ -306,14 +315,15 @@ CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
             },
         ),
         abilities::cannot_activate_nonmana_abilities_with_name(
-            "Activated abilities of sources with the chosen name can't be activated unless they're mana abilities.",
+            "Activated abilities of sources with the chosen name can't \
+             be activated unless they're mana abilities.",
             CardNameDef::Binding(Binding!("pithing_needle_name")),
         ),
     ]),
 );
 
 // SOK 162 — Mikokoro, Center of the Sea
-pub(in crate::card::sets) static MIKOKORO_CENTER_OF_THE_SEA_162: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static MIKOKORO_CENTER_OF_THE_SEA: CardRecord = CardRecord::new(
     "Mikokoro, Center of the Sea",
     "7ef72797-328e-4303-8ffb-9686086648b8",
     "John Avon",
@@ -333,7 +343,7 @@ pub(in crate::card::sets) static MIKOKORO_CENTER_OF_THE_SEA_162: CardRecord = Ca
 );
 
 // SOK 164 — Oboro, Palace in the Clouds
-pub(in crate::card::sets) static OBORO_PALACE_IN_THE_CLOUDS_164: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static OBORO_PALACE_IN_THE_CLOUDS: CardRecord = CardRecord::new(
     "Oboro, Palace in the Clouds",
     "ffc2d68e-6543-43ec-b67a-afff1325a32f",
     "Rob Alexander",
@@ -355,18 +365,18 @@ pub(in crate::card::sets) static OBORO_PALACE_IN_THE_CLOUDS_164: CardRecord = Ca
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ARABA_MOTHRIDER,
-    &FREED_FROM_THE_REAL_38,
-    &OBORO_BREEZECALLER_48,
+    &FREED_FROM_THE_REAL,
+    &OBORO_BREEZECALLER,
     &SAKASHIMA_THE_IMPOSTOR,
-    &TWINCAST_60,
+    &TWINCAST,
     &DEATH_DENIED,
     &HIDETSUGU_S_SECOND_RITE,
     &IIZUKA_THE_RUTHLESS,
-    &THOUGHTS_OF_RUIN_118,
+    &THOUGHTS_OF_RUIN,
     &SEEK_THE_HORIZON,
     &PITHING_NEEDLE,
-    &MIKOKORO_CENTER_OF_THE_SEA_162,
-    &OBORO_PALACE_IN_THE_CLOUDS_164,
+    &MIKOKORO_CENTER_OF_THE_SEA,
+    &OBORO_PALACE_IN_THE_CLOUDS,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

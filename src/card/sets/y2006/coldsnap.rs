@@ -92,34 +92,143 @@ pub(in crate::card::sets) static WALL_OF_SHARDS: CardRecord = CardRecord::new(
 );
 
 // CSP 27 — Arcum Dagsson
-pub(in crate::card::sets) static ARCUM_DAGSSON_27: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static ARCUM_DAGSSON: CardRecord = CardRecord::new(
     "Arcum Dagsson",
     "dd9d3ce7-53db-4808-88bc-03c120211f81",
     "Pete Venters",
-    CardRules::new_creature(mana_cost!("{3}{U}"), &["Human", "Artificer"], 2, 2).with_supertype(CardSupertype::Legendary).with_abilities(&[
-AbilityDef::activated_with_targets("{T}: Target artifact creature's controller sacrifices it. That player may search their library for a noncreature artifact card, put it onto the battlefield, then shuffle.", &[CostDef::TapSource], &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Artifact),ObjectPredicateDef::HasType(CardType::Creature)]))], EffectDef::Sequence(&[EffectDef::sacrifice(EffectRecipientDef::Target(TargetIndex::PRIMARY)), EffectDef::SearchZone { player: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY), source: ZoneKind::Library, object: ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Artifact), ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature))]), minimum: 0, maximum: ValueDef::Constant(1), reveal: false, destination: ZoneKind::Battlefield, placement: ZonePlacement::Top, shuffle: true, enters_tapped: false, attachment: None, binding: None, then: None }]))
-]),
+    CardRules::new_creature(mana_cost!("{3}{U}"), &["Human", "Artificer"], 2, 2)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[AbilityDef::activated_with_targets(
+            "{T}: Target artifact creature's controller sacrifices it. \
+             That player may search their library for a noncreature \
+             artifact card, put it onto the battlefield, then shuffle.",
+            &[CostDef::TapSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                ]),
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::sacrifice(EffectRecipientDef::Target(TargetIndex::PRIMARY)),
+                EffectDef::SearchZone {
+                    player: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
+                    source: ZoneKind::Library,
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
+                    ]),
+                    minimum: 0,
+                    maximum: ValueDef::Constant(1),
+                    reveal: false,
+                    destination: ZoneKind::Battlefield,
+                    placement: ZonePlacement::Top,
+                    shuffle: true,
+                    enters_tapped: false,
+                    attachment: None,
+                    binding: None,
+                    then: None,
+                },
+            ]),
+        )]),
 );
 
 // CSP 29 — Commandeer
-pub(in crate::card::sets) static COMMANDEER_29: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static COMMANDEER: CardRecord = CardRecord::new(
     "Commandeer",
     "7e6e6204-c622-4efe-ac4f-8195528cec9c",
     "John Matson",
     CardRules::new_instant(mana_cost!("{5}{U}{U}")).with_abilities(&[
-AbilityDef::alternative_cast(&[CostDef::exile(ObjectPredicateDef::Color(ManaColor::Blue), ZoneKind::Hand, CostQuantityDef::Fixed(2))], AlternativeCastKindDef::AlternativeCost, Some("You may exile two blue cards from your hand rather than pay this spell’s mana cost."), EffectDef::None),
-AbilityDef::spell_with_targets("Gain control of target noncreature spell. You may choose new targets for it. (If that spell is an artifact, enchantment, or planeswalker, the permanent enters under your control.)", &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object { object: ObjectPredicateDef::NoncreatureSpell, zones: &[ZoneKind::Stack], controller: None, owner: None })], EffectDef::Sequence(&[EffectDef::gain_control(EffectRecipientDef::Target(TargetIndex::PRIMARY), PlayerRefDef::EffectController, ControlDurationDef::Indefinitely), EffectDef::ChangeStackTargets(&ChangeStackTargetsDef { object: EffectRecipientDef::Target(TargetIndex::PRIMARY), chooser: PlayerRefDef::EffectController, change: StackTargetChangeDef::ChooseNew { optional: true, restriction: None } })]))
-]),
+        AbilityDef::alternative_cast(
+            &[CostDef::exile(
+                ObjectPredicateDef::Color(ManaColor::Blue),
+                ZoneKind::Hand,
+                CostQuantityDef::Fixed(2),
+            )],
+            AlternativeCastKindDef::AlternativeCost,
+            Some(
+                "You may exile two blue cards from your hand rather than pay \
+                 this spell’s mana cost.",
+            ),
+            EffectDef::None,
+        ),
+        AbilityDef::spell_with_targets(
+            "Gain control of target noncreature spell. You may choose \
+             new targets for it. (If that spell is an artifact, \
+             enchantment, or planeswalker, the permanent enters under \
+             your control.)",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::NoncreatureSpell,
+                    zones: &[ZoneKind::Stack],
+                    controller: None,
+                    owner: None,
+                },
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::gain_control(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    PlayerRefDef::EffectController,
+                    ControlDurationDef::Indefinitely,
+                ),
+                EffectDef::ChangeStackTargets(&ChangeStackTargetsDef {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    chooser: PlayerRefDef::EffectController,
+                    change: StackTargetChangeDef::ChooseNew {
+                        optional: true,
+                        restriction: None,
+                    },
+                }),
+            ]),
+        ),
+    ]),
 );
 
 // CSP 31 — Counterbalance
-pub(in crate::card::sets) static COUNTERBALANCE_31: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static COUNTERBALANCE: CardRecord = CardRecord::new(
     "Counterbalance",
     "c329ff2b-0331-4934-a8df-870dd7bf402b",
     "John Zeleznik",
-    CardRules::new_enchantment(mana_cost!("{U}{U}")).with_abilities(&[
-AbilityDef::triggered("Whenever an opponent casts a spell, you may reveal the top card of your library. If you do, counter that spell if it has the same mana value as the revealed card.", TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent)), EffectDef::May { player: EffectRecipientDef::Controller, effect: &EffectDef::BindObjects(BindObjectsDef { source: ObjectCollectionSourceDef::TopCards { player: PlayerRefDef::EffectController, count: ValueDef::Constant(1) }, binding: Binding!("revealed_top"), then: &EffectDef::Sequence(&[EffectDef::RevealObjects(RevealObjectsDef { input: ObjectSetDef::Binding(Binding!("revealed_top")), then: &EffectDef::None }), EffectDef::ForEachInBinding { objects: Binding!("revealed_top"), binding: Binding!("revealed_card"), effect: &EffectDef::IfCondition { condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef { left: ValueDef::ObjectManaValue(ObjectRefDef::TriggeringObject), comparison: ComparisonDef::Equal, right: ValueDef::ObjectManaValue(ObjectRefDef::Binding(Binding!("revealed_card"))) }), then: &EffectDef::Counter { object: EffectRecipientDef::TriggeringObject, zone: ZoneKind::Graveyard, placement: ZonePlacement::Top } } }]) }) })
-]),
+    CardRules::new_enchantment(mana_cost!("{U}{U}")).with_abilities(&[AbilityDef::triggered(
+        "Whenever an opponent casts a spell, you may reveal the top \
+         card of your library. If you do, counter that spell if it \
+         has the same mana value as the revealed card.",
+        TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent)),
+        EffectDef::May {
+            player: EffectRecipientDef::Controller,
+            effect: &EffectDef::BindObjects(BindObjectsDef {
+                source: ObjectCollectionSourceDef::TopCards {
+                    player: PlayerRefDef::EffectController,
+                    count: ValueDef::Constant(1),
+                },
+                binding: Binding!("revealed_top"),
+                then: &EffectDef::Sequence(&[
+                    EffectDef::RevealObjects(RevealObjectsDef {
+                        input: ObjectSetDef::Binding(Binding!("revealed_top")),
+                        then: &EffectDef::None,
+                    }),
+                    EffectDef::ForEachInBinding {
+                        objects: Binding!("revealed_top"),
+                        binding: Binding!("revealed_card"),
+                        effect: &EffectDef::IfCondition {
+                            condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                                left: ValueDef::ObjectManaValue(ObjectRefDef::TriggeringObject),
+                                comparison: ComparisonDef::Equal,
+                                right: ValueDef::ObjectManaValue(ObjectRefDef::Binding(Binding!(
+                                    "revealed_card"
+                                ))),
+                            }),
+                            then: &EffectDef::Counter {
+                                object: EffectRecipientDef::TriggeringObject,
+                                zone: ZoneKind::Graveyard,
+                                placement: ZonePlacement::Top,
+                            },
+                        },
+                    },
+                ]),
+            }),
+        },
+    )]),
 );
 
 // CSP 33 — Flashfreeze
@@ -156,10 +265,14 @@ pub(in crate::card::sets) static VEXING_SPHINX: CardRecord = CardRecord::new(
     "Vexing Sphinx",
     "81cc1248-85c8-428f-ba08-96d188167eaa",
     "Lars Grant-West",
-CardRules::new_creature(mana_cost!("{1}{U}{U}"), &["Sphinx"], 4, 4).with_abilities(&[
+    CardRules::new_creature(mana_cost!("{1}{U}{U}"), &["Sphinx"], 4, 4).with_abilities(&[
         abilities::flying(),
-        abilities::cumulative_upkeep(&[actions::choose_discard(1).as_cost()])
-            .override_text("Cumulative upkeep—Discard a card. (At the beginning of your upkeep, put an age counter on this permanent, then sacrifice it unless you pay its upkeep cost for each age counter on it.)"),
+        abilities::cumulative_upkeep(&[actions::choose_discard(1).as_cost()]).override_text(
+            "Cumulative upkeep—Discard a card. (At the beginning of your \
+             upkeep, put an age counter on this permanent, then \
+             sacrifice it unless you pay its upkeep cost for each age \
+             counter on it.)",
+        ),
         abilities::dies_trigger(
             "When this creature dies, draw a card for each age counter on it.",
             EffectDef::DrawCards {
@@ -175,13 +288,13 @@ pub(in crate::card::sets) static BALDUVIAN_FALLEN: CardRecord = CardRecord::new(
     "Balduvian Fallen",
     "6a52b952-6e3b-403b-b355-2af47a282ab6",
     "Dave Kendall",
-CardRules::new_creature(mana_cost!("{3}{B}"), &["Zombie"], 3, 5).with_abilities(&[
-        abilities::cumulative_upkeep(
-            &[CostDef::mana(mana_cost!("{1}"))],
-        ),
+    CardRules::new_creature(mana_cost!("{3}{B}"), &["Zombie"], 3, 5).with_abilities(&[
+        abilities::cumulative_upkeep(&[CostDef::mana(mana_cost!("{1}"))]),
         AbilityDef::triggered(
-            "Whenever this creature's cumulative upkeep is paid, it gets +1/+0 until end of turn for each {B} or {R} spent this way.",
-            TriggerEventDef::PaymentPaid { label: crate::card::abilities::CUMULATIVE_UPKEEP,
+            "Whenever this creature's cumulative upkeep is paid, it gets \
+             +1/+0 until end of turn for each {B} or {R} spent this way.",
+            TriggerEventDef::PaymentPaid {
+                label: crate::card::abilities::CUMULATIVE_UPKEEP,
                 mana_colors: ColorSet::from_colors(&[ManaColor::Black, ManaColor::Red]),
             },
             EffectDef::Apply {
@@ -234,13 +347,11 @@ pub(in crate::card::sets) static HERALD_OF_LESHRAC: CardRecord = CardRecord::new
     "Herald of Leshrac",
     "ad6080b1-b032-4172-8594-4d894a60a80d",
     "Alex Horley-Orlandelli",
-CardRules::new_creature(mana_cost!("{6}{B}"), &["Avatar"], 2, 4).with_abilities(&[
+    CardRules::new_creature(mana_cost!("{6}{B}"), &["Avatar"], 2, 4).with_abilities(&[
         abilities::flying(),
-        abilities::cumulative_upkeep(&[
-            actions::choose_gain_control(1)
-                .matching(ObjectPredicateDef::HasType(CardType::Land))
-                .as_cost(),
-        ])
+        abilities::cumulative_upkeep(&[actions::choose_gain_control(1)
+            .matching(ObjectPredicateDef::HasType(CardType::Land))
+            .as_cost()])
         .override_text("Cumulative upkeep—Gain control of a land you don't control."),
         AbilityDef::static_ability(
             "This creature gets +1/+1 for each land you control but don't own.",
@@ -253,18 +364,25 @@ CardRules::new_creature(mana_cost!("{6}{B}"), &["Avatar"], 2, 4).with_abilities(
             },
         ),
         AbilityDef::triggered(
-            "When this creature leaves the battlefield, each player gains control of each land they own that you control.",
-            TriggerEventDef::zone_changed(ObjectPredicateDef::Source, Some(ZoneKind::Battlefield), None),
+            "When this creature leaves the battlefield, each player \
+             gains control of each land they own that you control.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                Some(ZoneKind::Battlefield),
+                None,
+            ),
             abilities::bind_objects_then(
-                crate::card::ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Query(ObjectQueryDef {
-                    object: ObjectPredicateDef::HasType(CardType::Land),
-                    zones: &[ZoneKind::Battlefield],
-                    related_player: None,
-                    controller: Some(PlayerSetDef::Related(PlayerRelation::You)),
-                    owner: None,
-                    relative_position: None,
-                    excluding_target: None,
-                })),
+                crate::card::ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Query(
+                    ObjectQueryDef {
+                        object: ObjectPredicateDef::HasType(CardType::Land),
+                        zones: &[ZoneKind::Battlefield],
+                        related_player: None,
+                        controller: Some(PlayerSetDef::Related(PlayerRelation::You)),
+                        owner: None,
+                        relative_position: None,
+                        excluding_target: None,
+                    },
+                )),
                 &EffectDef::ForEachInBinding {
                     objects: ParentBinding,
                     binding: ParentBinding,
@@ -291,14 +409,46 @@ pub(in crate::card::sets) static BRAID_OF_FIRE: CardRecord = CardRecord::new(
 );
 
 // CSP 81 — Fury of the Horde
-pub(in crate::card::sets) static FURY_OF_THE_HORDE_81: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static FURY_OF_THE_HORDE: CardRecord = CardRecord::new(
     "Fury of the Horde",
     "f3223ef9-787a-40ac-8ab2-79ac75664aa2",
     "Stephen Tappin",
     CardRules::new_sorcery(mana_cost!("{5}{R}{R}")).with_abilities(&[
-AbilityDef::alternative_cast(&[CostDef::exile(ObjectPredicateDef::Color(ManaColor::Red), ZoneKind::Hand, CostQuantityDef::Fixed(2))], AlternativeCastKindDef::AlternativeCost, Some("You may exile two red cards from your hand rather than pay this spell’s mana cost."), EffectDef::None),
-AbilityDef::spell("Untap all creatures that attacked this turn. After this main phase, there is an additional combat phase followed by an additional main phase.", EffectDef::Sequence(&[EffectDef::Untap { object: EffectRecipientDef::matching_objects(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::AttackedThisTurn]), &[ZoneKind::Battlefield], PlayerRelation::Any) }, EffectDef::ScheduleTurnPhases(&[TurnPhaseDef::Combat, TurnPhaseDef::PostcombatMain])]))
-]),
+        AbilityDef::alternative_cast(
+            &[CostDef::exile(
+                ObjectPredicateDef::Color(ManaColor::Red),
+                ZoneKind::Hand,
+                CostQuantityDef::Fixed(2),
+            )],
+            AlternativeCastKindDef::AlternativeCost,
+            Some(
+                "You may exile two red cards from your hand rather than pay \
+                 this spell’s mana cost.",
+            ),
+            EffectDef::None,
+        ),
+        AbilityDef::spell(
+            "Untap all creatures that attacked this turn. After this \
+             main phase, there is an additional combat phase followed by \
+             an additional main phase.",
+            EffectDef::Sequence(&[
+                EffectDef::Untap {
+                    object: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::AttackedThisTurn,
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    ),
+                },
+                EffectDef::ScheduleTurnPhases(&[
+                    TurnPhaseDef::Combat,
+                    TurnPhaseDef::PostcombatMain,
+                ]),
+            ]),
+        ),
+    ]),
 );
 
 // CSP 86 — Karplusan Minotaur
@@ -306,26 +456,29 @@ pub(in crate::card::sets) static KARPLUSAN_MINOTAUR: CardRecord = CardRecord::ne
     "Karplusan Minotaur",
     "963f45d7-ce84-47af-ae1c-727172a31f0f",
     "Wayne England",
-CardRules::new_creature(mana_cost!("{2}{R}{R}"), &["Minotaur", "Warrior"], 3, 3)
+    CardRules::new_creature(mana_cost!("{2}{R}{R}"), &["Minotaur", "Warrior"], 3, 3)
         .with_abilities(&[
-            abilities::cumulative_upkeep(
-                &[CostDef::flip_coins(1)],
-            )
+            abilities::cumulative_upkeep(&[CostDef::flip_coins(1)])
                 .override_text("Cumulative upkeep—Flip a coin."),
             AbilityDef::triggered_with_targets(
                 "Whenever you win a coin flip, this creature deals 1 damage to any target.",
                 TriggerEventDef::CoinFlipWon(PlayerRelation::You),
-                &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)],
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::AnyTarget,
+                )],
                 EffectDef::damage(
                     EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     ValueDef::Constant(1),
                 ),
             ),
             AbilityDef::triggered_with_targets(
-                "Whenever you lose a coin flip, this creature deals 1 damage to any target of an opponent's choice.",
+                "Whenever you lose a coin flip, this creature deals 1 damage \
+                 to any target of an opponent's choice.",
                 TriggerEventDef::CoinFlipLost(PlayerRelation::You),
-                &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)
-                    .chosen_by_opponent()],
+                &[
+                    AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)
+                        .chosen_by_opponent(),
+                ],
                 EffectDef::damage(
                     EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     ValueDef::Constant(1),
@@ -335,7 +488,7 @@ CardRules::new_creature(mana_cost!("{2}{R}{R}"), &["Minotaur", "Warrior"], 3, 3)
 );
 
 // CSP 96 — Rite of Flame
-pub(in crate::card::sets) static RITE_OF_FLAME_96: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static RITE_OF_FLAME: CardRecord = CardRecord::new(
     "Rite of Flame",
     "c062caf7-f0eb-44db-9f74-e6711a13fada",
     "Dany Orizio",
@@ -375,7 +528,7 @@ pub(in crate::card::sets) static ARCTIC_NISHOBA: CardRecord = CardRecord::new(
 );
 
 // CSP 105 — Boreal Druid
-pub(in crate::card::sets) static BOREAL_DRUID_105: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static BOREAL_DRUID: CardRecord = CardRecord::new(
     "Boreal Druid",
     "473d3633-6dc7-4026-a50e-3ea76b9e8c20",
     "Dan Dos Santos",
@@ -439,7 +592,7 @@ pub(in crate::card::sets) static DARK_DEPTHS: CardRecord = CardRecord::new(
     "Dark Depths",
     "92409c3a-fb1a-4205-9fe1-0f5affc7b21d",
     "Stephan Martiniere",
-// Thirty mana the long way round, or none at all if something else takes
+    // Thirty mana the long way round, or none at all if something else takes
     // the counters off.
     CardRules::new_land(&[])
         .with_supertype(CardSupertype::Legendary)
@@ -467,8 +620,9 @@ pub(in crate::card::sets) static DARK_DEPTHS: CardRecord = CardRecord::new(
             // counters are gone -- however they went. Removing them all at once is
             // what the deck is really built to do.
             AbilityDef::triggered_if(
-                "When Dark Depths has no ice counters on it, sacrifice it. If you do, create Marit Lage, \
-                 a legendary 20/20 black Avatar creature token with flying and indestructible.",
+                "When Dark Depths has no ice counters on it, sacrifice it. \
+                 If you do, create Marit Lage, a legendary 20/20 black \
+                 Avatar creature token with flying and indestructible.",
                 TriggerEventDef::StateCondition,
                 &TriggerConditionDef::SourceCounters {
                     kind: CounterKind::named("ice"),
@@ -486,10 +640,15 @@ pub(in crate::card::sets) static DARK_DEPTHS: CardRecord = CardRecord::new(
                         // Twenty power for no mana at all, which is what the ten counters are
                         // paying for. Legendary, so a second one is not a plan.
                         EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
-                            TokenCharacteristics::creature(&["Avatar"], &[ManaColor::Black], 20, 20)
-                                .with_supertype(CardSupertype::Legendary)
-                                .with_name("Marit Lage")
-                                .with_abilities(&[abilities::flying(), abilities::indestructible()]),
+                            TokenCharacteristics::creature(
+                                &["Avatar"],
+                                &[ManaColor::Black],
+                                20,
+                                20,
+                            )
+                            .with_supertype(CardSupertype::Legendary)
+                            .with_name("Marit Lage")
+                            .with_abilities(&[abilities::flying(), abilities::indestructible()]),
                         ))),
                     ]),
                 },
@@ -500,20 +659,20 @@ pub(in crate::card::sets) static DARK_DEPTHS: CardRecord = CardRecord::new(
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &COVER_OF_WINTER,
     &WALL_OF_SHARDS,
-    &ARCUM_DAGSSON_27,
-    &COMMANDEER_29,
-    &COUNTERBALANCE_31,
+    &ARCUM_DAGSSON,
+    &COMMANDEER,
+    &COUNTERBALANCE,
     &FLASHFREEZE,
     &VEXING_SPHINX,
     &BALDUVIAN_FALLEN,
     &DEATHMARK,
     &HERALD_OF_LESHRAC,
     &BRAID_OF_FIRE,
-    &FURY_OF_THE_HORDE_81,
+    &FURY_OF_THE_HORDE,
     &KARPLUSAN_MINOTAUR,
-    &RITE_OF_FLAME_96,
+    &RITE_OF_FLAME,
     &ARCTIC_NISHOBA,
-    &BOREAL_DRUID_105,
+    &BOREAL_DRUID,
     &MISHRA_S_BAUBLE,
     &PHYREXIAN_SOULGORGER,
     &DARK_DEPTHS,

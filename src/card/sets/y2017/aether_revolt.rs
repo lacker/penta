@@ -92,7 +92,7 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // AER 39 — Metallic Rebuke
-pub(in crate::card::sets) static METALLIC_REBUKE_39: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static METALLIC_REBUKE: CardRecord = CardRecord::new(
     "Metallic Rebuke",
     "f712ac26-dca4-459b-84c1-010597007f60",
     "Eric Deschamps",
@@ -114,24 +114,67 @@ pub(in crate::card::sets) static METALLIC_REBUKE_39: CardRecord = CardRecord::ne
 );
 
 // AER 48 — Trophy Mage
-pub(in crate::card::sets) static TROPHY_MAGE_48: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static TROPHY_MAGE: CardRecord = CardRecord::new(
     "Trophy Mage",
     "19754fe4-2f61-42a3-afa2-3a6a8257b81b",
     "Anna Steinbauer",
     CardRules::new_creature(mana_cost!("{2}{U}"), &["Human", "Wizard"], 2, 2).with_abilities(&[
-abilities::enters_trigger("When this creature enters, you may search your library for an artifact card with mana value 3, reveal it, put it into your hand, then shuffle.", EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Library, object: ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Artifact), ObjectPredicateDef::ManaValueEqualTo(ValueDef::Constant(3))]), minimum: 0, maximum: ValueDef::Constant(1), reveal: true, destination: ZoneKind::Hand, placement: ZonePlacement::Top, shuffle: true, enters_tapped: false, attachment: None, binding: None, then: None })
-]),
+        abilities::enters_trigger(
+            "When this creature enters, you may search your library for \
+             an artifact card with mana value 3, reveal it, put it into \
+             your hand, then shuffle.",
+            EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::ManaValueEqualTo(ValueDef::Constant(3)),
+                ]),
+                minimum: 0,
+                maximum: ValueDef::Constant(1),
+                reveal: true,
+                destination: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+                shuffle: true,
+                enters_tapped: false,
+                attachment: None,
+                binding: None,
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // AER 49 — Whir of Invention
-pub(in crate::card::sets) static WHIR_OF_INVENTION_49: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static WHIR_OF_INVENTION: CardRecord = CardRecord::new(
     "Whir of Invention",
     "0279fd3c-9252-4958-9d7a-5f33aa25907e",
     "Christine Choi",
     CardRules::new_instant(mana_cost!("{X}{U}{U}{U}")).with_abilities(&[
-abilities::improvise(),
-AbilityDef::spell("Search your library for an artifact card with mana value X or less, put it onto the battlefield, then shuffle.", EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Library, object: ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Artifact), ObjectPredicateDef::ManaValueAtMostValue(ValueDef::ChosenX)]), minimum: 0, maximum: ValueDef::Constant(1), reveal: false, destination: ZoneKind::Battlefield, placement: ZonePlacement::Top, shuffle: true, enters_tapped: false, attachment: None, binding: None, then: None })
-]),
+        abilities::improvise(),
+        AbilityDef::spell(
+            "Search your library for an artifact card with mana value X \
+             or less, put it onto the battlefield, then shuffle.",
+            EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::ManaValueAtMostValue(ValueDef::ChosenX),
+                ]),
+                minimum: 0,
+                maximum: ValueDef::Constant(1),
+                reveal: false,
+                destination: ZoneKind::Battlefield,
+                placement: ZonePlacement::Top,
+                shuffle: true,
+                enters_tapped: false,
+                attachment: None,
+                binding: None,
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // AER 51 — Aether Poisoner
@@ -210,7 +253,7 @@ pub(in crate::card::sets) static KARI_ZEV_SKYSHIP_RAIDER: CardRecord = CardRecor
     "Kari Zev, Skyship Raider",
     "72495879-39ce-449d-ad2f-ef32ea46f3aa",
     "Brad Rigney",
-// Two mana that attacks as three power across two bodies, one of which
+    // Two mana that attacks as three power across two bodies, one of which
     // is hard to block and the other of which is gone by the second main
     // phase.
     CardRules::new_creature(mana_cost!("{1}{R}"), &["Human", "Pirate"], 1, 3)
@@ -219,8 +262,9 @@ pub(in crate::card::sets) static KARI_ZEV_SKYSHIP_RAIDER: CardRecord = CardRecor
             abilities::first_strike(),
             abilities::menace(),
             AbilityDef::triggered(
-                "Whenever Kari Zev attacks, create Ragavan, a legendary 2/1 red Monkey creature token. \
-                 Ragavan enters tapped and attacking. Exile that token at end of combat.",
+                "Whenever Kari Zev attacks, create Ragavan, a legendary 2/1 \
+                 red Monkey creature token. Ragavan enters tapped and \
+                 attacking. Exile that token at end of combat.",
                 TriggerEventDef::attacks(ObjectPredicateDef::Source),
                 // A named, legendary token: Ragavan is one of the few tokens that is a
                 // particular creature rather than a kind of one, which matters because two
@@ -242,18 +286,22 @@ pub(in crate::card::sets) static KARI_ZEV_SKYSHIP_RAIDER: CardRecord = CardRecor
                         // Ragavan is bound as he is made rather than found afterwards: a second
                         // attack the same turn would make another one, and the clause exiles the
                         // Monkey this attack brought.
-                        then: &EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
-                            "Exile that token at end of combat.",
-                            TriggerEventDef::StepBegins {
-                                step: TurnStepDef::EndOfCombat,
-                                player: PlayerRelation::Any,
-                            },
-                            EffectDef::move_to_zone(
-                                EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
-                                ZoneKind::Exile,
-                                ZonePlacement::Top,
+                        then: &EffectDef::InstallTrigger(InstalledTriggerDef::once(
+                            &AbilityDef::triggered(
+                                "Exile that token at end of combat.",
+                                TriggerEventDef::StepBegins {
+                                    step: TurnStepDef::EndOfCombat,
+                                    player: PlayerRelation::Any,
+                                },
+                                EffectDef::move_to_zone(
+                                    EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                        ParentBinding,
+                                    )),
+                                    ZoneKind::Exile,
+                                    ZonePlacement::Top,
+                                ),
                             ),
-                        ))),
+                        )),
                     }),
                 ),
             ),
@@ -265,10 +313,12 @@ pub(in crate::card::sets) static WRANGLE: CardRecord = CardRecord::new(
     "Wrangle",
     "5ea93a49-5a7c-4d15-8548-a57c9460e0f0",
     "Jason Rainville",
-// A Threaten capped at power four, which is what keeps it from simply
+    // A Threaten capped at power four, which is what keeps it from simply
     // stealing the thing the opponent spent their turn on.
     CardRules::new_sorcery(mana_cost!("{1}{R}")).with_ability(AbilityDef::spell_with_targets(
-        "Gain control of target creature with power 4 or less until end of turn. Untap that creature. It gains haste until end of turn.",
+        "Gain control of target creature with power 4 or less until \
+         end of turn. Untap that creature. It gains haste until end \
+         of turn.",
         &[AbilityTargetDef::exactly_one_permanent(
             ObjectPredicateDef::All(&[
                 ObjectPredicateDef::HasType(CardType::Creature),
@@ -305,7 +355,7 @@ pub(in crate::card::sets) static DRUID_OF_THE_COWL: CardRecord = CardRecord::new
 );
 
 // AER 109 — Heroic Intervention
-pub(in crate::card::sets) static HEROIC_INTERVENTION_109: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static HEROIC_INTERVENTION: CardRecord = CardRecord::new(
     "Heroic Intervention",
     "8f5a620c-fde7-4b72-bf8a-efc4f14560c5",
     "James Ryman",
@@ -327,13 +377,55 @@ pub(in crate::card::sets) static HEROIC_INTERVENTION_109: CardRecord = CardRecor
 );
 
 // AER 145 — Cogwork Assembler
-pub(in crate::card::sets) static COGWORK_ASSEMBLER_145: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static COGWORK_ASSEMBLER: CardRecord = CardRecord::new(
     "Cogwork Assembler",
     "6dddacdd-bbc4-4f9b-be1c-5f2c64be3cbc",
     "Joseph Meehan",
-    CardRules::new_artifact_creature(mana_cost!("{3}"), &["Assembly-Worker"], 2, 3).with_abilities(&[
-AbilityDef::activated_with_targets("{7}: Create a token that's a copy of target artifact. That token gains haste. Exile it at the beginning of the next end step.", &[CostDef::Mana(mana_cost!("{7}"))], &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Artifact))], EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Copy(&TokenCopyDef { object: &EffectRecipientDef::Target(TargetIndex::PRIMARY), exceptions: CopyExceptionsDef::NONE })).with_created_tokens(CreatedTokensDef { binding: ParentBinding, then: &EffectDef::Sequence(&[EffectDef::Apply { recipient: EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)), effect: AppliedEffectDef::add_ability(&abilities::haste()), duration: ResolvedEffectDurationDef::Permanent }, EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered("Exile it at the beginning of the next end step.", TriggerEventDef::StepBegins { step: TurnStepDef::End, player: PlayerRelation::Any }, EffectDef::move_to_zone(EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)), ZoneKind::Exile, ZonePlacement::Top))))]) })))
-]),
+    CardRules::new_artifact_creature(mana_cost!("{3}"), &["Assembly-Worker"], 2, 3).with_abilities(
+        &[AbilityDef::activated_with_targets(
+            "{7}: Create a token that's a copy of target artifact. That \
+             token gains haste. Exile it at the beginning of the next \
+             end step.",
+            &[CostDef::Mana(mana_cost!("{7}"))],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Artifact),
+            )],
+            EffectDef::CreateToken(
+                crate::card::CreateTokenDef::new(crate::card::TokenDef::Copy(&TokenCopyDef {
+                    object: &EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    exceptions: CopyExceptionsDef::NONE,
+                }))
+                .with_created_tokens(CreatedTokensDef {
+                    binding: ParentBinding,
+                    then: &EffectDef::Sequence(&[
+                        EffectDef::Apply {
+                            recipient: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                ParentBinding,
+                            )),
+                            effect: AppliedEffectDef::add_ability(&abilities::haste()),
+                            duration: ResolvedEffectDurationDef::Permanent,
+                        },
+                        EffectDef::InstallTrigger(InstalledTriggerDef::once(
+                            &AbilityDef::triggered(
+                                "Exile it at the beginning of the next end step.",
+                                TriggerEventDef::StepBegins {
+                                    step: TurnStepDef::End,
+                                    player: PlayerRelation::Any,
+                                },
+                                EffectDef::move_to_zone(
+                                    EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                        ParentBinding,
+                                    )),
+                                    ZoneKind::Exile,
+                                    ZonePlacement::Top,
+                                ),
+                            ),
+                        )),
+                    ]),
+                }),
+            ),
+        )],
+    ),
 );
 
 // AER 151 — Foundry Assembler
@@ -346,8 +438,9 @@ pub(in crate::card::sets) static FOUNDRY_ASSEMBLER: CardRecord = CardRecord::new
 );
 
 // AER 154 — Hope of Ghirapur
-// Audit: unsupported — Target-player predicates cannot test whether this source dealt that player combat damage earlier this turn.
-pub(in crate::card::sets) static HOPE_OF_GHIRAPUR_154: CardRecord = CardRecord::new(
+// Audit: unsupported — Target-player predicates cannot test whether this source dealt that
+// player combat damage earlier this turn.
+pub(in crate::card::sets) static HOPE_OF_GHIRAPUR: CardRecord = CardRecord::new(
     "Hope of Ghirapur",
     "6f4bcadd-7eff-4294-94d5-52482a734d5b",
     "Lius Lasahido",
@@ -355,19 +448,51 @@ pub(in crate::card::sets) static HOPE_OF_GHIRAPUR_154: CardRecord = CardRecord::
 );
 
 // AER 164 — Metallic Mimic
-pub(in crate::card::sets) static METALLIC_MIMIC_164: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static METALLIC_MIMIC: CardRecord = CardRecord::new(
     "Metallic Mimic",
     "1aa4eba9-9e91-4beb-9296-a18baa73a318",
     "Zack Stella",
     CardRules::new_artifact_creature(mana_cost!("{2}"), &["Shapeshifter"], 2, 1).with_abilities(&[
-AbilityDef::as_enters("As this permanent enters, choose a creature type.", ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(BattlefieldEntryScalarChoiceDef::CREATURE_TYPE))),
-AbilityDef::static_ability("This creature is the chosen type in addition to its other types.", EffectDef::StaticApply { recipient: EffectRecipientDef::Source, effect: AppliedEffectDef::add_chosen_creature_type() }),
-AbilityDef::replacement_for("Each other creature you control of the chosen type enters with an additional +1/+1 counter on it.", ReplacementEventDef::ObjectEntersBattlefield { object: ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::HasSourcesChosenScalar(BattlefieldEntryChoiceDestinationDef::CreatureType), ObjectPredicateDef::Not(&ObjectPredicateDef::Source)]), controller: PlayerRelation::You, cast: None }, ReplacementEffectDef::ModifyBattlefieldEntry(BattlefieldEntryModificationDef::AddCounters { kind: CounterKind::PlusOnePlusOne, amount: 1 }))
-]),
+        AbilityDef::as_enters(
+            "As this permanent enters, choose a creature type.",
+            ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(
+                BattlefieldEntryScalarChoiceDef::CREATURE_TYPE,
+            )),
+        ),
+        AbilityDef::static_ability(
+            "This creature is the chosen type in addition to its other \
+             types.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::add_chosen_creature_type(),
+            },
+        ),
+        AbilityDef::replacement_for(
+            "Each other creature you control of the chosen type enters \
+             with an additional +1/+1 counter on it.",
+            ReplacementEventDef::ObjectEntersBattlefield {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::HasSourcesChosenScalar(
+                        BattlefieldEntryChoiceDestinationDef::CreatureType,
+                    ),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                ]),
+                controller: PlayerRelation::You,
+                cast: None,
+            },
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCounters {
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: 1,
+                },
+            ),
+        ),
+    ]),
 );
 
 // AER 169 — Paradox Engine
-pub(in crate::card::sets) static PARADOX_ENGINE_169: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static PARADOX_ENGINE: CardRecord = CardRecord::new(
     "Paradox Engine",
     "fd8ccd81-9e11-47fa-8e16-064c52c24506",
     "Christine Choi",
@@ -431,7 +556,7 @@ pub(in crate::card::sets) static WALKING_BALLISTA: CardRecord = CardRecord::new(
 );
 
 // AER 184 — Spire of Industry
-pub(in crate::card::sets) static SPIRE_OF_INDUSTRY_184: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static SPIRE_OF_INDUSTRY: CardRecord = CardRecord::new(
     "Spire of Industry",
     "8331724d-6fab-454a-b06c-b06e499fa552",
     "John Avon",
@@ -455,23 +580,23 @@ pub(in crate::card::sets) static SPIRE_OF_INDUSTRY_184: CardRecord = CardRecord:
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
-    &METALLIC_REBUKE_39,
-    &TROPHY_MAGE_48,
-    &WHIR_OF_INVENTION_49,
+    &METALLIC_REBUKE,
+    &TROPHY_MAGE,
+    &WHIR_OF_INVENTION,
     &AETHER_POISONER,
     &FATAL_PUSH,
     &AETHER_CHASER,
     &KARI_ZEV_SKYSHIP_RAIDER,
     &WRANGLE,
     &DRUID_OF_THE_COWL,
-    &HEROIC_INTERVENTION_109,
-    &COGWORK_ASSEMBLER_145,
+    &HEROIC_INTERVENTION,
+    &COGWORK_ASSEMBLER,
     &FOUNDRY_ASSEMBLER,
-    &HOPE_OF_GHIRAPUR_154,
-    &METALLIC_MIMIC_164,
-    &PARADOX_ENGINE_169,
+    &HOPE_OF_GHIRAPUR,
+    &METALLIC_MIMIC,
+    &PARADOX_ENGINE,
     &WALKING_BALLISTA,
-    &SPIRE_OF_INDUSTRY_184,
+    &SPIRE_OF_INDUSTRY,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

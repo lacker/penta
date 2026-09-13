@@ -30,7 +30,7 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // HOC 1 — Fíli and Kíli, Joyous
-pub(in crate::card::sets) static FILI_AND_KILI_JOYOUS_1: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static FILI_AND_KILI_JOYOUS: CardRecord = CardRecord::new(
     "Fíli and Kíli, Joyous",
     "e1d12200-ae0b-4155-9853-3ffaf490c84c",
     "Dmitry Burmak",
@@ -57,17 +57,37 @@ pub(in crate::card::sets) static FILI_AND_KILI_JOYOUS_1: CardRecord = CardRecord
 );
 
 // HOC 8 — Dragon-Cursed Halls
-pub(in crate::card::sets) static DRAGON_CURSED_HALLS_8: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static DRAGON_CURSED_HALLS: CardRecord = CardRecord::new(
     "Dragon-Cursed Halls",
     "506b9df7-8236-4c6e-aebc-6b7e6fcd7e88",
     "Marta Nael",
     CardRules::new_land(&[]).with_abilities(&[
-abilities::tap_for(ManaColor::Colorless),
-AbilityDef::activated_with_targets("{1}, {T}: Until end of turn, target creature gains \"Whenever this creature deals combat damage to a player, create a Treasure token.\"", &[CostDef::Mana(mana_cost!("{1}")), CostDef::TapSource], &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Creature))], EffectDef::Apply { recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY), effect: AppliedEffectDef::add_ability(&AbilityDef::triggered("Whenever this creature deals combat damage to a player, create a Treasure token.", TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source), EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(crate::card::tokens::treasure()))))), duration: ResolvedEffectDurationDef::UntilEndOfTurn })
-]),
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated_with_targets(
+            "{1}, {T}: Until end of turn, target creature gains \
+             \"Whenever this creature deals combat damage to a player, \
+             create a Treasure token.\"",
+            &[CostDef::Mana(mana_cost!("{1}")), CostDef::TapSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::add_ability(&AbilityDef::triggered(
+                    "Whenever this creature deals combat damage to a player, \
+                     create a Treasure token.",
+                    TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
+                    EffectDef::CreateToken(crate::card::CreateTokenDef::new(
+                        crate::card::TokenDef::Literal(crate::card::tokens::treasure()),
+                    )),
+                )),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[&FILI_AND_KILI_JOYOUS_1, &DRAGON_CURSED_HALLS_8];
+    &[&FILI_AND_KILI_JOYOUS, &DRAGON_CURSED_HALLS];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

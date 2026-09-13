@@ -42,8 +42,10 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // LCC 22 — Altar of the Wretched // Wretched Bonemass
-// Audit: unsupported — There is no craft procedure that exiles source and selected materials, then preserves their identities across the transformed battlefield entry for the back face's characteristic and ability queries.
-pub(in crate::card::sets) static ALTAR_OF_THE_WRETCHED_WRETCHED_BONEMASS_22: CardRecord =
+// Audit: unsupported — There is no craft procedure that exiles source and selected materials,
+// then preserves their identities across the transformed battlefield entry for the back face's
+// characteristic and ability queries.
+pub(in crate::card::sets) static ALTAR_OF_THE_WRETCHED_WRETCHED_BONEMASS: CardRecord =
     CardRecord::new(
         "Altar of the Wretched // Wretched Bonemass",
         "5842332a-b27b-49ac-948d-f88a21deb1de",
@@ -55,7 +57,7 @@ pub(in crate::card::sets) static ALTAR_OF_THE_WRETCHED_WRETCHED_BONEMASS_22: Car
 // Audit: unsupported — Discover needs a cast offer bounded by the actual spell mana value, a
 // declined-card hand destination, and random bottoming of the other exiled cards; cascade does
 // not implement those semantics.
-pub(in crate::card::sets) static DINOSAUR_EGG_60: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static DINOSAUR_EGG: CardRecord = CardRecord::new(
     "Dinosaur Egg",
     "debf96ef-1bb3-4a5c-9778-90d20e3ab8b6",
     "Alessandra Pisano",
@@ -63,14 +65,85 @@ pub(in crate::card::sets) static DINOSAUR_EGG_60: CardRecord = CardRecord::new(
 );
 
 // LCC 70 — Charismatic Conqueror
-pub(in crate::card::sets) static CHARISMATIC_CONQUEROR_70: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static CHARISMATIC_CONQUEROR: CardRecord = CardRecord::new(
     "Charismatic Conqueror",
     "599c934d-bfff-43ce-a545-6e3cde124515",
     "Bram Sels",
     CardRules::new_creature(mana_cost!("{1}{W}"), &["Vampire", "Soldier"], 2, 2).with_abilities(&[
-abilities::vigilance(),
-AbilityDef::triggered("Whenever an artifact or creature an opponent controls enters untapped, they may tap that permanent. If they don't, you create a 1/1 white Vampire creature token with lifelink.", TriggerEventDef::zone_changed(ObjectPredicateDef::All(&[ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Artifact), ObjectPredicateDef::HasType(CardType::Creature)]), ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent), ObjectPredicateDef::Not(&ObjectPredicateDef::Tapped)]), None, Some(ZoneKind::Battlefield)), EffectDef::IfElseCondition { condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef { left: ValueDef::CountObjects(&ObjectSetDef::Query(ObjectQueryDef::matching(ObjectPredicateDef::Not(&ObjectPredicateDef::Tapped), &[ZoneKind::Battlefield], PlayerRelation::Any))), comparison: ComparisonDef::Greater, right: ValueDef::CountObjects(&ObjectSetDef::ExceptObject { objects: &ObjectSetDef::Query(ObjectQueryDef::matching(ObjectPredicateDef::Not(&ObjectPredicateDef::Tapped), &[ZoneKind::Battlefield], PlayerRelation::Any)), object: ObjectRefDef::TriggeringObject }) }), then: &EffectDef::ChooseEffect { player: EffectRecipientDef::EventPlayer, choices: &[EffectChoiceDef { label: "Tap that permanent.", effect: EffectDef::Tap { object: EffectRecipientDef::TriggeringObject } }, EffectChoiceDef { label: "Do not tap it.", effect: EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(crate::card::TokenCharacteristics::creature(&["Vampire"], &[ManaColor::White], 1, 1).with_abilities(&[abilities::lifelink()])))) }] }, otherwise: &EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(crate::card::TokenCharacteristics::creature(&["Vampire"], &[ManaColor::White], 1, 1).with_abilities(&[abilities::lifelink()])))) })
-]),
+        abilities::vigilance(),
+        AbilityDef::triggered(
+            "Whenever an artifact or creature an opponent controls \
+             enters untapped, they may tap that permanent. If they \
+             don't, you create a 1/1 white Vampire creature token with \
+             lifelink.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                    ]),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Tapped),
+                ]),
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            EffectDef::IfElseCondition {
+                condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                    left: ValueDef::CountObjects(&ObjectSetDef::Query(ObjectQueryDef::matching(
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Tapped),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    ))),
+                    comparison: ComparisonDef::Greater,
+                    right: ValueDef::CountObjects(&ObjectSetDef::ExceptObject {
+                        objects: &ObjectSetDef::Query(ObjectQueryDef::matching(
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Tapped),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::Any,
+                        )),
+                        object: ObjectRefDef::TriggeringObject,
+                    }),
+                }),
+                then: &EffectDef::ChooseEffect {
+                    player: EffectRecipientDef::EventPlayer,
+                    choices: &[
+                        EffectChoiceDef {
+                            label: "Tap that permanent.",
+                            effect: EffectDef::Tap {
+                                object: EffectRecipientDef::TriggeringObject,
+                            },
+                        },
+                        EffectChoiceDef {
+                            label: "Do not tap it.",
+                            effect: EffectDef::CreateToken(crate::card::CreateTokenDef::new(
+                                crate::card::TokenDef::Literal(
+                                    crate::card::TokenCharacteristics::creature(
+                                        &["Vampire"],
+                                        &[ManaColor::White],
+                                        1,
+                                        1,
+                                    )
+                                    .with_abilities(&[abilities::lifelink()]),
+                                ),
+                            )),
+                        },
+                    ],
+                },
+                otherwise: &EffectDef::CreateToken(crate::card::CreateTokenDef::new(
+                    crate::card::TokenDef::Literal(
+                        crate::card::TokenCharacteristics::creature(
+                            &["Vampire"],
+                            &[ManaColor::White],
+                            1,
+                            1,
+                        )
+                        .with_abilities(&[abilities::lifelink()]),
+                    ),
+                )),
+            },
+        ),
+    ]),
 );
 
 // LCC 86 — Broadside Bombardiers
@@ -84,8 +157,8 @@ pub(in crate::card::sets) static BROADSIDE_BOMBARDIERS: CardRecord = CardRecord:
         abilities::haste(),
         abilities::boast(AbilityDef::activated_with_targets(
             "Boast — Sacrifice another creature or artifact: This creature deals damage equal to 2 \
-                 plus the sacrificed permanent\'s mana value to any target. (Activate only if this \
-                 creature attacked this turn and only once each turn.)",
+             plus the sacrificed permanent\'s mana value to any target. (Activate only if this \
+             creature attacked this turn and only once each turn.)",
             &[CostDef::SacrificePermanent {
                 // "Another creature or artifact": the Goblin cannot throw itself, which is
                 // what keeps the ability from being a one-shot Shock.
@@ -102,7 +175,8 @@ pub(in crate::card::sets) static BROADSIDE_BOMBARDIERS: CardRecord = CardRecord:
                 AbilityTargetPredicate::AnyTarget,
             )],
             EffectDef::damage(
-                EffectRecipientDef::Target(TargetIndex::PRIMARY), // Two plus what was thrown. The sacrifice is a cost, so the permanent is
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                // Two plus what was thrown. The sacrifice is a cost, so the permanent is
                 // gone before the ability is even on the stack: what it was worth is read
                 // back from the payment rather than from the board.
                 ValueDef::Sum(&SumValueDef {
@@ -115,18 +189,55 @@ pub(in crate::card::sets) static BROADSIDE_BOMBARDIERS: CardRecord = CardRecord:
 );
 
 // LCC 88 — Wrathful Raptors
-pub(in crate::card::sets) static WRATHFUL_RAPTORS_88: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static WRATHFUL_RAPTORS: CardRecord = CardRecord::new(
     "Wrathful Raptors",
     "49243e92-93e3-4090-b4f7-86fa4ca2fef5",
     "April Prime",
     CardRules::new_creature(mana_cost!("{4}{R}"), &["Dinosaur"], 5, 5).with_abilities(&[
-abilities::trample(),
-AbilityDef::triggered_with_targets("Whenever a Dinosaur you control is dealt damage, it deals that much damage to any target that isn't a Dinosaur.", TriggerEventDef::DamageDealt(DamageEventMatcherDef { recipient: DamageRecipientMatcherDef::MatchingObject(ObjectPredicateDef::All(&[ObjectPredicateDef::Subtype(SubtypeDef::Literal("Dinosaur")), ObjectPredicateDef::ControlledBy(PlayerRelation::You)])), ..DamageEventMatcherDef::ANY }), &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyOf(&[AbilityTargetPredicate::Player(PlayerRelation::Any), AbilityTargetPredicate::Object { object: ObjectPredicateDef::All(&[ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::HasType(CardType::Planeswalker)]), ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::Literal("Dinosaur")))]), zones: &[ZoneKind::Battlefield], controller: None, owner: None }]))], EffectDef::DealDamage(DamageDef::from_source(ObjectRefDef::DamagedObject, EffectRecipientDef::Target(TargetIndex::PRIMARY), ValueDef::DamageEventAmount)))
-]),
+        abilities::trample(),
+        AbilityDef::triggered_with_targets(
+            "Whenever a Dinosaur you control is dealt damage, it deals \
+             that much damage to any target that isn't a Dinosaur.",
+            TriggerEventDef::DamageDealt(DamageEventMatcherDef {
+                recipient: DamageRecipientMatcherDef::MatchingObject(ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Dinosaur")),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ])),
+                ..DamageEventMatcherDef::ANY
+            }),
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyOf(&[
+                    AbilityTargetPredicate::Player(PlayerRelation::Any),
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::AnyOf(&[
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                ObjectPredicateDef::HasType(CardType::Planeswalker),
+                            ]),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(
+                                SubtypeDef::Literal("Dinosaur"),
+                            )),
+                        ]),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: None,
+                        owner: None,
+                    },
+                ]),
+            )],
+            EffectDef::DealDamage(DamageDef::from_source(
+                ObjectRefDef::DamagedObject,
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::DamageEventAmount,
+            )),
+        ),
+    ]),
 );
 
 // LCC 106 — Chimil, the Inner Sun
-// Audit: unsupported — Needs a discover cast offer that bounds the mana value of the spell actually cast, returns an uncast discovered card to hand, and randomly bottoms the other exiled cards. Cascade is source-mana-value based and generic free-cast permissions cannot enforce the discovered spell limit.
+// Audit: unsupported — Needs a discover cast offer that bounds the mana value of the spell
+// actually cast, returns an uncast discovered card to hand, and randomly bottoms the other
+// exiled cards. Cascade is source-mana-value based and generic free-cast permissions cannot
+// enforce the discovered spell limit.
 pub(in crate::card::sets) static CHIMIL_THE_INNER_SUN: CardRecord = CardRecord::new(
     "Chimil, the Inner Sun",
     "cfb49910-30fe-483e-b3b8-6268417f013c",
@@ -135,8 +246,10 @@ pub(in crate::card::sets) static CHIMIL_THE_INNER_SUN: CardRecord = CardRecord::
 );
 
 // LCC 124 — Pantlaza, Sun-Favored
-// Audit: unsupported — Discover is not an existing free-cast procedure, and the once-per-turn allowance must be consumed only when the optional discover is chosen. A trigger-count limit would incorrectly consume it on a declined trigger.
-pub(in crate::card::sets) static PANTLAZA_SUN_FAVORED_124: CardRecord = CardRecord::new(
+// Audit: unsupported — Discover is not an existing free-cast procedure, and the once-per-turn
+// allowance must be consumed only when the optional discover is chosen. A trigger-count limit
+// would incorrectly consume it on a declined trigger.
+pub(in crate::card::sets) static PANTLAZA_SUN_FAVORED: CardRecord = CardRecord::new(
     "Pantlaza, Sun-Favored",
     "150a35f8-bbdc-4f6e-98e3-3bd6a3b8154a",
     "Sam Burley",
@@ -144,13 +257,13 @@ pub(in crate::card::sets) static PANTLAZA_SUN_FAVORED_124: CardRecord = CardReco
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
-    &ALTAR_OF_THE_WRETCHED_WRETCHED_BONEMASS_22,
-    &DINOSAUR_EGG_60,
-    &CHARISMATIC_CONQUEROR_70,
+    &ALTAR_OF_THE_WRETCHED_WRETCHED_BONEMASS,
+    &DINOSAUR_EGG,
+    &CHARISMATIC_CONQUEROR,
     &BROADSIDE_BOMBARDIERS,
-    &WRATHFUL_RAPTORS_88,
+    &WRATHFUL_RAPTORS,
     &CHIMIL_THE_INNER_SUN,
-    &PANTLAZA_SUN_FAVORED_124,
+    &PANTLAZA_SUN_FAVORED,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

@@ -46,7 +46,7 @@ pub(in crate::card::sets) static OCCULT_EPIPHANY: CardRecord = CardRecord::new(
     // types in it turns X of nothing into five fliers.
     CardRules::new_instant(mana_cost!("{X}{U}")).with_ability(AbilityDef::spell(
         "Draw X cards, then discard X cards. Create a 1/1 white Spirit creature token with \
-             flying for each card type among cards discarded this way.",
+         flying for each card type among cards discarded this way.",
         EffectDef::Sequence(&[
             EffectDef::DrawCards {
                 recipient: EffectRecipientDef::Controller,
@@ -129,8 +129,9 @@ pub(in crate::card::sets) static CROSSWAY_TROUBLEMAKERS: CardRecord = CardRecord
 );
 
 // VOC 60 — Shadowgrange Archfiend
-// Audit: unsupported — Madness needs its discard-to-exile replacement and linked cast-or-graveyard procedure.
-pub(in crate::card::sets) static SHADOWGRANGE_ARCHFIEND_60: CardRecord = CardRecord::new(
+// Audit: unsupported — Madness needs its discard-to-exile replacement and linked
+// cast-or-graveyard procedure.
+pub(in crate::card::sets) static SHADOWGRANGE_ARCHFIEND: CardRecord = CardRecord::new(
     "Shadowgrange Archfiend",
     "598bf482-99ce-4b39-a969-7685752382ed",
     "Oleksandr Kozachenko",
@@ -140,7 +141,7 @@ pub(in crate::card::sets) static SHADOWGRANGE_ARCHFIEND_60: CardRecord = CardRec
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &OCCULT_EPIPHANY,
     &CROSSWAY_TROUBLEMAKERS,
-    &SHADOWGRANGE_ARCHFIEND_60,
+    &SHADOWGRANGE_ARCHFIEND,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

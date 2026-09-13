@@ -110,13 +110,12 @@ pub(in crate::card::sets) static AXGARD_CAVALRY: CardRecord = CardRecord::new(
 
 // KHM 123 — Birgi, God of Storytelling // Harnfel, Horn of Bounty
 // Audit: unsupported — Needs a rules modifier permitting each creature to boast twice each turn.
-pub(in crate::card::sets) static BIRGI_GOD_OF_STORYTELLING_HARNFEL_H_123: CardRecord =
-    CardRecord::new(
-        "Birgi, God of Storytelling // Harnfel, Horn of Bounty",
-        "44657ab1-0a6a-4a5f-9688-86f239083821",
-        "Eric Deschamps",
-        crate::card::CardRules::unsupported(),
-    );
+pub(in crate::card::sets) static BIRGI_GOD_OF_STORYTELLING_HARNFEL_H: CardRecord = CardRecord::new(
+    "Birgi, God of Storytelling // Harnfel, Horn of Bounty",
+    "44657ab1-0a6a-4a5f-9688-86f239083821",
+    "Eric Deschamps",
+    crate::card::CardRules::unsupported(),
+);
 
 // KHM 139 — Goldspan Dragon
 pub(in crate::card::sets) static GOLDSPAN_DRAGON: CardRecord = CardRecord::new(
@@ -131,7 +130,7 @@ pub(in crate::card::sets) static GOLDSPAN_DRAGON: CardRecord = CardRecord::new(
         abilities::haste(),
         AbilityDef::triggered(
             "Whenever this creature attacks or becomes the target of a spell, create a Treasure \
-                 token.",
+             token.",
             // He pays for anything he is answered with: the Treasure lands whether the
             // spell that named him resolves or not, since the trigger is the targeting
             // rather than what it does.
@@ -143,7 +142,7 @@ pub(in crate::card::sets) static GOLDSPAN_DRAGON: CardRecord = CardRecord::new(
         ),
         AbilityDef::static_ability(
             "Treasures you control have \"{T}, Sacrifice this artifact: Add two mana of any one \
-                 color.\"",
+             color.\"",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
                     ObjectQueryDef::matching(
@@ -170,7 +169,7 @@ pub(in crate::card::sets) static MAGDA_BRAZEN_OUTLAW: CardRecord = CardRecord::n
     "Magda, Brazen Outlaw",
     "079e6263-e54c-4899-a336-5315909b9322",
     "Slawomir Maniak",
-// Two mana that turns every tap into a Treasure, and five Treasures into
+    // Two mana that turns every tap into a Treasure, and five Treasures into
     // whatever artifact the deck is built around.
     CardRules::new_creature(mana_cost!("{1}{R}"), &["Dwarf", "Berserker"], 2, 1)
         .with_supertype(CardSupertype::Legendary)
@@ -202,13 +201,12 @@ pub(in crate::card::sets) static MAGDA_BRAZEN_OUTLAW: CardRecord = CardRecord::n
                     ObjectPredicateDef::Subtype(SubtypeDef::Literal("Dwarf")),
                     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                 ])),
-                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
-                    TREASURE_TOKEN,
-                ))),
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))),
             ),
             AbilityDef::activated(
-                "Sacrifice five Treasures: Search your library for an artifact or Dragon card, put that \
-                 card onto the battlefield, then shuffle.",
+                "Sacrifice five Treasures: Search your library for an \
+                 artifact or Dragon card, put that card onto the \
+                 battlefield, then shuffle.",
                 &[CostDef::SacrificePermanents {
                     object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Treasure")),
                     controller: PlayerRelation::You,
@@ -237,13 +235,291 @@ pub(in crate::card::sets) static MAGDA_BRAZEN_OUTLAW: CardRecord = CardRecord::n
 );
 
 // KHM 143 — Open the Omenpaths
-pub(in crate::card::sets) static OPEN_THE_OMENPATHS_143: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static OPEN_THE_OMENPATHS: CardRecord = CardRecord::new(
     "Open the Omenpaths",
     "4e4023c8-8e7f-42b9-99e5-87e80fc3d6c8",
     "Eric Deschamps",
-    CardRules::new_instant(mana_cost!("{2}{R}")).with_abilities(&[
-AbilityDef::modal_spell("Choose one —", &[AbilityDef::spell("• Add two mana of any one color and two mana of any other color. Spend this mana only to cast creature or enchantment spells.", EffectDef::ChooseEffect { player: EffectRecipientDef::Controller, choices: &[EffectChoiceDef { label: "Two white and two blue.", effect: EffectDef::Sequence(&[EffectDef::AddMana(AddManaEffectDef::one(ManaColor::White).with_amount(2).with_restrictions(&[ManaRestrictionDef::CastSpell(ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::HasType(CardType::Enchantment)]))])), EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Blue).with_amount(2).with_restrictions(&[ManaRestrictionDef::CastSpell(ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::HasType(CardType::Enchantment)]))]))]) }, EffectChoiceDef { label: "Two white and two black.", effect: EffectDef::Sequence(&[EffectDef::AddMana(AddManaEffectDef::one(ManaColor::White).with_amount(2).with_restrictions(&[ManaRestrictionDef::CastSpell(ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::HasType(CardType::Enchantment)]))])), EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Black).with_amount(2).with_restrictions(&[ManaRestrictionDef::CastSpell(ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::HasType(CardType::Enchantment)]))]))]) }, EffectChoiceDef { label: "Two white and two red.", effect: EffectDef::Sequence(&[EffectDef::AddMana(AddManaEffectDef::one(ManaColor::White).with_amount(2).with_restrictions(&[ManaRestrictionDef::CastSpell(ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::HasType(CardType::Enchantment)]))])), EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Red).with_amount(2).with_restrictions(&[ManaRestrictionDef::CastSpell(ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::HasType(CardType::Enchantment)]))]))]) }, EffectChoiceDef { label: "Two white and two green.", effect: EffectDef::Sequence(&[EffectDef::AddMana(AddManaEffectDef::one(ManaColor::White).with_amount(2).with_restrictions(&[ManaRestrictionDef::CastSpell(ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::HasType(CardType::Enchantment)]))])), EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Green).with_amount(2).with_restrictions(&[ManaRestrictionDef::CastSpell(ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::HasType(CardType::Enchantment)]))]))]) }, EffectChoiceDef { label: "Two blue and two black.", effect: EffectDef::Sequence(&[EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Blue).with_amount(2).with_restrictions(&[ManaRestrictionDef::CastSpell(ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::HasType(CardType::Enchantment)]))])), EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Black).with_amount(2).with_restrictions(&[ManaRestrictionDef::CastSpell(ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::HasType(CardType::Enchantment)]))]))]) }, EffectChoiceDef { label: "Two blue and two red.", effect: EffectDef::Sequence(&[EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Blue).with_amount(2).with_restrictions(&[ManaRestrictionDef::CastSpell(ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::HasType(CardType::Enchantment)]))])), EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Red).with_amount(2).with_restrictions(&[ManaRestrictionDef::CastSpell(ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::HasType(CardType::Enchantment)]))]))]) }, EffectChoiceDef { label: "Two blue and two green.", effect: EffectDef::Sequence(&[EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Blue).with_amount(2).with_restrictions(&[ManaRestrictionDef::CastSpell(ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::HasType(CardType::Enchantment)]))])), EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Green).with_amount(2).with_restrictions(&[ManaRestrictionDef::CastSpell(ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::HasType(CardType::Enchantment)]))]))]) }, EffectChoiceDef { label: "Two black and two red.", effect: EffectDef::Sequence(&[EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Black).with_amount(2).with_restrictions(&[ManaRestrictionDef::CastSpell(ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::HasType(CardType::Enchantment)]))])), EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Red).with_amount(2).with_restrictions(&[ManaRestrictionDef::CastSpell(ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::HasType(CardType::Enchantment)]))]))]) }, EffectChoiceDef { label: "Two black and two green.", effect: EffectDef::Sequence(&[EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Black).with_amount(2).with_restrictions(&[ManaRestrictionDef::CastSpell(ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::HasType(CardType::Enchantment)]))])), EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Green).with_amount(2).with_restrictions(&[ManaRestrictionDef::CastSpell(ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::HasType(CardType::Enchantment)]))]))]) }, EffectChoiceDef { label: "Two red and two green.", effect: EffectDef::Sequence(&[EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Red).with_amount(2).with_restrictions(&[ManaRestrictionDef::CastSpell(ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::HasType(CardType::Enchantment)]))])), EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Green).with_amount(2).with_restrictions(&[ManaRestrictionDef::CastSpell(ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::HasType(CardType::Enchantment)]))]))]) }] }), AbilityDef::spell("• Creatures you control get +1/+0 until end of turn.", EffectDef::Apply { recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::HasType(CardType::Creature), &[ZoneKind::Battlefield], PlayerRelation::You), effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(0)), duration: ResolvedEffectDurationDef::UntilEndOfTurn })]).with_mode_selection(1, 1, false)
-]),
+    CardRules::new_instant(mana_cost!("{2}{R}")).with_abilities(&[AbilityDef::modal_spell(
+        "Choose one —",
+        &[
+            AbilityDef::spell(
+                "• Add two mana of any one color and two mana of any other \
+                 color. Spend this mana only to cast creature or enchantment \
+                 spells.",
+                EffectDef::ChooseEffect {
+                    player: EffectRecipientDef::Controller,
+                    choices: &[
+                        EffectChoiceDef {
+                            label: "Two white and two blue.",
+                            effect: EffectDef::Sequence(&[
+                                EffectDef::AddMana(
+                                    AddManaEffectDef::one(ManaColor::White)
+                                        .with_amount(2)
+                                        .with_restrictions(&[ManaRestrictionDef::CastSpell(
+                                            ObjectPredicateDef::AnyOf(&[
+                                                ObjectPredicateDef::HasType(CardType::Creature),
+                                                ObjectPredicateDef::HasType(CardType::Enchantment),
+                                            ]),
+                                        )]),
+                                ),
+                                EffectDef::AddMana(
+                                    AddManaEffectDef::one(ManaColor::Blue)
+                                        .with_amount(2)
+                                        .with_restrictions(&[ManaRestrictionDef::CastSpell(
+                                            ObjectPredicateDef::AnyOf(&[
+                                                ObjectPredicateDef::HasType(CardType::Creature),
+                                                ObjectPredicateDef::HasType(CardType::Enchantment),
+                                            ]),
+                                        )]),
+                                ),
+                            ]),
+                        },
+                        EffectChoiceDef {
+                            label: "Two white and two black.",
+                            effect: EffectDef::Sequence(&[
+                                EffectDef::AddMana(
+                                    AddManaEffectDef::one(ManaColor::White)
+                                        .with_amount(2)
+                                        .with_restrictions(&[ManaRestrictionDef::CastSpell(
+                                            ObjectPredicateDef::AnyOf(&[
+                                                ObjectPredicateDef::HasType(CardType::Creature),
+                                                ObjectPredicateDef::HasType(CardType::Enchantment),
+                                            ]),
+                                        )]),
+                                ),
+                                EffectDef::AddMana(
+                                    AddManaEffectDef::one(ManaColor::Black)
+                                        .with_amount(2)
+                                        .with_restrictions(&[ManaRestrictionDef::CastSpell(
+                                            ObjectPredicateDef::AnyOf(&[
+                                                ObjectPredicateDef::HasType(CardType::Creature),
+                                                ObjectPredicateDef::HasType(CardType::Enchantment),
+                                            ]),
+                                        )]),
+                                ),
+                            ]),
+                        },
+                        EffectChoiceDef {
+                            label: "Two white and two red.",
+                            effect: EffectDef::Sequence(&[
+                                EffectDef::AddMana(
+                                    AddManaEffectDef::one(ManaColor::White)
+                                        .with_amount(2)
+                                        .with_restrictions(&[ManaRestrictionDef::CastSpell(
+                                            ObjectPredicateDef::AnyOf(&[
+                                                ObjectPredicateDef::HasType(CardType::Creature),
+                                                ObjectPredicateDef::HasType(CardType::Enchantment),
+                                            ]),
+                                        )]),
+                                ),
+                                EffectDef::AddMana(
+                                    AddManaEffectDef::one(ManaColor::Red)
+                                        .with_amount(2)
+                                        .with_restrictions(&[ManaRestrictionDef::CastSpell(
+                                            ObjectPredicateDef::AnyOf(&[
+                                                ObjectPredicateDef::HasType(CardType::Creature),
+                                                ObjectPredicateDef::HasType(CardType::Enchantment),
+                                            ]),
+                                        )]),
+                                ),
+                            ]),
+                        },
+                        EffectChoiceDef {
+                            label: "Two white and two green.",
+                            effect: EffectDef::Sequence(&[
+                                EffectDef::AddMana(
+                                    AddManaEffectDef::one(ManaColor::White)
+                                        .with_amount(2)
+                                        .with_restrictions(&[ManaRestrictionDef::CastSpell(
+                                            ObjectPredicateDef::AnyOf(&[
+                                                ObjectPredicateDef::HasType(CardType::Creature),
+                                                ObjectPredicateDef::HasType(CardType::Enchantment),
+                                            ]),
+                                        )]),
+                                ),
+                                EffectDef::AddMana(
+                                    AddManaEffectDef::one(ManaColor::Green)
+                                        .with_amount(2)
+                                        .with_restrictions(&[ManaRestrictionDef::CastSpell(
+                                            ObjectPredicateDef::AnyOf(&[
+                                                ObjectPredicateDef::HasType(CardType::Creature),
+                                                ObjectPredicateDef::HasType(CardType::Enchantment),
+                                            ]),
+                                        )]),
+                                ),
+                            ]),
+                        },
+                        EffectChoiceDef {
+                            label: "Two blue and two black.",
+                            effect: EffectDef::Sequence(&[
+                                EffectDef::AddMana(
+                                    AddManaEffectDef::one(ManaColor::Blue)
+                                        .with_amount(2)
+                                        .with_restrictions(&[ManaRestrictionDef::CastSpell(
+                                            ObjectPredicateDef::AnyOf(&[
+                                                ObjectPredicateDef::HasType(CardType::Creature),
+                                                ObjectPredicateDef::HasType(CardType::Enchantment),
+                                            ]),
+                                        )]),
+                                ),
+                                EffectDef::AddMana(
+                                    AddManaEffectDef::one(ManaColor::Black)
+                                        .with_amount(2)
+                                        .with_restrictions(&[ManaRestrictionDef::CastSpell(
+                                            ObjectPredicateDef::AnyOf(&[
+                                                ObjectPredicateDef::HasType(CardType::Creature),
+                                                ObjectPredicateDef::HasType(CardType::Enchantment),
+                                            ]),
+                                        )]),
+                                ),
+                            ]),
+                        },
+                        EffectChoiceDef {
+                            label: "Two blue and two red.",
+                            effect: EffectDef::Sequence(&[
+                                EffectDef::AddMana(
+                                    AddManaEffectDef::one(ManaColor::Blue)
+                                        .with_amount(2)
+                                        .with_restrictions(&[ManaRestrictionDef::CastSpell(
+                                            ObjectPredicateDef::AnyOf(&[
+                                                ObjectPredicateDef::HasType(CardType::Creature),
+                                                ObjectPredicateDef::HasType(CardType::Enchantment),
+                                            ]),
+                                        )]),
+                                ),
+                                EffectDef::AddMana(
+                                    AddManaEffectDef::one(ManaColor::Red)
+                                        .with_amount(2)
+                                        .with_restrictions(&[ManaRestrictionDef::CastSpell(
+                                            ObjectPredicateDef::AnyOf(&[
+                                                ObjectPredicateDef::HasType(CardType::Creature),
+                                                ObjectPredicateDef::HasType(CardType::Enchantment),
+                                            ]),
+                                        )]),
+                                ),
+                            ]),
+                        },
+                        EffectChoiceDef {
+                            label: "Two blue and two green.",
+                            effect: EffectDef::Sequence(&[
+                                EffectDef::AddMana(
+                                    AddManaEffectDef::one(ManaColor::Blue)
+                                        .with_amount(2)
+                                        .with_restrictions(&[ManaRestrictionDef::CastSpell(
+                                            ObjectPredicateDef::AnyOf(&[
+                                                ObjectPredicateDef::HasType(CardType::Creature),
+                                                ObjectPredicateDef::HasType(CardType::Enchantment),
+                                            ]),
+                                        )]),
+                                ),
+                                EffectDef::AddMana(
+                                    AddManaEffectDef::one(ManaColor::Green)
+                                        .with_amount(2)
+                                        .with_restrictions(&[ManaRestrictionDef::CastSpell(
+                                            ObjectPredicateDef::AnyOf(&[
+                                                ObjectPredicateDef::HasType(CardType::Creature),
+                                                ObjectPredicateDef::HasType(CardType::Enchantment),
+                                            ]),
+                                        )]),
+                                ),
+                            ]),
+                        },
+                        EffectChoiceDef {
+                            label: "Two black and two red.",
+                            effect: EffectDef::Sequence(&[
+                                EffectDef::AddMana(
+                                    AddManaEffectDef::one(ManaColor::Black)
+                                        .with_amount(2)
+                                        .with_restrictions(&[ManaRestrictionDef::CastSpell(
+                                            ObjectPredicateDef::AnyOf(&[
+                                                ObjectPredicateDef::HasType(CardType::Creature),
+                                                ObjectPredicateDef::HasType(CardType::Enchantment),
+                                            ]),
+                                        )]),
+                                ),
+                                EffectDef::AddMana(
+                                    AddManaEffectDef::one(ManaColor::Red)
+                                        .with_amount(2)
+                                        .with_restrictions(&[ManaRestrictionDef::CastSpell(
+                                            ObjectPredicateDef::AnyOf(&[
+                                                ObjectPredicateDef::HasType(CardType::Creature),
+                                                ObjectPredicateDef::HasType(CardType::Enchantment),
+                                            ]),
+                                        )]),
+                                ),
+                            ]),
+                        },
+                        EffectChoiceDef {
+                            label: "Two black and two green.",
+                            effect: EffectDef::Sequence(&[
+                                EffectDef::AddMana(
+                                    AddManaEffectDef::one(ManaColor::Black)
+                                        .with_amount(2)
+                                        .with_restrictions(&[ManaRestrictionDef::CastSpell(
+                                            ObjectPredicateDef::AnyOf(&[
+                                                ObjectPredicateDef::HasType(CardType::Creature),
+                                                ObjectPredicateDef::HasType(CardType::Enchantment),
+                                            ]),
+                                        )]),
+                                ),
+                                EffectDef::AddMana(
+                                    AddManaEffectDef::one(ManaColor::Green)
+                                        .with_amount(2)
+                                        .with_restrictions(&[ManaRestrictionDef::CastSpell(
+                                            ObjectPredicateDef::AnyOf(&[
+                                                ObjectPredicateDef::HasType(CardType::Creature),
+                                                ObjectPredicateDef::HasType(CardType::Enchantment),
+                                            ]),
+                                        )]),
+                                ),
+                            ]),
+                        },
+                        EffectChoiceDef {
+                            label: "Two red and two green.",
+                            effect: EffectDef::Sequence(&[
+                                EffectDef::AddMana(
+                                    AddManaEffectDef::one(ManaColor::Red)
+                                        .with_amount(2)
+                                        .with_restrictions(&[ManaRestrictionDef::CastSpell(
+                                            ObjectPredicateDef::AnyOf(&[
+                                                ObjectPredicateDef::HasType(CardType::Creature),
+                                                ObjectPredicateDef::HasType(CardType::Enchantment),
+                                            ]),
+                                        )]),
+                                ),
+                                EffectDef::AddMana(
+                                    AddManaEffectDef::one(ManaColor::Green)
+                                        .with_amount(2)
+                                        .with_restrictions(&[ManaRestrictionDef::CastSpell(
+                                            ObjectPredicateDef::AnyOf(&[
+                                                ObjectPredicateDef::HasType(CardType::Creature),
+                                                ObjectPredicateDef::HasType(CardType::Enchantment),
+                                            ]),
+                                        )]),
+                                ),
+                            ]),
+                        },
+                    ],
+                },
+            ),
+            AbilityDef::spell(
+                "• Creatures you control get +1/+0 until end of turn.",
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(0),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ],
+    )
+    .with_mode_selection(1, 1, false)]),
 );
 
 // KHM 149 — Seize the Spoils
@@ -298,7 +574,7 @@ pub(in crate::card::sets) static TUSKERI_FIREWALKER: CardRecord = CardRecord::ne
 );
 
 // KHM 158 — Vault Robber
-pub(in crate::card::sets) static VAULT_ROBBER_158: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static VAULT_ROBBER: CardRecord = CardRecord::new(
     "Vault Robber",
     "74f68014-489d-4f51-a959-0f335541cb4e",
     "Slawomir Maniak",
@@ -352,8 +628,9 @@ pub(in crate::card::sets) static FYNN_THE_FANGBEARER: CardRecord = CardRecord::n
 );
 
 // KHM 178 — Jaspera Sentinel
-// Audit: unsupported — Mana-ability eligibility rejects TapPermanents costs, so it cannot reserve and tap the additional creature during immediate mana production.
-pub(in crate::card::sets) static JASPERA_SENTINEL_178: CardRecord = CardRecord::new(
+// Audit: unsupported — Mana-ability eligibility rejects TapPermanents costs, so it cannot
+// reserve and tap the additional creature during immediate mana production.
+pub(in crate::card::sets) static JASPERA_SENTINEL: CardRecord = CardRecord::new(
     "Jaspera Sentinel",
     "1a68615d-9808-479d-aa80-50651246954e",
     "Raoul Vitale",
@@ -364,7 +641,7 @@ pub(in crate::card::sets) static JASPERA_SENTINEL_178: CardRecord = CardRecord::
 // Audit: unsupported — The intrinsic all-zone changeling declaration is not applied by the
 // battlefield/copy characteristic walk; implementing only the exile trigger would omit a printed
 // ability.
-pub(in crate::card::sets) static MASKED_VANDAL_184: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static MASKED_VANDAL: CardRecord = CardRecord::new(
     "Masked Vandal",
     "f0a9c72a-e450-41e3-80e5-06f2f1171245",
     "Jason A. Engle",
@@ -484,8 +761,10 @@ pub(in crate::card::sets) static IMMERSTURM_PREDATOR: CardRecord = CardRecord::n
 );
 
 // KHM 235 — Bloodline Pretender
-// Audit: unsupported — The all-zone subtype declaration is read for cards and spells but not applied by the battlefield/copy characteristic walk. Changeling needs the same intrinsic all-types value across those paths.
-pub(in crate::card::sets) static BLOODLINE_PRETENDER_235: CardRecord = CardRecord::new(
+// Audit: unsupported — The all-zone subtype declaration is read for cards and spells but not
+// applied by the battlefield/copy characteristic walk. Changeling needs the same intrinsic
+// all-types value across those paths.
+pub(in crate::card::sets) static BLOODLINE_PRETENDER: CardRecord = CardRecord::new(
     "Bloodline Pretender",
     "eb8a16f6-55c1-40eb-998f-592bf31916b1",
     "Slawomir Maniak",
@@ -525,8 +804,9 @@ pub(in crate::card::sets) static GOLDVEIN_PICK: CardRecord = CardRecord::new(
 );
 
 // KHM 241 — Pyre of Heroes
-// Audit: unsupported — Needs a library search predicate comparing a found card's creature type with the creature sacrificed as a cost.
-pub(in crate::card::sets) static PYRE_OF_HEROES_241: CardRecord = CardRecord::new(
+// Audit: unsupported — Needs a library search predicate comparing a found card's creature type
+// with the creature sacrificed as a cost.
+pub(in crate::card::sets) static PYRE_OF_HEROES: CardRecord = CardRecord::new(
     "Pyre of Heroes",
     "ae9a8e44-f5de-497d-be48-adf1bcbaec97",
     "Piotr Dura",
@@ -534,8 +814,9 @@ pub(in crate::card::sets) static PYRE_OF_HEROES_241: CardRecord = CardRecord::ne
 );
 
 // KHM 247 — Weathered Runestone
-// Audit: unsupported — Needs static prohibitions on nonland card entry from graveyards/libraries and casting from those zones.
-pub(in crate::card::sets) static WEATHERED_RUNESTONE_247: CardRecord = CardRecord::new(
+// Audit: unsupported — Needs static prohibitions on nonland card entry from
+// graveyards/libraries and casting from those zones.
+pub(in crate::card::sets) static WEATHERED_RUNESTONE: CardRecord = CardRecord::new(
     "Weathered Runestone",
     "0fc2478f-e624-46fb-85af-1254564cd4d2",
     "Dan Murayama Scott",
@@ -543,7 +824,7 @@ pub(in crate::card::sets) static WEATHERED_RUNESTONE_247: CardRecord = CardRecor
 );
 
 // KHM 252 — Blightstep Pathway // Searstep Pathway
-pub(in crate::card::sets) static BLIGHTSTEP_PATHWAY_SEARSTEP_PATHWAY_252: CardRecord =
+pub(in crate::card::sets) static BLIGHTSTEP_PATHWAY_SEARSTEP_PATHWAY: CardRecord =
     CardRecord::new_mdfc(
         "Blightstep Pathway // Searstep Pathway",
         "0ce39a19-f51d-4a35-ae80-5b82eb15fcff",
@@ -561,7 +842,7 @@ pub(in crate::card::sets) static BLIGHTSTEP_PATHWAY_SEARSTEP_PATHWAY_252: CardRe
     );
 
 // KHM 254 — Darkbore Pathway // Slitherbore Pathway
-pub(in crate::card::sets) static DARKBORE_PATHWAY_SLITHERBORE_PATHWAY_254: CardRecord =
+pub(in crate::card::sets) static DARKBORE_PATHWAY_SLITHERBORE_PATHWAY: CardRecord =
     CardRecord::new_mdfc(
         "Darkbore Pathway // Slitherbore Pathway",
         "87a4e5fe-161f-42da-9ca2-67c8e8970e94",
@@ -587,7 +868,7 @@ pub(in crate::card::sets) static DARKBORE_PATHWAY_SLITHERBORE_PATHWAY_254: CardR
     );
 
 // KHM 290 — Barkchannel Pathway // Tidechannel Pathway
-pub(in crate::card::sets) static BARKCHANNEL_PATHWAY_TIDECHANNEL_PATHWAY_290: CardRecord =
+pub(in crate::card::sets) static BARKCHANNEL_PATHWAY_TIDECHANNEL_PATHWAY: CardRecord =
     CardRecord::new_mdfc(
         "Barkchannel Pathway // Tidechannel Pathway",
         "87c33c94-4b56-4a96-9c4c-a376f8d54943",
@@ -605,8 +886,10 @@ pub(in crate::card::sets) static BARKCHANNEL_PATHWAY_TIDECHANNEL_PATHWAY_290: Ca
     );
 
 // KHM 314 — Esika, God of the Tree // The Prismatic Bridge
-// Audit: unsupported — MillUntil always mills the unmatched cards. No reveal-until producer retains the unmatched library group for random bottom placement while moving the matched creature or planeswalker to the battlefield.
-pub(in crate::card::sets) static ESIKA_GOD_OF_THE_TREE_THE_PRISMATIC_BRIDGE_314: CardRecord =
+// Audit: unsupported — MillUntil always mills the unmatched cards. No reveal-until producer
+// retains the unmatched library group for random bottom placement while moving the matched
+// creature or planeswalker to the battlefield.
+pub(in crate::card::sets) static ESIKA_GOD_OF_THE_TREE_THE_PRISMATIC_BRIDGE: CardRecord =
     CardRecord::new(
         "Esika, God of the Tree // The Prismatic Bridge",
         "ced8571a-24e1-45be-8698-3314b663940a",
@@ -619,7 +902,7 @@ pub(in crate::card::sets) static ESIKA_S_CHARIOT: CardRecord = CardRecord::new(
     "Esika's Chariot",
     "57a7d7e5-428d-4f42-8f13-9908fc65dcb4",
     "WolfSkullJack",
-// Four mana for four power of Cats, which then crew the Chariot they
+    // Four mana for four power of Cats, which then crew the Chariot they
     // came with -- and every attack after that is another one of them.
     CardRules::new_vehicle(mana_cost!("{3}{G}"), 4, 4)
         .with_supertype(CardSupertype::Legendary)
@@ -628,17 +911,18 @@ pub(in crate::card::sets) static ESIKA_S_CHARIOT: CardRecord = CardRecord::new(
                 "When Esika's Chariot enters, create two 2/2 green Cat creature tokens.",
                 EffectDef::CreateToken(
                     CreateTokenDef::new(TokenDef::Literal(
-                        TokenCharacteristics::creature(&["Cat"], &[ManaColor::Green], 2, 2).with_art(CardArt::new(
-                            "2e07758f-0d1c-47d9-ba5a-43bc2a7423cd",
-                            "Raoul Vitale",
-                        )),
+                        TokenCharacteristics::creature(&["Cat"], &[ManaColor::Green], 2, 2)
+                            .with_art(CardArt::new(
+                                "2e07758f-0d1c-47d9-ba5a-43bc2a7423cd",
+                                "Raoul Vitale",
+                            )),
                     ))
                     .with_count(ValueDef::Constant(2)),
                 ),
             ),
             AbilityDef::triggered_with_targets(
-                "Whenever Esika's Chariot attacks, create a token that's a copy of target token you \
-                 control.",
+                "Whenever Esika's Chariot attacks, create a token that's a \
+                 copy of target token you control.",
                 TriggerEventDef::attacks(ObjectPredicateDef::Source),
                 // A token you control, which the Chariot itself is not: what it copies is
                 // one of the Cats it brought, or anything else a token-making deck has
@@ -665,8 +949,10 @@ pub(in crate::card::sets) static ESIKA_S_CHARIOT: CardRecord = CardRecord::new(
 );
 
 // KHM 360 — Tibalt's Trickery
-// Audit: unsupported — The reveal-until producer sends unmatched cards to the graveyard. It cannot retain the unmatched exiled group and put that group on the library bottom in a random order after the free-cast offer.
-pub(in crate::card::sets) static TIBALT_S_TRICKERY_360: CardRecord = CardRecord::new(
+// Audit: unsupported — The reveal-until producer sends unmatched cards to the graveyard. It
+// cannot retain the unmatched exiled group and put that group on the library bottom in a random
+// order after the free-cast offer.
+pub(in crate::card::sets) static TIBALT_S_TRICKERY: CardRecord = CardRecord::new(
     "Tibalt's Trickery",
     "9067f5b3-1685-42b6-b838-3e19f1f6b36e",
     "Anna Podedworna",
@@ -674,27 +960,166 @@ pub(in crate::card::sets) static TIBALT_S_TRICKERY_360: CardRecord = CardRecord:
 );
 
 // KHM 369 — Maskwood Nexus
-pub(in crate::card::sets) static MASKWOOD_NEXUS_369: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static MASKWOOD_NEXUS: CardRecord = CardRecord::new(
     "Maskwood Nexus",
     "45887949-7cc6-4f83-a659-fb3284685c7d",
     "Jason A. Engle",
     CardRules::new_artifact(mana_cost!("{4}")).with_abilities(&[
-AbilityDef::static_ability("Creatures you control are every creature type. The same is true for creature spells you control and creature cards you own that aren't on the battlefield.", EffectDef::Sequence(&[EffectDef::StaticApply { recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::HasType(CardType::Creature), &[ZoneKind::Battlefield], PlayerRelation::You), effect: AppliedEffectDef::add_creature_types(CreatureTypeSetDef::ALL) }, EffectDef::StaticApply { recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::HasType(CardType::Creature), &[ZoneKind::Stack], PlayerRelation::You), effect: AppliedEffectDef::add_creature_types(CreatureTypeSetDef::ALL) }, EffectDef::StaticApply { recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::HasType(CardType::Creature), &[ZoneKind::Library], PlayerRelation::You), effect: AppliedEffectDef::add_creature_types(CreatureTypeSetDef::ALL) }, EffectDef::StaticApply { recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::HasType(CardType::Creature), &[ZoneKind::Hand], PlayerRelation::You), effect: AppliedEffectDef::add_creature_types(CreatureTypeSetDef::ALL) }, EffectDef::StaticApply { recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::HasType(CardType::Creature), &[ZoneKind::Graveyard], PlayerRelation::You), effect: AppliedEffectDef::add_creature_types(CreatureTypeSetDef::ALL) }, EffectDef::StaticApply { recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::HasType(CardType::Creature), &[ZoneKind::Exile], PlayerRelation::You), effect: AppliedEffectDef::add_creature_types(CreatureTypeSetDef::ALL) }, EffectDef::StaticApply { recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::HasType(CardType::Creature), &[ZoneKind::Command], PlayerRelation::You), effect: AppliedEffectDef::add_creature_types(CreatureTypeSetDef::ALL) }])),
-AbilityDef::activated("{3}, {T}: Create a 2/2 blue Shapeshifter creature token with changeling. (It is every creature type.)", &[CostDef::Mana(mana_cost!("{3}")), CostDef::TapSource], EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(crate::card::TokenCharacteristics::creature(&["Shapeshifter"], &[ManaColor::Blue], 2, 2).with_abilities(&[AbilityDef::static_ability("Changeling (This card is every creature type.)", EffectDef::StaticApply { recipient: EffectRecipientDef::Source, effect: AppliedEffectDef::add_creature_types(CreatureTypeSetDef::ALL) })])))))
-]),
+        AbilityDef::static_ability(
+            "Creatures you control are every creature type. The same is \
+             true for creature spells you control and creature cards you \
+             own that aren't on the battlefield.",
+            EffectDef::Sequence(&[
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::add_creature_types(CreatureTypeSetDef::ALL),
+                },
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Stack],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::add_creature_types(CreatureTypeSetDef::ALL),
+                },
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Library],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::add_creature_types(CreatureTypeSetDef::ALL),
+                },
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Hand],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::add_creature_types(CreatureTypeSetDef::ALL),
+                },
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Graveyard],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::add_creature_types(CreatureTypeSetDef::ALL),
+                },
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Exile],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::add_creature_types(CreatureTypeSetDef::ALL),
+                },
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Command],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::add_creature_types(CreatureTypeSetDef::ALL),
+                },
+            ]),
+        ),
+        AbilityDef::activated(
+            "{3}, {T}: Create a 2/2 blue Shapeshifter creature token \
+             with changeling. (It is every creature type.)",
+            &[CostDef::Mana(mana_cost!("{3}")), CostDef::TapSource],
+            EffectDef::CreateToken(crate::card::CreateTokenDef::new(
+                crate::card::TokenDef::Literal(
+                    crate::card::TokenCharacteristics::creature(
+                        &["Shapeshifter"],
+                        &[ManaColor::Blue],
+                        2,
+                        2,
+                    )
+                    .with_abilities(&[AbilityDef::static_ability(
+                        "Changeling (This card is every creature type.)",
+                        EffectDef::StaticApply {
+                            recipient: EffectRecipientDef::Source,
+                            effect: AppliedEffectDef::add_creature_types(CreatureTypeSetDef::ALL),
+                        },
+                    )]),
+                ),
+            )),
+        ),
+    ]),
 );
 
 // KHM 373 — The World Tree
-pub(in crate::card::sets) static THE_WORLD_TREE_373: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static THE_WORLD_TREE: CardRecord = CardRecord::new(
     "The World Tree",
     "999fa01b-4e54-4e3e-973d-7af137a53684",
     "Anastasia Ovchinnikova",
     CardRules::new_land(&[]).with_abilities(&[
-abilities::enters_tapped(CardType::Land),
-abilities::tap_for(ManaColor::Green),
-AbilityDef::static_ability("As long as you control six or more lands, lands you control have \"{T}: Add one mana of any color.\"", EffectDef::IfCondition { condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef { left: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(ObjectPredicateDef::HasType(CardType::Land), &[ZoneKind::Battlefield], PlayerRelation::You)), comparison: ComparisonDef::GreaterOrEqual, right: ValueDef::Constant(6) }), then: &EffectDef::StaticApply { recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::HasType(CardType::Land), &[ZoneKind::Battlefield], PlayerRelation::You), effect: AppliedEffectDef::add_ability(&AbilityDef::activated_mana("{T}: Add one mana of any color.", &[CostDef::TapSource], EffectDef::AddMana(AddManaEffectDef::choice(&[ManaColor::White, ManaColor::Blue, ManaColor::Black, ManaColor::Red, ManaColor::Green])))) } }),
-AbilityDef::activated("{W}{W}{U}{U}{B}{B}{R}{R}{G}{G}, {T}, Sacrifice this land: Search your library for any number of God cards, put them onto the battlefield, then shuffle.", &[CostDef::Mana(mana_cost!("{W}{W}{U}{U}{B}{B}{R}{R}{G}{G}")), CostDef::TapSource, CostDef::SacrificeSource], EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Library, object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("God")), minimum: 0, maximum: ValueDef::Constant(255), reveal: false, destination: ZoneKind::Battlefield, placement: ZonePlacement::Top, shuffle: true, enters_tapped: false, attachment: None, binding: None, then: None })
-]),
+        abilities::enters_tapped(CardType::Land),
+        abilities::tap_for(ManaColor::Green),
+        AbilityDef::static_ability(
+            "As long as you control six or more lands, lands you control \
+             have \"{T}: Add one mana of any color.\"",
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                    left: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    )),
+                    comparison: ComparisonDef::GreaterOrEqual,
+                    right: ValueDef::Constant(6),
+                }),
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::add_ability(&AbilityDef::activated_mana(
+                        "{T}: Add one mana of any color.",
+                        &[CostDef::TapSource],
+                        EffectDef::AddMana(AddManaEffectDef::choice(&[
+                            ManaColor::White,
+                            ManaColor::Blue,
+                            ManaColor::Black,
+                            ManaColor::Red,
+                            ManaColor::Green,
+                        ])),
+                    )),
+                },
+            },
+        ),
+        AbilityDef::activated(
+            "{W}{W}{U}{U}{B}{B}{R}{R}{G}{G}, {T}, Sacrifice this land: \
+             Search your library for any number of God cards, put them \
+             onto the battlefield, then shuffle.",
+            &[
+                CostDef::Mana(mana_cost!("{W}{W}{U}{U}{B}{B}{R}{R}{G}{G}")),
+                CostDef::TapSource,
+                CostDef::SacrificeSource,
+            ],
+            EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("God")),
+                minimum: 0,
+                maximum: ValueDef::Constant(255),
+                reveal: false,
+                destination: ZoneKind::Battlefield,
+                placement: ZonePlacement::Top,
+                shuffle: true,
+                enters_tapped: false,
+                attachment: None,
+                binding: None,
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // KHM 382 — Youthful Valkyrie
@@ -730,31 +1155,31 @@ pub(in crate::card::sets) static YOUTHFUL_VALKYRIE: CardRecord = CardRecord::new
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &BEHOLD_THE_MULTIVERSE,
     &AXGARD_CAVALRY,
-    &BIRGI_GOD_OF_STORYTELLING_HARNFEL_H_123,
+    &BIRGI_GOD_OF_STORYTELLING_HARNFEL_H,
     &GOLDSPAN_DRAGON,
     &MAGDA_BRAZEN_OUTLAW,
-    &OPEN_THE_OMENPATHS_143,
+    &OPEN_THE_OMENPATHS,
     &SEIZE_THE_SPOILS,
     &TUSKERI_FIREWALKER,
-    &VAULT_ROBBER_158,
+    &VAULT_ROBBER,
     &FYNN_THE_FANGBEARER,
-    &JASPERA_SENTINEL_178,
-    &MASKED_VANDAL_184,
+    &JASPERA_SENTINEL,
+    &MASKED_VANDAL,
     &SARULF_S_PACKMATE,
     &SNAKESKIN_VEIL,
     &IMMERSTURM_PREDATOR,
-    &BLOODLINE_PRETENDER_235,
+    &BLOODLINE_PRETENDER,
     &GOLDVEIN_PICK,
-    &PYRE_OF_HEROES_241,
-    &WEATHERED_RUNESTONE_247,
-    &BLIGHTSTEP_PATHWAY_SEARSTEP_PATHWAY_252,
-    &DARKBORE_PATHWAY_SLITHERBORE_PATHWAY_254,
-    &BARKCHANNEL_PATHWAY_TIDECHANNEL_PATHWAY_290,
-    &ESIKA_GOD_OF_THE_TREE_THE_PRISMATIC_BRIDGE_314,
+    &PYRE_OF_HEROES,
+    &WEATHERED_RUNESTONE,
+    &BLIGHTSTEP_PATHWAY_SEARSTEP_PATHWAY,
+    &DARKBORE_PATHWAY_SLITHERBORE_PATHWAY,
+    &BARKCHANNEL_PATHWAY_TIDECHANNEL_PATHWAY,
+    &ESIKA_GOD_OF_THE_TREE_THE_PRISMATIC_BRIDGE,
     &ESIKA_S_CHARIOT,
-    &TIBALT_S_TRICKERY_360,
-    &MASKWOOD_NEXUS_369,
-    &THE_WORLD_TREE_373,
+    &TIBALT_S_TRICKERY,
+    &MASKWOOD_NEXUS,
+    &THE_WORLD_TREE,
     &YOUTHFUL_VALKYRIE,
 ];
 

@@ -193,7 +193,8 @@ const TREEFOLK_TOKEN: TokenCharacteristics =
         ));
 
 // ECL 1 — Changeling Wayfinder
-// Audit: unsupported — Needs an all-zone creature-type characteristic-defining ability whose all-types value is copiable; battlefield all-type modifiers do not implement changeling.
+// Audit: unsupported — Needs an all-zone creature-type characteristic-defining ability whose
+// all-types value is copiable; battlefield all-type modifiers do not implement changeling.
 pub(in crate::card::sets) static CHANGELING_WAYFINDER: CardRecord = CardRecord::new(
     "Changeling Wayfinder",
     "6c6061aa-a4da-4115-85b6-d0aa22f2386c",
@@ -202,7 +203,8 @@ pub(in crate::card::sets) static CHANGELING_WAYFINDER: CardRecord = CardRecord::
 );
 
 // ECL 2 — Rooftop Percher
-// Audit: unsupported — Needs an all-zone creature-type characteristic-defining ability whose all-types value is copiable; battlefield all-type modifiers do not implement changeling.
+// Audit: unsupported — Needs an all-zone creature-type characteristic-defining ability whose
+// all-types value is copiable; battlefield all-type modifiers do not implement changeling.
 pub(in crate::card::sets) static ROOFTOP_PERCHER: CardRecord = CardRecord::new(
     "Rooftop Percher",
     "2d89595c-1542-41fe-8d23-997522922698",
@@ -474,7 +476,9 @@ pub(in crate::card::sets) static BRIGID_CLACHAN_S_HEART: CardRecord = CardRecord
 );
 
 // ECL 8 — Burdened Stoneback
-// Audit: unsupported — Needs an activation payment selecting one or several counters of arbitrary kinds on the source; existing removal costs require one fixed CounterKind and cannot pay with a mixture of kinds.
+// Audit: unsupported — Needs an activation payment selecting one or several counters of
+// arbitrary kinds on the source; existing removal costs require one fixed CounterKind and
+// cannot pay with a mixture of kinds.
 pub(in crate::card::sets) static BURDENED_STONEBACK: CardRecord = CardRecord::new(
     "Burdened Stoneback",
     "3278b8d0-3d2b-4d3d-bbf1-fd9b714b53ed",
@@ -483,7 +487,9 @@ pub(in crate::card::sets) static BURDENED_STONEBACK: CardRecord = CardRecord::ne
 );
 
 // ECL 9 — Champion of the Clachan
-// Audit: unsupported — Needs a behold payment that can choose a controlled permanent or reveal a matching card from hand, retaining the chosen object and any linked exile across the cast; the payment programs cannot express that mixed-zone choice.
+// Audit: unsupported — Needs a behold payment that can choose a controlled permanent or reveal
+// a matching card from hand, retaining the chosen object and any linked exile across the cast;
+// the payment programs cannot express that mixed-zone choice.
 pub(in crate::card::sets) static CHAMPION_OF_THE_CLACHAN: CardRecord = CardRecord::new(
     "Champion of the Clachan",
     "46ce3474-381c-433b-acd8-4e628d0048d2",
@@ -559,7 +565,9 @@ pub(in crate::card::sets) static CURIOUS_COLOSSUS: CardRecord = CardRecord::new(
 );
 
 // ECL 13 — Eirdu, Carrier of Dawn // Isilu, Carrier of Twilight
-// Audit: unsupported — Needs a continuous convoke grant on prospective creature spells in every castable zone before payments are enumerated; applying an ability to a spell already on the stack is too late.
+// Audit: unsupported — Needs a continuous convoke grant on prospective creature spells in every
+// castable zone before payments are enumerated; applying an ability to a spell already on the
+// stack is too late.
 pub(in crate::card::sets) static EIRDU_CARRIER_OF_DAWN: CardRecord = CardRecord::new(
     "Eirdu, Carrier of Dawn // Isilu, Carrier of Twilight",
     "b2d9d5ca-7e15-437a-bdfc-5972b42148fe",
@@ -603,7 +611,9 @@ pub(in crate::card::sets) static ENCUMBERED_REEJEREY: CardRecord = CardRecord::n
 );
 
 // ECL 15 — Evershrike's Gift
-// Audit: unsupported — Needs a blight cost that chooses a creature you control and puts the required -1/-1 counters on it before the spell or ability is put on the stack; existing counter costs only name the source.
+// Audit: unsupported — Needs a blight cost that chooses a creature you control and puts the
+// required -1/-1 counters on it before the spell or ability is put on the stack; existing
+// counter costs only name the source.
 pub(in crate::card::sets) static EVERSHRIKE_S_GIFT: CardRecord = CardRecord::new(
     "Evershrike's Gift",
     "231e46b6-b91a-4582-8894-e7de1c50213f",
@@ -612,7 +622,8 @@ pub(in crate::card::sets) static EVERSHRIKE_S_GIFT: CardRecord = CardRecord::new
 );
 
 // ECL 16 — Flock Impostor
-// Audit: unsupported — Needs an all-zone creature-type characteristic-defining ability whose all-types value is copiable; battlefield all-type modifiers do not implement changeling.
+// Audit: unsupported — Needs an all-zone creature-type characteristic-defining ability whose
+// all-types value is copiable; battlefield all-type modifiers do not implement changeling.
 pub(in crate::card::sets) static FLOCK_IMPOSTOR: CardRecord = CardRecord::new(
     "Flock Impostor",
     "d32d0336-5140-41f9-bc67-f3d743b9231d",
@@ -717,7 +728,9 @@ pub(in crate::card::sets) static KEEP_OUT: CardRecord = CardRecord::new(
 );
 
 // ECL 20 — Kinbinding
-// Audit: unsupported — Needs per-player creature-entry counts for the current turn, retained after those creatures leave or change controllers; current entry predicates cannot recover that history.
+// Audit: unsupported — Needs per-player creature-entry counts for the current turn, retained
+// after those creatures leave or change controllers; current entry predicates cannot recover
+// that history.
 pub(in crate::card::sets) static KINBINDING: CardRecord = CardRecord::new(
     "Kinbinding",
     "b6e35fd5-de7e-40a8-a23c-00d07fd1ac56",
@@ -726,7 +739,9 @@ pub(in crate::card::sets) static KINBINDING: CardRecord = CardRecord::new(
 );
 
 // ECL 21 — Kinsbaile Aspirant
-// Audit: unsupported — Needs a behold payment that can choose a controlled permanent or reveal a matching card from hand, retaining the chosen object and any linked exile across the cast; the payment programs cannot express that mixed-zone choice.
+// Audit: unsupported — Needs a behold payment that can choose a controlled permanent or reveal
+// a matching card from hand, retaining the chosen object and any linked exile across the cast;
+// the payment programs cannot express that mixed-zone choice.
 pub(in crate::card::sets) static KINSBAILE_ASPIRANT: CardRecord = CardRecord::new(
     "Kinsbaile Aspirant",
     "56dfdab1-ea3f-4663-a855-a9e72505f85e",
@@ -735,7 +750,8 @@ pub(in crate::card::sets) static KINSBAILE_ASPIRANT: CardRecord = CardRecord::ne
 );
 
 // ECL 22 — Kinscaer Sentry
-// Audit: unsupported — Needs a hand-to-battlefield move with tapped-and-attacking entry state; entering_attacking is supported for token creation, not for an existing card moved from hand.
+// Audit: unsupported — Needs a hand-to-battlefield move with tapped-and-attacking entry state;
+// entering_attacking is supported for token creation, not for an existing card moved from hand.
 pub(in crate::card::sets) static KINSCAER_SENTRY: CardRecord = CardRecord::new(
     "Kinscaer Sentry",
     "333bf101-14e8-4753-99bc-9174f42c4122",
@@ -781,7 +797,8 @@ pub(in crate::card::sets) static KITHKEEPER: CardRecord = CardRecord::new(
 );
 
 // ECL 24 — Liminal Hold
-// Audit: unsupported — Needs immediate return when an exile-until-source-leaves duration ends; a leaves trigger would return the permanent later through the stack.
+// Audit: unsupported — Needs immediate return when an exile-until-source-leaves duration ends;
+// a leaves trigger would return the permanent later through the stack.
 pub(in crate::card::sets) static LIMINAL_HOLD: CardRecord = CardRecord::new(
     "Liminal Hold",
     "a5a40c16-7a5c-4ad1-be53-6b1b1be2affe",
@@ -790,7 +807,8 @@ pub(in crate::card::sets) static LIMINAL_HOLD: CardRecord = CardRecord::new(
 );
 
 // ECL 25 — Meanders Guide
-// Audit: unsupported — Needs a reflexive trigger after an optional tap with targets selected only after that tap; ordinary triggered targets are selected before the choice and payment.
+// Audit: unsupported — Needs a reflexive trigger after an optional tap with targets selected
+// only after that tap; ordinary triggered targets are selected before the choice and payment.
 pub(in crate::card::sets) static MEANDERS_GUIDE: CardRecord = CardRecord::new(
     "Meanders Guide",
     "8c41a0ad-138e-4eef-8f7f-35017e3b086f",
@@ -799,7 +817,9 @@ pub(in crate::card::sets) static MEANDERS_GUIDE: CardRecord = CardRecord::new(
 );
 
 // ECL 26 — Moonlit Lamenter
-// Audit: unsupported — Needs an activation payment selecting one or several counters of arbitrary kinds on the source; existing removal costs require one fixed CounterKind and cannot pay with a mixture of kinds.
+// Audit: unsupported — Needs an activation payment selecting one or several counters of
+// arbitrary kinds on the source; existing removal costs require one fixed CounterKind and
+// cannot pay with a mixture of kinds.
 pub(in crate::card::sets) static MOONLIT_LAMENTER: CardRecord = CardRecord::new(
     "Moonlit Lamenter",
     "fb8fc509-cff6-470f-abf6-b07f6c3f94e1",
@@ -881,7 +901,8 @@ pub(in crate::card::sets) static MORNINGTIDE_S_LIGHT: CardRecord = CardRecord::n
 );
 
 // ECL 28 — Personify
-// Audit: unsupported — Needs an all-zone creature-type characteristic-defining ability whose all-types value is copiable; battlefield all-type modifiers do not implement changeling.
+// Audit: unsupported — Needs an all-zone creature-type characteristic-defining ability whose
+// all-types value is copiable; battlefield all-type modifiers do not implement changeling.
 pub(in crate::card::sets) static PERSONIFY: CardRecord = CardRecord::new(
     "Personify",
     "1172582d-fb2d-4022-95b1-e48b03df3a95",
@@ -916,7 +937,9 @@ pub(in crate::card::sets) static PROTECTIVE_RESPONSE: CardRecord = CardRecord::n
 );
 
 // ECL 30 — Pyrrhic Strike
-// Audit: unsupported — Needs a blight cost that chooses a creature you control and puts the required -1/-1 counters on it before the spell or ability is put on the stack; existing counter costs only name the source.
+// Audit: unsupported — Needs a blight cost that chooses a creature you control and puts the
+// required -1/-1 counters on it before the spell or ability is put on the stack; existing
+// counter costs only name the source.
 pub(in crate::card::sets) static PYRRHIC_STRIKE: CardRecord = CardRecord::new(
     "Pyrrhic Strike",
     "cce5b16d-07fb-4e64-8ec9-b8b29ba86cff",
@@ -971,7 +994,9 @@ pub(in crate::card::sets) static RELUCTANT_DOUNGUARD: CardRecord = CardRecord::n
 );
 
 // ECL 32 — Rhys, the Evermore
-// Audit: unsupported — Needs an effect choosing any number of counters across arbitrary kinds on a target; RemoveAllCounters cannot represent choosing a subset and fixed-kind removal cannot mix kinds.
+// Audit: unsupported — Needs an effect choosing any number of counters across arbitrary kinds
+// on a target; RemoveAllCounters cannot represent choosing a subset and fixed-kind removal
+// cannot mix kinds.
 pub(in crate::card::sets) static RHYS_THE_EVERMORE: CardRecord = CardRecord::new(
     "Rhys, the Evermore",
     "a7072412-4aa2-40ef-a267-bd717551a42b",
@@ -1025,7 +1050,9 @@ pub(in crate::card::sets) static SHORE_LURKER: CardRecord = CardRecord::new(
 );
 
 // ECL 35 — Slumbering Walker
-// Audit: unsupported — Needs an optional payment removing a chosen counter of any kind and a reflexive reanimation trigger with targets selected after that payment; fixed-kind removal costs and ordinary upfront targets do not implement it.
+// Audit: unsupported — Needs an optional payment removing a chosen counter of any kind and a
+// reflexive reanimation trigger with targets selected after that payment; fixed-kind removal
+// costs and ordinary upfront targets do not implement it.
 pub(in crate::card::sets) static SLUMBERING_WALKER: CardRecord = CardRecord::new(
     "Slumbering Walker",
     "81e82915-e734-4754-829f-f5da6a7c550d",
@@ -1034,7 +1061,9 @@ pub(in crate::card::sets) static SLUMBERING_WALKER: CardRecord = CardRecord::new
 );
 
 // ECL 36 — Spiral into Solitude
-// Audit: unsupported — Needs a blight cost that chooses a creature you control and puts the required -1/-1 counters on it before the spell or ability is put on the stack; existing counter costs only name the source.
+// Audit: unsupported — Needs a blight cost that chooses a creature you control and puts the
+// required -1/-1 counters on it before the spell or ability is put on the stack; existing
+// counter costs only name the source.
 pub(in crate::card::sets) static SPIRAL_INTO_SOLITUDE: CardRecord = CardRecord::new(
     "Spiral into Solitude",
     "e7a12664-a930-4159-8311-19862488fb05",
@@ -1204,7 +1233,9 @@ pub(in crate::card::sets) static WANDERBRINE_TRAPPER: CardRecord = CardRecord::n
 );
 
 // ECL 43 — Winnowing
-// Audit: unsupported — Needs each player's creatures compared with that player's chosen creature type set, followed by one simultaneous sacrifice of all nonmatching creatures; current cross-object predicates do not compare creature-type intersections.
+// Audit: unsupported — Needs each player's creatures compared with that player's chosen
+// creature type set, followed by one simultaneous sacrifice of all nonmatching creatures;
+// current cross-object predicates do not compare creature-type intersections.
 pub(in crate::card::sets) static WINNOWING: CardRecord = CardRecord::new(
     "Winnowing",
     "f943a7d8-9550-427e-8c45-ef834329d345",
@@ -1246,7 +1277,8 @@ pub(in crate::card::sets) static AQUITECT_S_DEFENSES: CardRecord = CardRecord::n
 );
 
 // ECL 45 — Blossombind
-// Audit: unsupported — Needs a permanent-wide prohibition on every untap and on counters of every kind being placed; skipping the untap step does not stop untap spells or abilities.
+// Audit: unsupported — Needs a permanent-wide prohibition on every untap and on counters of
+// every kind being placed; skipping the untap step does not stop untap spells or abilities.
 pub(in crate::card::sets) static BLOSSOMBIND: CardRecord = CardRecord::new(
     "Blossombind",
     "382b83c0-bbbc-4db8-bc04-cfea79aed1b3",
@@ -1255,7 +1287,9 @@ pub(in crate::card::sets) static BLOSSOMBIND: CardRecord = CardRecord::new(
 );
 
 // ECL 46 — Champions of the Shoal
-// Audit: unsupported — Needs a behold payment that can choose a controlled permanent or reveal a matching card from hand, retaining the chosen object and any linked exile across the cast; the payment programs cannot express that mixed-zone choice.
+// Audit: unsupported — Needs a behold payment that can choose a controlled permanent or reveal
+// a matching card from hand, retaining the chosen object and any linked exile across the cast;
+// the payment programs cannot express that mixed-zone choice.
 pub(in crate::card::sets) static CHAMPIONS_OF_THE_SHOAL: CardRecord = CardRecord::new(
     "Champions of the Shoal",
     "e1acdd9c-4a6d-4373-950c-f5539b54679f",
@@ -1298,7 +1332,9 @@ pub(in crate::card::sets) static DISRUPTOR_OF_CURRENTS: CardRecord = CardRecord:
 );
 
 // ECL 48 — Flitterwing Nuisance
-// Audit: unsupported — Needs an activation payment selecting one or several counters of arbitrary kinds on the source; existing removal costs require one fixed CounterKind and cannot pay with a mixture of kinds.
+// Audit: unsupported — Needs an activation payment selecting one or several counters of
+// arbitrary kinds on the source; existing removal costs require one fixed CounterKind and
+// cannot pay with a mixture of kinds.
 pub(in crate::card::sets) static FLITTERWING_NUISANCE: CardRecord = CardRecord::new(
     "Flitterwing Nuisance",
     "ad0f6536-5295-4835-8883-35d711dfe6de",
@@ -1385,7 +1421,9 @@ pub(in crate::card::sets) static GLAMERMITE: CardRecord = CardRecord::new(
 );
 
 // ECL 51 — Glen Elendra Guardian
-// Audit: unsupported — Needs an activation payment selecting one or several counters of arbitrary kinds on the source; existing removal costs require one fixed CounterKind and cannot pay with a mixture of kinds.
+// Audit: unsupported — Needs an activation payment selecting one or several counters of
+// arbitrary kinds on the source; existing removal costs require one fixed CounterKind and
+// cannot pay with a mixture of kinds.
 pub(in crate::card::sets) static GLEN_ELENDRA_GUARDIAN: CardRecord = CardRecord::new(
     "Glen Elendra Guardian",
     "388d2e4a-0aa5-4b82-a86c-4777ca60161c",
@@ -1394,7 +1432,9 @@ pub(in crate::card::sets) static GLEN_ELENDRA_GUARDIAN: CardRecord = CardRecord:
 );
 
 // ECL 52 — Glen Elendra's Answer
-// Audit: unsupported — Needs one simultaneous counter operation over an opponent's spells and abilities with a successful-counter receipt for token count; individual Counter targets do not expose that aggregate outcome.
+// Audit: unsupported — Needs one simultaneous counter operation over an opponent's spells and
+// abilities with a successful-counter receipt for token count; individual Counter targets do
+// not expose that aggregate outcome.
 pub(in crate::card::sets) static GLEN_ELENDRA_S_ANSWER: CardRecord = CardRecord::new(
     "Glen Elendra's Answer",
     "fa5bfbf9-dca2-42b7-a431-f9afedb54528",
@@ -1459,7 +1499,8 @@ pub(in crate::card::sets) static GRAVELGILL_SCOUNDREL: CardRecord = CardRecord::
 );
 
 // ECL 54 — Harmonized Crescendo
-// Audit: unsupported — Needs a resolution-time creature-type choice bound to the following count; entry-time scalar choices cannot be used by a resolving instant.
+// Audit: unsupported — Needs a resolution-time creature-type choice bound to the following
+// count; entry-time scalar choices cannot be used by a resolving instant.
 pub(in crate::card::sets) static HARMONIZED_CRESCENDO: CardRecord = CardRecord::new(
     "Harmonized Crescendo",
     "2715e0c0-9913-4bea-9a42-ad1164f6130a",
@@ -1468,7 +1509,9 @@ pub(in crate::card::sets) static HARMONIZED_CRESCENDO: CardRecord = CardRecord::
 );
 
 // ECL 55 — Illusion Spinners
-// Audit: unsupported — Needs a conditional flash permission evaluated in prospective nonbattlefield casting context; battlefield keyword grants do not alter when a card in hand may be cast.
+// Audit: unsupported — Needs a conditional flash permission evaluated in prospective
+// nonbattlefield casting context; battlefield keyword grants do not alter when a card in hand
+// may be cast.
 pub(in crate::card::sets) static ILLUSION_SPINNERS: CardRecord = CardRecord::new(
     "Illusion Spinners",
     "eb4229a9-8df4-4adc-9d3e-acd2221fa3e9",
@@ -1505,7 +1548,9 @@ pub(in crate::card::sets) static KULRATH_MYSTIC: CardRecord = CardRecord::new(
 );
 
 // ECL 57 — Loch Mare
-// Audit: unsupported — Needs an activation payment selecting one or several counters of arbitrary kinds on the source; existing removal costs require one fixed CounterKind and cannot pay with a mixture of kinds.
+// Audit: unsupported — Needs an activation payment selecting one or several counters of
+// arbitrary kinds on the source; existing removal costs require one fixed CounterKind and
+// cannot pay with a mixture of kinds.
 pub(in crate::card::sets) static LOCH_MARE: CardRecord = CardRecord::new(
     "Loch Mare",
     "ad6c4baf-a803-45e4-81ac-708a41631a28",
@@ -1604,7 +1649,9 @@ pub(in crate::card::sets) static NOGGLE_THE_MIND: CardRecord = CardRecord::new(
 );
 
 // ECL 61 — Oko, Lorwyn Liege // Oko, Shadowmoor Scion
-// Audit: unsupported — Needs a resolution-time creature-type choice stored on a newly created emblem and used by its static predicate; entry choices on permanents do not create that emblem binding.
+// Audit: unsupported — Needs a resolution-time creature-type choice stored on a newly created
+// emblem and used by its static predicate; entry choices on permanents do not create that
+// emblem binding.
 pub(in crate::card::sets) static OKO_LORWYN_LIEGE: CardRecord = CardRecord::new(
     "Oko, Lorwyn Liege // Oko, Shadowmoor Scion",
     "1dab370a-1067-4d94-be1f-10362d4abf5a",
@@ -1613,7 +1660,8 @@ pub(in crate::card::sets) static OKO_LORWYN_LIEGE: CardRecord = CardRecord::new(
 );
 
 // ECL 62 — Omni-Changeling
-// Audit: unsupported — Needs an all-zone creature-type characteristic-defining ability whose all-types value is copiable; battlefield all-type modifiers do not implement changeling.
+// Audit: unsupported — Needs an all-zone creature-type characteristic-defining ability whose
+// all-types value is copiable; battlefield all-type modifiers do not implement changeling.
 pub(in crate::card::sets) static OMNI_CHANGELING: CardRecord = CardRecord::new(
     "Omni-Changeling",
     "f29ce8f9-42a3-43fa-8197-666cc26e2c76",
@@ -1738,7 +1786,9 @@ pub(in crate::card::sets) static RIME_CHILL: CardRecord = CardRecord::new(
 );
 
 // ECL 65 — Rimefire Torque
-// Audit: unsupported — Needs an independent next-matching-cast trigger that also expires at this turn's cleanup; the installed-trigger lifetime can express either one-shot or this-turn, not both together.
+// Audit: unsupported — Needs an independent next-matching-cast trigger that also expires at
+// this turn's cleanup; the installed-trigger lifetime can express either one-shot or this-turn,
+// not both together.
 pub(in crate::card::sets) static RIMEFIRE_TORQUE: CardRecord = CardRecord::new(
     "Rimefire Torque",
     "4f8931b2-ff3f-4167-8a40-f33460c2d27e",
@@ -1799,7 +1849,9 @@ pub(in crate::card::sets) static SHINESTRIKER: CardRecord = CardRecord::new(
 );
 
 // ECL 69 — Silvergill Mentor
-// Audit: unsupported — Needs a behold payment that can choose a controlled permanent or reveal a matching card from hand, retaining the chosen object and any linked exile across the cast; the payment programs cannot express that mixed-zone choice.
+// Audit: unsupported — Needs a behold payment that can choose a controlled permanent or reveal
+// a matching card from hand, retaining the chosen object and any linked exile across the cast;
+// the payment programs cannot express that mixed-zone choice.
 pub(in crate::card::sets) static SILVERGILL_MENTOR: CardRecord = CardRecord::new(
     "Silvergill Mentor",
     "e6e37fe8-459c-4992-8ae9-f782cddab2fe",
@@ -1880,7 +1932,9 @@ pub(in crate::card::sets) static SUMMIT_SENTINEL: CardRecord = CardRecord::new(
 );
 
 // ECL 74 — Sunderflock
-// Audit: unsupported — Needs a self-cost value computing the greatest mana value among controlled Elementals; AggregateObjectValues exists for resolving effects but the cost-reduction evaluator does not evaluate aggregates.
+// Audit: unsupported — Needs a self-cost value computing the greatest mana value among
+// controlled Elementals; AggregateObjectValues exists for resolving effects but the
+// cost-reduction evaluator does not evaluate aggregates.
 pub(in crate::card::sets) static SUNDERFLOCK: CardRecord = CardRecord::new(
     "Sunderflock",
     "e5b6221e-cb22-45e4-bb98-2b960afc614c",
@@ -1889,7 +1943,9 @@ pub(in crate::card::sets) static SUNDERFLOCK: CardRecord = CardRecord::new(
 );
 
 // ECL 75 — Swat Away
-// Audit: unsupported — Needs a self spell-cost condition detecting whether an attacker is attacking the caster specifically; ordinary Attacking predicates include attacks on another player or planeswalker.
+// Audit: unsupported — Needs a self spell-cost condition detecting whether an attacker is
+// attacking the caster specifically; ordinary Attacking predicates include attacks on another
+// player or planeswalker.
 pub(in crate::card::sets) static SWAT_AWAY: CardRecord = CardRecord::new(
     "Swat Away",
     "2fb0ea3f-2f6d-4b64-a9d7-e822c8854a03",
@@ -2209,7 +2265,9 @@ pub(in crate::card::sets) static WANDERWINE_FAREWELL: CardRecord = CardRecord::n
 );
 
 // ECL 84 — Wild Unraveling
-// Audit: unsupported — Needs a blight cost that chooses a creature you control and puts the required -1/-1 counters on it before the spell or ability is put on the stack; existing counter costs only name the source.
+// Audit: unsupported — Needs a blight cost that chooses a creature you control and puts the
+// required -1/-1 counters on it before the spell or ability is put on the stack; existing
+// counter costs only name the source.
 pub(in crate::card::sets) static WILD_UNRAVELING: CardRecord = CardRecord::new(
     "Wild Unraveling",
     "01522fec-9136-4fa6-91a3-370a8bb08b42",
@@ -2284,7 +2342,9 @@ pub(in crate::card::sets) static AUNTIE_S_SENTENCE: CardRecord = CardRecord::new
 );
 
 // ECL 86 — Barbed Bloodletter
-// Audit: unsupported — Needs wither as a damage-to-creature replacement, including its identity when temporarily granted to the equipped creature; the existing damage pipeline does not replace such damage with -1/-1 counters.
+// Audit: unsupported — Needs wither as a damage-to-creature replacement, including its identity
+// when temporarily granted to the equipped creature; the existing damage pipeline does not
+// replace such damage with -1/-1 counters.
 pub(in crate::card::sets) static BARBED_BLOODLETTER: CardRecord = CardRecord::new(
     "Barbed Bloodletter",
     "8ff1a13c-e338-42e9-8eb3-b303fabd67de",
@@ -2431,7 +2491,8 @@ pub(in crate::card::sets) static BLIGHTED_BLACKTHORN: CardRecord = CardRecord::n
 );
 
 // ECL 91 — Bloodline Bidding
-// Audit: unsupported — Needs a resolution-time creature-type choice carried into the following graveyard selection; the existing type-choice procedure only runs as a permanent enters.
+// Audit: unsupported — Needs a resolution-time creature-type choice carried into the following
+// graveyard selection; the existing type-choice procedure only runs as a permanent enters.
 pub(in crate::card::sets) static BLOODLINE_BIDDING: CardRecord = CardRecord::new(
     "Bloodline Bidding",
     "877d9b75-ad2f-45a6-94d8-68e80d7db789",
@@ -2562,7 +2623,9 @@ pub(in crate::card::sets) static BOGGART_PRANKSTER: CardRecord = CardRecord::new
 );
 
 // ECL 94 — Bogslither's Embrace
-// Audit: unsupported — Needs a blight cost that chooses a creature you control and puts the required -1/-1 counters on it before the spell or ability is put on the stack; existing counter costs only name the source.
+// Audit: unsupported — Needs a blight cost that chooses a creature you control and puts the
+// required -1/-1 counters on it before the spell or ability is put on the stack; existing
+// counter costs only name the source.
 pub(in crate::card::sets) static BOGSLITHER_S_EMBRACE: CardRecord = CardRecord::new(
     "Bogslither's Embrace",
     "4beca2e7-9c6d-493b-b15f-69e483a8dfff",
@@ -2571,7 +2634,9 @@ pub(in crate::card::sets) static BOGSLITHER_S_EMBRACE: CardRecord = CardRecord::
 );
 
 // ECL 95 — Champion of the Weird
-// Audit: unsupported — Needs a blight cost that chooses a creature you control and puts the required -1/-1 counters on it before the spell or ability is put on the stack; existing counter costs only name the source.
+// Audit: unsupported — Needs a blight cost that chooses a creature you control and puts the
+// required -1/-1 counters on it before the spell or ability is put on the stack; existing
+// counter costs only name the source.
 pub(in crate::card::sets) static CHAMPION_OF_THE_WEIRD: CardRecord = CardRecord::new(
     "Champion of the Weird",
     "e600dd01-65ac-489c-a52a-decbc3a9a4f3",
@@ -2647,7 +2712,9 @@ pub(in crate::card::sets) static DARKNESS_DESCENDS: CardRecord = CardRecord::new
 );
 
 // ECL 98 — Dawnhand Dissident
-// Audit: unsupported — Needs chosen-creature blight payments and a linked-exile casting permission with an additional three-counter payment spanning creatures and arbitrary counter kinds.
+// Audit: unsupported — Needs chosen-creature blight payments and a linked-exile casting
+// permission with an additional three-counter payment spanning creatures and arbitrary counter
+// kinds.
 pub(in crate::card::sets) static DAWNHAND_DISSIDENT: CardRecord = CardRecord::new(
     "Dawnhand Dissident",
     "6ac1f765-f348-4813-88dc-26376e0f3f33",
@@ -2699,7 +2766,8 @@ pub(in crate::card::sets) static DAWNHAND_EULOGIST: CardRecord = CardRecord::new
 );
 
 // ECL 100 — Dose of Dawnglow
-// Audit: unsupported — Needs a resolution-time condition identifying the caster's main phase; ActivePlayer alone would also accept that player's upkeep or combat.
+// Audit: unsupported — Needs a resolution-time condition identifying the caster's main phase;
+// ActivePlayer alone would also accept that player's upkeep or combat.
 pub(in crate::card::sets) static DOSE_OF_DAWNGLOW: CardRecord = CardRecord::new(
     "Dose of Dawnglow",
     "47414323-ca30-45b7-a0b2-6668312bee04",
@@ -2838,7 +2906,9 @@ pub(in crate::card::sets) static GLOOM_RIPPER: CardRecord = CardRecord::new(
 );
 
 // ECL 103 — Gnarlbark Elm
-// Audit: unsupported — Needs an activation payment selecting one or several counters of arbitrary kinds on the source; existing removal costs require one fixed CounterKind and cannot pay with a mixture of kinds.
+// Audit: unsupported — Needs an activation payment selecting one or several counters of
+// arbitrary kinds on the source; existing removal costs require one fixed CounterKind and
+// cannot pay with a mixture of kinds.
 pub(in crate::card::sets) static GNARLBARK_ELM: CardRecord = CardRecord::new(
     "Gnarlbark Elm",
     "1e9d65b6-22ff-49f2-8b2a-aeaef91088d3",
@@ -2854,7 +2924,8 @@ const GRAVESHIFTER_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // ECL 105 — Grub, Storied Matriarch // Grub, Notorious Auntie
-// Audit: unsupported — Needs token copies to enter tapped and attacking; the copy-creation runtime only supports ordinary entry, so neither face is enabled.
+// Audit: unsupported — Needs token copies to enter tapped and attacking; the copy-creation
+// runtime only supports ordinary entry, so neither face is enabled.
 pub(in crate::card::sets) static GRUB_STORIED_MATRIARCH: CardRecord = CardRecord::new(
     "Grub, Storied Matriarch // Grub, Notorious Auntie",
     "1f51adf8-8234-4dae-aedf-7633310d5111",
@@ -3023,7 +3094,9 @@ pub(in crate::card::sets) static MOONGLOVE_EXTRACTOR: CardRecord = CardRecord::n
 );
 
 // ECL 110 — Moonshadow
-// Audit: unsupported — Needs an atomic one-or-more group event for permanent cards entering your graveyard from any zone; per-card zone-change triggers remove too many counters for one batch.
+// Audit: unsupported — Needs an atomic one-or-more group event for permanent cards entering
+// your graveyard from any zone; per-card zone-change triggers remove too many counters for one
+// batch.
 pub(in crate::card::sets) static MOONSHADOW: CardRecord = CardRecord::new(
     "Moonshadow",
     "2573e694-eaa0-42ca-b470-2ab507cbcec1",
@@ -3083,7 +3156,9 @@ pub(in crate::card::sets) static MORNSONG_ARIA: CardRecord = CardRecord::new(
 );
 
 // ECL 112 — Mudbutton Cursetosser
-// Audit: unsupported — Needs a behold payment that can choose a controlled permanent or reveal a matching card from hand, retaining the chosen object and any linked exile across the cast; the payment programs cannot express that mixed-zone choice.
+// Audit: unsupported — Needs a behold payment that can choose a controlled permanent or reveal
+// a matching card from hand, retaining the chosen object and any linked exile across the cast;
+// the payment programs cannot express that mixed-zone choice.
 pub(in crate::card::sets) static MUDBUTTON_CURSETOSSER: CardRecord = CardRecord::new(
     "Mudbutton Cursetosser",
     "35bc841a-9a21-4c17-a60a-a3ee01472fcb",
@@ -3185,7 +3260,9 @@ pub(in crate::card::sets) static PERFECT_INTIMIDATION: CardRecord = CardRecord::
 );
 
 // ECL 116 — Requiting Hex
-// Audit: unsupported — Needs a blight cost that chooses a creature you control and puts the required -1/-1 counters on it before the spell or ability is put on the stack; existing counter costs only name the source.
+// Audit: unsupported — Needs a blight cost that chooses a creature you control and puts the
+// required -1/-1 counters on it before the spell or ability is put on the stack; existing
+// counter costs only name the source.
 pub(in crate::card::sets) static REQUITING_HEX: CardRecord = CardRecord::new(
     "Requiting Hex",
     "f21b0fb7-91b6-403f-a81a-562665961276",
@@ -3194,7 +3271,9 @@ pub(in crate::card::sets) static REQUITING_HEX: CardRecord = CardRecord::new(
 );
 
 // ECL 117 — Retched Wretch
-// Audit: unsupported — Needs a return-to-battlefield instruction that removes all abilities before entry replacements and enters triggers inspect the returning permanent; applying ability loss after the return is too late (CR 611.2e).
+// Audit: unsupported — Needs a return-to-battlefield instruction that removes all abilities
+// before entry replacements and enters triggers inspect the returning permanent; applying
+// ability loss after the return is too late (CR 611.2e).
 pub(in crate::card::sets) static RETCHED_WRETCH: CardRecord = CardRecord::new(
     "Retched Wretch",
     "c7a4d7f1-976a-4a28-97a9-ff089a241c9d",
@@ -3221,7 +3300,8 @@ pub(in crate::card::sets) static SCARBLADE_SCOUT: CardRecord = CardRecord::new(
 );
 
 // ECL 119 — Scarblade's Malice
-// Audit: unsupported — Needs an independent one-shot dies listener bound to the chosen creature through the end of this turn; installed event matchers cannot name an arbitrary bound object.
+// Audit: unsupported — Needs an independent one-shot dies listener bound to the chosen creature
+// through the end of this turn; installed event matchers cannot name an arbitrary bound object.
 pub(in crate::card::sets) static SCARBLADE_S_MALICE: CardRecord = CardRecord::new(
     "Scarblade's Malice",
     "aea9b5c0-3b32-44be-9773-566b9daafa6b",
@@ -3255,7 +3335,9 @@ pub(in crate::card::sets) static SHIMMERCREEP: CardRecord = CardRecord::new(
 );
 
 // ECL 121 — Taster of Wares
-// Audit: unsupported — Needs an opponent-selected partial-hand reveal followed by a cast permission that lasts only while you control the source; the current linked permission lifetime only follows zone presence.
+// Audit: unsupported — Needs an opponent-selected partial-hand reveal followed by a cast
+// permission that lasts only while you control the source; the current linked permission
+// lifetime only follows zone presence.
 pub(in crate::card::sets) static TASTER_OF_WARES: CardRecord = CardRecord::new(
     "Taster of Wares",
     "bc0b64b6-8984-431c-8a2f-84402b429e2b",
@@ -3264,7 +3346,9 @@ pub(in crate::card::sets) static TASTER_OF_WARES: CardRecord = CardRecord::new(
 );
 
 // ECL 122 — Twilight Diviner
-// Audit: unsupported — Needs atomic grouped creature-entry events carrying each entrant's arrival and casting origin, then a choice among the qualifying entrants; individual entry triggers cannot model this batch.
+// Audit: unsupported — Needs atomic grouped creature-entry events carrying each entrant's
+// arrival and casting origin, then a choice among the qualifying entrants; individual entry
+// triggers cannot model this batch.
 pub(in crate::card::sets) static TWILIGHT_DIVINER: CardRecord = CardRecord::new(
     "Twilight Diviner",
     "443b6f30-1493-4d48-93d9-a91e22a7ebb3",
@@ -3273,7 +3357,8 @@ pub(in crate::card::sets) static TWILIGHT_DIVINER: CardRecord = CardRecord::new(
 );
 
 // ECL 123 — Unbury
-// Audit: unsupported — Needs pairwise creature-type intersection among two graveyard targets; another() enforces different objects but does not compare their subtype sets.
+// Audit: unsupported — Needs pairwise creature-type intersection among two graveyard targets;
+// another() enforces different objects but does not compare their subtype sets.
 pub(in crate::card::sets) static UNBURY: CardRecord = CardRecord::new(
     "Unbury",
     "b00766db-4109-4225-a62a-fa12fd526970",
@@ -3460,7 +3545,9 @@ pub(in crate::card::sets) static BOULDER_DASH: CardRecord = CardRecord::new(
 );
 
 // ECL 128 — Brambleback Brute
-// Audit: unsupported — Needs an activation payment selecting one or several counters of arbitrary kinds on the source; existing removal costs require one fixed CounterKind and cannot pay with a mixture of kinds.
+// Audit: unsupported — Needs an activation payment selecting one or several counters of
+// arbitrary kinds on the source; existing removal costs require one fixed CounterKind and
+// cannot pay with a mixture of kinds.
 pub(in crate::card::sets) static BRAMBLEBACK_BRUTE: CardRecord = CardRecord::new(
     "Brambleback Brute",
     "5ebb8365-c6e1-46e8-a242-6aa27b21e68a",
@@ -3469,7 +3556,9 @@ pub(in crate::card::sets) static BRAMBLEBACK_BRUTE: CardRecord = CardRecord::new
 );
 
 // ECL 129 — Burning Curiosity
-// Audit: unsupported — Needs a blight cost that chooses a creature you control and puts the required -1/-1 counters on it before the spell or ability is put on the stack; existing counter costs only name the source.
+// Audit: unsupported — Needs a blight cost that chooses a creature you control and puts the
+// required -1/-1 counters on it before the spell or ability is put on the stack; existing
+// counter costs only name the source.
 pub(in crate::card::sets) static BURNING_CURIOSITY: CardRecord = CardRecord::new(
     "Burning Curiosity",
     "689ed288-6228-4d7e-b198-56a12b8be299",
@@ -3478,7 +3567,9 @@ pub(in crate::card::sets) static BURNING_CURIOSITY: CardRecord = CardRecord::new
 );
 
 // ECL 130 — Champion of the Path
-// Audit: unsupported — Needs a behold payment that can choose a controlled permanent or reveal a matching card from hand, retaining the chosen object and any linked exile across the cast; the payment programs cannot express that mixed-zone choice.
+// Audit: unsupported — Needs a behold payment that can choose a controlled permanent or reveal
+// a matching card from hand, retaining the chosen object and any linked exile across the cast;
+// the payment programs cannot express that mixed-zone choice.
 pub(in crate::card::sets) static CHAMPION_OF_THE_PATH: CardRecord = CardRecord::new(
     "Champion of the Path",
     "e369cd31-3e22-47eb-bf6a-00d823651710",
@@ -3487,7 +3578,9 @@ pub(in crate::card::sets) static CHAMPION_OF_THE_PATH: CardRecord = CardRecord::
 );
 
 // ECL 131 — Cinder Strike
-// Audit: unsupported — Needs a blight cost that chooses a creature you control and puts the required -1/-1 counters on it before the spell or ability is put on the stack; existing counter costs only name the source.
+// Audit: unsupported — Needs a blight cost that chooses a creature you control and puts the
+// required -1/-1 counters on it before the spell or ability is put on the stack; existing
+// counter costs only name the source.
 pub(in crate::card::sets) static CINDER_STRIKE: CardRecord = CardRecord::new(
     "Cinder Strike",
     "6fb6faa4-236c-4cae-9140-0981c44d2392",
@@ -3496,7 +3589,9 @@ pub(in crate::card::sets) static CINDER_STRIKE: CardRecord = CardRecord::new(
 );
 
 // ECL 132 — Collective Inferno
-// Audit: unsupported — Needs damage multiplication filtered by source controller and its chosen creature type, across combat and noncombat damage; existing prevention modifiers do not multiply incoming damage.
+// Audit: unsupported — Needs damage multiplication filtered by source controller and its chosen
+// creature type, across combat and noncombat damage; existing prevention modifiers do not
+// multiply incoming damage.
 pub(in crate::card::sets) static COLLECTIVE_INFERNO: CardRecord = CardRecord::new(
     "Collective Inferno",
     "1ec084cc-997d-4079-b445-8f701ec3c277",
@@ -3519,7 +3614,8 @@ pub(in crate::card::sets) static ELDER_AUNTIE: CardRecord = CardRecord::new(
 );
 
 // ECL 134 — End-Blaze Epiphany
-// Audit: unsupported — Needs a delayed dies listener bound to the damaged creature and exile-play permission expiring at cleanup of your next turn.
+// Audit: unsupported — Needs a delayed dies listener bound to the damaged creature and
+// exile-play permission expiring at cleanup of your next turn.
 pub(in crate::card::sets) static END_BLAZE_EPIPHANY: CardRecord = CardRecord::new(
     "End-Blaze Epiphany",
     "0f0a90ae-b3b3-4f52-8997-eac514b29e57",
@@ -3623,7 +3719,9 @@ pub(in crate::card::sets) static FLAME_CHAIN_MAULER: CardRecord = CardRecord::ne
 );
 
 // ECL 139 — Flamebraider
-// Audit: unsupported — Needs one mana restriction permitting either an Elemental cast or an ability of an Elemental source; listing both restrictions intersects them rather than expressing that union.
+// Audit: unsupported — Needs one mana restriction permitting either an Elemental cast or an
+// ability of an Elemental source; listing both restrictions intersects them rather than
+// expressing that union.
 pub(in crate::card::sets) static FLAMEBRAIDER: CardRecord = CardRecord::new(
     "Flamebraider",
     "b8aa428c-5a77-444f-b75e-a113e46fe4e0",
@@ -3705,7 +3803,9 @@ const GOATNAP_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // ECL 143 — Goliath Daydreamer
-// Audit: unsupported — Needs a spell-resolution destination rider that exiles the cast spell with a dream counter, plus permission over owned exile cards carrying that counter independently of this source.
+// Audit: unsupported — Needs a spell-resolution destination rider that exiles the cast spell
+// with a dream counter, plus permission over owned exile cards carrying that counter
+// independently of this source.
 pub(in crate::card::sets) static GOLIATH_DAYDREAMER: CardRecord = CardRecord::new(
     "Goliath Daydreamer",
     "88e8cd13-2a29-4df6-937c-1bed68fbeafa",
@@ -3714,7 +3814,9 @@ pub(in crate::card::sets) static GOLIATH_DAYDREAMER: CardRecord = CardRecord::ne
 );
 
 // ECL 144 — Gristle Glutton
-// Audit: unsupported — Needs a blight cost that chooses a creature you control and puts the required -1/-1 counters on it before the spell or ability is put on the stack; existing counter costs only name the source.
+// Audit: unsupported — Needs a blight cost that chooses a creature you control and puts the
+// required -1/-1 counters on it before the spell or ability is put on the stack; existing
+// counter costs only name the source.
 pub(in crate::card::sets) static GRISTLE_GLUTTON: CardRecord = CardRecord::new(
     "Gristle Glutton",
     "a4164af6-356e-4de2-8377-dbe70434a996",
@@ -3791,7 +3893,9 @@ pub(in crate::card::sets) static IMPOLITE_ENTRANCE: CardRecord = CardRecord::new
 );
 
 // ECL 147 — Kindle the Inner Flame
-// Audit: unsupported — Needs a behold payment that can choose a controlled permanent or reveal a matching card from hand, retaining the chosen object and any linked exile across the cast; the payment programs cannot express that mixed-zone choice.
+// Audit: unsupported — Needs a behold payment that can choose a controlled permanent or reveal
+// a matching card from hand, retaining the chosen object and any linked exile across the cast;
+// the payment programs cannot express that mixed-zone choice.
 pub(in crate::card::sets) static KINDLE_THE_INNER_FLAME: CardRecord = CardRecord::new(
     "Kindle the Inner Flame",
     "9a2adcea-f6b1-4611-b8b8-f19fdee2c571",
@@ -3800,7 +3904,8 @@ pub(in crate::card::sets) static KINDLE_THE_INNER_FLAME: CardRecord = CardRecord
 );
 
 // ECL 148 — Kulrath Zealot
-// Audit: unsupported — Needs exile-play permission expiring at cleanup of your next turn; the current turn-count duration can persist into the following opponent turn.
+// Audit: unsupported — Needs exile-play permission expiring at cleanup of your next turn; the
+// current turn-count duration can persist into the following opponent turn.
 pub(in crate::card::sets) static KULRATH_ZEALOT: CardRecord = CardRecord::new(
     "Kulrath Zealot",
     "3502685d-4e57-4c5c-94c6-ae69048cdfbf",
@@ -3809,7 +3914,9 @@ pub(in crate::card::sets) static KULRATH_ZEALOT: CardRecord = CardRecord::new(
 );
 
 // ECL 149 — Lasting Tarfire
-// Audit: unsupported — Needs per-player history of counters placed on creatures this turn; present counter totals cannot identify who placed them or counters on creatures that have left.
+// Audit: unsupported — Needs per-player history of counters placed on creatures this turn;
+// present counter totals cannot identify who placed them or counters on creatures that have
+// left.
 pub(in crate::card::sets) static LASTING_TARFIRE: CardRecord = CardRecord::new(
     "Lasting Tarfire",
     "9c4a95ac-072f-4219-80a0-1ce71f1b8411",
@@ -4023,7 +4130,8 @@ pub(in crate::card::sets) static SEAR: CardRecord = CardRecord::new(
 );
 
 // ECL 155 — Sizzling Changeling
-// Audit: unsupported — Needs an all-zone creature-type characteristic-defining ability whose all-types value is copiable; battlefield all-type modifiers do not implement changeling.
+// Audit: unsupported — Needs an all-zone creature-type characteristic-defining ability whose
+// all-types value is copiable; battlefield all-type modifiers do not implement changeling.
 pub(in crate::card::sets) static SIZZLING_CHANGELING: CardRecord = CardRecord::new(
     "Sizzling Changeling",
     "e58f0722-9ad1-4952-9aee-ea8137c58911",
@@ -4032,7 +4140,9 @@ pub(in crate::card::sets) static SIZZLING_CHANGELING: CardRecord = CardRecord::n
 );
 
 // ECL 156 — Soul Immolation
-// Audit: unsupported — Needs a casting payment that chooses X bounded by the greatest controlled toughness and blights a chosen creature for X, retaining the paid X for the damage instruction.
+// Audit: unsupported — Needs a casting payment that chooses X bounded by the greatest
+// controlled toughness and blights a chosen creature for X, retaining the paid X for the damage
+// instruction.
 pub(in crate::card::sets) static SOUL_IMMOLATION: CardRecord = CardRecord::new(
     "Soul Immolation",
     "234b70df-8c34-4da7-946e-b8b55a8df390",
@@ -4041,7 +4151,9 @@ pub(in crate::card::sets) static SOUL_IMMOLATION: CardRecord = CardRecord::new(
 );
 
 // ECL 157 — Soulbright Seeker
-// Audit: unsupported — Needs a behold payment that can choose a controlled permanent or reveal a matching card from hand, retaining the chosen object and any linked exile across the cast; the payment programs cannot express that mixed-zone choice.
+// Audit: unsupported — Needs a behold payment that can choose a controlled permanent or reveal
+// a matching card from hand, retaining the chosen object and any linked exile across the cast;
+// the payment programs cannot express that mixed-zone choice.
 pub(in crate::card::sets) static SOULBRIGHT_SEEKER: CardRecord = CardRecord::new(
     "Soulbright Seeker",
     "895ac890-608a-47de-8bc8-9337fd2064e8",
@@ -4101,7 +4213,8 @@ pub(in crate::card::sets) static SOURBREAD_AUNTIE: CardRecord = CardRecord::new(
 );
 
 // ECL 159 — Spinerock Tyrant
-// Audit: unsupported — Needs wither as a damage-to-creature replacement and a copy-effect receipt naming both the original spell and its copy for the granted ability.
+// Audit: unsupported — Needs wither as a damage-to-creature replacement and a copy-effect
+// receipt naming both the original spell and its copy for the granted ability.
 pub(in crate::card::sets) static SPINEROCK_TYRANT: CardRecord = CardRecord::new(
     "Spinerock Tyrant",
     "478bbb7a-4b96-4e04-921e-bdf23185de25",
@@ -4128,7 +4241,9 @@ pub(in crate::card::sets) static SQUAWKROASTER: CardRecord = CardRecord::new(
 );
 
 // ECL 161 — Sting-Slinger
-// Audit: unsupported — Needs a blight cost that chooses a creature you control and puts the required -1/-1 counters on it before the spell or ability is put on the stack; existing counter costs only name the source.
+// Audit: unsupported — Needs a blight cost that chooses a creature you control and puts the
+// required -1/-1 counters on it before the spell or ability is put on the stack; existing
+// counter costs only name the source.
 pub(in crate::card::sets) static STING_SLINGER: CardRecord = CardRecord::new(
     "Sting-Slinger",
     "386c5f73-fb8f-46c8-ad45-56e2c19b7d1f",
@@ -4161,7 +4276,8 @@ pub(in crate::card::sets) static TWEEZE: CardRecord = CardRecord::new(
 );
 
 // ECL 163 — Warren Torchmaster
-// Audit: unsupported — Needs a reflexive trigger following an optional blight, with its target selected after the creature was chosen and counters placed.
+// Audit: unsupported — Needs a reflexive trigger following an optional blight, with its target
+// selected after the creature was chosen and counters placed.
 pub(in crate::card::sets) static WARREN_TORCHMASTER: CardRecord = CardRecord::new(
     "Warren Torchmaster",
     "8f067a14-6667-4acf-b33d-e1149188a84d",
@@ -4214,7 +4330,9 @@ pub(in crate::card::sets) static ASSERT_PERFECTION: CardRecord = CardRecord::new
 );
 
 // ECL 165 — Aurora Awakener
-// Audit: unsupported — Needs reveal-until-X-matches with a computed threshold and a bound collection for selecting permanent cards afterward; TopCardsThroughFirstMatching stops after one match.
+// Audit: unsupported — Needs reveal-until-X-matches with a computed threshold and a bound
+// collection for selecting permanent cards afterward; TopCardsThroughFirstMatching stops after
+// one match.
 pub(in crate::card::sets) static AURORA_AWAKENER: CardRecord = CardRecord::new(
     "Aurora Awakener",
     "913977c2-73f9-466b-bd01-827c1736e070",
@@ -4285,7 +4403,8 @@ pub(in crate::card::sets) static BRISTLEBANE_BATTLER: CardRecord = CardRecord::n
 );
 
 // ECL 169 — Bristlebane Outrider
-// Audit: unsupported — Needs creature-entry history for the current turn excluding this source incarnation, retained after the entrant leaves or changes controller.
+// Audit: unsupported — Needs creature-entry history for the current turn excluding this source
+// incarnation, retained after the entrant leaves or changes controller.
 pub(in crate::card::sets) static BRISTLEBANE_OUTRIDER: CardRecord = CardRecord::new(
     "Bristlebane Outrider",
     "38b17a3c-4457-47e3-986e-ff0b94c41b1a",
@@ -4294,7 +4413,9 @@ pub(in crate::card::sets) static BRISTLEBANE_OUTRIDER: CardRecord = CardRecord::
 );
 
 // ECL 170 — Celestial Reunion
-// Audit: unsupported — Needs a behold payment that can choose a controlled permanent or reveal a matching card from hand, retaining the chosen object and any linked exile across the cast; the payment programs cannot express that mixed-zone choice.
+// Audit: unsupported — Needs a behold payment that can choose a controlled permanent or reveal
+// a matching card from hand, retaining the chosen object and any linked exile across the cast;
+// the payment programs cannot express that mixed-zone choice.
 pub(in crate::card::sets) static CELESTIAL_REUNION: CardRecord = CardRecord::new(
     "Celestial Reunion",
     "583b2863-aca1-4dab-9196-ea453b5d9454",
@@ -4303,7 +4424,9 @@ pub(in crate::card::sets) static CELESTIAL_REUNION: CardRecord = CardRecord::new
 );
 
 // ECL 171 — Champions of the Perfect
-// Audit: unsupported — Needs a behold payment that can choose a controlled permanent or reveal a matching card from hand, retaining the chosen object and any linked exile across the cast; the payment programs cannot express that mixed-zone choice.
+// Audit: unsupported — Needs a behold payment that can choose a controlled permanent or reveal
+// a matching card from hand, retaining the chosen object and any linked exile across the cast;
+// the payment programs cannot express that mixed-zone choice.
 pub(in crate::card::sets) static CHAMPIONS_OF_THE_PERFECT: CardRecord = CardRecord::new(
     "Champions of the Perfect",
     "4f359211-8be5-4818-b73c-14f24b7ddb21",
@@ -4312,7 +4435,8 @@ pub(in crate::card::sets) static CHAMPIONS_OF_THE_PERFECT: CardRecord = CardReco
 );
 
 // ECL 172 — Chomping Changeling
-// Audit: unsupported — Needs an all-zone creature-type characteristic-defining ability whose all-types value is copiable; battlefield all-type modifiers do not implement changeling.
+// Audit: unsupported — Needs an all-zone creature-type characteristic-defining ability whose
+// all-types value is copiable; battlefield all-type modifiers do not implement changeling.
 pub(in crate::card::sets) static CHOMPING_CHANGELING: CardRecord = CardRecord::new(
     "Chomping Changeling",
     "e187dcc6-19ad-4cf6-94b4-daf07f5144e5",
@@ -4521,7 +4645,9 @@ pub(in crate::card::sets) static LUMINOLLUSK: CardRecord = CardRecord::new(
 );
 
 // ECL 180 — Lys Alana Dignitary
-// Audit: unsupported — Needs a behold payment that can choose a controlled permanent or reveal a matching card from hand, retaining the chosen object and any linked exile across the cast; the payment programs cannot express that mixed-zone choice.
+// Audit: unsupported — Needs a behold payment that can choose a controlled permanent or reveal
+// a matching card from hand, retaining the chosen object and any linked exile across the cast;
+// the payment programs cannot express that mixed-zone choice.
 pub(in crate::card::sets) static LYS_ALANA_DIGNITARY: CardRecord = CardRecord::new(
     "Lys Alana Dignitary",
     "94e8d6a9-7aa3-4e93-8e4d-e50da7ff09d2",
@@ -4715,7 +4841,8 @@ pub(in crate::card::sets) static MORCANT_S_EYES: CardRecord = CardRecord::new(
 );
 
 // ECL 186 — Mutable Explorer
-// Audit: unsupported — Needs an all-zone creature-type characteristic-defining ability whose all-types value is copiable; battlefield all-type modifiers do not implement changeling.
+// Audit: unsupported — Needs an all-zone creature-type characteristic-defining ability whose
+// all-types value is copiable; battlefield all-type modifiers do not implement changeling.
 pub(in crate::card::sets) static MUTABLE_EXPLORER: CardRecord = CardRecord::new(
     "Mutable Explorer",
     "8f35d95a-caea-4d5e-b98e-55da1ba7c92d",
@@ -4765,7 +4892,8 @@ pub(in crate::card::sets) static PITILESS_FISTS: CardRecord = CardRecord::new(
 );
 
 // ECL 188 — Prismabasher
-// Audit: unsupported — Needs a computed maximum target count evaluated while the trigger is placed; AbilityTargetDef bounds are fixed integers and cannot read the number of colors then.
+// Audit: unsupported — Needs a computed maximum target count evaluated while the trigger is
+// placed; AbilityTargetDef bounds are fixed integers and cannot read the number of colors then.
 pub(in crate::card::sets) static PRISMABASHER: CardRecord = CardRecord::new(
     "Prismabasher",
     "65c057a7-70af-4464-bd8d-1e7e158d1ae7",
@@ -4927,7 +5055,8 @@ pub(in crate::card::sets) static SAPLING_NURSERY: CardRecord = CardRecord::new(
 );
 
 // ECL 193 — Selfless Safewright
-// Audit: unsupported — Needs a resolution-time creature-type choice bound to the following static grant recipients; entry-time choices would occur before this enters trigger resolves.
+// Audit: unsupported — Needs a resolution-time creature-type choice bound to the following
+// static grant recipients; entry-time choices would occur before this enters trigger resolves.
 pub(in crate::card::sets) static SELFLESS_SAFEWRIGHT: CardRecord = CardRecord::new(
     "Selfless Safewright",
     "ac95b1c3-9eb2-4f80-bb32-72b36817d622",
@@ -4940,7 +5069,7 @@ pub(in crate::card::sets) static SHIMMERWILDS_GROWTH: CardRecord = CardRecord::n
     "Shimmerwilds Growth",
     "c122719c-f0d1-4170-a0d1-d62172df1d21",
     "Jorge Jacinto",
-CardRules::new_enchantment(mana_cost!("{1}{G}"))
+    CardRules::new_enchantment(mana_cost!("{1}{G}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
             abilities::enchant_land(),
@@ -4958,7 +5087,8 @@ CardRules::new_enchantment(mana_cost!("{1}{G}"))
                 },
             ),
             AbilityDef::triggered_mana(
-                "Whenever enchanted land is tapped for mana, its controller adds an additional one mana of the chosen color.",
+                "Whenever enchanted land is tapped for mana, its controller \
+                 adds an additional one mana of the chosen color.",
                 TriggerEventDef::tapped_for_mana(ObjectPredicateDef::AttachedToSource),
                 EffectDef::AddMana(
                     AddManaEffectDef::one_of_type(ManaTypeDef::ChosenColor)
@@ -4969,7 +5099,9 @@ CardRules::new_enchantment(mana_cost!("{1}{G}"))
 );
 
 // ECL 195 — Spry and Mighty
-// Audit: unsupported — Needs a frozen value binding for the absolute difference between the chosen creatures' powers, retained through the draw before applying both bonuses; recomputing after the draw can change X.
+// Audit: unsupported — Needs a frozen value binding for the absolute difference between the
+// chosen creatures' powers, retained through the draw before applying both bonuses; recomputing
+// after the draw can change X.
 pub(in crate::card::sets) static SPRY_AND_MIGHTY: CardRecord = CardRecord::new(
     "Spry and Mighty",
     "152b7374-e991-443f-b6ca-914415635c4a",
@@ -5060,7 +5192,8 @@ pub(in crate::card::sets) static TEND_THE_SPRIGS: CardRecord = CardRecord::new(
 );
 
 // ECL 198 — Thoughtweft Charge
-// Audit: unsupported — Needs per-player creature-entry history for the current turn retained after the entering creature leaves or changes controller.
+// Audit: unsupported — Needs per-player creature-entry history for the current turn retained
+// after the entering creature leaves or changes controller.
 pub(in crate::card::sets) static THOUGHTWEFT_CHARGE: CardRecord = CardRecord::new(
     "Thoughtweft Charge",
     "19cfc015-b6d5-4918-99a7-990209e77441",
@@ -5251,7 +5384,8 @@ pub(in crate::card::sets) static UNFORGIVING_AIM: CardRecord = CardRecord::new(
 );
 
 // ECL 201 — Vinebred Brawler
-// Audit: unsupported — Needs an at-least-one legal blocker requirement; MustBeBlockedBy requires every matching able creature to block and would overconstrain the printed ability.
+// Audit: unsupported — Needs an at-least-one legal blocker requirement; MustBeBlockedBy
+// requires every matching able creature to block and would overconstrain the printed ability.
 pub(in crate::card::sets) static VINEBRED_BRAWLER: CardRecord = CardRecord::new(
     "Vinebred Brawler",
     "63c573fe-e74c-48ca-ad05-92f37dc466f1",
@@ -5515,7 +5649,9 @@ pub(in crate::card::sets) static BOGGART_CURSECRAFTER: CardRecord = CardRecord::
 );
 
 // ECL 207 — Bre of Clan Stoutarm
-// Audit: unsupported — Needs a free-cast offer filtered by the chosen spell form's mana value, plus a return-to-hand fallback for a card with no permitted form; filtering the exile card's normal mana value mishandles alternate forms.
+// Audit: unsupported — Needs a free-cast offer filtered by the chosen spell form's mana value,
+// plus a return-to-hand fallback for a card with no permitted form; filtering the exile card's
+// normal mana value mishandles alternate forms.
 pub(in crate::card::sets) static BRE_OF_CLAN_STOUTARM: CardRecord = CardRecord::new(
     "Bre of Clan Stoutarm",
     "013cefb7-a059-45c2-81b0-187f35aac4a2",
@@ -5608,7 +5744,9 @@ pub(in crate::card::sets) static BRIGID_S_COMMAND: CardRecord = CardRecord::new(
 );
 
 // ECL 209 — Catharsis
-// Audit: unsupported — Needs the number of mana units of each color spent to cast the source retained for its enters triggers; ColorsOfManaSpent counts distinct colors and does not distinguish one unit from two of the same color.
+// Audit: unsupported — Needs the number of mana units of each color spent to cast the source
+// retained for its enters triggers; ColorsOfManaSpent counts distinct colors and does not
+// distinguish one unit from two of the same color.
 pub(in crate::card::sets) static CATHARSIS: CardRecord = CardRecord::new(
     "Catharsis",
     "affb4500-2704-49fc-bbb4-02ed4bfb3b76",
@@ -5656,7 +5794,8 @@ pub(in crate::card::sets) static CHAOS_SPEWER: CardRecord = CardRecord::new(
 );
 
 // ECL 211 — Chitinous Graspling
-// Audit: unsupported — Needs an all-zone creature-type characteristic-defining ability whose all-types value is copiable; battlefield all-type modifiers do not implement changeling.
+// Audit: unsupported — Needs an all-zone creature-type characteristic-defining ability whose
+// all-types value is copiable; battlefield all-type modifiers do not implement changeling.
 pub(in crate::card::sets) static CHITINOUS_GRASPLING: CardRecord = CardRecord::new(
     "Chitinous Graspling",
     "a9767360-d536-4902-9d2d-1f3474ce89d6",
@@ -5665,7 +5804,9 @@ pub(in crate::card::sets) static CHITINOUS_GRASPLING: CardRecord = CardRecord::n
 );
 
 // ECL 212 — Deceit
-// Audit: unsupported — Needs the number of mana units of each color spent to cast the source retained for its enters triggers; ColorsOfManaSpent counts distinct colors and does not distinguish one unit from two of the same color.
+// Audit: unsupported — Needs the number of mana units of each color spent to cast the source
+// retained for its enters triggers; ColorsOfManaSpent counts distinct colors and does not
+// distinguish one unit from two of the same color.
 pub(in crate::card::sets) static DECEIT: CardRecord = CardRecord::new(
     "Deceit",
     "bd82c9e4-9871-4e6d-b691-ee00b4b9a3c6",
@@ -5721,7 +5862,8 @@ pub(in crate::card::sets) static DEEPCHANNEL_DUELIST: CardRecord = CardRecord::n
 );
 
 // ECL 214 — Deepway Navigator
-// Audit: unsupported — Needs per-player history of how many Merfolk attacked this turn, retained after those attackers leave or change types.
+// Audit: unsupported — Needs per-player history of how many Merfolk attacked this turn,
+// retained after those attackers leave or change types.
 pub(in crate::card::sets) static DEEPWAY_NAVIGATOR: CardRecord = CardRecord::new(
     "Deepway Navigator",
     "d988e28b-fa60-4b60-8229-7a15932c784b",
@@ -5730,7 +5872,9 @@ pub(in crate::card::sets) static DEEPWAY_NAVIGATOR: CardRecord = CardRecord::new
 );
 
 // ECL 215 — Doran, Besieged by Time
-// Audit: unsupported — Needs a blocks-declared event identifying each controlled blocking creature once, independently of how many attackers it blocks; Blocks only listens to the ability source and names the creature it blocked.
+// Audit: unsupported — Needs a blocks-declared event identifying each controlled blocking
+// creature once, independently of how many attackers it blocks; Blocks only listens to the
+// ability source and names the creature it blocked.
 pub(in crate::card::sets) static DORAN_BESIEGED_BY_TIME: CardRecord = CardRecord::new(
     "Doran, Besieged by Time",
     "568aa70a-6765-486a-bd37-5d38b16c46de",
@@ -5739,7 +5883,9 @@ pub(in crate::card::sets) static DORAN_BESIEGED_BY_TIME: CardRecord = CardRecord
 );
 
 // ECL 216 — Dream Harvest
-// Audit: unsupported — Needs exile-until cumulative mana value reaches a threshold, with a bound collection for subsequent free casts; existing top-through-match collections cannot accumulate mana value.
+// Audit: unsupported — Needs exile-until cumulative mana value reaches a threshold, with a
+// bound collection for subsequent free casts; existing top-through-match collections cannot
+// accumulate mana value.
 pub(in crate::card::sets) static DREAM_HARVEST: CardRecord = CardRecord::new(
     "Dream Harvest",
     "a4ebc0e7-02d7-4d38-9376-a39963e6d3fa",
@@ -6025,7 +6171,9 @@ pub(in crate::card::sets) static ECLIPSED_MERROW: CardRecord = CardRecord::new(
 );
 
 // ECL 222 — Emptiness
-// Audit: unsupported — Needs the number of mana units of each color spent to cast the source retained for its enters triggers; ColorsOfManaSpent counts distinct colors and does not distinguish one unit from two of the same color.
+// Audit: unsupported — Needs the number of mana units of each color spent to cast the source
+// retained for its enters triggers; ColorsOfManaSpent counts distinct colors and does not
+// distinguish one unit from two of the same color.
 pub(in crate::card::sets) static EMPTINESS: CardRecord = CardRecord::new(
     "Emptiness",
     "c6409eca-bef6-4f3a-8bbb-d69ec5dbfc13",
@@ -6034,7 +6182,8 @@ pub(in crate::card::sets) static EMPTINESS: CardRecord = CardRecord::new(
 );
 
 // ECL 223 — Feisty Spikeling
-// Audit: unsupported — Needs an all-zone creature-type characteristic-defining ability whose all-types value is copiable; battlefield all-type modifiers do not implement changeling.
+// Audit: unsupported — Needs an all-zone creature-type characteristic-defining ability whose
+// all-types value is copiable; battlefield all-type modifiers do not implement changeling.
 pub(in crate::card::sets) static FEISTY_SPIKELING: CardRecord = CardRecord::new(
     "Feisty Spikeling",
     "f69f3a27-ecda-4d27-82fe-612ed57dbb28",
@@ -6156,7 +6305,8 @@ pub(in crate::card::sets) static FLARING_CINDER: CardRecord = CardRecord::new(
 );
 
 // ECL 226 — Gangly Stompling
-// Audit: unsupported — Needs an all-zone creature-type characteristic-defining ability whose all-types value is copiable; battlefield all-type modifiers do not implement changeling.
+// Audit: unsupported — Needs an all-zone creature-type characteristic-defining ability whose
+// all-types value is copiable; battlefield all-type modifiers do not implement changeling.
 pub(in crate::card::sets) static GANGLY_STOMPLING: CardRecord = CardRecord::new(
     "Gangly Stompling",
     "502000a7-a3c1-4259-aea5-ff01724396a1",
@@ -6357,7 +6507,9 @@ pub(in crate::card::sets) static HIGH_PERFECT_MORCANT: CardRecord = CardRecord::
 );
 
 // ECL 230 — Hovel Hurler
-// Audit: unsupported — Needs an activation payment selecting one or several counters of arbitrary kinds on the source; existing removal costs require one fixed CounterKind and cannot pay with a mixture of kinds.
+// Audit: unsupported — Needs an activation payment selecting one or several counters of
+// arbitrary kinds on the source; existing removal costs require one fixed CounterKind and
+// cannot pay with a mixture of kinds.
 pub(in crate::card::sets) static HOVEL_HURLER: CardRecord = CardRecord::new(
     "Hovel Hurler",
     "adc6a4c5-4e92-43ee-8d0c-204042965eb7",
@@ -6474,7 +6626,9 @@ pub(in crate::card::sets) static LLUWEN_IMPERFECT_NATURALIST: CardRecord = CardR
 );
 
 // ECL 233 — Maralen, Fae Ascendant
-// Audit: unsupported — Needs linked exiles tagged by turn and a once-per-turn free-cast permission filtered by the prospective spell form's mana value; existing linked-exile permissions lack that combination.
+// Audit: unsupported — Needs linked exiles tagged by turn and a once-per-turn free-cast
+// permission filtered by the prospective spell form's mana value; existing linked-exile
+// permissions lack that combination.
 pub(in crate::card::sets) static MARALEN_FAE_ASCENDANT: CardRecord = CardRecord::new(
     "Maralen, Fae Ascendant",
     "c50f5408-5b5c-41dc-807e-136233403a09",
@@ -6501,7 +6655,8 @@ pub(in crate::card::sets) static MERROW_SKYSWIMMER: CardRecord = CardRecord::new
 );
 
 // ECL 235 — Mischievous Sneakling
-// Audit: unsupported — Needs an all-zone creature-type characteristic-defining ability whose all-types value is copiable; battlefield all-type modifiers do not implement changeling.
+// Audit: unsupported — Needs an all-zone creature-type characteristic-defining ability whose
+// all-types value is copiable; battlefield all-type modifiers do not implement changeling.
 pub(in crate::card::sets) static MISCHIEVOUS_SNEAKLING: CardRecord = CardRecord::new(
     "Mischievous Sneakling",
     "3b66fa00-2fa6-4060-9e7f-8e3fde6deb73",
@@ -6510,7 +6665,9 @@ pub(in crate::card::sets) static MISCHIEVOUS_SNEAKLING: CardRecord = CardRecord:
 );
 
 // ECL 236 — Morcant's Loyalist
-// Audit: unsupported — Needs graveyard target exclusion by the dying source's zone-change successor; Not(Source) compares the old battlefield identity and can incorrectly target this same card in the graveyard.
+// Audit: unsupported — Needs graveyard target exclusion by the dying source's zone-change
+// successor; Not(Source) compares the old battlefield identity and can incorrectly target this
+// same card in the graveyard.
 pub(in crate::card::sets) static MORCANT_S_LOYALIST: CardRecord = CardRecord::new(
     "Morcant's Loyalist",
     "175c6b1c-8790-41a2-ae15-5031206c410f",
@@ -6548,7 +6705,8 @@ pub(in crate::card::sets) static NOGGLE_ROBBER: CardRecord = CardRecord::new(
 );
 
 // ECL 238 — Prideful Feastling
-// Audit: unsupported — Needs an all-zone creature-type characteristic-defining ability whose all-types value is copiable; battlefield all-type modifiers do not implement changeling.
+// Audit: unsupported — Needs an all-zone creature-type characteristic-defining ability whose
+// all-types value is copiable; battlefield all-type modifiers do not implement changeling.
 pub(in crate::card::sets) static PRIDEFUL_FEASTLING: CardRecord = CardRecord::new(
     "Prideful Feastling",
     "7578cb61-f606-4559-a10a-343a583228ab",
@@ -6557,7 +6715,8 @@ pub(in crate::card::sets) static PRIDEFUL_FEASTLING: CardRecord = CardRecord::ne
 );
 
 // ECL 239 — Raiding Schemes
-// Audit: unsupported — Needs a conspire additional-cost offer tapping two creatures that each share a color with the prospective spell, followed by the paid-cost copy trigger.
+// Audit: unsupported — Needs a conspire additional-cost offer tapping two creatures that each
+// share a color with the prospective spell, followed by the paid-cost copy trigger.
 pub(in crate::card::sets) static RAIDING_SCHEMES: CardRecord = CardRecord::new(
     "Raiding Schemes",
     "0bab5da5-72a7-4340-9b53-492ab14a9f71",
@@ -6566,7 +6725,9 @@ pub(in crate::card::sets) static RAIDING_SCHEMES: CardRecord = CardRecord::new(
 );
 
 // ECL 240 — Reaping Willow
-// Audit: unsupported — Needs an activation payment selecting one or several counters of arbitrary kinds on the source; existing removal costs require one fixed CounterKind and cannot pay with a mixture of kinds.
+// Audit: unsupported — Needs an activation payment selecting one or several counters of
+// arbitrary kinds on the source; existing removal costs require one fixed CounterKind and
+// cannot pay with a mixture of kinds.
 pub(in crate::card::sets) static REAPING_WILLOW: CardRecord = CardRecord::new(
     "Reaping Willow",
     "97c33cc2-3573-410a-908b-c0392fff524b",
@@ -6575,7 +6736,9 @@ pub(in crate::card::sets) static REAPING_WILLOW: CardRecord = CardRecord::new(
 );
 
 // ECL 241 — Sanar, Innovative First-Year
-// Audit: unsupported — Needs reveal-until a computed number of nonlands, then one optionally selected card per represented color before a single shuffle; existing collection selections cannot express the color-to-card assignment.
+// Audit: unsupported — Needs reveal-until a computed number of nonlands, then one optionally
+// selected card per represented color before a single shuffle; existing collection selections
+// cannot express the color-to-card assignment.
 pub(in crate::card::sets) static SANAR_INNOVATIVE_FIRST_YEAR: CardRecord = CardRecord::new(
     "Sanar, Innovative First-Year",
     "11215561-bbcd-4564-a2e4-a1d77d177a1d",
@@ -6584,7 +6747,8 @@ pub(in crate::card::sets) static SANAR_INNOVATIVE_FIRST_YEAR: CardRecord = CardR
 );
 
 // ECL 242 — Shadow Urchin
-// Audit: unsupported — Needs the total count across all counter kinds on a dying creature's last-known incarnation and a next-end-step play-permission expiration.
+// Audit: unsupported — Needs the total count across all counter kinds on a dying creature's
+// last-known incarnation and a next-end-step play-permission expiration.
 pub(in crate::card::sets) static SHADOW_URCHIN: CardRecord = CardRecord::new(
     "Shadow Urchin",
     "4e54c39b-6149-467b-a9a8-7ad09ca0cbd4",
@@ -6685,7 +6849,9 @@ pub(in crate::card::sets) static SYGG_S_COMMAND: CardRecord = CardRecord::new(
 );
 
 // ECL 245 — Tam, Mindful First-Year
-// Audit: unsupported — Needs each recipient's current colors used as a hexproof-from source predicate, including several colors at once; source-relative color predicates do not read the protected recipient.
+// Audit: unsupported — Needs each recipient's current colors used as a hexproof-from source
+// predicate, including several colors at once; source-relative color predicates do not read the
+// protected recipient.
 pub(in crate::card::sets) static TAM_MINDFUL_FIRST_YEAR: CardRecord = CardRecord::new(
     "Tam, Mindful First-Year",
     "6cb0f825-b75b-4f2a-803c-08142ca07e76",
@@ -6844,7 +7010,9 @@ pub(in crate::card::sets) static TRYSTAN_S_COMMAND: CardRecord = CardRecord::new
 );
 
 // ECL 248 — Twinflame Travelers
-// Audit: unsupported — Needs triggered-ability duplication filtered by the triggering ability's source being another controlled Elemental; existing duplication rules only specialize arrival-trigger classes.
+// Audit: unsupported — Needs triggered-ability duplication filtered by the triggering ability's
+// source being another controlled Elemental; existing duplication rules only specialize
+// arrival-trigger classes.
 pub(in crate::card::sets) static TWINFLAME_TRAVELERS: CardRecord = CardRecord::new(
     "Twinflame Travelers",
     "5fc9f409-3aef-4403-bf17-6e9a72ecfada",
@@ -6853,7 +7021,9 @@ pub(in crate::card::sets) static TWINFLAME_TRAVELERS: CardRecord = CardRecord::n
 );
 
 // ECL 249 — Vibrance
-// Audit: unsupported — Needs the number of mana units of each color spent to cast the source retained for its enters triggers; ColorsOfManaSpent counts distinct colors and does not distinguish one unit from two of the same color.
+// Audit: unsupported — Needs the number of mana units of each color spent to cast the source
+// retained for its enters triggers; ColorsOfManaSpent counts distinct colors and does not
+// distinguish one unit from two of the same color.
 pub(in crate::card::sets) static VIBRANCE: CardRecord = CardRecord::new(
     "Vibrance",
     "b9f71c3b-0840-475f-9c17-fdacbc7f3213",
@@ -6888,7 +7058,8 @@ pub(in crate::card::sets) static VORACIOUS_TOME_SKIMMER: CardRecord = CardRecord
 );
 
 // ECL 251 — Wary Farmer
-// Audit: unsupported — Needs creature-entry history excluding the source incarnation and retained after the entrant leaves the battlefield or changes controller.
+// Audit: unsupported — Needs creature-entry history excluding the source incarnation and
+// retained after the entrant leaves the battlefield or changes controller.
 pub(in crate::card::sets) static WARY_FARMER: CardRecord = CardRecord::new(
     "Wary Farmer",
     "22d20c0d-176d-49c9-aa0b-2c5778548cc5",
@@ -6897,7 +7068,9 @@ pub(in crate::card::sets) static WARY_FARMER: CardRecord = CardRecord::new(
 );
 
 // ECL 252 — Wistfulness
-// Audit: unsupported — Needs the number of mana units of each color spent to cast the source retained for its enters triggers; ColorsOfManaSpent counts distinct colors and does not distinguish one unit from two of the same color.
+// Audit: unsupported — Needs the number of mana units of each color spent to cast the source
+// retained for its enters triggers; ColorsOfManaSpent counts distinct colors and does not
+// distinguish one unit from two of the same color.
 pub(in crate::card::sets) static WISTFULNESS: CardRecord = CardRecord::new(
     "Wistfulness",
     "db9aa986-ac2a-44bb-a88b-04c5d0d502b2",
@@ -6959,7 +7132,8 @@ pub(in crate::card::sets) static CHRONICLE_OF_VICTORY: CardRecord = CardRecord::
 );
 
 // ECL 254 — Dawn-Blessed Pennant
-// Audit: unsupported — Needs an entry creature-type choice restricted to the eight printed alternatives; ScalarChoiceListDef::CreatureTypes offers the entire vocabulary.
+// Audit: unsupported — Needs an entry creature-type choice restricted to the eight printed
+// alternatives; ScalarChoiceListDef::CreatureTypes offers the entire vocabulary.
 pub(in crate::card::sets) static DAWN_BLESSED_PENNANT: CardRecord = CardRecord::new(
     "Dawn-Blessed Pennant",
     "294266b6-0343-4fa5-90b8-0adf7df490e4",
@@ -6968,7 +7142,9 @@ pub(in crate::card::sets) static DAWN_BLESSED_PENNANT: CardRecord = CardRecord::
 );
 
 // ECL 255 — Firdoch Core
-// Audit: unsupported — The all-zone subtype declaration is read for cards and spells but not applied by the battlefield/copy characteristic walk. Changeling needs the same intrinsic all-types value across those paths.
+// Audit: unsupported — The all-zone subtype declaration is read for cards and spells but not
+// applied by the battlefield/copy characteristic walk. Changeling needs the same intrinsic
+// all-types value across those paths.
 pub(in crate::card::sets) static FIRDOCH_CORE: CardRecord = CardRecord::new(
     "Firdoch Core",
     "8e45cd37-bf97-4742-978d-96f96ed653cd",
@@ -6977,7 +7153,9 @@ pub(in crate::card::sets) static FIRDOCH_CORE: CardRecord = CardRecord::new(
 );
 
 // ECL 256 — Foraging Wickermaw
-// Audit: unsupported — Needs the color selected for an immediate mana ability retained for a same-resolution source-color change; AddMana chooses its type internally without a reusable color binding.
+// Audit: unsupported — Needs the color selected for an immediate mana ability retained for a
+// same-resolution source-color change; AddMana chooses its type internally without a reusable
+// color binding.
 pub(in crate::card::sets) static FORAGING_WICKERMAW: CardRecord = CardRecord::new(
     "Foraging Wickermaw",
     "f524bc08-caeb-4362-b960-eb8e0e4159d0",
@@ -7094,7 +7272,9 @@ pub(in crate::card::sets) static GATHERING_STONE: CardRecord = CardRecord::new(
 );
 
 // ECL 258 — Mirrormind Crown
-// Audit: unsupported — Needs a first-token-creation-event ordinal for the turn and an optional copy replacement preserving the original batch size; a per-source replacement limit does not identify the turn's first token event.
+// Audit: unsupported — Needs a first-token-creation-event ordinal for the turn and an optional
+// copy replacement preserving the original batch size; a per-source replacement limit does not
+// identify the turn's first token event.
 pub(in crate::card::sets) static MIRRORMIND_CROWN: CardRecord = CardRecord::new(
     "Mirrormind Crown",
     "061d765e-df27-406a-9ba0-b51b0cbb65da",
@@ -7184,7 +7364,9 @@ const SPRINGLEAF_DRUM_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // ECL 261 — Stalactite Dagger
-// Audit: unsupported — Its changeling token needs the intrinsic all-types declaration applied on the battlefield and preserved when copied. The current all-zone subtype declaration does not work through that battlefield/copy path.
+// Audit: unsupported — Its changeling token needs the intrinsic all-types declaration applied
+// on the battlefield and preserved when copied. The current all-zone subtype declaration does
+// not work through that battlefield/copy path.
 pub(in crate::card::sets) static STALACTITE_DAGGER: CardRecord = CardRecord::new(
     "Stalactite Dagger",
     "6954df09-95f3-46cf-9ba8-2a1aea653d8f",
@@ -7200,7 +7382,9 @@ const BLOOD_CRYPT_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // ECL 263 — Eclipsed Realms
-// Audit: unsupported — Needs a restricted eight-type entry choice and one mana permission allowing either casting that type or activating a source of that type; the existing restriction list is conjunctive.
+// Audit: unsupported — Needs a restricted eight-type entry choice and one mana permission
+// allowing either casting that type or activating a source of that type; the existing
+// restriction list is conjunctive.
 pub(in crate::card::sets) static ECLIPSED_REALMS: CardRecord = CardRecord::new(
     "Eclipsed Realms",
     "a174f0db-8b4f-4c37-9583-44c92d37b9c0",

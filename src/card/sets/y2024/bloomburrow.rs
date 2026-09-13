@@ -314,7 +314,8 @@ pub(in crate::card::sets) static BRIGHTBLADE_STOAT: CardRecord = CardRecord::new
 );
 
 // BLB 5 — Builder's Talent
-// Audit: unsupported — Needs one-or-more noncreature, nonland permanent entry events; the existing zone-change trigger fires once per permanent.
+// Audit: unsupported — Needs one-or-more noncreature, nonland permanent entry events; the
+// existing zone-change trigger fires once per permanent.
 pub(in crate::card::sets) static BUILDER_S_TALENT: CardRecord = CardRecord::new(
     "Builder's Talent",
     "15fa581a-724e-4196-a9a3-ff84c54bdb7d",
@@ -323,7 +324,8 @@ pub(in crate::card::sets) static BUILDER_S_TALENT: CardRecord = CardRecord::new(
 );
 
 // BLB 6 — Caretaker's Talent
-// Audit: unsupported — Needs level-granted static token anthem evaluation and one-or-more token entry events rather than token-creation events.
+// Audit: unsupported — Needs level-granted static token anthem evaluation and one-or-more token
+// entry events rather than token-creation events.
 pub(in crate::card::sets) static CARETAKER_S_TALENT: CardRecord = CardRecord::new(
     "Caretaker's Talent",
     "ad5ea98a-e36e-4ab9-b4da-cc572f3777db",
@@ -378,7 +380,9 @@ pub(in crate::card::sets) static CARROT_CAKE: CardRecord = CardRecord::new(
 );
 
 // BLB 8 — Crumb and Get It
-// Audit: unsupported — Needs an optional casting-time gift promise independent of additional costs and a committed give-gift action at the correct resolution or entry timing; the current cost and named-action vocabulary does not represent that promise and gift event.
+// Audit: unsupported — Needs an optional casting-time gift promise independent of additional
+// costs and a committed give-gift action at the correct resolution or entry timing; the current
+// cost and named-action vocabulary does not represent that promise and gift event.
 pub(in crate::card::sets) static CRUMB_AND_GET_IT: CardRecord = CardRecord::new(
     "Crumb and Get It",
     "3c7b3b25-d4b3-4451-9f5c-6eb369541175",
@@ -387,7 +391,9 @@ pub(in crate::card::sets) static CRUMB_AND_GET_IT: CardRecord = CardRecord::new(
 );
 
 // BLB 9 — Dawn's Truce
-// Audit: unsupported — Needs an optional casting-time gift promise independent of additional costs and a committed give-gift action at the correct resolution or entry timing; the current cost and named-action vocabulary does not represent that promise and gift event.
+// Audit: unsupported — Needs an optional casting-time gift promise independent of additional
+// costs and a committed give-gift action at the correct resolution or entry timing; the current
+// cost and named-action vocabulary does not represent that promise and gift event.
 pub(in crate::card::sets) static DAWN_S_TRUCE: CardRecord = CardRecord::new(
     "Dawn's Truce",
     "8f72bfa0-efef-48ce-aff8-d5818ed71ba6",
@@ -396,7 +402,9 @@ pub(in crate::card::sets) static DAWN_S_TRUCE: CardRecord = CardRecord::new(
 );
 
 // BLB 10 — Dewdrop Cure
-// Audit: unsupported — Needs an optional casting-time gift promise independent of additional costs and a committed give-gift action at the correct resolution or entry timing; the current cost and named-action vocabulary does not represent that promise and gift event.
+// Audit: unsupported — Needs an optional casting-time gift promise independent of additional
+// costs and a committed give-gift action at the correct resolution or entry timing; the current
+// cost and named-action vocabulary does not represent that promise and gift event.
 pub(in crate::card::sets) static DEWDROP_CURE: CardRecord = CardRecord::new(
     "Dewdrop Cure",
     "666aefc2-44e0-4c27-88d5-7906f245a71f",
@@ -405,7 +413,9 @@ pub(in crate::card::sets) static DEWDROP_CURE: CardRecord = CardRecord::new(
 );
 
 // BLB 11 — Driftgloom Coyote
-// Audit: unsupported — Needs exile with immediate return when its source leaves, including if that happens before the enters trigger resolves; the existing helper installs a stack-using leaves trigger rather than the CR 610.3 duration.
+// Audit: unsupported — Needs exile with immediate return when its source leaves, including if
+// that happens before the enters trigger resolves; the existing helper installs a stack-using
+// leaves trigger rather than the CR 610.3 duration.
 pub(in crate::card::sets) static DRIFTGLOOM_COYOTE: CardRecord = CardRecord::new(
     "Driftgloom Coyote",
     "d7ab2de3-3aea-461a-a74f-fb742cf8a198",
@@ -414,7 +424,9 @@ pub(in crate::card::sets) static DRIFTGLOOM_COYOTE: CardRecord = CardRecord::new
 );
 
 // BLB 12 — Essence Channeler
-// Audit: unsupported — Needs this player's life-lost history or a life-lost event; the existing values expose life gained and whether an opponent lost life, not the controller's own life loss (including payments).
+// Audit: unsupported — Needs this player's life-lost history or a life-lost event; the existing
+// values expose life gained and whether an opponent lost life, not the controller's own life
+// loss (including payments).
 pub(in crate::card::sets) static ESSENCE_CHANNELER: CardRecord = CardRecord::new(
     "Essence Channeler",
     "5aaf7e4c-4d5d-4acc-a834-e6c4a7629408",
@@ -453,7 +465,9 @@ pub(in crate::card::sets) static FEATHER_OF_FLIGHT: CardRecord = CardRecord::new
 );
 
 // BLB 14 — Flowerfoot Swordmaster
-// Audit: unsupported — Needs per-object, per-controller target-selection history for the first matching targeting event each turn, including targeting while the ability was absent; a once-per-turn trigger limit does not record those earlier events.
+// Audit: unsupported — Needs per-object, per-controller target-selection history for the first
+// matching targeting event each turn, including targeting while the ability was absent; a
+// once-per-turn trigger limit does not record those earlier events.
 pub(in crate::card::sets) static FLOWERFOOT_SWORDMASTER: CardRecord = CardRecord::new(
     "Flowerfoot Swordmaster",
     "97ff118f-9c3c-43a2-8085-980c7fe7d227",
@@ -462,7 +476,9 @@ pub(in crate::card::sets) static FLOWERFOOT_SWORDMASTER: CardRecord = CardRecord
 );
 
 // BLB 15 — Harvestrite Host
-// Audit: unsupported — Needs a per-ability resolution count retained after its source leaves; SourceResolutionsThisTurn reads only a live permanent, losing the second-resolution draw condition for a departed Host.
+// Audit: unsupported — Needs a per-ability resolution count retained after its source leaves;
+// SourceResolutionsThisTurn reads only a live permanent, losing the second-resolution draw
+// condition for a departed Host.
 pub(in crate::card::sets) static HARVESTRITE_HOST: CardRecord = CardRecord::new(
     "Harvestrite Host",
     "41762689-0c13-4d45-9d81-ba2afad980f8",
@@ -526,7 +542,9 @@ pub(in crate::card::sets) static INTREPID_RABBIT: CardRecord = CardRecord::new(
 );
 
 // BLB 18 — Jackdaw Savior
-// Audit: unsupported — Needs a target mana-value bound read from the entering or dying event object, including its last-known characteristics; dynamic target predicates currently evaluate values from the ability source without the triggering-object context.
+// Audit: unsupported — Needs a target mana-value bound read from the entering or dying event
+// object, including its last-known characteristics; dynamic target predicates currently
+// evaluate values from the ability source without the triggering-object context.
 pub(in crate::card::sets) static JACKDAW_SAVIOR: CardRecord = CardRecord::new(
     "Jackdaw Savior",
     "121af600-6143-450a-9f87-12ce4833f1ec",
@@ -535,7 +553,9 @@ pub(in crate::card::sets) static JACKDAW_SAVIOR: CardRecord = CardRecord::new(
 );
 
 // BLB 19 — Jolly Gerbils
-// Audit: unsupported — Needs an optional casting-time gift promise independent of additional costs and a committed give-gift action at the correct resolution or entry timing; the current cost and named-action vocabulary does not represent that promise and gift event.
+// Audit: unsupported — Needs an optional casting-time gift promise independent of additional
+// costs and a committed give-gift action at the correct resolution or entry timing; the current
+// cost and named-action vocabulary does not represent that promise and gift event.
 pub(in crate::card::sets) static JOLLY_GERBILS: CardRecord = CardRecord::new(
     "Jolly Gerbils",
     "0eab51d6-ba17-4a8c-8834-25db363f2b6b",
@@ -618,7 +638,9 @@ pub(in crate::card::sets) static MABEL_S_METTLE: CardRecord = CardRecord::new(
 );
 
 // BLB 22 — Mouse Trapper
-// Audit: unsupported — Needs per-object, per-controller target-selection history for the first matching targeting event each turn, including targeting while the ability was absent; a once-per-turn trigger limit does not record those earlier events.
+// Audit: unsupported — Needs per-object, per-controller target-selection history for the first
+// matching targeting event each turn, including targeting while the ability was absent; a
+// once-per-turn trigger limit does not record those earlier events.
 pub(in crate::card::sets) static MOUSE_TRAPPER: CardRecord = CardRecord::new(
     "Mouse Trapper",
     "8ba1bc5a-03e7-44ec-893e-44042cbc02ef",
@@ -627,7 +649,9 @@ pub(in crate::card::sets) static MOUSE_TRAPPER: CardRecord = CardRecord::new(
 );
 
 // BLB 23 — Nettle Guard
-// Audit: unsupported — Needs per-object, per-controller target-selection history for the first matching targeting event each turn, including targeting while the ability was absent; a once-per-turn trigger limit does not record those earlier events.
+// Audit: unsupported — Needs per-object, per-controller target-selection history for the first
+// matching targeting event each turn, including targeting while the ability was absent; a
+// once-per-turn trigger limit does not record those earlier events.
 pub(in crate::card::sets) static NETTLE_GUARD: CardRecord = CardRecord::new(
     "Nettle Guard",
     "8c9c3cc3-2aa2-453e-a17c-2baeeaabe0a9",
@@ -636,7 +660,9 @@ pub(in crate::card::sets) static NETTLE_GUARD: CardRecord = CardRecord::new(
 );
 
 // BLB 24 — Parting Gust
-// Audit: unsupported — Needs an optional casting-time gift promise independent of additional costs and a committed give-gift action at the correct resolution or entry timing; the current cost and named-action vocabulary does not represent that promise and gift event.
+// Audit: unsupported — Needs an optional casting-time gift promise independent of additional
+// costs and a committed give-gift action at the correct resolution or entry timing; the current
+// cost and named-action vocabulary does not represent that promise and gift event.
 pub(in crate::card::sets) static PARTING_GUST: CardRecord = CardRecord::new(
     "Parting Gust",
     "1086e826-94b8-4398-8a38-d8eacca56a43",
@@ -812,7 +838,9 @@ pub(in crate::card::sets) static SALVATION_SWAN: CardRecord = CardRecord::new(
 );
 
 // BLB 29 — Season of the Burrow
-// Audit: unsupported — Needs repeated modal choices with a shared weighted pawprint budget; current modal selection constrains the number of modes and optional mana costs, not the sum of distinct mode weights.
+// Audit: unsupported — Needs repeated modal choices with a shared weighted pawprint budget;
+// current modal selection constrains the number of modes and optional mana costs, not the sum
+// of distinct mode weights.
 pub(in crate::card::sets) static SEASON_OF_THE_BURROW: CardRecord = CardRecord::new(
     "Season of the Burrow",
     "33bf9c60-4e58-48a4-8e53-abef7ab3b671",
@@ -908,7 +936,9 @@ pub(in crate::card::sets) static SONAR_STRIKE: CardRecord = CardRecord::new(
 );
 
 // BLB 33 — Star Charter
-// Audit: unsupported — Needs this player's life-lost history or a life-lost event; the existing values expose life gained and whether an opponent lost life, not the controller's own life loss (including payments).
+// Audit: unsupported — Needs this player's life-lost history or a life-lost event; the existing
+// values expose life gained and whether an opponent lost life, not the controller's own life
+// loss (including payments).
 pub(in crate::card::sets) static STAR_CHARTER: CardRecord = CardRecord::new(
     "Star Charter",
     "0e209237-00f7-4bf0-8287-ccde02ce8e8d",
@@ -917,7 +947,9 @@ pub(in crate::card::sets) static STAR_CHARTER: CardRecord = CardRecord::new(
 );
 
 // BLB 34 — Starfall Invocation
-// Audit: unsupported — Needs an optional casting-time gift promise independent of additional costs and a committed give-gift action at the correct resolution or entry timing; the current cost and named-action vocabulary does not represent that promise and gift event.
+// Audit: unsupported — Needs an optional casting-time gift promise independent of additional
+// costs and a committed give-gift action at the correct resolution or entry timing; the current
+// cost and named-action vocabulary does not represent that promise and gift event.
 pub(in crate::card::sets) static STARFALL_INVOCATION: CardRecord = CardRecord::new(
     "Starfall Invocation",
     "2aea38e6-ec58-4091-b27c-2761bdd12b13",
@@ -945,7 +977,9 @@ pub(in crate::card::sets) static THISTLEDOWN_PLAYERS: CardRecord = CardRecord::n
 );
 
 // BLB 36 — Valley Questcaller
-// Audit: unsupported — Needs a batched enters event filtered by controller and creature types; ordinary ZoneChanged triggers fire once per object rather than once for simultaneous arrivals.
+// Audit: unsupported — Needs a batched enters event filtered by controller and creature types;
+// ordinary ZoneChanged triggers fire once per object rather than once for simultaneous
+// arrivals.
 pub(in crate::card::sets) static VALLEY_QUESTCALLER: CardRecord = CardRecord::new(
     "Valley Questcaller",
     "ba629ca8-a368-4282-8a61-9bf6a5c217f0",
@@ -1042,7 +1076,9 @@ pub(in crate::card::sets) static WARREN_WARLEADER: CardRecord = CardRecord::new(
 );
 
 // BLB 39 — Wax-Wane Witness
-// Audit: unsupported — Needs this player's life-lost history or a life-lost event; the existing values expose life gained and whether an opponent lost life, not the controller's own life loss (including payments).
+// Audit: unsupported — Needs this player's life-lost history or a life-lost event; the existing
+// values expose life gained and whether an opponent lost life, not the controller's own life
+// loss (including payments).
 pub(in crate::card::sets) static WAX_WANE_WITNESS: CardRecord = CardRecord::new(
     "Wax-Wane Witness",
     "d90ea719-5320-46c6-a347-161853a14776",
@@ -1051,7 +1087,9 @@ pub(in crate::card::sets) static WAX_WANE_WITNESS: CardRecord = CardRecord::new(
 );
 
 // BLB 40 — Whiskervale Forerunner
-// Audit: unsupported — Needs per-object, per-controller target-selection history for the first matching targeting event each turn, including targeting while the ability was absent; a once-per-turn trigger limit does not record those earlier events.
+// Audit: unsupported — Needs per-object, per-controller target-selection history for the first
+// matching targeting event each turn, including targeting while the ability was absent; a
+// once-per-turn trigger limit does not record those earlier events.
 pub(in crate::card::sets) static WHISKERVALE_FORERUNNER: CardRecord = CardRecord::new(
     "Whiskervale Forerunner",
     "60a78d59-af31-4af9-95aa-2573fe553925",
@@ -1250,7 +1288,8 @@ pub(in crate::card::sets) static DAZZLING_DENIAL: CardRecord = CardRecord::new(
 );
 
 // BLB 46 — Dire Downdraft
-// Audit: unsupported — Needs a self-cost reduction based on the announced target being attacking or tapped; the self-cost evaluator does not read selected target predicates.
+// Audit: unsupported — Needs a self-cost reduction based on the announced target being
+// attacking or tapped; the self-cost evaluator does not read selected target predicates.
 pub(in crate::card::sets) static DIRE_DOWNDRAFT: CardRecord = CardRecord::new(
     "Dire Downdraft",
     "f1931f22-974c-43ad-911e-684bf3f9995d",
@@ -1259,7 +1298,9 @@ pub(in crate::card::sets) static DIRE_DOWNDRAFT: CardRecord = CardRecord::new(
 );
 
 // BLB 47 — Dour Port-Mage
-// Audit: unsupported — Needs a batched nondeath battlefield-exit event, excluding transitions to the graveyard; ObjectsDied covers only death batches and ordinary ZoneChanged fires per object.
+// Audit: unsupported — Needs a batched nondeath battlefield-exit event, excluding transitions
+// to the graveyard; ObjectsDied covers only death batches and ordinary ZoneChanged fires per
+// object.
 pub(in crate::card::sets) static DOUR_PORT_MAGE: CardRecord = CardRecord::new(
     "Dour Port-Mage",
     "6402133e-eed1-4a46-9667-8b7a310362c1",
@@ -1272,21 +1313,20 @@ pub(in crate::card::sets) static EDDYMURK_CRAB: CardRecord = CardRecord::new(
     "Eddymurk Crab",
     "e6d45abe-4962-47d9-a54e-7e623ea8647c",
     "PINDURSKI",
-    CardRules::new_creature(mana_cost!("{5}{U}{U}"), &["Elemental", "Crab"], 5, 5)
-        .with_abilities(&[
+    CardRules::new_creature(mana_cost!("{5}{U}{U}"), &["Elemental", "Crab"], 5, 5).with_abilities(
+        &[
             abilities::flash(),
             abilities::this_spell_cost_reduction(
-                "This spell costs {1} less to cast for each instant and sorcery card in your graveyard.",
-                ValueDef::CountMatchingObjects(
-                    &ObjectQueryDef::matching(
-                        ObjectPredicateDef::AnyOf(&[
-                            ObjectPredicateDef::HasType(CardType::Instant),
-                            ObjectPredicateDef::HasType(CardType::Sorcery),
-                        ]),
-                        &[ZoneKind::Graveyard],
-                        PlayerRelation::You,
-                    ),
-                ),
+                "This spell costs {1} less to cast for each instant and \
+                 sorcery card in your graveyard.",
+                ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Instant),
+                        ObjectPredicateDef::HasType(CardType::Sorcery),
+                    ]),
+                    &[ZoneKind::Graveyard],
+                    PlayerRelation::You,
+                )),
             ),
             AbilityDef::as_enters(
                 "This creature enters tapped if it's not your turn.",
@@ -1313,11 +1353,14 @@ pub(in crate::card::sets) static EDDYMURK_CRAB: CardRecord = CardRecord::new(
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 },
             ),
-        ]),
+        ],
+    ),
 );
 
 // BLB 49 — Eluge, the Shoreless Sea
-// Audit: unsupported — Needs a persistent land-type change gated by a flood counter and a first-instant-or-sorcery discount that can remove blue or generic mana per counted land; current cost adjustments do not express this alternative colored reduction.
+// Audit: unsupported — Needs a persistent land-type change gated by a flood counter and a
+// first-instant-or-sorcery discount that can remove blue or generic mana per counted land;
+// current cost adjustments do not express this alternative colored reduction.
 pub(in crate::card::sets) static ELUGE_THE_SHORELESS_SEA: CardRecord = CardRecord::new(
     "Eluge, the Shoreless Sea",
     "1f2bf6ba-cd1a-4382-9572-6dfbcf6ed0c6",
@@ -1450,7 +1493,9 @@ pub(in crate::card::sets) static GOSSIP_S_TALENT: CardRecord = CardRecord::new(
 );
 
 // BLB 52 — Into the Flood Maw
-// Audit: unsupported — Needs an optional casting-time gift promise independent of additional costs and a committed give-gift action at the correct resolution or entry timing; the current cost and named-action vocabulary does not represent that promise and gift event.
+// Audit: unsupported — Needs an optional casting-time gift promise independent of additional
+// costs and a committed give-gift action at the correct resolution or entry timing; the current
+// cost and named-action vocabulary does not represent that promise and gift event.
 pub(in crate::card::sets) static INTO_THE_FLOOD_MAW: CardRecord = CardRecord::new(
     "Into the Flood Maw",
     "50b9575a-53d9-4df7-b86c-cda021107d3f",
@@ -1459,7 +1504,9 @@ pub(in crate::card::sets) static INTO_THE_FLOOD_MAW: CardRecord = CardRecord::ne
 );
 
 // BLB 53 — Kitnap
-// Audit: unsupported — Needs an optional casting-time gift promise independent of additional costs and a committed give-gift action at the correct resolution or entry timing; the current cost and named-action vocabulary does not represent that promise and gift event.
+// Audit: unsupported — Needs an optional casting-time gift promise independent of additional
+// costs and a committed give-gift action at the correct resolution or entry timing; the current
+// cost and named-action vocabulary does not represent that promise and gift event.
 pub(in crate::card::sets) static KITNAP: CardRecord = CardRecord::new(
     "Kitnap",
     "085be5d1-fd85-46d1-ad39-a8aa75a06a96",
@@ -1472,7 +1519,7 @@ pub(in crate::card::sets) static KITSA_OTTERBALL_ELITE: CardRecord = CardRecord:
     "Kitsa, Otterball Elite",
     "c8ff751a-ec64-41d5-b22c-2a483ad9a9b2",
     "Zoltan Boros",
-// Two mana for a body that loots every turn it has nothing better to
+    // Two mana for a body that loots every turn it has nothing better to
     // do, and copies the spell that made it big enough on the turns it
     // does. Vigilance is why the tap is not a real cost.
     CardRules::new_creature(mana_cost!("{1}{U}"), &["Otter", "Wizard"], 1, 3)
@@ -1497,12 +1544,10 @@ pub(in crate::card::sets) static KITSA_OTTERBALL_ELITE: CardRecord = CardRecord:
                 ]),
             ),
             AbilityDef::activated_with_targets(
-                "{2}, {T}: Copy target instant or sorcery spell you control. You may choose new targets \
-                 for the copy. Activate only if Kitsa's power is 3 or greater.",
-                &[
-                    CostDef::Mana(mana_cost!("{2}")),
-                    CostDef::TapSource,
-                ],
+                "{2}, {T}: Copy target instant or sorcery spell you control. \
+                 You may choose new targets for the copy. Activate only if \
+                 Kitsa's power is 3 or greater.",
+                &[CostDef::Mana(mana_cost!("{2}")), CostDef::TapSource],
                 // Yours rather than anybody's: Kitsa copies what you are casting, not what
                 // is being cast at you.
                 &[AbilityTargetDef::exactly_one(
@@ -1530,11 +1575,13 @@ pub(in crate::card::sets) static KITSA_OTTERBALL_ELITE: CardRecord = CardRecord:
             // Read live where the activation is offered, so the prowess trigger from
             // the spell being copied is what turns the ability on: a 1/3 that has cast
             // two noncreature spells this turn is a 3/5.
-            .with_activation_condition(&TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+            .with_activation_condition(&TriggerConditionDef::ValueComparison(
+                &ValueComparisonDef {
                     left: ValueDef::SourcePower,
                     comparison: ComparisonDef::GreaterOrEqual,
                     right: ValueDef::Constant(3),
-                })),
+                },
+            )),
         ]),
 );
 
@@ -1582,7 +1629,9 @@ pub(in crate::card::sets) static LIGHTSHELL_DUO: CardRecord = CardRecord::new(
 );
 
 // BLB 57 — Long River Lurker
-// Audit: unsupported — Needs a delayed trigger that observes combat damage by a bound creature for this turn, including after the source Lurker leaves; the trigger matcher has no identity predicate for a captured object binding.
+// Audit: unsupported — Needs a delayed trigger that observes combat damage by a bound creature
+// for this turn, including after the source Lurker leaves; the trigger matcher has no identity
+// predicate for a captured object binding.
 pub(in crate::card::sets) static LONG_RIVER_LURKER: CardRecord = CardRecord::new(
     "Long River Lurker",
     "7c267719-cd03-4003-b281-e732d5e42a1e",
@@ -1591,7 +1640,9 @@ pub(in crate::card::sets) static LONG_RIVER_LURKER: CardRecord = CardRecord::new
 );
 
 // BLB 58 — Long River's Pull
-// Audit: unsupported — Needs an optional casting-time gift promise independent of additional costs and a committed give-gift action at the correct resolution or entry timing; the current cost and named-action vocabulary does not represent that promise and gift event.
+// Audit: unsupported — Needs an optional casting-time gift promise independent of additional
+// costs and a committed give-gift action at the correct resolution or entry timing; the current
+// cost and named-action vocabulary does not represent that promise and gift event.
 pub(in crate::card::sets) static LONG_RIVER_S_PULL: CardRecord = CardRecord::new(
     "Long River's Pull",
     "1c81d0fa-81a1-4f9b-a5fd-5a648fd01dea",
@@ -1600,7 +1651,9 @@ pub(in crate::card::sets) static LONG_RIVER_S_PULL: CardRecord = CardRecord::new
 );
 
 // BLB 59 — Mind Spiral
-// Audit: unsupported — Needs an optional casting-time gift promise independent of additional costs and a committed give-gift action at the correct resolution or entry timing; the current cost and named-action vocabulary does not represent that promise and gift event.
+// Audit: unsupported — Needs an optional casting-time gift promise independent of additional
+// costs and a committed give-gift action at the correct resolution or entry timing; the current
+// cost and named-action vocabulary does not represent that promise and gift event.
 pub(in crate::card::sets) static MIND_SPIRAL: CardRecord = CardRecord::new(
     "Mind Spiral",
     "7e24fe6a-607b-49b8-9fca-cecb1e40de7f",
@@ -1655,7 +1708,9 @@ pub(in crate::card::sets) static MINDWHISKER: CardRecord = CardRecord::new(
 );
 
 // BLB 61 — Mockingbird
-// Audit: unsupported — Needs actual mana spent to cast retained in the prospective entering object and usable as its copy-candidate mana-value bound; chosen X and printed mana value do not represent the amount paid.
+// Audit: unsupported — Needs actual mana spent to cast retained in the prospective entering
+// object and usable as its copy-candidate mana-value bound; chosen X and printed mana value do
+// not represent the amount paid.
 pub(in crate::card::sets) static MOCKINGBIRD: CardRecord = CardRecord::new(
     "Mockingbird",
     "ade32396-8841-4ba4-8852-d11146607f21",
@@ -1907,7 +1962,9 @@ const RUN_AWAY_TOGETHER_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // BLB 68 — Season of Weaving
-// Audit: unsupported — Needs repeated modal choices with a shared weighted pawprint budget; current modal selection constrains the number of modes and optional mana costs, not the sum of distinct mode weights.
+// Audit: unsupported — Needs repeated modal choices with a shared weighted pawprint budget;
+// current modal selection constrains the number of modes and optional mana costs, not the sum
+// of distinct mode weights.
 pub(in crate::card::sets) static SEASON_OF_WEAVING: CardRecord = CardRecord::new(
     "Season of Weaving",
     "f5713bb4-bdd9-4253-b6b9-e590532ed773",
@@ -2178,7 +2235,9 @@ pub(in crate::card::sets) static STORMCHASERS_TALENT: CardRecord = CardRecord::n
 );
 
 // BLB 76 — Sugar Coat
-// Audit: unsupported — Needs a static effect that replaces the enchanted permanent's card types; the supported static characteristic boundary rejects CardTypes(Set), although resolving temporary type changes are available.
+// Audit: unsupported — Needs a static effect that replaces the enchanted permanent's card
+// types; the supported static characteristic boundary rejects CardTypes(Set), although
+// resolving temporary type changes are available.
 pub(in crate::card::sets) static SUGAR_COAT: CardRecord = CardRecord::new(
     "Sugar Coat",
     "fcacbe71-efb0-49e1-b2d0-3ee65ec6cf8b",
@@ -2315,7 +2374,9 @@ pub(in crate::card::sets) static VALLEY_FLOODCALLER: CardRecord = CardRecord::ne
 );
 
 // BLB 80 — Waterspout Warden
-// Audit: unsupported — Needs controller-at-entry history for creatures that entered this turn, including ones that have since left; querying live permanents with EnteredThisTurn loses those events.
+// Audit: unsupported — Needs controller-at-entry history for creatures that entered this turn,
+// including ones that have since left; querying live permanents with EnteredThisTurn loses
+// those events.
 pub(in crate::card::sets) static WATERSPOUT_WARDEN: CardRecord = CardRecord::new(
     "Waterspout Warden",
     "35898b39-98e2-405b-8f18-0e054bd2c29e",
@@ -2324,7 +2385,9 @@ pub(in crate::card::sets) static WATERSPOUT_WARDEN: CardRecord = CardRecord::new
 );
 
 // BLB 81 — Wishing Well
-// Audit: unsupported — Needs a reflexive when-you-do trigger that chooses its targets after the preceding action succeeds, with an event binding retained even if the original source has left; ordinary targeted triggers choose targets too early.
+// Audit: unsupported — Needs a reflexive when-you-do trigger that chooses its targets after the
+// preceding action succeeds, with an event binding retained even if the original source has
+// left; ordinary targeted triggers choose targets too early.
 pub(in crate::card::sets) static WISHING_WELL: CardRecord = CardRecord::new(
     "Wishing Well",
     "edeb20aa-b253-49b8-9947-c397a3a4002a",
@@ -2470,7 +2533,8 @@ pub(in crate::card::sets) static BONEBIND_ORATOR: CardRecord = CardRecord::new(
 );
 
 // BLB 85 — Bonecache Overseer
-// Audit: unsupported — Needs per-player graveyard-departure counts and Food-sacrifice history for the turn, including events before this permanent entered, to gate its activation.
+// Audit: unsupported — Needs per-player graveyard-departure counts and Food-sacrifice history
+// for the turn, including events before this permanent entered, to gate its activation.
 pub(in crate::card::sets) static BONECACHE_OVERSEER: CardRecord = CardRecord::new(
     "Bonecache Overseer",
     "82defb87-237f-4b77-9673-5bf00607148f",
@@ -2479,7 +2543,9 @@ pub(in crate::card::sets) static BONECACHE_OVERSEER: CardRecord = CardRecord::ne
 );
 
 // BLB 86 — Coiling Rebirth
-// Audit: unsupported — Needs an optional casting-time gift promise independent of additional costs and a committed give-gift action at the correct resolution or entry timing; the current cost and named-action vocabulary does not represent that promise and gift event.
+// Audit: unsupported — Needs an optional casting-time gift promise independent of additional
+// costs and a committed give-gift action at the correct resolution or entry timing; the current
+// cost and named-action vocabulary does not represent that promise and gift event.
 pub(in crate::card::sets) static COILING_REBIRTH: CardRecord = CardRecord::new(
     "Coiling Rebirth",
     "96d5de3e-0440-4dd1-899c-ab40c0752343",
@@ -2488,7 +2554,9 @@ pub(in crate::card::sets) static COILING_REBIRTH: CardRecord = CardRecord::new(
 );
 
 // BLB 87 — Consumed by Greed
-// Audit: unsupported — Needs an optional casting-time gift promise independent of additional costs and a committed give-gift action at the correct resolution or entry timing; the current cost and named-action vocabulary does not represent that promise and gift event.
+// Audit: unsupported — Needs an optional casting-time gift promise independent of additional
+// costs and a committed give-gift action at the correct resolution or entry timing; the current
+// cost and named-action vocabulary does not represent that promise and gift event.
 pub(in crate::card::sets) static CONSUMED_BY_GREED: CardRecord = CardRecord::new(
     "Consumed by Greed",
     "e50acc41-3517-42db-b1d3-1bdfd7294d84",
@@ -2497,7 +2565,9 @@ pub(in crate::card::sets) static CONSUMED_BY_GREED: CardRecord = CardRecord::new
 );
 
 // BLB 88 — Cruelclaw's Heist
-// Audit: unsupported — Needs an optional casting-time gift promise independent of additional costs and a committed give-gift action at the correct resolution or entry timing; the current cost and named-action vocabulary does not represent that promise and gift event.
+// Audit: unsupported — Needs an optional casting-time gift promise independent of additional
+// costs and a committed give-gift action at the correct resolution or entry timing; the current
+// cost and named-action vocabulary does not represent that promise and gift event.
 pub(in crate::card::sets) static CRUELCLAW_S_HEIST: CardRecord = CardRecord::new(
     "Cruelclaw's Heist",
     "cab4539a-0157-4cbe-b50f-6e2575df74e9",
@@ -2898,7 +2968,9 @@ pub(in crate::card::sets) static MAHA_ITS_FEATHERS_NIGHT: CardRecord = CardRecor
 );
 
 // BLB 101 — Moonstone Harbinger
-// Audit: unsupported — Needs this player's life-lost history or a life-lost event; the existing values expose life gained and whether an opponent lost life, not the controller's own life loss (including payments).
+// Audit: unsupported — Needs this player's life-lost history or a life-lost event; the existing
+// values expose life gained and whether an opponent lost life, not the controller's own life
+// loss (including payments).
 pub(in crate::card::sets) static MOONSTONE_HARBINGER: CardRecord = CardRecord::new(
     "Moonstone Harbinger",
     "59e4aa8d-1d06-48db-b205-aa2f1392bbcb",
@@ -2907,7 +2979,9 @@ pub(in crate::card::sets) static MOONSTONE_HARBINGER: CardRecord = CardRecord::n
 );
 
 // BLB 102 — Nocturnal Hunger
-// Audit: unsupported — Needs an optional casting-time gift promise independent of additional costs and a committed give-gift action at the correct resolution or entry timing; the current cost and named-action vocabulary does not represent that promise and gift event.
+// Audit: unsupported — Needs an optional casting-time gift promise independent of additional
+// costs and a committed give-gift action at the correct resolution or entry timing; the current
+// cost and named-action vocabulary does not represent that promise and gift event.
 pub(in crate::card::sets) static NOCTURNAL_HUNGER: CardRecord = CardRecord::new(
     "Nocturnal Hunger",
     "742c0409-9abd-4559-b52e-932cc90c531a",
@@ -2916,7 +2990,9 @@ pub(in crate::card::sets) static NOCTURNAL_HUNGER: CardRecord = CardRecord::new(
 );
 
 // BLB 103 — Osteomancer Adept
-// Audit: unsupported — Needs a temporary graveyard casting permission that adds a forage cost and stamps the resulting permanent with a finality counter; current permission grants do not jointly carry those cast and entry modifications.
+// Audit: unsupported — Needs a temporary graveyard casting permission that adds a forage cost
+// and stamps the resulting permanent with a finality counter; current permission grants do not
+// jointly carry those cast and entry modifications.
 pub(in crate::card::sets) static OSTEOMANCER_ADEPT: CardRecord = CardRecord::new(
     "Osteomancer Adept",
     "7d8238dd-858f-466c-96de-986bd66861d7",
@@ -2925,7 +3001,9 @@ pub(in crate::card::sets) static OSTEOMANCER_ADEPT: CardRecord = CardRecord::new
 );
 
 // BLB 104 — Persistent Marshstalker
-// Audit: unsupported — Needs a graveyard return that enters tapped and attacking; WithBattlefieldArrival can enter tapped and with counters, but does not specify attacking for returning nontoken creatures.
+// Audit: unsupported — Needs a graveyard return that enters tapped and attacking;
+// WithBattlefieldArrival can enter tapped and with counters, but does not specify attacking for
+// returning nontoken creatures.
 pub(in crate::card::sets) static PERSISTENT_MARSHSTALKER: CardRecord = CardRecord::new(
     "Persistent Marshstalker",
     "8b900c71-713b-4b7e-b4be-ad9f4aa0c139",
@@ -2992,7 +3070,9 @@ pub(in crate::card::sets) static RAVINE_RAIDER: CardRecord = CardRecord::new(
 );
 
 // BLB 107 — Rottenmouth Viper
-// Audit: unsupported — Needs a variable optional additional sacrifice cost and a self-cost reduction computed from that payment; the self-cost evaluator does not consume those chosen sacrificed objects.
+// Audit: unsupported — Needs a variable optional additional sacrifice cost and a self-cost
+// reduction computed from that payment; the self-cost evaluator does not consume those chosen
+// sacrificed objects.
 pub(in crate::card::sets) static ROTTENMOUTH_VIPER: CardRecord = CardRecord::new(
     "Rottenmouth Viper",
     "735e79b1-a3a9-4ddf-8bbc-f756c8a0452b",
@@ -3211,7 +3291,9 @@ pub(in crate::card::sets) static SCAVENGER_S_TALENT: CardRecord = CardRecord::ne
 );
 
 // BLB 112 — Season of Loss
-// Audit: unsupported — Needs repeated modal choices with a shared weighted pawprint budget; current modal selection constrains the number of modes and optional mana costs, not the sum of distinct mode weights.
+// Audit: unsupported — Needs repeated modal choices with a shared weighted pawprint budget;
+// current modal selection constrains the number of modes and optional mana costs, not the sum
+// of distinct mode weights.
 pub(in crate::card::sets) static SEASON_OF_LOSS: CardRecord = CardRecord::new(
     "Season of Loss",
     "cc540652-916b-45c5-ae5a-0a0bc557cee1",
@@ -3315,7 +3397,9 @@ pub(in crate::card::sets) static STARGAZE: CardRecord = CardRecord::new(
 );
 
 // BLB 115 — Starlit Soothsayer
-// Audit: unsupported — Needs this player's life-lost history or a life-lost event; the existing values expose life gained and whether an opponent lost life, not the controller's own life loss (including payments).
+// Audit: unsupported — Needs this player's life-lost history or a life-lost event; the existing
+// values expose life gained and whether an opponent lost life, not the controller's own life
+// loss (including payments).
 pub(in crate::card::sets) static STARLIT_SOOTHSAYER: CardRecord = CardRecord::new(
     "Starlit Soothsayer",
     "184c1eca-2991-438f-b5d2-cd2529b9c9b4",
@@ -3356,7 +3440,9 @@ pub(in crate::card::sets) static STARSCAPE_CLERIC: CardRecord = CardRecord::new(
 );
 
 // BLB 117 — Thornplate Intimidator
-// Audit: unsupported — Needs a resolving payment choice between sacrificing a permanent and discarding a card; cost alternatives admit only scalar costs or public action selections, and cannot combine sacrifice with private hand selection.
+// Audit: unsupported — Needs a resolving payment choice between sacrificing a permanent and
+// discarding a card; cost alternatives admit only scalar costs or public action selections, and
+// cannot combine sacrifice with private hand selection.
 pub(in crate::card::sets) static THORNPLATE_INTIMIDATOR: CardRecord = CardRecord::new(
     "Thornplate Intimidator",
     "42f66c4a-feaa-4ba6-aa56-955b43329a9e",
@@ -3538,7 +3624,9 @@ pub(in crate::card::sets) static WICK_THE_WHORLED_MIND: CardRecord = CardRecord:
 );
 
 // BLB 121 — Wick's Patrol
-// Audit: unsupported — Needs a reflexive when-you-do trigger that chooses its targets after the preceding action succeeds, with an event binding retained even if the original source has left; ordinary targeted triggers choose targets too early.
+// Audit: unsupported — Needs a reflexive when-you-do trigger that chooses its targets after the
+// preceding action succeeds, with an event binding retained even if the original source has
+// left; ordinary targeted triggers choose targets too early.
 pub(in crate::card::sets) static WICK_S_PATROL: CardRecord = CardRecord::new(
     "Wick's Patrol",
     "5fa0c53d-fe7b-4b8b-ad81-7967ca318ff7",
@@ -3588,7 +3676,9 @@ pub(in crate::card::sets) static AGATE_ASSAULT: CardRecord = CardRecord::new(
 );
 
 // BLB 123 — Alania's Pathmaker
-// Audit: unsupported — Needs exile-play permission that expires at the end of the controller's next turn; UntilEndOfYourNextTurn currently uses a turn-count bound that also permits plays during the following opponent turn.
+// Audit: unsupported — Needs exile-play permission that expires at the end of the controller's
+// next turn; UntilEndOfYourNextTurn currently uses a turn-count bound that also permits plays
+// during the following opponent turn.
 pub(in crate::card::sets) static ALANIA_S_PATHMAKER: CardRecord = CardRecord::new(
     "Alania's Pathmaker",
     "d3871fe6-e26e-4ab4-bd81-7e3c7b8135c1",
@@ -3597,7 +3687,8 @@ pub(in crate::card::sets) static ALANIA_S_PATHMAKER: CardRecord = CardRecord::ne
 );
 
 // BLB 124 — Artist's Talent
-// Audit: unsupported — Needs level-granted static spell-cost reduction and a noncombat damage amount replacement for opposing recipients.
+// Audit: unsupported — Needs level-granted static spell-cost reduction and a noncombat damage
+// amount replacement for opposing recipients.
 pub(in crate::card::sets) static ARTIST_S_TALENT: CardRecord = CardRecord::new(
     "Artist's Talent",
     "8b9e51d9-189b-4dd6-87cb-628ea6373e81",
@@ -3606,7 +3697,8 @@ pub(in crate::card::sets) static ARTIST_S_TALENT: CardRecord = CardRecord::new(
 );
 
 // BLB 125 — Blacksmith's Talent
-// Audit: unsupported — Needs level-granted static ability grants to equipped creatures during your turn.
+// Audit: unsupported — Needs level-granted static ability grants to equipped creatures during
+// your turn.
 pub(in crate::card::sets) static BLACKSMITH_S_TALENT: CardRecord = CardRecord::new(
     "Blacksmith's Talent",
     "4bb318fa-481d-40a7-978e-f01b49101ae0",
@@ -3615,7 +3707,9 @@ pub(in crate::card::sets) static BLACKSMITH_S_TALENT: CardRecord = CardRecord::n
 );
 
 // BLB 126 — Blooming Blast
-// Audit: unsupported — Needs an optional casting-time gift promise independent of additional costs and a committed give-gift action at the correct resolution or entry timing; the current cost and named-action vocabulary does not represent that promise and gift event.
+// Audit: unsupported — Needs an optional casting-time gift promise independent of additional
+// costs and a committed give-gift action at the correct resolution or entry timing; the current
+// cost and named-action vocabulary does not represent that promise and gift event.
 pub(in crate::card::sets) static BLOOMING_BLAST: CardRecord = CardRecord::new(
     "Blooming Blast",
     "0cd92a83-cec3-4085-a929-3f204e3e0140",
@@ -3658,7 +3752,9 @@ pub(in crate::card::sets) static BRAMBLEGUARD_CAPTAIN: CardRecord = CardRecord::
 );
 
 // BLB 128 — Brazen Collector
-// Audit: unsupported — Needs individual produced mana units retained across step and phase changes until end of turn; AddMana does not carry a duration for retaining only this trigger's mana.
+// Audit: unsupported — Needs individual produced mana units retained across step and phase
+// changes until end of turn; AddMana does not carry a duration for retaining only this
+// trigger's mana.
 pub(in crate::card::sets) static BRAZEN_COLLECTOR: CardRecord = CardRecord::new(
     "Brazen Collector",
     "78b55a58-c669-4dc6-aa63-5d9dff52e613",
@@ -3667,7 +3763,9 @@ pub(in crate::card::sets) static BRAZEN_COLLECTOR: CardRecord = CardRecord::new(
 );
 
 // BLB 129 — Byway Barterer
-// Audit: unsupported — Needs an event for crossing a cumulative mana-spent-to-cast-spells threshold during the turn, counting actual mana paid rather than mana value or the number of spells.
+// Audit: unsupported — Needs an event for crossing a cumulative mana-spent-to-cast-spells
+// threshold during the turn, counting actual mana paid rather than mana value or the number of
+// spells.
 pub(in crate::card::sets) static BYWAY_BARTERER: CardRecord = CardRecord::new(
     "Byway Barterer",
     "f41fc718-641b-4f32-a8c1-3e5591a05bf8",
@@ -3739,7 +3837,9 @@ pub(in crate::card::sets) static CORUSCATION_MAGE: CardRecord = CardRecord::new(
 );
 
 // BLB 132 — Dragonhawk, Fate's Tempest
-// Audit: unsupported — Needs an exile-play permission expiring exactly at the next end step and a delayed trigger retaining the particular exiled group for its still-exiled count; the present next-end-step permission lasts beyond that step.
+// Audit: unsupported — Needs an exile-play permission expiring exactly at the next end step and
+// a delayed trigger retaining the particular exiled group for its still-exiled count; the
+// present next-end-step permission lasts beyond that step.
 pub(in crate::card::sets) static DRAGONHAWK_FATE_S_TEMPEST: CardRecord = CardRecord::new(
     "Dragonhawk, Fate's Tempest",
     "8659789c-6a2c-439f-a348-b9b1b06c55b8",
@@ -3748,7 +3848,9 @@ pub(in crate::card::sets) static DRAGONHAWK_FATE_S_TEMPEST: CardRecord = CardRec
 );
 
 // BLB 133 — Emberheart Challenger
-// Audit: unsupported — Needs per-object, per-controller target-selection history for the first matching targeting event each turn, including targeting while the ability was absent; a once-per-turn trigger limit does not record those earlier events.
+// Audit: unsupported — Needs per-object, per-controller target-selection history for the first
+// matching targeting event each turn, including targeting while the ability was absent; a
+// once-per-turn trigger limit does not record those earlier events.
 pub(in crate::card::sets) static EMBERHEART_CHALLENGER: CardRecord = CardRecord::new(
     "Emberheart Challenger",
     "0035082e-bb86-4f95-be48-ffc87fe5286d",
@@ -3757,7 +3859,9 @@ pub(in crate::card::sets) static EMBERHEART_CHALLENGER: CardRecord = CardRecord:
 );
 
 // BLB 134 — Festival of Embers
-// Audit: unsupported — Needs a graveyard casting permission that adds a life payment to the spell's ordinary cost while retaining independent alternative costs; current granted-alternative paths replace the mana cost instead.
+// Audit: unsupported — Needs a graveyard casting permission that adds a life payment to the
+// spell's ordinary cost while retaining independent alternative costs; current
+// granted-alternative paths replace the mana cost instead.
 pub(in crate::card::sets) static FESTIVAL_OF_EMBERS: CardRecord = CardRecord::new(
     "Festival of Embers",
     "4433ee12-2013-4fdc-979f-ae065f63a527",
@@ -3797,7 +3901,9 @@ pub(in crate::card::sets) static FLAMECACHE_GECKO: CardRecord = CardRecord::new(
 );
 
 // BLB 136 — Frilled Sparkshooter
-// Audit: unsupported — Needs battlefield-entry counter modifications based on which opponents lost life this turn; the entry replacement conditions expose damage dealt to an opponent, which excludes life loss and payments.
+// Audit: unsupported — Needs battlefield-entry counter modifications based on which opponents
+// lost life this turn; the entry replacement conditions expose damage dealt to an opponent,
+// which excludes life loss and payments.
 pub(in crate::card::sets) static FRILLED_SPARKSHOOTER: CardRecord = CardRecord::new(
     "Frilled Sparkshooter",
     "674bbd6d-e329-42cf-963d-88d1ce8fe51e",
@@ -3843,7 +3949,9 @@ pub(in crate::card::sets) static HARNESSER_OF_STORMS: CardRecord = CardRecord::n
 );
 
 // BLB 138 — Heartfire Hero
-// Audit: unsupported — Needs per-object, per-controller target-selection history for the first matching targeting event each turn, including targeting while the ability was absent; a once-per-turn trigger limit does not record those earlier events.
+// Audit: unsupported — Needs per-object, per-controller target-selection history for the first
+// matching targeting event each turn, including targeting while the ability was absent; a
+// once-per-turn trigger limit does not record those earlier events.
 pub(in crate::card::sets) static HEARTFIRE_HERO: CardRecord = CardRecord::new(
     "Heartfire Hero",
     "48ace959-66b2-40c8-9bff-fd7ed9c99a82",
@@ -3925,7 +4033,9 @@ pub(in crate::card::sets) static HIRED_CLAW: CardRecord = CardRecord::new(
 );
 
 // BLB 141 — Hoarder's Overflow
-// Audit: unsupported — Needs an event for crossing a cumulative mana-spent-to-cast-spells threshold during the turn, counting actual mana paid rather than mana value or the number of spells.
+// Audit: unsupported — Needs an event for crossing a cumulative mana-spent-to-cast-spells
+// threshold during the turn, counting actual mana paid rather than mana value or the number of
+// spells.
 pub(in crate::card::sets) static HOARDER_S_OVERFLOW: CardRecord = CardRecord::new(
     "Hoarder's Overflow",
     "c2ed5079-07b4-4575-a2c8-5f0cbff888c3",
@@ -4216,7 +4326,9 @@ pub(in crate::card::sets) static REPTILIAN_RECRUITER: CardRecord = CardRecord::n
 );
 
 // BLB 150 — Roughshod Duo
-// Audit: unsupported — Needs an event for crossing a cumulative mana-spent-to-cast-spells threshold during the turn, counting actual mana paid rather than mana value or the number of spells.
+// Audit: unsupported — Needs an event for crossing a cumulative mana-spent-to-cast-spells
+// threshold during the turn, counting actual mana paid rather than mana value or the number of
+// spells.
 pub(in crate::card::sets) static ROUGHSHOD_DUO: CardRecord = CardRecord::new(
     "Roughshod Duo",
     "78cdcfb9-a247-4c2d-a098-5b57570f8cd5",
@@ -4225,7 +4337,9 @@ pub(in crate::card::sets) static ROUGHSHOD_DUO: CardRecord = CardRecord::new(
 );
 
 // BLB 151 — Sazacap's Brew
-// Audit: unsupported — Needs an optional casting-time gift promise independent of additional costs and a committed give-gift action at the correct resolution or entry timing; the current cost and named-action vocabulary does not represent that promise and gift event.
+// Audit: unsupported — Needs an optional casting-time gift promise independent of additional
+// costs and a committed give-gift action at the correct resolution or entry timing; the current
+// cost and named-action vocabulary does not represent that promise and gift event.
 pub(in crate::card::sets) static SAZACAP_S_BREW: CardRecord = CardRecord::new(
     "Sazacap's Brew",
     "6d963080-b3ec-467d-82f7-39db6ecd6bbc",
@@ -4234,7 +4348,9 @@ pub(in crate::card::sets) static SAZACAP_S_BREW: CardRecord = CardRecord::new(
 );
 
 // BLB 152 — Season of the Bold
-// Audit: unsupported — Needs repeated modal choices with a shared weighted pawprint budget; current modal selection constrains the number of modes and optional mana costs, not the sum of distinct mode weights.
+// Audit: unsupported — Needs repeated modal choices with a shared weighted pawprint budget;
+// current modal selection constrains the number of modes and optional mana costs, not the sum
+// of distinct mode weights.
 pub(in crate::card::sets) static SEASON_OF_THE_BOLD: CardRecord = CardRecord::new(
     "Season of the Bold",
     "84352565-558b-4f9b-a411-532147806a78",
@@ -4414,7 +4530,9 @@ pub(in crate::card::sets) static TAKE_OUT_THE_TRASH: CardRecord = CardRecord::ne
 );
 
 // BLB 157 — Teapot Slinger
-// Audit: unsupported — Needs an event for crossing a cumulative mana-spent-to-cast-spells threshold during the turn, counting actual mana paid rather than mana value or the number of spells.
+// Audit: unsupported — Needs an event for crossing a cumulative mana-spent-to-cast-spells
+// threshold during the turn, counting actual mana paid rather than mana value or the number of
+// spells.
 pub(in crate::card::sets) static TEAPOT_SLINGER: CardRecord = CardRecord::new(
     "Teapot Slinger",
     "30506844-349f-4b68-8cc1-d028c1611cc7",
@@ -4423,7 +4541,9 @@ pub(in crate::card::sets) static TEAPOT_SLINGER: CardRecord = CardRecord::new(
 );
 
 // BLB 158 — Valley Flamecaller
-// Audit: unsupported — Needs an additive damage replacement selected by the damage source's controller and creature types; the replacement vocabulary does not expose a prospective damage event with a mutable amount.
+// Audit: unsupported — Needs an additive damage replacement selected by the damage source's
+// controller and creature types; the replacement vocabulary does not expose a prospective
+// damage event with a mutable amount.
 pub(in crate::card::sets) static VALLEY_FLAMECALLER: CardRecord = CardRecord::new(
     "Valley Flamecaller",
     "a0812db4-b7d1-4cf7-aaa5-9c0e784079a1",
@@ -4432,7 +4552,9 @@ pub(in crate::card::sets) static VALLEY_FLAMECALLER: CardRecord = CardRecord::ne
 );
 
 // BLB 159 — Valley Rally
-// Audit: unsupported — Needs an optional casting-time gift promise independent of additional costs and a committed give-gift action at the correct resolution or entry timing; the current cost and named-action vocabulary does not represent that promise and gift event.
+// Audit: unsupported — Needs an optional casting-time gift promise independent of additional
+// costs and a committed give-gift action at the correct resolution or entry timing; the current
+// cost and named-action vocabulary does not represent that promise and gift event.
 pub(in crate::card::sets) static VALLEY_RALLY: CardRecord = CardRecord::new(
     "Valley Rally",
     "b6178258-1ad6-4122-a56f-6eb7d0611e84",
@@ -4483,7 +4605,9 @@ pub(in crate::card::sets) static WAR_SQUEAK: CardRecord = CardRecord::new(
 );
 
 // BLB 161 — Whiskerquill Scribe
-// Audit: unsupported — Needs per-object, per-controller target-selection history for the first matching targeting event each turn, including targeting while the ability was absent; a once-per-turn trigger limit does not record those earlier events.
+// Audit: unsupported — Needs per-object, per-controller target-selection history for the first
+// matching targeting event each turn, including targeting while the ability was absent; a
+// once-per-turn trigger limit does not record those earlier events.
 pub(in crate::card::sets) static WHISKERQUILL_SCRIBE: CardRecord = CardRecord::new(
     "Whiskerquill Scribe",
     "da653996-9bd4-40bd-afb4-48c7e070a269",
@@ -4492,7 +4616,9 @@ pub(in crate::card::sets) static WHISKERQUILL_SCRIBE: CardRecord = CardRecord::n
 );
 
 // BLB 162 — Wildfire Howl
-// Audit: unsupported — Needs an optional casting-time gift promise independent of additional costs and a committed give-gift action at the correct resolution or entry timing; the current cost and named-action vocabulary does not represent that promise and gift event.
+// Audit: unsupported — Needs an optional casting-time gift promise independent of additional
+// costs and a committed give-gift action at the correct resolution or entry timing; the current
+// cost and named-action vocabulary does not represent that promise and gift event.
 pub(in crate::card::sets) static WILDFIRE_HOWL: CardRecord = CardRecord::new(
     "Wildfire Howl",
     "7392d397-9836-4df2-944d-c930c9566811",
@@ -4501,7 +4627,9 @@ pub(in crate::card::sets) static WILDFIRE_HOWL: CardRecord = CardRecord::new(
 );
 
 // BLB 163 — Bakersbane Duo
-// Audit: unsupported — Needs an event for crossing a cumulative mana-spent-to-cast-spells threshold during the turn, counting actual mana paid rather than mana value or the number of spells.
+// Audit: unsupported — Needs an event for crossing a cumulative mana-spent-to-cast-spells
+// threshold during the turn, counting actual mana paid rather than mana value or the number of
+// spells.
 pub(in crate::card::sets) static BAKERSBANE_DUO: CardRecord = CardRecord::new(
     "Bakersbane Duo",
     "5309354f-1ff4-4fa9-9141-01ea2f7588ab",
@@ -4510,7 +4638,9 @@ pub(in crate::card::sets) static BAKERSBANE_DUO: CardRecord = CardRecord::new(
 );
 
 // BLB 164 — Bark-Knuckle Boxer
-// Audit: unsupported — Needs an event for crossing a cumulative mana-spent-to-cast-spells threshold during the turn, counting actual mana paid rather than mana value or the number of spells.
+// Audit: unsupported — Needs an event for crossing a cumulative mana-spent-to-cast-spells
+// threshold during the turn, counting actual mana paid rather than mana value or the number of
+// spells.
 pub(in crate::card::sets) static BARK_KNUCKLE_BOXER: CardRecord = CardRecord::new(
     "Bark-Knuckle Boxer",
     "582637a9-6aa0-4824-bed7-d5fc91bda35e",
@@ -4519,7 +4649,9 @@ pub(in crate::card::sets) static BARK_KNUCKLE_BOXER: CardRecord = CardRecord::ne
 );
 
 // BLB 165 — Brambleguard Veteran
-// Audit: unsupported — Needs an event for crossing a cumulative mana-spent-to-cast-spells threshold during the turn, counting actual mana paid rather than mana value or the number of spells.
+// Audit: unsupported — Needs an event for crossing a cumulative mana-spent-to-cast-spells
+// threshold during the turn, counting actual mana paid rather than mana value or the number of
+// spells.
 pub(in crate::card::sets) static BRAMBLEGUARD_VETERAN: CardRecord = CardRecord::new(
     "Brambleguard Veteran",
     "bac9f6f8-6797-4580-9fc4-9a825872e017",
@@ -4690,7 +4822,9 @@ pub(in crate::card::sets) static CLIFFTOP_LOOKOUT: CardRecord = CardRecord::new(
 );
 
 // BLB 169 — Curious Forager
-// Audit: unsupported — Needs a reflexive when-you-do trigger that chooses its targets after the preceding action succeeds, with an event binding retained even if the original source has left; ordinary targeted triggers choose targets too early.
+// Audit: unsupported — Needs a reflexive when-you-do trigger that chooses its targets after the
+// preceding action succeeds, with an event binding retained even if the original source has
+// left; ordinary targeted triggers choose targets too early.
 pub(in crate::card::sets) static CURIOUS_FORAGER: CardRecord = CardRecord::new(
     "Curious Forager",
     "64653b4a-e139-45f9-a915-ab49afb6b795",
@@ -5260,7 +5394,8 @@ pub(in crate::card::sets) static HUNTER_S_TALENT: CardRecord = CardRecord::new(
 );
 
 // BLB 180 — Innkeeper's Talent
-// Audit: unsupported — Needs counter-placement replacement over permanent and player counters and level-granted static ward grants.
+// Audit: unsupported — Needs counter-placement replacement over permanent and player counters
+// and level-granted static ward grants.
 pub(in crate::card::sets) static INNKEEPER_S_TALENT: CardRecord = CardRecord::new(
     "Innkeeper's Talent",
     "941b0afc-0e8f-45f2-ae7f-07595e164611",
@@ -5277,7 +5412,9 @@ const KEEN_EYED_CURATOR_ALTERNATE_1: PrintingRecord = PrintingRecord::alternate(
 );
 
 // BLB 182 — Longstalk Brawl
-// Audit: unsupported — Needs an optional casting-time gift promise independent of additional costs and a committed give-gift action at the correct resolution or entry timing; the current cost and named-action vocabulary does not represent that promise and gift event.
+// Audit: unsupported — Needs an optional casting-time gift promise independent of additional
+// costs and a committed give-gift action at the correct resolution or entry timing; the current
+// cost and named-action vocabulary does not represent that promise and gift event.
 pub(in crate::card::sets) static LONGSTALK_BRAWL: CardRecord = CardRecord::new(
     "Longstalk Brawl",
     "c7ef748c-b5e5-4e7d-bf2e-d3e6c08edb42",
@@ -5496,7 +5633,9 @@ pub(in crate::card::sets) static PAWPATCH_FORMATION: CardRecord = CardRecord::ne
 );
 
 // BLB 187 — Pawpatch Recruit
-// Audit: unsupported — Needs target legality that excludes the creature whose targeting caused this trigger; ordinary target predicates cannot compare a candidate's identity with the event's targeted creature.
+// Audit: unsupported — Needs target legality that excludes the creature whose targeting caused
+// this trigger; ordinary target predicates cannot compare a candidate's identity with the
+// event's targeted creature.
 pub(in crate::card::sets) static PAWPATCH_RECRUIT: CardRecord = CardRecord::new(
     "Pawpatch Recruit",
     "7d4d88ba-0ee4-4f66-995b-2e50614f50ee",
@@ -5505,7 +5644,9 @@ pub(in crate::card::sets) static PAWPATCH_RECRUIT: CardRecord = CardRecord::new(
 );
 
 // BLB 188 — Peerless Recycling
-// Audit: unsupported — Needs an optional casting-time gift promise independent of additional costs and a committed give-gift action at the correct resolution or entry timing; the current cost and named-action vocabulary does not represent that promise and gift event.
+// Audit: unsupported — Needs an optional casting-time gift promise independent of additional
+// costs and a committed give-gift action at the correct resolution or entry timing; the current
+// cost and named-action vocabulary does not represent that promise and gift event.
 pub(in crate::card::sets) static PEERLESS_RECYCLING: CardRecord = CardRecord::new(
     "Peerless Recycling",
     "5f72466c-505b-4371-9366-0fde525a37e6",
@@ -5583,7 +5724,9 @@ pub(in crate::card::sets) static RUST_SHIELD_RAMPAGER: CardRecord = CardRecord::
 );
 
 // BLB 191 — Scrapshooter
-// Audit: unsupported — Needs an optional casting-time gift promise independent of additional costs and a committed give-gift action at the correct resolution or entry timing; the current cost and named-action vocabulary does not represent that promise and gift event.
+// Audit: unsupported — Needs an optional casting-time gift promise independent of additional
+// costs and a committed give-gift action at the correct resolution or entry timing; the current
+// cost and named-action vocabulary does not represent that promise and gift event.
 pub(in crate::card::sets) static SCRAPSHOOTER: CardRecord = CardRecord::new(
     "Scrapshooter",
     "c42ab407-e72d-4c48-9a9e-2055b5e71c69",
@@ -5592,7 +5735,9 @@ pub(in crate::card::sets) static SCRAPSHOOTER: CardRecord = CardRecord::new(
 );
 
 // BLB 192 — Season of Gathering
-// Audit: unsupported — Needs repeated modal choices with a shared weighted pawprint budget; current modal selection constrains the number of modes and optional mana costs, not the sum of distinct mode weights.
+// Audit: unsupported — Needs repeated modal choices with a shared weighted pawprint budget;
+// current modal selection constrains the number of modes and optional mana costs, not the sum
+// of distinct mode weights.
 pub(in crate::card::sets) static SEASON_OF_GATHERING: CardRecord = CardRecord::new(
     "Season of Gathering",
     "71dd3c27-e0d5-434e-a0f3-4a95245e21c2",
@@ -5629,7 +5774,9 @@ pub(in crate::card::sets) static STICKYTONGUE_SENTINEL: CardRecord = CardRecord:
 );
 
 // BLB 194 — Stocking the Pantry
-// Audit: unsupported — Needs counter-placement events to identify the player putting the counters; the present event carries only the recipient, kind, and amount, so it would also trigger when an opponent puts counters on your creature.
+// Audit: unsupported — Needs counter-placement events to identify the player putting the
+// counters; the present event carries only the recipient, kind, and amount, so it would also
+// trigger when an opponent puts counters on your creature.
 pub(in crate::card::sets) static STOCKING_THE_PANTRY: CardRecord = CardRecord::new(
     "Stocking the Pantry",
     "50e95c7b-f0b2-4276-8c5e-4191b7ba35d1",
@@ -5695,7 +5842,8 @@ pub(in crate::card::sets) static TENDER_WILDGUIDE: CardRecord = CardRecord::new(
 );
 
 // BLB 197 — Thornvault Forager
-// Audit: unsupported — Needs forage branch and object selection during a mana-ability payment; the immediate mana path does not accept CostDef::Perform action programs.
+// Audit: unsupported — Needs forage branch and object selection during a mana-ability payment;
+// the immediate mana path does not accept CostDef::Perform action programs.
 pub(in crate::card::sets) static THORNVAULT_FORAGER: CardRecord = CardRecord::new(
     "Thornvault Forager",
     "8c2d6b02-a453-40f9-992a-5c5542987cfb",
@@ -5866,7 +6014,9 @@ pub(in crate::card::sets) static VALLEY_MIGHTCALLER: CardRecord = CardRecord::ne
 );
 
 // BLB 203 — Wear Down
-// Audit: unsupported — Needs an optional casting-time gift promise independent of additional costs and a committed give-gift action at the correct resolution or entry timing; the current cost and named-action vocabulary does not represent that promise and gift event.
+// Audit: unsupported — Needs an optional casting-time gift promise independent of additional
+// costs and a committed give-gift action at the correct resolution or entry timing; the current
+// cost and named-action vocabulary does not represent that promise and gift event.
 pub(in crate::card::sets) static WEAR_DOWN: CardRecord = CardRecord::new(
     "Wear Down",
     "fded2b83-3b7d-4c8c-83c4-0624a1069628",
@@ -5875,7 +6025,9 @@ pub(in crate::card::sets) static WEAR_DOWN: CardRecord = CardRecord::new(
 );
 
 // BLB 204 — Alania, Divergent Storm
-// Audit: unsupported — Needs first-Otter cast history that excludes the spell which became this particular Alania; filtered spell history exists, but its Source predicate compares the current permanent incarnation rather than its predecessor spell.
+// Audit: unsupported — Needs first-Otter cast history that excludes the spell which became this
+// particular Alania; filtered spell history exists, but its Source predicate compares the
+// current permanent incarnation rather than its predecessor spell.
 pub(in crate::card::sets) static ALANIA_DIVERGENT_STORM: CardRecord = CardRecord::new(
     "Alania, Divergent Storm",
     "436d6a84-4cea-4ca7-94aa-9d08280652af",
@@ -5884,7 +6036,9 @@ pub(in crate::card::sets) static ALANIA_DIVERGENT_STORM: CardRecord = CardRecord
 );
 
 // BLB 205 — Baylen, the Haymaker
-// Audit: unsupported — Needs a mana-ability payment selecting and tapping two untapped tokens, including creatures with summoning sickness; multi-permanent tap costs are currently supported only by ordinary activated abilities.
+// Audit: unsupported — Needs a mana-ability payment selecting and tapping two untapped tokens,
+// including creatures with summoning sickness; multi-permanent tap costs are currently
+// supported only by ordinary activated abilities.
 pub(in crate::card::sets) static BAYLEN_THE_HAYMAKER: CardRecord = CardRecord::new(
     "Baylen, the Haymaker",
     "00e93be2-e06b-4774-8ba5-ccf82a6da1d8",
@@ -5922,7 +6076,9 @@ pub(in crate::card::sets) static BURROWGUARD_MENTOR: CardRecord = CardRecord::ne
 );
 
 // BLB 207 — Camellia, the Seedmiser
-// Audit: unsupported — Needs a batched sacrifice event so sacrificing several Foods together creates exactly one Squirrel; Sacrificed currently observes each individual sacrificed object.
+// Audit: unsupported — Needs a batched sacrifice event so sacrificing several Foods together
+// creates exactly one Squirrel; Sacrificed currently observes each individual sacrificed
+// object.
 pub(in crate::card::sets) static CAMELLIA_THE_SEEDMISER: CardRecord = CardRecord::new(
     "Camellia, the Seedmiser",
     "2c16eaec-924c-42f6-9fea-07edd7ed93b9",
@@ -5931,7 +6087,9 @@ pub(in crate::card::sets) static CAMELLIA_THE_SEEDMISER: CardRecord = CardRecord
 );
 
 // BLB 208 — Cindering Cutthroat
-// Audit: unsupported — Needs battlefield-entry counter modifications based on which opponents lost life this turn; the entry replacement conditions expose damage dealt to an opponent, which excludes life loss and payments.
+// Audit: unsupported — Needs battlefield-entry counter modifications based on which opponents
+// lost life this turn; the entry replacement conditions expose damage dealt to an opponent,
+// which excludes life loss and payments.
 pub(in crate::card::sets) static CINDERING_CUTTHROAT: CardRecord = CardRecord::new(
     "Cindering Cutthroat",
     "b2ea10dd-21ea-4622-be27-79d03a802b85",
@@ -5940,7 +6098,9 @@ pub(in crate::card::sets) static CINDERING_CUTTHROAT: CardRecord = CardRecord::n
 );
 
 // BLB 209 — Clement, the Worrywort
-// Audit: unsupported — Needs a target mana-value bound read from the entering or dying event object, including its last-known characteristics; dynamic target predicates currently evaluate values from the ability source without the triggering-object context.
+// Audit: unsupported — Needs a target mana-value bound read from the entering or dying event
+// object, including its last-known characteristics; dynamic target predicates currently
+// evaluate values from the ability source without the triggering-object context.
 pub(in crate::card::sets) static CLEMENT_THE_WORRYWORT: CardRecord = CardRecord::new(
     "Clement, the Worrywort",
     "7028130c-c91d-4bf7-b0b0-450f71107d7a",
@@ -6080,7 +6240,9 @@ pub(in crate::card::sets) static FINNEAS_ACE_ARCHER: CardRecord = CardRecord::ne
 );
 
 // BLB 213 — Fireglass Mentor
-// Audit: unsupported — Needs a resolving instruction to grant this-turn play permission to one chosen card already in exile, without moving it again; the existing controller-play instruction bundles permission with exiling the object.
+// Audit: unsupported — Needs a resolving instruction to grant this-turn play permission to one
+// chosen card already in exile, without moving it again; the existing controller-play
+// instruction bundles permission with exiling the object.
 pub(in crate::card::sets) static FIREGLASS_MENTOR: CardRecord = CardRecord::new(
     "Fireglass Mentor",
     "b78fbaa3-c580-4290-9c28-b74169aab2fc",
@@ -6089,7 +6251,9 @@ pub(in crate::card::sets) static FIREGLASS_MENTOR: CardRecord = CardRecord::new(
 );
 
 // BLB 214 — Gev, Scaled Scorch
-// Audit: unsupported — Needs battlefield-entry counter modifications based on which opponents lost life this turn; the entry replacement conditions expose damage dealt to an opponent, which excludes life loss and payments.
+// Audit: unsupported — Needs battlefield-entry counter modifications based on which opponents
+// lost life this turn; the entry replacement conditions expose damage dealt to an opponent,
+// which excludes life loss and payments.
 pub(in crate::card::sets) static GEV_SCALED_SCORCH: CardRecord = CardRecord::new(
     "Gev, Scaled Scorch",
     "131ea976-289e-4f32-896d-27bbfd423ba9",
@@ -6155,7 +6319,9 @@ pub(in crate::card::sets) static HEAD_OF_THE_HOMESTEAD: CardRecord = CardRecord:
 );
 
 // BLB 217 — Helga, Skittish Seer
-// Audit: unsupported — Needs a mana-spend predicate for an X symbol in a creature spell's printed mana cost, independent of its chosen X and mana value, to express both permitted spell categories.
+// Audit: unsupported — Needs a mana-spend predicate for an X symbol in a creature spell's
+// printed mana cost, independent of its chosen X and mana value, to express both permitted
+// spell categories.
 pub(in crate::card::sets) static HELGA_SKITTISH_SEER: CardRecord = CardRecord::new(
     "Helga, Skittish Seer",
     "40339715-22d0-4f99-822b-a00d9824f27a",
@@ -6164,7 +6330,9 @@ pub(in crate::card::sets) static HELGA_SKITTISH_SEER: CardRecord = CardRecord::n
 );
 
 // BLB 218 — Hugs, Grisly Guardian
-// Audit: unsupported — Needs cast X retained for a departed enters-trigger source and exile-play permission expiring at the end of the controller's next turn; the current next-turn expiry lasts until their following turn instead.
+// Audit: unsupported — Needs cast X retained for a departed enters-trigger source and
+// exile-play permission expiring at the end of the controller's next turn; the current
+// next-turn expiry lasts until their following turn instead.
 pub(in crate::card::sets) static HUGS_GRISLY_GUARDIAN: CardRecord = CardRecord::new(
     "Hugs, Grisly Guardian",
     "f09d7f4a-c947-4389-befa-1d547d0d1237",
@@ -6222,7 +6390,9 @@ pub(in crate::card::sets) static THE_INFAMOUS_CRUELCLAW: CardRecord = CardRecord
 );
 
 // BLB 220 — Junkblade Bruiser
-// Audit: unsupported — Needs an event for crossing a cumulative mana-spent-to-cast-spells threshold during the turn, counting actual mana paid rather than mana value or the number of spells.
+// Audit: unsupported — Needs an event for crossing a cumulative mana-spent-to-cast-spells
+// threshold during the turn, counting actual mana paid rather than mana value or the number of
+// spells.
 pub(in crate::card::sets) static JUNKBLADE_BRUISER: CardRecord = CardRecord::new(
     "Junkblade Bruiser",
     "918fd89b-5ab7-4ae2-920c-faca5e9da7b9",
@@ -6362,7 +6532,9 @@ pub(in crate::card::sets) static LILYSPLASH_MENTOR: CardRecord = CardRecord::new
 );
 
 // BLB 223 — Lunar Convocation
-// Audit: unsupported — Needs this player's life-lost history or a life-lost event; the existing values expose life gained and whether an opponent lost life, not the controller's own life loss (including payments).
+// Audit: unsupported — Needs this player's life-lost history or a life-lost event; the existing
+// values expose life gained and whether an opponent lost life, not the controller's own life
+// loss (including payments).
 pub(in crate::card::sets) static LUNAR_CONVOCATION: CardRecord = CardRecord::new(
     "Lunar Convocation",
     "a9ee50d4-c878-457b-964d-29c039ce9852",
@@ -6489,7 +6661,9 @@ pub(in crate::card::sets) static MOONRISE_CLERIC: CardRecord = CardRecord::new(
 );
 
 // BLB 227 — Muerra, Trash Tactician
-// Audit: unsupported — Needs an event for crossing a cumulative mana-spent-to-cast-spells threshold during the turn, counting actual mana paid rather than mana value or the number of spells.
+// Audit: unsupported — Needs an event for crossing a cumulative mana-spent-to-cast-spells
+// threshold during the turn, counting actual mana paid rather than mana value or the number of
+// spells.
 pub(in crate::card::sets) static MUERRA_TRASH_TACTICIAN: CardRecord = CardRecord::new(
     "Muerra, Trash Tactician",
     "b40e4658-fd68-46d0-9a89-25570a023d19",
@@ -6559,7 +6733,9 @@ pub(in crate::card::sets) static POND_PROPHET: CardRecord = CardRecord::new(
 );
 
 // BLB 230 — Ral, Crackling Wit
-// Audit: unsupported — Needs an emblem to grant storm as a spell ability to instant and sorcery spells on the stack; continuous executable-ability grants currently operate on battlefield permanents, not those spell objects.
+// Audit: unsupported — Needs an emblem to grant storm as a spell ability to instant and sorcery
+// spells on the stack; continuous executable-ability grants currently operate on battlefield
+// permanents, not those spell objects.
 pub(in crate::card::sets) static RAL_CRACKLING_WIT: CardRecord = CardRecord::new(
     "Ral, Crackling Wit",
     "acfde780-899a-4c5b-a39b-f4a3ff129103",
@@ -6568,7 +6744,9 @@ pub(in crate::card::sets) static RAL_CRACKLING_WIT: CardRecord = CardRecord::new
 );
 
 // BLB 231 — Seedglaive Mentor
-// Audit: unsupported — Needs per-object, per-controller target-selection history for the first matching targeting event each turn, including targeting while the ability was absent; a once-per-turn trigger limit does not record those earlier events.
+// Audit: unsupported — Needs per-object, per-controller target-selection history for the first
+// matching targeting event each turn, including targeting while the ability was absent; a
+// once-per-turn trigger limit does not record those earlier events.
 pub(in crate::card::sets) static SEEDGLAIVE_MENTOR: CardRecord = CardRecord::new(
     "Seedglaive Mentor",
     "d21c3e41-0636-49a3-8c9c-384c5e5c9c3e",
@@ -6613,7 +6791,9 @@ pub(in crate::card::sets) static SEEDPOD_SQUIRE: CardRecord = CardRecord::new(
 );
 
 // BLB 233 — Starseer Mentor
-// Audit: unsupported — Needs this player's life-lost history or a life-lost event; the existing values expose life gained and whether an opponent lost life, not the controller's own life loss (including payments).
+// Audit: unsupported — Needs this player's life-lost history or a life-lost event; the existing
+// values expose life gained and whether an opponent lost life, not the controller's own life
+// loss (including payments).
 pub(in crate::card::sets) static STARSEER_MENTOR: CardRecord = CardRecord::new(
     "Starseer Mentor",
     "6b2f6dc5-9fe8-49c1-b24c-1d99ce1da619",
@@ -6710,7 +6890,9 @@ pub(in crate::card::sets) static TIDECALLER_MENTOR: CardRecord = CardRecord::new
 );
 
 // BLB 237 — Veteran Guardmouse
-// Audit: unsupported — Needs per-object, per-controller target-selection history for the first matching targeting event each turn, including targeting while the ability was absent; a once-per-turn trigger limit does not record those earlier events.
+// Audit: unsupported — Needs per-object, per-controller target-selection history for the first
+// matching targeting event each turn, including targeting while the ability was absent; a
+// once-per-turn trigger limit does not record those earlier events.
 pub(in crate::card::sets) static VETERAN_GUARDMOUSE: CardRecord = CardRecord::new(
     "Veteran Guardmouse",
     "3db43c46-b616-4ef8-80ed-0fab345ab3d0",
@@ -6749,7 +6931,8 @@ pub(in crate::card::sets) static VINEREAP_MENTOR: CardRecord = CardRecord::new(
 );
 
 // BLB 239 — Vren, the Relentless
-// Audit: unsupported — Needs a turn-scoped count of creatures exiled with the opponent as their last battlefield controller, including exile events before Vren entered.
+// Audit: unsupported — Needs a turn-scoped count of creatures exiled with the opponent as their
+// last battlefield controller, including exile events before Vren entered.
 pub(in crate::card::sets) static VREN_THE_RELENTLESS: CardRecord = CardRecord::new(
     "Vren, the Relentless",
     "6506277d-f031-4db5-9d16-bf2389094785",
@@ -6758,7 +6941,9 @@ pub(in crate::card::sets) static VREN_THE_RELENTLESS: CardRecord = CardRecord::n
 );
 
 // BLB 240 — Wandertale Mentor
-// Audit: unsupported — Needs an event for crossing a cumulative mana-spent-to-cast-spells threshold during the turn, counting actual mana paid rather than mana value or the number of spells.
+// Audit: unsupported — Needs an event for crossing a cumulative mana-spent-to-cast-spells
+// threshold during the turn, counting actual mana paid rather than mana value or the number of
+// spells.
 pub(in crate::card::sets) static WANDERTALE_MENTOR: CardRecord = CardRecord::new(
     "Wandertale Mentor",
     "8c399a55-d02e-41ed-b827-8784b738c118",
@@ -6767,7 +6952,9 @@ pub(in crate::card::sets) static WANDERTALE_MENTOR: CardRecord = CardRecord::new
 );
 
 // BLB 241 — Ygra, Eater of All
-// Audit: unsupported — Needs a static group effect that adds Artifact to other creatures while preserving their creature types; the supported group-animation boundary only permits adding Creature, not Artifact.
+// Audit: unsupported — Needs a static group effect that adds Artifact to other creatures while
+// preserving their creature types; the supported group-animation boundary only permits adding
+// Creature, not Artifact.
 pub(in crate::card::sets) static YGRA_EATER_OF_ALL: CardRecord = CardRecord::new(
     "Ygra, Eater of All",
     "b9ac7673-eae8-4c4b-889e-5025213a6151",
@@ -6776,7 +6963,9 @@ pub(in crate::card::sets) static YGRA_EATER_OF_ALL: CardRecord = CardRecord::new
 );
 
 // BLB 242 — Zoraline, Cosmos Caller
-// Audit: unsupported — Needs a reflexive when-you-do trigger that chooses its targets after the preceding action succeeds, with an event binding retained even if the original source has left; ordinary targeted triggers choose targets too early.
+// Audit: unsupported — Needs a reflexive when-you-do trigger that chooses its targets after the
+// preceding action succeeds, with an event binding retained even if the original source has
+// left; ordinary targeted triggers choose targets too early.
 pub(in crate::card::sets) static ZORALINE_COSMOS_CALLER: CardRecord = CardRecord::new(
     "Zoraline, Cosmos Caller",
     "b7f99fd5-5298-4b27-923d-9d31203c931a",
@@ -6785,7 +6974,9 @@ pub(in crate::card::sets) static ZORALINE_COSMOS_CALLER: CardRecord = CardRecord
 );
 
 // BLB 243 — Barkform Harvester
-// Audit: unsupported — The all-zone subtype declaration is read for cards and spells but not applied by the battlefield/copy characteristic walk. Changeling needs the same intrinsic all-types value across those paths.
+// Audit: unsupported — The all-zone subtype declaration is read for cards and spells but not
+// applied by the battlefield/copy characteristic walk. Changeling needs the same intrinsic
+// all-types value across those paths.
 pub(in crate::card::sets) static BARKFORM_HARVESTER: CardRecord = CardRecord::new(
     "Barkform Harvester",
     "f77049a6-0f22-415b-bc89-20bcb32accf6",
@@ -6869,7 +7060,9 @@ pub(in crate::card::sets) static FOUNTAINPORT_BELL: CardRecord = CardRecord::new
 );
 
 // BLB 246 — Heirloom Epic
-// Audit: unsupported — Needs convoke-style substitution in an activated ability payment, allowing each untapped creature to pay one generic mana; current convoke planning is confined to casting spells.
+// Audit: unsupported — Needs convoke-style substitution in an activated ability payment,
+// allowing each untapped creature to pay one generic mana; current convoke planning is confined
+// to casting spells.
 pub(in crate::card::sets) static HEIRLOOM_EPIC: CardRecord = CardRecord::new(
     "Heirloom Epic",
     "7839ce48-0175-494a-ab89-9bdfb7a50cb1",
@@ -6945,7 +7138,9 @@ pub(in crate::card::sets) static SHORT_BOW: CardRecord = CardRecord::new(
 );
 
 // BLB 249 — Starforged Sword
-// Audit: unsupported — Needs an optional casting-time gift promise independent of additional costs and a committed give-gift action at the correct resolution or entry timing; the current cost and named-action vocabulary does not represent that promise and gift event.
+// Audit: unsupported — Needs an optional casting-time gift promise independent of additional
+// costs and a committed give-gift action at the correct resolution or entry timing; the current
+// cost and named-action vocabulary does not represent that promise and gift event.
 pub(in crate::card::sets) static STARFORGED_SWORD: CardRecord = CardRecord::new(
     "Starforged Sword",
     "c23d8e96-b972-4c6c-b0c4-b6627621f048",
@@ -6990,7 +7185,9 @@ pub(in crate::card::sets) static TANGLE_TUMBLER: CardRecord = CardRecord::new(
 );
 
 // BLB 251 — Three Tree Mascot
-// Audit: unsupported — The all-zone subtype declaration is read for cards and spells but not applied by the battlefield/copy characteristic walk. Changeling needs the same intrinsic all-types value across those paths.
+// Audit: unsupported — The all-zone subtype declaration is read for cards and spells but not
+// applied by the battlefield/copy characteristic walk. Changeling needs the same intrinsic
+// all-types value across those paths.
 pub(in crate::card::sets) static THREE_TREE_MASCOT: CardRecord = CardRecord::new(
     "Three Tree Mascot",
     "aaced75b-6e07-457c-8ea2-f74d99710d15",
@@ -7064,7 +7261,9 @@ pub(in crate::card::sets) static HIDDEN_GROTTO: CardRecord = CardRecord::new(
 );
 
 // BLB 255 — Lilypad Village
-// Audit: unsupported — Needs controller-at-entry history for creatures that entered this turn, including ones that have since left; querying live permanents with EnteredThisTurn loses those events.
+// Audit: unsupported — Needs controller-at-entry history for creatures that entered this turn,
+// including ones that have since left; querying live permanents with EnteredThisTurn loses
+// those events.
 pub(in crate::card::sets) static LILYPAD_VILLAGE: CardRecord = CardRecord::new(
     "Lilypad Village",
     "7e95a7cc-ed77-4ca4-80db-61c0fc68bf50",
@@ -7766,60 +7965,59 @@ pub(in crate::card::sets) static KEEN_EYED_CURATOR: CardRecord = CardRecord::new
     "Keen-Eyed Curator",
     "004a67ce-60ef-4cc2-9f4d-f30e3029d80a",
     "Mariah Tekulve",
-// Two mana for a 3/3 that answers a graveyard a card at a time, and
+    // Two mana for a 3/3 that answers a graveyard a card at a time, and
     // turns into a 7/7 trampler for having done it four kinds of times.
-    CardRules::new_creature(mana_cost!("{G}{G}"), &["Raccoon", "Scout"], 3, 3)
-        .with_abilities(&[
-            // "As long as", so the 7/7 comes and goes with the pile rather than
-            // being settled once.
-            AbilityDef::static_ability(
-                "As long as there are four or more card types among cards exiled with this creature, it \
-                 gets +4/+4 and has trample.",
-                EffectDef::IfCondition {
-                    // Four card types among the cards he took, counted over the pile rather
-                    // than over any zone: he keeps them, so a card that leaves exile stops
-                    // counting and the rest still do.
-                    condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
-                            left: ValueDef::CardTypesAmongObjects(&ObjectSetDef::LinkedExiles),
-                            comparison: ComparisonDef::GreaterOrEqual,
-                            right: ValueDef::Constant(4),
-                        }),
-                    then: &EffectDef::Sequence(&[
-                        EffectDef::StaticApply {
-                            recipient: EffectRecipientDef::Source,
-                            effect: AppliedEffectDef::modify_power_toughness(
-                                ValueDef::Constant(4),
-                                ValueDef::Constant(4),
-                            ),
-                        },
-                        EffectDef::StaticApply {
-                            recipient: EffectRecipientDef::Source,
-                            effect: AppliedEffectDef::add_ability(&abilities::trample()),
-                        },
-                    ]),
-                },
-            ),
-            // Either graveyard: what he is played for is emptying theirs, and the
-            // card types he needs come from wherever they are.
-            AbilityDef::activated_with_targets(
-                "{1}: Exile target card from a graveyard.",
-                &[CostDef::Mana(mana_cost!("{1}"))],
-                &[AbilityTargetDef::exactly_one(
-                    AbilityTargetPredicate::Object {
-                        object: ObjectPredicateDef::Any,
-                        zones: &[ZoneKind::Graveyard],
-                        controller: None,
-                        owner: None,
+    CardRules::new_creature(mana_cost!("{G}{G}"), &["Raccoon", "Scout"], 3, 3).with_abilities(&[
+        // "As long as", so the 7/7 comes and goes with the pile rather than
+        // being settled once.
+        AbilityDef::static_ability(
+            "As long as there are four or more card types among cards \
+             exiled with this creature, it gets +4/+4 and has trample.",
+            EffectDef::IfCondition {
+                // Four card types among the cards he took, counted over the pile rather
+                // than over any zone: he keeps them, so a card that leaves exile stops
+                // counting and the rest still do.
+                condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                    left: ValueDef::CardTypesAmongObjects(&ObjectSetDef::LinkedExiles),
+                    comparison: ComparisonDef::GreaterOrEqual,
+                    right: ValueDef::Constant(4),
+                }),
+                then: &EffectDef::Sequence(&[
+                    EffectDef::StaticApply {
+                        recipient: EffectRecipientDef::Source,
+                        effect: AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(4),
+                            ValueDef::Constant(4),
+                        ),
                     },
-                )],
-                EffectDef::ExileLinkedToSource {
-                    until_source_leaves: false,
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    face_down: false,
-                    then: None,
+                    EffectDef::StaticApply {
+                        recipient: EffectRecipientDef::Source,
+                        effect: AppliedEffectDef::add_ability(&abilities::trample()),
+                    },
+                ]),
+            },
+        ),
+        // Either graveyard: what he is played for is emptying theirs, and the
+        // card types he needs come from wherever they are.
+        AbilityDef::activated_with_targets(
+            "{1}: Exile target card from a graveyard.",
+            &[CostDef::Mana(mana_cost!("{1}"))],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Any,
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: None,
                 },
-            ),
-        ]),
+            )],
+            EffectDef::ExileLinkedToSource {
+                until_source_leaves: false,
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                face_down: false,
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // BLB 323 — Mistbreath Elder (alternate printing)

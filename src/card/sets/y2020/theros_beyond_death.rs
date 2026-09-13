@@ -78,16 +78,71 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // THB 18 — Heliod, Sun-Crowned
-pub(in crate::card::sets) static HELIOD_SUN_CROWNED_18: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static HELIOD_SUN_CROWNED: CardRecord = CardRecord::new(
     "Heliod, Sun-Crowned",
     "01a8576e-cadc-4521-aadd-3a05f0bc4d20",
     "Lius Lasahido",
-    CardRules::new_enchantment_creature(mana_cost!("{2}{W}"), &["God"], 5, 5).with_supertype(CardSupertype::Legendary).with_abilities(&[
-abilities::indestructible(),
-AbilityDef::static_ability("As long as your devotion to white is less than five, Heliod isn't a creature.", EffectDef::IfCondition { condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef { left: ValueDef::DevotionTo(ManaColor::White), comparison: ComparisonDef::Less, right: ValueDef::Constant(5) }), then: &EffectDef::StaticApply { recipient: EffectRecipientDef::Source, effect: AppliedEffectDef::Characteristic(CharacteristicOperationDef::CardTypes(SetOperationDef::Remove(CardTypeSet::single(CardType::Creature)))) } }),
-AbilityDef::triggered_with_targets("Whenever you gain life, put a +1/+1 counter on target creature or enchantment you control.", TriggerEventDef::LifeGained(PlayerRelation::You), &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object { object: ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::HasType(CardType::Enchantment)]), zones: &[ZoneKind::Battlefield], controller: Some(PlayerRelation::You), owner: None })], EffectDef::AddCounters { object: EffectRecipientDef::Target(TargetIndex::PRIMARY), kind: CounterKind::PlusOnePlusOne, amount: ValueDef::Constant(1) }),
-AbilityDef::activated_with_targets("{1}{W}: Another target creature gains lifelink until end of turn.", &[CostDef::Mana(mana_cost!("{1}{W}"))], &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::Not(&ObjectPredicateDef::Source)]))], EffectDef::Apply { recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY), effect: AppliedEffectDef::add_ability(&abilities::lifelink()), duration: ResolvedEffectDurationDef::UntilEndOfTurn })
-]),
+    CardRules::new_enchantment_creature(mana_cost!("{2}{W}"), &["God"], 5, 5)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::indestructible(),
+            AbilityDef::static_ability(
+                "As long as your devotion to white is less than five, Heliod \
+                 isn't a creature.",
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                        left: ValueDef::DevotionTo(ManaColor::White),
+                        comparison: ComparisonDef::Less,
+                        right: ValueDef::Constant(5),
+                    }),
+                    then: &EffectDef::StaticApply {
+                        recipient: EffectRecipientDef::Source,
+                        effect: AppliedEffectDef::Characteristic(
+                            CharacteristicOperationDef::CardTypes(SetOperationDef::Remove(
+                                CardTypeSet::single(CardType::Creature),
+                            )),
+                        ),
+                    },
+                },
+            ),
+            AbilityDef::triggered_with_targets(
+                "Whenever you gain life, put a +1/+1 counter on target \
+                 creature or enchantment you control.",
+                TriggerEventDef::LifeGained(PlayerRelation::You),
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::HasType(CardType::Enchantment),
+                        ]),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::You),
+                        owner: None,
+                    },
+                )],
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+            AbilityDef::activated_with_targets(
+                "{1}{W}: Another target creature gains lifelink until end of \
+                 turn.",
+                &[CostDef::Mana(mana_cost!("{1}{W}"))],
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    ]),
+                )],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::add_ability(&abilities::lifelink()),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ]),
 );
 
 // THB 20 — Heliod's Pilgrim (reprint)
@@ -98,13 +153,38 @@ const HELIOD_S_PILGRIM_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // THB 55 — Nadir Kraken
-pub(in crate::card::sets) static NADIR_KRAKEN_55: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static NADIR_KRAKEN: CardRecord = CardRecord::new(
     "Nadir Kraken",
     "7817e039-e509-4b6f-b5a3-deb3769bbdc8",
     "Dan Murayama Scott",
     CardRules::new_creature(mana_cost!("{1}{U}{U}"), &["Kraken"], 2, 3).with_abilities(&[
-AbilityDef::triggered("Whenever you draw a card, you may pay {1}. If you do, put a +1/+1 counter on this creature and create a 1/1 blue Tentacle creature token.", TriggerEventDef::DrewCard(DrawEventMatcherDef::any(PlayerRelation::You)), EffectDef::PayOr(PayOrDef::optional(&[CostDef::Mana(mana_cost!("{1}"))], &EffectDef::Sequence(&[EffectDef::AddCounters { object: EffectRecipientDef::Source, kind: CounterKind::PlusOnePlusOne, amount: ValueDef::Constant(1) }, EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(crate::card::TokenCharacteristics::creature(&["Tentacle"], &[ManaColor::Blue], 1, 1))))]))))
-]),
+        AbilityDef::triggered(
+            "Whenever you draw a card, you may pay {1}. If you do, put a \
+             +1/+1 counter on this creature and create a 1/1 blue \
+             Tentacle creature token.",
+            TriggerEventDef::DrewCard(DrawEventMatcherDef::any(PlayerRelation::You)),
+            EffectDef::PayOr(PayOrDef::optional(
+                &[CostDef::Mana(mana_cost!("{1}"))],
+                &EffectDef::Sequence(&[
+                    EffectDef::AddCounters {
+                        object: EffectRecipientDef::Source,
+                        kind: CounterKind::PlusOnePlusOne,
+                        amount: ValueDef::Constant(1),
+                    },
+                    EffectDef::CreateToken(crate::card::CreateTokenDef::new(
+                        crate::card::TokenDef::Literal(
+                            crate::card::TokenCharacteristics::creature(
+                                &["Tentacle"],
+                                &[ManaColor::Blue],
+                                1,
+                                1,
+                            ),
+                        ),
+                    )),
+                ]),
+            )),
+        ),
+    ]),
 );
 
 // THB 73 — Thassa's Oracle
@@ -114,11 +194,16 @@ pub(in crate::card::sets) static THASSAS_ORACLE: CardRecord = CardRecord::new(
     "Thassa's Oracle",
     "726e8b29-13e9-4138-b6a9-d2a0d8188d1c",
     "Jesper Ejsing",
-// Two blue mana and an empty library is the whole card. The looking is
+    // Two blue mana and an empty library is the whole card. The looking is
     // what it does when the library is not empty yet.
     CardRules::new_creature(mana_cost!("{U}{U}"), &["Merfolk", "Wizard"], 1, 3).with_ability(
         abilities::enters_trigger(
-            "When this creature enters, look at the top X cards of your library, where X is your devotion to blue. Put up to one of them on top of your library and the rest on the bottom of your library in a random order. If X is greater than or equal to the number of cards in your library, you win the game.",
+            "When this creature enters, look at the top X cards of your \
+             library, where X is your devotion to blue. Put up to one of \
+             them on top of your library and the rest on the bottom of \
+             your library in a random order. If X is greater than or \
+             equal to the number of cards in your library, you win the \
+             game.",
             abilities::bind_top_cards_then(
                 PlayerRefDef::EffectController,
                 ValueDef::DevotionTo(ManaColor::Blue),
@@ -132,48 +217,44 @@ pub(in crate::card::sets) static THASSAS_ORACLE: CardRecord = CardRecord::new(
                     maximum: 1,
                     visibility: ChoiceVisibilityDef::Private,
                     then: &EffectDef::Sequence(&[
-                            EffectDef::MoveObjects(MoveObjectsDef {
-                                input: ObjectSetDef::Binding(ORACLE_TOP),
-                                from: Some(ZoneKind::Library),
-                                zone: ZoneKind::Library,
-                                placement: ZonePlacement::Top,
-                                moved: None,
-                                then: &EffectDef::None,
-                            }),
-                                EffectDef::RandomizeObjectOrder(RandomizeObjectOrderDef {
-                                    input: ObjectSetDef::Binding(ORACLE_REST),
-                                    randomized: ParentBinding,
-                                    then: &EffectDef::Sequence(&[
-                                            EffectDef::MoveObjects(MoveObjectsDef {
-                                                input: ObjectSetDef::Binding(ParentBinding),
-                                                from: Some(ZoneKind::Library),
-                                                zone: ZoneKind::Library,
-                                                placement: ZonePlacement::Bottom,
-                                                moved: None,
-                                                then: &EffectDef::None,
-                                            }),
-                                            EffectDef::IfCondition {
-                                                // Both sides are read as the trigger resolves,
-                                                // which is what makes an empty library and a
-                                                // single blue permanent enough.
-                                                condition: &TriggerConditionDef::ValueComparison(
-                                                    &ValueComparisonDef {
-                                                        left: ValueDef::DevotionTo(
-                                                            ManaColor::Blue,
-                                                        ),
-                                                        comparison: ComparisonDef::GreaterOrEqual,
-                                                        right: ValueDef::LibrarySize(
-                                                            PlayerRelation::You,
-                                                        ),
-                                                    },
-                                                ),
-                                                then: &EffectDef::WinTheGame {
-                                                    player: EffectRecipientDef::Controller,
-                                                },
-                                            },
-                                        ]),
-                                })
-                        ]),
+                        EffectDef::MoveObjects(MoveObjectsDef {
+                            input: ObjectSetDef::Binding(ORACLE_TOP),
+                            from: Some(ZoneKind::Library),
+                            zone: ZoneKind::Library,
+                            placement: ZonePlacement::Top,
+                            moved: None,
+                            then: &EffectDef::None,
+                        }),
+                        EffectDef::RandomizeObjectOrder(RandomizeObjectOrderDef {
+                            input: ObjectSetDef::Binding(ORACLE_REST),
+                            randomized: ParentBinding,
+                            then: &EffectDef::Sequence(&[
+                                EffectDef::MoveObjects(MoveObjectsDef {
+                                    input: ObjectSetDef::Binding(ParentBinding),
+                                    from: Some(ZoneKind::Library),
+                                    zone: ZoneKind::Library,
+                                    placement: ZonePlacement::Bottom,
+                                    moved: None,
+                                    then: &EffectDef::None,
+                                }),
+                                EffectDef::IfCondition {
+                                    // Both sides are read as the trigger resolves,
+                                    // which is what makes an empty library and a
+                                    // single blue permanent enough.
+                                    condition: &TriggerConditionDef::ValueComparison(
+                                        &ValueComparisonDef {
+                                            left: ValueDef::DevotionTo(ManaColor::Blue),
+                                            comparison: ComparisonDef::GreaterOrEqual,
+                                            right: ValueDef::LibrarySize(PlayerRelation::You),
+                                        },
+                                    ),
+                                    then: &EffectDef::WinTheGame {
+                                        player: EffectRecipientDef::Controller,
+                                    },
+                                },
+                            ]),
+                        }),
+                    ]),
                 }),
             ),
         ),
@@ -181,14 +262,71 @@ pub(in crate::card::sets) static THASSAS_ORACLE: CardRecord = CardRecord::new(
 );
 
 // THB 87 — Cling to Dust
-pub(in crate::card::sets) static CLING_TO_DUST_87: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static CLING_TO_DUST: CardRecord = CardRecord::new(
     "Cling to Dust",
     "52c2de5f-e486-4cfe-9fb6-be0078ce5f93",
     "Caio Monteiro",
     CardRules::new_instant(mana_cost!("{B}")).with_abilities(&[
-AbilityDef::spell_with_targets("Exile target card from a graveyard. If it was a creature card, you gain 3 life. Otherwise, you draw a card.", &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object { object: ObjectPredicateDef::Any, zones: &[ZoneKind::Graveyard], controller: None, owner: None })], EffectDef::BindObjects(BindObjectsDef { source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::LegalTargets(TargetIndex::PRIMARY)), binding: Binding!("dust_target"), then: &EffectDef::ForEachInBinding { objects: Binding!("dust_target"), binding: Binding!("dust_card"), effect: &EffectDef::IfElseCondition { condition: &TriggerConditionDef::BoundObjectMatches { binding: Binding!("dust_card"), object: ObjectPredicateDef::HasType(CardType::Creature) }, then: &EffectDef::Sequence(&[EffectDef::move_to_zone(EffectRecipientDef::object(ObjectRefDef::Binding(Binding!("dust_card"))), ZoneKind::Exile, ZonePlacement::Top), EffectDef::GainLife { recipient: EffectRecipientDef::Controller, amount: ValueDef::Constant(3) }]), otherwise: &EffectDef::Sequence(&[EffectDef::move_to_zone(EffectRecipientDef::object(ObjectRefDef::Binding(Binding!("dust_card"))), ZoneKind::Exile, ZonePlacement::Top), abilities::draw_cards(ValueDef::Constant(1))]) } } })),
-escape(&[CostDef::Mana(mana_cost!("{3}{B}")), CostDef::exile(ObjectPredicateDef::Any, ZoneKind::Graveyard, CostQuantityDef::Fixed(5))])
-]),
+        AbilityDef::spell_with_targets(
+            "Exile target card from a graveyard. If it was a creature \
+             card, you gain 3 life. Otherwise, you draw a card.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Any,
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: None,
+                },
+            )],
+            EffectDef::BindObjects(BindObjectsDef {
+                source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::LegalTargets(
+                    TargetIndex::PRIMARY,
+                )),
+                binding: Binding!("dust_target"),
+                then: &EffectDef::ForEachInBinding {
+                    objects: Binding!("dust_target"),
+                    binding: Binding!("dust_card"),
+                    effect: &EffectDef::IfElseCondition {
+                        condition: &TriggerConditionDef::BoundObjectMatches {
+                            binding: Binding!("dust_card"),
+                            object: ObjectPredicateDef::HasType(CardType::Creature),
+                        },
+                        then: &EffectDef::Sequence(&[
+                            EffectDef::move_to_zone(
+                                EffectRecipientDef::object(ObjectRefDef::Binding(Binding!(
+                                    "dust_card"
+                                ))),
+                                ZoneKind::Exile,
+                                ZonePlacement::Top,
+                            ),
+                            EffectDef::GainLife {
+                                recipient: EffectRecipientDef::Controller,
+                                amount: ValueDef::Constant(3),
+                            },
+                        ]),
+                        otherwise: &EffectDef::Sequence(&[
+                            EffectDef::move_to_zone(
+                                EffectRecipientDef::object(ObjectRefDef::Binding(Binding!(
+                                    "dust_card"
+                                ))),
+                                ZoneKind::Exile,
+                                ZonePlacement::Top,
+                            ),
+                            abilities::draw_cards(ValueDef::Constant(1)),
+                        ]),
+                    },
+                },
+            }),
+        ),
+        escape(&[
+            CostDef::Mana(mana_cost!("{3}{B}")),
+            CostDef::exile(
+                ObjectPredicateDef::Any,
+                ZoneKind::Graveyard,
+                CostQuantityDef::Fixed(5),
+            ),
+        ]),
+    ]),
 );
 
 // THB 99 — Gray Merchant of Asphodel (reprint)
@@ -266,7 +404,7 @@ pub(in crate::card::sets) static BLOOD_ASPIRANT: CardRecord = CardRecord::new(
     "Blood Aspirant",
     "8d4f3fa3-ba1f-48dc-a56b-738936f1bf86",
     "Tyler Walpole",
-// Its own activation feeds its own trigger, so each use both shrinks the
+    // Its own activation feeds its own trigger, so each use both shrinks the
     // opposing board and grows this one.
     CardRules::new_creature(mana_cost!("{1}{R}"), &["Satyr", "Berserker"], 1, 1).with_abilities(&[
         AbilityDef::triggered(
@@ -284,7 +422,9 @@ pub(in crate::card::sets) static BLOOD_ASPIRANT: CardRecord = CardRecord::new(
             },
         ),
         AbilityDef::activated_with_targets(
-            "{1}{R}, {T}, Sacrifice a creature or enchantment: This creature deals 1 damage to target creature. That creature can't block this turn.",
+            "{1}{R}, {T}, Sacrifice a creature or enchantment: This \
+             creature deals 1 damage to target creature. That creature \
+             can't block this turn.",
             &[
                 CostDef::Mana(mana_cost!("{1}{R}")),
                 CostDef::TapSource,
@@ -321,21 +461,33 @@ pub(in crate::card::sets) static UNDERWORLD_BREACH: CardRecord = CardRecord::new
     "Underworld Breach",
     "0e51d796-7279-4c06-87f0-37adbdaa41df",
     "Lie Setiawan",
-// Two mana that turns a graveyard into a hand for one turn, which is as
+    // Two mana that turns a graveyard into a hand for one turn, which is as
     // long as anything playing it needs.
     CardRules::new_enchantment(mana_cost!("{1}{R}")).with_abilities(&[
         AbilityDef::static_ability(
-            "Each nonland card in your graveyard has escape. The escape cost is equal to the card's \
-             mana cost plus exile three other cards from your graveyard. (You may cast cards from \
+            "Each nonland card in your graveyard has escape. The escape \
+             cost is equal to the card's mana cost plus exile three \
+             other cards from your graveyard. (You may cast cards from \
              your graveyard for their escape cost.)",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::players(PlayerSetDef::Related(PlayerRelation::You)),
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::GrantsAlternativeCastFromGraveyard {
-                    object: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
-                    // The card being cast is on the stack by the time the three other cards
-                    // are chosen, so it is already absent from its graveyard candidates.
-                    ability: &escape(&[CostDef::ManaCostOf(crate::ObjectRefDef::Source), CostDef::exile(ObjectPredicateDef::Any, ZoneKind::Graveyard, CostQuantityDef::Fixed(3))]),
-                }),
+                effect: AppliedEffectDef::Rule(
+                    AppliedRuleDef::GrantsAlternativeCastFromGraveyard {
+                        object: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(
+                            CardType::Land,
+                        )),
+                        // The card being cast is on the stack by the time the three other cards
+                        // are chosen, so it is already absent from its graveyard candidates.
+                        ability: &escape(&[
+                            CostDef::ManaCostOf(crate::ObjectRefDef::Source),
+                            CostDef::exile(
+                                ObjectPredicateDef::Any,
+                                ZoneKind::Graveyard,
+                                CostQuantityDef::Fixed(3),
+                            ),
+                        ]),
+                    },
+                ),
             },
         ),
         // Each end step, not just yours: the Breach is one turn's worth of
@@ -383,18 +535,70 @@ pub(in crate::card::sets) static UNDERWORLD_RAGE_HOUND: CardRecord = CardRecord:
 );
 
 // THB 168 — Destiny Spinner
-pub(in crate::card::sets) static DESTINY_SPINNER_168: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static DESTINY_SPINNER: CardRecord = CardRecord::new(
     "Destiny Spinner",
     "ba264166-948b-47d4-b302-64476acc1a55",
     "Livia Prima",
     CardRules::new_enchantment_creature(mana_cost!("{1}{G}"), &["Human"], 2, 3).with_abilities(&[
-AbilityDef::static_ability("Creature and enchantment spells you control can't be countered.", EffectDef::StaticApply { recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::HasType(CardType::Enchantment)]), &[ZoneKind::Stack], PlayerRelation::You), effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeCountered) }),
-AbilityDef::activated_with_targets("{3}{G}: Target land you control becomes an X/X Elemental creature with trample and haste until end of turn, where X is the number of enchantments you control. It's still a land.", &[CostDef::Mana(mana_cost!("{3}{G}"))], &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object { object: ObjectPredicateDef::HasType(CardType::Land), zones: &[ZoneKind::Battlefield], controller: Some(PlayerRelation::You), owner: None })], EffectDef::Apply { recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY), effect: AppliedEffectDef::Composite(&[AppliedEffectDef::Characteristic(CharacteristicOperationDef::CardTypes(SetOperationDef::Add(CardTypeSet::single(CardType::Creature)))), AppliedEffectDef::set_base_power_toughness(ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(ObjectPredicateDef::HasType(CardType::Enchantment), &[ZoneKind::Battlefield], PlayerRelation::You)), ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(ObjectPredicateDef::HasType(CardType::Enchantment), &[ZoneKind::Battlefield], PlayerRelation::You))), AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&["Elemental"])), AppliedEffectDef::add_ability(&abilities::trample()), AppliedEffectDef::add_ability(&abilities::haste())]), duration: ResolvedEffectDurationDef::UntilEndOfTurn })
-]),
+        AbilityDef::static_ability(
+            "Creature and enchantment spells you control can't be \
+             countered.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::HasType(CardType::Enchantment),
+                    ]),
+                    &[ZoneKind::Stack],
+                    PlayerRelation::You,
+                ),
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeCountered),
+            },
+        ),
+        AbilityDef::activated_with_targets(
+            "{3}{G}: Target land you control becomes an X/X Elemental \
+             creature with trample and haste until end of turn, where X \
+             is the number of enchantments you control. It's still a \
+             land.",
+            &[CostDef::Mana(mana_cost!("{3}{G}"))],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Land),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                },
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::Characteristic(CharacteristicOperationDef::CardTypes(
+                        SetOperationDef::Add(CardTypeSet::single(CardType::Creature)),
+                    )),
+                    AppliedEffectDef::set_base_power_toughness(
+                        ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                            ObjectPredicateDef::HasType(CardType::Enchantment),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        )),
+                        ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                            ObjectPredicateDef::HasType(CardType::Enchantment),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        )),
+                    ),
+                    AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&["Elemental"])),
+                    AppliedEffectDef::add_ability(&abilities::trample()),
+                    AppliedEffectDef::add_ability(&abilities::haste()),
+                ]),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // THB 173 — Hyrax Tower Scout
-pub(in crate::card::sets) static HYRAX_TOWER_SCOUT_173: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static HYRAX_TOWER_SCOUT: CardRecord = CardRecord::new(
     "Hyrax Tower Scout",
     "bb7f2638-d757-4df6-90b0-b616534dd3a0",
     "Micah Epstein",
@@ -412,13 +616,29 @@ pub(in crate::card::sets) static HYRAX_TOWER_SCOUT_173: CardRecord = CardRecord:
 );
 
 // THB 174 — Ilysian Caryatid
-pub(in crate::card::sets) static ILYSIAN_CARYATID_174: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static ILYSIAN_CARYATID: CardRecord = CardRecord::new(
     "Ilysian Caryatid",
     "7cdf8ab8-f221-4f7b-9af9-3849cad1f596",
     "Winona Nelson",
     CardRules::new_creature(mana_cost!("{1}{G}"), &["Plant"], 1, 1).with_abilities(&[
-AbilityDef::activated_mana("{T}: Add one mana of any color. If you control a creature with power 4 or greater, add two mana of any one color instead.", &[CostDef::TapSource], EffectDef::AddMana(AddManaEffectDef::any_color().with_amount_override(&ConditionDef::Exists(ObjectQueryDef::matching(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::PowerAtLeast(4)]), &[ZoneKind::Battlefield], PlayerRelation::You)), 2)))
-]),
+        AbilityDef::activated_mana(
+            "{T}: Add one mana of any color. If you control a creature \
+             with power 4 or greater, add two mana of any one color \
+             instead.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::any_color().with_amount_override(
+                &ConditionDef::Exists(ObjectQueryDef::matching(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::PowerAtLeast(4),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                )),
+                2,
+            )),
+        ),
+    ]),
 );
 
 // THB 182 — Nessian Hornbeetle
@@ -458,8 +678,9 @@ pub(in crate::card::sets) static NESSIAN_HORNBEETLE: CardRecord = CardRecord::ne
 );
 
 // THB 190 — Nyxbloom Ancient
-// Audit: unsupported — Needs a mana-production replacement that preserves every produced unit's type and triples its amount.
-pub(in crate::card::sets) static NYXBLOOM_ANCIENT_190: CardRecord = CardRecord::new(
+// Audit: unsupported — Needs a mana-production replacement that preserves every produced unit's
+// type and triples its amount.
+pub(in crate::card::sets) static NYXBLOOM_ANCIENT: CardRecord = CardRecord::new(
     "Nyxbloom Ancient",
     "a391da36-0b40-46ea-b771-50d2b920207e",
     "Filip Burburan",
@@ -471,7 +692,7 @@ pub(in crate::card::sets) static URO_TITAN_OF_NATURE_S_WRATH: CardRecord = CardR
     "Uro, Titan of Nature's Wrath",
     "a0b6a71e-56cb-4d25-8f2b-7a4f1b60900d",
     "Vincent Proce",
-// Three mana for a ramp spell that gains three and draws, and the same
+    // Three mana for a ramp spell that gains three and draws, and the same
     // card again later as a 6/6 that does it every attack.
     CardRules::new_creature(mana_cost!("{1}{G}{U}"), &["Elder", "Giant"], 6, 6)
         .with_supertype(CardSupertype::Legendary)
@@ -486,18 +707,17 @@ pub(in crate::card::sets) static URO_TITAN_OF_NATURE_S_WRATH: CardRecord = CardR
                 // "Unless it escaped" reads how the spell was cast, which the permanent
                 // remembers: an Uro cast for its printed cost sacrifices itself and leaves
                 // the growth spell behind.
-                &TriggerConditionDef::Not(
-                    &TriggerConditionDef::All(&[
-                        TriggerConditionDef::SourceWasCast,
-                        TriggerConditionDef::SourceCastFrom(ZoneKind::Graveyard),
-                        TriggerConditionDef::SourceCastWith(AlternativeCastKindDef::Escape),
-                    ]),
-                ),
+                &TriggerConditionDef::Not(&TriggerConditionDef::All(&[
+                    TriggerConditionDef::SourceWasCast,
+                    TriggerConditionDef::SourceCastFrom(ZoneKind::Graveyard),
+                    TriggerConditionDef::SourceCastWith(AlternativeCastKindDef::Escape),
+                ])),
                 EffectDef::sacrifice(EffectRecipientDef::Source),
             ),
             AbilityDef::triggered(
-                "Whenever Uro enters or attacks, you gain 3 life and draw a card, then you may put a \
-                 land card from your hand onto the battlefield.",
+                "Whenever Uro enters or attacks, you gain 3 life and draw a \
+                 card, then you may put a land card from your hand onto the \
+                 battlefield.",
                 // Entering and attacking are two ways for one printed ability to fire, so
                 // what it does is written once.
                 TriggerEventDef::AnyOf(&[
@@ -532,12 +752,19 @@ pub(in crate::card::sets) static URO_TITAN_OF_NATURE_S_WRATH: CardRecord = CardR
                     },
                 ]),
             ),
-            escape(&[CostDef::Mana(mana_cost!("{G}{G}{U}{U}")), CostDef::exile(ObjectPredicateDef::Any, ZoneKind::Graveyard, CostQuantityDef::Fixed(5))]),
+            escape(&[
+                CostDef::Mana(mana_cost!("{G}{G}{U}{U}")),
+                CostDef::exile(
+                    ObjectPredicateDef::Any,
+                    ZoneKind::Graveyard,
+                    CostQuantityDef::Fixed(5),
+                ),
+            ]),
         ]),
 );
 
 // THB 236 — Shadowspear
-pub(in crate::card::sets) static SHADOWSPEAR_236: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static SHADOWSPEAR: CardRecord = CardRecord::new(
     "Shadowspear",
     "939c6e19-4b27-4023-bb9c-ae440f91e21c",
     "Yeong-Hao Han",
@@ -669,19 +896,42 @@ pub(in crate::card::sets) static TERROR_OF_MOUNT_VELUS: CardRecord = CardRecord:
 );
 
 // THB 325 — Arasta of the Endless Web
-pub(in crate::card::sets) static ARASTA_OF_THE_ENDLESS_WEB_325: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static ARASTA_OF_THE_ENDLESS_WEB: CardRecord = CardRecord::new(
     "Arasta of the Endless Web",
     "03b9304c-9993-4539-9165-48568eb81db1",
     "Sam Rowan",
-    CardRules::new_creature(mana_cost!("{2}{G}{G}"), &["Spider"], 3, 5).with_supertype(CardSupertype::Legendary).with_abilities(&[
-abilities::reach(),
-AbilityDef::triggered("Whenever an opponent casts an instant or sorcery spell, create a 1/2 green Spider creature token with reach.", TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Instant), ObjectPredicateDef::HasType(CardType::Sorcery)]), ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent)])), EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(crate::card::TokenCharacteristics::creature(&["Spider"], &[ManaColor::Green], 1, 2).with_abilities(&[abilities::reach()])))))
-])
-.with_type(crate::card::CardType::Enchantment),
+    CardRules::new_creature(mana_cost!("{2}{G}{G}"), &["Spider"], 3, 5)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::reach(),
+            AbilityDef::triggered(
+                "Whenever an opponent casts an instant or sorcery spell, \
+                 create a 1/2 green Spider creature token with reach.",
+                TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Instant),
+                        ObjectPredicateDef::HasType(CardType::Sorcery),
+                    ]),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
+                ])),
+                EffectDef::CreateToken(crate::card::CreateTokenDef::new(
+                    crate::card::TokenDef::Literal(
+                        crate::card::TokenCharacteristics::creature(
+                            &["Spider"],
+                            &[ManaColor::Green],
+                            1,
+                            2,
+                        )
+                        .with_abilities(&[abilities::reach()]),
+                    ),
+                )),
+            ),
+        ])
+        .with_type(crate::card::CardType::Enchantment),
 );
 
 // THB 326 — Dryad of the Ilysian Grove
-pub(in crate::card::sets) static DRYAD_OF_THE_ILYSIAN_GROVE_326: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static DRYAD_OF_THE_ILYSIAN_GROVE: CardRecord = CardRecord::new(
     "Dryad of the Ilysian Grove",
     "36adefc7-44a8-40d0-8bdf-ad12d010b0bd",
     "Scott Murphy",
@@ -713,26 +963,26 @@ pub(in crate::card::sets) static DRYAD_OF_THE_ILYSIAN_GROVE_326: CardRecord = Ca
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
-    &HELIOD_SUN_CROWNED_18,
-    &NADIR_KRAKEN_55,
+    &HELIOD_SUN_CROWNED,
+    &NADIR_KRAKEN,
     &THASSAS_ORACLE,
-    &CLING_TO_DUST_87,
+    &CLING_TO_DUST,
     &MIRE_TRITON,
     &UNDERWORLD_CHARGER,
     &BLOOD_ASPIRANT,
     &UNDERWORLD_BREACH,
     &UNDERWORLD_RAGE_HOUND,
-    &DESTINY_SPINNER_168,
-    &HYRAX_TOWER_SCOUT_173,
-    &ILYSIAN_CARYATID_174,
+    &DESTINY_SPINNER,
+    &HYRAX_TOWER_SCOUT,
+    &ILYSIAN_CARYATID,
     &NESSIAN_HORNBEETLE,
-    &NYXBLOOM_ANCIENT_190,
+    &NYXBLOOM_ANCIENT,
     &URO_TITAN_OF_NATURE_S_WRATH,
-    &SHADOWSPEAR_236,
+    &SHADOWSPEAR,
     &SOUL_GUIDE_LANTERN,
     &TERROR_OF_MOUNT_VELUS,
-    &ARASTA_OF_THE_ENDLESS_WEB_325,
-    &DRYAD_OF_THE_ILYSIAN_GROVE_326,
+    &ARASTA_OF_THE_ENDLESS_WEB,
+    &DRYAD_OF_THE_ILYSIAN_GROVE,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] =

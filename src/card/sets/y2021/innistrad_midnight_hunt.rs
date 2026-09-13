@@ -85,63 +85,66 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // MID 1 — Adeline, Resplendent Cathar
-pub(in crate::card::sets) static ADELINE_RESPLENDENT_CATHAR: CardRecord =
-    CardRecord::new(
+pub(in crate::card::sets) static ADELINE_RESPLENDENT_CATHAR: CardRecord = CardRecord::new(
     "Adeline, Resplendent Cathar",
     "18092f68-b96e-4084-9eba-b240d2195d81",
     "Bryan Sola",
-// Three mana that attacks for four the turn after it lands and for more
-        // every turn after that, because each token it makes makes it bigger.
-        CardRules::new_creature(mana_cost!("{1}{W}{W}"), &["Human", "Knight"], 0, 4)
-            .with_supertype(CardSupertype::Legendary)
-            .with_abilities(&[
-                abilities::vigilance(),
-                AbilityDef::static_ability(
-                    "Adeline's power is equal to the number of creatures you control.",
-                    EffectDef::StaticApply {
-                        recipient: EffectRecipientDef::Source,
-                        // Adeline is a creature you control, so she counts herself, and
-                        // every token she makes adds one more before damage. The count
-                        // defines her power rather than adding to it, which is why it
-                        // also answers in a hand or a graveyard.
-                        effect: AppliedEffectDef::define_power(ValueDef::CountMatchingObjects(
-                            &ObjectQueryDef::matching(
-                                ObjectPredicateDef::HasType(CardType::Creature),
-                                &[ZoneKind::Battlefield],
-                                PlayerRelation::You,
-                            ),
-                        )),
-                    },
+    // Three mana that attacks for four the turn after it lands and for more
+    // every turn after that, because each token it makes makes it bigger.
+    CardRules::new_creature(mana_cost!("{1}{W}{W}"), &["Human", "Knight"], 0, 4)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::vigilance(),
+            AbilityDef::static_ability(
+                "Adeline's power is equal to the number of creatures you control.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    // Adeline is a creature you control, so she counts herself, and
+                    // every token she makes adds one more before damage. The count
+                    // defines her power rather than adding to it, which is why it
+                    // also answers in a hand or a graveyard.
+                    effect: AppliedEffectDef::define_power(ValueDef::CountMatchingObjects(
+                        &ObjectQueryDef::matching(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        ),
+                    )),
+                },
+            ),
+            // The token was never declared as an attacker, so nothing watching a
+            // declaration sees it -- and with two players the one opponent is the
+            // only thing it could be attacking.
+            AbilityDef::triggered(
+                "Whenever you attack, for each opponent, create a 1/1 white \
+                 Human creature token that's tapped and attacking that \
+                 player or a planeswalker they control.",
+                // "Whenever you attack" is one or more creatures you control attacking,
+                // counted once for the declaration rather than once per attacker.
+                TriggerEventDef::attack_declared(
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    1,
+                    None,
                 ),
-                // The token was never declared as an attacker, so nothing watching a
-                // declaration sees it -- and with two players the one opponent is the
-                // only thing it could be attacking.
-                AbilityDef::triggered(
-                    "Whenever you attack, for each opponent, create a 1/1 white Human creature token that's \
-                     tapped and attacking that player or a planeswalker they control.",
-                    // "Whenever you attack" is one or more creatures you control attacking,
-                    // counted once for the declaration rather than once per attacker.
-                    TriggerEventDef::attack_declared(
-                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                        1,
-                        None,
-                    ),
-                    EffectDef::CreateToken(
-                        CreateTokenDef::new(TokenDef::Literal(
-                            TokenCharacteristics::creature(&["Human"], &[ManaColor::White], 1, 1).with_art(
-                                CardArt::new("7d13a93a-a43d-4cf5-8300-8341f3b7f1b1", "Miguel Mercado"),
-                            ),
-                        ))
-                        .entering_tapped()
-                        .entering_attacking(),
-                    ),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(
+                        TokenCharacteristics::creature(&["Human"], &[ManaColor::White], 1, 1)
+                            .with_art(CardArt::new(
+                                "7d13a93a-a43d-4cf5-8300-8341f3b7f1b1",
+                                "Miguel Mercado",
+                            )),
+                    ))
+                    .entering_tapped()
+                    .entering_attacking(),
                 ),
-            ]),
+            ),
+        ]),
 );
 
 // MID 7 — Brutal Cathar // Moonrage Brute
-// Audit: unsupported — The transforming daybound/nightbound double-faced card procedure is not declaratively represented.
-pub(in crate::card::sets) static BRUTAL_CATHAR_MOONRAGE_BRUTE_7: CardRecord = CardRecord::new(
+// Audit: unsupported — The transforming daybound/nightbound double-faced card procedure is not
+// declaratively represented.
+pub(in crate::card::sets) static BRUTAL_CATHAR_MOONRAGE_BRUTE: CardRecord = CardRecord::new(
     "Brutal Cathar // Moonrage Brute",
     "0dbac7ce-a6fa-466e-b6ba-173cf2dec98e",
     "Karl Kopinski",
@@ -208,7 +211,9 @@ pub(in crate::card::sets) static HOMESTEAD_COURAGE: CardRecord = CardRecord::new
 );
 
 // MID 32 — Search Party Captain
-// Audit: unsupported — Needs a count of the creatures that attacked this turn. Only their subtypes are recorded, and counting attackers still on the battlefield would undercount every trade, which is the line the card is cast in.
+// Audit: unsupported — Needs a count of the creatures that attacked this turn. Only their
+// subtypes are recorded, and counting attackers still on the battlefield would undercount every
+// trade, which is the line the card is cast in.
 pub(in crate::card::sets) static SEARCH_PARTY_CAPTAIN: CardRecord = CardRecord::new(
     "Search Party Captain",
     "cb9006c1-2e6f-4bca-a1c4-3cf2a8b6e964",
@@ -412,11 +417,12 @@ pub(in crate::card::sets) static ARDENT_ELEMENTALIST: CardRecord = CardRecord::n
     "Ardent Elementalist",
     "f58592f7-1df5-428d-9dde-e6acd9a5d1d5",
     "Miguel Mercado",
-// Archaeomancer's trigger in red, on a body that trades rather than
+    // Archaeomancer's trigger in red, on a body that trades rather than
     // blocks: the card it buys back is the whole reason to cast it.
     CardRules::new_creature(mana_cost!("{3}{R}"), &["Human", "Shaman"], 2, 1).with_ability(
         abilities::enters_trigger_with_targets(
-            "When this creature enters, return target instant or sorcery card from your graveyard to your hand.",
+            "When this creature enters, return target instant or sorcery \
+             card from your graveyard to your hand.",
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Object {
                     object: ObjectPredicateDef::AnyOf(&[
@@ -438,7 +444,7 @@ pub(in crate::card::sets) static ARDENT_ELEMENTALIST: CardRecord = CardRecord::n
 );
 
 // MID 133 — Cathartic Pyre
-pub(in crate::card::sets) static CATHARTIC_PYRE_133: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static CATHARTIC_PYRE: CardRecord = CardRecord::new(
     "Cathartic Pyre",
     "b045c28a-39f9-4cd9-8f3a-a626b697f409",
     "Ryan Yee",
@@ -489,8 +495,10 @@ pub(in crate::card::sets) static CATHARTIC_PYRE_133: CardRecord = CardRecord::ne
 );
 
 // MID 245 — Teferi, Who Slows the Sunset
-// Audit: unsupported — The emblem requires additional untapping and drawing as turn-based actions during opponents' untap and draw steps. Installed step triggers resolve later and cannot implement those continuous turn-based-action modifications.
-pub(in crate::card::sets) static TEFERI_WHO_SLOWS_THE_SUNSET_245: CardRecord = CardRecord::new(
+// Audit: unsupported — The emblem requires additional untapping and drawing as turn-based
+// actions during opponents' untap and draw steps. Installed step triggers resolve later and
+// cannot implement those continuous turn-based-action modifications.
+pub(in crate::card::sets) static TEFERI_WHO_SLOWS_THE_SUNSET: CardRecord = CardRecord::new(
     "Teferi, Who Slows the Sunset",
     "ad2e18d4-986c-4a44-8f26-1b8689339cfb",
     "Heonhwa",
@@ -498,8 +506,10 @@ pub(in crate::card::sets) static TEFERI_WHO_SLOWS_THE_SUNSET_245: CardRecord = C
 );
 
 // MID 254 — Jack-o'-Lantern
-// Audit: unsupported — Nonpermanent mana activations support hand exile and ongoing command-zone rules objects only. The graveyard mana ability cannot be offered or paid; making it an ordinary activated ability would incorrectly use the stack.
-pub(in crate::card::sets) static JACK_O_LANTERN_254: CardRecord = CardRecord::new(
+// Audit: unsupported — Nonpermanent mana activations support hand exile and ongoing
+// command-zone rules objects only. The graveyard mana ability cannot be offered or paid; making
+// it an ordinary activated ability would incorrectly use the stack.
+pub(in crate::card::sets) static JACK_O_LANTERN: CardRecord = CardRecord::new(
     "Jack-o'-Lantern",
     "21b589ab-45a0-480a-a891-581c34f8a9bf",
     "Josu Hernaiz",
@@ -507,17 +517,50 @@ pub(in crate::card::sets) static JACK_O_LANTERN_254: CardRecord = CardRecord::ne
 );
 
 // MID 255 — Moonsilver Key
-pub(in crate::card::sets) static MOONSILVER_KEY_255: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static MOONSILVER_KEY: CardRecord = CardRecord::new(
     "Moonsilver Key",
     "87778e37-af92-402e-b037-5fbd6112b682",
     "Joseph Meehan",
-    CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
-AbilityDef::activated("{1}, {T}, Sacrifice this artifact: Search your library for an artifact card with a mana ability or a basic land card, reveal it, put it into your hand, then shuffle.", &[CostDef::Mana(mana_cost!("{1}")), CostDef::TapSource, CostDef::SacrificeSource], EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Library, object: ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Artifact), ObjectPredicateDef::HasAbility(AbilityPredicateDef::Is(AbilityKindDef::ActivatedMana))]), ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Land), ObjectPredicateDef::Supertype(CardSupertype::Basic)])]), minimum: 0, maximum: ValueDef::Constant(1), reveal: true, destination: ZoneKind::Hand, placement: ZonePlacement::Top, shuffle: true, enters_tapped: false, attachment: None, binding: None, then: None })
-]),
+    CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[AbilityDef::activated(
+        "{1}, {T}, Sacrifice this artifact: Search your library for \
+         an artifact card with a mana ability or a basic land card, \
+         reveal it, put it into your hand, then shuffle.",
+        &[
+            CostDef::Mana(mana_cost!("{1}")),
+            CostDef::TapSource,
+            CostDef::SacrificeSource,
+        ],
+        EffectDef::SearchZone {
+            player: EffectRecipientDef::Controller,
+            source: ZoneKind::Library,
+            object: ObjectPredicateDef::AnyOf(&[
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::HasAbility(AbilityPredicateDef::Is(
+                        AbilityKindDef::ActivatedMana,
+                    )),
+                ]),
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                ]),
+            ]),
+            minimum: 0,
+            maximum: ValueDef::Constant(1),
+            reveal: true,
+            destination: ZoneKind::Hand,
+            placement: ZonePlacement::Top,
+            shuffle: true,
+            enters_tapped: false,
+            attachment: None,
+            binding: None,
+            then: None,
+        },
+    )]),
 );
 
 // MID 260 — Deserted Beach
-pub(in crate::card::sets) static DESERTED_BEACH_260: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static DESERTED_BEACH: CardRecord = CardRecord::new(
     "Deserted Beach",
     "38367ee5-154b-44cb-8974-422038d039df",
     "Jonas De Ro",
@@ -555,7 +598,7 @@ pub(in crate::card::sets) static DESERTED_BEACH_260: CardRecord = CardRecord::ne
 );
 
 // MID 265 — Overgrown Farmland
-pub(in crate::card::sets) static OVERGROWN_FARMLAND_265: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static OVERGROWN_FARMLAND: CardRecord = CardRecord::new(
     "Overgrown Farmland",
     "84a76e0f-49fc-4087-8859-98f4a4deacdf",
     "Jonas De Ro",
@@ -580,7 +623,7 @@ pub(in crate::card::sets) static OVERGROWN_FARMLAND_265: CardRecord = CardRecord
 );
 
 // MID 282 — Haunted Ridge
-pub(in crate::card::sets) static HAUNTED_RIDGE_282: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static HAUNTED_RIDGE: CardRecord = CardRecord::new(
     "Haunted Ridge",
     "91f67a64-b97d-473a-be9d-c8044ff86605",
     "Piotr Dura",
@@ -605,7 +648,7 @@ pub(in crate::card::sets) static HAUNTED_RIDGE_282: CardRecord = CardRecord::new
 );
 
 // MID 284 — Rockfall Vale
-pub(in crate::card::sets) static ROCKFALL_VALE_284: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static ROCKFALL_VALE: CardRecord = CardRecord::new(
     "Rockfall Vale",
     "3bfcc5d4-babd-4b66-95fa-c5ec6c49e93a",
     "Piotr Dura",
@@ -630,7 +673,7 @@ pub(in crate::card::sets) static ROCKFALL_VALE_284: CardRecord = CardRecord::new
 );
 
 // MID 285 — Shipwreck Marsh
-pub(in crate::card::sets) static SHIPWRECK_MARSH_285: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static SHIPWRECK_MARSH: CardRecord = CardRecord::new(
     "Shipwreck Marsh",
     "07ad2562-fc26-40a1-9e6c-21f4f88dc2d8",
     "Steven Belledin",
@@ -656,27 +699,65 @@ pub(in crate::card::sets) static SHIPWRECK_MARSH_285: CardRecord = CardRecord::n
 
 // MID 336 — Malevolent Hermit // Benevolent Geist
 // Audit: unsupported — Its disturb double-faced transformation is not declaratively represented.
-pub(in crate::card::sets) static MALEVOLENT_HERMIT_BENEVOLENT_GEIST_336: CardRecord =
-    CardRecord::new(
-        "Malevolent Hermit // Benevolent Geist",
-        "7d0d1d48-559f-48f9-b486-50fc81533443",
-        "Daarken",
-        crate::card::CardRules::unsupported(),
-    );
+pub(in crate::card::sets) static MALEVOLENT_HERMIT_BENEVOLENT_GEIST: CardRecord = CardRecord::new(
+    "Malevolent Hermit // Benevolent Geist",
+    "7d0d1d48-559f-48f9-b486-50fc81533443",
+    "Daarken",
+    crate::card::CardRules::unsupported(),
+);
 
 // MID 365 — Unnatural Growth
-pub(in crate::card::sets) static UNNATURAL_GROWTH_365: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static UNNATURAL_GROWTH: CardRecord = CardRecord::new(
     "Unnatural Growth",
     "61baa102-9bc0-4f97-89e1-cca4dbd823bd",
     "Svetlin Velinov",
     CardRules::new_enchantment(mana_cost!("{1}{G}{G}{G}{G}")).with_abilities(&[
-AbilityDef::triggered("At the beginning of each combat, double the power and toughness of each creature you control until end of turn.", TriggerEventDef::StepBegins { step: TurnStepDef::BeginningOfCombat, player: PlayerRelation::Any }, EffectDef::BindObjects(BindObjectsDef { source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Query(ObjectQueryDef::matching(ObjectPredicateDef::HasType(CardType::Creature), &[ZoneKind::Battlefield], PlayerRelation::You))), binding: Binding!("growth_creatures"), then: &EffectDef::ForEachInBinding { objects: Binding!("growth_creatures"), binding: Binding!("growth_creature"), effect: &EffectDef::Apply { recipient: EffectRecipientDef::object(ObjectRefDef::Binding(Binding!("growth_creature"))), effect: AppliedEffectDef::modify_power_toughness(ValueDef::ObjectPower(ObjectRefDef::Binding(Binding!("growth_creature"))), ValueDef::AggregateObjectValues(&ObjectValueAggregateDef { objects: ObjectSetDef::One(ObjectRefDef::Binding(Binding!("growth_creature"))), select: ObjectValueDef::Toughness, operation: AggregateOperationDef::Sum })), duration: ResolvedEffectDurationDef::UntilEndOfTurn } } }))
-]),
+        AbilityDef::triggered(
+            "At the beginning of each combat, double the power and \
+             toughness of each creature you control until end of turn.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::BeginningOfCombat,
+                player: PlayerRelation::Any,
+            },
+            EffectDef::BindObjects(BindObjectsDef {
+                source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Query(
+                    ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                )),
+                binding: Binding!("growth_creatures"),
+                then: &EffectDef::ForEachInBinding {
+                    objects: Binding!("growth_creatures"),
+                    binding: Binding!("growth_creature"),
+                    effect: &EffectDef::Apply {
+                        recipient: EffectRecipientDef::object(ObjectRefDef::Binding(Binding!(
+                            "growth_creature"
+                        ))),
+                        effect: AppliedEffectDef::modify_power_toughness(
+                            ValueDef::ObjectPower(ObjectRefDef::Binding(Binding!(
+                                "growth_creature"
+                            ))),
+                            ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
+                                objects: ObjectSetDef::One(ObjectRefDef::Binding(Binding!(
+                                    "growth_creature"
+                                ))),
+                                select: ObjectValueDef::Toughness,
+                                operation: AggregateOperationDef::Sum,
+                            }),
+                        ),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                },
+            }),
+        ),
+    ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ADELINE_RESPLENDENT_CATHAR,
-    &BRUTAL_CATHAR_MOONRAGE_BRUTE_7,
+    &BRUTAL_CATHAR_MOONRAGE_BRUTE,
     &CATHAR_COMMANDO,
     &HOMESTEAD_COURAGE,
     &SEARCH_PARTY_CAPTAIN,
@@ -688,17 +769,17 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &INFERNAL_GRASP,
     &STROMKIRK_BLOODTHIEF,
     &ARDENT_ELEMENTALIST,
-    &CATHARTIC_PYRE_133,
-    &TEFERI_WHO_SLOWS_THE_SUNSET_245,
-    &JACK_O_LANTERN_254,
-    &MOONSILVER_KEY_255,
-    &DESERTED_BEACH_260,
-    &OVERGROWN_FARMLAND_265,
-    &HAUNTED_RIDGE_282,
-    &ROCKFALL_VALE_284,
-    &SHIPWRECK_MARSH_285,
-    &MALEVOLENT_HERMIT_BENEVOLENT_GEIST_336,
-    &UNNATURAL_GROWTH_365,
+    &CATHARTIC_PYRE,
+    &TEFERI_WHO_SLOWS_THE_SUNSET,
+    &JACK_O_LANTERN,
+    &MOONSILVER_KEY,
+    &DESERTED_BEACH,
+    &OVERGROWN_FARMLAND,
+    &HAUNTED_RIDGE,
+    &ROCKFALL_VALE,
+    &SHIPWRECK_MARSH,
+    &MALEVOLENT_HERMIT_BENEVOLENT_GEIST,
+    &UNNATURAL_GROWTH,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

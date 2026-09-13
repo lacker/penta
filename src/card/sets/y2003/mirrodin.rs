@@ -91,7 +91,7 @@ pub(in crate::card::sets) static RAISE_THE_ALARM: CardRecord = CardRecord::new(
 );
 
 // MRD 19 — Rule of Law
-pub(in crate::card::sets) static RULE_OF_LAW_19: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static RULE_OF_LAW: CardRecord = CardRecord::new(
     "Rule of Law",
     "246a68e9-fd19-4a1e-8c7b-fcd3f7306dfb",
     "Scott M. Fischer",
@@ -108,8 +108,9 @@ pub(in crate::card::sets) static RULE_OF_LAW_19: CardRecord = CardRecord::new(
 );
 
 // MRD 34 — Dream's Grip
-// Audit: unsupported — Entwine needs a cast-time choice that requires both modes exactly when its additional cost is paid; the existing conditional mode limit changes only the maximum.
-pub(in crate::card::sets) static DREAM_S_GRIP_34: CardRecord = CardRecord::new(
+// Audit: unsupported — Entwine needs a cast-time choice that requires both modes exactly when
+// its additional cost is paid; the existing conditional mode limit changes only the maximum.
+pub(in crate::card::sets) static DREAM_S_GRIP: CardRecord = CardRecord::new(
     "Dream's Grip",
     "7ffaa6a2-7c86-45b4-8892-b837e05f11a6",
     "Jim Nelson",
@@ -117,7 +118,7 @@ pub(in crate::card::sets) static DREAM_S_GRIP_34: CardRecord = CardRecord::new(
 );
 
 // MRD 35 — Fabricate
-pub(in crate::card::sets) static FABRICATE_35: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static FABRICATE: CardRecord = CardRecord::new(
     "Fabricate",
     "a742e23c-1991-4dce-b670-dea92a1cf4ec",
     "Glen Angus",
@@ -142,8 +143,9 @@ pub(in crate::card::sets) static FABRICATE_35: CardRecord = CardRecord::new(
 );
 
 // MRD 47 — Quicksilver Elemental
-// Audit: unsupported — Cannot acquire all activated abilities of an arbitrary battlefield creature or restrict a spend-as-any-color permission to blue mana paying those abilities.
-pub(in crate::card::sets) static QUICKSILVER_ELEMENTAL_47: CardRecord = CardRecord::new(
+// Audit: unsupported — Cannot acquire all activated abilities of an arbitrary battlefield
+// creature or restrict a spend-as-any-color permission to blue mana paying those abilities.
+pub(in crate::card::sets) static QUICKSILVER_ELEMENTAL: CardRecord = CardRecord::new(
     "Quicksilver Elemental",
     "2905f6ac-d054-454b-8e1a-9c32db13a581",
     "Tony Szczudlo",
@@ -177,14 +179,25 @@ pub(in crate::card::sets) static THIRST_FOR_KNOWLEDGE: CardRecord = CardRecord::
 );
 
 // MRD 54 — Thoughtcast
-pub(in crate::card::sets) static THOUGHTCAST_54: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static THOUGHTCAST: CardRecord = CardRecord::new(
     "Thoughtcast",
     "efb965a7-877a-4302-b507-25b0a9e32d9b",
     "Greg Hildebrandt",
     CardRules::new_sorcery(mana_cost!("{4}{U}")).with_abilities(&[
-abilities::this_spell_cost_reduction("Affinity for artifacts (This spell costs {1} less to cast for each artifact you control.)", ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(ObjectPredicateDef::HasType(CardType::Artifact), &[ZoneKind::Battlefield], PlayerRelation::You))),
-AbilityDef::spell("Draw two cards.", abilities::draw_cards(ValueDef::Constant(2)))
-]),
+        abilities::this_spell_cost_reduction(
+            "Affinity for artifacts (This spell costs {1} less to cast \
+             for each artifact you control.)",
+            ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                ObjectPredicateDef::HasType(CardType::Artifact),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
+            )),
+        ),
+        AbilityDef::spell(
+            "Draw two cards.",
+            abilities::draw_cards(ValueDef::Constant(2)),
+        ),
+    ]),
 );
 
 // MRD 57 — Barter in Blood
@@ -213,16 +226,19 @@ pub(in crate::card::sets) static CONSUME_SPIRIT: CardRecord = CardRecord::new(
     "Consume Spirit",
     "f375a49c-806a-4d8b-9513-6b4afc19497b",
     "Matt Thompson",
-CardRules::new_sorcery(mana_cost!("{X}{1}{B}"))
+    CardRules::new_sorcery(mana_cost!("{X}{1}{B}"))
         .spend_only_on_x(ManaColor::Black)
         .with_abilities(&[
             AbilityDef::enforced_when_cast(
                 "Spend only black mana on X.",
-                "The payment layer folds X into the black requirement, so no other mana can cover it.",
+                "The payment layer folds X into the black requirement, so no \
+                 other mana can cover it.",
             ),
             AbilityDef::spell_with_targets(
                 "This spell deals X damage to any target and you gain X life.",
-                &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)],
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::AnyTarget,
+                )],
                 EffectDef::Sequence(&[
                     EffectDef::damage(
                         EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -238,17 +254,31 @@ CardRules::new_sorcery(mana_cost!("{X}{1}{B}"))
 );
 
 // MRD 62 — Disciple of the Vault
-pub(in crate::card::sets) static DISCIPLE_OF_THE_VAULT_62: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static DISCIPLE_OF_THE_VAULT: CardRecord = CardRecord::new(
     "Disciple of the Vault",
     "644359dc-3c4c-4291-876d-7390dc466877",
     "Matt Thompson",
     CardRules::new_creature(mana_cost!("{B}"), &["Human", "Cleric"], 1, 1).with_abilities(&[
-abilities::dies_trigger_matching_with_targets("Whenever an artifact is put into a graveyard from the battlefield, you may have target opponent lose 1 life.", ObjectPredicateDef::HasType(CardType::Artifact), &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(PlayerRelation::Opponent))], EffectDef::May { player: EffectRecipientDef::Controller, effect: &EffectDef::LoseLife { recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY), amount: ValueDef::Constant(1) } })
-]),
+        abilities::dies_trigger_matching_with_targets(
+            "Whenever an artifact is put into a graveyard from the \
+             battlefield, you may have target opponent lose 1 life.",
+            ObjectPredicateDef::HasType(CardType::Artifact),
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+            )],
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::LoseLife {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(1),
+                },
+            },
+        ),
+    ]),
 );
 
 // MRD 99 — Mass Hysteria
-pub(in crate::card::sets) static MASS_HYSTERIA_99: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static MASS_HYSTERIA: CardRecord = CardRecord::new(
     "Mass Hysteria",
     "1431354a-fcfa-4f67-a822-6dcc4d13ac3f",
     "Adam Rex",
@@ -266,7 +296,7 @@ pub(in crate::card::sets) static MASS_HYSTERIA_99: CardRecord = CardRecord::new(
 );
 
 // MRD 104 — Seething Song
-pub(in crate::card::sets) static SEETHING_SONG_104: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static SEETHING_SONG: CardRecord = CardRecord::new(
     "Seething Song",
     "9213d580-7953-455f-abbe-99d3db2705cf",
     "Martina Pilcerova",
@@ -299,7 +329,7 @@ pub(in crate::card::sets) static HUM_OF_THE_RADIX: CardRecord = CardRecord::new(
 );
 
 // MRD 130 — Sylvan Scrying
-pub(in crate::card::sets) static SYLVAN_SCRYING_130: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static SYLVAN_SCRYING: CardRecord = CardRecord::new(
     "Sylvan Scrying",
     "b4ff07b6-be9f-498f-9f36-cbd64f1b10cc",
     "Scott M. Fischer",
@@ -324,8 +354,9 @@ pub(in crate::card::sets) static SYLVAN_SCRYING_130: CardRecord = CardRecord::ne
 );
 
 // MRD 134 — Tooth and Nail
-// Audit: unsupported — Entwine needs a cast-time choice that requires both modes exactly when its additional cost is paid; the existing conditional mode limit changes only the maximum.
-pub(in crate::card::sets) static TOOTH_AND_NAIL_134: CardRecord = CardRecord::new(
+// Audit: unsupported — Entwine needs a cast-time choice that requires both modes exactly when
+// its additional cost is paid; the existing conditional mode limit changes only the maximum.
+pub(in crate::card::sets) static TOOTH_AND_NAIL: CardRecord = CardRecord::new(
     "Tooth and Nail",
     "02f0067c-2d38-46bd-b52e-070c2ce424f0",
     "Greg Hildebrandt",
@@ -392,7 +423,7 @@ pub(in crate::card::sets) static CHALICE_OF_THE_VOID: CardRecord = CardRecord::n
     "Chalice of the Void",
     "1a02ca71-5e39-4a5f-aaba-a1e3e10a6a3e",
     "Mark Zug",
-CardRules::new_artifact(mana_cost!("{X}{X}")).with_abilities(&[
+    CardRules::new_artifact(mana_cost!("{X}{X}")).with_abilities(&[
         AbilityDef::as_enters(
             "This artifact enters with X charge counters on it.",
             ReplacementEffectDef::ModifyBattlefieldEntry(
@@ -402,7 +433,9 @@ CardRules::new_artifact(mana_cost!("{X}{X}")).with_abilities(&[
             ),
         ),
         AbilityDef::triggered(
-            "Whenever a player casts a spell with mana value equal to the number of charge counters on this artifact, counter that spell.",
+            "Whenever a player casts a spell with mana value equal to \
+             the number of charge counters on this artifact, counter \
+             that spell.",
             // The comparison belongs to the cast event, so changing the counters
             // afterward does not change whether the captured trigger counters it.
             TriggerEventDef::spell_cast(ObjectPredicateDef::ManaValueEqualTo(
@@ -486,15 +519,17 @@ pub(in crate::card::sets) static EXTRAPLANAR_LENS: CardRecord = CardRecord::new(
     "Extraplanar Lens",
     "622a6523-3b12-4657-a656-00a57a3ae59c",
     "Lars Grant-West",
-CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
+    CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
         abilities::enters_trigger_with_targets(
             "When this artifact enters, you may exile target land you control.",
-            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
-                object: ObjectPredicateDef::HasType(CardType::Land),
-                zones: &[ZoneKind::Battlefield],
-                controller: Some(PlayerRelation::You),
-                owner: None,
-            })],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Land),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                },
+            )],
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
                 effect: &EffectDef::ExileLinkedToSource {
@@ -506,12 +541,12 @@ CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
             },
         ),
         AbilityDef::triggered_mana(
-            "Whenever a land with the same name as the exiled card is tapped for mana, its controller adds one mana of any type that land produced.",
+            "Whenever a land with the same name as the exiled card is \
+             tapped for mana, its controller adds one mana of any type \
+             that land produced.",
             TriggerEventDef::tapped_for_mana(ObjectPredicateDef::All(&[
                 ObjectPredicateDef::HasType(CardType::Land),
-                ObjectPredicateDef::NameIn(&CardNameSetDef::NamesOf(
-                    &ObjectSetDef::LinkedExiles,
-                )),
+                ObjectPredicateDef::NameIn(&CardNameSetDef::NamesOf(&ObjectSetDef::LinkedExiles)),
             ])),
             EffectDef::AddMana(
                 AddManaEffectDef::choice_from(ManaTypeSetDef::produced_by(
@@ -587,8 +622,9 @@ pub(in crate::card::sets) static IRON_MYR: CardRecord = CardRecord::new(
 );
 
 // MRD 188 — Isochron Scepter
-// Audit: unsupported — Linked exile exists, but the engine cannot create a copy of a card in exile and offer casting that copy without paying its mana cost.
-pub(in crate::card::sets) static ISOCHRON_SCEPTER_188: CardRecord = CardRecord::new(
+// Audit: unsupported — Linked exile exists, but the engine cannot create a copy of a card in
+// exile and offer casting that copy without paying its mana cost.
+pub(in crate::card::sets) static ISOCHRON_SCEPTER: CardRecord = CardRecord::new(
     "Isochron Scepter",
     "878b0159-6917-45d3-b9ea-562ac49f0b8f",
     "Mark Harrison",
@@ -610,7 +646,7 @@ pub(in crate::card::sets) static LEADEN_MYR: CardRecord = CardRecord::new(
 );
 
 // MRD 195 — Leveler
-pub(in crate::card::sets) static LEVELER_195: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static LEVELER: CardRecord = CardRecord::new(
     "Leveler",
     "03ffa3c3-dd29-47eb-abf2-7951fadb5c37",
     "Carl Critchlow",
@@ -658,7 +694,8 @@ pub(in crate::card::sets) static LIGHTNING_GREAVES: CardRecord = CardRecord::new
 );
 
 // MRD 206 — Mindslaver
-// Audit: unsupported — The engine has no continuous effect that lets one player make every game choice for another player during that player's next turn.
+// Audit: unsupported — The engine has no continuous effect that lets one player make every game
+// choice for another player during that player's next turn.
 pub(in crate::card::sets) static MINDSLAVER: CardRecord = CardRecord::new(
     "Mindslaver",
     "98fb1eaa-2871-491a-a4f5-3e358778ba40",
@@ -671,7 +708,7 @@ pub(in crate::card::sets) static PENTAVUS: CardRecord = CardRecord::new(
     "Pentavus",
     "32a11f0a-7547-4fda-a8ed-caf76ce98f10",
     "Greg Staples",
-CardRules::new_artifact_creature(mana_cost!("{7}"), &["Construct"], 0, 0).with_abilities(&[
+    CardRules::new_artifact_creature(mana_cost!("{7}"), &["Construct"], 0, 0).with_abilities(&[
         AbilityDef::as_enters(
             "This creature enters with five +1/+1 counters on it.",
             ReplacementEffectDef::ModifyBattlefieldEntry(
@@ -682,7 +719,8 @@ CardRules::new_artifact_creature(mana_cost!("{7}"), &["Construct"], 0, 0).with_a
             ),
         ),
         AbilityDef::activated(
-            "{1}, Remove a +1/+1 counter from this creature: Create a 1/1 colorless Pentavite artifact creature token with flying.",
+            "{1}, Remove a +1/+1 counter from this creature: Create a \
+             1/1 colorless Pentavite artifact creature token with flying.",
             &[
                 CostDef::Mana(mana_cost!("{1}")),
                 CostDef::RemoveCountersFromSource {
@@ -714,8 +752,9 @@ CardRules::new_artifact_creature(mana_cost!("{7}"), &["Construct"], 0, 0).with_a
 );
 
 // MRD 228 — Platinum Angel
-// Audit: unsupported — The player-loss and win-condition pipeline has no continuous cannot-lose/cannot-win rule.
-pub(in crate::card::sets) static PLATINUM_ANGEL_228: CardRecord = CardRecord::new(
+// Audit: unsupported — The player-loss and win-condition pipeline has no continuous
+// cannot-lose/cannot-win rule.
+pub(in crate::card::sets) static PLATINUM_ANGEL: CardRecord = CardRecord::new(
     "Platinum Angel",
     "59bb5aee-b334-4c24-875b-56751d4add02",
     "Brom",
@@ -723,7 +762,7 @@ pub(in crate::card::sets) static PLATINUM_ANGEL_228: CardRecord = CardRecord::ne
 );
 
 // MRD 237 — Scrabbling Claws
-pub(in crate::card::sets) static SCRABBLING_CLAWS_237: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static SCRABBLING_CLAWS: CardRecord = CardRecord::new(
     "Scrabbling Claws",
     "415027f8-ccef-4b38-ace2-db4e94f066fe",
     "Thomas M. Baxa",
@@ -778,7 +817,7 @@ pub(in crate::card::sets) static SCRABBLING_CLAWS_237: CardRecord = CardRecord::
 );
 
 // MRD 238 — Sculpting Steel
-pub(in crate::card::sets) static SCULPTING_STEEL_238: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static SCULPTING_STEEL: CardRecord = CardRecord::new(
     "Sculpting Steel",
     "3aac5f6f-97c1-4546-94ed-016292e98c9d",
     "Heather Hudson",
@@ -810,9 +849,11 @@ pub(in crate::card::sets) static SOLEMN_SIMULACRUM: CardRecord = CardRecord::new
     "Solemn Simulacrum",
     "00f9955f-a522-47bf-b064-92dd21a76b18",
     "Greg Staples",
-CardRules::new_artifact_creature(mana_cost!("{4}"), &["Golem"], 2, 2).with_abilities(&[
+    CardRules::new_artifact_creature(mana_cost!("{4}"), &["Golem"], 2, 2).with_abilities(&[
         abilities::enters_trigger(
-            "When this creature enters, you may search your library for a basic land card, put that card onto the battlefield tapped, then shuffle.",
+            "When this creature enters, you may search your library for \
+             a basic land card, put that card onto the battlefield \
+             tapped, then shuffle.",
             EffectDef::SearchZone {
                 player: EffectRecipientDef::Controller,
                 source: ZoneKind::Library,
@@ -871,7 +912,7 @@ pub(in crate::card::sets) static TALISMAN_OF_DOMINANCE: CardRecord = CardRecord:
 );
 
 // MRD 254 — Talisman of Impulse
-pub(in crate::card::sets) static TALISMAN_OF_IMPULSE_254: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static TALISMAN_OF_IMPULSE: CardRecord = CardRecord::new(
     "Talisman of Impulse",
     "a00b65f7-70d0-4bbd-ac13-be24cc3374ee",
     "Mike Dringenberg",
@@ -889,7 +930,7 @@ pub(in crate::card::sets) static TALISMAN_OF_IMPULSE_254: CardRecord = CardRecor
 );
 
 // MRD 255 — Talisman of Indulgence
-pub(in crate::card::sets) static TALISMAN_OF_INDULGENCE_255: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static TALISMAN_OF_INDULGENCE: CardRecord = CardRecord::new(
     "Talisman of Indulgence",
     "e14011b3-56ce-4b93-833f-d8403809159c",
     "Mike Dringenberg",
@@ -936,7 +977,7 @@ pub(in crate::card::sets) static TALISMAN_OF_PROGRESS: CardRecord = CardRecord::
 );
 
 // MRD 274 — Welding Jar
-pub(in crate::card::sets) static WELDING_JAR_274: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static WELDING_JAR: CardRecord = CardRecord::new(
     "Welding Jar",
     "42b7b73b-4800-4fc7-9a5c-93e00ea88498",
     "Mark Brill",
@@ -959,11 +1000,12 @@ pub(in crate::card::sets) static WORLDSLAYER: CardRecord = CardRecord::new(
     "Worldslayer",
     "3cb1b869-3e2d-4447-a12d-e790883feeee",
     "Greg Staples",
-CardRules::new_artifact(mana_cost!("{5}"))
+    CardRules::new_artifact(mana_cost!("{5}"))
         .with_subtypes(&["Equipment"])
         .with_abilities(&[
             AbilityDef::triggered(
-                "Whenever equipped creature deals combat damage to a player, destroy all permanents other than this Equipment.",
+                "Whenever equipped creature deals combat damage to a player, \
+                 destroy all permanents other than this Equipment.",
                 TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::AttachedToSource),
                 EffectDef::Destroy {
                     object: EffectRecipientDef::matching_objects(
@@ -979,7 +1021,7 @@ CardRules::new_artifact(mana_cost!("{5}"))
 );
 
 // MRD 278 — Ancient Den
-pub(in crate::card::sets) static ANCIENT_DEN_278: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static ANCIENT_DEN: CardRecord = CardRecord::new(
     "Ancient Den",
     "cc857fbd-8e0f-4bff-8f14-561c9925c484",
     "Rob Alexander",
@@ -989,7 +1031,7 @@ pub(in crate::card::sets) static ANCIENT_DEN_278: CardRecord = CardRecord::new(
 );
 
 // MRD 282 — Great Furnace
-pub(in crate::card::sets) static GREAT_FURNACE_282: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static GREAT_FURNACE: CardRecord = CardRecord::new(
     "Great Furnace",
     "2877281d-c85d-4f32-b40d-828b93c4ee8e",
     "Rob Alexander",
@@ -999,7 +1041,7 @@ pub(in crate::card::sets) static GREAT_FURNACE_282: CardRecord = CardRecord::new
 );
 
 // MRD 283 — Seat of the Synod
-pub(in crate::card::sets) static SEAT_OF_THE_SYNOD_283: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static SEAT_OF_THE_SYNOD: CardRecord = CardRecord::new(
     "Seat of the Synod",
     "5da5587d-6b6c-4645-8cc9-2866d1e6911b",
     "John Avon",
@@ -1009,7 +1051,7 @@ pub(in crate::card::sets) static SEAT_OF_THE_SYNOD_283: CardRecord = CardRecord:
 );
 
 // MRD 286 — Vault of Whispers
-pub(in crate::card::sets) static VAULT_OF_WHISPERS_286: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static VAULT_OF_WHISPERS: CardRecord = CardRecord::new(
     "Vault of Whispers",
     "73866487-33f4-4f64-b100-2c4ddadcd74e",
     "Rob Alexander",
@@ -1021,20 +1063,20 @@ pub(in crate::card::sets) static VAULT_OF_WHISPERS_286: CardRecord = CardRecord:
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &LEONIN_SKYHUNTER,
     &RAISE_THE_ALARM,
-    &RULE_OF_LAW_19,
-    &DREAM_S_GRIP_34,
-    &FABRICATE_35,
-    &QUICKSILVER_ELEMENTAL_47,
+    &RULE_OF_LAW,
+    &DREAM_S_GRIP,
+    &FABRICATE,
+    &QUICKSILVER_ELEMENTAL,
     &THIRST_FOR_KNOWLEDGE,
-    &THOUGHTCAST_54,
+    &THOUGHTCAST,
     &BARTER_IN_BLOOD,
     &CONSUME_SPIRIT,
-    &DISCIPLE_OF_THE_VAULT_62,
-    &MASS_HYSTERIA_99,
-    &SEETHING_SONG_104,
+    &DISCIPLE_OF_THE_VAULT,
+    &MASS_HYSTERIA,
+    &SEETHING_SONG,
     &HUM_OF_THE_RADIX,
-    &SYLVAN_SCRYING_130,
-    &TOOTH_AND_NAIL_134,
+    &SYLVAN_SCRYING,
+    &TOOTH_AND_NAIL,
     &AETHER_SPELLBOMB,
     &BONESPLITTER,
     &CHALICE_OF_THE_VOID,
@@ -1045,27 +1087,27 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &GILDED_LOTUS,
     &GOLD_MYR,
     &IRON_MYR,
-    &ISOCHRON_SCEPTER_188,
+    &ISOCHRON_SCEPTER,
     &LEADEN_MYR,
-    &LEVELER_195,
+    &LEVELER,
     &LIGHTNING_GREAVES,
     &MINDSLAVER,
     &PENTAVUS,
-    &PLATINUM_ANGEL_228,
-    &SCRABBLING_CLAWS_237,
-    &SCULPTING_STEEL_238,
+    &PLATINUM_ANGEL,
+    &SCRABBLING_CLAWS,
+    &SCULPTING_STEEL,
     &SILVER_MYR,
     &SOLEMN_SIMULACRUM,
     &TALISMAN_OF_DOMINANCE,
-    &TALISMAN_OF_IMPULSE_254,
-    &TALISMAN_OF_INDULGENCE_255,
+    &TALISMAN_OF_IMPULSE,
+    &TALISMAN_OF_INDULGENCE,
     &TALISMAN_OF_PROGRESS,
-    &WELDING_JAR_274,
+    &WELDING_JAR,
     &WORLDSLAYER,
-    &ANCIENT_DEN_278,
-    &GREAT_FURNACE_282,
-    &SEAT_OF_THE_SYNOD_283,
-    &VAULT_OF_WHISPERS_286,
+    &ANCIENT_DEN,
+    &GREAT_FURNACE,
+    &SEAT_OF_THE_SYNOD,
+    &VAULT_OF_WHISPERS,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

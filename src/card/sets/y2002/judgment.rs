@@ -335,7 +335,10 @@ pub(in crate::card::sets) static PHANTOM_FLOCK: CardRecord = CardRecord::new(
 );
 
 // JUD 17 — Phantom Nomad
-// Audit: unsupported — Needs a damage-prevention follow-up that removes a counter. DamagePreventionFollowUpDef offers only GainLife, so the prevention can be expressed but the "remove a +1/+1 counter from this creature" half cannot; preventing without it would make the creature permanently immune.
+// Audit: unsupported — Needs a damage-prevention follow-up that removes a counter.
+// DamagePreventionFollowUpDef offers only GainLife, so the prevention can be expressed but the
+// "remove a +1/+1 counter from this creature" half cannot; preventing without it would make the
+// creature permanently immune.
 pub(in crate::card::sets) static PHANTOM_NOMAD: CardRecord = CardRecord::new(
     "Phantom Nomad",
     "6c5309f5-8b32-4a57-99f2-dcf7a8341898",
@@ -344,7 +347,10 @@ pub(in crate::card::sets) static PHANTOM_NOMAD: CardRecord = CardRecord::new(
 );
 
 // JUD 18 — Prismatic Strands
-// Audit: unsupported — Needs a player-scoped damage-prevention shield parameterized by a colour chosen on resolution. ChooseColor attaches to an object and ColorChoiceOperationDef offers only protection and colour-changing, so there is no way to say "prevent all damage sources of the chosen colour would deal this turn".
+// Audit: unsupported — Needs a player-scoped damage-prevention shield parameterized by a colour
+// chosen on resolution. ChooseColor attaches to an object and ColorChoiceOperationDef offers
+// only protection and colour-changing, so there is no way to say "prevent all damage sources of
+// the chosen colour would deal this turn".
 pub(in crate::card::sets) static PRISMATIC_STRANDS: CardRecord = CardRecord::new(
     "Prismatic Strands",
     "3454ef42-2e0b-4ce4-945f-e4ec3e83c39d",
@@ -409,12 +415,13 @@ pub(in crate::card::sets) static SILVER_SERAPH: CardRecord = CardRecord::new(
     "Silver Seraph",
     "1465ca9e-a997-4b8c-9677-6c7961f67eba",
     "Matthew D. Wilson",
-// Eight mana for a flier that only becomes a threat once the graveyard
+    // Eight mana for a flier that only becomes a threat once the graveyard
     // is full, which is a card two different decks half want.
     CardRules::new_creature(mana_cost!("{5}{W}{W}{W}"), &["Angel"], 6, 6).with_abilities(&[
         abilities::flying(),
         AbilityDef::static_ability(
-            "Threshold — Other creatures you control get +2/+2 as long as there are seven or more cards in your graveyard.",
+            "Threshold — Other creatures you control get +2/+2 as long \
+             as there are seven or more cards in your graveyard.",
             EffectDef::ConditionalStatic(ConditionalStaticEffectDef {
                 condition: ObjectSetCountConditionDef {
                     objects: &ObjectSetDef::Query(ObjectQueryDef::matching(
@@ -430,13 +437,13 @@ pub(in crate::card::sets) static SILVER_SERAPH: CardRecord = CardRecord::new(
                 },
                 then: StaticApplyDef {
                     recipient: EffectRecipientDef::matching_objects(
-                    ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-                    ]),
-                    &[ZoneKind::Battlefield],
-                    PlayerRelation::You,
-                ),
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
                     effect: AppliedEffectDef::modify_power_toughness(
                         ValueDef::Constant(2),
                         ValueDef::Constant(2),
@@ -658,11 +665,13 @@ pub(in crate::card::sets) static FLASH_OF_INSIGHT: CardRecord = CardRecord::new(
     "Flash of Insight",
     "ffaab905-0b97-42c2-a1a3-1e72275caa82",
     "Ben Thompson",
-// Cast small early, flashed back huge late: the graveyard a control deck
+    // Cast small early, flashed back huge late: the graveyard a control deck
     // fills is the second casting's mana.
     CardRules::new_instant(mana_cost!("{X}{1}{U}")).with_abilities(&[
         AbilityDef::spell(
-            "Look at the top X cards of your library. Put one of them into your hand and the rest on the bottom of your library in any order.",
+            "Look at the top X cards of your library. Put one of them \
+             into your hand and the rest on the bottom of your library \
+             in any order.",
             abilities::look_at_top_cards_choose_to_hand_rest_bottom(
                 ValueDef::ChosenX,
                 ObjectPredicateDef::Any,
@@ -671,19 +680,20 @@ pub(in crate::card::sets) static FLASH_OF_INSIGHT: CardRecord = CardRecord::new(
             ),
         ),
         AbilityDef::alternative_cast(
-            &[CostDef::Mana(mana_cost!("{1}{U}")), CostDef::exile(
-                ObjectPredicateDef::Color(ManaColor::Blue),
-                ZoneKind::Graveyard,
-                CostQuantityDef::ChosenX,
-            )],
+            &[
+                CostDef::Mana(mana_cost!("{1}{U}")),
+                CostDef::exile(
+                    ObjectPredicateDef::Color(ManaColor::Blue),
+                    ZoneKind::Graveyard,
+                    CostQuantityDef::ChosenX,
+                ),
+            ],
             AlternativeCastKindDef::Flashback,
             Some("Flashback—{1}{U}, Exile X blue cards from your graveyard."),
             EffectDef::None,
-        )
-        // X blue cards from your own graveyard, exiled to pay. The count is the same
-        // X the spell is cast for, which is what makes the flashback expensive
-        // exactly when it is worth casting big.
-        ,
+        ), // X blue cards from your own graveyard, exiled to pay. The count is the same
+           // X the spell is cast for, which is what makes the flashback expensive
+           // exactly when it is worth casting big.
     ]),
 );
 
@@ -912,11 +922,12 @@ pub(in crate::card::sets) static CABAL_THERAPY: CardRecord = CardRecord::new(
     "Cabal Therapy",
     "0a5df970-c6ba-4824-b8ba-67244aec2b82",
     "Ron Spencer",
-// A guess for one mana, and the same guess again later for a creature
+    // A guess for one mana, and the same guess again later for a creature
     // that has already attacked.
     CardRules::new_sorcery(mana_cost!("{B}")).with_abilities(&[
         AbilityDef::spell_with_targets(
-            "Choose a nonland card name. Target player reveals their hand and discards all cards with that name.",
+            "Choose a nonland card name. Target player reveals their \
+             hand and discards all cards with that name.",
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Player(PlayerRelation::Any),
             )],
@@ -931,15 +942,15 @@ pub(in crate::card::sets) static CABAL_THERAPY: CardRecord = CardRecord::new(
                 EffectDef::RevealHand {
                     player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 },
-                EffectDef::discard_cards(EffectRecipientDef::objects(
-                    ObjectSetDef::Query(ObjectQueryDef::owned_by(
+                EffectDef::discard_cards(EffectRecipientDef::objects(ObjectSetDef::Query(
+                    ObjectQueryDef::owned_by(
                         ObjectPredicateDef::NameEquals(CardNameDef::Binding(Binding!(
                             "cabal_therapy_name"
                         ))),
                         &[ZoneKind::Hand],
                         PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
-                    )),
-                )),
+                    ),
+                ))),
             ]),
         ),
         AbilityDef::alternative_cast(
@@ -1081,7 +1092,7 @@ pub(in crate::card::sets) static SUTURED_GHOUL: CardRecord = CardRecord::new(
     "Sutured Ghoul",
     "f769536f-def1-40b8-863f-ba12c7cb0d87",
     "Carl Critchlow",
-// Seven mana for a creature the deck never pays for: it is reanimated
+    // Seven mana for a creature the deck never pays for: it is reanimated
     // onto a graveyard the Druid has already filled, and eats all of it.
     CardRules::new_creature(mana_cost!("{4}{B}{B}{B}"), &["Zombie"], 0, 0).with_abilities(&[
         abilities::trample(),
@@ -1092,7 +1103,9 @@ pub(in crate::card::sets) static SUTURED_GHOUL: CardRecord = CardRecord::new(
             )),
         ),
         AbilityDef::static_ability(
-            "Sutured Ghoul's power is equal to the total power of the exiled cards and its toughness is equal to their total toughness.",
+            "Sutured Ghoul's power is equal to the total power of the \
+             exiled cards and its toughness is equal to their total \
+             toughness.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Source,
                 // A body assembled from the graveyard, read live off the pile rather than
@@ -1102,18 +1115,20 @@ pub(in crate::card::sets) static SUTURED_GHOUL: CardRecord = CardRecord::new(
                 // This sets the base rather than adding to it, which is what a printed
                 // */* says.
                 effect: AppliedEffectDef::Characteristic(
-                    CharacteristicOperationDef::PowerToughness(PowerToughnessOperationDef::SetBase {
-                        power: ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
-                            objects: ObjectSetDef::LinkedExiles,
-                            select: ObjectValueDef::Power,
-                            operation: AggregateOperationDef::Sum,
-                        }),
-                        toughness: ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
-                            objects: ObjectSetDef::LinkedExiles,
-                            select: ObjectValueDef::Toughness,
-                            operation: AggregateOperationDef::Sum,
-                        }),
-                    }),
+                    CharacteristicOperationDef::PowerToughness(
+                        PowerToughnessOperationDef::SetBase {
+                            power: ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
+                                objects: ObjectSetDef::LinkedExiles,
+                                select: ObjectValueDef::Power,
+                                operation: AggregateOperationDef::Sum,
+                            }),
+                            toughness: ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
+                                objects: ObjectSetDef::LinkedExiles,
+                                select: ObjectValueDef::Toughness,
+                                operation: AggregateOperationDef::Sum,
+                            }),
+                        },
+                    ),
                 ),
             },
         ),
@@ -1161,33 +1176,36 @@ pub(in crate::card::sets) static ARCANE_TEACHINGS: CardRecord = CardRecord::new(
     "Arcane Teachings",
     "02c56677-c8e2-4500-9ee0-0b102496f454",
     "Mark Brill",
-// It makes the creature bigger and turns it into removal, which is two
+    // It makes the creature bigger and turns it into removal, which is two
     // cards' worth of work for three mana.
     CardRules::new_enchantment(mana_cost!("{2}{R}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
             abilities::enchant_creature(),
             AbilityDef::static_ability(
-            "Enchanted creature gets +2/+2 and has \"{T}: This creature deals 1 damage to any target.\"",
-            EffectDef::StaticApply {
-                recipient: EffectRecipientDef::AttachedPermanent,
-                effect: AppliedEffectDef::Composite(&[
-                    AppliedEffectDef::modify_power_toughness(
-                        ValueDef::Constant(2),
-                        ValueDef::Constant(2),
-                    ),
-                    AppliedEffectDef::add_ability(&AbilityDef::activated_with_targets(
-                        "{T}: This creature deals 1 damage to any target.",
-                        &[CostDef::TapSource],
-                        &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)],
-                        EffectDef::damage(
-                            EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                            ValueDef::Constant(1),
+                "Enchanted creature gets +2/+2 and has \"{T}: This creature \
+                 deals 1 damage to any target.\"",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(2),
+                            ValueDef::Constant(2),
                         ),
-                    )),
-                ]),
-            },
-        ),
+                        AppliedEffectDef::add_ability(&AbilityDef::activated_with_targets(
+                            "{T}: This creature deals 1 damage to any target.",
+                            &[CostDef::TapSource],
+                            &[AbilityTargetDef::exactly_one(
+                                AbilityTargetPredicate::AnyTarget,
+                            )],
+                            EffectDef::damage(
+                                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                ValueDef::Constant(1),
+                            ),
+                        )),
+                    ]),
+                },
+            ),
         ]),
 );
 
@@ -1607,11 +1625,13 @@ pub(in crate::card::sets) static CENTAUR_ROOTCASTER: CardRecord = CardRecord::ne
     "Centaur Rootcaster",
     "3f10dfd9-9889-4d9e-872a-07623dee6b6b",
     "Eric Peterson",
-// Ramp that only pays out once the board is already going your way,
+    // Ramp that only pays out once the board is already going your way,
     // which is the wrong order for a four-drop and why it stayed a common.
     CardRules::new_creature(mana_cost!("{3}{G}"), &["Centaur", "Druid"], 2, 2).with_ability(
         AbilityDef::triggered(
-            "Whenever this creature deals combat damage to a player, you may search your library for a basic land card, put that card onto the battlefield tapped, then shuffle.",
+            "Whenever this creature deals combat damage to a player, you \
+             may search your library for a basic land card, put that \
+             card onto the battlefield tapped, then shuffle.",
             TriggerEventDef::CombatDamageDealtToPlayers {
                 sources: ObjectPredicateDef::Source,
                 players: PlayerRelation::Opponent,
@@ -1717,30 +1737,31 @@ pub(in crate::card::sets) static EXOSKELETAL_ARMOR: CardRecord = CardRecord::new
     "Exoskeletal Armor",
     "e111fcab-17f7-4a02-b4eb-606ba18812b3",
     "Wayne England",
-// Two mana for a creature the size of both graveyards, which by the late
+    // Two mana for a creature the size of both graveyards, which by the late
     // game is bigger than anything else on the table.
     CardRules::new_enchantment(mana_cost!("{1}{G}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
             abilities::enchant_creature(),
             AbilityDef::static_ability(
-            "Enchanted creature gets +X/+X, where X is the number of creature cards in all graveyards.",
-            EffectDef::StaticApply {
-                recipient: EffectRecipientDef::AttachedPermanent,
-                effect: AppliedEffectDef::modify_power_toughness(
-                    ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                        &[ZoneKind::Graveyard],
-                        PlayerRelation::Any,
-                    )),
-                    ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                        &[ZoneKind::Graveyard],
-                        PlayerRelation::Any,
-                    )),
-                ),
-            },
-        ),
+                "Enchanted creature gets +X/+X, where X is the number of \
+                 creature cards in all graveyards.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            &[ZoneKind::Graveyard],
+                            PlayerRelation::Any,
+                        )),
+                        ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            &[ZoneKind::Graveyard],
+                            PlayerRelation::Any,
+                        )),
+                    ),
+                },
+            ),
         ]),
 );
 
@@ -1841,11 +1862,12 @@ pub(in crate::card::sets) static KROSAN_RECLAMATION: CardRecord = CardRecord::ne
     "Krosan Reclamation",
     "5b3c5144-7e15-46c6-b819-d729ecb30bb1",
     "Gary Ruddell",
-// Graveyard hate that answers a single card twice, which is what a
+    // Graveyard hate that answers a single card twice, which is what a
     // combo deck holding one Sutured Ghoul actually needs.
     CardRules::new_instant(mana_cost!("{1}{G}")).with_abilities(&[
         AbilityDef::spell_with_targets(
-            "Target player shuffles up to two target cards from their graveyard into their library.",
+            "Target player shuffles up to two target cards from their \
+             graveyard into their library.",
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Player(PlayerRelation::Any),
             )],
@@ -1869,17 +1891,15 @@ pub(in crate::card::sets) static KROSAN_RECLAMATION: CardRecord = CardRecord::ne
                 // The chosen shuffled back in. The shuffle follows the move so the
                 // library the cards join is the one that gets randomized.
                 then: &EffectDef::Sequence(&[
-                        EffectDef::move_to_zone(
-                            EffectRecipientDef::objects(ObjectSetDef::Binding(
-                                ParentBinding,
-                            )),
-                            ZoneKind::Library,
-                            ZonePlacement::Top,
-                        ),
-                        EffectDef::ShuffleLibrary {
-                            player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        },
-                    ]),
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
+                        ZoneKind::Library,
+                        ZonePlacement::Top,
+                    ),
+                    EffectDef::ShuffleLibrary {
+                        player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    },
+                ]),
             }),
         ),
         AbilityDef::alternative_cast(
@@ -1914,17 +1934,20 @@ pub(in crate::card::sets) static NANTUKO_TRACER: CardRecord = CardRecord::new(
     "Nantuko Tracer",
     "16b93c93-5944-4289-bc5a-30b6e73b0dfd",
     "Greg Staples",
-// One card of graveyard hate on a body, aimed at the one card in the
+    // One card of graveyard hate on a body, aimed at the one card in the
     // yard that actually mattered.
     CardRules::new_creature(mana_cost!("{1}{G}"), &["Insect", "Druid"], 2, 1).with_ability(
         abilities::enters_trigger_with_targets(
-            "When this creature enters, you may put target card from a graveyard on the bottom of its owner's library.",
-            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
-                object: ObjectPredicateDef::Any,
-                zones: &[ZoneKind::Graveyard],
-                controller: None,
-                owner: None,
-            })],
+            "When this creature enters, you may put target card from a \
+             graveyard on the bottom of its owner's library.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Any,
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: None,
+                },
+            )],
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
                 effect: &EffectDef::move_to_zone(
@@ -1965,7 +1988,10 @@ pub(in crate::card::sets) static PHANTOM_NANTUKO: CardRecord = CardRecord::new(
 );
 
 // JUD 129 — Phantom Tiger
-// Audit: unsupported — Needs a damage-prevention follow-up that removes a counter. DamagePreventionFollowUpDef offers only GainLife, so the prevention can be expressed but the "remove a +1/+1 counter from this creature" half cannot; preventing without it would make the creature permanently immune.
+// Audit: unsupported — Needs a damage-prevention follow-up that removes a counter.
+// DamagePreventionFollowUpDef offers only GainLife, so the prevention can be expressed but the
+// "remove a +1/+1 counter from this creature" half cannot; preventing without it would make the
+// creature permanently immune.
 pub(in crate::card::sets) static PHANTOM_TIGER: CardRecord = CardRecord::new(
     "Phantom Tiger",
     "32839296-e583-4f71-aa44-dbe16408665e",
@@ -2156,10 +2182,11 @@ pub(in crate::card::sets) static RIFTSTONE_PORTAL: CardRecord = CardRecord::new(
     "Riftstone Portal",
     "92ece630-e484-4221-911f-e32048894f23",
     "Don Hazeltine",
-CardRules::new_land(&[]).with_abilities(&[
+    CardRules::new_land(&[]).with_abilities(&[
         abilities::tap_for(ManaColor::Colorless),
         AbilityDef::static_ability(
-            "As long as this card is in your graveyard, lands you control have \"{T}: Add {G} or {W}.\"",
+            "As long as this card is in your graveyard, lands you \
+             control have \"{T}: Add {G} or {W}.\"",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::HasType(CardType::Land),

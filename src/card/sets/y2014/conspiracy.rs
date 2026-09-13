@@ -41,11 +41,13 @@ pub(in crate::card::sets) static COUNCILS_JUDGMENT: CardRecord = CardRecord::new
     "Council's Judgment",
     "17f28b16-da65-41a8-ba4f-f1c5e104aad6",
     "Kev Walker",
-// Exiling without targeting is what it is played for: shroud, hexproof,
+    // Exiling without targeting is what it is played for: shroud, hexproof,
     // and protection are all no answer at all. Two players usually means two
     // permanents, since a disagreement ties.
     CardRules::new_sorcery(mana_cost!("{1}{W}{W}")).with_ability(AbilityDef::spell(
-        "Will of the council — Starting with you, each player votes for a nonland permanent you don't control. Exile each permanent with the most votes or tied for most votes.",
+        "Will of the council — Starting with you, each player votes \
+         for a nonland permanent you don't control. Exile each \
+         permanent with the most votes or tied for most votes.",
         EffectDef::VoteForPermanentToExile {
             // "A nonland permanent you don't control" is read against the spell's
             // controller for every voter, so both players choose from the same ballot.
@@ -56,7 +58,10 @@ pub(in crate::card::sets) static COUNCILS_JUDGMENT: CardRecord = CardRecord::new
 );
 
 // CNS 18 — Custodi Squire
-// Audit: unsupported — Needs a will-of-the-council vote over graveyard cards that returns the winners. The only vote effect is VoteForPermanentToExile, which votes over battlefield permanents and exiles them; this votes over cards in your graveyard and returns every card tied for most votes to your hand.
+// Audit: unsupported — Needs a will-of-the-council vote over graveyard cards that returns the
+// winners. The only vote effect is VoteForPermanentToExile, which votes over battlefield
+// permanents and exiles them; this votes over cards in your graveyard and returns every card
+// tied for most votes to your hand.
 pub(in crate::card::sets) static CUSTODI_SQUIRE: CardRecord = CardRecord::new(
     "Custodi Squire",
     "a9151422-8df1-409c-a686-0cd89247eb43",
@@ -65,14 +70,31 @@ pub(in crate::card::sets) static CUSTODI_SQUIRE: CardRecord = CardRecord::new(
 );
 
 // CNS 36 — Treasonous Ogre
-pub(in crate::card::sets) static TREASONOUS_OGRE_36: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static TREASONOUS_OGRE: CardRecord = CardRecord::new(
     "Treasonous Ogre",
     "ae48c31d-6fd9-457f-adb8-37f367724ba1",
     "Randy Gallegos",
     CardRules::new_creature(mana_cost!("{3}{R}"), &["Ogre", "Shaman"], 2, 3).with_abilities(&[
-AbilityDef::triggered("Dethrone (Whenever this creature attacks the player with the most life or tied for most life, put a +1/+1 counter on it.)", TriggerEventDef::While { event: &TriggerEventDef::attacks_a_player(ObjectPredicateDef::Source), condition: &TriggerConditionDef::PlayerHasMostLife(PlayerRelation::Opponent) }, EffectDef::AddCounters { object: EffectRecipientDef::Source, kind: CounterKind::PlusOnePlusOne, amount: ValueDef::Constant(1) }),
-AbilityDef::activated_mana("Pay 3 life: Add {R}.", &[CostDef::PayLife(3)], EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Red)))
-]),
+        AbilityDef::triggered(
+            "Dethrone (Whenever this creature attacks the player with \
+             the most life or tied for most life, put a +1/+1 counter on \
+             it.)",
+            TriggerEventDef::While {
+                event: &TriggerEventDef::attacks_a_player(ObjectPredicateDef::Source),
+                condition: &TriggerConditionDef::PlayerHasMostLife(PlayerRelation::Opponent),
+            },
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        AbilityDef::activated_mana(
+            "Pay 3 life: Add {R}.",
+            &[CostDef::PayLife(3)],
+            EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Red)),
+        ),
+    ]),
 );
 
 // CNS 42 — Dack Fayden
@@ -80,7 +102,7 @@ pub(in crate::card::sets) static DACK_FAYDEN: CardRecord = CardRecord::new(
     "Dack Fayden",
     "3fcb7810-1054-4001-855c-6e17939b3d3f",
     "Eric Deschamps",
-// The greatest thief in the multiverse, and in a cube full of Moxen the
+    // The greatest thief in the multiverse, and in a cube full of Moxen the
     // minus is what he is actually here for.
     CardRules::new_planeswalker(mana_cost!("{1}{U}{R}"), &["Dack"], 3)
         .with_supertype(CardSupertype::Legendary)
@@ -124,28 +146,33 @@ pub(in crate::card::sets) static DACK_FAYDEN: CardRecord = CardRecord::new(
                 "−6: You get an emblem with \"Whenever you cast a spell that targets one or more \
                  permanents, gain control of those permanents.\"",
                 &[CostDef::Loyalty(-6)],
-                EffectDef::create_emblem("Dack Fayden emblem", &[AbilityDef::triggered(
-                    "Whenever you cast a spell that targets one or more permanents, gain control of those \
-                         permanents.",
-                    TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                        ObjectPredicateDef::TargetsObjectMatching(&ObjectPredicateDef::Any),
-                    ])),
-                    EffectDef::gain_control(
-                        EffectRecipientDef::objects(ObjectSetDef::PermanentsTargetedBy(
-                            ObjectRefDef::TriggeringObject,
-                        )),
-                        PlayerRefDef::EffectController,
-                        ControlDurationDef::Indefinitely,
-                    ),
-                )]),
+                EffectDef::create_emblem(
+                    "Dack Fayden emblem",
+                    &[AbilityDef::triggered(
+                        "Whenever you cast a spell that targets one or more \
+                         permanents, gain control of those permanents.",
+                        TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                            ObjectPredicateDef::TargetsObjectMatching(&ObjectPredicateDef::Any),
+                        ])),
+                        EffectDef::gain_control(
+                            EffectRecipientDef::objects(ObjectSetDef::PermanentsTargetedBy(
+                                ObjectRefDef::TriggeringObject,
+                            )),
+                            PlayerRefDef::EffectController,
+                            ControlDurationDef::Indefinitely,
+                        ),
+                    )],
+                ),
             ),
         ]),
 );
 
 // CNS 51 — Selvala, Explorer Returned
-// Audit: unsupported — The activated-mana runtime requires a plannable AddMana effect. It cannot reveal both libraries, compute production from those hidden cards, gain life, and draw cards within the same immediate mana resolution.
-pub(in crate::card::sets) static SELVALA_EXPLORER_RETURNED_51: CardRecord = CardRecord::new(
+// Audit: unsupported — The activated-mana runtime requires a plannable AddMana effect. It
+// cannot reveal both libraries, compute production from those hidden cards, gain life, and draw
+// cards within the same immediate mana resolution.
+pub(in crate::card::sets) static SELVALA_EXPLORER_RETURNED: CardRecord = CardRecord::new(
     "Selvala, Explorer Returned",
     "89d4786c-e022-4ae5-9ef3-75886db51f49",
     "Tyler Jacobson",
@@ -155,9 +182,9 @@ pub(in crate::card::sets) static SELVALA_EXPLORER_RETURNED_51: CardRecord = Card
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &COUNCILS_JUDGMENT,
     &CUSTODI_SQUIRE,
-    &TREASONOUS_OGRE_36,
+    &TREASONOUS_OGRE,
     &DACK_FAYDEN,
-    &SELVALA_EXPLORER_RETURNED_51,
+    &SELVALA_EXPLORER_RETURNED,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

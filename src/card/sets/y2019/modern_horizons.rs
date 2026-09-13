@@ -84,7 +84,7 @@ pub(in crate::card::sets) static EPHEMERATE: CardRecord = CardRecord::new(
     CardRules::new_instant(mana_cost!("{W}")).with_abilities(&[
         AbilityDef::spell_with_targets(
             "Exile target creature you control, then return it to the battlefield under \
-                     its owner's control.",
+             its owner's control.",
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Object {
                     object: ObjectPredicateDef::HasType(CardType::Creature),
@@ -153,7 +153,7 @@ pub(in crate::card::sets) static GIVER_OF_RUNES: CardRecord = CardRecord::new(
 // MH1 20 — On Thin Ice
 // Audit: unsupported — Needs exile-until-source-leaves with an immediate return when the duration
 // ends, not a counterable leaves trigger.
-pub(in crate::card::sets) static ON_THIN_ICE_20: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static ON_THIN_ICE: CardRecord = CardRecord::new(
     "On Thin Ice",
     "b7d4f6b0-ea17-4374-a80c-ba4dd207e9d6",
     "Lucas Graciano",
@@ -161,13 +161,21 @@ pub(in crate::card::sets) static ON_THIN_ICE_20: CardRecord = CardRecord::new(
 );
 
 // MH1 21 — Ranger-Captain of Eos
-pub(in crate::card::sets) static RANGER_CAPTAIN_OF_EOS_21: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static RANGER_CAPTAIN_OF_EOS: CardRecord = CardRecord::new(
     "Ranger-Captain of Eos",
     "af3928b4-813a-4120-8799-de34235d60ac",
     "Ryan Pancoast",
-    CardRules::new_creature(mana_cost!("{1}{W}{W}"), &["Human", "Soldier", "Ranger"], 3, 3).with_abilities(&[
+    CardRules::new_creature(
+        mana_cost!("{1}{W}{W}"),
+        &["Human", "Soldier", "Ranger"],
+        3,
+        3,
+    )
+    .with_abilities(&[
         abilities::enters_trigger(
-            "When this creature enters, you may search your library for a creature card with mana value 1 or less, reveal it, put it into your hand, then shuffle.",
+            "When this creature enters, you may search your library for \
+             a creature card with mana value 1 or less, reveal it, put \
+             it into your hand, then shuffle.",
             EffectDef::SearchZone {
                 player: EffectRecipientDef::Controller,
                 source: ZoneKind::Library,
@@ -296,8 +304,11 @@ pub(in crate::card::sets) static SETTLE_BEYOND_REALITY: CardRecord = CardRecord:
 );
 
 // MH1 29 — Sisay, Weatherlight Captain
-// Audit: unsupported — Needs a value that unions the colors of other legendary permanents you control. ValueDef can count matching objects or aggregate their numeric characteristics, but has no distinct-colors-across-objects value; without Sisay's complete characteristic-defining ability, her power-bounded search cannot be represented faithfully.
-pub(in crate::card::sets) static SISAY_WEATHERLIGHT_CAPTAIN_29: CardRecord = CardRecord::new(
+// Audit: unsupported — Needs a value that unions the colors of other legendary permanents you
+// control. ValueDef can count matching objects or aggregate their numeric characteristics, but
+// has no distinct-colors-across-objects value; without Sisay's complete characteristic-defining
+// ability, her power-bounded search cannot be represented faithfully.
+pub(in crate::card::sets) static SISAY_WEATHERLIGHT_CAPTAIN: CardRecord = CardRecord::new(
     "Sisay, Weatherlight Captain",
     "5a293c45-1e73-4527-be2f-2dcd5c47b610",
     "Anna Steinbauer",
@@ -309,12 +320,15 @@ pub(in crate::card::sets) static WINDS_OF_ABANDON: CardRecord = CardRecord::new(
     "Winds of Abandon",
     "3bb17913-fe4d-4acd-9b75-71f5a90f898b",
     "Noah Bradley",
-// Two mana answers one creature and six answers the board, and neither
+    // Two mana answers one creature and six answers the board, and neither
     // half leaves anything behind to rebuild from -- exile rather than
     // destruction is the whole reason the card ends games.
     CardRules::new_sorcery(mana_cost!("{1}{W}")).with_abilities(&[
         AbilityDef::spell_with_targets(
-            "Exile target creature you don't control. For each creature exiled this way, its controller searches their library for a basic land card. Those players put those cards onto the battlefield tapped, then shuffle.",
+            "Exile target creature you don't control. For each creature \
+             exiled this way, its controller searches their library for \
+             a basic land card. Those players put those cards onto the \
+             battlefield tapped, then shuffle.",
             // "You don't control" is a constraint on the slot rather than on the object:
             // a spell being cast is not a permanent, so a predicate that compares
             // controllers has nothing to compare against yet.
@@ -335,9 +349,9 @@ pub(in crate::card::sets) static WINDS_OF_ABANDON: CardRecord = CardRecord::new(
                 // The searcher is the creature's controller, read from the announced
                 // target: by now the creature is in exile and cannot be asked.
                 EffectDef::SearchZone {
-                    player: EffectRecipientDef::player(PlayerRefDef::ControllerOf(ObjectRefDef::Target(
-                        TargetIndex::PRIMARY,
-                    ))),
+                    player: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
+                        ObjectRefDef::Target(TargetIndex::PRIMARY),
+                    )),
                     source: ZoneKind::Library,
                     object: ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Land),
@@ -359,7 +373,12 @@ pub(in crate::card::sets) static WINDS_OF_ABANDON: CardRecord = CardRecord::new(
         AbilityDef::alternative_cast(
             &[CostDef::Mana(mana_cost!("{4}{W}{W}"))],
             AlternativeCastKindDef::Overload,
-            Some("Exile each creature you don't control. For each creature exiled this way, its controller searches their library for a basic land card. Those players put those cards onto the battlefield tapped, then shuffle."),
+            Some(
+                "Exile each creature you don't control. For each creature \
+                 exiled this way, its controller searches their library for \
+                 a basic land card. Those players put those cards onto the \
+                 battlefield tapped, then shuffle.",
+            ),
             abilities::bind_objects_then(
                 crate::card::ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Query(
                     ObjectQueryDef::matching(
@@ -402,7 +421,7 @@ pub(in crate::card::sets) static WINDS_OF_ABANDON: CardRecord = CardRecord::new(
 );
 
 // MH1 40 — Archmage's Charm
-pub(in crate::card::sets) static ARCHMAGE_S_CHARM_40: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static ARCHMAGE_S_CHARM: CardRecord = CardRecord::new(
     "Archmage's Charm",
     "57b852b6-4388-4a41-a5c0-bba37a5c1451",
     "Alayna Danner",
@@ -627,7 +646,8 @@ const CARRION_FEEDER_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // MH1 91 — First-Sphere Gargantua
-// Audit: unsupported — Needs unearth. Its last clause exiles the creature if it would leave the battlefield for any zone, and ReplacementEventDef::WouldMove names a single destination.
+// Audit: unsupported — Needs unearth. Its last clause exiles the creature if it would leave the
+// battlefield for any zone, and ReplacementEventDef::WouldMove names a single destination.
 pub(in crate::card::sets) static FIRST_SPHERE_GARGANTUA: CardRecord = CardRecord::new(
     "First-Sphere Gargantua",
     "a59f4e5c-fdc7-485f-aadb-2a71b3701dcc",
@@ -636,7 +656,7 @@ pub(in crate::card::sets) static FIRST_SPHERE_GARGANTUA: CardRecord = CardRecord
 );
 
 // MH1 92 — Force of Despair
-pub(in crate::card::sets) static FORCE_OF_DESPAIR_92: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static FORCE_OF_DESPAIR: CardRecord = CardRecord::new(
     "Force of Despair",
     "8f497b0d-4448-4201-bd55-c147da1a216d",
     "Seb McKinnon",
@@ -649,7 +669,8 @@ pub(in crate::card::sets) static FORCE_OF_DESPAIR_92: CardRecord = CardRecord::n
             )],
             AlternativeCastKindDef::AlternativeCost,
             Some(
-                "If it's not your turn, you may exile a black card from your hand rather than pay this spell's mana cost.",
+                "If it's not your turn, you may exile a black card from your \
+                 hand rather than pay this spell's mana cost.",
             ),
             EffectDef::None,
         )
@@ -672,7 +693,8 @@ pub(in crate::card::sets) static FORCE_OF_DESPAIR_92: CardRecord = CardRecord::n
 );
 
 // MH1 94 — Graveshifter
-// Audit: unsupported — Needs an all-zone creature-type characteristic-defining ability whose all-types value is copiable; battlefield all-type modifiers do not implement changeling.
+// Audit: unsupported — Needs an all-zone creature-type characteristic-defining ability whose
+// all-types value is copiable; battlefield all-type modifiers do not implement changeling.
 pub(in crate::card::sets) static GRAVESHIFTER: CardRecord = CardRecord::new(
     "Graveshifter",
     "128c516b-7eb1-4f81-8b54-428bd0649d92",
@@ -692,7 +714,7 @@ pub(in crate::card::sets) static PUTRID_GOBLIN: CardRecord = CardRecord::new(
 );
 
 // MH1 116 — Yawgmoth, Thran Physician
-pub(in crate::card::sets) static YAWGMOTH_THRAN_PHYSICIAN_116: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static YAWGMOTH_THRAN_PHYSICIAN: CardRecord = CardRecord::new(
     "Yawgmoth, Thran Physician",
     "8690cbcc-f8fd-41f7-9e28-e61c12b04014",
     "Mark Winters",
@@ -701,12 +723,13 @@ pub(in crate::card::sets) static YAWGMOTH_THRAN_PHYSICIAN_116: CardRecord = Card
         .with_abilities(&[
             AbilityDef::keyword(
                 "Protection from Humans",
-                KeywordAbility::ProtectionFrom(&ObjectPredicateDef::Subtype(
-                    SubtypeDef::Literal("Human"),
-                )),
+                KeywordAbility::ProtectionFrom(&ObjectPredicateDef::Subtype(SubtypeDef::Literal(
+                    "Human",
+                ))),
             ),
             AbilityDef::activated_with_targets(
-                "Pay 1 life, Sacrifice another creature: Put a -1/-1 counter on up to one target creature and draw a card.",
+                "Pay 1 life, Sacrifice another creature: Put a -1/-1 counter \
+                 on up to one target creature and draw a card.",
                 &[
                     CostDef::PayLife(1),
                     CostDef::SacrificePermanent {
@@ -739,7 +762,9 @@ pub(in crate::card::sets) static YAWGMOTH_THRAN_PHYSICIAN_116: CardRecord = Card
                 ]),
             ),
             AbilityDef::activated(
-                "{B}{B}, Discard a card: Proliferate. (Choose any number of permanents and/or players, then give each another counter of each kind already there.)",
+                "{B}{B}, Discard a card: Proliferate. (Choose any number of \
+                 permanents and/or players, then give each another counter \
+                 of each kind already there.)",
                 &[
                     CostDef::Mana(mana_cost!("{B}{B}")),
                     CostDef::discard(ObjectPredicateDef::Any),
@@ -754,11 +779,13 @@ pub(in crate::card::sets) static BOGARDAN_DRAGONHEART: CardRecord = CardRecord::
     "Bogardan Dragonheart",
     "feb81f44-8f22-4d28-a452-a50bef69a3e3",
     "Randy Vargas",
-// One spare creature turns a 2/2 into a hasty 4/4 flier, so the card is
+    // One spare creature turns a 2/2 into a hasty 4/4 flier, so the card is
     // a finisher in the deck that was already sacrificing things.
     CardRules::new_creature(mana_cost!("{2}{R}"), &["Human", "Shaman"], 2, 2).with_ability(
         AbilityDef::activated(
-            "Sacrifice another creature: Until end of turn, this creature becomes a Dragon with base power and toughness 4/4, flying, and haste.",
+            "Sacrifice another creature: Until end of turn, this \
+             creature becomes a Dragon with base power and toughness \
+             4/4, flying, and haste.",
             &[CostDef::SacrificePermanent {
                 object: ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
@@ -831,55 +858,62 @@ pub(in crate::card::sets) static GOATNAP: CardRecord = CardRecord::new(
 );
 
 // MH1 128 — Goblin Engineer
-pub(in crate::card::sets) static GOBLIN_ENGINEER_128: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static GOBLIN_ENGINEER: CardRecord = CardRecord::new(
     "Goblin Engineer",
     "a55c4d47-5252-40af-961d-c08bc688028a",
     "Jehan Choo",
-    CardRules::new_creature(mana_cost!("{1}{R}"), &["Goblin", "Artificer"], 1, 2).with_abilities(&[
-        abilities::enters_trigger(
-            "When this creature enters, you may search your library for an artifact card, put it into your graveyard, then shuffle.",
-            EffectDef::SearchZone {
-                player: EffectRecipientDef::Controller,
-                source: ZoneKind::Library,
-                object: ObjectPredicateDef::HasType(CardType::Artifact),
-                minimum: 0,
-                maximum: ValueDef::Constant(1),
-                reveal: false,
-                destination: ZoneKind::Graveyard,
-                placement: ZonePlacement::Top,
-                shuffle: true,
-                enters_tapped: false,
-                attachment: None,
-                binding: None,
-                then: None,
-            },
-        ),
-        AbilityDef::activated_with_targets(
-            "{R}, {T}, Sacrifice an artifact: Return target artifact card with mana value 3 or less from your graveyard to the battlefield.",
-            &[
-                CostDef::Mana(mana_cost!("{R}")),
-                CostDef::TapSource,
-                CostDef::SacrificePermanent {
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Goblin", "Artificer"], 1, 2).with_abilities(
+        &[
+            abilities::enters_trigger(
+                "When this creature enters, you may search your library for \
+                 an artifact card, put it into your graveyard, then shuffle.",
+                EffectDef::SearchZone {
+                    player: EffectRecipientDef::Controller,
+                    source: ZoneKind::Library,
                     object: ObjectPredicateDef::HasType(CardType::Artifact),
-                    controller: PlayerRelation::You,
+                    minimum: 0,
+                    maximum: ValueDef::Constant(1),
+                    reveal: false,
+                    destination: ZoneKind::Graveyard,
+                    placement: ZonePlacement::Top,
+                    shuffle: true,
+                    enters_tapped: false,
+                    attachment: None,
+                    binding: None,
+                    then: None,
                 },
-            ],
-            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
-                object: ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::HasType(CardType::Artifact),
-                    ObjectPredicateDef::ManaValueAtMost(3),
-                ]),
-                zones: &[ZoneKind::Graveyard],
-                controller: None,
-                owner: Some(PlayerRelation::You),
-            })],
-            EffectDef::move_to_zone(
-                EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                ZoneKind::Battlefield,
-                ZonePlacement::Top,
             ),
-        ),
-    ]),
+            AbilityDef::activated_with_targets(
+                "{R}, {T}, Sacrifice an artifact: Return target artifact \
+                 card with mana value 3 or less from your graveyard to the \
+                 battlefield.",
+                &[
+                    CostDef::Mana(mana_cost!("{R}")),
+                    CostDef::TapSource,
+                    CostDef::SacrificePermanent {
+                        object: ObjectPredicateDef::HasType(CardType::Artifact),
+                        controller: PlayerRelation::You,
+                    },
+                ],
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Artifact),
+                            ObjectPredicateDef::ManaValueAtMost(3),
+                        ]),
+                        zones: &[ZoneKind::Graveyard],
+                        controller: None,
+                        owner: Some(PlayerRelation::You),
+                    },
+                )],
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Battlefield,
+                    ZonePlacement::Top,
+                ),
+            ),
+        ],
+    ),
 );
 
 // MH1 130 — Goblin Oriflamme
@@ -907,7 +941,7 @@ pub(in crate::card::sets) static GOBLIN_ORIFLAMME: CardRecord = CardRecord::new(
 );
 
 // MH1 138 — Pashalik Mons
-pub(in crate::card::sets) static PASHALIK_MONS_138: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static PASHALIK_MONS: CardRecord = CardRecord::new(
     "Pashalik Mons",
     "11616853-34b1-4bb1-9590-461e12970ec3",
     "Even Amundsen",
@@ -915,7 +949,8 @@ pub(in crate::card::sets) static PASHALIK_MONS_138: CardRecord = CardRecord::new
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
             abilities::dies_trigger_matching_with_targets(
-                "Whenever this creature or another Goblin you control dies, this creature deals 1 damage to any target.",
+                "Whenever this creature or another Goblin you control dies, \
+                 this creature deals 1 damage to any target.",
                 ObjectPredicateDef::AnyOf(&[
                     ObjectPredicateDef::Source,
                     ObjectPredicateDef::All(&[
@@ -923,7 +958,9 @@ pub(in crate::card::sets) static PASHALIK_MONS_138: CardRecord = CardRecord::new
                         ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                     ]),
                 ]),
-                &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)],
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::AnyTarget,
+                )],
                 EffectDef::damage(
                     EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     ValueDef::Constant(1),
@@ -938,7 +975,17 @@ pub(in crate::card::sets) static PASHALIK_MONS_138: CardRecord = CardRecord::new
                         controller: PlayerRelation::You,
                     },
                 ],
-                EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(crate::card::TokenCharacteristics::creature(&["Goblin"], &[ManaColor::Red], 1, 1))).with_amount(2)),
+                EffectDef::CreateToken(
+                    crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(
+                        crate::card::TokenCharacteristics::creature(
+                            &["Goblin"],
+                            &[ManaColor::Red],
+                            1,
+                            1,
+                        ),
+                    ))
+                    .with_amount(2),
+                ),
             ),
         ]),
 );
@@ -979,22 +1026,22 @@ pub(in crate::card::sets) static SEASONED_PYROMANCER: CardRecord = CardRecord::n
     "Seasoned Pyromancer",
     "2e139ad1-1079-49e9-babd-6399c44ad333",
     "Cynthia Sheppard",
-// Three mana that turns the two worst cards in your hand into two fresh
+    // Three mana that turns the two worst cards in your hand into two fresh
     // ones and a body for each of them that was not a land -- and then does
     // it again from the graveyard.
-    CardRules::new_creature(mana_cost!("{1}{R}{R}"), &["Human", "Shaman"], 2, 2)
-        .with_abilities(&[
-            abilities::enters_trigger(
-                "When this creature enters, discard two cards, then draw two cards. For each nonland card \
-                 discarded this way, create a 1/1 red Elemental creature token.",
-                EffectDef::Discard {
-                    recipient: EffectRecipientDef::Controller,
-                    amount: ValueDef::Constant(2),
-                    selection: DiscardSelectionDef::RecipientChooses,
-                    then: Some(DiscardFollowUpDef {
-                        counted: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
-                        bound: Some(ParentBinding),
-                        effect: &// The draw comes before the tokens are counted, which is what the printed
+    CardRules::new_creature(mana_cost!("{1}{R}{R}"), &["Human", "Shaman"], 2, 2).with_abilities(&[
+        abilities::enters_trigger(
+            "When this creature enters, discard two cards, then draw two \
+             cards. For each nonland card discarded this way, create a \
+             1/1 red Elemental creature token.",
+            EffectDef::Discard {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(2),
+                selection: DiscardSelectionDef::RecipientChooses,
+                then: Some(DiscardFollowUpDef {
+                    counted: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                    bound: Some(ParentBinding),
+                    effect: &// The draw comes before the tokens are counted, which is what the printed
                             // order says: two cards go, two cards come, and only then does the board
                             // pay you back for the ones that were not lands.
                             EffectDef::Sequence(&[
@@ -1007,24 +1054,22 @@ pub(in crate::card::sets) static SEASONED_PYROMANCER: CardRecord = CardRecord::n
                                         .with_count(ValueDef::BoundObjectCount(ParentBinding)),
                                 ),
                             ]),
-                    }),
-                },
+                }),
+            },
+        ),
+        // The card is spent from the graveyard, which is why he is never a dead
+        // draw late: the body was the first half and this is the second.
+        AbilityDef::activated(
+            "{3}{R}{R}, Exile this card from your graveyard: Create two \
+             1/1 red Elemental creature tokens.",
+            &[CostDef::Mana(mana_cost!("{3}{R}{R}")), CostDef::ExileSource],
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(PYROMANCER_ELEMENTAL))
+                    .with_count(ValueDef::Constant(2)),
             ),
-            // The card is spent from the graveyard, which is why he is never a dead
-            // draw late: the body was the first half and this is the second.
-            AbilityDef::activated(
-                "{3}{R}{R}, Exile this card from your graveyard: Create two 1/1 red Elemental creature \
-                 tokens.",
-                &[
-                    CostDef::Mana(mana_cost!("{3}{R}{R}")),
-                    CostDef::ExileSource,
-                ],
-                EffectDef::CreateToken(
-                    CreateTokenDef::new(TokenDef::Literal(PYROMANCER_ELEMENTAL)).with_count(ValueDef::Constant(2)),
-                ),
-            )
-            .with_source_zones(&[ZoneKind::Graveyard]),
-        ]),
+        )
+        .with_source_zones(&[ZoneKind::Graveyard]),
+    ]),
 );
 
 // MH1 158 — Collector Ouphe
@@ -1052,7 +1097,7 @@ pub(in crate::card::sets) static FORCE_OF_VIGOR: CardRecord = CardRecord::new(
     "Force of Vigor",
     "017c415b-d635-43c6-92b8-8c95d1c4ff8d",
     "Randy Vargas",
-CardRules::new_instant(mana_cost!("{2}{G}{G}")).with_abilities(&[
+    CardRules::new_instant(mana_cost!("{2}{G}{G}")).with_abilities(&[
         AbilityDef::alternative_cast(
             &[CostDef::exile(
                 ObjectPredicateDef::Color(ManaColor::Green),
@@ -1061,13 +1106,13 @@ CardRules::new_instant(mana_cost!("{2}{G}{G}")).with_abilities(&[
             )],
             AlternativeCastKindDef::AlternativeCost,
             Some(
-                "If it's not your turn, you may exile a green card from your hand rather than pay this spell's mana cost.",
+                "If it's not your turn, you may exile a green card from your \
+                 hand rather than pay this spell's mana cost.",
             ),
             EffectDef::None,
         )
         // Exiled rather than discarded: the card is spent without ever becoming a
         // graveyard card, which is what "exile a green card" means.
-
         .with_alternative_condition(&NOT_YOUR_TURN),
         AbilityDef::spell_with_targets(
             "Destroy up to two target artifacts and/or enchantments.",
@@ -1192,15 +1237,13 @@ pub(in crate::card::sets) static MOTHER_BEAR: CardRecord = CardRecord::new(
     "Mother Bear",
     "efae4d84-8134-461a-a352-a5bdff7259a7",
     "Winona Nelson",
-// Two mana now and five later out of the same card, which is why the
+    // Two mana now and five later out of the same card, which is why the
     // graveyard half is worth holding rather than a consolation prize.
     CardRules::new_creature(mana_cost!("{1}{G}"), &["Bear"], 2, 2).with_ability(
         AbilityDef::activated(
-            "{3}{G}{G}, Exile this card from your graveyard: Create two 2/2 green Bear creature tokens. Activate only as a sorcery.",
-            &[
-                CostDef::Mana(mana_cost!("{3}{G}{G}")),
-                CostDef::ExileSource,
-            ],
+            "{3}{G}{G}, Exile this card from your graveyard: Create two \
+             2/2 green Bear creature tokens. Activate only as a sorcery.",
+            &[CostDef::Mana(mana_cost!("{3}{G}{G}")), CostDef::ExileSource],
             EffectDef::CreateToken(
                 CreateTokenDef::new(TokenDef::Literal(TokenCharacteristics::creature(
                     &["Bear"],
@@ -1340,30 +1383,34 @@ pub(in crate::card::sets) static FALLEN_SHINOBI: CardRecord = CardRecord::new(
     "Fallen Shinobi",
     "900c9dfd-ece1-4b09-a801-0fa05e1994b9",
     "Tomasz Jedruszek",
-// Ninjutsu is what makes a five-mana 5/4 connect on turn three, and
+    // Ninjutsu is what makes a five-mana 5/4 connect on turn three, and
     // connecting is the whole card: two cards off the top of their deck,
     // free, every time.
-    CardRules::new_creature(mana_cost!("{3}{U}{B}"), &["Zombie", "Ninja"], 5, 4)
-        .with_abilities(&[
-            abilities::ninjutsu!(
-                "Ninjutsu {2}{U}{B} ({2}{U}{B}, Return an unblocked attacker you control to hand: Put this card onto the battlefield from your hand tapped and attacking.)",
-                &[CostDef::Mana(mana_cost!("{2}{U}{B}"))],
-            ),
-            AbilityDef::triggered(
-                "Whenever this creature deals combat damage to a player, that player exiles the top two cards of their library. Until end of turn, you may play those cards without paying their mana costs.",
-                TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
-                EffectDef::ExileTopOfLibraryToPlay {
-                    player: EffectRecipientDef::EventPlayer,
-                    amount: ValueDef::Constant(2),
-                    free: true,
-                    face_down: false,
-                    duration: ExilePlayDurationDef::ThisTurn,
-                    spend_any_color: false,
-                    play_condition: None,
-                    cast_only: false,
-                },
-            ),
-        ]),
+    CardRules::new_creature(mana_cost!("{3}{U}{B}"), &["Zombie", "Ninja"], 5, 4).with_abilities(&[
+        abilities::ninjutsu!(
+            "Ninjutsu {2}{U}{B} ({2}{U}{B}, Return an unblocked attacker \
+             you control to hand: Put this card onto the battlefield \
+             from your hand tapped and attacking.)",
+            &[CostDef::Mana(mana_cost!("{2}{U}{B}"))],
+        ),
+        AbilityDef::triggered(
+            "Whenever this creature deals combat damage to a player, \
+             that player exiles the top two cards of their library. \
+             Until end of turn, you may play those cards without paying \
+             their mana costs.",
+            TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
+            EffectDef::ExileTopOfLibraryToPlay {
+                player: EffectRecipientDef::EventPlayer,
+                amount: ValueDef::Constant(2),
+                free: true,
+                face_down: false,
+                duration: ExilePlayDurationDef::ThisTurn,
+                spend_any_color: false,
+                play_condition: None,
+                cast_only: false,
+            },
+        ),
+    ]),
 );
 
 // MH1 201 — Good-Fortune Unicorn
@@ -1398,7 +1445,7 @@ pub(in crate::card::sets) static GOOD_FORTUNE_UNICORN: CardRecord = CardRecord::
 // MH1 202 — Hogaak, Arisen Necropolis
 // Audit: unsupported — Casting cannot prohibit every mana payment while allowing convoke and
 // delve to pay the whole cost, including additional costs and commander tax.
-pub(in crate::card::sets) static HOGAAK_ARISEN_NECROPOLIS_202: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static HOGAAK_ARISEN_NECROPOLIS: CardRecord = CardRecord::new(
     "Hogaak, Arisen Necropolis",
     "0049e68d-0caf-474f-9523-dad343f1250a",
     "Vincent Proce",
@@ -1406,8 +1453,10 @@ pub(in crate::card::sets) static HOGAAK_ARISEN_NECROPOLIS_202: CardRecord = Card
 );
 
 // MH1 216 — Unsettled Mariner
-// Audit: unsupported — The all-zone subtype declaration is read for cards and spells but not applied by the battlefield/copy characteristic walk. Changeling needs the same intrinsic all-types value across those paths.
-pub(in crate::card::sets) static UNSETTLED_MARINER_216: CardRecord = CardRecord::new(
+// Audit: unsupported — The all-zone subtype declaration is read for cards and spells but not
+// applied by the battlefield/copy characteristic walk. Changeling needs the same intrinsic
+// all-types value across those paths.
+pub(in crate::card::sets) static UNSETTLED_MARINER: CardRecord = CardRecord::new(
     "Unsettled Mariner",
     "eaea2e54-ee50-47b9-a2a5-e3353831248c",
     "John Stanko",
@@ -1419,7 +1468,7 @@ pub(in crate::card::sets) static WRENN_AND_SIX: CardRecord = CardRecord::new(
     "Wrenn and Six",
     "4a706ecf-3277-40e3-871c-4ba4ead16e20",
     "Chase Stone",
-// Two mana that buys back a fetchland every turn, pings something on the
+    // Two mana that buys back a fetchland every turn, pings something on the
     // way, and eventually turns the graveyard into a second hand.
     CardRules::new_planeswalker(mana_cost!("{R}{G}"), &["Wrenn"], 3)
         .with_supertype(CardSupertype::Legendary)
@@ -1456,36 +1505,48 @@ pub(in crate::card::sets) static WRENN_AND_SIX: CardRecord = CardRecord::new(
                 ),
             ),
             AbilityDef::activated(
-                "−7: You get an emblem with \"Instant and sorcery cards in your graveyard have retrace.\" \
-                 (You may cast instant and sorcery cards from your graveyard by discarding a land card in \
-                 addition to paying their other costs.)",
+                "−7: You get an emblem with \"Instant and sorcery cards in \
+                 your graveyard have retrace.\" (You may cast instant and \
+                 sorcery cards from your graveyard by discarding a land card \
+                 in addition to paying their other costs.)",
                 &[CostDef::Loyalty(-7)],
                 EffectDef::CreateEmblem {
-                    emblem: EmblemCharacteristics::new("Wrenn and Six emblem", &[AbilityDef::static_ability(
+                    emblem: EmblemCharacteristics::new(
+                        "Wrenn and Six emblem",
+                        &[AbilityDef::static_ability(
                             "Instant and sorcery cards in your graveyard have retrace.",
                             EffectDef::StaticApply {
-                                recipient: EffectRecipientDef::players(PlayerSetDef::Related(PlayerRelation::You)),
-                                effect: AppliedEffectDef::Rule(AppliedRuleDef::GrantsAlternativeCastFromGraveyard {
-                                    object: ObjectPredicateDef::AnyOf(&[
-                                        ObjectPredicateDef::HasType(CardType::Instant),
-                                        ObjectPredicateDef::HasType(CardType::Sorcery),
-                                    ]),
-                                    ability: &AbilityDef::alternative_cast(
-                                        &[CostDef::ManaCostOf(crate::ObjectRefDef::Source), CostDef::discard(ObjectPredicateDef::HasType(CardType::Land))],
-                                        AlternativeCastKindDef::Retrace,
-                                        Some(
-                                            "Retrace (You may cast this card from your graveyard by discarding a land card in \
-                                             addition to paying its other costs.)",
-                                        ),
-                                        EffectDef::None,
-                                    )
-                                    // Retrace's own cost: the card's mana cost, plus a land out of your hand.
-                                    // Discarding is what an ordinary hand cost does, so nothing else has to be
-                                    // said about how the land is spent.
-                                    ,
-                                }),
+                                recipient: EffectRecipientDef::players(PlayerSetDef::Related(
+                                    PlayerRelation::You,
+                                )),
+                                effect: AppliedEffectDef::Rule(
+                                    AppliedRuleDef::GrantsAlternativeCastFromGraveyard {
+                                        object: ObjectPredicateDef::AnyOf(&[
+                                            ObjectPredicateDef::HasType(CardType::Instant),
+                                            ObjectPredicateDef::HasType(CardType::Sorcery),
+                                        ]),
+                                        ability: &AbilityDef::alternative_cast(
+                                            &[
+                                                CostDef::ManaCostOf(crate::ObjectRefDef::Source),
+                                                CostDef::discard(ObjectPredicateDef::HasType(
+                                                    CardType::Land,
+                                                )),
+                                            ],
+                                            AlternativeCastKindDef::Retrace,
+                                            Some(
+                                                "Retrace (You may cast this card from your \
+                                                 graveyard by discarding a land card in \
+                                                 addition to paying its other costs.)",
+                                            ),
+                                            EffectDef::None,
+                                        ), // Retrace's own cost: the card's mana cost, plus a land out of your hand.
+                                           // Discarding is what an ordinary hand cost does, so nothing else has to be
+                                           // said about how the land is spent.
+                                    },
+                                ),
                             },
-                        )]),
+                        )],
+                    ),
                 },
             ),
         ]),
@@ -1495,7 +1556,7 @@ pub(in crate::card::sets) static WRENN_AND_SIX: CardRecord = CardRecord::new(
 // Audit: unsupported — Printed ManaCost rejects snow symbols. SnowMana exists as a separate
 // payment cost, but cannot preserve the printed {S} mana cost and mana value through ordinary
 // casting and copies.
-pub(in crate::card::sets) static ARCUM_S_ASTROLABE_220: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static ARCUM_S_ASTROLABE: CardRecord = CardRecord::new(
     "Arcum's Astrolabe",
     "c2462fdf-a594-47d0-8e10-b55901e350d9",
     "Igor Kieryluk",
@@ -1528,7 +1589,7 @@ pub(in crate::card::sets) static FARMSTEAD_GLEANER: CardRecord = CardRecord::new
 );
 
 // MH1 225 — Lesser Masticore
-pub(in crate::card::sets) static LESSER_MASTICORE_225: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static LESSER_MASTICORE: CardRecord = CardRecord::new(
     "Lesser Masticore",
     "c4c7cba5-6111-40ce-828a-e811301bb283",
     "Wisnu Tan",
@@ -1632,7 +1693,7 @@ pub(in crate::card::sets) static TALISMAN_OF_CURIOSITY: CardRecord = CardRecord:
 );
 
 // MH1 233 — Talisman of Hierarchy
-pub(in crate::card::sets) static TALISMAN_OF_HIERARCHY_233: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static TALISMAN_OF_HIERARCHY: CardRecord = CardRecord::new(
     "Talisman of Hierarchy",
     "826f99c7-f534-4183-8f0d-efe1609808ac",
     "Lindsey Look",
@@ -1654,8 +1715,10 @@ pub(in crate::card::sets) static TALISMAN_OF_HIERARCHY_233: CardRecord = CardRec
 );
 
 // MH1 235 — Universal Automaton
-// Audit: unsupported — The all-zone subtype declaration is read for cards and spells but not applied by the battlefield/copy characteristic walk. Changeling needs the same intrinsic all-types value across those paths.
-pub(in crate::card::sets) static UNIVERSAL_AUTOMATON_235: CardRecord = CardRecord::new(
+// Audit: unsupported — The all-zone subtype declaration is read for cards and spells but not
+// applied by the battlefield/copy characteristic walk. Changeling needs the same intrinsic
+// all-types value across those paths.
+pub(in crate::card::sets) static UNIVERSAL_AUTOMATON: CardRecord = CardRecord::new(
     "Universal Automaton",
     "53c682e2-c90f-4f4b-9010-00b099e85518",
     "Ben Maier",
@@ -1663,7 +1726,7 @@ pub(in crate::card::sets) static UNIVERSAL_AUTOMATON_235: CardRecord = CardRecor
 );
 
 // MH1 238 — Fiery Islet
-pub(in crate::card::sets) static FIERY_ISLET_238: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static FIERY_ISLET: CardRecord = CardRecord::new(
     "Fiery Islet",
     "a3aab13c-9d9d-4507-ae5d-da979990ae1b",
     "Richard Wright",
@@ -1674,7 +1737,7 @@ pub(in crate::card::sets) static FIERY_ISLET_238: CardRecord = CardRecord::new(
 );
 
 // MH1 241 — Hall of Heliod's Generosity
-pub(in crate::card::sets) static HALL_OF_HELIOD_S_GENEROSITY_241: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static HALL_OF_HELIOD_S_GENEROSITY: CardRecord = CardRecord::new(
     "Hall of Heliod's Generosity",
     "b5cbd10a-b9a6-4c00-8280-72bb4add4390",
     "Daniel Ljunggren",
@@ -1700,7 +1763,7 @@ pub(in crate::card::sets) static HALL_OF_HELIOD_S_GENEROSITY_241: CardRecord = C
 );
 
 // MH1 243 — Nurturing Peatland
-pub(in crate::card::sets) static NURTURING_PEATLAND_243: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static NURTURING_PEATLAND: CardRecord = CardRecord::new(
     "Nurturing Peatland",
     "2744ac83-a79f-4042-8720-688b5adda382",
     "Noah Bradley",
@@ -1732,7 +1795,7 @@ pub(in crate::card::sets) static PRISMATIC_VISTA: CardRecord = CardRecord::new(
 );
 
 // MH1 246 — Silent Clearing
-pub(in crate::card::sets) static SILENT_CLEARING_246: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static SILENT_CLEARING: CardRecord = CardRecord::new(
     "Silent Clearing",
     "ac07e230-0297-4e1d-bdfe-119010e0ad8e",
     "Seb McKinnon",
@@ -1767,27 +1830,27 @@ pub(in crate::card::sets) static WATERLOGGED_GROVE: CardRecord = CardRecord::new
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &EPHEMERATE,
     &GIVER_OF_RUNES,
-    &ON_THIN_ICE_20,
-    &RANGER_CAPTAIN_OF_EOS_21,
+    &ON_THIN_ICE,
+    &RANGER_CAPTAIN_OF_EOS,
     &RHOX_VETERAN,
     &SETTLE_BEYOND_REALITY,
-    &SISAY_WEATHERLIGHT_CAPTAIN_29,
+    &SISAY_WEATHERLIGHT_CAPTAIN,
     &WINDS_OF_ABANDON,
-    &ARCHMAGE_S_CHARM_40,
+    &ARCHMAGE_S_CHARM,
     &ECHO_OF_EONS,
     &FAERIE_SEER,
     &FORCE_OF_NEGATION,
     &URZA_LORD_HIGH_ARTIFICER,
     &FIRST_SPHERE_GARGANTUA,
-    &FORCE_OF_DESPAIR_92,
+    &FORCE_OF_DESPAIR,
     &GRAVESHIFTER,
     &PUTRID_GOBLIN,
-    &YAWGMOTH_THRAN_PHYSICIAN_116,
+    &YAWGMOTH_THRAN_PHYSICIAN,
     &BOGARDAN_DRAGONHEART,
     &GOATNAP,
-    &GOBLIN_ENGINEER_128,
+    &GOBLIN_ENGINEER,
     &GOBLIN_ORIFLAMME,
-    &PASHALIK_MONS_138,
+    &PASHALIK_MONS,
     &RAVENOUS_GIANT,
     &SEASONED_PYROMANCER,
     &COLLECTOR_OUPHE,
@@ -1799,22 +1862,22 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &WINDING_WAY,
     &FALLEN_SHINOBI,
     &GOOD_FORTUNE_UNICORN,
-    &HOGAAK_ARISEN_NECROPOLIS_202,
-    &UNSETTLED_MARINER_216,
+    &HOGAAK_ARISEN_NECROPOLIS,
+    &UNSETTLED_MARINER,
     &WRENN_AND_SIX,
-    &ARCUM_S_ASTROLABE_220,
+    &ARCUM_S_ASTROLABE,
     &FARMSTEAD_GLEANER,
-    &LESSER_MASTICORE_225,
+    &LESSER_MASTICORE,
     &TALISMAN_OF_CONVICTION,
     &TALISMAN_OF_CREATIVITY,
     &TALISMAN_OF_CURIOSITY,
-    &TALISMAN_OF_HIERARCHY_233,
-    &UNIVERSAL_AUTOMATON_235,
-    &FIERY_ISLET_238,
-    &HALL_OF_HELIOD_S_GENEROSITY_241,
-    &NURTURING_PEATLAND_243,
+    &TALISMAN_OF_HIERARCHY,
+    &UNIVERSAL_AUTOMATON,
+    &FIERY_ISLET,
+    &HALL_OF_HELIOD_S_GENEROSITY,
+    &NURTURING_PEATLAND,
     &PRISMATIC_VISTA,
-    &SILENT_CLEARING_246,
+    &SILENT_CLEARING,
     &SUNBAKED_CANYON,
     &WATERLOGGED_GROVE,
 ];

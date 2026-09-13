@@ -395,7 +395,8 @@ pub(in crate::card::sets) static ANAFENZA_UNYIELDING_LINEAGE: CardRecord = CardR
 );
 
 // TDM 3 — Arashin Sunshield
-// Audit: unsupported — Needs a target-group restriction that all selected graveyard cards have the same owner; current graveyard target slots constrain each card independently.
+// Audit: unsupported — Needs a target-group restriction that all selected graveyard cards have
+// the same owner; current graveyard target slots constrain each card independently.
 pub(in crate::card::sets) static ARASHIN_SUNSHIELD: CardRecord = CardRecord::new(
     "Arashin Sunshield",
     "dd7102d8-90b3-45a1-b66d-dcca469b1fb6",
@@ -742,7 +743,9 @@ pub(in crate::card::sets) static MARDU_DEVOTEE: CardRecord = CardRecord::new(
 );
 
 // TDM 17 — Osseous Exhale
-// Audit: unsupported — Needs a behold cost that chooses a controlled Dragon permanent or reveals a Dragon card from hand, and records that choice as one paid additional cost; existing reveal-hand costs cannot choose the battlefield alternative.
+// Audit: unsupported — Needs a behold cost that chooses a controlled Dragon permanent or
+// reveals a Dragon card from hand, and records that choice as one paid additional cost;
+// existing reveal-hand costs cannot choose the battlefield alternative.
 pub(in crate::card::sets) static OSSEOUS_EXHALE: CardRecord = CardRecord::new(
     "Osseous Exhale",
     "2300da2f-2297-4c2f-90c1-11ce2b42d91f",
@@ -785,7 +788,9 @@ pub(in crate::card::sets) static POISED_PRACTITIONER: CardRecord = CardRecord::n
 );
 
 // TDM 19 — Rally the Monastery
-// Audit: unsupported — Needs a spell-cost adjustment gated by spell history or the active player; current cost values count matching spells or permanents, but the cost evaluator does not evaluate arbitrary conditional values or conditional static cost effects.
+// Audit: unsupported — Needs a spell-cost adjustment gated by spell history or the active
+// player; current cost values count matching spells or permanents, but the cost evaluator does
+// not evaluate arbitrary conditional values or conditional static cost effects.
 pub(in crate::card::sets) static RALLY_THE_MONASTERY: CardRecord = CardRecord::new(
     "Rally the Monastery",
     "b56e0037-8143-4c13-83e1-0c3f44e685ea",
@@ -1066,7 +1071,8 @@ pub(in crate::card::sets) static STARRY_EYED_SKYRIDER: CardRecord = CardRecord::
 );
 
 // TDM 26 — Static Snare
-// Audit: unsupported — Needs exile-until-source-leaves with immediate return when the duration ends; a leaves-the-battlefield trigger returns the card later through the stack.
+// Audit: unsupported — Needs exile-until-source-leaves with immediate return when the duration
+// ends; a leaves-the-battlefield trigger returns the card later through the stack.
 pub(in crate::card::sets) static STATIC_SNARE: CardRecord = CardRecord::new(
     "Static Snare",
     "1ce50932-03a6-48bc-8aee-bc8defd896cf",
@@ -1121,7 +1127,8 @@ pub(in crate::card::sets) static STORMBEACON_BLADE: CardRecord = CardRecord::new
 );
 
 // TDM 28 — Stormplain Detainment
-// Audit: unsupported — Needs exile-until-source-leaves with immediate return when the duration ends; a leaves-the-battlefield trigger returns the card later through the stack.
+// Audit: unsupported — Needs exile-until-source-leaves with immediate return when the duration
+// ends; a leaves-the-battlefield trigger returns the card later through the stack.
 pub(in crate::card::sets) static STORMPLAIN_DETAINMENT: CardRecord = CardRecord::new(
     "Stormplain Detainment",
     "39f3aab5-7b54-4b55-8114-c6f9f79c255d",
@@ -1216,7 +1223,9 @@ pub(in crate::card::sets) static TEEMING_DRAGONSTORM: CardRecord = CardRecord::n
 );
 
 // TDM 31 — Tempest Hawk
-// Audit: unsupported — Needs a deck-construction exception allowing any number of this card name; the engine currently enforces the ordinary copy limit independently of card declarations.
+// Audit: unsupported — Needs a deck-construction exception allowing any number of this card
+// name; the engine currently enforces the ordinary copy limit independently of card
+// declarations.
 pub(in crate::card::sets) static TEMPEST_HAWK: CardRecord = CardRecord::new(
     "Tempest Hawk",
     "422f9453-ab12-4e3c-8c51-be87391395a1",
@@ -1288,29 +1297,36 @@ pub(in crate::card::sets) static VOICE_OF_VICTORY: CardRecord = CardRecord::new(
     "Voice of Victory",
     "ec3de5f4-bb55-4ab9-995f-f3e0dc22c1bb",
     "Joshua Cairos",
-// Two mana that adds two power to every attack and turns off every
+    // Two mana that adds two power to every attack and turns off every
     // instant your opponent was holding for the turn you attack.
-    CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Bard"], 1, 3)
-        .with_abilities(&[
-            mobilize(
-                2,
-                "Mobilize 2 (Whenever this creature attacks, create two tapped and attacking 1/1 red Warrior \
-                 creature tokens. Sacrifice them at the beginning of the next end step.)",
-            ),
-            AbilityDef::static_ability(
-                "Your opponents can't cast spells during your turn.",
-                EffectDef::IfCondition {
-                    condition: &TriggerConditionDef::ActivePlayer(PlayerRelation::You),
-                    // "During your turn" is the whole of the clause's timing, and it gates the
-                    // restriction rather than narrowing who it names: on their own turn the
-                    // same opponents may cast whatever they like.
-                    then: &EffectDef::StaticApply {
-                        recipient: EffectRecipientDef::players(PlayerSetDef::Related(PlayerRelation::Opponent)),
-                        effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotPlay(PlayRestrictionDef::new(PlayActionMatcherDef::CastSpell, ObjectPredicateDef::Any))),
-                    },
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Bard"], 1, 3).with_abilities(&[
+        mobilize(
+            2,
+            "Mobilize 2 (Whenever this creature attacks, create two \
+             tapped and attacking 1/1 red Warrior creature tokens. \
+             Sacrifice them at the beginning of the next end step.)",
+        ),
+        AbilityDef::static_ability(
+            "Your opponents can't cast spells during your turn.",
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::ActivePlayer(PlayerRelation::You),
+                // "During your turn" is the whole of the clause's timing, and it gates the
+                // restriction rather than narrowing who it names: on their own turn the
+                // same opponents may cast whatever they like.
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::players(PlayerSetDef::Related(
+                        PlayerRelation::Opponent,
+                    )),
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotPlay(
+                        PlayRestrictionDef::new(
+                            PlayActionMatcherDef::CastSpell,
+                            ObjectPredicateDef::Any,
+                        ),
+                    )),
                 },
-            ),
-        ]),
+            },
+        ),
+    ]),
 );
 
 // TDM 34 — Wayspeaker Bodyguard
@@ -1640,7 +1656,9 @@ pub(in crate::card::sets) static DIRGUR_ISLAND_DRAGON: CardRecord = CardRecord::
 });
 
 // TDM 41 — Dispelling Exhale
-// Audit: unsupported — Needs a behold cost that chooses a controlled Dragon permanent or reveals a Dragon card from hand, and records that choice as one paid additional cost; existing reveal-hand costs cannot choose the battlefield alternative.
+// Audit: unsupported — Needs a behold cost that chooses a controlled Dragon permanent or
+// reveals a Dragon card from hand, and records that choice as one paid additional cost;
+// existing reveal-hand costs cannot choose the battlefield alternative.
 pub(in crate::card::sets) static DISPELLING_EXHALE: CardRecord = CardRecord::new(
     "Dispelling Exhale",
     "1c9af3f1-711e-42ae-803a-1100eba3fb13",
@@ -1756,7 +1774,8 @@ pub(in crate::card::sets) static DRAGONSTORM_FORECASTER: CardRecord = CardRecord
 );
 
 // TDM 44 — Essence Anchor
-// Audit: unsupported — Needs per-player history recording whether any card left that player's graveyard this turn, including cards that are no longer represented on the battlefield.
+// Audit: unsupported — Needs per-player history recording whether any card left that player's
+// graveyard this turn, including cards that are no longer represented on the battlefield.
 pub(in crate::card::sets) static ESSENCE_ANCHOR: CardRecord = CardRecord::new(
     "Essence Anchor",
     "e91c4509-918e-44ba-aa13-1991199fee9f",
@@ -1765,7 +1784,9 @@ pub(in crate::card::sets) static ESSENCE_ANCHOR: CardRecord = CardRecord::new(
 );
 
 // TDM 45 — Focus the Mind
-// Audit: unsupported — Needs a spell-cost adjustment gated by spell history or the active player; current cost values count matching spells or permanents, but the cost evaluator does not evaluate arbitrary conditional values or conditional static cost effects.
+// Audit: unsupported — Needs a spell-cost adjustment gated by spell history or the active
+// player; current cost values count matching spells or permanents, but the cost evaluator does
+// not evaluate arbitrary conditional values or conditional static cost effects.
 pub(in crate::card::sets) static FOCUS_THE_MIND: CardRecord = CardRecord::new(
     "Focus the Mind",
     "abb0ba34-6904-4c17-a04d-ea4f12c7cf21",
@@ -1800,7 +1821,9 @@ pub(in crate::card::sets) static FRESH_START: CardRecord = CardRecord::new(
 );
 
 // TDM 47 — Highspire Bell-Ringer
-// Audit: unsupported — Needs a spell-cost adjustment gated by spell history or the active player; current cost values count matching spells or permanents, but the cost evaluator does not evaluate arbitrary conditional values or conditional static cost effects.
+// Audit: unsupported — Needs a spell-cost adjustment gated by spell history or the active
+// player; current cost values count matching spells or permanents, but the cost evaluator does
+// not evaluate arbitrary conditional values or conditional static cost effects.
 pub(in crate::card::sets) static HIGHSPIRE_BELL_RINGER: CardRecord = CardRecord::new(
     "Highspire Bell-Ringer",
     "e75dccf7-2894-4c4a-b516-3eee73acddd3",
@@ -1865,7 +1888,9 @@ pub(in crate::card::sets) static ICERIDGE_SERPENT: CardRecord = CardRecord::new(
 );
 
 // TDM 50 — Kishla Trawlers
-// Audit: unsupported — Needs an independently captured reflexive trigger that still occurs when the original source has left the battlefield; OptionalEffectTaken dispatch currently requires that source to remain on the battlefield.
+// Audit: unsupported — Needs an independently captured reflexive trigger that still occurs when
+// the original source has left the battlefield; OptionalEffectTaken dispatch currently requires
+// that source to remain on the battlefield.
 pub(in crate::card::sets) static KISHLA_TRAWLERS: CardRecord = CardRecord::new(
     "Kishla Trawlers",
     "190fbc55-e8e9-4077-9532-1de7406baabf",
@@ -2373,7 +2398,9 @@ pub(in crate::card::sets) static STILLNESS_IN_MOTION: CardRecord = CardRecord::n
 );
 
 // TDM 60 — Taigam, Master Opportunist
-// Audit: unsupported — Needs adding suspend and time counters to a spell moved from the stack to exile, with the new suspended-card trigger state retained independently of its printed abilities.
+// Audit: unsupported — Needs adding suspend and time counters to a spell moved from the stack
+// to exile, with the new suspended-card trigger state retained independently of its printed
+// abilities.
 pub(in crate::card::sets) static TAIGAM_MASTER_OPPORTUNIST: CardRecord = CardRecord::new(
     "Taigam, Master Opportunist",
     "8693d631-05f6-414d-9e49-6385746e8960",
@@ -2749,7 +2776,9 @@ pub(in crate::card::sets) static AVENGER_OF_THE_FALLEN: CardRecord = CardRecord:
 );
 
 // TDM 74 — Caustic Exhale
-// Audit: unsupported — Needs a behold cost that chooses a controlled Dragon permanent or reveals a Dragon card from hand, and records that choice as one paid additional cost; existing reveal-hand costs cannot choose the battlefield alternative.
+// Audit: unsupported — Needs a behold cost that chooses a controlled Dragon permanent or
+// reveals a Dragon card from hand, and records that choice as one paid additional cost;
+// existing reveal-hand costs cannot choose the battlefield alternative.
 pub(in crate::card::sets) static CAUSTIC_EXHALE: CardRecord = CardRecord::new(
     "Caustic Exhale",
     "488152ce-2048-4ccb-b2d6-b9628958286f",
@@ -2853,7 +2882,9 @@ pub(in crate::card::sets) static DELTA_BLOODFLIES: CardRecord = CardRecord::new(
 );
 
 // TDM 78 — Desperate Measures
-// Audit: unsupported — Needs a delayed dies trigger bound to a selected creature and its controller at death; installed triggers retain bound effect recipients but cannot match an arbitrary bound object in an event.
+// Audit: unsupported — Needs a delayed dies trigger bound to a selected creature and its
+// controller at death; installed triggers retain bound effect recipients but cannot match an
+// arbitrary bound object in an event.
 pub(in crate::card::sets) static DESPERATE_MEASURES: CardRecord = CardRecord::new(
     "Desperate Measures",
     "ccbc6fd0-42bc-4e8b-96bc-69a631ba7106",
@@ -2862,7 +2893,9 @@ pub(in crate::card::sets) static DESPERATE_MEASURES: CardRecord = CardRecord::ne
 );
 
 // TDM 79 — Dragon's Prey
-// Audit: unsupported — Needs this spell's additional generic cost to depend on whether its selected target is a Dragon; source cost modifiers do not inspect arbitrary selected-target characteristics.
+// Audit: unsupported — Needs this spell's additional generic cost to depend on whether its
+// selected target is a Dragon; source cost modifiers do not inspect arbitrary selected-target
+// characteristics.
 pub(in crate::card::sets) static DRAGON_S_PREY: CardRecord = CardRecord::new(
     "Dragon's Prey",
     "7a6004ff-4180-4332-8b51-960f8c7521d9",
@@ -2871,7 +2904,9 @@ pub(in crate::card::sets) static DRAGON_S_PREY: CardRecord = CardRecord::new(
 );
 
 // TDM 80 — Feral Deathgorger // Dusk Sight
-// Audit: unsupported — Needs a target-group restriction that both chosen graveyard cards come from the same graveyard; each target can be zone/owner-filtered independently, but sharing an owner within the group cannot be declared.
+// Audit: unsupported — Needs a target-group restriction that both chosen graveyard cards come
+// from the same graveyard; each target can be zone/owner-filtered independently, but sharing an
+// owner within the group cannot be declared.
 pub(in crate::card::sets) static FERAL_DEATHGORGER: CardRecord = CardRecord::new(
     "Feral Deathgorger // Dusk Sight",
     "a147b94f-dfcf-44ce-8a73-b2fe6c4efc0e",
@@ -2927,7 +2962,9 @@ pub(in crate::card::sets) static GURMAG_RAKSHASA: CardRecord = CardRecord::new(
 );
 
 // TDM 82 — Hundred-Battle Veteran
-// Audit: unsupported — Needs counting distinct counter kinds across controlled creatures and a graveyard-cast permission that adds a finality counter as part of the resulting battlefield entry.
+// Audit: unsupported — Needs counting distinct counter kinds across controlled creatures and a
+// graveyard-cast permission that adds a finality counter as part of the resulting battlefield
+// entry.
 pub(in crate::card::sets) static HUNDRED_BATTLE_VETERAN: CardRecord = CardRecord::new(
     "Hundred-Battle Veteran",
     "e53adf93-2db5-4087-a2dc-c8f53401d700",
@@ -2951,7 +2988,9 @@ pub(in crate::card::sets) static KIN_TREE_NURTURER: CardRecord = CardRecord::new
 );
 
 // TDM 84 — Krumar Initiate
-// Audit: unsupported — Needs an activated-ability payment that pays life equal to the announced X in addition to X mana; PayLifeTimes(ChosenX) is implemented for casting but not for ordinary activation payments.
+// Audit: unsupported — Needs an activated-ability payment that pays life equal to the announced
+// X in addition to X mana; PayLifeTimes(ChosenX) is implemented for casting but not for
+// ordinary activation payments.
 pub(in crate::card::sets) static KRUMAR_INITIATE: CardRecord = CardRecord::new(
     "Krumar Initiate",
     "bc66680f-24ab-433a-8197-feac3a174075",
@@ -3021,7 +3060,9 @@ pub(in crate::card::sets) static QARSI_REVENANT: CardRecord = CardRecord::new(
 );
 
 // TDM 87 — Rot-Curse Rakshasa
-// Audit: unsupported — Needs durable decayed counters that grant the complete decayed keyword behavior, including cannot block and the delayed end-of-combat sacrifice; the intrinsic counter registry has no decayed behavior.
+// Audit: unsupported — Needs durable decayed counters that grant the complete decayed keyword
+// behavior, including cannot block and the delayed end-of-combat sacrifice; the intrinsic
+// counter registry has no decayed behavior.
 pub(in crate::card::sets) static ROT_CURSE_RAKSHASA: CardRecord = CardRecord::new(
     "Rot-Curse Rakshasa",
     "31276460-fa9d-47da-85c5-c4baa8074d0d",
@@ -3038,9 +3079,9 @@ pub(in crate::card::sets) static SALT_ROAD_SKIRMISH: CardRecord = CardRecord::ne
         "Destroy target creature. Create two 1/1 red Warrior creature \
          tokens. They gain haste until end of turn. Sacrifice them at \
          the beginning of the next end step.",
-        &[AbilityTargetDef::exactly_one_permanent(
-            ObjectPredicateDef::HasType(CardType::Creature),
-        )],
+        &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
+            CardType::Creature,
+        ))],
         EffectDef::Sequence(&[
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -3048,31 +3089,29 @@ pub(in crate::card::sets) static SALT_ROAD_SKIRMISH: CardRecord = CardRecord::ne
             },
             EffectDef::CreateToken(
                 CreateTokenDef::new(TokenDef::Literal(WARRIOR_TOKEN))
-                .with_count(ValueDef::Constant(2))
-                .with_created_tokens(CreatedTokensDef {
-                    binding: crate::Binding!("warriors"),
-                    then: &EffectDef::Sequence(&[
-                        EffectDef::Apply {
-                            recipient: EffectRecipientDef::objects(ObjectSetDef::Binding(
-                                crate::Binding!("warriors"),
-                            )),
-                            effect: AppliedEffectDef::add_ability(&abilities::haste()),
-                            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                        },
-                        EffectDef::InstallTrigger(InstalledTriggerDef::once(
-                            &AbilityDef::triggered(
+                    .with_count(ValueDef::Constant(2))
+                    .with_created_tokens(CreatedTokensDef {
+                        binding: crate::Binding!("warriors"),
+                        then: &EffectDef::Sequence(&[
+                            EffectDef::Apply {
+                                recipient: EffectRecipientDef::objects(ObjectSetDef::Binding(crate::Binding!(
+                                    "warriors"
+                                ))),
+                                effect: AppliedEffectDef::add_ability(&abilities::haste()),
+                                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                            },
+                            EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
                                 "At the beginning of the next end step, sacrifice those tokens.",
                                 TriggerEventDef::StepBegins {
                                     step: TurnStepDef::End,
                                     player: PlayerRelation::Any,
                                 },
-                                EffectDef::sacrifice(EffectRecipientDef::objects(
-                                    ObjectSetDef::Binding(crate::Binding!("warriors")),
-                                )),
-                            ),
-                        )),
-                    ]),
-                }),
+                                EffectDef::sacrifice(EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                    crate::Binding!("warriors"),
+                                ))),
+                            ))),
+                        ]),
+                    }),
             ),
         ]),
     )]),
@@ -3206,7 +3245,9 @@ pub(in crate::card::sets) static SCAVENGER_REGENT: CardRecord = CardRecord::new(
 });
 
 // TDM 91 — The Sibsig Ceremony
-// Audit: unsupported — Needs an entering-object predicate recording whether that particular creature was cast; SourceWasCast reads the enchantment's cast provenance rather than the triggering creature's.
+// Audit: unsupported — Needs an entering-object predicate recording whether that particular
+// creature was cast; SourceWasCast reads the enchantment's cast provenance rather than the
+// triggering creature's.
 pub(in crate::card::sets) static THE_SIBSIG_CEREMONY: CardRecord = CardRecord::new(
     "The Sibsig Ceremony",
     "5a9f2a62-1c61-4d2e-86d9-18cd84c31748",
@@ -3215,7 +3256,9 @@ pub(in crate::card::sets) static THE_SIBSIG_CEREMONY: CardRecord = CardRecord::n
 );
 
 // TDM 92 — Sidisi, Regent of the Mire
-// Audit: unsupported — Needs an activation target restriction comparing the graveyard creature's mana value with the sacrificed cost object's mana value plus one; target legality cannot reference the later sacrifice selection.
+// Audit: unsupported — Needs an activation target restriction comparing the graveyard
+// creature's mana value with the sacrificed cost object's mana value plus one; target legality
+// cannot reference the later sacrifice selection.
 pub(in crate::card::sets) static SIDISI_REGENT_OF_THE_MIRE: CardRecord = CardRecord::new(
     "Sidisi, Regent of the Mire",
     "47374d23-662b-4ba7-a94f-37c9bc759cc6",
@@ -3489,7 +3532,10 @@ pub(in crate::card::sets) static YATHAN_TOMBGUARD: CardRecord = CardRecord::new(
 );
 
 // TDM 101 — Breaching Dragonstorm
-// Audit: unsupported — Needs a free-cast offer restricted by the chosen spell form's mana value, plus a return-to-hand fallback for an uncast card; filtering the exiled card's normal mana value gives incorrect permissions for Omen, Adventure, and modal double-faced spell forms.
+// Audit: unsupported — Needs a free-cast offer restricted by the chosen spell form's mana
+// value, plus a return-to-hand fallback for an uncast card; filtering the exiled card's normal
+// mana value gives incorrect permissions for Omen, Adventure, and modal double-faced spell
+// forms.
 pub(in crate::card::sets) static BREACHING_DRAGONSTORM: CardRecord = CardRecord::new(
     "Breaching Dragonstorm",
     "e2c2a069-7553-4879-abfb-b2aa3349e4b8",
@@ -3576,7 +3622,8 @@ pub(in crate::card::sets) static DRACOGENESIS: CardRecord = CardRecord::new(
 );
 
 // TDM 106 — Equilibrium Adept
-// Audit: unsupported — Needs exile-play permission ending at cleanup of the controller's next turn; the existing turn-count duration remains usable during the following opponent turn.
+// Audit: unsupported — Needs exile-play permission ending at cleanup of the controller's next
+// turn; the existing turn-count duration remains usable during the following opponent turn.
 pub(in crate::card::sets) static EQUILIBRIUM_ADEPT: CardRecord = CardRecord::new(
     "Equilibrium Adept",
     "a4ba6d74-c6be-4a5e-8859-b791bb6b8f51",
@@ -3812,7 +3859,9 @@ pub(in crate::card::sets) static METICULOUS_ARTISAN: CardRecord = CardRecord::ne
 );
 
 // TDM 113 — Molten Exhale
-// Audit: unsupported — Needs a behold cost that chooses a controlled Dragon permanent or reveals a Dragon card from hand, and records that choice as one paid additional cost; existing reveal-hand costs cannot choose the battlefield alternative.
+// Audit: unsupported — Needs a behold cost that chooses a controlled Dragon permanent or
+// reveals a Dragon card from hand, and records that choice as one paid additional cost;
+// existing reveal-hand costs cannot choose the battlefield alternative.
 pub(in crate::card::sets) static MOLTEN_EXHALE: CardRecord = CardRecord::new(
     "Molten Exhale",
     "0ab95aab-a4bf-4131-83a0-2c138b6f20c3",
@@ -4031,7 +4080,8 @@ pub(in crate::card::sets) static SARKHAN_DRAGON_ASCENDANT: CardRecord = CardReco
 );
 
 // TDM 119 — Seize Opportunity
-// Audit: unsupported — Needs exile-play permission ending at cleanup of the controller's next turn; the existing turn-count duration remains usable during the following opponent turn.
+// Audit: unsupported — Needs exile-play permission ending at cleanup of the controller's next
+// turn; the existing turn-count duration remains usable during the following opponent turn.
 pub(in crate::card::sets) static SEIZE_OPPORTUNITY: CardRecord = CardRecord::new(
     "Seize Opportunity",
     "f7818d28-b9a5-4341-9adc-666070b8878d",
@@ -4204,36 +4254,48 @@ pub(in crate::card::sets) static STORMSHRIEK_FERAL: CardRecord = CardRecord::new
             .with_subtypes(&const { ["Omen"] })
             .with_abilities(
                 &const {
-                    [
-AbilityDef::spell("Discard a card. If you do, draw two cards. (Then shuffle this \
- card into its owner's library.)",
-EffectDef::Discard {
-recipient:EffectRecipientDef::Controller,
-amount:ValueDef::Constant(1),
-selection:DiscardSelectionDef::RecipientChooses,
-then:Some(DiscardFollowUpDef {
-counted:ObjectPredicateDef::Any,
-bound:Some(crate::Binding!("discarded")),
-effect:&const {
-EffectDef::IfCondition {
-condition:&const {
-TriggerConditionDef::ValueComparison(&const {
-ValueComparisonDef {
-left:ValueDef::CountObjects(&const {
-ObjectSetDef::Binding(crate::Binding!("discarded"))}
-),
-comparison:ComparisonDef::Greater,
-right:ValueDef::Constant(0)}
-}
-)}
-,
-then:&const {
-abilities::draw_cards(ValueDef::Constant(2))}
-}
-}
-}
-)}
-).with_resolution_destination(SpellResolutionDestinationDef::LibraryShuffled)]
+                    [AbilityDef::spell(
+                                "Discard a card. If you do, draw two cards. (Then shuffle this \
+                                 card into its owner's library.)",
+                                EffectDef::Discard {
+                                    recipient: EffectRecipientDef::Controller,
+                                    amount: ValueDef::Constant(1),
+                                    selection: DiscardSelectionDef::RecipientChooses,
+                                    then: Some(DiscardFollowUpDef {
+                                        counted: ObjectPredicateDef::Any,
+                                        bound: Some(crate::Binding!("discarded")),
+                                        effect: &const {
+                                            EffectDef::IfCondition {
+                                                condition: &const {
+                                                    TriggerConditionDef::ValueComparison(
+                                                        &const {
+                                                            ValueComparisonDef {
+                                                                left: ValueDef::CountObjects(
+                                                                    &const {
+                                                                        ObjectSetDef::Binding(
+                                                                            crate::Binding!(
+                                                                                "discarded"
+                                                                            ),
+                                                                        )
+                                                                    },
+                                                                ),
+                                                                comparison: ComparisonDef::Greater,
+                                                                right: ValueDef::Constant(0),
+                                                            }
+                                                        },
+                                                    )
+                                                },
+                                                then: &const {
+                                                    abilities::draw_cards(ValueDef::Constant(2))
+                                                },
+                                            }
+                                        },
+                                    }),
+                                },
+                            )
+                            .with_resolution_destination(
+                                SpellResolutionDestinationDef::LibraryShuffled,
+                            )]
                 },
             )
     };
@@ -4326,7 +4388,7 @@ pub(in crate::card::sets) static TERSA_LIGHTSHATTER: CardRecord = CardRecord::ne
     "Tersa Lightshatter",
     "99e96b34-b1c4-4647-a38e-2cf1aedaaace",
     "Olivier Bernard",
-// Three mana for a 3/3 that attacks immediately and turns a spent hand
+    // Three mana for a 3/3 that attacks immediately and turns a spent hand
     // into a card a turn. What she asks for is the graveyard the deck was
     // filling anyway.
     CardRules::new_creature(mana_cost!("{2}{R}"), &["Orc", "Wizard"], 3, 3)
@@ -4334,7 +4396,8 @@ pub(in crate::card::sets) static TERSA_LIGHTSHATTER: CardRecord = CardRecord::ne
         .with_abilities(&[
             abilities::haste(),
             abilities::enters_trigger(
-                "When Tersa Lightshatter enters, discard up to two cards, then draw that many cards.",
+                "When Tersa Lightshatter enters, discard up to two cards, \
+                 then draw that many cards.",
                 EffectDef::Choose(ChooseDef {
                     binding: ObjectChoiceBindingDef::Objects(ParentBinding),
                     unchosen: None,
@@ -4363,8 +4426,9 @@ pub(in crate::card::sets) static TERSA_LIGHTSHATTER: CardRecord = CardRecord::ne
                 }),
             ),
             AbilityDef::triggered_if(
-                "Whenever Tersa Lightshatter attacks, if there are seven or more cards in your graveyard, \
-                 exile a card at random from your graveyard. You may play that card this turn.",
+                "Whenever Tersa Lightshatter attacks, if there are seven or \
+                 more cards in your graveyard, exile a card at random from \
+                 your graveyard. You may play that card this turn.",
                 TriggerEventDef::attacks(ObjectPredicateDef::Source),
                 // Seven cards is a real threshold rather than a formality: the attack that
                 // turns it on is the one that has already spent a hand.
@@ -4388,9 +4452,9 @@ pub(in crate::card::sets) static TERSA_LIGHTSHATTER: CardRecord = CardRecord::ne
                         binding: Binding!("random_graveyard_card"),
                     },
                     EffectDef::ExileGrantingControllerPlayThisTurn {
-                        object: EffectRecipientDef::objects(ObjectSetDef::Binding(
-                            Binding!("random_graveyard_card"),
-                        )),
+                        object: EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!(
+                            "random_graveyard_card"
+                        ))),
                     },
                 ]),
             ),
@@ -4667,7 +4731,9 @@ pub(in crate::card::sets) static AINOK_WAYFARER: CardRecord = CardRecord::new(
 );
 
 // TDM 135 — Attuned Hunter
-// Audit: unsupported — Needs an atomic one-or-more graveyard-departure event per batch, scoped to the graveyard owner and their turn; current zone-change triggers dispatch separately for each card.
+// Audit: unsupported — Needs an atomic one-or-more graveyard-departure event per batch, scoped
+// to the graveyard owner and their turn; current zone-change triggers dispatch separately for
+// each card.
 pub(in crate::card::sets) static ATTUNED_HUNTER: CardRecord = CardRecord::new(
     "Attuned Hunter",
     "d1a4f502-86a9-49fb-9cb9-7918d13c5313",
@@ -4680,168 +4746,206 @@ pub(in crate::card::sets) static BLOOMVINE_REGENT: CardRecord = CardRecord::new(
     "Bloomvine Regent // Claim Territory",
     "10e0a9a3-f63a-4f92-a083-9d181580e498",
     "Johann Bodin",
-CardRules::new_creature(mana_cost!("{3}{G}{G}"),
-&[
-"Dragon"],
-4,
-5).with_abilities(&[
-abilities::flying(),
-AbilityDef::triggered("Whenever this creature or another Dragon you control enters, \
- you gain 3 life.",
-TriggerEventDef::zone_changed(ObjectPredicateDef::AnyOf(&[
-ObjectPredicateDef::Source,
-ObjectPredicateDef::All(&[
-ObjectPredicateDef::Subtype(SubtypeDef::Literal("Dragon")),
-ObjectPredicateDef::ControlledBy(PlayerRelation::You)])]),
-None,
-Some(ZoneKind::Battlefield)),
-EffectDef::GainLife {
-recipient:EffectRecipientDef::Controller,
-amount:ValueDef::Constant(3)}
-)]),
-
-).with_composition(|| {
-let dragon=const {
-CardRules::new_creature(mana_cost!("{3}{G}{G}"),
-&const {
-[
-"Dragon"]}
-,
-4,
-5).with_abilities(&const {
-[
-abilities::flying(),
-AbilityDef::triggered("Whenever this creature or another Dragon you control enters, \
- you gain 3 life.",
-TriggerEventDef::zone_changed(ObjectPredicateDef::AnyOf(&const {
-[
-ObjectPredicateDef::Source,
-ObjectPredicateDef::All(&const {
-[
-ObjectPredicateDef::Subtype(SubtypeDef::Literal("Dragon")),
-ObjectPredicateDef::ControlledBy(PlayerRelation::You)]}
-)]}
-),
-None,
-Some(ZoneKind::Battlefield)),
-EffectDef::GainLife {
-recipient:EffectRecipientDef::Controller,
-amount:ValueDef::Constant(3)}
-)]}
-)}
-;let omen=const {
-CardRules::new_sorcery(mana_cost!("{2}{G}")).with_subtypes(&const {
-[
-"Omen"]}
-).with_subtypes(&const {
-[
-"Omen"]}
-).with_abilities(&const {
-[
-AbilityDef::spell("Search your library for up to two basic Forest cards, reveal \
- them, put one onto the battlefield tapped and the other into \
- your hand, then shuffle. (Also shuffle this card.)",
-EffectDef::Sequence(&const {
-[
-EffectDef::SearchZone {
-player:EffectRecipientDef::Controller,
-source:ZoneKind::Library,
-object:ObjectPredicateDef::All(&const {
-[
-ObjectPredicateDef::Supertype(CardSupertype::Basic),
-ObjectPredicateDef::Subtype(SubtypeDef::Literal("Forest"))]}
-),
-minimum:0,
-maximum:ValueDef::Constant(2),
-reveal:true,
-destination:ZoneKind::Library,
-placement:ZonePlacement::Top,
-shuffle:false,
-enters_tapped:false,
-attachment:None,
-binding:Some(crate::Binding!("forests")),
-then:Some(&const {
-EffectDef::Choose(ChooseDef {
-binding:ObjectChoiceBindingDef::Objects(crate::Binding!("chosen")),
-unchosen:None,
-chooser:PlayerRefDef::EffectController,
-candidates:ObjectSetDef::Binding(crate::Binding!("forests")),
-exclude:None,
-minimum:1,
-maximum:1,
-visibility:ChoiceVisibilityDef::Public,
-then:&const {
-EffectDef::Sequence(&const {
-[
-EffectDef::WithBattlefieldArrival {
-effect:&const {
-EffectDef::move_to_zone(EffectRecipientDef::objects(ObjectSetDef::Binding(crate::Binding!("chosen"))),
-ZoneKind::Battlefield,
-ZonePlacement::Top)}
-,
-arrival:BattlefieldArrivalDef {
-modifications:&const {
-[
-BattlefieldEntryModificationDef::Tapped]}
-,
-..BattlefieldArrivalDef::DEFAULT}
-}
-,
-EffectDef::move_to_zone(EffectRecipientDef::objects(ObjectSetDef::Binding(crate::Binding!("forests"))),
-ZoneKind::Hand,
-ZonePlacement::Top)]}
-)}
-}
-)}
-)}
-,
-EffectDef::ShuffleLibrary {
-player:EffectRecipientDef::Controller}
-]}
-)).with_resolution_destination(SpellResolutionDestinationDef::LibraryShuffled)]}
-)}
-;CardComposition {
-parts:vec![
-CardPart::new(CardPartId::PRIMARY,
-"Bloomvine Regent",
-dragon),
-CardPart::new(CardPartId(1),
-"Claim Territory",
-omen)],
-structure:CardStructure::AlternateSpell {
-main:CardPartId::PRIMARY,
-alternate:CardPartId(1),
-kind:AlternateSpellKind::Omen}
-,
-play_options:vec![
-PlayOptionDef::cast(PlayOptionId::DEFAULT,
-"Bloomvine Regent",
-SpellForm::Part(CardPartId::PRIMARY),
-dragon.mana_cost().expect("printed Dragon mana cost"),
-CardEffectStatus::Implemented),
-PlayOptionDef::cast(PlayOptionId(1),
-"Claim Territory",
-SpellForm::Part(CardPartId(1)),
-omen.mana_cost().expect("printed Omen mana cost"),
-CardEffectStatus::Implemented)]}
-.with_derived_spell_targets()}
-);
+    CardRules::new_creature(mana_cost!("{3}{G}{G}"), &["Dragon"], 4, 5).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::triggered(
+            "Whenever this creature or another Dragon you control enters, \
+             you gain 3 life.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::Source,
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Dragon")),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ]),
+                ]),
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(3),
+            },
+        ),
+    ]),
+)
+.with_composition(|| {
+    let dragon = const {
+        CardRules::new_creature(mana_cost!("{3}{G}{G}"), &const { ["Dragon"] }, 4, 5).with_abilities(
+            &const {
+                [
+                    abilities::flying(),
+                    AbilityDef::triggered(
+                        "Whenever this creature or another Dragon you control enters, \
+                         you gain 3 life.",
+                        TriggerEventDef::zone_changed(
+                            ObjectPredicateDef::AnyOf(
+                                &const {
+                                    [
+                                        ObjectPredicateDef::Source,
+                                        ObjectPredicateDef::All(
+                                            &const {
+                                                [
+                                                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Dragon")),
+                                                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                                                ]
+                                            },
+                                        ),
+                                    ]
+                                },
+                            ),
+                            None,
+                            Some(ZoneKind::Battlefield),
+                        ),
+                        EffectDef::GainLife {
+                            recipient: EffectRecipientDef::Controller,
+                            amount: ValueDef::Constant(3),
+                        },
+                    ),
+                ]
+            },
+        )
+    };
+    let omen = const {
+        CardRules::new_sorcery(mana_cost!("{2}{G}"))
+            .with_subtypes(&const { ["Omen"] })
+            .with_subtypes(&const { ["Omen"] })
+            .with_abilities(
+                &const {
+                    [AbilityDef::spell(
+                        "Search your library for up to two basic Forest cards, reveal \
+                         them, put one onto the battlefield tapped and the other into \
+                         your hand, then shuffle. (Also shuffle this card.)",
+                        EffectDef::Sequence(
+                            &const {
+                                [
+                                    EffectDef::SearchZone {
+                                        player: EffectRecipientDef::Controller,
+                                        source: ZoneKind::Library,
+                                        object: ObjectPredicateDef::All(
+                                            &const {
+                                                [
+                                                    ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                                                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Forest")),
+                                                ]
+                                            },
+                                        ),
+                                        minimum: 0,
+                                        maximum: ValueDef::Constant(2),
+                                        reveal: true,
+                                        destination: ZoneKind::Library,
+                                        placement: ZonePlacement::Top,
+                                        shuffle: false,
+                                        enters_tapped: false,
+                                        attachment: None,
+                                        binding: Some(crate::Binding!("forests")),
+                                        then: Some(
+                                            &const {
+                                                EffectDef::Choose(ChooseDef {
+                                                    binding: ObjectChoiceBindingDef::Objects(crate::Binding!("chosen")),
+                                                    unchosen: None,
+                                                    chooser: PlayerRefDef::EffectController,
+                                                    candidates: ObjectSetDef::Binding(crate::Binding!("forests")),
+                                                    exclude: None,
+                                                    minimum: 1,
+                                                    maximum: 1,
+                                                    visibility: ChoiceVisibilityDef::Public,
+                                                    then: &const {
+                                                        EffectDef::Sequence(
+                                                            &const {
+                                                                [
+                                                                    EffectDef::WithBattlefieldArrival {
+                                                                        effect: &const {
+                                                                            EffectDef::move_to_zone(
+                                                                                EffectRecipientDef::objects(
+                                                                                    ObjectSetDef::Binding(
+                                                                                        crate::Binding!("chosen"),
+                                                                                    ),
+                                                                                ),
+                                                                                ZoneKind::Battlefield,
+                                                                                ZonePlacement::Top,
+                                                                            )
+                                                                        },
+                                                                        arrival: BattlefieldArrivalDef {
+                                                                            modifications: &const {
+                                                                                [
+BattlefieldEntryModificationDef::Tapped]
+                                                                            },
+                                                                            ..BattlefieldArrivalDef::DEFAULT
+                                                                        },
+                                                                    },
+                                                                    EffectDef::move_to_zone(
+                                                                        EffectRecipientDef::objects(
+                                                                            ObjectSetDef::Binding(crate::Binding!(
+                                                                                "forests"
+                                                                            )),
+                                                                        ),
+                                                                        ZoneKind::Hand,
+                                                                        ZonePlacement::Top,
+                                                                    ),
+                                                                ]
+                                                            },
+                                                        )
+                                                    },
+                                                })
+                                            },
+                                        ),
+                                    },
+                                    EffectDef::ShuffleLibrary {
+                                        player: EffectRecipientDef::Controller,
+                                    },
+                                ]
+                            },
+                        ),
+                    )
+                    .with_resolution_destination(SpellResolutionDestinationDef::LibraryShuffled)]
+                },
+            )
+    };
+    CardComposition {
+        parts: vec![
+            CardPart::new(CardPartId::PRIMARY, "Bloomvine Regent", dragon),
+            CardPart::new(CardPartId(1), "Claim Territory", omen),
+        ],
+        structure: CardStructure::AlternateSpell {
+            main: CardPartId::PRIMARY,
+            alternate: CardPartId(1),
+            kind: AlternateSpellKind::Omen,
+        },
+        play_options: vec![
+            PlayOptionDef::cast(
+                PlayOptionId::DEFAULT,
+                "Bloomvine Regent",
+                SpellForm::Part(CardPartId::PRIMARY),
+                dragon.mana_cost().expect("printed Dragon mana cost"),
+                CardEffectStatus::Implemented,
+            ),
+            PlayOptionDef::cast(
+                PlayOptionId(1),
+                "Claim Territory",
+                SpellForm::Part(CardPartId(1)),
+                omen.mana_cost().expect("printed Omen mana cost"),
+                CardEffectStatus::Implemented,
+            ),
+        ],
+    }
+    .with_derived_spell_targets()
+});
 
 // TDM 137 — Champion of Dusan
 pub(in crate::card::sets) static CHAMPION_OF_DUSAN: CardRecord = CardRecord::new(
     "Champion of Dusan",
     "c51dcdab-38ee-4804-8859-09adc353c182",
     "Bastien L. Deharme",
-// A 4/2 trades early and then hands its trample to something better
+    // A 4/2 trades early and then hands its trample to something better
     // from the graveyard, which is the whole arc of the card.
     CardRules::new_creature(mana_cost!("{2}{G}"), &["Human", "Warrior"], 4, 2).with_abilities(&[
         abilities::trample(),
         AbilityDef::activated_with_targets(
-            "Renew — {1}{G}, Exile this card from your graveyard: Put a +1/+1 counter and a trample counter on target creature. Activate only as a sorcery.",
-            &[
-                CostDef::Mana(mana_cost!("{1}{G}")),
-                CostDef::ExileSource,
-            ],
+            "Renew — {1}{G}, Exile this card from your graveyard: Put a \
+             +1/+1 counter and a trample counter on target creature. \
+             Activate only as a sorcery.",
+            &[CostDef::Mana(mana_cost!("{1}{G}")), CostDef::ExileSource],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
@@ -4885,7 +4989,9 @@ pub(in crate::card::sets) static DRAGON_SNIPER: CardRecord = CardRecord::new(
 );
 
 // TDM 140 — Dragonbroods' Relic
-// Audit: unsupported — Needs a mana-ability payment that taps a separately chosen controlled creature in addition to its source; multi-permanent tap costs are not supported in the immediate mana-payment path.
+// Audit: unsupported — Needs a mana-ability payment that taps a separately chosen controlled
+// creature in addition to its source; multi-permanent tap costs are not supported in the
+// immediate mana-payment path.
 pub(in crate::card::sets) static DRAGONBROODS_RELIC: CardRecord = CardRecord::new(
     "Dragonbroods' Relic",
     "3d634087-77ba-4543-aa7a-8a3774d69cd7",
@@ -5239,7 +5345,7 @@ pub(in crate::card::sets) static NATURE_S_RHYTHM: CardRecord = CardRecord::new(
     CardRules::new_sorcery(mana_cost!("{X}{G}{G}")).with_abilities(&[
         AbilityDef::spell(
             "Search your library for a creature card with mana value X or less, put it \
-                 onto the battlefield, then shuffle.",
+             onto the battlefield, then shuffle.",
             EffectDef::SearchZone {
                 player: EffectRecipientDef::Controller,
                 source: ZoneKind::Library,
@@ -5264,7 +5370,9 @@ pub(in crate::card::sets) static NATURE_S_RHYTHM: CardRecord = CardRecord::new(
 );
 
 // TDM 151 — Piercing Exhale
-// Audit: unsupported — Needs a behold cost that chooses a controlled Dragon permanent or reveals a Dragon card from hand, and records that choice as one paid additional cost; existing reveal-hand costs cannot choose the battlefield alternative.
+// Audit: unsupported — Needs a behold cost that chooses a controlled Dragon permanent or
+// reveals a Dragon card from hand, and records that choice as one paid additional cost;
+// existing reveal-hand costs cannot choose the battlefield alternative.
 pub(in crate::card::sets) static PIERCING_EXHALE: CardRecord = CardRecord::new(
     "Piercing Exhale",
     "b2a0deb9-5bc3-42d5-9e1e-5f463d176aef",
@@ -5362,7 +5470,7 @@ pub(in crate::card::sets) static ROAMER_S_ROUTINE: CardRecord = CardRecord::new(
     CardRules::new_sorcery(mana_cost!("{2}{G}")).with_abilities(&[
         AbilityDef::spell(
             "Search your library for a basic land card, put it onto the battlefield \
-                 tapped, then shuffle.",
+             tapped, then shuffle.",
             EffectDef::SearchZone {
                 player: EffectRecipientDef::Controller,
                 source: ZoneKind::Library,
@@ -5667,8 +5775,8 @@ pub(in crate::card::sets) static SYNCHRONIZED_CHARGE: CardRecord = CardRecord::n
     CardRules::new_sorcery(mana_cost!("{1}{G}")).with_abilities(&[
         AbilityDef::spell_with_targets(
             "Distribute two +1/+1 counters among one or two target creatures you \
-                 control. Creatures you control with counters on them gain vigilance and \
-                 trample until end of turn.",
+             control. Creatures you control with counters on them gain vigilance and \
+             trample until end of turn.",
             &[AbilityTargetDef {
                 minimum: 1,
                 maximum: 2,
@@ -5710,7 +5818,9 @@ pub(in crate::card::sets) static SYNCHRONIZED_CHARGE: CardRecord = CardRecord::n
 );
 
 // TDM 163 — Trade Route Envoy
-// Audit: unsupported — Needs the actual draw result retained to distinguish drawing a card from a prevented or replaced draw; testing only the creature-counter condition does not implement the fallback.
+// Audit: unsupported — Needs the actual draw result retained to distinguish drawing a card from
+// a prevented or replaced draw; testing only the creature-counter condition does not implement
+// the fallback.
 pub(in crate::card::sets) static TRADE_ROUTE_ENVOY: CardRecord = CardRecord::new(
     "Trade Route Envoy",
     "f0c89d95-d697-4cfa-9dfa-52d7adb96176",
@@ -5822,7 +5932,8 @@ pub(in crate::card::sets) static UNDERGROWTH_LEOPARD: CardRecord = CardRecord::n
 );
 
 // TDM 166 — Warden of the Grove
-// Audit: unsupported — Needs the total number of counters of all kinds on the source, including arbitrary named counters; current counter values count one explicitly named kind.
+// Audit: unsupported — Needs the total number of counters of all kinds on the source, including
+// arbitrary named counters; current counter values count one explicitly named kind.
 pub(in crate::card::sets) static WARDEN_OF_THE_GROVE: CardRecord = CardRecord::new(
     "Warden of the Grove",
     "2414db96-0e2b-4f7c-9b97-41f8e310b752",
@@ -5831,7 +5942,9 @@ pub(in crate::card::sets) static WARDEN_OF_THE_GROVE: CardRecord = CardRecord::n
 );
 
 // TDM 167 — All-Out Assault
-// Audit: unsupported — Needs a resolution-time main-phase test plus an additional combat/main sequence and a next-attack delayed trigger that expires this turn; existing installed-trigger lifetimes do not combine next occurrence with a turn deadline.
+// Audit: unsupported — Needs a resolution-time main-phase test plus an additional combat/main
+// sequence and a next-attack delayed trigger that expires this turn; existing installed-trigger
+// lifetimes do not combine next occurrence with a turn deadline.
 pub(in crate::card::sets) static ALL_OUT_ASSAULT: CardRecord = CardRecord::new(
     "All-Out Assault",
     "b74876d8-f6a6-4b47-b960-b01a331bab01",
@@ -5893,7 +6006,9 @@ pub(in crate::card::sets) static AURORAL_PROCESSION: CardRecord = CardRecord::ne
 );
 
 // TDM 170 — Awaken the Honored Dead
-// Audit: unsupported — Needs an independently captured reflexive trigger that still occurs when the original source has left the battlefield; OptionalEffectTaken dispatch currently requires that source to remain on the battlefield.
+// Audit: unsupported — Needs an independently captured reflexive trigger that still occurs when
+// the original source has left the battlefield; OptionalEffectTaken dispatch currently requires
+// that source to remain on the battlefield.
 pub(in crate::card::sets) static AWAKEN_THE_HONORED_DEAD: CardRecord = CardRecord::new(
     "Awaken the Honored Dead",
     "14078a49-2230-4ad7-aea0-0c253813c646",
@@ -5902,7 +6017,9 @@ pub(in crate::card::sets) static AWAKEN_THE_HONORED_DEAD: CardRecord = CardRecor
 );
 
 // TDM 171 — Barrensteppe Siege
-// Audit: unsupported — Needs a durable, opaque clan choice made during battlefield entry and usable to enable the matching printed abilities; scalar entry choices cover players, card names, creature types, land types, and colors, but not arbitrary clan labels.
+// Audit: unsupported — Needs a durable, opaque clan choice made during battlefield entry and
+// usable to enable the matching printed abilities; scalar entry choices cover players, card
+// names, creature types, land types, and colors, but not arbitrary clan labels.
 pub(in crate::card::sets) static BARRENSTEPPE_SIEGE: CardRecord = CardRecord::new(
     "Barrensteppe Siege",
     "2556a35b-2229-42c7-8cb3-c8c668403dd2",
@@ -5911,7 +6028,9 @@ pub(in crate::card::sets) static BARRENSTEPPE_SIEGE: CardRecord = CardRecord::ne
 );
 
 // TDM 172 — Betor, Kin to All
-// Audit: unsupported — Needs intervening-if and resolving conditions comparing the sum of controlled creatures' toughness with fixed thresholds; AggregateObjectValues can compute a resolving amount but is not evaluated by the trigger-condition value reader.
+// Audit: unsupported — Needs intervening-if and resolving conditions comparing the sum of
+// controlled creatures' toughness with fixed thresholds; AggregateObjectValues can compute a
+// resolving amount but is not evaluated by the trigger-condition value reader.
 pub(in crate::card::sets) static BETOR_KIN_TO_ALL: CardRecord = CardRecord::new(
     "Betor, Kin to All",
     "b475b071-5545-483e-a397-89451f258602",
@@ -5935,7 +6054,9 @@ pub(in crate::card::sets) static BONE_CAIRN_BUTCHER: CardRecord = CardRecord::ne
 );
 
 // TDM 174 — Call the Spirit Dragons
-// Audit: unsupported — Needs five sequential color-filtered Dragon choices with a retained record of successful counter placements on five distinct Dragons; existing counter operations do not expose actual placement receipts.
+// Audit: unsupported — Needs five sequential color-filtered Dragon choices with a retained
+// record of successful counter placements on five distinct Dragons; existing counter operations
+// do not expose actual placement receipts.
 pub(in crate::card::sets) static CALL_THE_SPIRIT_DRAGONS: CardRecord = CardRecord::new(
     "Call the Spirit Dragons",
     "b1ad91db-5f16-4392-baf1-f8400ec11e0a",
@@ -5976,7 +6097,9 @@ pub(in crate::card::sets) static CORI_MOUNTAIN_STALWART: CardRecord = CardRecord
 );
 
 // TDM 176 — Death Begets Life
-// Audit: unsupported — Needs a destruction receipt that includes successfully destroyed permanents whose zone move is replaced, such as exile; DestroyFollowUp only retains permanents that reached graveyards.
+// Audit: unsupported — Needs a destruction receipt that includes successfully destroyed
+// permanents whose zone move is replaced, such as exile; DestroyFollowUp only retains
+// permanents that reached graveyards.
 pub(in crate::card::sets) static DEATH_BEGETS_LIFE: CardRecord = CardRecord::new(
     "Death Begets Life",
     "1faab43d-587d-44f6-9516-c8e3965bbc20",
@@ -6228,7 +6351,9 @@ pub(in crate::card::sets) static DRAGONCLAW_STRIKE: CardRecord = CardRecord::new
 );
 
 // TDM 181 — Effortless Master
-// Audit: unsupported — Needs a prospective battlefield-entry replacement condition counting spells cast this turn; the entry condition evaluator currently supports object queries and controller-turn counts, not spell history.
+// Audit: unsupported — Needs a prospective battlefield-entry replacement condition counting
+// spells cast this turn; the entry condition evaluator currently supports object queries and
+// controller-turn counts, not spell history.
 pub(in crate::card::sets) static EFFORTLESS_MASTER: CardRecord = CardRecord::new(
     "Effortless Master",
     "0ae03ca5-cd4b-42b7-8cd5-3f7e753b4147",
@@ -6342,7 +6467,9 @@ pub(in crate::card::sets) static FANGKEEPER_S_FAMILIAR: CardRecord = CardRecord:
 );
 
 // TDM 184 — Felothar, Dawn of the Abzan
-// Audit: unsupported — Needs an independently captured reflexive trigger that still occurs when the original source has left the battlefield; OptionalEffectTaken dispatch currently requires that source to remain on the battlefield.
+// Audit: unsupported — Needs an independently captured reflexive trigger that still occurs when
+// the original source has left the battlefield; OptionalEffectTaken dispatch currently requires
+// that source to remain on the battlefield.
 pub(in crate::card::sets) static FELOTHAR_DAWN_OF_THE_ABZAN: CardRecord = CardRecord::new(
     "Felothar, Dawn of the Abzan",
     "83e11f20-6524-4fba-9603-0b97e2d69aac",
@@ -6351,7 +6478,8 @@ pub(in crate::card::sets) static FELOTHAR_DAWN_OF_THE_ABZAN: CardRecord = CardRe
 );
 
 // TDM 185 — Flamehold Grappler
-// Audit: unsupported — Needs an installed trigger for only the next matching spell cast before this turn ends; Once and ThisTurn lifetimes cannot currently express both limits together.
+// Audit: unsupported — Needs an installed trigger for only the next matching spell cast before
+// this turn ends; Once and ThisTurn lifetimes cannot currently express both limits together.
 pub(in crate::card::sets) static FLAMEHOLD_GRAPPLER: CardRecord = CardRecord::new(
     "Flamehold Grappler",
     "cc8443a6-282f-4218-9dc8-144b5570d891",
@@ -6402,7 +6530,9 @@ pub(in crate::card::sets) static FRONTLINE_RUSH: CardRecord = CardRecord::new(
 );
 
 // TDM 187 — Frostcliff Siege
-// Audit: unsupported — Needs a durable, opaque clan choice made during battlefield entry and usable to enable the matching printed abilities; scalar entry choices cover players, card names, creature types, land types, and colors, but not arbitrary clan labels.
+// Audit: unsupported — Needs a durable, opaque clan choice made during battlefield entry and
+// usable to enable the matching printed abilities; scalar entry choices cover players, card
+// names, creature types, land types, and colors, but not arbitrary clan labels.
 pub(in crate::card::sets) static FROSTCLIFF_SIEGE: CardRecord = CardRecord::new(
     "Frostcliff Siege",
     "a750aabb-9788-494a-841f-bf75717970a7",
@@ -6461,7 +6591,9 @@ pub(in crate::card::sets) static GLACIAL_DRAGONHUNT: CardRecord = CardRecord::ne
 );
 
 // TDM 189 — Glacierwood Siege
-// Audit: unsupported — Needs a durable, opaque clan choice made during battlefield entry and usable to enable the matching printed abilities; scalar entry choices cover players, card names, creature types, land types, and colors, but not arbitrary clan labels.
+// Audit: unsupported — Needs a durable, opaque clan choice made during battlefield entry and
+// usable to enable the matching printed abilities; scalar entry choices cover players, card
+// names, creature types, land types, and colors, but not arbitrary clan labels.
 pub(in crate::card::sets) static GLACIERWOOD_SIEGE: CardRecord = CardRecord::new(
     "Glacierwood Siege",
     "0f37fad7-2385-409b-8375-fa5dfbcad833",
@@ -6527,7 +6659,9 @@ pub(in crate::card::sets) static HARDENED_TACTICIAN: CardRecord = CardRecord::ne
 );
 
 // TDM 192 — Hollowmurk Siege
-// Audit: unsupported — Needs a durable, opaque clan choice made during battlefield entry and usable to enable the matching printed abilities; scalar entry choices cover players, card names, creature types, land types, and colors, but not arbitrary clan labels.
+// Audit: unsupported — Needs a durable, opaque clan choice made during battlefield entry and
+// usable to enable the matching printed abilities; scalar entry choices cover players, card
+// names, creature types, land types, and colors, but not arbitrary clan labels.
 pub(in crate::card::sets) static HOLLOWMURK_SIEGE: CardRecord = CardRecord::new(
     "Hollowmurk Siege",
     "5ac0e136-8877-4bfc-a831-2bf7b7b5ad1e",
@@ -6536,7 +6670,8 @@ pub(in crate::card::sets) static HOLLOWMURK_SIEGE: CardRecord = CardRecord::new(
 );
 
 // TDM 193 — Host of the Hereafter
-// Audit: unsupported — Needs transferring the entire last-known counter inventory, including arbitrary counter kinds, from a dying creature to the chosen target.
+// Audit: unsupported — Needs transferring the entire last-known counter inventory, including
+// arbitrary counter kinds, from a dying creature to the chosen target.
 pub(in crate::card::sets) static HOST_OF_THE_HEREAFTER: CardRecord = CardRecord::new(
     "Host of the Hereafter",
     "0f182957-8133-45a7-80a3-1944bead4d43",
@@ -6666,7 +6801,8 @@ pub(in crate::card::sets) static JESKAI_SHRINEKEEPER: CardRecord = CardRecord::n
 );
 
 // TDM 198 — Karakyk Guardian
-// Audit: unsupported — Needs per-object damage-dealt history lasting for the whole battlefield incarnation; current damage-dealt predicates reset each turn.
+// Audit: unsupported — Needs per-object damage-dealt history lasting for the whole battlefield
+// incarnation; current damage-dealt predicates reset each turn.
 pub(in crate::card::sets) static KARAKYK_GUARDIAN: CardRecord = CardRecord::new(
     "Karakyk Guardian",
     "a4c77b08-c3f6-4458-8636-f226f9843b6d",
@@ -6675,7 +6811,9 @@ pub(in crate::card::sets) static KARAKYK_GUARDIAN: CardRecord = CardRecord::new(
 );
 
 // TDM 199 — Kheru Goldkeeper
-// Audit: unsupported — Needs an atomic one-or-more graveyard-departure event per batch, scoped to the graveyard owner and their turn; a per-card zone-change trigger would create too many Treasures.
+// Audit: unsupported — Needs an atomic one-or-more graveyard-departure event per batch, scoped
+// to the graveyard owner and their turn; a per-card zone-change trigger would create too many
+// Treasures.
 pub(in crate::card::sets) static KHERU_GOLDKEEPER: CardRecord = CardRecord::new(
     "Kheru Goldkeeper",
     "8d11183a-57f5-4ddb-8a6e-15fff704b114",
@@ -6728,7 +6866,9 @@ pub(in crate::card::sets) static KISHLA_SKIMMER: CardRecord = CardRecord::new(
 );
 
 // TDM 202 — Kotis, the Fangkeeper
-// Audit: unsupported — Needs an immediate free-cast offer restricted by each chosen spell form's mana value and the captured damage amount; filtering the exiled card's normal mana value incorrectly handles Omen, Adventure, and modal double-faced cards.
+// Audit: unsupported — Needs an immediate free-cast offer restricted by each chosen spell
+// form's mana value and the captured damage amount; filtering the exiled card's normal mana
+// value incorrectly handles Omen, Adventure, and modal double-faced cards.
 pub(in crate::card::sets) static KOTIS_THE_FANGKEEPER: CardRecord = CardRecord::new(
     "Kotis, the Fangkeeper",
     "d3736f17-f80b-4b2c-b919-2c963bc14682",
@@ -6773,7 +6913,9 @@ pub(in crate::card::sets) static LIE_IN_WAIT: CardRecord = CardRecord::new(
 );
 
 // TDM 204 — Lotuslight Dancers
-// Audit: unsupported — Needs one library search selecting distinct cards against three separate color requirements, then moving the selected group to the graveyard together; a single predicate/count search cannot express the three requirements.
+// Audit: unsupported — Needs one library search selecting distinct cards against three separate
+// color requirements, then moving the selected group to the graveyard together; a single
+// predicate/count search cannot express the three requirements.
 pub(in crate::card::sets) static LOTUSLIGHT_DANCERS: CardRecord = CardRecord::new(
     "Lotuslight Dancers",
     "82aa2593-4a79-46f1-a2bd-b71fb504d0ab",
@@ -6803,7 +6945,8 @@ pub(in crate::card::sets) static MAMMOTH_BELLOW: CardRecord = CardRecord::new(
 );
 
 // TDM 206 — Mardu Siegebreaker
-// Audit: unsupported — Needs exile-until-source-leaves with immediate return when the duration ends; a leaves-the-battlefield trigger returns the card later through the stack.
+// Audit: unsupported — Needs exile-until-source-leaves with immediate return when the duration
+// ends; a leaves-the-battlefield trigger returns the card later through the stack.
 pub(in crate::card::sets) static MARDU_SIEGEBREAKER: CardRecord = CardRecord::new(
     "Mardu Siegebreaker",
     "3044b232-edf4-4000-9273-cc4653ad653a",
@@ -6931,7 +7074,9 @@ pub(in crate::card::sets) static NARSET_JESKAI_WAYMASTER: CardRecord = CardRecor
 );
 
 // TDM 210 — Neriv, Heart of the Storm
-// Audit: unsupported — Needs a continuous replacement multiplying damage from matching controlled creatures that entered this turn; generic source-filtered damage multiplication is not implemented.
+// Audit: unsupported — Needs a continuous replacement multiplying damage from matching
+// controlled creatures that entered this turn; generic source-filtered damage multiplication is
+// not implemented.
 pub(in crate::card::sets) static NERIV_HEART_OF_THE_STORM: CardRecord = CardRecord::new(
     "Neriv, Heart of the Storm",
     "b58112b0-a05c-4b98-b650-fd27ad97789f",
@@ -6940,7 +7085,9 @@ pub(in crate::card::sets) static NERIV_HEART_OF_THE_STORM: CardRecord = CardReco
 );
 
 // TDM 211 — New Way Forward
-// Audit: unsupported — Needs a prevention shield with a continuation carrying the actual prevented amount and chosen source's controller, followed by damage and card draw; existing prevention riders only support life gain.
+// Audit: unsupported — Needs a prevention shield with a continuation carrying the actual
+// prevented amount and chosen source's controller, followed by damage and card draw; existing
+// prevention riders only support life gain.
 pub(in crate::card::sets) static NEW_WAY_FORWARD: CardRecord = CardRecord::new(
     "New Way Forward",
     "d9d48f9e-79f0-478c-9db0-ff7ac4a8f401",
@@ -7160,7 +7307,9 @@ pub(in crate::card::sets) static RAKSHASA_S_BARGAIN: CardRecord = CardRecord::ne
 );
 
 // TDM 215 — Rediscover the Way
-// Audit: unsupported — Needs one printed Saga ability to recognize several chapter numbers; current Saga declarations and final-chapter recognition model exactly one chapter per ability.
+// Audit: unsupported — Needs one printed Saga ability to recognize several chapter numbers;
+// current Saga declarations and final-chapter recognition model exactly one chapter per
+// ability.
 pub(in crate::card::sets) static REDISCOVER_THE_WAY: CardRecord = CardRecord::new(
     "Rediscover the Way",
     "79d6decf-afd5-4e96-b87e-fd7ab7e3c068",
@@ -7300,7 +7449,8 @@ pub(in crate::card::sets) static REVIVAL_OF_THE_ANCESTORS: CardRecord = CardReco
 );
 
 // TDM 219 — Riverwheel Sweep
-// Audit: unsupported — Needs exile-play permission ending at cleanup of the controller's next turn; the existing turn-count duration remains usable during the following opponent turn.
+// Audit: unsupported — Needs exile-play permission ending at cleanup of the controller's next
+// turn; the existing turn-count duration remains usable during the following opponent turn.
 pub(in crate::card::sets) static RIVERWHEEL_SWEEP: CardRecord = CardRecord::new(
     "Riverwheel Sweep",
     "686fe623-ee50-407d-87c9-664fb039f4d9",
@@ -7309,7 +7459,9 @@ pub(in crate::card::sets) static RIVERWHEEL_SWEEP: CardRecord = CardRecord::new(
 );
 
 // TDM 220 — Roar of Endless Song
-// Audit: unsupported — Needs one printed Saga ability to recognize several chapter numbers; current Saga declarations and final-chapter recognition model exactly one chapter per ability.
+// Audit: unsupported — Needs one printed Saga ability to recognize several chapter numbers;
+// current Saga declarations and final-chapter recognition model exactly one chapter per
+// ability.
 pub(in crate::card::sets) static ROAR_OF_ENDLESS_SONG: CardRecord = CardRecord::new(
     "Roar of Endless Song",
     "7a9c3531-61a8-43f5-82a2-5166e5f5a6b9",
@@ -7446,7 +7598,9 @@ pub(in crate::card::sets) static RUNESCALE_STORMBROOD: CardRecord = CardRecord::
 });
 
 // TDM 222 — Severance Priest
-// Audit: unsupported — Needs the last-known owner and mana value of the specifically linked hand card after it has left exile; LinkedExiledWithSource only enumerates cards still in exile, but this leaves trigger must still create the Spirit.
+// Audit: unsupported — Needs the last-known owner and mana value of the specifically linked
+// hand card after it has left exile; LinkedExiledWithSource only enumerates cards still in
+// exile, but this leaves trigger must still create the Spirit.
 pub(in crate::card::sets) static SEVERANCE_PRIEST: CardRecord = CardRecord::new(
     "Severance Priest",
     "bc779a1b-128c-4c74-bebd-bdb687867f68",
@@ -7455,7 +7609,9 @@ pub(in crate::card::sets) static SEVERANCE_PRIEST: CardRecord = CardRecord::new(
 );
 
 // TDM 223 — Shiko, Paragon of the Way
-// Audit: unsupported — Needs copying a card in exile into a castable card copy and offering that copy for an immediate free cast; CopyStackObject only copies objects already on the stack.
+// Audit: unsupported — Needs copying a card in exile into a castable card copy and offering
+// that copy for an immediate free cast; CopyStackObject only copies objects already on the
+// stack.
 pub(in crate::card::sets) static SHIKO_PARAGON_OF_THE_WAY: CardRecord = CardRecord::new(
     "Shiko, Paragon of the Way",
     "8138cf10-1e3e-483f-86ad-cc399192657d",
@@ -7496,8 +7652,8 @@ pub(in crate::card::sets) static SONGCRAFTER_MAGE: CardRecord = CardRecord::new(
         abilities::flash(),
         abilities::enters_trigger_with_targets(
             "When this creature enters, target instant or sorcery card in your \
-                 graveyard gains harmonize until end of turn. Its harmonize cost is equal \
-                 to its mana cost.",
+             graveyard gains harmonize until end of turn. Its harmonize cost is equal \
+             to its mana cost.",
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Object {
                     object: ObjectPredicateDef::AnyOf(&[
@@ -7521,7 +7677,10 @@ pub(in crate::card::sets) static SONGCRAFTER_MAGE: CardRecord = CardRecord::new(
 );
 
 // TDM 226 — Sonic Shrieker
-// Audit: unsupported — Needs an actual damage-result receipt retained through the intervening life-gain instruction before conditionally making a damaged player discard; DamageFollowUp runs immediately inside the damage instruction and does not expose its result to later instructions.
+// Audit: unsupported — Needs an actual damage-result receipt retained through the intervening
+// life-gain instruction before conditionally making a damaged player discard; DamageFollowUp
+// runs immediately inside the damage instruction and does not expose its result to later
+// instructions.
 pub(in crate::card::sets) static SONIC_SHRIEKER: CardRecord = CardRecord::new(
     "Sonic Shrieker",
     "7c231437-8bec-42e0-9175-af74c752b119",
@@ -7530,7 +7689,9 @@ pub(in crate::card::sets) static SONIC_SHRIEKER: CardRecord = CardRecord::new(
 );
 
 // TDM 227 — Stalwart Successor
-// Audit: unsupported — Needs per-creature history identifying the first counter-placement event of the turn, plus an atomic one-or-more placement event; per-source trigger limits would incorrectly share the limit among creatures.
+// Audit: unsupported — Needs per-creature history identifying the first counter-placement event
+// of the turn, plus an atomic one-or-more placement event; per-source trigger limits would
+// incorrectly share the limit among creatures.
 pub(in crate::card::sets) static STALWART_SUCCESSOR: CardRecord = CardRecord::new(
     "Stalwart Successor",
     "4a7b206f-8190-46e6-bb9e-44763d3eb4ac",
@@ -7539,7 +7700,9 @@ pub(in crate::card::sets) static STALWART_SUCCESSOR: CardRecord = CardRecord::ne
 );
 
 // TDM 228 — Temur Battlecrier
-// Audit: unsupported — Needs a spell-cost adjustment gated by spell history or the active player; current cost values count matching spells or permanents, but the cost evaluator does not evaluate arbitrary conditional values or conditional static cost effects.
+// Audit: unsupported — Needs a spell-cost adjustment gated by spell history or the active
+// player; current cost values count matching spells or permanents, but the cost evaluator does
+// not evaluate arbitrary conditional values or conditional static cost effects.
 pub(in crate::card::sets) static TEMUR_BATTLECRIER: CardRecord = CardRecord::new(
     "Temur Battlecrier",
     "72184791-0767-4108-920c-763e92dae2d4",
@@ -7569,7 +7732,9 @@ pub(in crate::card::sets) static TEMUR_TAWNYBACK: CardRecord = CardRecord::new(
 );
 
 // TDM 230 — Teval, Arbiter of Virtue
-// Audit: unsupported — Needs a static grant of delve to spells in every castable zone before payment is planned; existing ability grants operate on battlefield permanents rather than prospective spells.
+// Audit: unsupported — Needs a static grant of delve to spells in every castable zone before
+// payment is planned; existing ability grants operate on battlefield permanents rather than
+// prospective spells.
 pub(in crate::card::sets) static TEVAL_ARBITER_OF_VIRTUE: CardRecord = CardRecord::new(
     "Teval, Arbiter of Virtue",
     "27a93f5b-7b32-49f0-a179-b897828fe49a",
@@ -7578,7 +7743,9 @@ pub(in crate::card::sets) static TEVAL_ARBITER_OF_VIRTUE: CardRecord = CardRecor
 );
 
 // TDM 231 — Thunder of Unity
-// Audit: unsupported — Needs one printed Saga ability to recognize several chapter numbers; current Saga declarations and final-chapter recognition model exactly one chapter per ability.
+// Audit: unsupported — Needs one printed Saga ability to recognize several chapter numbers;
+// current Saga declarations and final-chapter recognition model exactly one chapter per
+// ability.
 pub(in crate::card::sets) static THUNDER_OF_UNITY: CardRecord = CardRecord::new(
     "Thunder of Unity",
     "5c953b36-f5e4-4258-91cb-f07e799321f7",
@@ -7686,7 +7853,9 @@ pub(in crate::card::sets) static TWINMAW_STORMBROOD: CardRecord = CardRecord::ne
 });
 
 // TDM 233 — Ureni, the Song Unending
-// Audit: unsupported — Needs a divided target total computed from the number of controlled lands when the triggered ability is placed on the stack; division currently accepts only a printed fixed total or announced X.
+// Audit: unsupported — Needs a divided target total computed from the number of controlled
+// lands when the triggered ability is placed on the stack; division currently accepts only a
+// printed fixed total or announced X.
 pub(in crate::card::sets) static URENI_THE_SONG_UNENDING: CardRecord = CardRecord::new(
     "Ureni, the Song Unending",
     "227802c0-4ff6-43a8-a850-ed0f546dc5ac",
@@ -7809,7 +7978,9 @@ pub(in crate::card::sets) static WHIRLWING_STORMBROOD: CardRecord = CardRecord::
 });
 
 // TDM 235 — Windcrag Siege
-// Audit: unsupported — Needs a durable, opaque clan choice made during battlefield entry and usable to enable the matching printed abilities; scalar entry choices cover players, card names, creature types, land types, and colors, but not arbitrary clan labels.
+// Audit: unsupported — Needs a durable, opaque clan choice made during battlefield entry and
+// usable to enable the matching printed abilities; scalar entry choices cover players, card
+// names, creature types, land types, and colors, but not arbitrary clan labels.
 pub(in crate::card::sets) static WINDCRAG_SIEGE: CardRecord = CardRecord::new(
     "Windcrag Siege",
     "31a8329b-23a1-4c49-a579-a5da8d01435a",
@@ -7818,7 +7989,9 @@ pub(in crate::card::sets) static WINDCRAG_SIEGE: CardRecord = CardRecord::new(
 );
 
 // TDM 236 — Yathan Roadwatcher
-// Audit: unsupported — Needs an independently captured reflexive trigger that still occurs when the original source has left the battlefield; OptionalEffectTaken dispatch currently requires that source to remain on the battlefield.
+// Audit: unsupported — Needs an independently captured reflexive trigger that still occurs when
+// the original source has left the battlefield; OptionalEffectTaken dispatch currently requires
+// that source to remain on the battlefield.
 pub(in crate::card::sets) static YATHAN_ROADWATCHER: CardRecord = CardRecord::new(
     "Yathan Roadwatcher",
     "8e77339b-dd82-481c-9ee2-4156ca69ad35",
@@ -7827,7 +8000,9 @@ pub(in crate::card::sets) static YATHAN_ROADWATCHER: CardRecord = CardRecord::ne
 );
 
 // TDM 237 — Zurgo, Thunder's Decree
-// Audit: unsupported — Needs a cannot-be-sacrificed prohibition on matching permanents, gated to the controller's end step; preventing destruction or changing the destination does not prohibit sacrifice costs and effects.
+// Audit: unsupported — Needs a cannot-be-sacrificed prohibition on matching permanents, gated
+// to the controller's end step; preventing destruction or changing the destination does not
+// prohibit sacrifice costs and effects.
 pub(in crate::card::sets) static ZURGO_THUNDER_S_DECREE: CardRecord = CardRecord::new(
     "Zurgo, Thunder's Decree",
     "bd93fb95-4268-45dc-8f0d-590c481a526d",
@@ -8378,7 +8553,8 @@ const BLOSSOMING_SANDS_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // TDM 252 — Cori Mountain Monastery
-// Audit: unsupported — Needs exile-play permission ending at cleanup of the controller's next turn; the existing turn-count duration remains usable during the following opponent turn.
+// Audit: unsupported — Needs exile-play permission ending at cleanup of the controller's next
+// turn; the existing turn-count duration remains usable during the following opponent turn.
 pub(in crate::card::sets) static CORI_MOUNTAIN_MONASTERY: CardRecord = CardRecord::new(
     "Cori Mountain Monastery",
     "9312821a-2059-4f44-9b20-c9522b827e38",
@@ -8433,24 +8609,22 @@ pub(in crate::card::sets) static DALKOVAN_ENCAMPMENT: CardRecord = CardRecord::n
                 ),
                 EffectDef::CreateToken(
                     CreateTokenDef::new(TokenDef::Literal(WARRIOR_TOKEN))
-                    .with_count(ValueDef::Constant(2))
-                    .entering_tapped()
-                    .entering_attacking()
-                    .with_created_tokens(CreatedTokensDef {
-                        binding: crate::Binding!("warriors"),
-                        then: &EffectDef::InstallTrigger(InstalledTriggerDef::once(
-                            &AbilityDef::triggered(
+                        .with_count(ValueDef::Constant(2))
+                        .entering_tapped()
+                        .entering_attacking()
+                        .with_created_tokens(CreatedTokensDef {
+                            binding: crate::Binding!("warriors"),
+                            then: &EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
                                 "At the beginning of the next end step, sacrifice those tokens.",
                                 TriggerEventDef::StepBegins {
                                     step: TurnStepDef::End,
                                     player: PlayerRelation::Any,
                                 },
-                                EffectDef::sacrifice(EffectRecipientDef::objects(
-                                    ObjectSetDef::Binding(crate::Binding!("warriors")),
-                                )),
-                            ),
-                        )),
-                    }),
+                                EffectDef::sacrifice(EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                    crate::Binding!("warriors"),
+                                ))),
+                            ))),
+                        }),
                 ),
             ))),
         ),
@@ -8628,7 +8802,9 @@ pub(in crate::card::sets) static MAELSTROM_OF_THE_SPIRIT_DRAGON: CardRecord = Ca
 );
 
 // TDM 261 — Mistrise Village
-// Audit: unsupported — Needs a next-spell-cast permission making that spell uncounterable immediately as it is cast, with expiration at turn end; adding the ability from a subsequent cast trigger leaves an incorrect response window.
+// Audit: unsupported — Needs a next-spell-cast permission making that spell uncounterable
+// immediately as it is cast, with expiration at turn end; adding the ability from a subsequent
+// cast trigger leaves an incorrect response window.
 pub(in crate::card::sets) static MISTRISE_VILLAGE: CardRecord = CardRecord::new(
     "Mistrise Village",
     "d44bccbf-6fab-46e4-8ddb-6577e27ec6e8",
@@ -9777,7 +9953,7 @@ pub(in crate::card::sets) static ELSPETH_STORM_SLAYER: CardRecord = CardRecord::
     "Elspeth, Storm Slayer",
     "1fdf9438-fd5f-4638-8f41-dae35ae8f257",
     "Jeremy Wilson",
-// Five mana whose first line is worth more than the three below it: in a
+    // Five mana whose first line is worth more than the three below it: in a
     // deck that makes tokens at all, everything it was already doing happens
     // twice.
     CardRules::new_planeswalker(mana_cost!("{3}{W}{W}"), &["Elspeth"], 5)
@@ -9787,8 +9963,8 @@ pub(in crate::card::sets) static ELSPETH_STORM_SLAYER: CardRecord = CardRecord::
             // her plus makes two Soldiers, and so does anything else you were
             // already doing.
             AbilityDef::static_ability(
-                "If one or more tokens would be created under your control, twice that many of those \
-                 tokens are created instead.",
+                "If one or more tokens would be created under your control, \
+                 twice that many of those tokens are created instead.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::Controller,
                     effect: AppliedEffectDef::Rule(AppliedRuleDef::DoublesTokensCreated),
@@ -9802,8 +9978,8 @@ pub(in crate::card::sets) static ELSPETH_STORM_SLAYER: CardRecord = CardRecord::
                 ))),
             ),
             AbilityDef::activated(
-                "0: Put a +1/+1 counter on each creature you control. Those creatures gain flying until \
-                 your next turn.",
+                "0: Put a +1/+1 counter on each creature you control. Those \
+                 creatures gain flying until your next turn.",
                 &[CostDef::Loyalty(0)],
                 // "Those creatures" is the set the counters went on. Nothing can join or
                 // leave the battlefield between the two halves of one resolution, so
@@ -9816,7 +9992,9 @@ pub(in crate::card::sets) static ELSPETH_STORM_SLAYER: CardRecord = CardRecord::
                         amount: ValueDef::Constant(1),
                     },
                     EffectDef::Apply {
-                        recipient: EffectRecipientDef::objects(ObjectSetDef::Query(ELSPETH_CREATURES)),
+                        recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                            ELSPETH_CREATURES,
+                        )),
                         effect: AppliedEffectDef::add_ability(&abilities::flying()),
                         duration: ResolvedEffectDurationDef::UntilYourNextTurn,
                     },
@@ -9828,16 +10006,16 @@ pub(in crate::card::sets) static ELSPETH_STORM_SLAYER: CardRecord = CardRecord::
                 // "Mana value 3 or greater", which for a whole number is everything that is
                 // not two or less.
                 &[AbilityTargetDef::exactly_one(
-                        AbilityTargetPredicate::Object {
-                            object: ObjectPredicateDef::All(&[
-                                ObjectPredicateDef::HasType(CardType::Creature),
-                                ObjectPredicateDef::Not(&ObjectPredicateDef::ManaValueAtMost(2)),
-                            ]),
-                            zones: &[ZoneKind::Battlefield],
-                            controller: Some(PlayerRelation::Opponent),
-                            owner: None,
-                        },
-                    )],
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::ManaValueAtMost(2)),
+                        ]),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::Opponent),
+                        owner: None,
+                    },
+                )],
                 EffectDef::destroy_target(TargetIndex::PRIMARY),
             ),
         ]),

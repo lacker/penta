@@ -89,8 +89,9 @@ pub(in crate::card::sets) static REGAL_CARACAL: CardRecord = CardRecord::new(
 );
 
 // AKH 38 — Vizier of Remedies
-// Audit: unsupported — The replacement-event vocabulary has no counter-placement event to reduce the number of -1/-1 counters placed.
-pub(in crate::card::sets) static VIZIER_OF_REMEDIES_38: CardRecord = CardRecord::new(
+// Audit: unsupported — The replacement-event vocabulary has no counter-placement event to
+// reduce the number of -1/-1 counters placed.
+pub(in crate::card::sets) static VIZIER_OF_REMEDIES: CardRecord = CardRecord::new(
     "Vizier of Remedies",
     "36ab760e-93e0-4dbc-aaa1-02316f62ed3f",
     "Randy Gallegos",
@@ -155,8 +156,9 @@ pub(in crate::card::sets) static BONE_PICKER: CardRecord = CardRecord::new(
 );
 
 // AKH 107 — Shadow of the Grave
-// Audit: unsupported — Turn history does not preserve the identities of cards discarded or cycled this turn through their graveyard incarnations.
-pub(in crate::card::sets) static SHADOW_OF_THE_GRAVE_107: CardRecord = CardRecord::new(
+// Audit: unsupported — Turn history does not preserve the identities of cards discarded or
+// cycled this turn through their graveyard incarnations.
+pub(in crate::card::sets) static SHADOW_OF_THE_GRAVE: CardRecord = CardRecord::new(
     "Shadow of the Grave",
     "9b0205cb-c163-4332-9624-394e1024bf6a",
     "Darek Zabrocki",
@@ -164,8 +166,10 @@ pub(in crate::card::sets) static SHADOW_OF_THE_GRAVE_107: CardRecord = CardRecor
 );
 
 // AKH 125 — Combat Celebrant
-// Audit: unsupported — Exert is implemented, but its untap debt is attached to the permanent rather than the player who exerted it. Borrowed creatures therefore skip the wrong player's untap step; a complete declaration requires that shared exert correction.
-pub(in crate::card::sets) static COMBAT_CELEBRANT_125: CardRecord = CardRecord::new(
+// Audit: unsupported — Exert is implemented, but its untap debt is attached to the permanent
+// rather than the player who exerted it. Borrowed creatures therefore skip the wrong player's
+// untap step; a complete declaration requires that shared exert correction.
+pub(in crate::card::sets) static COMBAT_CELEBRANT: CardRecord = CardRecord::new(
     "Combat Celebrant",
     "28b63c3d-2e55-4343-b49a-11fa602ec473",
     "Chris Rallis",
@@ -212,7 +216,7 @@ pub(in crate::card::sets) static GLORYBRINGER: CardRecord = CardRecord::new(
 );
 
 // AKH 175 — Manglehorn
-pub(in crate::card::sets) static MANGLEHORN_175: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static MANGLEHORN: CardRecord = CardRecord::new(
     "Manglehorn",
     "0aa3a844-97e6-4f5d-a36f-56fea4e06932",
     "Lius Lasahido",
@@ -248,7 +252,9 @@ pub(in crate::card::sets) static MANGLEHORN_175: CardRecord = CardRecord::new(
 );
 
 // AKH 192 — Vizier of the Menagerie
-// Audit: unsupported — Needs a permanent player permission to spend mana of any type on creature spells, including colorless requirements; current any-color permissions do not express that spell scope and any-type conversion.
+// Audit: unsupported — Needs a permanent player permission to spend mana of any type on
+// creature spells, including colorless requirements; current any-color permissions do not
+// express that spell scope and any-type conversion.
 pub(in crate::card::sets) static VIZIER_OF_THE_MENAGERIE: CardRecord = CardRecord::new(
     "Vizier of the Menagerie",
     "ca204351-7a7e-4e4b-8c2b-f90fa0f9d724",
@@ -284,18 +290,41 @@ pub(in crate::card::sets) static ENIGMA_DRAKE: CardRecord = CardRecord::new(
 );
 
 // AKH 229 — Hazoret's Monument
-pub(in crate::card::sets) static HAZORET_S_MONUMENT_229: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static HAZORET_S_MONUMENT: CardRecord = CardRecord::new(
     "Hazoret's Monument",
     "7a0a70f2-f2cb-4a08-a1a7-95c8fc3de6e3",
     "Richard Wright",
-    CardRules::new_artifact(mana_cost!("{3}")).with_supertype(CardSupertype::Legendary).with_abilities(&[
-AbilityDef::static_ability("Red creature spells you cast cost {1} less to cast.", EffectDef::ModifyCost(CostModificationDef::reduce_spell(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::Color(ManaColor::Red)]), PlayerRelation::You, ValueDef::Constant(1)))),
-AbilityDef::triggered("Whenever you cast a creature spell, you may discard a card. If you do, draw a card.", TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::ControlledBy(PlayerRelation::You)])), EffectDef::PayOr(PayOrDef::optional(&[CostDef::discard(ObjectPredicateDef::Any)], &abilities::draw_cards(ValueDef::Constant(1)))))
-]),
+    CardRules::new_artifact(mana_cost!("{3}"))
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Red creature spells you cast cost {1} less to cast.",
+                EffectDef::ModifyCost(CostModificationDef::reduce_spell(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Color(ManaColor::Red),
+                    ]),
+                    PlayerRelation::You,
+                    ValueDef::Constant(1),
+                )),
+            ),
+            AbilityDef::triggered(
+                "Whenever you cast a creature spell, you may discard a card. \
+                 If you do, draw a card.",
+                TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ])),
+                EffectDef::PayOr(PayOrDef::optional(
+                    &[CostDef::discard(ObjectPredicateDef::Any)],
+                    &abilities::draw_cards(ValueDef::Constant(1)),
+                )),
+            ),
+        ]),
 );
 
 // AKH 239 — Canyon Slough
-pub(in crate::card::sets) static CANYON_SLOUGH_239: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static CANYON_SLOUGH: CardRecord = CardRecord::new(
     "Canyon Slough",
     "8cb273d9-466d-416d-b27d-d1bc8a249076",
     "Titus Lunter",
@@ -310,12 +339,13 @@ pub(in crate::card::sets) static CRADLE_OF_THE_ACCURSED: CardRecord = CardRecord
     "Cradle of the Accursed",
     "41713e82-c3d3-4c2f-b075-f684cbd68ce8",
     "Noah Bradley",
-// Untapped and colourless, so the body it eventually becomes costs the
+    // Untapped and colourless, so the body it eventually becomes costs the
     // deck nothing but the land slot.
     CardRules::new_land(&["Desert"]).with_abilities(&[
         abilities::tap_for(ManaColor::Colorless),
         AbilityDef::activated(
-            "{3}, {T}, Sacrifice this land: Create a 2/2 black Zombie creature token. Activate only as a sorcery.",
+            "{3}, {T}, Sacrifice this land: Create a 2/2 black Zombie \
+             creature token. Activate only as a sorcery.",
             &[
                 CostDef::Mana(mana_cost!("{3}")),
                 CostDef::TapSource,
@@ -331,17 +361,17 @@ pub(in crate::card::sets) static CRADLE_OF_THE_ACCURSED: CardRecord = CardRecord
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &REGAL_CARACAL,
-    &VIZIER_OF_REMEDIES_38,
+    &VIZIER_OF_REMEDIES,
     &VIZIER_OF_TUMBLING_SANDS,
     &BONE_PICKER,
-    &SHADOW_OF_THE_GRAVE_107,
-    &COMBAT_CELEBRANT_125,
+    &SHADOW_OF_THE_GRAVE,
+    &COMBAT_CELEBRANT,
     &GLORYBRINGER,
-    &MANGLEHORN_175,
+    &MANGLEHORN,
     &VIZIER_OF_THE_MENAGERIE,
     &ENIGMA_DRAKE,
-    &HAZORET_S_MONUMENT_229,
-    &CANYON_SLOUGH_239,
+    &HAZORET_S_MONUMENT,
+    &CANYON_SLOUGH,
     &CRADLE_OF_THE_ACCURSED,
 ];
 

@@ -80,7 +80,7 @@ pub(in crate::card::sets) static ELSPETH_KNIGHT_ERRANT: CardRecord = CardRecord:
     "Elspeth, Knight-Errant",
     "44c52e52-2b1c-4ca8-ab6d-20d97a342704",
     "Volkan Baǵa",
-// Four mana, two plus abilities, and neither of them is the safe one:
+    // Four mana, two plus abilities, and neither of them is the safe one:
     // she makes a blocker or she makes an attacker, and the ultimate ends
     // the game against anything that answers permanents.
     CardRules::new_planeswalker(mana_cost!("{2}{W}{W}"), &["Elspeth"], 4)
@@ -109,42 +109,50 @@ pub(in crate::card::sets) static ELSPETH_KNIGHT_ERRANT: CardRecord = CardRecord:
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     effect: AppliedEffectDef::Composite(&[
-                        AppliedEffectDef::modify_power_toughness(ValueDef::Constant(3), ValueDef::Constant(3)),
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(3),
+                            ValueDef::Constant(3),
+                        ),
                         AppliedEffectDef::add_ability(&abilities::flying()),
                     ]),
                     duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                 },
             ),
             AbilityDef::activated(
-                "\u{2212}8: You get an emblem with \"Artifacts, creatures, enchantments, and lands you \
-                 control have indestructible.\"",
+                "\u{2212}8: You get an emblem with \"Artifacts, creatures, \
+                 enchantments, and lands you control have indestructible.\"",
                 &[CostDef::Loyalty(-8)],
-                EffectDef::create_emblem("Elspeth, Knight-Errant emblem", &[AbilityDef::static_ability(
-                    "Artifacts, creatures, enchantments, and lands you control have indestructible.",
-                    EffectDef::StaticApply {
-                        recipient: EffectRecipientDef::matching_objects(
-                            // The four types the emblem names, which between them are every permanent
-                            // a white deck is likely to control. Written as one alternation because the
-                            // emblem grants one thing to all of them.
-                            ObjectPredicateDef::AnyOf(&[
-                                ObjectPredicateDef::HasType(CardType::Artifact),
-                                ObjectPredicateDef::HasType(CardType::Creature),
-                                ObjectPredicateDef::HasType(CardType::Enchantment),
-                                ObjectPredicateDef::HasType(CardType::Land),
-                            ]),
-                            &[ZoneKind::Battlefield],
-                            PlayerRelation::You,
-                        ),
-                        effect: AppliedEffectDef::add_ability(&abilities::indestructible()),
-                    },
-                )]),
+                EffectDef::create_emblem(
+                    "Elspeth, Knight-Errant emblem",
+                    &[AbilityDef::static_ability(
+                        "Artifacts, creatures, enchantments, and lands you control \
+                         have indestructible.",
+                        EffectDef::StaticApply {
+                            recipient: EffectRecipientDef::matching_objects(
+                                // The four types the emblem names, which between them are every permanent
+                                // a white deck is likely to control. Written as one alternation because the
+                                // emblem grants one thing to all of them.
+                                ObjectPredicateDef::AnyOf(&[
+                                    ObjectPredicateDef::HasType(CardType::Artifact),
+                                    ObjectPredicateDef::HasType(CardType::Creature),
+                                    ObjectPredicateDef::HasType(CardType::Enchantment),
+                                    ObjectPredicateDef::HasType(CardType::Land),
+                                ]),
+                                &[ZoneKind::Battlefield],
+                                PlayerRelation::You,
+                            ),
+                            effect: AppliedEffectDef::add_ability(&abilities::indestructible()),
+                        },
+                    )],
+                ),
             ),
         ]),
 );
 
 // ALA 10 — Ethersworn Canonist
-// Audit: unsupported — The spell-history cast limit counts all spells; it cannot count only nonartifact spells while still allowing further artifact spells.
-pub(in crate::card::sets) static ETHERSWORN_CANONIST_10: CardRecord = CardRecord::new(
+// Audit: unsupported — The spell-history cast limit counts all spells; it cannot count only
+// nonartifact spells while still allowing further artifact spells.
+pub(in crate::card::sets) static ETHERSWORN_CANONIST: CardRecord = CardRecord::new(
     "Ethersworn Canonist",
     "2aebe7a8-b982-4be4-83ca-3594e8f606b4",
     "Izzy",
@@ -161,17 +169,38 @@ pub(in crate::card::sets) static GUARDIANS_OF_AKRASA: CardRecord = CardRecord::n
 );
 
 // ALA 21 — Ranger of Eos
-pub(in crate::card::sets) static RANGER_OF_EOS_21: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static RANGER_OF_EOS: CardRecord = CardRecord::new(
     "Ranger of Eos",
     "1a30ee26-5f78-4ac2-9105-1baa9ece8a21",
     "Volkan Baǵa",
-    CardRules::new_creature(mana_cost!("{3}{W}"), &["Human", "Soldier", "Ranger"], 3, 2).with_abilities(&[
-abilities::enters_trigger("When this creature enters, you may search your library for up to two creature cards with mana value 1 or less, reveal them, put them into your hand, then shuffle.", EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Library, object: ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::ManaValueAtMost(1)]), minimum: 0, maximum: ValueDef::Constant(2), reveal: true, destination: ZoneKind::Hand, placement: ZonePlacement::Top, shuffle: true, enters_tapped: false, attachment: None, binding: None, then: None })
-]),
+    CardRules::new_creature(mana_cost!("{3}{W}"), &["Human", "Soldier", "Ranger"], 3, 2)
+        .with_abilities(&[abilities::enters_trigger(
+            "When this creature enters, you may search your library for \
+             up to two creature cards with mana value 1 or less, reveal \
+             them, put them into your hand, then shuffle.",
+            EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::ManaValueAtMost(1),
+                ]),
+                minimum: 0,
+                maximum: ValueDef::Constant(2),
+                reveal: true,
+                destination: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+                shuffle: true,
+                enters_tapped: false,
+                attachment: None,
+                binding: None,
+                then: None,
+            },
+        )]),
 );
 
 // ALA 42 — Etherium Sculptor
-pub(in crate::card::sets) static ETHERIUM_SCULPTOR_42: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static ETHERIUM_SCULPTOR: CardRecord = CardRecord::new(
     "Etherium Sculptor",
     "0d050f2d-bd65-4ab9-9ea6-9deba91b2792",
     "Steven Belledin",
@@ -187,7 +216,7 @@ pub(in crate::card::sets) static ETHERIUM_SCULPTOR_42: CardRecord = CardRecord::
 );
 
 // ALA 44 — Filigree Sages
-pub(in crate::card::sets) static FILIGREE_SAGES_44: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static FILIGREE_SAGES: CardRecord = CardRecord::new(
     "Filigree Sages",
     "08790aaf-0142-4b20-89cf-cdaffeea4582",
     "Dan Murayama Scott",
@@ -205,8 +234,9 @@ pub(in crate::card::sets) static FILIGREE_SAGES_44: CardRecord = CardRecord::new
 );
 
 // ALA 60 — Tezzeret the Seeker
-// Audit: unsupported — Loyalty activation costs are fixed signed integers; the activated-cost planner cannot choose and pay a variable −X loyalty cost.
-pub(in crate::card::sets) static TEZZERET_THE_SEEKER_60: CardRecord = CardRecord::new(
+// Audit: unsupported — Loyalty activation costs are fixed signed integers; the activated-cost
+// planner cannot choose and pay a variable −X loyalty cost.
+pub(in crate::card::sets) static TEZZERET_THE_SEEKER: CardRecord = CardRecord::new(
     "Tezzeret the Seeker",
     "3b214b6f-4734-4200-8467-92d7e3469b5d",
     "Anthony Francisco",
@@ -214,8 +244,9 @@ pub(in crate::card::sets) static TEZZERET_THE_SEEKER_60: CardRecord = CardRecord
 );
 
 // ALA 63 — Ad Nauseam
-// Audit: unsupported — The effect graph has no player-controlled repeat loop that reveals, moves to hand, and loses the revealed card’s mana value before offering another iteration.
-pub(in crate::card::sets) static AD_NAUSEAM_63: CardRecord = CardRecord::new(
+// Audit: unsupported — The effect graph has no player-controlled repeat loop that reveals,
+// moves to hand, and loses the revealed card’s mana value before offering another iteration.
+pub(in crate::card::sets) static AD_NAUSEAM: CardRecord = CardRecord::new(
     "Ad Nauseam",
     "0a4ce4a1-65e3-4b40-be35-8fc55a968ec8",
     "Jeremy Jarvis",
@@ -232,7 +263,7 @@ pub(in crate::card::sets) static BONE_SPLINTERS: CardRecord = CardRecord::new(
     // very creature it is aimed at only if something else is left to target.
     CardRules::new_sorcery(mana_cost!("{B}")).with_ability(AbilityDef::spell_with_additional_cost(
         "As an additional cost to cast this spell, sacrifice a creature.\nDestroy target \
-             creature.",
+         creature.",
         &[AbilityTargetDef::exactly_one_permanent(
             ObjectPredicateDef::HasType(CardType::Creature),
         )],
@@ -396,10 +427,12 @@ pub(in crate::card::sets) static BLIGHTNING: CardRecord = CardRecord::new(
     "Blightning",
     "3c05e8a2-b7d0-4f24-b2ae-8e4db30e5842",
     "Thomas M. Baxa",
-// Three damage and two cards for three mana, which is why it was the
+    // Three damage and two cards for three mana, which is why it was the
     // aggressive deck's answer to a control opponent rather than to a board.
     CardRules::new_sorcery(mana_cost!("{1}{B}{R}")).with_ability(AbilityDef::spell_with_targets(
-        "Blightning deals 3 damage to target player or planeswalker. That player or that planeswalker's controller discards two cards.",
+        "Blightning deals 3 damage to target player or planeswalker. \
+         That player or that planeswalker's controller discards two \
+         cards.",
         &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
         )],
@@ -469,14 +502,35 @@ pub(in crate::card::sets) static BRANCHING_BOLT: CardRecord = CardRecord::new(
 );
 
 // ALA 194 — Sharuum the Hegemon
-pub(in crate::card::sets) static SHARUUM_THE_HEGEMON_194: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static SHARUUM_THE_HEGEMON: CardRecord = CardRecord::new(
     "Sharuum the Hegemon",
     "6589eaa8-95ec-4c97-8155-185487560ae6",
     "Izzy",
-    CardRules::new_artifact_creature(mana_cost!("{3}{W}{U}{B}"), &["Sphinx"], 5, 5).with_supertype(CardSupertype::Legendary).with_abilities(&[
-abilities::flying(),
-abilities::enters_trigger_with_targets("When Sharuum enters, you may return target artifact card from your graveyard to the battlefield.", &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object { object: ObjectPredicateDef::HasType(CardType::Artifact), zones: &[ZoneKind::Graveyard], controller: None, owner: Some(PlayerRelation::You) })], EffectDef::May { player: EffectRecipientDef::Controller, effect: &EffectDef::move_to_zone(EffectRecipientDef::Target(TargetIndex::PRIMARY), ZoneKind::Battlefield, ZonePlacement::Top) })
-]),
+    CardRules::new_artifact_creature(mana_cost!("{3}{W}{U}{B}"), &["Sphinx"], 5, 5)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::flying(),
+            abilities::enters_trigger_with_targets(
+                "When Sharuum enters, you may return target artifact card \
+                 from your graveyard to the battlefield.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Artifact),
+                        zones: &[ZoneKind::Graveyard],
+                        controller: None,
+                        owner: Some(PlayerRelation::You),
+                    },
+                )],
+                EffectDef::May {
+                    player: EffectRecipientDef::Controller,
+                    effect: &EffectDef::move_to_zone(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ZoneKind::Battlefield,
+                        ZonePlacement::Top,
+                    ),
+                },
+            ),
+        ]),
 );
 
 // ALA 202 — Tidehollow Sculler
@@ -484,49 +538,50 @@ pub(in crate::card::sets) static TIDEHOLLOW_SCULLER: CardRecord = CardRecord::ne
     "Tidehollow Sculler",
     "1abecc77-07f2-43e4-8585-0a8199cdcf01",
     "rk post",
-CardRules::new_artifact_creature(mana_cost!("{W}{B}"), &["Zombie"], 2, 2)
-        .with_abilities(&[
-            abilities::enters_trigger_with_targets(
-                "When this creature enters, target opponent reveals their hand and you choose a nonland card from it. Exile that card.",
-                &[AbilityTargetDef::exactly_one(
-                    AbilityTargetPredicate::Player(PlayerRelation::Opponent),
-                )],
-                EffectDef::Sequence(&abilities::reveal_hand_and_choose_card(
-                    PlayerRefDef::Target(TargetIndex::PRIMARY),
-                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
-                    // Linked to the Sculler rather than exiled outright, which is the whole
-                    // bargain: the card is gone only for as long as the body survives.
-                    &EffectDef::ExileLinkedToSource {
-                        until_source_leaves: false,
-                        object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
-                        face_down: false,
-                        then: None,
-                    },
-                )),
-            ),
-            // Leaves, not dies: bouncing or exiling the Sculler gives the card back
-            // just as killing it does.
-            AbilityDef::triggered(
-                "When this creature leaves the battlefield, return the exiled card to its owner's hand.",
-                TriggerEventDef::zone_changed(
-                    ObjectPredicateDef::Source,
-                    Some(ZoneKind::Battlefield),
-                    None,
-                ),
-                EffectDef::ReturnLinkedExiles {
-                    object: ObjectPredicateDef::Any,
-                    counters: None,
-                    zone: ZoneKind::Hand,
-                    grant: None,
-                    controller: None,
-                    transformed: false,
+    CardRules::new_artifact_creature(mana_cost!("{W}{B}"), &["Zombie"], 2, 2).with_abilities(&[
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, target opponent reveals their \
+             hand and you choose a nonland card from it. Exile that card.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+            )],
+            EffectDef::Sequence(&abilities::reveal_hand_and_choose_card(
+                PlayerRefDef::Target(TargetIndex::PRIMARY),
+                ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                // Linked to the Sculler rather than exiled outright, which is the whole
+                // bargain: the card is gone only for as long as the body survives.
+                &EffectDef::ExileLinkedToSource {
+                    until_source_leaves: false,
+                    object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
+                    face_down: false,
+                    then: None,
                 },
+            )),
+        ),
+        // Leaves, not dies: bouncing or exiling the Sculler gives the card back
+        // just as killing it does.
+        AbilityDef::triggered(
+            "When this creature leaves the battlefield, return the \
+             exiled card to its owner's hand.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                Some(ZoneKind::Battlefield),
+                None,
             ),
-        ]),
+            EffectDef::ReturnLinkedExiles {
+                object: ObjectPredicateDef::Any,
+                counters: None,
+                zone: ZoneKind::Hand,
+                grant: None,
+                controller: None,
+                transformed: false,
+            },
+        ),
+    ]),
 );
 
 // ALA 218 — Relic of Progenitus
-pub(in crate::card::sets) static RELIC_OF_PROGENITUS_218: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static RELIC_OF_PROGENITUS: CardRecord = CardRecord::new(
     "Relic of Progenitus",
     "90c41192-64ef-43aa-9af0-75f0d3f56688",
     "Jean-Sébastien Rossbach",
@@ -577,7 +632,7 @@ pub(in crate::card::sets) static RELIC_OF_PROGENITUS_218: CardRecord = CardRecor
 );
 
 // ALA 220 — Arcane Sanctum
-pub(in crate::card::sets) static ARCANE_SANCTUM_220: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static ARCANE_SANCTUM: CardRecord = CardRecord::new(
     "Arcane Sanctum",
     "6edc0681-4252-4d3d-baf3-f03c22af1208",
     "Anthony Francisco",
@@ -593,13 +648,13 @@ pub(in crate::card::sets) static ARCANE_SANCTUM_220: CardRecord = CardRecord::ne
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ANGELIC_BENEDICTION,
     &ELSPETH_KNIGHT_ERRANT,
-    &ETHERSWORN_CANONIST_10,
+    &ETHERSWORN_CANONIST,
     &GUARDIANS_OF_AKRASA,
-    &RANGER_OF_EOS_21,
-    &ETHERIUM_SCULPTOR_42,
-    &FILIGREE_SAGES_44,
-    &TEZZERET_THE_SEEKER_60,
-    &AD_NAUSEAM_63,
+    &RANGER_OF_EOS,
+    &ETHERIUM_SCULPTOR,
+    &FILIGREE_SAGES,
+    &TEZZERET_THE_SEEKER,
+    &AD_NAUSEAM,
     &BONE_SPLINTERS,
     &DEATH_BARON,
     &DRAGON_FODDER,
@@ -609,10 +664,10 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ELVISH_VISIONARY,
     &BLIGHTNING,
     &BRANCHING_BOLT,
-    &SHARUUM_THE_HEGEMON_194,
+    &SHARUUM_THE_HEGEMON,
     &TIDEHOLLOW_SCULLER,
-    &RELIC_OF_PROGENITUS_218,
-    &ARCANE_SANCTUM_220,
+    &RELIC_OF_PROGENITUS,
+    &ARCANE_SANCTUM,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

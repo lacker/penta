@@ -92,7 +92,9 @@ pub(in crate::card::sets) static AUTHORITY_OF_THE_CONSULS: CardRecord = CardReco
 );
 
 // KLD 15 — Fumigate
-// Audit: unsupported — Needs destruction-result tracking that includes a successful destruction redirected to exile; the existing destruction continuation only records permanents moved to the graveyard.
+// Audit: unsupported — Needs destruction-result tracking that includes a successful destruction
+// redirected to exile; the existing destruction continuation only records permanents moved to
+// the graveyard.
 pub(in crate::card::sets) static FUMIGATE: CardRecord = CardRecord::new(
     "Fumigate",
     "f00f27a7-9e92-4fbf-baa8-f47a5eee48a6",
@@ -101,7 +103,7 @@ pub(in crate::card::sets) static FUMIGATE: CardRecord = CardRecord::new(
 );
 
 // KLD 25 — Refurbish
-pub(in crate::card::sets) static REFURBISH_25: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static REFURBISH: CardRecord = CardRecord::new(
     "Refurbish",
     "f60e2ac4-f21f-4232-abc8-db078472408b",
     "Johann Bodin",
@@ -124,7 +126,7 @@ pub(in crate::card::sets) static REFURBISH_25: CardRecord = CardRecord::new(
 );
 
 // KLD 44 — Dramatic Reversal
-pub(in crate::card::sets) static DRAMATIC_REVERSAL_44: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static DRAMATIC_REVERSAL: CardRecord = CardRecord::new(
     "Dramatic Reversal",
     "dcb59045-2743-48ae-8063-727e551b1c41",
     "Eric Deschamps",
@@ -168,14 +170,58 @@ pub(in crate::card::sets) static GEARSEEKER_SERPENT: CardRecord = CardRecord::ne
 );
 
 // KLD 59 — Padeem, Consul of Innovation
-pub(in crate::card::sets) static PADEEM_CONSUL_OF_INNOVATION_59: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static PADEEM_CONSUL_OF_INNOVATION: CardRecord = CardRecord::new(
     "Padeem, Consul of Innovation",
     "e31b30a7-13e8-408e-a758-60e6e9290808",
     "Matt Stewart",
-    CardRules::new_creature(mana_cost!("{3}{U}"), &["Vedalken", "Artificer"], 1, 4).with_supertype(CardSupertype::Legendary).with_abilities(&[
-AbilityDef::static_ability("Artifacts you control have hexproof. (They can't be the targets of spells or abilities your opponents control.)", EffectDef::StaticApply { recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::HasType(CardType::Artifact), &[ZoneKind::Battlefield], PlayerRelation::You), effect: AppliedEffectDef::add_ability(&abilities::hexproof()) }),
-AbilityDef::triggered_if("At the beginning of your upkeep, if you control the artifact with the greatest mana value or tied for the greatest mana value, draw a card.", TriggerEventDef::StepBegins { step: TurnStepDef::Upkeep, player: PlayerRelation::You }, &TriggerConditionDef::ObjectCount { query: ObjectQueryDef::matching(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Artifact), ObjectPredicateDef::ManaValueEqualTo(ValueDef::AggregateObjectValues(&ObjectValueAggregateDef { objects: ObjectSetDef::Query(ObjectQueryDef::matching(ObjectPredicateDef::HasType(CardType::Artifact), &[ZoneKind::Battlefield], PlayerRelation::Any)), select: ObjectValueDef::ManaValue, operation: AggregateOperationDef::Maximum }))]), &[ZoneKind::Battlefield], PlayerRelation::You), comparison: ComparisonDef::GreaterOrEqual, amount: 1 }, abilities::draw_cards(ValueDef::Constant(1)))
-]),
+    CardRules::new_creature(mana_cost!("{3}{U}"), &["Vedalken", "Artificer"], 1, 4)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Artifacts you control have hexproof. (They can't be the \
+                 targets of spells or abilities your opponents control.)",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::add_ability(&abilities::hexproof()),
+                },
+            ),
+            AbilityDef::triggered_if(
+                "At the beginning of your upkeep, if you control the \
+                 artifact with the greatest mana value or tied for the \
+                 greatest mana value, draw a card.",
+                TriggerEventDef::StepBegins {
+                    step: TurnStepDef::Upkeep,
+                    player: PlayerRelation::You,
+                },
+                &TriggerConditionDef::ObjectCount {
+                    query: ObjectQueryDef::matching(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Artifact),
+                            ObjectPredicateDef::ManaValueEqualTo(ValueDef::AggregateObjectValues(
+                                &ObjectValueAggregateDef {
+                                    objects: ObjectSetDef::Query(ObjectQueryDef::matching(
+                                        ObjectPredicateDef::HasType(CardType::Artifact),
+                                        &[ZoneKind::Battlefield],
+                                        PlayerRelation::Any,
+                                    )),
+                                    select: ObjectValueDef::ManaValue,
+                                    operation: AggregateOperationDef::Maximum,
+                                },
+                            )),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    comparison: ComparisonDef::GreaterOrEqual,
+                    amount: 1,
+                },
+                abilities::draw_cards(ValueDef::Constant(1)),
+            ),
+        ]),
 );
 
 // KLD 60 — Paradoxical Outcome
@@ -244,25 +290,78 @@ pub(in crate::card::sets) static PARADOXICAL_OUTCOME: CardRecord = CardRecord::n
 );
 
 // KLD 67 — Torrential Gearhulk
-pub(in crate::card::sets) static TORRENTIAL_GEARHULK_67: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static TORRENTIAL_GEARHULK: CardRecord = CardRecord::new(
     "Torrential Gearhulk",
     "d52868cb-087e-4f91-91bc-455f2e2e7cd7",
     "Svetlin Velinov",
-    CardRules::new_artifact_creature(mana_cost!("{4}{U}{U}"), &["Construct"], 5, 6).with_abilities(&[
-abilities::flash(),
-abilities::enters_trigger_with_targets("When this creature enters, you may cast target instant card from your graveyard without paying its mana cost. If that spell would be put into your graveyard, exile it instead.", &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object { object: ObjectPredicateDef::HasType(CardType::Instant), zones: &[ZoneKind::Graveyard], controller: None, owner: Some(PlayerRelation::You) })], EffectDef::MayCastTargetWithoutPaying { object: EffectRecipientDef::Target(TargetIndex::PRIMARY), ability: &AbilityDef::alternative_cast(crate::NO_COSTS, AlternativeCastKindDef::Granted, Some("Cast without paying its mana cost."), EffectDef::None).with_exile_if_put_into_graveyard() })
-]),
+    CardRules::new_artifact_creature(mana_cost!("{4}{U}{U}"), &["Construct"], 5, 6).with_abilities(
+        &[
+            abilities::flash(),
+            abilities::enters_trigger_with_targets(
+                "When this creature enters, you may cast target instant card \
+                 from your graveyard without paying its mana cost. If that \
+                 spell would be put into your graveyard, exile it instead.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Instant),
+                        zones: &[ZoneKind::Graveyard],
+                        controller: None,
+                        owner: Some(PlayerRelation::You),
+                    },
+                )],
+                EffectDef::MayCastTargetWithoutPaying {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ability: &AbilityDef::alternative_cast(
+                        crate::NO_COSTS,
+                        AlternativeCastKindDef::Granted,
+                        Some("Cast without paying its mana cost."),
+                        EffectDef::None,
+                    )
+                    .with_exile_if_put_into_graveyard(),
+                },
+            ),
+        ],
+    ),
 );
 
 // KLD 96 — Noxious Gearhulk
-pub(in crate::card::sets) static NOXIOUS_GEARHULK_96: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static NOXIOUS_GEARHULK: CardRecord = CardRecord::new(
     "Noxious Gearhulk",
     "9f86e5fe-8723-4494-b4cc-b7ac3a047bd1",
     "Lius Lasahido",
-    CardRules::new_artifact_creature(mana_cost!("{4}{B}{B}"), &["Construct"], 5, 4).with_abilities(&[
-abilities::menace(),
-abilities::enters_trigger_with_targets("When this creature enters, you may destroy another target creature. If a creature is destroyed this way, you gain life equal to its toughness.", &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::Not(&ObjectPredicateDef::Source)]))], EffectDef::May { player: EffectRecipientDef::Controller, effect: &EffectDef::Destroy { object: EffectRecipientDef::Target(TargetIndex::PRIMARY), then: Some(DestroyFollowUpDef { binding: Binding!("gearhulk_destroyed"), effect: &EffectDef::GainLife { recipient: EffectRecipientDef::Controller, amount: ValueDef::AggregateObjectValues(&ObjectValueAggregateDef { objects: ObjectSetDef::Binding(Binding!("gearhulk_destroyed")), select: ObjectValueDef::Toughness, operation: AggregateOperationDef::Sum }) } }) } })
-]),
+    CardRules::new_artifact_creature(mana_cost!("{4}{B}{B}"), &["Construct"], 5, 4).with_abilities(
+        &[
+            abilities::menace(),
+            abilities::enters_trigger_with_targets(
+                "When this creature enters, you may destroy another target \
+                 creature. If a creature is destroyed this way, you gain \
+                 life equal to its toughness.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    ]),
+                )],
+                EffectDef::May {
+                    player: EffectRecipientDef::Controller,
+                    effect: &EffectDef::Destroy {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        then: Some(DestroyFollowUpDef {
+                            binding: Binding!("gearhulk_destroyed"),
+                            effect: &EffectDef::GainLife {
+                                recipient: EffectRecipientDef::Controller,
+                                amount: ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
+                                    objects: ObjectSetDef::Binding(Binding!("gearhulk_destroyed")),
+                                    select: ObjectValueDef::Toughness,
+                                    operation: AggregateOperationDef::Sum,
+                                }),
+                            },
+                        }),
+                    },
+                },
+            ),
+        ],
+    ),
 );
 
 // KLD 107 — Brazen Scourge
@@ -275,80 +374,98 @@ pub(in crate::card::sets) static BRAZEN_SCOURGE: CardRecord = CardRecord::new(
 );
 
 // KLD 110 — Chandra, Torch of Defiance
-pub(in crate::card::sets) static CHANDRA_TORCH_OF_DEFIANCE: CardRecord =
-    CardRecord::new(
+pub(in crate::card::sets) static CHANDRA_TORCH_OF_DEFIANCE: CardRecord = CardRecord::new(
     "Chandra, Torch of Defiance",
     "ff8086cd-b868-4f4e-823e-2635ad7ebc07",
     "Magali Villeneuve",
-// Four abilities and no bad one: she draws, she ramps, she kills, and if
-        // the game somehow goes long she ends it by herself.
-        CardRules::new_planeswalker(mana_cost!("{2}{R}{R}"), &["Chandra"], 4)
-            .with_supertype(CardSupertype::Legendary)
-            .with_abilities(&[
-                AbilityDef::activated(
-                    "+1: Exile the top card of your library. You may cast that card. If you don't, Chandra, \
-                     Torch of Defiance deals 2 damage to each opponent.",
-                    &[CostDef::Loyalty(1)],
-                    EffectDef::ExileTopAndMayCast {
-                        player: EffectRecipientDef::Controller,
-                        // "If you don't" is the whole of the first ability's tension: the exile
-                        // happens either way, and the card is either spent now at its own cost or
-                        // traded for two damage.
-                        otherwise: Some(&EffectDef::damage(EffectRecipientDef::Opponent, ValueDef::Constant(2))),
-                    },
+    // Four abilities and no bad one: she draws, she ramps, she kills, and if
+    // the game somehow goes long she ends it by herself.
+    CardRules::new_planeswalker(mana_cost!("{2}{R}{R}"), &["Chandra"], 4)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::activated(
+                "+1: Exile the top card of your library. You may cast that \
+                 card. If you don't, Chandra, Torch of Defiance deals 2 \
+                 damage to each opponent.",
+                &[CostDef::Loyalty(1)],
+                EffectDef::ExileTopAndMayCast {
+                    player: EffectRecipientDef::Controller,
+                    // "If you don't" is the whole of the first ability's tension: the exile
+                    // happens either way, and the card is either spent now at its own cost or
+                    // traded for two damage.
+                    otherwise: Some(&EffectDef::damage(
+                        EffectRecipientDef::Opponent,
+                        ValueDef::Constant(2),
+                    )),
+                },
+            ),
+            // A loyalty ability is never a mana ability (CR 605.1a), so this one uses
+            // the stack like the rest of her.
+            AbilityDef::activated(
+                "+1: Add {R}{R}.",
+                &[CostDef::Loyalty(1)],
+                EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Red).with_amount(2)),
+            ),
+            AbilityDef::activated_with_targets(
+                "−3: Chandra, Torch of Defiance deals 4 damage to target creature.",
+                &[CostDef::Loyalty(-3)],
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )],
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(4),
                 ),
-                // A loyalty ability is never a mana ability (CR 605.1a), so this one uses
-                // the stack like the rest of her.
-                AbilityDef::activated(
-                    "+1: Add {R}{R}.",
-                    &[CostDef::Loyalty(1)],
-                    EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Red).with_amount(2)),
-                ),
-                AbilityDef::activated_with_targets(
-                    "−3: Chandra, Torch of Defiance deals 4 damage to target creature.",
-                    &[CostDef::Loyalty(-3)],
-                    &[AbilityTargetDef::exactly_one_permanent(
-                        ObjectPredicateDef::HasType(CardType::Creature),
+            ),
+            AbilityDef::activated(
+                "−7: You get an emblem with \"Whenever you cast a spell, \
+                 this emblem deals 5 damage to any target.\"",
+                &[CostDef::Loyalty(-7)],
+                EffectDef::create_emblem(
+                    "Chandra, Torch of Defiance emblem",
+                    &[AbilityDef::triggered_with_targets(
+                        "Whenever you cast a spell, this emblem deals 5 damage to \
+                         any target.",
+                        TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(
+                            PlayerRelation::You,
+                        )),
+                        &[AbilityTargetDef::exactly_one(
+                            AbilityTargetPredicate::AnyTarget,
+                        )],
+                        EffectDef::damage(
+                            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            ValueDef::Constant(5),
+                        ),
                     )],
-                    EffectDef::damage(
-                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        ValueDef::Constant(4),
-                    ),
                 ),
-                AbilityDef::activated(
-                    "−7: You get an emblem with \"Whenever you cast a spell, this emblem deals 5 damage to \
-                     any target.\"",
-                    &[CostDef::Loyalty(-7)],
-                    EffectDef::create_emblem(
-                        "Chandra, Torch of Defiance emblem",
-                        &[AbilityDef::triggered_with_targets(
-                                "Whenever you cast a spell, this emblem deals 5 damage to any target.",
-                                TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(PlayerRelation::You)),
-                                &[AbilityTargetDef::exactly_one(
-                                    AbilityTargetPredicate::AnyTarget,
-                                )],
-                                EffectDef::damage(
-                                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                                    ValueDef::Constant(5),
-                                ),
-                            )],
-                    ),
-                ),
-            ]),
+            ),
+        ]),
 );
 
 // KLD 126 — Reckless Fireweaver
-pub(in crate::card::sets) static RECKLESS_FIREWEAVER_126: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static RECKLESS_FIREWEAVER: CardRecord = CardRecord::new(
     "Reckless Fireweaver",
     "63ffac51-62c4-4170-85b3-a43d7cfae7d7",
     "Deruchenko Alexander",
     CardRules::new_creature(mana_cost!("{1}{R}"), &["Human", "Artificer"], 1, 3).with_abilities(&[
-AbilityDef::triggered("Whenever an artifact you control enters, this creature deals 1 damage to each opponent.", TriggerEventDef::zone_changed(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Artifact), ObjectPredicateDef::ControlledBy(PlayerRelation::You)]), None, Some(ZoneKind::Battlefield)), EffectDef::damage(EffectRecipientDef::Opponent, ValueDef::Constant(1)))
-]),
+        AbilityDef::triggered(
+            "Whenever an artifact you control enters, this creature \
+             deals 1 damage to each opponent.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            EffectDef::damage(EffectRecipientDef::Opponent, ValueDef::Constant(1)),
+        ),
+    ]),
 );
 
 // KLD 127 — Renegade Tactics
-pub(in crate::card::sets) static RENEGADE_TACTICS_127: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static RENEGADE_TACTICS: CardRecord = CardRecord::new(
     "Renegade Tactics",
     "6c06a39c-68bb-4e65-9a6d-9d9bc745201f",
     "Yeong-Hao Han",
@@ -369,8 +486,10 @@ pub(in crate::card::sets) static RENEGADE_TACTICS_127: CardRecord = CardRecord::
 );
 
 // KLD 131 — Spark of Creativity
-// Audit: unsupported — The arbitrary-card exile operation grants a play permission as it exiles the card. It cannot first exile and reveal that card, then grant a paid play permission only if the optional damage is declined.
-pub(in crate::card::sets) static SPARK_OF_CREATIVITY_131: CardRecord = CardRecord::new(
+// Audit: unsupported — The arbitrary-card exile operation grants a play permission as it exiles
+// the card. It cannot first exile and reveal that card, then grant a paid play permission only
+// if the optional damage is declined.
+pub(in crate::card::sets) static SPARK_OF_CREATIVITY: CardRecord = CardRecord::new(
     "Spark of Creativity",
     "718bf224-5e1b-439c-a998-ceec5c0a8903",
     "Johann Bodin",
@@ -382,7 +501,7 @@ pub(in crate::card::sets) static THRIVING_GRUBS: CardRecord = CardRecord::new(
     "Thriving Grubs",
     "bbc3184a-eeda-4f22-92de-257c20cff6e2",
     "Steve Prescott",
-// The two energy it brings pay for exactly one attack, and everything
+    // The two energy it brings pay for exactly one attack, and everything
     // after that has to come from somewhere else on the board.
     CardRules::new_creature(mana_cost!("{1}{R}"), &["Gremlin"], 2, 1).with_abilities(&[
         abilities::enters_trigger(
@@ -394,7 +513,8 @@ pub(in crate::card::sets) static THRIVING_GRUBS: CardRecord = CardRecord::new(
             },
         ),
         AbilityDef::triggered(
-            "Whenever this creature attacks, you may pay {E}{E}. If you do, put a +1/+1 counter on it.",
+            "Whenever this creature attacks, you may pay {E}{E}. If you \
+             do, put a +1/+1 counter on it.",
             TriggerEventDef::attacks(ObjectPredicateDef::Source),
             EffectDef::PayOr(PayOrDef::optional(
                 &[CostDef::Energy(2)],
@@ -460,7 +580,7 @@ pub(in crate::card::sets) static CLOUDBLAZER: CardRecord = CardRecord::new(
 );
 
 // KLD 192 — Aetherflux Reservoir
-pub(in crate::card::sets) static AETHERFLUX_RESERVOIR_192: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static AETHERFLUX_RESERVOIR: CardRecord = CardRecord::new(
     "Aetherflux Reservoir",
     "96b6b2e1-c3e6-464c-8a13-b15deb34e862",
     "Cliff Childs",
@@ -491,14 +611,54 @@ pub(in crate::card::sets) static AETHERFLUX_RESERVOIR_192: CardRecord = CardReco
 );
 
 // KLD 194 — Animation Module
-pub(in crate::card::sets) static ANIMATION_MODULE_194: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static ANIMATION_MODULE: CardRecord = CardRecord::new(
     "Animation Module",
     "34bdc973-db45-46a6-ac48-ce88fb59920a",
     "Aaron Miller",
     CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
-AbilityDef::triggered("Whenever one or more +1/+1 counters are put on a permanent you control, you may pay {1}. If you do, create a 1/1 colorless Servo artifact creature token.", TriggerEventDef::CountersPlaced { object: ObjectPredicateDef::ControlledBy(PlayerRelation::You), kind: CounterKind::PlusOnePlusOne }, EffectDef::PayOr(PayOrDef::optional(&[CostDef::Mana(mana_cost!("{1}"))], &EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(crate::card::TokenCharacteristics::artifact_creature(&["Servo"], &[], 1, 1))))))),
-AbilityDef::activated_with_targets("{3}, {T}: Choose a counter on target permanent or player. Give that permanent or player another counter of that kind.", &[CostDef::Mana(mana_cost!("{3}")), CostDef::TapSource], &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyOf(&[AbilityTargetPredicate::Player(PlayerRelation::Any), AbilityTargetPredicate::Object { object: ObjectPredicateDef::Any, zones: &[ZoneKind::Battlefield], controller: None, owner: None }]))], EffectDef::ChooseCounterKind { object: EffectRecipientDef::Target(TargetIndex::PRIMARY), then: &EffectDef::ModifyCounters { object: EffectRecipientDef::Target(TargetIndex::PRIMARY), kind: CounterKindDef::Chosen, operation: CounterOperationDef::Add, amount: ValueDef::Constant(1) } })
-]),
+        AbilityDef::triggered(
+            "Whenever one or more +1/+1 counters are put on a permanent \
+             you control, you may pay {1}. If you do, create a 1/1 \
+             colorless Servo artifact creature token.",
+            TriggerEventDef::CountersPlaced {
+                object: ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                kind: CounterKind::PlusOnePlusOne,
+            },
+            EffectDef::PayOr(PayOrDef::optional(
+                &[CostDef::Mana(mana_cost!("{1}"))],
+                &EffectDef::CreateToken(crate::card::CreateTokenDef::new(
+                    crate::card::TokenDef::Literal(
+                        crate::card::TokenCharacteristics::artifact_creature(&["Servo"], &[], 1, 1),
+                    ),
+                )),
+            )),
+        ),
+        AbilityDef::activated_with_targets(
+            "{3}, {T}: Choose a counter on target permanent or player. \
+             Give that permanent or player another counter of that kind.",
+            &[CostDef::Mana(mana_cost!("{3}")), CostDef::TapSource],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyOf(&[
+                    AbilityTargetPredicate::Player(PlayerRelation::Any),
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::Any,
+                        zones: &[ZoneKind::Battlefield],
+                        controller: None,
+                        owner: None,
+                    },
+                ]),
+            )],
+            EffectDef::ChooseCounterKind {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: &EffectDef::ModifyCounters {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    kind: CounterKindDef::Chosen,
+                    operation: CounterOperationDef::Add,
+                    amount: ValueDef::Constant(1),
+                },
+            },
+        ),
+    ]),
 );
 
 // KLD 203 — Cultivator's Caravan
@@ -542,7 +702,7 @@ pub(in crate::card::sets) static FILIGREE_FAMILIAR: CardRecord = CardRecord::new
 );
 
 // KLD 215 — Foundry Inspector
-pub(in crate::card::sets) static FOUNDRY_INSPECTOR_215: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static FOUNDRY_INSPECTOR: CardRecord = CardRecord::new(
     "Foundry Inspector",
     "93f827e8-1cc4-4a15-a4be-2e74323963b9",
     "Jason A. Engle",
@@ -594,13 +754,14 @@ pub(in crate::card::sets) static SMUGGLER_S_COPTER: CardRecord = CardRecord::new
     "Smuggler's Copter",
     "7832abb5-5107-4603-904e-491b221bd3e3",
     "Florian de Gesincourt",
-// Two mana for a 3/3 flier that any one creature can turn on, and that
+    // Two mana for a 3/3 flier that any one creature can turn on, and that
     // fixes every draw it connects with. Banned in Standard for exactly
     // that.
     CardRules::new_vehicle(mana_cost!("{2}"), 3, 3).with_abilities(&[
         abilities::flying(),
         AbilityDef::triggered(
-            "Whenever this Vehicle attacks or blocks, you may draw a card. If you do, discard a card.",
+            "Whenever this Vehicle attacks or blocks, you may draw a \
+             card. If you do, discard a card.",
             // "Attacks or blocks" is one printed clause with two ways in, so it is one
             // ability rather than two: a Copter that does both in a turn still loots
             // once for each.
@@ -709,15 +870,71 @@ pub(in crate::card::sets) static INSPIRING_VANTAGE: CardRecord = CardRecord::new
 );
 
 // KLD 247 — Inventors' Fair
-pub(in crate::card::sets) static INVENTORS_FAIR_247: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static INVENTORS_FAIR: CardRecord = CardRecord::new(
     "Inventors' Fair",
     "275471e3-ded1-40ac-91ef-369dce5764d9",
     "Jonas De Ro",
-    CardRules::new_land(&[]).with_supertype(CardSupertype::Legendary).with_abilities(&[
-AbilityDef::triggered_if("At the beginning of your upkeep, if you control three or more artifacts, you gain 1 life.", TriggerEventDef::StepBegins { step: TurnStepDef::Upkeep, player: PlayerRelation::You }, &TriggerConditionDef::ObjectCount { query: ObjectQueryDef::matching(ObjectPredicateDef::HasType(CardType::Artifact), &[ZoneKind::Battlefield], PlayerRelation::You), comparison: ComparisonDef::GreaterOrEqual, amount: 3 }, EffectDef::GainLife { recipient: EffectRecipientDef::Controller, amount: ValueDef::Constant(1) }),
-abilities::tap_for(ManaColor::Colorless),
-AbilityDef::activated("{4}, {T}, Sacrifice Inventors' Fair: Search your library for an artifact card, reveal it, put it into your hand, then shuffle. Activate only if you control three or more artifacts.", &[CostDef::Mana(mana_cost!("{4}")), CostDef::TapSource, CostDef::SacrificeSource], EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Library, object: ObjectPredicateDef::HasType(CardType::Artifact), minimum: 0, maximum: ValueDef::Constant(1), reveal: true, destination: ZoneKind::Hand, placement: ZonePlacement::Top, shuffle: true, enters_tapped: false, attachment: None, binding: None, then: None }).with_activation_condition(&TriggerConditionDef::ObjectCount { query: ObjectQueryDef::matching(ObjectPredicateDef::HasType(CardType::Artifact), &[ZoneKind::Battlefield], PlayerRelation::You), comparison: ComparisonDef::GreaterOrEqual, amount: 3 })
-]),
+    CardRules::new_land(&[])
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::triggered_if(
+                "At the beginning of your upkeep, if you control three or \
+                 more artifacts, you gain 1 life.",
+                TriggerEventDef::StepBegins {
+                    step: TurnStepDef::Upkeep,
+                    player: PlayerRelation::You,
+                },
+                &TriggerConditionDef::ObjectCount {
+                    query: ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    comparison: ComparisonDef::GreaterOrEqual,
+                    amount: 3,
+                },
+                EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+            abilities::tap_for(ManaColor::Colorless),
+            AbilityDef::activated(
+                "{4}, {T}, Sacrifice Inventors' Fair: Search your library \
+                 for an artifact card, reveal it, put it into your hand, \
+                 then shuffle. Activate only if you control three or more \
+                 artifacts.",
+                &[
+                    CostDef::Mana(mana_cost!("{4}")),
+                    CostDef::TapSource,
+                    CostDef::SacrificeSource,
+                ],
+                EffectDef::SearchZone {
+                    player: EffectRecipientDef::Controller,
+                    source: ZoneKind::Library,
+                    object: ObjectPredicateDef::HasType(CardType::Artifact),
+                    minimum: 0,
+                    maximum: ValueDef::Constant(1),
+                    reveal: true,
+                    destination: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                    shuffle: true,
+                    enters_tapped: false,
+                    attachment: None,
+                    binding: None,
+                    then: None,
+                },
+            )
+            .with_activation_condition(&TriggerConditionDef::ObjectCount {
+                query: ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                comparison: ComparisonDef::GreaterOrEqual,
+                amount: 3,
+            }),
+        ]),
 );
 
 // KLD 249 — Spirebluff Canal
@@ -755,33 +972,33 @@ pub(in crate::card::sets) static FLAME_LASH: CardRecord = CardRecord::new(
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &AUTHORITY_OF_THE_CONSULS,
     &FUMIGATE,
-    &REFURBISH_25,
-    &DRAMATIC_REVERSAL_44,
+    &REFURBISH,
+    &DRAMATIC_REVERSAL,
     &GEARSEEKER_SERPENT,
-    &PADEEM_CONSUL_OF_INNOVATION_59,
+    &PADEEM_CONSUL_OF_INNOVATION,
     &PARADOXICAL_OUTCOME,
-    &TORRENTIAL_GEARHULK_67,
-    &NOXIOUS_GEARHULK_96,
+    &TORRENTIAL_GEARHULK,
+    &NOXIOUS_GEARHULK,
     &BRAZEN_SCOURGE,
     &CHANDRA_TORCH_OF_DEFIANCE,
-    &RECKLESS_FIREWEAVER_126,
-    &RENEGADE_TACTICS_127,
-    &SPARK_OF_CREATIVITY_131,
+    &RECKLESS_FIREWEAVER,
+    &RENEGADE_TACTICS,
+    &SPARK_OF_CREATIVITY,
     &THRIVING_GRUBS,
     &BLOSSOMING_DEFENSE,
     &CLOUDBLAZER,
-    &AETHERFLUX_RESERVOIR_192,
-    &ANIMATION_MODULE_194,
+    &AETHERFLUX_RESERVOIR,
+    &ANIMATION_MODULE,
     &CULTIVATOR_S_CARAVAN,
     &FILIGREE_FAMILIAR,
-    &FOUNDRY_INSPECTOR_215,
+    &FOUNDRY_INSPECTOR,
     &RENEGADE_FREIGHTER,
     &SMUGGLER_S_COPTER,
     &BLOOMING_MARSH,
     &BOTANICAL_SANCTUM,
     &CONCEALED_COURTYARD,
     &INSPIRING_VANTAGE,
-    &INVENTORS_FAIR_247,
+    &INVENTORS_FAIR,
     &SPIREBLUFF_CANAL,
     &FLAME_LASH,
 ];

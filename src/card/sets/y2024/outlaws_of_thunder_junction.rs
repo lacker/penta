@@ -162,7 +162,7 @@ const MERCENARY_TOKEN: TokenCharacteristics =
     TokenCharacteristics::creature(&["Mercenary"], &[ManaColor::Red], 1, 1)
         .with_abilities(&[AbilityDef::activated_with_targets(
             "{T}: Target creature you control gets +1/+0 until end of \
-                     turn. Activate only as a sorcery.",
+             turn. Activate only as a sorcery.",
             &[CostDef::TapSource],
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Object {
@@ -198,7 +198,9 @@ const ZOMBIE_ROGUE_TOKEN: TokenCharacteristics = TokenCharacteristics::creature(
 ));
 
 // OTJ 1 — Another Round
-// Audit: unsupported — Needs a resolving loop that repeats a fresh optional creature selection and its exile-return sequence X plus one times; Sequence has a fixed authored length and no value-counted repetition.
+// Audit: unsupported — Needs a resolving loop that repeats a fresh optional creature selection
+// and its exile-return sequence X plus one times; Sequence has a fixed authored length and no
+// value-counted repetition.
 pub(in crate::card::sets) static ANOTHER_ROUND: CardRecord = CardRecord::new(
     "Another Round",
     "4f8dc511-e307-4412-bb79-375a6077312d",
@@ -237,7 +239,9 @@ pub(in crate::card::sets) static ARMORED_ARMADILLO: CardRecord = CardRecord::new
 );
 
 // OTJ 4 — Aven Interrupter
-// Audit: unsupported — Needs an effect or external permission that makes other cards plotted, including its later-turn, sorcery-only free cast permission; existing plot only supports the card's own hand special action.
+// Audit: unsupported — Needs an effect or external permission that makes other cards plotted,
+// including its later-turn, sorcery-only free cast permission; existing plot only supports the
+// card's own hand special action.
 pub(in crate::card::sets) static AVEN_INTERRUPTER: CardRecord = CardRecord::new(
     "Aven Interrupter",
     "d3ca43a4-d194-440f-8099-f1fa103a108d",
@@ -587,7 +591,9 @@ pub(in crate::card::sets) static ERIETTE_S_LULLABY: CardRecord = CardRecord::new
 );
 
 // OTJ 11 — Final Showdown
-// Audit: unsupported — Needs granting an ability to a nontargeted creature chosen during resolution inside a modal spell; the modal-effect validator does not accept a chosen binding as a supported ability-grant recipient.
+// Audit: unsupported — Needs granting an ability to a nontargeted creature chosen during
+// resolution inside a modal spell; the modal-effect validator does not accept a chosen binding
+// as a supported ability-grant recipient.
 pub(in crate::card::sets) static FINAL_SHOWDOWN: CardRecord = CardRecord::new(
     "Final Showdown",
     "358968f9-45bd-4022-b6bc-f1f7e0adf0e7",
@@ -596,7 +602,8 @@ pub(in crate::card::sets) static FINAL_SHOWDOWN: CardRecord = CardRecord::new(
 );
 
 // OTJ 12 — Fortune, Loyal Steed
-// Audit: unsupported — Needs the identities of creatures used to saddle this Mount retained for the rest of the turn; current saddle stores only a saddled boolean.
+// Audit: unsupported — Needs the identities of creatures used to saddle this Mount retained for
+// the rest of the turn; current saddle stores only a saddled boolean.
 pub(in crate::card::sets) static FORTUNE_LOYAL_STEED: CardRecord = CardRecord::new(
     "Fortune, Loyal Steed",
     "069294a8-e65a-47af-942f-7e99d18658f2",
@@ -805,7 +812,8 @@ pub(in crate::card::sets) static HOLY_COW: CardRecord = CardRecord::new(
 );
 
 // OTJ 17 — Inventive Wingsmith
-// Audit: unsupported — Needs spell-cast history filtered by the zone a spell was cast from; the current history query retains caster and spell characteristics but no casting-origin zone.
+// Audit: unsupported — Needs spell-cast history filtered by the zone a spell was cast from; the
+// current history query retains caster and spell characteristics but no casting-origin zone.
 pub(in crate::card::sets) static INVENTIVE_WINGSMITH: CardRecord = CardRecord::new(
     "Inventive Wingsmith",
     "b6b36bb3-dacc-44f6-adcd-2c2d65513d8c",
@@ -814,7 +822,8 @@ pub(in crate::card::sets) static INVENTIVE_WINGSMITH: CardRecord = CardRecord::n
 );
 
 // OTJ 18 — Lassoed by the Law
-// Audit: unsupported — Needs exile-until-source-leaves with immediate return when that duration ends (CR 610.3); an ordinary leaves trigger would return the card later through the stack.
+// Audit: unsupported — Needs exile-until-source-leaves with immediate return when that duration
+// ends (CR 610.3); an ordinary leaves trigger would return the card later through the stack.
 pub(in crate::card::sets) static LASSOED_BY_THE_LAW: CardRecord = CardRecord::new(
     "Lassoed by the Law",
     "ea96eeac-c316-4247-a81f-0ddf52675ebf",
@@ -823,7 +832,8 @@ pub(in crate::card::sets) static LASSOED_BY_THE_LAW: CardRecord = CardRecord::ne
 );
 
 // OTJ 19 — Mystical Tether
-// Audit: unsupported — Needs exile-until-source-leaves with immediate return when that duration ends (CR 610.3); an ordinary leaves trigger would return the card later through the stack.
+// Audit: unsupported — Needs exile-until-source-leaves with immediate return when that duration
+// ends (CR 610.3); an ordinary leaves trigger would return the card later through the stack.
 pub(in crate::card::sets) static MYSTICAL_TETHER: CardRecord = CardRecord::new(
     "Mystical Tether",
     "18344498-952e-489c-8b03-bd1bef4c26ca",
@@ -887,7 +897,9 @@ pub(in crate::card::sets) static NURTURING_PIXIE: CardRecord = CardRecord::new(
 );
 
 // OTJ 21 — Omenport Vigilante
-// Audit: unsupported — Needs a controller-relative committed-crime-this-turn fact, including crimes before this permanent entered; the engine publishes crime events but does not retain that turn history.
+// Audit: unsupported — Needs a controller-relative committed-crime-this-turn fact, including
+// crimes before this permanent entered; the engine publishes crime events but does not retain
+// that turn history.
 pub(in crate::card::sets) static OMENPORT_VIGILANTE: CardRecord = CardRecord::new(
     "Omenport Vigilante",
     "7ecd8b6f-b9aa-466a-909c-3209beef8244",
@@ -896,7 +908,9 @@ pub(in crate::card::sets) static OMENPORT_VIGILANTE: CardRecord = CardRecord::ne
 );
 
 // OTJ 22 — One Last Job
-// Audit: unsupported — Needs legal host selection for an attachment arriving from the graveyard, including its enchant restrictions and protection; LegalAttachmentHosts currently requires the attachment already be on the battlefield.
+// Audit: unsupported — Needs legal host selection for an attachment arriving from the
+// graveyard, including its enchant restrictions and protection; LegalAttachmentHosts currently
+// requires the attachment already be on the battlefield.
 pub(in crate::card::sets) static ONE_LAST_JOB: CardRecord = CardRecord::new(
     "One Last Job",
     "71bfbfae-e7eb-4f80-81c6-9ab6a1bbd39d",
@@ -919,7 +933,8 @@ pub(in crate::card::sets) static OUTLAW_MEDIC: CardRecord = CardRecord::new(
 );
 
 // OTJ 24 — Prairie Dog
-// Audit: unsupported — Needs spell-cast history filtered by the zone a spell was cast from; the current history query retains caster and spell characteristics but no casting-origin zone.
+// Audit: unsupported — Needs spell-cast history filtered by the zone a spell was cast from; the
+// current history query retains caster and spell characteristics but no casting-origin zone.
 pub(in crate::card::sets) static PRAIRIE_DOG: CardRecord = CardRecord::new(
     "Prairie Dog",
     "37302b5d-e528-4baa-947a-c859e4ddcff9",
@@ -1170,7 +1185,9 @@ pub(in crate::card::sets) static STAGECOACH_SECURITY: CardRecord = CardRecord::n
 );
 
 // OTJ 31 — Steer Clear
-// Audit: unsupported — Needs a cast-time snapshot of whether the caster controlled a Mount, retained on the spell and copied with it; resolution-time battlefield queries cannot answer that historical condition.
+// Audit: unsupported — Needs a cast-time snapshot of whether the caster controlled a Mount,
+// retained on the spell and copied with it; resolution-time battlefield queries cannot answer
+// that historical condition.
 pub(in crate::card::sets) static STEER_CLEAR: CardRecord = CardRecord::new(
     "Steer Clear",
     "523a4d6e-122b-49b4-bf3d-17d29c0007fb",
@@ -1240,7 +1257,9 @@ const TAKE_UP_THE_SHIELD_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // OTJ 35 — Thunder Lasso
-// Audit: unsupported — Needs target selection relative to the creature that triggered an attached Equipment's attack ability; DefendingPlayer currently reads the ability source's own attack, and an Equipment is not the attacker.
+// Audit: unsupported — Needs target selection relative to the creature that triggered an
+// attached Equipment's attack ability; DefendingPlayer currently reads the ability source's own
+// attack, and an Equipment is not the attacker.
 pub(in crate::card::sets) static THUNDER_LASSO: CardRecord = CardRecord::new(
     "Thunder Lasso",
     "73dff5fc-2adf-447a-b35f-e7883e0fd821",
@@ -1383,7 +1402,8 @@ pub(in crate::card::sets) static ARCHMAGE_S_NEWT: CardRecord = CardRecord::new(
 );
 
 // OTJ 40 — Canyon Crab
-// Audit: unsupported — Needs spell-cast history filtered by the zone a spell was cast from; the current history query retains caster and spell characteristics but no casting-origin zone.
+// Audit: unsupported — Needs spell-cast history filtered by the zone a spell was cast from; the
+// current history query retains caster and spell characteristics but no casting-origin zone.
 pub(in crate::card::sets) static CANYON_CRAB: CardRecord = CardRecord::new(
     "Canyon Crab",
     "b740a8a8-e1d3-4642-a214-03731c9b5553",
@@ -1468,52 +1488,55 @@ pub(in crate::card::sets) static DUELIST_OF_THE_MIND: CardRecord = CardRecord::n
     "Duelist of the Mind",
     "2b58e47b-c165-4a58-aa2a-033a35645adc",
     "Darren Tan",
-// A 0/3 flier that grows with every draw and feeds itself once a turn,
+    // A 0/3 flier that grows with every draw and feeds itself once a turn,
     // provided you point something at your opponent.
-    CardRules::new_creature(mana_cost!("{1}{U}"), &["Human", "Advisor"], 0, 3)
-        .with_abilities(&[
-            abilities::flying(),
-            abilities::vigilance(),
-            AbilityDef::static_ability(
-                "Duelist of the Mind's power is equal to the number of cards you've drawn this turn.",
-                EffectDef::StaticApply {
-                    recipient: EffectRecipientDef::Source,
-                    // The count defines her power outright, which is why it also
-                    // answers in a hand or a graveyard; the printed toughness is
-                    // left alone.
-                    effect: AppliedEffectDef::define_power(ValueDef::CardsDrawnThisTurn(
-                        PlayerRelation::You,
-                    )),
-                },
-            ),
-            AbilityDef::triggered(
-                "Whenever you commit a crime, you may draw a card. If you do, discard a card. This ability triggers only once each turn.",
-                TriggerEventDef::CommittedCrime(PlayerRelation::You),
-                EffectDef::May {
-                    player: EffectRecipientDef::Controller,
-                    // "Draw a card. If you do, discard a card." A draw from an empty library
-                    // does not happen, so the discard is conditional on the draw rather than
-                    // sequenced after it.
-                    effect: &EffectDef::Sequence(&[
-                        EffectDef::DrawCards {
-                            recipient: EffectRecipientDef::Controller,
-                            amount: ValueDef::Constant(1),
-                        },
-                        EffectDef::Discard {
-                            recipient: EffectRecipientDef::Controller,
-                            amount: ValueDef::Constant(1),
-                            selection: DiscardSelectionDef::RecipientChooses,
-                            then: None,
-                        },
-                    ]),
-                },
-            )
-            .triggering_at_most(1),
-        ]),
+    CardRules::new_creature(mana_cost!("{1}{U}"), &["Human", "Advisor"], 0, 3).with_abilities(&[
+        abilities::flying(),
+        abilities::vigilance(),
+        AbilityDef::static_ability(
+            "Duelist of the Mind's power is equal to the number of cards \
+             you've drawn this turn.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                // The count defines her power outright, which is why it also
+                // answers in a hand or a graveyard; the printed toughness is
+                // left alone.
+                effect: AppliedEffectDef::define_power(ValueDef::CardsDrawnThisTurn(
+                    PlayerRelation::You,
+                )),
+            },
+        ),
+        AbilityDef::triggered(
+            "Whenever you commit a crime, you may draw a card. If you \
+             do, discard a card. This ability triggers only once each \
+             turn.",
+            TriggerEventDef::CommittedCrime(PlayerRelation::You),
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                // "Draw a card. If you do, discard a card." A draw from an empty library
+                // does not happen, so the discard is conditional on the draw rather than
+                // sequenced after it.
+                effect: &EffectDef::Sequence(&[
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    },
+                    EffectDef::Discard {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                        selection: DiscardSelectionDef::RecipientChooses,
+                        then: None,
+                    },
+                ]),
+            },
+        )
+        .triggering_at_most(1),
+    ]),
 );
 
 // OTJ 46 — Emergent Haunting
-// Audit: unsupported — Needs spell-cast history filtered by the zone a spell was cast from; the current history query retains caster and spell characteristics but no casting-origin zone.
+// Audit: unsupported — Needs spell-cast history filtered by the zone a spell was cast from; the
+// current history query retains caster and spell characteristics but no casting-origin zone.
 pub(in crate::card::sets) static EMERGENT_HAUNTING: CardRecord = CardRecord::new(
     "Emergent Haunting",
     "623053a8-7abe-45ec-9f26-97e1c037120b",
@@ -1556,7 +1579,9 @@ pub(in crate::card::sets) static FAILED_FORDING: CardRecord = CardRecord::new(
 );
 
 // OTJ 48 — Fblthp, Lost on the Range
-// Audit: unsupported — Needs an effect or external permission that makes other cards plotted, including its later-turn, sorcery-only free cast permission; existing plot only supports the card's own hand special action.
+// Audit: unsupported — Needs an effect or external permission that makes other cards plotted,
+// including its later-turn, sorcery-only free cast permission; existing plot only supports the
+// card's own hand special action.
 pub(in crate::card::sets) static FBLTHP_LOST_ON_THE_RANGE: CardRecord = CardRecord::new(
     "Fblthp, Lost on the Range",
     "01d3e6ea-4791-4948-af22-c1bd04c34c1e",
@@ -1611,7 +1636,9 @@ pub(in crate::card::sets) static FLEETING_REFLECTION: CardRecord = CardRecord::n
 );
 
 // OTJ 50 — Geralf, the Fleshwright
-// Audit: unsupported — Needs a turn history of Zombies that entered under this controller, including ones that have since left; EnteredThisTurn only filters objects currently present in a queried zone.
+// Audit: unsupported — Needs a turn history of Zombies that entered under this controller,
+// including ones that have since left; EnteredThisTurn only filters objects currently present
+// in a queried zone.
 pub(in crate::card::sets) static GERALF_THE_FLESHWRIGHT: CardRecord = CardRecord::new(
     "Geralf, the Fleshwright",
     "afe3b678-b340-4c53-bbf6-19252a809d73",
@@ -1620,7 +1647,9 @@ pub(in crate::card::sets) static GERALF_THE_FLESHWRIGHT: CardRecord = CardRecord
 );
 
 // OTJ 51 — Geyser Drake
-// Audit: unsupported — Needs a spell-cost adjustment gated by the active player; the cost evaluator accepts direct ModifyCost effects but does not evaluate a surrounding turn condition.
+// Audit: unsupported — Needs a spell-cost adjustment gated by the active player; the cost
+// evaluator accepts direct ModifyCost effects but does not evaluate a surrounding turn
+// condition.
 pub(in crate::card::sets) static GEYSER_DRAKE: CardRecord = CardRecord::new(
     "Geyser Drake",
     "b270377b-33eb-4e5e-9d14-0da2876da74f",
@@ -1882,7 +1911,9 @@ pub(in crate::card::sets) static METAMORPHIC_BLAST: CardRecord = CardRecord::new
 );
 
 // OTJ 58 — Nimble Brigand
-// Audit: unsupported — Needs a controller-relative committed-crime-this-turn fact, including crimes before this permanent entered; the engine publishes crime events but does not retain that turn history.
+// Audit: unsupported — Needs a controller-relative committed-crime-this-turn fact, including
+// crimes before this permanent entered; the engine publishes crime events but does not retain
+// that turn history.
 pub(in crate::card::sets) static NIMBLE_BRIGAND: CardRecord = CardRecord::new(
     "Nimble Brigand",
     "73c74d48-362d-4c3b-9ff7-39bdd19657a6",
@@ -2066,7 +2097,9 @@ pub(in crate::card::sets) static RAZZLE_DAZZLER: CardRecord = CardRecord::new(
 );
 
 // OTJ 64 — Seize the Secrets
-// Audit: unsupported — Needs a controller-relative committed-crime-this-turn fact, including crimes before this permanent entered; the engine publishes crime events but does not retain that turn history.
+// Audit: unsupported — Needs a controller-relative committed-crime-this-turn fact, including
+// crimes before this permanent entered; the engine publishes crime events but does not retain
+// that turn history.
 pub(in crate::card::sets) static SEIZE_THE_SECRETS: CardRecord = CardRecord::new(
     "Seize the Secrets",
     "1bdbdfa8-aa28-4b3d-95e7-3d0e7e37f982",
@@ -2226,7 +2259,9 @@ pub(in crate::card::sets) static SLICKSHOT_LOCKPICKER: CardRecord = CardRecord::
 );
 
 // OTJ 68 — Slickshot Vault-Buster
-// Audit: unsupported — Needs a controller-relative committed-crime-this-turn fact, including crimes before this permanent entered; the engine publishes crime events but does not retain that turn history.
+// Audit: unsupported — Needs a controller-relative committed-crime-this-turn fact, including
+// crimes before this permanent entered; the engine publishes crime events but does not retain
+// that turn history.
 pub(in crate::card::sets) static SLICKSHOT_VAULT_BUSTER: CardRecord = CardRecord::new(
     "Slickshot Vault-Buster",
     "592ccc36-3d10-4a12-8743-9b300b80cb4d",
@@ -2265,7 +2300,9 @@ pub(in crate::card::sets) static SPRING_SPLASHER: CardRecord = CardRecord::new(
 );
 
 // OTJ 70 — Step Between Worlds
-// Audit: unsupported — Needs all players to commit optional hand-and-graveyard shuffle choices in APNAP order before the simultaneous shuffle, then draw only for the players who chose to shuffle.
+// Audit: unsupported — Needs all players to commit optional hand-and-graveyard shuffle choices
+// in APNAP order before the simultaneous shuffle, then draw only for the players who chose to
+// shuffle.
 pub(in crate::card::sets) static STEP_BETWEEN_WORLDS: CardRecord = CardRecord::new(
     "Step Between Worlds",
     "70ea2054-3d22-42ce-ab50-501ef09c2128",
@@ -2396,7 +2433,9 @@ pub(in crate::card::sets) static TAKE_THE_FALL: CardRecord = CardRecord::new(
 );
 
 // OTJ 74 — This Town Ain't Big Enough
-// Audit: unsupported — Needs a self-cost condition testing whether any declared target is a permanent controlled by the caster; current spell-cost predicates only test whether a spell targets the external cost source.
+// Audit: unsupported — Needs a self-cost condition testing whether any declared target is a
+// permanent controlled by the caster; current spell-cost predicates only test whether a spell
+// targets the external cost source.
 pub(in crate::card::sets) static THIS_TOWN_AIN_T_BIG_ENOUGH: CardRecord = CardRecord::new(
     "This Town Ain't Big Enough",
     "bb206e27-da4d-4abe-9d8c-6d18c5f2f52a",
@@ -2523,7 +2562,8 @@ pub(in crate::card::sets) static AMBUSH_GIGAPEDE: CardRecord = CardRecord::new(
 );
 
 // OTJ 78 — Binding Negotiation
-// Audit: unsupported — Needs selecting only face-up cards from an opponent's exile zone for the declined-discard branch; the object predicate vocabulary has no face-up/face-down selector.
+// Audit: unsupported — Needs selecting only face-up cards from an opponent's exile zone for the
+// declined-discard branch; the object predicate vocabulary has no face-up/face-down selector.
 pub(in crate::card::sets) static BINDING_NEGOTIATION: CardRecord = CardRecord::new(
     "Binding Negotiation",
     "1c4c26b9-981f-47cf-b0f4-769e788d9537",
@@ -2659,7 +2699,7 @@ pub(in crate::card::sets) static CAUSTIC_BRONCO: CardRecord = CardRecord::new(
     "Caustic Bronco",
     "e9a268ba-c442-4fe4-90b4-2810c8474f4e",
     "Brent Hollowell",
-// Two mana for a 2/2 that draws you an extra card every attack. Whether
+    // Two mana for a 2/2 that draws you an extra card every attack. Whether
     // that card costs you or them is what the saddle buys.
     CardRules::new_creature(mana_cost!("{1}{B}"), &["Snake", "Horse", "Mount"], 2, 2)
         .with_abilities(&[
@@ -2713,8 +2753,9 @@ pub(in crate::card::sets) static CAUSTIC_BRONCO: CardRecord = CardRecord::new(
             ),
             abilities::saddle(
                 &[CostDef::TapCreaturesWithTotalPower { minimum: 3 }],
-                "Saddle 3 (Tap any number of other creatures you control with total power 3 or \
-                                         more: This Mount becomes saddled until end of turn. Saddle only as a sorcery.)",
+                "Saddle 3 (Tap any number of other creatures you control \
+                 with total power 3 or more: This Mount becomes saddled \
+                 until end of turn. Saddle only as a sorcery.)",
             ),
         ]),
 );
@@ -2912,7 +2953,9 @@ pub(in crate::card::sets) static GISA_THE_HELLRAISER: CardRecord = CardRecord::n
 );
 
 // OTJ 90 — Hollow Marauder
-// Audit: unsupported — Needs each targeted opponent's discard result retained with its mana value, including an empty-hand failure, to decide the controller's draw count; ordinary Discard does not bind those per-player results.
+// Audit: unsupported — Needs each targeted opponent's discard result retained with its mana
+// value, including an empty-hand failure, to decide the controller's draw count; ordinary
+// Discard does not bind those per-player results.
 pub(in crate::card::sets) static HOLLOW_MARAUDER: CardRecord = CardRecord::new(
     "Hollow Marauder",
     "df2913d5-57c7-4f9b-bc96-8a46beef2563",
@@ -2968,7 +3011,9 @@ pub(in crate::card::sets) static INSATIABLE_AVARICE: CardRecord = CardRecord::ne
 );
 
 // OTJ 92 — Kaervek, the Punisher
-// Audit: unsupported — Needs copying a card in exile and offering to cast that copy with normal payment, plus a continuation when that cast is accepted; CopyStackObject only copies an existing spell or ability.
+// Audit: unsupported — Needs copying a card in exile and offering to cast that copy with normal
+// payment, plus a continuation when that cast is accepted; CopyStackObject only copies an
+// existing spell or ability.
 pub(in crate::card::sets) static KAERVEK_THE_PUNISHER: CardRecord = CardRecord::new(
     "Kaervek, the Punisher",
     "7f3affc1-be42-48c7-89ff-b59550ff278c",
@@ -2978,12 +3023,140 @@ pub(in crate::card::sets) static KAERVEK_THE_PUNISHER: CardRecord = CardRecord::
 
 // OTJ 93 — Lively Dirge
 pub(in crate::card::sets) static LIVELY_DIRGE: CardRecord = CardRecord::new(
-"Lively Dirge",
-"0c35a0d3-12f7-46f3-a6b3-02a490d45ca0",
-"Warren Mahy",
-CardRules::new_sorcery(mana_cost!("{1}{B}")).with_abilities(&[
-spree(&[(&[CostDef::Mana(mana_cost!("{1}"))], AbilityDef::spell("Search your library for a card, put it into your graveyard, then shuffle.", EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Library, object: ObjectPredicateDef::Any, minimum: 1, maximum: ValueDef::Constant(1), reveal: false, destination: ZoneKind::Graveyard, placement: ZonePlacement::Top, shuffle: true, enters_tapped: false, attachment: None, binding: None, then: None })), (&[CostDef::Mana(mana_cost!("{2}"))], AbilityDef::spell("Return up to two creature cards with total mana value 4 or less from your graveyard to the battlefield.", EffectDef::Choose(ChooseDef { chooser: PlayerRefDef::EffectController, candidates: ObjectSetDef::Query(ObjectQueryDef::matching(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::ManaValueAtMost(4)]), &[ZoneKind::Graveyard], PlayerRelation::You)), exclude: None, minimum: 0, maximum: 1, binding: ObjectChoiceBindingDef::Objects(Binding!("dirge_first")), unchosen: None, visibility: ChoiceVisibilityDef::Private, then: &EffectDef::IfElseCondition { condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef { left: ValueDef::BoundObjectCount(Binding!("dirge_first")), comparison: ComparisonDef::Greater, right: ValueDef::Constant(0) }), then: &EffectDef::ForEachInBinding { objects: Binding!("dirge_first"), binding: Binding!("dirge_first_card"), effect: &EffectDef::Choose(ChooseDef { chooser: PlayerRefDef::EffectController, candidates: ObjectSetDef::Matching { objects: &ObjectSetDef::ExceptObject { objects: &ObjectSetDef::Query(ObjectQueryDef::matching(ObjectPredicateDef::HasType(CardType::Creature), &[ZoneKind::Graveyard], PlayerRelation::You)), object: ObjectRefDef::Binding(Binding!("dirge_first_card")) }, object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::ManaValueAtMostValue(ValueDef::Sum(&SumValueDef { left: ValueDef::Constant(4), right: ValueDef::Negate(&ValueDef::AggregateObjectValues(&ObjectValueAggregateDef { objects: ObjectSetDef::Binding(Binding!("dirge_first")), select: ObjectValueDef::ManaValue, operation: AggregateOperationDef::Sum })) }))) }, exclude: None, minimum: 0, maximum: 1, binding: ObjectChoiceBindingDef::Objects(Binding!("dirge_second")), unchosen: None, visibility: ChoiceVisibilityDef::Private, then: &EffectDef::MoveObjects(MoveObjectsDef { input: ObjectSetDef::Union(&[ObjectSetDef::Binding(Binding!("dirge_first")), ObjectSetDef::Binding(Binding!("dirge_second"))]), from: Some(ZoneKind::Graveyard), zone: ZoneKind::Battlefield, placement: ZonePlacement::Top, moved: None, then: &EffectDef::None }) }) }, otherwise: &EffectDef::Choose(ChooseDef { chooser: PlayerRefDef::EffectController, candidates: ObjectSetDef::Query(ObjectQueryDef::matching(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::ManaValueAtMost(4)]), &[ZoneKind::Graveyard], PlayerRelation::You)), exclude: None, minimum: 0, maximum: 1, binding: ObjectChoiceBindingDef::Objects(Binding!("dirge_only")), unchosen: None, visibility: ChoiceVisibilityDef::Private, then: &EffectDef::move_to_zone(EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!("dirge_only"))), ZoneKind::Battlefield, ZonePlacement::Top) }) } })))])
-]),
+    "Lively Dirge",
+    "0c35a0d3-12f7-46f3-a6b3-02a490d45ca0",
+    "Warren Mahy",
+    CardRules::new_sorcery(mana_cost!("{1}{B}")).with_abilities(&[spree(&[
+        (
+            &[CostDef::Mana(mana_cost!("{1}"))],
+            AbilityDef::spell(
+                "Search your library for a card, put it into your graveyard, \
+                 then shuffle.",
+                EffectDef::SearchZone {
+                    player: EffectRecipientDef::Controller,
+                    source: ZoneKind::Library,
+                    object: ObjectPredicateDef::Any,
+                    minimum: 1,
+                    maximum: ValueDef::Constant(1),
+                    reveal: false,
+                    destination: ZoneKind::Graveyard,
+                    placement: ZonePlacement::Top,
+                    shuffle: true,
+                    enters_tapped: false,
+                    attachment: None,
+                    binding: None,
+                    then: None,
+                },
+            ),
+        ),
+        (
+            &[CostDef::Mana(mana_cost!("{2}"))],
+            AbilityDef::spell(
+                "Return up to two creature cards with total mana value 4 or \
+                 less from your graveyard to the battlefield.",
+                EffectDef::Choose(ChooseDef {
+                    chooser: PlayerRefDef::EffectController,
+                    candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::ManaValueAtMost(4),
+                        ]),
+                        &[ZoneKind::Graveyard],
+                        PlayerRelation::You,
+                    )),
+                    exclude: None,
+                    minimum: 0,
+                    maximum: 1,
+                    binding: ObjectChoiceBindingDef::Objects(Binding!("dirge_first")),
+                    unchosen: None,
+                    visibility: ChoiceVisibilityDef::Private,
+                    then: &EffectDef::IfElseCondition {
+                        condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                            left: ValueDef::BoundObjectCount(Binding!("dirge_first")),
+                            comparison: ComparisonDef::Greater,
+                            right: ValueDef::Constant(0),
+                        }),
+                        then: &EffectDef::ForEachInBinding {
+                            objects: Binding!("dirge_first"),
+                            binding: Binding!("dirge_first_card"),
+                            effect: &EffectDef::Choose(ChooseDef {
+                                chooser: PlayerRefDef::EffectController,
+                                candidates: ObjectSetDef::Matching {
+                                    objects: &ObjectSetDef::ExceptObject {
+                                        objects: &ObjectSetDef::Query(ObjectQueryDef::matching(
+                                            ObjectPredicateDef::HasType(CardType::Creature),
+                                            &[ZoneKind::Graveyard],
+                                            PlayerRelation::You,
+                                        )),
+                                        object: ObjectRefDef::Binding(Binding!("dirge_first_card")),
+                                    },
+                                    object: ObjectSetFilterDef::Predicate(
+                                        &ObjectPredicateDef::ManaValueAtMostValue(ValueDef::Sum(
+                                            &SumValueDef {
+                                                left: ValueDef::Constant(4),
+                                                right: ValueDef::Negate(
+                                                    &ValueDef::AggregateObjectValues(
+                                                        &ObjectValueAggregateDef {
+                                                            objects: ObjectSetDef::Binding(
+                                                                Binding!("dirge_first"),
+                                                            ),
+                                                            select: ObjectValueDef::ManaValue,
+                                                            operation: AggregateOperationDef::Sum,
+                                                        },
+                                                    ),
+                                                ),
+                                            },
+                                        )),
+                                    ),
+                                },
+                                exclude: None,
+                                minimum: 0,
+                                maximum: 1,
+                                binding: ObjectChoiceBindingDef::Objects(Binding!("dirge_second")),
+                                unchosen: None,
+                                visibility: ChoiceVisibilityDef::Private,
+                                then: &EffectDef::MoveObjects(MoveObjectsDef {
+                                    input: ObjectSetDef::Union(&[
+                                        ObjectSetDef::Binding(Binding!("dirge_first")),
+                                        ObjectSetDef::Binding(Binding!("dirge_second")),
+                                    ]),
+                                    from: Some(ZoneKind::Graveyard),
+                                    zone: ZoneKind::Battlefield,
+                                    placement: ZonePlacement::Top,
+                                    moved: None,
+                                    then: &EffectDef::None,
+                                }),
+                            }),
+                        },
+                        otherwise: &EffectDef::Choose(ChooseDef {
+                            chooser: PlayerRefDef::EffectController,
+                            candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
+                                ObjectPredicateDef::All(&[
+                                    ObjectPredicateDef::HasType(CardType::Creature),
+                                    ObjectPredicateDef::ManaValueAtMost(4),
+                                ]),
+                                &[ZoneKind::Graveyard],
+                                PlayerRelation::You,
+                            )),
+                            exclude: None,
+                            minimum: 0,
+                            maximum: 1,
+                            binding: ObjectChoiceBindingDef::Objects(Binding!("dirge_only")),
+                            unchosen: None,
+                            visibility: ChoiceVisibilityDef::Private,
+                            then: &EffectDef::move_to_zone(
+                                EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!(
+                                    "dirge_only"
+                                ))),
+                                ZoneKind::Battlefield,
+                                ZonePlacement::Top,
+                            ),
+                        }),
+                    },
+                }),
+            ),
+        ),
+    ])]),
 );
 
 // OTJ 94 — Mourner's Surprise
@@ -3381,7 +3554,9 @@ pub(in crate::card::sets) static RUSH_OF_DREAD: CardRecord = CardRecord::new(
 );
 
 // OTJ 105 — Servant of the Stinger
-// Audit: unsupported — Needs a controller-relative committed-crime-this-turn fact, including crimes before this permanent entered; the engine publishes crime events but does not retain that turn history.
+// Audit: unsupported — Needs a controller-relative committed-crime-this-turn fact, including
+// crimes before this permanent entered; the engine publishes crime events but does not retain
+// that turn history.
 pub(in crate::card::sets) static SERVANT_OF_THE_STINGER: CardRecord = CardRecord::new(
     "Servant of the Stinger",
     "b5c98650-b195-4071-8e02-4df35fddddc7",
@@ -3479,7 +3654,9 @@ pub(in crate::card::sets) static TINYBONES_JOINS_UP: CardRecord = CardRecord::ne
 );
 
 // OTJ 109 — Tinybones, the Pickpocket
-// Audit: unsupported — Needs a resolution-scoped permission to cast the targeted graveyard card with normal costs and mana of any type; existing graveyard offers either waive the mana cost or defer casting until later.
+// Audit: unsupported — Needs a resolution-scoped permission to cast the targeted graveyard card
+// with normal costs and mana of any type; existing graveyard offers either waive the mana cost
+// or defer casting until later.
 pub(in crate::card::sets) static TINYBONES_THE_PICKPOCKET: CardRecord = CardRecord::new(
     "Tinybones, the Pickpocket",
     "3d3025a2-4a17-4137-ba0b-bd676c6f5f88",
@@ -3539,7 +3716,7 @@ pub(in crate::card::sets) static UNFORTUNATE_ACCIDENT: CardRecord = CardRecord::
                     TokenCharacteristics::creature(&["Mercenary"], &[ManaColor::Red], 1, 1)
                         .with_abilities(&[AbilityDef::activated_with_targets(
                             "{T}: Target creature you control gets +1/+0 until end of \
-                         turn. Activate only as a sorcery.",
+                             turn. Activate only as a sorcery.",
                             &[CostDef::TapSource],
                             &[AbilityTargetDef::exactly_one(
                                 AbilityTargetPredicate::Object {
@@ -3566,7 +3743,9 @@ pub(in crate::card::sets) static UNFORTUNATE_ACCIDENT: CardRecord = CardRecord::
 );
 
 // OTJ 112 — Unscrupulous Contractor
-// Audit: unsupported — Needs a reflexive trigger installed by the resolving sacrifice clause and retained after its source leaves, with targets selected when that reflexive trigger goes on the stack.
+// Audit: unsupported — Needs a reflexive trigger installed by the resolving sacrifice clause
+// and retained after its source leaves, with targets selected when that reflexive trigger goes
+// on the stack.
 pub(in crate::card::sets) static UNSCRUPULOUS_CONTRACTOR: CardRecord = CardRecord::new(
     "Unscrupulous Contractor",
     "9e56a8df-db04-4a88-a5ab-6954d3449976",
@@ -3669,7 +3848,8 @@ pub(in crate::card::sets) static BRIMSTONE_ROUNDUP: CardRecord = CardRecord::new
 );
 
 // OTJ 116 — Calamity, Galloping Inferno
-// Audit: unsupported — Needs the identities of creatures used to saddle this Mount retained for the rest of the turn; current saddle stores only a saddled boolean.
+// Audit: unsupported — Needs the identities of creatures used to saddle this Mount retained for
+// the rest of the turn; current saddle stores only a saddled boolean.
 pub(in crate::card::sets) static CALAMITY_GALLOPING_INFERNO: CardRecord = CardRecord::new(
     "Calamity, Galloping Inferno",
     "e7a70f5a-2056-4c26-b6ea-9f751b5d0d8c",
@@ -3931,7 +4111,9 @@ pub(in crate::card::sets) static FEROCIFICATION: CardRecord = CardRecord::new(
 );
 
 // OTJ 124 — Gila Courser
-// Audit: unsupported — Needs exile-play permission expiring at cleanup of its controller's next turn; the current turn-count duration incorrectly remains usable during the following opponent turn.
+// Audit: unsupported — Needs exile-play permission expiring at cleanup of its controller's next
+// turn; the current turn-count duration incorrectly remains usable during the following
+// opponent turn.
 pub(in crate::card::sets) static GILA_COURSER: CardRecord = CardRecord::new(
     "Gila Courser",
     "f568803d-65c0-48d7-916f-671267a9e00e",
@@ -3940,7 +4122,9 @@ pub(in crate::card::sets) static GILA_COURSER: CardRecord = CardRecord::new(
 );
 
 // OTJ 125 — Great Train Heist
-// Audit: unsupported — Needs an effect adding combat after the current combat phase and a resolving condition identifying that phase; the existing extra-combat operation is tied to a main-phase sequence.
+// Audit: unsupported — Needs an effect adding combat after the current combat phase and a
+// resolving condition identifying that phase; the existing extra-combat operation is tied to a
+// main-phase sequence.
 pub(in crate::card::sets) static GREAT_TRAIN_HEIST: CardRecord = CardRecord::new(
     "Great Train Heist",
     "357dd9b2-5d2d-49f6-86f0-f5c4d63474dd",
@@ -3949,7 +4133,9 @@ pub(in crate::card::sets) static GREAT_TRAIN_HEIST: CardRecord = CardRecord::new
 );
 
 // OTJ 126 — Hell to Pay
-// Audit: unsupported — Needs a damage-result continuation exposing excess damage after prevention and replacement, to determine the number of tapped Treasures; ordinary damage does not bind excess damage.
+// Audit: unsupported — Needs a damage-result continuation exposing excess damage after
+// prevention and replacement, to determine the number of tapped Treasures; ordinary damage does
+// not bind excess damage.
 pub(in crate::card::sets) static HELL_TO_PAY: CardRecord = CardRecord::new(
     "Hell to Pay",
     "84ad8ed7-1429-432e-8217-a4db3b97675c",
@@ -4125,7 +4311,8 @@ pub(in crate::card::sets) static IRON_FIST_PULVERIZER: CardRecord = CardRecord::
 );
 
 // OTJ 132 — Longhorn Sharpshooter
-// Audit: unsupported — Needs a committed plotting event dispatched to triggered abilities; the current special action or saddle effect changes state without publishing that event.
+// Audit: unsupported — Needs a committed plotting event dispatched to triggered abilities; the
+// current special action or saddle effect changes state without publishing that event.
 pub(in crate::card::sets) static LONGHORN_SHARPSHOOTER: CardRecord = CardRecord::new(
     "Longhorn Sharpshooter",
     "398d9a16-d72c-42e2-a0ea-d9da642ee046",
@@ -4249,7 +4436,9 @@ pub(in crate::card::sets) static MINE_RAIDER: CardRecord = CardRecord::new(
 );
 
 // OTJ 136 — Outlaws' Fury
-// Audit: unsupported — Needs exile-play permission expiring at cleanup of its controller's next turn; the current turn-count duration incorrectly remains usable during the following opponent turn.
+// Audit: unsupported — Needs exile-play permission expiring at cleanup of its controller's next
+// turn; the current turn-count duration incorrectly remains usable during the following
+// opponent turn.
 pub(in crate::card::sets) static OUTLAWS_FURY: CardRecord = CardRecord::new(
     "Outlaws' Fury",
     "f7502b9c-b759-499a-8e94-22f87f5eb142",
@@ -4426,23 +4615,30 @@ pub(in crate::card::sets) static RETURN_THE_FAVOR: CardRecord = CardRecord::new(
     "Return the Favor",
     "a9cc02d1-799d-42aa-9bc2-4c05452b63b4",
     "Eli Minaya",
-CardRules::new_instant(mana_cost!("{R}{R}")).with_ability(spree(&[(&[CostDef::Mana(mana_cost!("{1}"))], AbilityDef::spell_with_targets(
-                "Copy target instant spell, sorcery spell, activated ability, or triggered ability. You may choose new targets for the copy.",
-                &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
-                    object: ObjectPredicateDef::AnyOf(&[
-                        ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::Spell,
-                            ObjectPredicateDef::AnyOf(&[
-                                ObjectPredicateDef::HasType(CardType::Instant),
-                                ObjectPredicateDef::HasType(CardType::Sorcery),
+    CardRules::new_instant(mana_cost!("{R}{R}")).with_ability(spree(&[
+        (
+            &[CostDef::Mana(mana_cost!("{1}"))],
+            AbilityDef::spell_with_targets(
+                "Copy target instant spell, sorcery spell, activated \
+                 ability, or triggered ability. You may choose new targets \
+                 for the copy.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::All(&[
+                                ObjectPredicateDef::Spell,
+                                ObjectPredicateDef::AnyOf(&[
+                                    ObjectPredicateDef::HasType(CardType::Instant),
+                                    ObjectPredicateDef::HasType(CardType::Sorcery),
+                                ]),
                             ]),
+                            ObjectPredicateDef::Ability,
                         ]),
-                        ObjectPredicateDef::Ability,
-                    ]),
-                    zones: &[ZoneKind::Stack],
-                    controller: None,
-                    owner: None,
-                })],
+                        zones: &[ZoneKind::Stack],
+                        controller: None,
+                        owner: None,
+                    },
+                )],
                 EffectDef::CopyStackObject(&CopyStackObjectDef {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     controller: PlayerRefDef::EffectController,
@@ -4450,18 +4646,23 @@ CardRules::new_instant(mana_cost!("{R}{R}")).with_ability(spree(&[(&[CostDef::Ma
                     retarget: true,
                     colors: None,
                 }),
-            )),
-(&[CostDef::Mana(mana_cost!("{1}"))], AbilityDef::spell_with_targets(
+            ),
+        ),
+        (
+            &[CostDef::Mana(mana_cost!("{1}"))],
+            AbilityDef::spell_with_targets(
                 "Change the target of target spell or ability with a single target.",
-                &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
-                    object: ObjectPredicateDef::DeclaredTargetCount {
-                        minimum: 1,
-                        maximum: 1,
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::DeclaredTargetCount {
+                            minimum: 1,
+                            maximum: 1,
+                        },
+                        zones: &[ZoneKind::Stack],
+                        controller: None,
+                        owner: None,
                     },
-                    zones: &[ZoneKind::Stack],
-                    controller: None,
-                    owner: None,
-                })],
+                )],
                 EffectDef::ChangeStackTargets(&ChangeStackTargetsDef {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     chooser: PlayerRefDef::EffectController,
@@ -4470,7 +4671,9 @@ CardRules::new_instant(mana_cost!("{R}{R}")).with_ability(spree(&[(&[CostDef::Ma
                         restriction: None,
                     },
                 }),
-            ))])),
+            ),
+        ),
+    ])),
 );
 
 // OTJ 143 — Rodeo Pyromancers
@@ -4594,7 +4797,9 @@ pub(in crate::card::sets) static STINGERBACK_TERROR: CardRecord = CardRecord::ne
 );
 
 // OTJ 148 — Take for a Ride
-// Audit: unsupported — Needs a controller-relative committed-crime-this-turn fact, including crimes before this permanent entered; the engine publishes crime events but does not retain that turn history.
+// Audit: unsupported — Needs a controller-relative committed-crime-this-turn fact, including
+// crimes before this permanent entered; the engine publishes crime events but does not retain
+// that turn history.
 pub(in crate::card::sets) static TAKE_FOR_A_RIDE: CardRecord = CardRecord::new(
     "Take for a Ride",
     "c8e2ff9c-0e98-46f9-a33c-739388c5f3d0",
@@ -4673,7 +4878,8 @@ pub(in crate::card::sets) static TRICK_SHOT: CardRecord = CardRecord::new(
 );
 
 // OTJ 152 — Aloe Alchemist
-// Audit: unsupported — Needs a committed plotting event dispatched to triggered abilities; the current special action or saddle effect changes state without publishing that event.
+// Audit: unsupported — Needs a committed plotting event dispatched to triggered abilities; the
+// current special action or saddle effect changes state without publishing that event.
 pub(in crate::card::sets) static ALOE_ALCHEMIST: CardRecord = CardRecord::new(
     "Aloe Alchemist",
     "69f2f632-b6cc-4092-acd5-a6b152e90488",
@@ -4789,50 +4995,50 @@ pub(in crate::card::sets) static BRISTLEPACK_SENTRY: CardRecord = CardRecord::ne
 );
 
 // OTJ 157 — Bristly Bill, Spine Sower
-pub(in crate::card::sets) static BRISTLY_BILL_SPINE_SOWER: CardRecord =
-    CardRecord::new(
+pub(in crate::card::sets) static BRISTLY_BILL_SPINE_SOWER: CardRecord = CardRecord::new(
     "Bristly Bill, Spine Sower",
     "52eef0d6-24b7-40b7-8403-e8e863d0cd55",
     "Daniel Zrom",
-// The counters accumulate for free off lands, and then the activation
-        // turns a slow board into a lethal one in a single turn.
-        CardRules::new_creature(mana_cost!("{1}{G}"), &["Plant", "Druid"], 2, 2)
-            .with_supertype(CardSupertype::Legendary)
-            .with_abilities(&[
-                AbilityDef::triggered_with_targets(
-                    "Landfall — Whenever a land you control enters, put a +1/+1 counter on target creature.",
-                    TriggerEventDef::zone_changed(
-                        ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::HasType(CardType::Land),
-                            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                        ]),
-                        None,
-                        Some(ZoneKind::Battlefield),
-                    ),
-                    &[AbilityTargetDef::exactly_one_permanent(
+    // The counters accumulate for free off lands, and then the activation
+    // turns a slow board into a lethal one in a single turn.
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Plant", "Druid"], 2, 2)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::triggered_with_targets(
+                "Landfall — Whenever a land you control enters, put a +1/+1 \
+                 counter on target creature.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ]),
+                    None,
+                    Some(ZoneKind::Battlefield),
+                ),
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )],
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+            // Each creature doubles its own, so a board of one-counter creatures
+            // gains one apiece and a single large one gains everything it has.
+            AbilityDef::activated(
+                "{3}{G}{G}: Double the number of +1/+1 counters on each creature you control.",
+                &[CostDef::Mana(mana_cost!("{3}{G}{G}"))],
+                EffectDef::DoubleCounters {
+                    object: EffectRecipientDef::matching_objects(
                         ObjectPredicateDef::HasType(CardType::Creature),
-                    )],
-                    EffectDef::AddCounters {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        kind: CounterKind::PlusOnePlusOne,
-                        amount: ValueDef::Constant(1),
-                    },
-                ),
-                // Each creature doubles its own, so a board of one-counter creatures
-                // gains one apiece and a single large one gains everything it has.
-                AbilityDef::activated(
-                    "{3}{G}{G}: Double the number of +1/+1 counters on each creature you control.",
-                    &[CostDef::Mana(mana_cost!("{3}{G}{G}"))],
-                    EffectDef::DoubleCounters {
-                        object: EffectRecipientDef::matching_objects(
-                            ObjectPredicateDef::HasType(CardType::Creature),
-                            &[ZoneKind::Battlefield],
-                            PlayerRelation::You,
-                        ),
-                        kind: CounterKind::PlusOnePlusOne,
-                    },
-                ),
-            ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    kind: CounterKind::PlusOnePlusOne,
+                },
+            ),
+        ]),
 );
 
 // OTJ 158 — Cactarantula
@@ -4871,7 +5077,9 @@ pub(in crate::card::sets) static CACTARANTULA: CardRecord = CardRecord::new(
 );
 
 // OTJ 159 — Colossal Rattlewurm
-// Audit: unsupported — Needs a conditional flash ability evaluated on the card outside the battlefield; the casting path reads intrinsic flash or permissions from battlefield/resolving sources, not conditional abilities on the card in hand.
+// Audit: unsupported — Needs a conditional flash ability evaluated on the card outside the
+// battlefield; the casting path reads intrinsic flash or permissions from battlefield/resolving
+// sources, not conditional abilities on the card in hand.
 pub(in crate::card::sets) static COLOSSAL_RATTLEWURM: CardRecord = CardRecord::new(
     "Colossal Rattlewurm",
     "17a104d3-e4ac-44a0-9c6a-39965b1b9751",
@@ -4889,8 +5097,12 @@ pub(in crate::card::sets) static DANCE_OF_THE_TUMBLEWEEDS: CardRecord = CardReco
     "Dance of the Tumbleweeds",
     "caf0e715-befb-4904-82e6-d3f8c7fbd454",
     "Dan Murayama Scott",
-CardRules::new_sorcery(mana_cost!("{1}{G}")).with_ability(spree(&[(&[CostDef::Mana(mana_cost!("{1}"))], AbilityDef::spell(
-                "Search your library for a basic land card or a Desert card, put it onto the battlefield, then shuffle.",
+    CardRules::new_sorcery(mana_cost!("{1}{G}")).with_ability(spree(&[
+        (
+            &[CostDef::Mana(mana_cost!("{1}"))],
+            AbilityDef::spell(
+                "Search your library for a basic land card or a Desert card, \
+                 put it onto the battlefield, then shuffle.",
                 EffectDef::SearchZone {
                     player: EffectRecipientDef::Controller,
                     source: ZoneKind::Library,
@@ -4912,9 +5124,13 @@ CardRules::new_sorcery(mana_cost!("{1}{G}")).with_ability(spree(&[(&[CostDef::Ma
                     binding: None,
                     then: None,
                 },
-            )),
-(&[CostDef::Mana(mana_cost!("{3}"))], AbilityDef::spell(
-                "Create an X/X green Elemental creature token, where X is the number of lands you control.",
+            ),
+        ),
+        (
+            &[CostDef::Mana(mana_cost!("{3}"))],
+            AbilityDef::spell(
+                "Create an X/X green Elemental creature token, where X is \
+                 the number of lands you control.",
                 EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
                     TokenCharacteristics::creature_with_stats(
                         &["Elemental"],
@@ -4967,7 +5183,9 @@ pub(in crate::card::sets) static DROVER_GRIZZLY: CardRecord = CardRecord::new(
 );
 
 // OTJ 162 — Freestrider Commando
-// Audit: unsupported — Needs a prospective entry condition distinguishing no mana spent to cast from other alternative payments, combined with the not-cast case; current entry conditions do not expose the mana-spent total.
+// Audit: unsupported — Needs a prospective entry condition distinguishing no mana spent to cast
+// from other alternative payments, combined with the not-cast case; current entry conditions do
+// not expose the mana-spent total.
 pub(in crate::card::sets) static FREESTRIDER_COMMANDO: CardRecord = CardRecord::new(
     "Freestrider Commando",
     "92762169-095e-46e2-82f6-5b2ff2232240",
@@ -5069,7 +5287,8 @@ pub(in crate::card::sets) static FULL_STEAM_AHEAD: CardRecord = CardRecord::new(
 );
 
 // OTJ 165 — Giant Beaver
-// Audit: unsupported — Needs the identities of creatures used to saddle this Mount retained for the rest of the turn; current saddle stores only a saddled boolean.
+// Audit: unsupported — Needs the identities of creatures used to saddle this Mount retained for
+// the rest of the turn; current saddle stores only a saddled boolean.
 pub(in crate::card::sets) static GIANT_BEAVER: CardRecord = CardRecord::new(
     "Giant Beaver",
     "919826a9-c427-42c6-8885-a87f0b6d2192",
@@ -5491,7 +5710,8 @@ pub(in crate::card::sets) static RAILWAY_BRAWLER: CardRecord = CardRecord::new(
 );
 
 // OTJ 176 — Rambling Possum
-// Audit: unsupported — Needs the identities of creatures used to saddle this Mount retained for the rest of the turn; current saddle stores only a saddled boolean.
+// Audit: unsupported — Needs the identities of creatures used to saddle this Mount retained for
+// the rest of the turn; current saddle stores only a saddled boolean.
 pub(in crate::card::sets) static RAMBLING_POSSUM: CardRecord = CardRecord::new(
     "Rambling Possum",
     "19d1e75f-0fee-4e07-9420-df771b696e85",
@@ -5756,7 +5976,8 @@ pub(in crate::card::sets) static SPINEWOODS_PALADIN: CardRecord = CardRecord::ne
 );
 
 // OTJ 184 — Stubborn Burrowfiend
-// Audit: unsupported — Needs a committed saddling event dispatched to triggered abilities; the current special action or saddle effect changes state without publishing that event.
+// Audit: unsupported — Needs a committed saddling event dispatched to triggered abilities; the
+// current special action or saddle effect changes state without publishing that event.
 pub(in crate::card::sets) static STUBBORN_BURROWFIEND: CardRecord = CardRecord::new(
     "Stubborn Burrowfiend",
     "6d963eb4-d20b-4d3f-bf5d-c75f7bcb9670",
@@ -6061,7 +6282,8 @@ pub(in crate::card::sets) static ANNIE_FLASH_THE_VETERAN: CardRecord = CardRecor
 );
 
 // OTJ 191 — Annie Joins Up
-// Audit: unsupported — Needs additional occurrences of arbitrary legendary-creature triggered abilities; current trigger modifiers only support zone-change causes.
+// Audit: unsupported — Needs additional occurrences of arbitrary legendary-creature triggered
+// abilities; current trigger modifiers only support zone-change causes.
 pub(in crate::card::sets) static ANNIE_JOINS_UP: CardRecord = CardRecord::new(
     "Annie Joins Up",
     "1624a5f4-f5bc-47c9-85de-c5520ee234ce",
@@ -6070,7 +6292,8 @@ pub(in crate::card::sets) static ANNIE_JOINS_UP: CardRecord = CardRecord::new(
 );
 
 // OTJ 192 — Assimilation Aegis
-// Audit: unsupported — Needs exile-until-source-leaves with immediate return when that duration ends (CR 610.3); an ordinary leaves trigger would return the card later through the stack.
+// Audit: unsupported — Needs exile-until-source-leaves with immediate return when that duration
+// ends (CR 610.3); an ordinary leaves trigger would return the card later through the stack.
 pub(in crate::card::sets) static ASSIMILATION_AEGIS: CardRecord = CardRecord::new(
     "Assimilation Aegis",
     "014bf3c6-e46f-48f8-902f-82deeba260b2",
@@ -6173,7 +6396,9 @@ pub(in crate::card::sets) static BADLANDS_REVIVAL: CardRecord = CardRecord::new(
 );
 
 // OTJ 195 — Baron Bertram Graywater
-// Audit: unsupported — Needs a batched token-entry event, including token permanent spells resolving; TokensCreated observes token-creation instructions and is not equivalent to tokens entering.
+// Audit: unsupported — Needs a batched token-entry event, including token permanent spells
+// resolving; TokensCreated observes token-creation instructions and is not equivalent to tokens
+// entering.
 pub(in crate::card::sets) static BARON_BERTRAM_GRAYWATER: CardRecord = CardRecord::new(
     "Baron Bertram Graywater",
     "e9da18b4-1efc-44b7-8001-a2cfd44c69bf",
@@ -6200,7 +6425,7 @@ pub(in crate::card::sets) static BONNY_PALL_CLEARCUTTER: CardRecord = CardRecord
                         .with_supertype(CardSupertype::Legendary)
                         .with_abilities(&[AbilityDef::static_ability(
                             "Beau's power and toughness are each equal to the number of \
-                     lands you control.",
+                             lands you control.",
                             EffectDef::StaticApply {
                                 recipient: EffectRecipientDef::Source,
                                 effect: AppliedEffectDef::set_base_power_toughness(
@@ -6259,7 +6484,9 @@ pub(in crate::card::sets) static BONNY_PALL_CLEARCUTTER: CardRecord = CardRecord
 );
 
 // OTJ 197 — Breeches, the Blastmaker
-// Audit: unsupported — Needs reflexive coin-result triggers tied to the resolving optional sacrifice and the particular second spell, with damage targets chosen only after a losing flip.
+// Audit: unsupported — Needs reflexive coin-result triggers tied to the resolving optional
+// sacrifice and the particular second spell, with damage targets chosen only after a losing
+// flip.
 pub(in crate::card::sets) static BREECHES_THE_BLASTMAKER: CardRecord = CardRecord::new(
     "Breeches, the Blastmaker",
     "cf3bda9e-42af-4f99-a504-c96c25c2794b",
@@ -6268,7 +6495,9 @@ pub(in crate::card::sets) static BREECHES_THE_BLASTMAKER: CardRecord = CardRecor
 );
 
 // OTJ 198 — Bruse Tarl, Roving Rancher
-// Audit: unsupported — Needs exile-play permission expiring at cleanup of its controller's next turn; the current turn-count duration incorrectly remains usable during the following opponent turn.
+// Audit: unsupported — Needs exile-play permission expiring at cleanup of its controller's next
+// turn; the current turn-count duration incorrectly remains usable during the following
+// opponent turn.
 pub(in crate::card::sets) static BRUSE_TARL_ROVING_RANCHER: CardRecord = CardRecord::new(
     "Bruse Tarl, Roving Rancher",
     "286c55c2-dcc1-4e87-a83f-9981d28ab62d",
@@ -6362,7 +6591,9 @@ pub(in crate::card::sets) static CONGREGATION_GRYFF: CardRecord = CardRecord::ne
 );
 
 // OTJ 201 — Doc Aurlock, Grizzled Genius
-// Audit: unsupported — Needs discounts for plotting special actions and spell-cost filtering by the casting-origin zone; existing cost adjustments price spells and abilities without those filters.
+// Audit: unsupported — Needs discounts for plotting special actions and spell-cost filtering by
+// the casting-origin zone; existing cost adjustments price spells and abilities without those
+// filters.
 pub(in crate::card::sets) static DOC_AURLOCK_GRIZZLED_GENIUS: CardRecord = CardRecord::new(
     "Doc Aurlock, Grizzled Genius",
     "6fc27b30-8c8e-434c-a72c-e1d409efc1ae",
@@ -6371,7 +6602,8 @@ pub(in crate::card::sets) static DOC_AURLOCK_GRIZZLED_GENIUS: CardRecord = CardR
 );
 
 // OTJ 202 — Eriette, the Beguiler
-// Audit: unsupported — Needs attachment-change events carrying both Aura and host, a comparison of their mana values, and control lasting only while that particular attachment remains.
+// Audit: unsupported — Needs attachment-change events carrying both Aura and host, a comparison
+// of their mana values, and control lasting only while that particular attachment remains.
 pub(in crate::card::sets) static ERIETTE_THE_BEGUILER: CardRecord = CardRecord::new(
     "Eriette, the Beguiler",
     "f46c133a-7ae4-431b-88f2-ec606a7baf69",
@@ -6380,7 +6612,9 @@ pub(in crate::card::sets) static ERIETTE_THE_BEGUILER: CardRecord = CardRecord::
 );
 
 // OTJ 203 — Ertha Jo, Frontier Mentor
-// Audit: unsupported — Needs an ability-activation event that matches its declared creature/player targets and exposes the activated stack object for copying; the existing stack-event vocabulary has no activation event.
+// Audit: unsupported — Needs an ability-activation event that matches its declared
+// creature/player targets and exposes the activated stack object for copying; the existing
+// stack-event vocabulary has no activation event.
 pub(in crate::card::sets) static ERTHA_JO_FRONTIER_MENTOR: CardRecord = CardRecord::new(
     "Ertha Jo, Frontier Mentor",
     "a4e81be6-6447-4f1e-be00-6fcdb2ab35af",
@@ -6455,7 +6689,8 @@ pub(in crate::card::sets) static GHIRED_MIRROR_OF_THE_WILDS: CardRecord = CardRe
 );
 
 // OTJ 206 — The Gitrog, Ravenous Ride
-// Audit: unsupported — Needs the identities of creatures used to saddle this Mount retained for the rest of the turn; current saddle stores only a saddled boolean.
+// Audit: unsupported — Needs the identities of creatures used to saddle this Mount retained for
+// the rest of the turn; current saddle stores only a saddled boolean.
 pub(in crate::card::sets) static THE_GITROG_RAVENOUS_RIDE: CardRecord = CardRecord::new(
     "The Gitrog, Ravenous Ride",
     "82512813-8618-483b-a7f0-e6a611d9d487",
@@ -6542,7 +6777,8 @@ pub(in crate::card::sets) static INTIMIDATION_CAMPAIGN: CardRecord = CardRecord:
 );
 
 // OTJ 209 — Jem Lightfoote, Sky Explorer
-// Audit: unsupported — Needs spell-cast history filtered by the zone a spell was cast from; the current history query retains caster and spell characteristics but no casting-origin zone.
+// Audit: unsupported — Needs spell-cast history filtered by the zone a spell was cast from; the
+// current history query retains caster and spell characteristics but no casting-origin zone.
 pub(in crate::card::sets) static JEM_LIGHTFOOTE_SKY_EXPLORER: CardRecord = CardRecord::new(
     "Jem Lightfoote, Sky Explorer",
     "e24fe6dc-662a-4abc-ad60-a1959b2be006",
@@ -6598,7 +6834,9 @@ pub(in crate::card::sets) static JOLENE_PLUNDERING_PUGILIST: CardRecord = CardRe
 );
 
 // OTJ 211 — Kambal, Profiteering Mayor
-// Audit: unsupported — Needs a batched token-entry event retaining every entering token so each can be copied; TokensCreated does not cover token spells resolving or retain a bound entry batch.
+// Audit: unsupported — Needs a batched token-entry event retaining every entering token so each
+// can be copied; TokensCreated does not cover token spells resolving or retain a bound entry
+// batch.
 pub(in crate::card::sets) static KAMBAL_PROFITEERING_MAYOR: CardRecord = CardRecord::new(
     "Kambal, Profiteering Mayor",
     "d53a775d-5898-41a8-b404-9b7d4721c6ba",
@@ -6607,7 +6845,9 @@ pub(in crate::card::sets) static KAMBAL_PROFITEERING_MAYOR: CardRecord = CardRec
 );
 
 // OTJ 212 — Kellan Joins Up
-// Audit: unsupported — Needs an effect or external permission that makes other cards plotted, including its later-turn, sorcery-only free cast permission; existing plot only supports the card's own hand special action.
+// Audit: unsupported — Needs an effect or external permission that makes other cards plotted,
+// including its later-turn, sorcery-only free cast permission; existing plot only supports the
+// card's own hand special action.
 pub(in crate::card::sets) static KELLAN_JOINS_UP: CardRecord = CardRecord::new(
     "Kellan Joins Up",
     "2e7f95d5-b279-4469-9c89-1e02630d61e6",
@@ -6616,7 +6856,9 @@ pub(in crate::card::sets) static KELLAN_JOINS_UP: CardRecord = CardRecord::new(
 );
 
 // OTJ 213 — Kellan, the Kid
-// Audit: unsupported — Needs a cast event carrying the casting-origin zone, followed by an optional free permanent cast from hand with a mana-value ceiling and a declined-cast continuation.
+// Audit: unsupported — Needs a cast event carrying the casting-origin zone, followed by an
+// optional free permanent cast from hand with a mana-value ceiling and a declined-cast
+// continuation.
 pub(in crate::card::sets) static KELLAN_THE_KID: CardRecord = CardRecord::new(
     "Kellan, the Kid",
     "04dfbc4c-ab21-45db-bbd9-b9d245d60015",
@@ -6800,7 +7042,9 @@ pub(in crate::card::sets) static LAZAV_FAMILIAR_STRANGER: CardRecord = CardRecor
 );
 
 // OTJ 217 — Lilah, Undefeated Slickshot
-// Audit: unsupported — Needs an effect or external permission that makes other cards plotted, including its later-turn, sorcery-only free cast permission; existing plot only supports the card's own hand special action.
+// Audit: unsupported — Needs an effect or external permission that makes other cards plotted,
+// including its later-turn, sorcery-only free cast permission; existing plot only supports the
+// card's own hand special action.
 pub(in crate::card::sets) static LILAH_UNDEFEATED_SLICKSHOT: CardRecord = CardRecord::new(
     "Lilah, Undefeated Slickshot",
     "e21f90ea-5934-4757-8515-38ef116afac1",
@@ -6809,7 +7053,9 @@ pub(in crate::card::sets) static LILAH_UNDEFEATED_SLICKSHOT: CardRecord = CardRe
 );
 
 // OTJ 218 — Make Your Own Luck
-// Audit: unsupported — Needs an effect or external permission that makes other cards plotted, including its later-turn, sorcery-only free cast permission; existing plot only supports the card's own hand special action.
+// Audit: unsupported — Needs an effect or external permission that makes other cards plotted,
+// including its later-turn, sorcery-only free cast permission; existing plot only supports the
+// card's own hand special action.
 pub(in crate::card::sets) static MAKE_YOUR_OWN_LUCK: CardRecord = CardRecord::new(
     "Make Your Own Luck",
     "0557b0a3-2b48-408f-a508-9f4da2ab1cd1",
@@ -6947,7 +7193,8 @@ pub(in crate::card::sets) static MIRIAM_HERD_WHISPERER: CardRecord = CardRecord:
 );
 
 // OTJ 222 — Obeka, Splitter of Seconds
-// Audit: unsupported — Needs inserting a computed number of additional upkeep steps after the current phase; extra-turn and extra-combat operations do not insert arbitrary steps.
+// Audit: unsupported — Needs inserting a computed number of additional upkeep steps after the
+// current phase; extra-turn and extra-combat operations do not insert arbitrary steps.
 pub(in crate::card::sets) static OBEKA_SPLITTER_OF_SECONDS: CardRecord = CardRecord::new(
     "Obeka, Splitter of Seconds",
     "03415c42-086e-4a2e-9be8-5cdcde83f134",
@@ -6956,7 +7203,9 @@ pub(in crate::card::sets) static OBEKA_SPLITTER_OF_SECONDS: CardRecord = CardRec
 );
 
 // OTJ 223 — Oko, the Ringleader
-// Audit: unsupported — Needs a controller-relative committed-crime-this-turn fact, including crimes before this permanent entered; the engine publishes crime events but does not retain that turn history.
+// Audit: unsupported — Needs a controller-relative committed-crime-this-turn fact, including
+// crimes before this permanent entered; the engine publishes crime events but does not retain
+// that turn history.
 pub(in crate::card::sets) static OKO_THE_RINGLEADER: CardRecord = CardRecord::new(
     "Oko, the Ringleader",
     "396df8d6-e85d-4486-8116-68841b7e1e2e",
@@ -7123,7 +7372,9 @@ pub(in crate::card::sets) static RAKDOS_THE_MUSCLE: CardRecord = CardRecord::new
 );
 
 // OTJ 227 — Riku of Many Paths
-// Audit: unsupported — Needs exile-play permission expiring at cleanup of its controller's next turn; the current turn-count duration incorrectly remains usable during the following opponent turn.
+// Audit: unsupported — Needs exile-play permission expiring at cleanup of its controller's next
+// turn; the current turn-count duration incorrectly remains usable during the following
+// opponent turn.
 pub(in crate::card::sets) static RIKU_OF_MANY_PATHS: CardRecord = CardRecord::new(
     "Riku of Many Paths",
     "21b63544-4c31-4f38-9907-0407719a60b1",
@@ -7195,7 +7446,9 @@ pub(in crate::card::sets) static ROXANNE_STARFALL_SAVANT: CardRecord = CardRecor
 );
 
 // OTJ 229 — Ruthless Lawbringer
-// Audit: unsupported — Needs a reflexive trigger installed by the resolving sacrifice clause and retained after its source leaves, with targets selected when that reflexive trigger goes on the stack.
+// Audit: unsupported — Needs a reflexive trigger installed by the resolving sacrifice clause
+// and retained after its source leaves, with targets selected when that reflexive trigger goes
+// on the stack.
 pub(in crate::card::sets) static RUTHLESS_LAWBRINGER: CardRecord = CardRecord::new(
     "Ruthless Lawbringer",
     "927b5498-23f1-47c0-b441-7daaeb54f9b8",
@@ -7204,7 +7457,8 @@ pub(in crate::card::sets) static RUTHLESS_LAWBRINGER: CardRecord = CardRecord::n
 );
 
 // OTJ 230 — Satoru, the Infiltrator
-// Audit: unsupported — Needs a batched creature-entry event preserving each entrant's cast status and mana spent, so one draw is gated by the entire simultaneous entry batch.
+// Audit: unsupported — Needs a batched creature-entry event preserving each entrant's cast
+// status and mana spent, so one draw is gated by the entire simultaneous entry batch.
 pub(in crate::card::sets) static SATORU_THE_INFILTRATOR: CardRecord = CardRecord::new(
     "Satoru, the Infiltrator",
     "acc9a5cc-2b3c-4c2f-8176-4a2d86265cc5",
@@ -7213,7 +7467,9 @@ pub(in crate::card::sets) static SATORU_THE_INFILTRATOR: CardRecord = CardRecord
 );
 
 // OTJ 231 — Selvala, Eager Trailblazer
-// Audit: unsupported — Needs counting distinct current powers among controlled creatures when a mana ability resolves; the scalar aggregates support sum/minimum/maximum but not distinct-value cardinality.
+// Audit: unsupported — Needs counting distinct current powers among controlled creatures when a
+// mana ability resolves; the scalar aggregates support sum/minimum/maximum but not
+// distinct-value cardinality.
 pub(in crate::card::sets) static SELVALA_EAGER_TRAILBLAZER: CardRecord = CardRecord::new(
     "Selvala, Eager Trailblazer",
     "7d2e167f-7cb2-4f15-a1db-7ee56b7ba523",
@@ -7284,7 +7540,9 @@ pub(in crate::card::sets) static SLICK_SEQUENCE: CardRecord = CardRecord::new(
 );
 
 // OTJ 234 — Taii Wakeen, Perfect Shot
-// Audit: unsupported — Needs noncombat-damage matching by amount relative to the damaged creature's toughness, plus an amount-adding damage replacement with the retained activation X.
+// Audit: unsupported — Needs noncombat-damage matching by amount relative to the damaged
+// creature's toughness, plus an amount-adding damage replacement with the retained activation
+// X.
 pub(in crate::card::sets) static TAII_WAKEEN_PERFECT_SHOT: CardRecord = CardRecord::new(
     "Taii Wakeen, Perfect Shot",
     "1643af0b-fcbf-4636-8c50-77ec77eaa34d",
@@ -7369,7 +7627,9 @@ pub(in crate::card::sets) static VRASKA_JOINS_UP: CardRecord = CardRecord::new(
 );
 
 // OTJ 237 — Vraska, the Silencer
-// Audit: unsupported — Needs prospective arrival type replacement and granted mana abilities on a reanimated card, so it enters as a Treasure artifact instead of first entering as a creature (CR 611.2e).
+// Audit: unsupported — Needs prospective arrival type replacement and granted mana abilities on
+// a reanimated card, so it enters as a Treasure artifact instead of first entering as a
+// creature (CR 611.2e).
 pub(in crate::card::sets) static VRASKA_THE_SILENCER: CardRecord = CardRecord::new(
     "Vraska, the Silencer",
     "b042abf2-c40b-4235-a4fa-2e4901c375c3",
@@ -7378,7 +7638,8 @@ pub(in crate::card::sets) static VRASKA_THE_SILENCER: CardRecord = CardRecord::n
 );
 
 // OTJ 238 — Wrangler of the Damned
-// Audit: unsupported — Needs spell-cast history filtered by the zone a spell was cast from; the current history query retains caster and spell characteristics but no casting-origin zone.
+// Audit: unsupported — Needs spell-cast history filtered by the zone a spell was cast from; the
+// current history query retains caster and spell characteristics but no casting-origin zone.
 pub(in crate::card::sets) static WRANGLER_OF_THE_DAMNED: CardRecord = CardRecord::new(
     "Wrangler of the Damned",
     "b4d163dd-67dc-4aab-afb9-d043352d109c",
@@ -7542,7 +7803,7 @@ pub(in crate::card::sets) static LAVASPUR_BOOTS: CardRecord = CardRecord::new(
     "Lavaspur Boots",
     "e50709de-e6ef-4dbc-af1e-290fed279f34",
     "Mila Pesic",
-CardRules::new_artifact(mana_cost!("{1}"))
+    CardRules::new_artifact(mana_cost!("{1}"))
         .with_subtypes(&["Equipment"])
         .with_abilities(&[
             AbilityDef::static_ability(
@@ -7559,8 +7820,9 @@ CardRules::new_artifact(mana_cost!("{1}"))
                         // whole of the printed reminder rather than a paraphrase of it.
                         AppliedEffectDef::add_ability(&abilities::ward(
                             &[CostDef::Mana(crate::ManaCost::new(1, 0))],
-                            "Ward {1} (Whenever this creature becomes the target of a spell or ability an opponent \
-                            controls, counter it unless that player pays {1}.)",
+                            "Ward {1} (Whenever this creature becomes the target of a \
+                             spell or ability an opponent controls, counter it unless \
+                             that player pays {1}.)",
                         )),
                     ]),
                 },
@@ -7570,7 +7832,8 @@ CardRules::new_artifact(mana_cost!("{1}"))
 );
 
 // OTJ 244 — Luxurious Locomotive
-// Audit: unsupported — Needs the number of distinct creatures that crewed this Vehicle retained for the turn; current crew stores the animation result without contributor history.
+// Audit: unsupported — Needs the number of distinct creatures that crewed this Vehicle retained
+// for the turn; current crew stores the animation result without contributor history.
 pub(in crate::card::sets) static LUXURIOUS_LOCOMOTIVE: CardRecord = CardRecord::new(
     "Luxurious Locomotive",
     "cc598338-eeba-4815-a0a6-ff2dc09790d2",
@@ -8220,7 +8483,9 @@ const SPIREBLUFF_CANAL_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // OTJ 271 — Jace Reawakened
-// Audit: unsupported — Needs an effect or external permission that makes other cards plotted, including its later-turn, sorcery-only free cast permission; existing plot only supports the card's own hand special action.
+// Audit: unsupported — Needs an effect or external permission that makes other cards plotted,
+// including its later-turn, sorcery-only free cast permission; existing plot only supports the
+// card's own hand special action.
 pub(in crate::card::sets) static JACE_REAWAKENED: CardRecord = CardRecord::new(
     "Jace Reawakened",
     "fd17e8d4-499e-4005-ae3c-bc9c44dc5a67",

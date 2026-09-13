@@ -334,7 +334,8 @@ pub(in crate::card::sets) static STORMFRONT_PEGASUS: CardRecord = CardRecord::ne
 );
 
 // M10 43 — Alluring Siren
-// Audit: unsupported — Needs a targeted creature to attack a particular player or planeswalker this turn if able.
+// Audit: unsupported — Needs a targeted creature to attack a particular player or planeswalker
+// this turn if able.
 pub(in crate::card::sets) static ALLURING_SIREN: CardRecord = CardRecord::new(
     "Alluring Siren",
     "df4e1cc3-4e47-4eff-9047-c6d1cc84d635",
@@ -354,7 +355,8 @@ pub(in crate::card::sets) static DIVINATION: CardRecord = CardRecord::new(
 );
 
 // M10 50 — Djinn of Wishes
-// Audit: unsupported — Needs to remove a wish counter, reveal the top card, and offer a free cast tied to that revealed card.
+// Audit: unsupported — Needs to remove a wish counter, reveal the top card, and offer a free
+// cast tied to that revealed card.
 pub(in crate::card::sets) static DJINN_OF_WISHES: CardRecord = CardRecord::new(
     "Djinn of Wishes",
     "3e3b0949-17e1-4f12-8999-d4638d32dd3e",
@@ -489,7 +491,7 @@ pub(in crate::card::sets) static CEMETERY_REAPER: CardRecord = CardRecord::new(
     "Cemetery Reaper",
     "639b48f0-3426-46cf-b857-4611f7de4826",
     "Dave Allsop",
-CardRules::new_creature(mana_cost!("{1}{B}{B}"), &["Zombie"], 2, 2).with_abilities(&[
+    CardRules::new_creature(mana_cost!("{1}{B}{B}"), &["Zombie"], 2, 2).with_abilities(&[
         AbilityDef::static_ability(
             "Other Zombie creatures you control get +1/+1.",
             EffectDef::StaticApply {
@@ -509,17 +511,17 @@ CardRules::new_creature(mana_cost!("{1}{B}{B}"), &["Zombie"], 2, 2).with_abiliti
             },
         ),
         AbilityDef::activated_with_targets(
-            "{2}{B}, {T}: Exile target creature card from a graveyard. Create a 2/2 black Zombie creature token.",
-            &[
-                CostDef::Mana(mana_cost!("{2}{B}")),
-                CostDef::TapSource,
-            ],
-            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
-                object: ObjectPredicateDef::HasType(CardType::Creature),
-                zones: &[ZoneKind::Graveyard],
-                controller: None,
-                owner: None,
-            })],
+            "{2}{B}, {T}: Exile target creature card from a graveyard. \
+             Create a 2/2 black Zombie creature token.",
+            &[CostDef::Mana(mana_cost!("{2}{B}")), CostDef::TapSource],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: None,
+                },
+            )],
             EffectDef::Sequence(&[
                 EffectDef::move_to_zone(
                     EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -585,9 +587,11 @@ pub(in crate::card::sets) static RISE_FROM_THE_GRAVE: CardRecord = CardRecord::n
     "Rise from the Grave",
     "cb9dd0d9-8e35-4a8c-af6f-83c7d2a3ea7d",
     "Vance Kovacs",
-// Any graveyard, so it steals as readily as it recurs.
+    // Any graveyard, so it steals as readily as it recurs.
     CardRules::new_sorcery(mana_cost!("{4}{B}")).with_ability(AbilityDef::spell_with_targets(
-        "Put target creature card from a graveyard onto the battlefield under your control. That creature is a black Zombie in addition to its other colors and types.",
+        "Put target creature card from a graveyard onto the \
+         battlefield under your control. That creature is a black \
+         Zombie in addition to its other colors and types.",
         &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::Object {
                 object: ObjectPredicateDef::HasType(CardType::Creature),
@@ -610,9 +614,7 @@ pub(in crate::card::sets) static RISE_FROM_THE_GRAVE: CardRecord = CardRecord::n
             },
             binding: crate::ParentBinding,
             then: &EffectDef::Apply {
-                recipient: EffectRecipientDef::binding_zone_change_successors(
-                    crate::ParentBinding,
-                ),
+                recipient: EffectRecipientDef::binding_zone_change_successors(crate::ParentBinding),
                 // "In addition to its other colors and types", so both leaves add rather
                 // than set.
                 effect: AppliedEffectDef::Composite(&[
@@ -669,7 +671,8 @@ pub(in crate::card::sets) static SIGN_IN_BLOOD: CardRecord = CardRecord::new(
 );
 
 // M10 118 — Vampire Nocturnus
-// Audit: unsupported — PlaysWithTopOfLibraryRevealed exists, but static conditions cannot inspect the top card's color for the Vampire mass bonus and flying grant.
+// Audit: unsupported — PlaysWithTopOfLibraryRevealed exists, but static conditions cannot
+// inspect the top card's color for the Vampire mass bonus and flying grant.
 pub(in crate::card::sets) static VAMPIRE_NOCTURNUS: CardRecord = CardRecord::new(
     "Vampire Nocturnus",
     "9df4f1ea-dbaa-456c-884c-97f03b64fa17",
@@ -698,29 +701,28 @@ pub(in crate::card::sets) static ACT_OF_TREASON: CardRecord = CardRecord::new(
     "Act of Treason",
     "8b63bee5-d8e5-4c2f-8514-8c86d025f7c9",
     "Eric Deschamps",
-CardRules::new_sorcery(mana_cost!("{2}{R}")).with_ability(
-        AbilityDef::spell_with_targets(
-            "Gain control of target creature until end of turn. Untap that creature. It gains haste until end of turn.",
-            &[AbilityTargetDef::exactly_one_permanent(
-                ObjectPredicateDef::HasType(CardType::Creature),
-            )],
-            EffectDef::Sequence(&[
-                EffectDef::gain_control(
-                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    PlayerRefDef::EffectController,
-                    ControlDurationDef::UntilEndOfTurn,
-                ),
-                EffectDef::Untap {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                },
-                EffectDef::Apply {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    effect: AppliedEffectDef::add_ability(&abilities::haste()),
-                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                },
-            ]),
-        ),
-    ),
+    CardRules::new_sorcery(mana_cost!("{2}{R}")).with_ability(AbilityDef::spell_with_targets(
+        "Gain control of target creature until end of turn. Untap \
+         that creature. It gains haste until end of turn.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::gain_control(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                PlayerRefDef::EffectController,
+                ControlDurationDef::UntilEndOfTurn,
+            ),
+            EffectDef::Untap {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::add_ability(&abilities::haste()),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ]),
+    )),
 );
 
 // M10 135 — Fiery Hellhound
@@ -804,33 +806,33 @@ pub(in crate::card::sets) static BORDERLAND_RANGER: CardRecord = CardRecord::new
     "Borderland Ranger",
     "bdd0f8c8-1a1f-4d9b-a6e1-3654f3995012",
     "Jesper Ejsing",
-CardRules::new_creature(
-        mana_cost!("{2}{G}"),
-        &["Human", "Scout", "Ranger"],
-        2,
-        2,
-    )
-    .with_ability(abilities::enters_trigger("When this creature enters, you may search your library for a basic land card, reveal it, put it into your hand, then shuffle.", EffectDef::May {
-            player: EffectRecipientDef::Controller,
-            effect: &EffectDef::SearchZone {
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Human", "Scout", "Ranger"], 2, 2)
+        .with_ability(abilities::enters_trigger(
+            "When this creature enters, you may search your library for \
+             a basic land card, reveal it, put it into your hand, then \
+             shuffle.",
+            EffectDef::May {
                 player: EffectRecipientDef::Controller,
-                source: ZoneKind::Library,
-                object: ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::HasType(CardType::Land),
-                    ObjectPredicateDef::Supertype(CardSupertype::Basic),
-                ]),
-                minimum: 0,
-                maximum: ValueDef::Constant(1),
-                reveal: true,
-                destination: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-                shuffle: true,
-                enters_tapped: false,
-                attachment: None,
-                binding: None,
-                then: None,
+                effect: &EffectDef::SearchZone {
+                    player: EffectRecipientDef::Controller,
+                    source: ZoneKind::Library,
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                    ]),
+                    minimum: 0,
+                    maximum: ValueDef::Constant(1),
+                    reveal: true,
+                    destination: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                    shuffle: true,
+                    enters_tapped: false,
+                    attachment: None,
+                    binding: None,
+                    then: None,
+                },
             },
-        })),
+        )),
 );
 
 // M10 170 — Bountiful Harvest
@@ -923,13 +925,57 @@ pub(in crate::card::sets) static ELVISH_ARCHDRUID: CardRecord = CardRecord::new(
 );
 
 // M10 190 — Lurking Predators
-pub(in crate::card::sets) static LURKING_PREDATORS_190: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static LURKING_PREDATORS: CardRecord = CardRecord::new(
     "Lurking Predators",
     "e864c824-89a1-41f6-9481-83b2284471e0",
     "Mike Bierek",
-    CardRules::new_enchantment(mana_cost!("{4}{G}{G}")).with_abilities(&[
-AbilityDef::triggered("Whenever an opponent casts a spell, reveal the top card of your library. If it's a creature card, put it onto the battlefield. Otherwise, you may put that card on the bottom of your library.", TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent)), EffectDef::BindObjects(BindObjectsDef { source: ObjectCollectionSourceDef::TopCards { player: PlayerRefDef::EffectController, count: ValueDef::Constant(1) }, binding: Binding!("predators_top"), then: &EffectDef::Sequence(&[EffectDef::RevealObjects(RevealObjectsDef { input: ObjectSetDef::Binding(Binding!("predators_top")), then: &EffectDef::None }), EffectDef::ForEachInBinding { objects: Binding!("predators_top"), binding: Binding!("predators_card"), effect: &EffectDef::IfElseCondition { condition: &TriggerConditionDef::BoundObjectMatches { binding: Binding!("predators_card"), object: ObjectPredicateDef::HasType(CardType::Creature) }, then: &EffectDef::move_to_zone(EffectRecipientDef::object(ObjectRefDef::Binding(Binding!("predators_card"))), ZoneKind::Battlefield, ZonePlacement::Top), otherwise: &EffectDef::May { player: EffectRecipientDef::Controller, effect: &EffectDef::move_to_zone(EffectRecipientDef::object(ObjectRefDef::Binding(Binding!("predators_card"))), ZoneKind::Library, ZonePlacement::Bottom) } } }]) }))
-]),
+    CardRules::new_enchantment(mana_cost!("{4}{G}{G}")).with_abilities(&[AbilityDef::triggered(
+        "Whenever an opponent casts a spell, reveal the top card of \
+         your library. If it's a creature card, put it onto the \
+         battlefield. Otherwise, you may put that card on the bottom \
+         of your library.",
+        TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent)),
+        EffectDef::BindObjects(BindObjectsDef {
+            source: ObjectCollectionSourceDef::TopCards {
+                player: PlayerRefDef::EffectController,
+                count: ValueDef::Constant(1),
+            },
+            binding: Binding!("predators_top"),
+            then: &EffectDef::Sequence(&[
+                EffectDef::RevealObjects(RevealObjectsDef {
+                    input: ObjectSetDef::Binding(Binding!("predators_top")),
+                    then: &EffectDef::None,
+                }),
+                EffectDef::ForEachInBinding {
+                    objects: Binding!("predators_top"),
+                    binding: Binding!("predators_card"),
+                    effect: &EffectDef::IfElseCondition {
+                        condition: &TriggerConditionDef::BoundObjectMatches {
+                            binding: Binding!("predators_card"),
+                            object: ObjectPredicateDef::HasType(CardType::Creature),
+                        },
+                        then: &EffectDef::move_to_zone(
+                            EffectRecipientDef::object(ObjectRefDef::Binding(Binding!(
+                                "predators_card"
+                            ))),
+                            ZoneKind::Battlefield,
+                            ZonePlacement::Top,
+                        ),
+                        otherwise: &EffectDef::May {
+                            player: EffectRecipientDef::Controller,
+                            effect: &EffectDef::move_to_zone(
+                                EffectRecipientDef::object(ObjectRefDef::Binding(Binding!(
+                                    "predators_card"
+                                ))),
+                                ZoneKind::Library,
+                                ZonePlacement::Bottom,
+                            ),
+                        },
+                    },
+                },
+            ]),
+        }),
+    )]),
 );
 
 // M10 194 — Mold Adder
@@ -1149,7 +1195,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &CUDGEL_TROLL,
     &DEADLY_RECLUSE,
     &ELVISH_ARCHDRUID,
-    &LURKING_PREDATORS_190,
+    &LURKING_PREDATORS,
     &MOLD_ADDER,
     &RUNECLAW_BEAR,
     &STAMPEDING_RHINO,

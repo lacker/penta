@@ -92,8 +92,9 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // EMN 6 — Emrakul, the Promised End
-// Audit: unsupported — The engine has no control-an-opponent-during-their-next-turn procedure or binding for the extra turn after that controlled turn.
-pub(in crate::card::sets) static EMRAKUL_THE_PROMISED_END_6: CardRecord = CardRecord::new(
+// Audit: unsupported — The engine has no control-an-opponent-during-their-next-turn procedure
+// or binding for the extra turn after that controlled turn.
+pub(in crate::card::sets) static EMRAKUL_THE_PROMISED_END: CardRecord = CardRecord::new(
     "Emrakul, the Promised End",
     "8d74a469-c71d-4773-99d3-5456b31df424",
     "Jaime Jones",
@@ -101,8 +102,10 @@ pub(in crate::card::sets) static EMRAKUL_THE_PROMISED_END_6: CardRecord = CardRe
 );
 
 // EMN 7 — Eternal Scourge
-// Audit: unsupported — There is no intrinsic cast-from-exile permission. Exile-play effects grant permission when they move a card, which cannot authorize this card after any arbitrary path into exile.
-pub(in crate::card::sets) static ETERNAL_SCOURGE_7: CardRecord = CardRecord::new(
+// Audit: unsupported — There is no intrinsic cast-from-exile permission. Exile-play effects
+// grant permission when they move a card, which cannot authorize this card after any arbitrary
+// path into exile.
+pub(in crate::card::sets) static ETERNAL_SCOURGE: CardRecord = CardRecord::new(
     "Eternal Scourge",
     "13ce52f5-6d49-4d44-a3d7-925340de8406",
     "Winona Nelson",
@@ -213,44 +216,43 @@ pub(in crate::card::sets) static COLLECTIVE_EFFORT: CardRecord = CardRecord::new
     "Collective Effort",
     "d85a6369-c07f-47d5-8448-72d8ec7e7898",
     "Eric Deschamps",
-CardRules::new_sorcery(mana_cost!("{1}{W}{W}")).with_ability(
-        escalate(
-            "Escalate—Tap an untapped creature you control. (Pay this cost for each mode chosen beyond the first.)",
-            CostDef::tap(
-                ObjectPredicateDef::HasType(CardType::Creature),
-                CostQuantityDef::Fixed(1),
-            ),
-            &[
-                AbilityDef::destroy_target(
-                    "Destroy target creature with power 4 or greater.",
-                    &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::PowerAtLeast(4),
-                    ]))
-),
-                AbilityDef::destroy_target(
-                    "Destroy target enchantment.",
-                    &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
-                        CardType::Enchantment,
-                    ))
-),
-                AbilityDef::spell_with_targets(
-                    "Put a +1/+1 counter on each creature target player controls.",
-                    &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
-                        PlayerRelation::Any,
-                    ))],
-                    EffectDef::AddCounters {
-                        object: EffectRecipientDef::objects_controlled_by_target(
-                            ObjectPredicateDef::HasType(CardType::Creature),
-                            TargetIndex::PRIMARY,
-                        ),
-                        kind: CounterKind::PlusOnePlusOne,
-                        amount: ValueDef::Constant(1),
-                    },
-                ),
-            ],
+    CardRules::new_sorcery(mana_cost!("{1}{W}{W}")).with_ability(escalate(
+        "Escalate—Tap an untapped creature you control. (Pay this \
+         cost for each mode chosen beyond the first.)",
+        CostDef::tap(
+            ObjectPredicateDef::HasType(CardType::Creature),
+            CostQuantityDef::Fixed(1),
         ),
-    ),
+        &[
+            AbilityDef::destroy_target(
+                "Destroy target creature with power 4 or greater.",
+                &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::PowerAtLeast(4),
+                ])),
+            ),
+            AbilityDef::destroy_target(
+                "Destroy target enchantment.",
+                &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
+                    CardType::Enchantment,
+                )),
+            ),
+            AbilityDef::spell_with_targets(
+                "Put a +1/+1 counter on each creature target player controls.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Player(PlayerRelation::Any),
+                )],
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::objects_controlled_by_target(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        TargetIndex::PRIMARY,
+                    ),
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+        ],
+    )),
 );
 
 // EMN 37 — Providence
@@ -258,9 +260,11 @@ pub(in crate::card::sets) static PROVIDENCE: CardRecord = CardRecord::new(
     "Providence",
     "2e5edd8d-8e10-4414-a326-95a672dfcff7",
     "Zack Stella",
-CardRules::new_sorcery(mana_cost!("{5}{W}{W}")).with_abilities(&[
+    CardRules::new_sorcery(mana_cost!("{5}{W}{W}")).with_abilities(&[
         AbilityDef::opening_hand_reveal(
-            "You may reveal this card from your opening hand. If you do, at the beginning of the first upkeep, your life total becomes 26.",
+            "You may reveal this card from your opening hand. If you do, \
+             at the beginning of the first upkeep, your life total \
+             becomes 26.",
             EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
                 "At the beginning of the first upkeep, your life total becomes 26.",
                 TriggerEventDef::StepBegins {
@@ -284,7 +288,7 @@ CardRules::new_sorcery(mana_cost!("{5}{W}{W}")).with_abilities(&[
 );
 
 // EMN 40 — Selfless Spirit
-pub(in crate::card::sets) static SELFLESS_SPIRIT_40: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static SELFLESS_SPIRIT: CardRecord = CardRecord::new(
     "Selfless Spirit",
     "a4624976-3773-4a1e-b725-5f6efce147a5",
     "Seb McKinnon",
@@ -307,7 +311,7 @@ pub(in crate::card::sets) static SELFLESS_SPIRIT_40: CardRecord = CardRecord::ne
 );
 
 // EMN 46 — Thalia, Heretic Cathar
-pub(in crate::card::sets) static THALIA_HERETIC_CATHAR_46: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static THALIA_HERETIC_CATHAR: CardRecord = CardRecord::new(
     "Thalia, Heretic Cathar",
     "ab0cee38-5e24-49d0-870c-22843ed4e101",
     "Magali Villeneuve",
@@ -342,10 +346,11 @@ pub(in crate::card::sets) static DISPLACE: CardRecord = CardRecord::new(
     "Displace",
     "8ab850c5-6f5e-41b7-ab52-094579caca12",
     "Clint Cearley",
-// Two arrival triggers at instant speed, and the exile also answers
+    // Two arrival triggers at instant speed, and the exile also answers
     // whatever is pointed at them in the meantime.
     CardRules::new_instant(mana_cost!("{2}{U}")).with_ability(AbilityDef::spell_with_targets(
-        "Exile up to two target creatures you control, then return those cards to the battlefield under their owner's control.",
+        "Exile up to two target creatures you control, then return \
+         those cards to the battlefield under their owner's control.",
         &[AbilityTargetDef::up_to(
             AbilityTargetPredicate::Object {
                 object: ObjectPredicateDef::HasType(CardType::Creature),
@@ -377,7 +382,9 @@ pub(in crate::card::sets) static DISPLACE: CardRecord = CardRecord::new(
 );
 
 // EMN 65 — Imprisoned in the Moon
-// Audit: unsupported — Needs a static effect that replaces the attached permanent's complete card-type set, rather than adding types; full card-type replacement is outside the shared static runtime boundary.
+// Audit: unsupported — Needs a static effect that replaces the attached permanent's complete
+// card-type set, rather than adding types; full card-type replacement is outside the shared
+// static runtime boundary.
 pub(in crate::card::sets) static IMPRISONED_IN_THE_MOON: CardRecord = CardRecord::new(
     "Imprisoned in the Moon",
     "7990ebba-e9f2-4ba4-a352-e26ec81d4bed",
@@ -473,65 +480,64 @@ pub(in crate::card::sets) static COLLECTIVE_BRUTALITY: CardRecord = CardRecord::
     "Collective Brutality",
     "cb94a02f-4660-45b6-8a39-941b710cf8f3",
     "Johann Bodin",
-// Two mana that answers three different decks, and the escalate cost is
+    // Two mana that answers three different decks, and the escalate cost is
     // paid in the cards those decks least want you to have anyway.
-    CardRules::new_sorcery(mana_cost!("{1}{B}")).with_ability(
-        escalate(
-            "Escalate—Discard a card. (Pay this cost for each mode chosen beyond the \
-             first.)",
-            // One mode is free; taking all three costs two discarded cards.
-            CostDef::discard(ObjectPredicateDef::Any),
-            // Each mode declares its own target slot, so a Brutality that takes two
-            // modes points at two things.
-            &[
-                AbilityDef::spell_with_targets(
-                    "Target opponent reveals their hand. You choose an instant or sorcery card from it. That \
-                     player discards that card.",
-                    &AN_OPPONENT,
-                    EffectDef::Sequence(&abilities::reveal_hand_and_discard_chosen_card(
-                        PlayerRefDef::Target(TargetIndex::PRIMARY),
-                        ObjectPredicateDef::AnyOf(&[
-                            ObjectPredicateDef::HasType(CardType::Instant),
-                            ObjectPredicateDef::HasType(CardType::Sorcery),
-                        ]),
-                    )),
-                ),
-                AbilityDef::spell_with_targets(
-                    "Target creature gets -2/-2 until end of turn.",
-                    &[AbilityTargetDef::exactly_one_permanent(
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                    )],
-                    EffectDef::Apply {
-                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        effect: AppliedEffectDef::modify_power_toughness(
-                            ValueDef::Constant(-2),
-                            ValueDef::Constant(-2),
-                        ),
-                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                    },
-                ),
-                AbilityDef::spell_with_targets(
-                    "Target opponent loses 2 life and you gain 2 life.",
-                    &AN_OPPONENT,
-                    EffectDef::Sequence(&[
-                        EffectDef::LoseLife {
-                            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                            amount: ValueDef::Constant(2),
-                        },
-                        EffectDef::GainLife {
-                            recipient: EffectRecipientDef::Controller,
-                            amount: ValueDef::Constant(2),
-                        },
+    CardRules::new_sorcery(mana_cost!("{1}{B}")).with_ability(escalate(
+        "Escalate—Discard a card. (Pay this cost for each mode chosen beyond the \
+         first.)",
+        // One mode is free; taking all three costs two discarded cards.
+        CostDef::discard(ObjectPredicateDef::Any),
+        // Each mode declares its own target slot, so a Brutality that takes two
+        // modes points at two things.
+        &[
+            AbilityDef::spell_with_targets(
+                "Target opponent reveals their hand. You choose an instant \
+                 or sorcery card from it. That player discards that card.",
+                &AN_OPPONENT,
+                EffectDef::Sequence(&abilities::reveal_hand_and_discard_chosen_card(
+                    PlayerRefDef::Target(TargetIndex::PRIMARY),
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Instant),
+                        ObjectPredicateDef::HasType(CardType::Sorcery),
                     ]),
-                ),
-            ],
-        ),
-    ),
+                )),
+            ),
+            AbilityDef::spell_with_targets(
+                "Target creature gets -2/-2 until end of turn.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(-2),
+                        ValueDef::Constant(-2),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+            AbilityDef::spell_with_targets(
+                "Target opponent loses 2 life and you gain 2 life.",
+                &AN_OPPONENT,
+                EffectDef::Sequence(&[
+                    EffectDef::LoseLife {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        amount: ValueDef::Constant(2),
+                    },
+                    EffectDef::GainLife {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(2),
+                    },
+                ]),
+            ),
+        ],
+    )),
 );
 
 // EMN 111 — Voldaren Pariah // Abolisher of Bloodlines
-// Audit: unsupported — Madness requires a discard-to-exile replacement and a linked triggered cast-or-graveyard procedure; no current alternative-cast procedure implements it.
-pub(in crate::card::sets) static VOLDAREN_PARIAH_ABOLISHER_OF_BLOODLINES_111: CardRecord =
+// Audit: unsupported — Madness requires a discard-to-exile replacement and a linked triggered
+// cast-or-graveyard procedure; no current alternative-cast procedure implements it.
+pub(in crate::card::sets) static VOLDAREN_PARIAH_ABOLISHER_OF_BLOODLINES: CardRecord =
     CardRecord::new(
         "Voldaren Pariah // Abolisher of Bloodlines",
         "25baac6c-5bb4-4ecc-b1d5-fced52087bd9",
@@ -540,8 +546,9 @@ pub(in crate::card::sets) static VOLDAREN_PARIAH_ABOLISHER_OF_BLOODLINES_111: Ca
     );
 
 // EMN 116 — Alchemist's Greeting
-// Audit: unsupported — Madness requires a discard-to-exile replacement and a linked triggered cast-or-graveyard procedure; no current alternative-cast procedure implements it.
-pub(in crate::card::sets) static ALCHEMIST_S_GREETING_116: CardRecord = CardRecord::new(
+// Audit: unsupported — Madness requires a discard-to-exile replacement and a linked triggered
+// cast-or-graveyard procedure; no current alternative-cast procedure implements it.
+pub(in crate::card::sets) static ALCHEMIST_S_GREETING: CardRecord = CardRecord::new(
     "Alchemist's Greeting",
     "8f33aaa1-cbaa-40a9-889e-3eca26b3a549",
     "Jakub Kasper",
@@ -639,8 +646,9 @@ pub(in crate::card::sets) static COLLECTIVE_DEFIANCE: CardRecord = CardRecord::n
 );
 
 // EMN 126 — Distemper of the Blood
-// Audit: unsupported — Madness requires a discard-to-exile replacement and a linked triggered cast-or-graveyard procedure; no current alternative-cast procedure implements it.
-pub(in crate::card::sets) static DISTEMPER_OF_THE_BLOOD_126: CardRecord = CardRecord::new(
+// Audit: unsupported — Madness requires a discard-to-exile replacement and a linked triggered
+// cast-or-graveyard procedure; no current alternative-cast procedure implements it.
+pub(in crate::card::sets) static DISTEMPER_OF_THE_BLOOD: CardRecord = CardRecord::new(
     "Distemper of the Blood",
     "d0ad2acb-073b-4a98-be8c-2ea39ca85496",
     "Ben Maier",
@@ -722,13 +730,43 @@ pub(in crate::card::sets) static SAVAGE_ALLIANCE: CardRecord = CardRecord::new(
 );
 
 // EMN 155 — Eldritch Evolution
-pub(in crate::card::sets) static ELDRITCH_EVOLUTION_155: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static ELDRITCH_EVOLUTION: CardRecord = CardRecord::new(
     "Eldritch Evolution",
     "efcb00e5-2caa-45c8-ad19-05d45c683d16",
     "Jason Rainville",
     CardRules::new_sorcery(mana_cost!("{1}{G}{G}")).with_abilities(&[
-AbilityDef::spell_with_additional_cost("As an additional cost to cast this spell, sacrifice a creature.\nSearch your library for a creature card with mana value X or less, where X is 2 plus the sacrificed creature's mana value. Put that card onto the battlefield, then shuffle. Exile Eldritch Evolution.", &[], CostDef::sacrifice_permanent(ObjectPredicateDef::HasType(CardType::Creature)), EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Library, object: ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::ManaValueAtMostValue(ValueDef::Sum(&SumValueDef { left: ValueDef::SacrificedManaValue, right: ValueDef::Constant(2) }))]), minimum: 0, maximum: ValueDef::Constant(1), reveal: true, destination: ZoneKind::Battlefield, placement: ZonePlacement::Top, shuffle: true, enters_tapped: false, attachment: None, binding: None, then: None }).with_resolution_destination(SpellResolutionDestinationDef::Exile)
-]),
+        AbilityDef::spell_with_additional_cost(
+            "As an additional cost to cast this spell, sacrifice a \
+             creature.\nSearch your library for a creature card with \
+             mana value X or less, where X is 2 plus the sacrificed \
+             creature's mana value. Put that card onto the battlefield, \
+             then shuffle. Exile Eldritch Evolution.",
+            &[],
+            CostDef::sacrifice_permanent(ObjectPredicateDef::HasType(CardType::Creature)),
+            EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::ManaValueAtMostValue(ValueDef::Sum(&SumValueDef {
+                        left: ValueDef::SacrificedManaValue,
+                        right: ValueDef::Constant(2),
+                    })),
+                ]),
+                minimum: 0,
+                maximum: ValueDef::Constant(1),
+                reveal: true,
+                destination: ZoneKind::Battlefield,
+                placement: ZonePlacement::Top,
+                shuffle: true,
+                enters_tapped: false,
+                attachment: None,
+                binding: None,
+                then: None,
+            },
+        )
+        .with_resolution_destination(SpellResolutionDestinationDef::Exile),
+    ]),
 );
 
 // EMN 160 — Grapple with the Past
@@ -736,10 +774,11 @@ pub(in crate::card::sets) static GRAPPLE_WITH_THE_PAST: CardRecord = CardRecord:
     "Grapple with the Past",
     "d44a77a6-e8a1-4706-886f-8ab3af56b342",
     "Howard Lyon",
-// The mill happens first, so the three cards it just buried are part of
+    // The mill happens first, so the three cards it just buried are part of
     // what the choice may take back.
     CardRules::new_instant(mana_cost!("{1}{G}")).with_ability(AbilityDef::spell(
-        "Mill three cards, then you may return a creature or land card from your graveyard to your hand.",
+        "Mill three cards, then you may return a creature or land \
+         card from your graveyard to your hand.",
         EffectDef::Sequence(&[
             EffectDef::Mill {
                 player: EffectRecipientDef::Controller,
@@ -766,9 +805,7 @@ pub(in crate::card::sets) static GRAPPLE_WITH_THE_PAST: CardRecord = CardRecord:
                     maximum: 1,
                     visibility: ChoiceVisibilityDef::Public,
                     then: &EffectDef::move_to_zone(
-                        EffectRecipientDef::objects(ObjectSetDef::Binding(
-                            ParentBinding,
-                        )),
+                        EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
                         ZoneKind::Hand,
                         ZonePlacement::Top,
                     ),
@@ -779,8 +816,9 @@ pub(in crate::card::sets) static GRAPPLE_WITH_THE_PAST: CardRecord = CardRecord:
 );
 
 // EMN 181 — Bloodhall Priest
-// Audit: unsupported — Madness requires a discard-to-exile replacement and a linked triggered cast-or-graveyard procedure; no current alternative-cast procedure implements it.
-pub(in crate::card::sets) static BLOODHALL_PRIEST_181: CardRecord = CardRecord::new(
+// Audit: unsupported — Madness requires a discard-to-exile replacement and a linked triggered
+// cast-or-graveyard procedure; no current alternative-cast procedure implements it.
+pub(in crate::card::sets) static BLOODHALL_PRIEST: CardRecord = CardRecord::new(
     "Bloodhall Priest",
     "c4824cca-0039-4486-be8f-650dac2c8e9f",
     "Mark Winters",
@@ -788,8 +826,10 @@ pub(in crate::card::sets) static BLOODHALL_PRIEST_181: CardRecord = CardRecord::
 );
 
 // EMN 189 — Spell Queller
-// Audit: unsupported — The immediate free-cast operations always offer the cast to the resolving ability controller. They cannot offer the linked exiled card to its owner, who may be a different player.
-pub(in crate::card::sets) static SPELL_QUELLER_189: CardRecord = CardRecord::new(
+// Audit: unsupported — The immediate free-cast operations always offer the cast to the
+// resolving ability controller. They cannot offer the linked exiled card to its owner, who may
+// be a different player.
+pub(in crate::card::sets) static SPELL_QUELLER: CardRecord = CardRecord::new(
     "Spell Queller",
     "9b76bcd4-580a-4435-afe9-290940b1837f",
     "Adam Paquette",
@@ -797,7 +837,7 @@ pub(in crate::card::sets) static SPELL_QUELLER_189: CardRecord = CardRecord::new
 );
 
 // EMN 203 — Geier Reach Sanitarium
-pub(in crate::card::sets) static GEIER_REACH_SANITARIUM_203: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static GEIER_REACH_SANITARIUM: CardRecord = CardRecord::new(
     "Geier Reach Sanitarium",
     "96093739-fedc-4d8f-a29d-0e57f571e5a9",
     "Cliff Childs",
@@ -825,31 +865,31 @@ pub(in crate::card::sets) static GEIER_REACH_SANITARIUM_203: CardRecord = CardRe
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
-    &EMRAKUL_THE_PROMISED_END_6,
-    &ETERNAL_SCOURGE_7,
+    &EMRAKUL_THE_PROMISED_END,
+    &ETERNAL_SCOURGE,
     &BLESSED_ALLIANCE,
     &BORROWED_GRACE,
     &COLLECTIVE_EFFORT,
     &PROVIDENCE,
-    &SELFLESS_SPIRIT_40,
-    &THALIA_HERETIC_CATHAR_46,
+    &SELFLESS_SPIRIT,
+    &THALIA_HERETIC_CATHAR,
     &DISPLACE,
     &IMPRISONED_IN_THE_MOON,
     &BORROWED_MALEVOLENCE,
     &CEMETERY_RECRUITMENT,
     &COLLECTIVE_BRUTALITY,
-    &VOLDAREN_PARIAH_ABOLISHER_OF_BLOODLINES_111,
-    &ALCHEMIST_S_GREETING_116,
+    &VOLDAREN_PARIAH_ABOLISHER_OF_BLOODLINES,
+    &ALCHEMIST_S_GREETING,
     &BORROWED_HOSTILITY,
     &COLLECTIVE_DEFIANCE,
-    &DISTEMPER_OF_THE_BLOOD_126,
+    &DISTEMPER_OF_THE_BLOOD,
     &HARMLESS_OFFERING,
     &SAVAGE_ALLIANCE,
-    &ELDRITCH_EVOLUTION_155,
+    &ELDRITCH_EVOLUTION,
     &GRAPPLE_WITH_THE_PAST,
-    &BLOODHALL_PRIEST_181,
-    &SPELL_QUELLER_189,
-    &GEIER_REACH_SANITARIUM_203,
+    &BLOODHALL_PRIEST,
+    &SPELL_QUELLER,
+    &GEIER_REACH_SANITARIUM,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

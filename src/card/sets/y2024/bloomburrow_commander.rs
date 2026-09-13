@@ -51,10 +51,10 @@ pub(in crate::card::sets) static JACKED_RABBIT: CardRecord = CardRecord::new(
     "Jacked Rabbit",
     "2c695df6-6bf2-4e6b-8500-e3116137ca27",
     "Scott Murphy",
-// The counters are the body and the body is the token count, so every
+    // The counters are the body and the body is the token count, so every
     // mana past the second is another Rabbit on every attack.
-    CardRules::new_creature(mana_cost!("{X}{1}{W}"), &["Rabbit", "Warrior"], 1, 2)
-        .with_abilities(&[
+    CardRules::new_creature(mana_cost!("{X}{1}{W}"), &["Rabbit", "Warrior"], 1, 2).with_abilities(
+        &[
             AbilityDef::as_enters(
                 "Ravenous (This creature enters with X +1/+1 counters on it.)",
                 ReplacementEffectDef::ModifyBattlefieldEntry(
@@ -84,24 +84,28 @@ pub(in crate::card::sets) static JACKED_RABBIT: CardRecord = CardRecord::new(
                 },
             ),
             AbilityDef::triggered(
-                "Whenever this creature attacks, create a number of 1/1 white Rabbit creature tokens \
-                 equal to this creature's power.",
+                "Whenever this creature attacks, create a number of 1/1 \
+                 white Rabbit creature tokens equal to this creature's power.",
                 TriggerEventDef::attacks(ObjectPredicateDef::Source),
                 EffectDef::CreateToken(
                     CreateTokenDef::new(TokenDef::Literal(
-                        TokenCharacteristics::creature(&["Rabbit"], &[ManaColor::White], 1, 1).with_art(
-                            CardArt::new("81de52ef-7515-4958-abea-fb8ebdcef93c", "Gina Matarazzo"),
-                        ),
+                        TokenCharacteristics::creature(&["Rabbit"], &[ManaColor::White], 1, 1)
+                            .with_art(CardArt::new(
+                                "81de52ef-7515-4958-abea-fb8ebdcef93c",
+                                "Gina Matarazzo",
+                            )),
                     ))
                     .with_count(ValueDef::SourcePower),
                 ),
             ),
-        ]),
+        ],
+    ),
 );
 
 // BLC 14 — Fortune Teller's Talent
-// Audit: unsupported — The cost-modification matcher does not receive the candidate spell's cast source zone, so its third level cannot discount only spells cast from outside the hand.
-pub(in crate::card::sets) static FORTUNE_TELLER_S_TALENT_14: CardRecord = CardRecord::new(
+// Audit: unsupported — The cost-modification matcher does not receive the candidate spell's
+// cast source zone, so its third level cannot discount only spells cast from outside the hand.
+pub(in crate::card::sets) static FORTUNE_TELLER_S_TALENT: CardRecord = CardRecord::new(
     "Fortune Teller's Talent",
     "a1d43877-20ab-4e84-a597-4b5e03a6bf90",
     "Jarel Threat",
@@ -109,20 +113,71 @@ pub(in crate::card::sets) static FORTUNE_TELLER_S_TALENT_14: CardRecord = CardRe
 );
 
 // BLC 17 — Hazel's Brewmaster
-pub(in crate::card::sets) static HAZEL_S_BREWMASTER_17: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static HAZEL_S_BREWMASTER: CardRecord = CardRecord::new(
     "Hazel's Brewmaster",
     "52af8b70-a9c8-40d7-99da-fa51dc293688",
     "Simon Dominic",
-    CardRules::new_creature(mana_cost!("{3}{B}"), &["Squirrel", "Warlock"], 3, 4).with_abilities(&[
-abilities::menace(),
-AbilityDef::triggered_with_targets("Whenever this creature enters or attacks, exile up to one target card from a graveyard and create a Food token.", TriggerEventDef::AnyOf(&[TriggerEventDef::zone_changed(ObjectPredicateDef::Source, None, Some(ZoneKind::Battlefield)), TriggerEventDef::attacks(ObjectPredicateDef::Source)]), &[AbilityTargetDef::up_to(AbilityTargetPredicate::Object { object: ObjectPredicateDef::Any, zones: &[ZoneKind::Graveyard], controller: None, owner: None }, 1)], EffectDef::Sequence(&[EffectDef::ExileLinkedToSource { object: EffectRecipientDef::Target(TargetIndex::PRIMARY), face_down: false, until_source_leaves: false, then: None }, EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(crate::card::tokens::food())))])),
-AbilityDef::static_ability("Foods you control have all activated abilities of all creature cards exiled with this creature.", EffectDef::StaticApply { recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::Subtype(SubtypeDef::Literal("Food")), &[ZoneKind::Battlefield], PlayerRelation::You), effect: AppliedEffectDef::Characteristic(CharacteristicOperationDef::Abilities(AbilityOperationDef::AddActivatedAbilitiesOfLinkedExiles(ObjectPredicateDef::HasType(CardType::Creature)))) })
-]),
+    CardRules::new_creature(mana_cost!("{3}{B}"), &["Squirrel", "Warlock"], 3, 4).with_abilities(
+        &[
+            abilities::menace(),
+            AbilityDef::triggered_with_targets(
+                "Whenever this creature enters or attacks, exile up to one \
+                 target card from a graveyard and create a Food token.",
+                TriggerEventDef::AnyOf(&[
+                    TriggerEventDef::zone_changed(
+                        ObjectPredicateDef::Source,
+                        None,
+                        Some(ZoneKind::Battlefield),
+                    ),
+                    TriggerEventDef::attacks(ObjectPredicateDef::Source),
+                ]),
+                &[AbilityTargetDef::up_to(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::Any,
+                        zones: &[ZoneKind::Graveyard],
+                        controller: None,
+                        owner: None,
+                    },
+                    1,
+                )],
+                EffectDef::Sequence(&[
+                    EffectDef::ExileLinkedToSource {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        face_down: false,
+                        until_source_leaves: false,
+                        then: None,
+                    },
+                    EffectDef::CreateToken(crate::card::CreateTokenDef::new(
+                        crate::card::TokenDef::Literal(crate::card::tokens::food()),
+                    )),
+                ]),
+            ),
+            AbilityDef::static_ability(
+                "Foods you control have all activated abilities of all \
+                 creature cards exiled with this creature.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Food")),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::Characteristic(
+                        CharacteristicOperationDef::Abilities(
+                            AbilityOperationDef::AddActivatedAbilitiesOfLinkedExiles(
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                            ),
+                        ),
+                    ),
+                },
+            ),
+        ],
+    ),
 );
 
 // BLC 35 — Trailtracker Scout
-// Audit: unsupported — There is no event for crossing an amount of total mana spent casting spells this turn. Spell counts and mana-value counts cannot implement expend 8.
-pub(in crate::card::sets) static TRAILTRACKER_SCOUT_35: CardRecord = CardRecord::new(
+// Audit: unsupported — There is no event for crossing an amount of total mana spent casting
+// spells this turn. Spell counts and mana-value counts cannot implement expend 8.
+pub(in crate::card::sets) static TRAILTRACKER_SCOUT: CardRecord = CardRecord::new(
     "Trailtracker Scout",
     "36ee967a-3cac-4fff-b616-ec2557c676f2",
     "Henry Peters",
@@ -130,35 +185,84 @@ pub(in crate::card::sets) static TRAILTRACKER_SCOUT_35: CardRecord = CardRecord:
 );
 
 // BLC 50 — Pollywog Prodigy
-pub(in crate::card::sets) static POLLYWOG_PRODIGY_50: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static POLLYWOG_PRODIGY: CardRecord = CardRecord::new(
     "Pollywog Prodigy",
     "292158eb-cef0-4807-a38f-c5686064b95a",
     "Caroline Gariba",
     CardRules::new_creature(mana_cost!("{1}{U}"), &["Frog", "Wizard"], 1, 3).with_abilities(&[
-abilities::evolve(),
-AbilityDef::triggered("Whenever an opponent casts a noncreature spell with mana value less than this creature's power, draw a card.", TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[ObjectPredicateDef::NoncreatureSpell, ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent), ObjectPredicateDef::ManaValueAtMostValue(ValueDef::SourcePower), ObjectPredicateDef::Not(&ObjectPredicateDef::ManaValueEqualTo(ValueDef::SourcePower))])), abilities::draw_cards(ValueDef::Constant(1)))
-]),
+        abilities::evolve(),
+        AbilityDef::triggered(
+            "Whenever an opponent casts a noncreature spell with mana \
+             value less than this creature's power, draw a card.",
+            TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                ObjectPredicateDef::NoncreatureSpell,
+                ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
+                ObjectPredicateDef::ManaValueAtMostValue(ValueDef::SourcePower),
+                ObjectPredicateDef::Not(&ObjectPredicateDef::ManaValueEqualTo(
+                    ValueDef::SourcePower,
+                )),
+            ])),
+            abilities::draw_cards(ValueDef::Constant(1)),
+        ),
+    ]),
 );
 
 // BLC 56 — Agate Instigator
-pub(in crate::card::sets) static AGATE_INSTIGATOR_56: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static AGATE_INSTIGATOR: CardRecord = CardRecord::new(
     "Agate Instigator",
     "163c093e-9b6f-497d-a167-cfee1dbc5106",
     "Quintin Gleim",
     CardRules::new_creature(mana_cost!("{1}{R}"), &["Lizard", "Rogue"], 1, 3).with_abilities(&[
-AbilityDef::alternative_cast(&[CostDef::Mana(mana_cost!("{2}{R}{R}"))], AlternativeCastKindDef::Offspring, Some("Offspring {1}{R} (You may pay an additional {1}{R} as you cast this spell. If you do, when this creature enters, create a 1/1 token copy of it.)"), EffectDef::None),
-AbilityDef::triggered_if("When this creature enters, if its offspring cost was paid, create a 1/1 token copy of it.", TriggerEventDef::zone_changed(ObjectPredicateDef::Source, None, Some(ZoneKind::Battlefield)), &TriggerConditionDef::SourceCastWith(AlternativeCastKindDef::Offspring), EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Copy(&TokenCopyDef { object: &EffectRecipientDef::Source, exceptions: CopyExceptionsDef::power_toughness(1, 1) })))),
-AbilityDef::triggered("Whenever another creature you control enters, this creature deals 1 damage to each opponent.", TriggerEventDef::zone_changed(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::Not(&ObjectPredicateDef::Source), ObjectPredicateDef::ControlledBy(PlayerRelation::You)]), None, Some(ZoneKind::Battlefield)), EffectDef::damage(EffectRecipientDef::Opponent, ValueDef::Constant(1)))
-]),
+        AbilityDef::alternative_cast(
+            &[CostDef::Mana(mana_cost!("{2}{R}{R}"))],
+            AlternativeCastKindDef::Offspring,
+            Some(
+                "Offspring {1}{R} (You may pay an additional {1}{R} as you \
+                 cast this spell. If you do, when this creature enters, \
+                 create a 1/1 token copy of it.)",
+            ),
+            EffectDef::None,
+        ),
+        AbilityDef::triggered_if(
+            "When this creature enters, if its offspring cost was paid, \
+             create a 1/1 token copy of it.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            &TriggerConditionDef::SourceCastWith(AlternativeCastKindDef::Offspring),
+            EffectDef::CreateToken(crate::card::CreateTokenDef::new(
+                crate::card::TokenDef::Copy(&TokenCopyDef {
+                    object: &EffectRecipientDef::Source,
+                    exceptions: CopyExceptionsDef::power_toughness(1, 1),
+                }),
+            )),
+        ),
+        AbilityDef::triggered(
+            "Whenever another creature you control enters, this creature \
+             deals 1 damage to each opponent.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            EffectDef::damage(EffectRecipientDef::Opponent, ValueDef::Constant(1)),
+        ),
+    ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &JACKED_RABBIT,
-    &FORTUNE_TELLER_S_TALENT_14,
-    &HAZEL_S_BREWMASTER_17,
-    &TRAILTRACKER_SCOUT_35,
-    &POLLYWOG_PRODIGY_50,
-    &AGATE_INSTIGATOR_56,
+    &FORTUNE_TELLER_S_TALENT,
+    &HAZEL_S_BREWMASTER,
+    &TRAILTRACKER_SCOUT,
+    &POLLYWOG_PRODIGY,
+    &AGATE_INSTIGATOR,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

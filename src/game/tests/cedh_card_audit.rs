@@ -64,7 +64,7 @@ fn boseiju_protects_only_instant_and_sorcery_spells_paid_with_its_mana() {
             game.set_prepared_engine_enabled(prepared);
             game.battlefield.push(creature(
                 120_030,
-                cards::BOSEIJU_WHO_SHELTERS_ALL_273,
+                cards::BOSEIJU_WHO_SHELTERS_ALL,
                 PlayerId::One,
             ));
             let action = mana_action(&game, GameObjectId(120_030));
@@ -87,11 +87,7 @@ fn boseiju_protects_only_instant_and_sorcery_spells_paid_with_its_mana() {
 #[test]
 fn purphoros_changes_type_when_devotion_changes_without_losing_its_other_rules() {
     let mut game = ready_game();
-    let god = creature(
-        120_040,
-        cards::PURPHOROS_GOD_OF_THE_FORGE_135,
-        PlayerId::One,
-    );
+    let god = creature(120_040, cards::PURPHOROS_GOD_OF_THE_FORGE, PlayerId::One);
     let id = god.card.id;
     game.battlefield.push(god);
     assert!(
@@ -131,7 +127,7 @@ fn swift_reconfiguration_sets_artifact_type_and_crew_restores_creature_type() {
         let host = creature(120_050, cards::SERRA_ANGEL, PlayerId::One);
         let host_id = host.card.id;
         game.battlefield.push(host);
-        let mut aura = creature(120_051, cards::SWIFT_RECONFIGURATION_45, PlayerId::Two);
+        let mut aura = creature(120_051, cards::SWIFT_RECONFIGURATION, PlayerId::Two);
         aura.attached_to = Some(host_id);
         game.battlefield.push(aura);
         let types = game.permanent_types(permanent(&game, host_id)).unwrap();
@@ -166,7 +162,7 @@ fn animation_module_chooses_one_existing_counter_kind_on_players_and_permanents(
         for prepared in [false, true] {
             let mut game = ready_game();
             game.set_prepared_engine_enabled(prepared);
-            let module = creature(120_060, cards::ANIMATION_MODULE_194, PlayerId::One);
+            let module = creature(120_060, cards::ANIMATION_MODULE, PlayerId::One);
             let module_id = module.card.id;
             game.battlefield.push(module);
             let kind = CounterKind::named("charge");
@@ -225,7 +221,7 @@ fn mines_of_moria_exiles_three_graveyard_cards_as_an_activation_cost() {
         game.set_prepared_engine_enabled(prepared);
         let id = GameObjectId(120_080);
         game.battlefield
-            .push(creature(id.0, cards::MINES_OF_MORIA_257, PlayerId::One));
+            .push(creature(id.0, cards::MINES_OF_MORIA, PlayerId::One));
         game.add_unrestricted_mana(PlayerId::One, ManaColor::Red, 1);
         game.add_unrestricted_mana(PlayerId::One, ManaColor::Colorless, 3);
         for n in 120_081..120_083 {
@@ -283,7 +279,7 @@ fn essence_flux_returns_a_new_object_to_its_owner_and_checks_its_returned_type()
             host.controller = PlayerId::One;
             host.add_counters(CounterKind::PlusOnePlusOne, 3);
             game.battlefield.push(host);
-            let spell = card(120_091, cards::ESSENCE_FLUX_61, PlayerId::One);
+            let spell = card(120_091, cards::ESSENCE_FLUX, PlayerId::One);
             game.players[0].hand.push(spell.clone());
             game.add_unrestricted_mana(PlayerId::One, ManaColor::Blue, 1);
             let action = game
@@ -317,10 +313,10 @@ fn faerie_artisans_replaces_only_its_own_previous_tokens_even_after_control_chan
         let mut game = ready_game();
         game.set_prepared_engine_enabled(prepared);
         let first = game
-            .put_onto_battlefield(PlayerId::One, cards::FAERIE_ARTISANS_8)
+            .put_onto_battlefield(PlayerId::One, cards::FAERIE_ARTISANS)
             .unwrap();
         let second = game
-            .put_onto_battlefield(PlayerId::One, cards::FAERIE_ARTISANS_8)
+            .put_onto_battlefield(PlayerId::One, cards::FAERIE_ARTISANS)
             .unwrap();
         game.put_onto_battlefield(PlayerId::Two, cards::SERRA_ANGEL)
             .unwrap();
@@ -372,7 +368,7 @@ fn pollywog_prodigy_compares_mana_value_strictly_at_trigger_time() {
         ] {
             let mut game = ready_game();
             game.set_prepared_engine_enabled(prepared);
-            let mut prodigy = creature(120_110, cards::POLLYWOG_PRODIGY_50, PlayerId::One);
+            let mut prodigy = creature(120_110, cards::POLLYWOG_PRODIGY, PlayerId::One);
             prodigy.add_counters(CounterKind::PlusOnePlusOne, 1);
             game.battlefield.push(prodigy);
             let cast = spell(120_111, definition, caster, 0);
@@ -405,7 +401,7 @@ fn ashaya_counts_nontoken_creatures_as_forests_and_preserves_other_creatures() {
     for prepared in [false, true] {
         let mut game = ready_game();
         game.set_prepared_engine_enabled(prepared);
-        let ashaya = creature(121_000, cards::ASHAYA_SOUL_OF_THE_WILD_179, PlayerId::One);
+        let ashaya = creature(121_000, cards::ASHAYA_SOUL_OF_THE_WILD, PlayerId::One);
         let id = ashaya.card.id;
         game.battlefield.push(ashaya);
         game.battlefield
@@ -483,7 +479,7 @@ fn finale_search_keeps_chosen_x_for_library_and_graveyard() {
         for zone in ["library", "graveyard"] {
             let mut game = ready_game();
             game.set_prepared_engine_enabled(prepared);
-            let search = card(122_000, cards::FINALE_OF_DEVASTATION_160, PlayerId::One);
+            let search = card(122_000, cards::FINALE_OF_DEVASTATION, PlayerId::One);
             game.players[0].hand.push(search.clone());
             let candidates = vec![
                 card(122_001, cards::GRIZZLY_BEARS, PlayerId::One),
@@ -545,7 +541,7 @@ fn stinging_study_chooses_one_owned_commander_even_under_opposing_control() {
             ZonePlacement::Top,
         );
         drain_pending(&mut game);
-        let study = card(122_010, cards::STINGING_STUDY_44, PlayerId::One);
+        let study = card(122_010, cards::STINGING_STUDY, PlayerId::One);
         game.players[0].hand.push(study.clone());
         game.add_unrestricted_mana(PlayerId::One, ManaColor::Black, 5);
         game.apply(PlayerId::One, cast_action(study.id, vec![], vec![], 0))
@@ -569,7 +565,7 @@ fn reality_shift_uses_the_exiled_creatures_controller_and_allows_manifest_turn_u
         victim.controller = PlayerId::Two;
         game.battlefield.push(victim);
         game.players[1].library = vec![card(123_001, cards::SERRA_ANGEL, PlayerId::Two)];
-        let spell = card(123_002, cards::REALITY_SHIFT_46, PlayerId::One);
+        let spell = card(123_002, cards::REALITY_SHIFT, PlayerId::One);
         game.players[0].hand.push(spell.clone());
         game.add_unrestricted_mana(PlayerId::One, ManaColor::Blue, 2);
         game.apply(
@@ -614,7 +610,7 @@ fn vindictive_flamestoker_reduces_activation_before_sacrifice_and_discards_whole
     for prepared in [false, true] {
         let mut game = ready_game();
         game.set_prepared_engine_enabled(prepared);
-        let mut source = creature(123_010, cards::VINDICTIVE_FLAMESTOKER_388, PlayerId::One);
+        let mut source = creature(123_010, cards::VINDICTIVE_FLAMESTOKER, PlayerId::One);
         source.add_counters(CounterKind::named("oil"), 6);
         game.battlefield.push(source);
         game.players[0].hand = vec![
@@ -652,12 +648,12 @@ fn tarrasque_conditional_haste_depends_on_cast_provenance() {
         let mut game = ready_game();
         game.set_prepared_engine_enabled(prepared);
         game.battlefield
-            .push(creature(123_020, cards::THE_TARRASQUE_207, PlayerId::One));
+            .push(creature(123_020, cards::THE_TARRASQUE, PlayerId::One));
         assert!(!game.permanent_has_executable_keyword(
             permanent(&game, GameObjectId(123_020)),
             KeywordAbility::Haste
         ));
-        let spell = card(123_021, cards::THE_TARRASQUE_207, PlayerId::One);
+        let spell = card(123_021, cards::THE_TARRASQUE, PlayerId::One);
         game.players[0].hand.push(spell.clone());
         game.add_unrestricted_mana(PlayerId::One, ManaColor::Green, 9);
         game.apply(PlayerId::One, cast_action(spell.id, vec![], vec![], 0))
@@ -686,7 +682,7 @@ fn culling_ritual_counts_only_destroyed_permanents_and_can_make_mixed_mana() {
         game.put_onto_battlefield(PlayerId::Two, cards::DARKSTEEL_RELIC)
             .unwrap();
         drain_pending(&mut game);
-        let ritual = card(124_003, cards::CULLING_RITUAL_337, PlayerId::One);
+        let ritual = card(124_003, cards::CULLING_RITUAL, PlayerId::One);
         game.players[0].hand.push(ritual.clone());
         game.add_unrestricted_mana(PlayerId::One, ManaColor::Black, 2);
         game.add_unrestricted_mana(PlayerId::One, ManaColor::Green, 2);
@@ -740,7 +736,7 @@ fn flare_of_fortitude_freezes_life_and_protects_existing_permanents() {
         game.set_prepared_engine_enabled(prepared);
         game.battlefield
             .push(creature(124_010, cards::GRIZZLY_BEARS, PlayerId::One));
-        let flare = card(124_011, cards::FLARE_OF_FORTITUDE_26, PlayerId::One);
+        let flare = card(124_011, cards::FLARE_OF_FORTITUDE, PlayerId::One);
         game.players[0].hand.push(flare.clone());
         game.add_unrestricted_mana(PlayerId::One, ManaColor::White, 4);
         game.apply(PlayerId::One, cast_action(flare.id, vec![], vec![], 0))
@@ -770,7 +766,7 @@ fn kozilek_manifest_uses_both_players_hands_and_draws_for_actual_arrivals() {
             card(124_021, cards::ISLAND, PlayerId::One),
         ];
         game.players[1].hand = vec![card(124_022, cards::SERRA_ANGEL, PlayerId::Two)];
-        let kozilek = card(124_023, cards::KOZILEK_THE_BROKEN_REALITY_10, PlayerId::One);
+        let kozilek = card(124_023, cards::KOZILEK_THE_BROKEN_REALITY, PlayerId::One);
         game.players[0].hand.push(kozilek.clone());
         game.add_unrestricted_mana(PlayerId::One, ManaColor::Colorless, 9);
         game.apply(PlayerId::One, cast_action(kozilek.id, vec![], vec![], 0))

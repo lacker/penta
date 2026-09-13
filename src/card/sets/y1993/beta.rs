@@ -88,13 +88,12 @@ pub(in crate::card::sets) static CIRCLE_OF_PROTECTION_BLACK: CardRecord = CardRe
     "Circle of Protection: Black",
     "fa47b4cd-8da4-4544-b011-ba92b7009203",
     "Jesper Myrfors",
-CardRules::new_enchantment(mana_cost!("{1}{W}")).with_ability(
-        abilities::circle_of_protection(
-            "{1}: The next time a black source of your choice would deal damage to you this turn, prevent that damage.",
-            &[CostDef::Mana(mana_cost!("{1}"))],
-            ObjectPredicateDef::Color(ManaColor::Black),
-        ),
-    ),
+    CardRules::new_enchantment(mana_cost!("{1}{W}")).with_ability(abilities::circle_of_protection(
+        "{1}: The next time a black source of your choice would deal \
+         damage to you this turn, prevent that damage.",
+        &[CostDef::Mana(mana_cost!("{1}"))],
+        ObjectPredicateDef::Color(ManaColor::Black),
+    )),
 );
 
 // LEB 11 — Circle of Protection: Blue (reprint)

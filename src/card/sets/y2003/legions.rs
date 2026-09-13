@@ -220,7 +220,9 @@ pub(in crate::card::sets) static DEFENDER_OF_THE_ORDER: CardRecord = CardRecord:
 );
 
 // LGN 12 — Deftblade Elite
-// Audit: unsupported — Needs provoke. The requirement has to name the creature the trigger targeted, and neither MustBeBlockedBy (which takes a predicate over blockers, with no way to say "the target") nor MustBlockEachAttackerIfAble (which is every attacker) can say it.
+// Audit: unsupported — Needs provoke. The requirement has to name the creature the trigger
+// targeted, and neither MustBeBlockedBy (which takes a predicate over blockers, with no way to
+// say "the target") nor MustBlockEachAttackerIfAble (which is every attacker) can say it.
 pub(in crate::card::sets) static DEFTBLADE_ELITE: CardRecord = CardRecord::new(
     "Deftblade Elite",
     "76ffbae4-7aad-493c-86a0-c6e6425da8fd",
@@ -799,7 +801,9 @@ pub(in crate::card::sets) static WEAVER_OF_LIES: CardRecord = CardRecord::new(
 );
 
 // LGN 58 — Willbender
-// Audit: unsupported — Morph can turn this face up, but no shared trigger event observes that special action and freezes the targeted spell or ability before the target-change effect can run.
+// Audit: unsupported — Morph can turn this face up, but no shared trigger event observes that
+// special action and freezes the targeted spell or ability before the target-change effect can
+// run.
 pub(in crate::card::sets) static WILLBENDER: CardRecord = CardRecord::new(
     "Willbender",
     "fb33b35b-33c9-4d59-9ed6-7ad40ea82cb0",
@@ -826,7 +830,8 @@ pub(in crate::card::sets) static BANE_OF_THE_LIVING: CardRecord = CardRecord::ne
 );
 
 // LGN 61 — Blood Celebrant
-// Audit: unsupported — The shared mana planner cannot activate a mana ability whose cost itself requires mana; see Agent of Stromgald.
+// Audit: unsupported — The shared mana planner cannot activate a mana ability whose cost itself
+// requires mana; see Agent of Stromgald.
 pub(in crate::card::sets) static BLOOD_CELEBRANT: CardRecord = CardRecord::new(
     "Blood Celebrant",
     "805de325-6f14-4a52-bb85-f9a9545d82a4",
@@ -1054,11 +1059,12 @@ pub(in crate::card::sets) static PHAGE_THE_UNTOUCHABLE: CardRecord = CardRecord:
     "Phage the Untouchable",
     "a410b933-99d0-4383-b54b-4839a76eb6fe",
     "Ron Spears",
-CardRules::new_creature(mana_cost!("{3}{B}{B}{B}{B}"), &["Avatar", "Minion"], 4, 4)
+    CardRules::new_creature(mana_cost!("{3}{B}{B}{B}{B}"), &["Avatar", "Minion"], 4, 4)
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
             AbilityDef::triggered_if(
-                "When this creature enters, if you didn't cast it from your hand, you lose the game.",
+                "When this creature enters, if you didn't cast it from your \
+                 hand, you lose the game.",
                 TriggerEventDef::zone_changed(
                     ObjectPredicateDef::Source,
                     None,
@@ -1070,7 +1076,8 @@ CardRules::new_creature(mana_cost!("{3}{B}{B}{B}{B}"), &["Avatar", "Minion"], 4,
                 },
             ),
             AbilityDef::triggered(
-                "Whenever this creature deals combat damage to a creature, destroy that creature. It can't be regenerated.",
+                "Whenever this creature deals combat damage to a creature, \
+                 destroy that creature. It can't be regenerated.",
                 TriggerEventDef::DamageDealt(DamageEventMatcherDef {
                     kind: DamageKindDef::Combat,
                     source: DamageSourceMatcherDef::Object(ObjectRefDef::Source),
@@ -1087,7 +1094,8 @@ CardRules::new_creature(mana_cost!("{3}{B}{B}{B}{B}"), &["Avatar", "Minion"], 4,
                 },
             ),
             AbilityDef::triggered(
-                "Whenever this creature deals combat damage to a player, that player loses the game.",
+                "Whenever this creature deals combat damage to a player, \
+                 that player loses the game.",
                 TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
                 EffectDef::LoseTheGame {
                     player: EffectRecipientDef::EventPlayer,
@@ -1208,14 +1216,17 @@ pub(in crate::card::sets) static TOXIN_SLIVER: CardRecord = CardRecord::new(
     "Toxin Sliver",
     "c04ab6b6-27ee-4c93-a87c-cbc3743f4faf",
     "Lars Grant-West",
-// Every Sliver becomes deathtouch that also beats regeneration, so the
+    // Every Sliver becomes deathtouch that also beats regeneration, so the
     // opponent cannot block profitably at all.
     CardRules::new_creature(mana_cost!("{3}{B}"), &["Sliver"], 3, 3).with_ability(
         AbilityDef::triggered(
-            "Whenever a Sliver deals combat damage to a creature, destroy that creature. It can't be regenerated.",
+            "Whenever a Sliver deals combat damage to a creature, \
+             destroy that creature. It can't be regenerated.",
             TriggerEventDef::DamageDealt(DamageEventMatcherDef {
                 kind: DamageKindDef::Combat,
-                source: DamageSourceMatcherDef::Matching(ObjectPredicateDef::Subtype(SubtypeDef::Literal("Sliver"))),
+                source: DamageSourceMatcherDef::Matching(ObjectPredicateDef::Subtype(
+                    SubtypeDef::Literal("Sliver"),
+                )),
                 recipient: DamageRecipientMatcherDef::MatchingObject(ObjectPredicateDef::HasType(
                     CardType::Creature,
                 )),
@@ -1383,7 +1394,7 @@ pub(in crate::card::sets) static GEMPALM_INCINERATOR: CardRecord = CardRecord::n
     "Gempalm Incinerator",
     "2687c311-fd0c-4fe0-bce8-e3f412216796",
     "Luca Zontini",
-// The card is played as removal far more often than as a creature, and
+    // The card is played as removal far more often than as a creature, and
     // the Incinerator itself is not on the battlefield when it counts -- it
     // is in the graveyard, so it never counts itself.
     CardRules::new_creature(mana_cost!("{2}{R}"), &["Goblin"], 2, 1).with_abilities(&[
@@ -1392,7 +1403,9 @@ pub(in crate::card::sets) static GEMPALM_INCINERATOR: CardRecord = CardRecord::n
             &[CostDef::Mana(mana_cost!("{1}{R}"))],
         ),
         AbilityDef::triggered_with_targets(
-            "When you cycle this card, you may have it deal X damage to target creature, where X is the number of Goblins on the battlefield.",
+            "When you cycle this card, you may have it deal X damage to \
+             target creature, where X is the number of Goblins on the \
+             battlefield.",
             TriggerEventDef::DiscardedToActivate(crate::card::abilities::CYCLING),
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
@@ -1400,7 +1413,8 @@ pub(in crate::card::sets) static GEMPALM_INCINERATOR: CardRecord = CardRecord::n
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
                 effect: &EffectDef::damage(
-                    EffectRecipientDef::Target(TargetIndex::PRIMARY), // Every Goblin on the battlefield, whoever controls it -- the count is of
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    // Every Goblin on the battlefield, whoever controls it -- the count is of
                     // the board, not of your side of it.
                     ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
                         ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
@@ -1561,11 +1575,13 @@ pub(in crate::card::sets) static MAGMA_SLIVER: CardRecord = CardRecord::new(
     "Magma Sliver",
     "9091d908-456f-4127-857d-b22fdb4f2fd9",
     "Wayne England",
-// Every Sliver can point the whole board's size at one attacker, which
+    // Every Sliver can point the whole board's size at one attacker, which
     // turns a stalled board into lethal in one activation.
     CardRules::new_creature(mana_cost!("{3}{R}"), &["Sliver"], 3, 3).with_ability(
         AbilityDef::static_ability(
-            "All Slivers have \"{T}: Target Sliver creature gets +X/+0 until end of turn, where X is the number of Slivers on the battlefield.\"",
+            "All Slivers have \"{T}: Target Sliver creature gets +X/+0 \
+             until end of turn, where X is the number of Slivers on the \
+             battlefield.\"",
             EffectDef::StaticApply {
                 // "This permanent" inside the granted ability is whichever
                 // Sliver has it, which is that ability's own source.
@@ -1575,12 +1591,15 @@ pub(in crate::card::sets) static MAGMA_SLIVER: CardRecord = CardRecord::new(
                     PlayerRelation::Any,
                 ),
                 effect: AppliedEffectDef::add_ability(&AbilityDef::activated_with_targets(
-                    "{T}: Target Sliver creature gets +X/+0 until end of turn, where X is the number of Slivers on the battlefield.",
+                    "{T}: Target Sliver creature gets +X/+0 until end of turn, \
+                     where X is the number of Slivers on the battlefield.",
                     &[CostDef::TapSource],
-                    &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Sliver")),
-                    ]))],
+                    &[AbilityTargetDef::exactly_one_permanent(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Sliver")),
+                        ]),
+                    )],
                     EffectDef::Apply {
                         recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                         effect: AppliedEffectDef::modify_power_toughness(

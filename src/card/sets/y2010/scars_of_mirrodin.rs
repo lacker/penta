@@ -154,7 +154,7 @@ pub(in crate::card::sets) static ABUNA_ACOLYTE: CardRecord = CardRecord::new(
     "Abuna Acolyte",
     "9e17bbf7-00c0-46f2-9718-2762fd7388d3",
     "Igor Kieryluk",
-CardRules::new_creature(mana_cost!("{1}{W}"), &["Cat", "Cleric"], 1, 1).with_abilities(&[
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Cat", "Cleric"], 1, 1).with_abilities(&[
         AbilityDef::activated_with_targets(
             "{T}: Prevent the next 1 damage that would be dealt to any target this turn.",
             &[CostDef::TapSource],
@@ -170,12 +170,15 @@ CardRules::new_creature(mana_cost!("{1}{W}"), &["Cat", "Cleric"], 1, 1).with_abi
             },
         ),
         AbilityDef::activated_with_targets(
-            "{T}: Prevent the next 2 damage that would be dealt to target artifact creature this turn.",
+            "{T}: Prevent the next 2 damage that would be dealt to \
+             target artifact creature this turn.",
             &[CostDef::TapSource],
-            &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
-                ObjectPredicateDef::HasType(CardType::Artifact),
-                ObjectPredicateDef::HasType(CardType::Creature),
-            ]))],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                ]),
+            )],
             EffectDef::PreventDamage {
                 prevention: DamagePreventionDef::amount(
                     DamageEventMatcherDef::to(EffectRecipientDef::Target(TargetIndex::PRIMARY)),
@@ -199,9 +202,10 @@ pub(in crate::card::sets) static AURIOK_EDGEWRIGHT: CardRecord = CardRecord::new
     "Auriok Edgewright",
     "0f76b18a-396b-41f5-b34b-ac232b7f316b",
     "Mike Bierek",
-CardRules::new_creature(mana_cost!("{W}{W}"), &["Human", "Soldier"], 2, 2).with_ability(
+    CardRules::new_creature(mana_cost!("{W}{W}"), &["Human", "Soldier"], 2, 2).with_ability(
         AbilityDef::static_ability(
-            "Metalcraft — This creature has double strike as long as you control three or more artifacts.",
+            "Metalcraft — This creature has double strike as long as you \
+             control three or more artifacts.",
             EffectDef::IfCondition {
                 condition: &METALCRAFT,
                 then: &EffectDef::StaticApply {
@@ -218,9 +222,10 @@ pub(in crate::card::sets) static AURIOK_SUNCHASER: CardRecord = CardRecord::new(
     "Auriok Sunchaser",
     "e274a8b3-2d92-43d9-a436-d3f6f619ca95",
     "James Ryman",
-CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Soldier"], 1, 1).with_ability(
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Soldier"], 1, 1).with_ability(
         AbilityDef::static_ability(
-            "Metalcraft — As long as you control three or more artifacts, this creature gets +2/+2 and has flying.",
+            "Metalcraft — As long as you control three or more \
+             artifacts, this creature gets +2/+2 and has flying.",
             EffectDef::IfCondition {
                 condition: &METALCRAFT,
                 then: &EffectDef::StaticApply {
@@ -243,26 +248,26 @@ pub(in crate::card::sets) static DISPENSE_JUSTICE: CardRecord = CardRecord::new(
     "Dispense Justice",
     "7b3330a1-98b6-4b09-9bca-6c7c89447ba2",
     "Austin Hsu",
-CardRules::new_instant(mana_cost!("{2}{W}")).with_ability(
-        AbilityDef::spell_with_targets(
-            "Target player sacrifices an attacking creature. Metalcraft — That player sacrifices two attacking creatures instead if you control three or more artifacts.",
-            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
-                PlayerRelation::Any,
-            ))],
-            EffectDef::SacrificeOfChoice {
-                count: ValueDef::IfMatchingObjectCount(&metalcraft_value(2, 1)),
-                player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                object: ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::Attacking,
-                ]),
-                then: None,
-                amount: SacrificedAmountDef::Power,
-                otherwise: None,
-                optional: false,
-            },
-        ),
-    ),
+    CardRules::new_instant(mana_cost!("{2}{W}")).with_ability(AbilityDef::spell_with_targets(
+        "Target player sacrifices an attacking creature. Metalcraft \
+         — That player sacrifices two attacking creatures instead if \
+         you control three or more artifacts.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Player(PlayerRelation::Any),
+        )],
+        EffectDef::SacrificeOfChoice {
+            count: ValueDef::IfMatchingObjectCount(&metalcraft_value(2, 1)),
+            player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            object: ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::Attacking,
+            ]),
+            then: None,
+            amount: SacrificedAmountDef::Power,
+            otherwise: None,
+            optional: false,
+        },
+    )),
 );
 
 // SOM 6 — Elspeth Tirel
@@ -318,7 +323,8 @@ pub(in crate::card::sets) static ELSPETH_TIREL: CardRecord = CardRecord::new(
 );
 
 // SOM 7 — Fulgent Distraction
-// Audit: unsupported — Needs one resolution to find and unattach every Equipment attached to each of two targeted creatures after tapping them.
+// Audit: unsupported — Needs one resolution to find and unattach every Equipment attached to
+// each of two targeted creatures after tapping them.
 pub(in crate::card::sets) static FULGENT_DISTRACTION: CardRecord = CardRecord::new(
     "Fulgent Distraction",
     "c33a8cf1-e413-4633-b348-2ef594a945a5",
@@ -353,16 +359,16 @@ pub(in crate::card::sets) static GLIMMERPOINT_STAG: CardRecord = CardRecord::new
     "Glimmerpoint Stag",
     "5fb553f3-b1f6-47e7-94c1-8c09410c7163",
     "Ryan Pancoast",
-CardRules::new_creature(mana_cost!("{2}{W}{W}"), &["Elk"], 3, 3).with_abilities(&[
+    CardRules::new_creature(mana_cost!("{2}{W}{W}"), &["Elk"], 3, 3).with_abilities(&[
         abilities::vigilance(),
         abilities::enters_trigger_with_targets(
-            "When this creature enters, exile another target permanent. Return that card to the battlefield under its owner's control at the beginning of the next end step.",
+            "When this creature enters, exile another target permanent. \
+             Return that card to the battlefield under its owner's \
+             control at the beginning of the next end step.",
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
             )],
-            abilities::exile_until_next_end_step(EffectRecipientDef::Target(
-                TargetIndex::PRIMARY,
-            )),
+            abilities::exile_until_next_end_step(EffectRecipientDef::Target(TargetIndex::PRIMARY)),
         ),
     ]),
 );
@@ -372,10 +378,11 @@ pub(in crate::card::sets) static GLINT_HAWK: CardRecord = CardRecord::new(
     "Glint Hawk",
     "284c4710-4183-4743-9c8b-515cc98cbbb8",
     "Dave Allsop",
-CardRules::new_creature(mana_cost!("{W}"), &["Bird"], 2, 2).with_abilities(&[
+    CardRules::new_creature(mana_cost!("{W}"), &["Bird"], 2, 2).with_abilities(&[
         abilities::flying(),
         abilities::enters_trigger(
-            "When this creature enters, sacrifice it unless you return an artifact you control to its owner's hand.",
+            "When this creature enters, sacrifice it unless you return \
+             an artifact you control to its owner's hand.",
             EffectDef::PayOr(PayOrDef::unless(
                 &[CostDef::MovePermanentMatching {
                     object: ObjectPredicateDef::HasType(CardType::Artifact),
@@ -392,10 +399,11 @@ pub(in crate::card::sets) static INDOMITABLE_ARCHANGEL: CardRecord = CardRecord:
     "Indomitable Archangel",
     "a50e72a2-1e94-43cf-a605-bf3bb456d12f",
     "Allen Williams",
-CardRules::new_creature(mana_cost!("{2}{W}{W}"), &["Angel"], 4, 4).with_abilities(&[
+    CardRules::new_creature(mana_cost!("{2}{W}{W}"), &["Angel"], 4, 4).with_abilities(&[
         abilities::flying(),
         AbilityDef::static_ability(
-            "Metalcraft — Artifacts you control have shroud as long as you control three or more artifacts.",
+            "Metalcraft — Artifacts you control have shroud as long as \
+             you control three or more artifacts.",
             EffectDef::IfCondition {
                 condition: &METALCRAFT,
                 then: &EffectDef::StaticApply {
@@ -416,10 +424,11 @@ pub(in crate::card::sets) static KEMBA_KHA_REGENT: CardRecord = CardRecord::new(
     "Kemba, Kha Regent",
     "1964ca48-3260-4e2d-9014-984c1efc9a43",
     "Todd Lockwood",
-CardRules::new_creature(mana_cost!("{1}{W}{W}"), &["Cat", "Cleric"], 2, 4)
+    CardRules::new_creature(mana_cost!("{1}{W}{W}"), &["Cat", "Cleric"], 2, 4)
         .with_supertype(CardSupertype::Legendary)
         .with_ability(AbilityDef::triggered(
-            "At the beginning of your upkeep, create a 2/2 white Cat creature token for each Equipment attached to this creature.",
+            "At the beginning of your upkeep, create a 2/2 white Cat \
+             creature token for each Equipment attached to this creature.",
             TriggerEventDef::StepBegins {
                 step: TurnStepDef::Upkeep,
                 player: PlayerRelation::You,
@@ -456,7 +465,8 @@ pub(in crate::card::sets) static KEMBA_S_SKYGUARD: CardRecord = CardRecord::new(
 );
 
 // SOM 14 — Leonin Arbiter
-// Audit: unsupported — Needs a player search prohibition with an any-player {2} special-action payment that suspends only that player's restriction until end of turn.
+// Audit: unsupported — Needs a player search prohibition with an any-player {2} special-action
+// payment that suspends only that player's restriction until end of turn.
 pub(in crate::card::sets) static LEONIN_ARBITER: CardRecord = CardRecord::new(
     "Leonin Arbiter",
     "4b0453cd-62ab-41ba-8d9c-9d6d25dc9a56",
@@ -477,18 +487,17 @@ pub(in crate::card::sets) static MYRSMITH: CardRecord = CardRecord::new(
     "Myrsmith",
     "13429b63-085c-4c78-9ce3-247db5841b9d",
     "Eric Deschamps",
-CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Artificer"], 2, 1).with_ability(
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Artificer"], 2, 1).with_ability(
         AbilityDef::triggered(
-            "Whenever you cast an artifact spell, you may pay {1}. If you do, create a 1/1 colorless Myr artifact creature token.",
+            "Whenever you cast an artifact spell, you may pay {1}. If \
+             you do, create a 1/1 colorless Myr artifact creature token.",
             TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
                 ObjectPredicateDef::HasType(CardType::Artifact),
                 ObjectPredicateDef::ControlledBy(PlayerRelation::You),
             ])),
             EffectDef::PayOr(PayOrDef::optional(
                 &[CostDef::Mana(mana_cost!("{1}"))],
-                &EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
-                    MYR_TOKEN,
-                ))),
+                &EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(MYR_TOKEN))),
             )),
         ),
     ),
@@ -500,16 +509,20 @@ pub(in crate::card::sets) static RAZOR_HIPPOGRIFF: CardRecord = CardRecord::new(
     "Razor Hippogriff",
     "fc7ac3bf-eed2-417d-8b60-e8c84bfb98ab",
     "David Rapoza",
-CardRules::new_creature(mana_cost!("{3}{W}{W}"), &["Hippogriff"], 3, 3).with_abilities(&[
+    CardRules::new_creature(mana_cost!("{3}{W}{W}"), &["Hippogriff"], 3, 3).with_abilities(&[
         abilities::flying(),
         abilities::enters_trigger_with_targets(
-            "When this creature enters, return target artifact card from your graveyard to your hand. You gain life equal to that card's mana value.",
-            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
-                object: ObjectPredicateDef::HasType(CardType::Artifact),
-                zones: &[ZoneKind::Graveyard],
-                controller: None,
-                owner: Some(PlayerRelation::You),
-            })],
+            "When this creature enters, return target artifact card from \
+             your graveyard to your hand. You gain life equal to that \
+             card's mana value.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Artifact),
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: Some(PlayerRelation::You),
+                },
+            )],
             EffectDef::WithZoneMoveResult {
                 effect: &EffectDef::move_to_zone(
                     EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -556,13 +569,11 @@ pub(in crate::card::sets) static SALVAGE_SCOUT: CardRecord = CardRecord::new(
     "Salvage Scout",
     "5909e77e-a930-4713-bca4-c6b265238c17",
     "Randis Albion",
-CardRules::new_creature(mana_cost!("{W}"), &["Human", "Scout"], 1, 1).with_ability(
+    CardRules::new_creature(mana_cost!("{W}"), &["Human", "Scout"], 1, 1).with_ability(
         AbilityDef::activated_with_targets(
-            "{W}, Sacrifice this creature: Return target artifact card from your graveyard to your hand.",
-            &[
-                CostDef::Mana(mana_cost!("{W}")),
-                CostDef::SacrificeSource,
-            ],
+            "{W}, Sacrifice this creature: Return target artifact card \
+             from your graveyard to your hand.",
+            &[CostDef::Mana(mana_cost!("{W}")), CostDef::SacrificeSource],
             &[AbilityTargetDef {
                 predicate: AbilityTargetPredicate::Object {
                     object: ObjectPredicateDef::HasType(CardType::Artifact),
@@ -612,7 +623,8 @@ pub(in crate::card::sets) static SEIZE_THE_INITIATIVE: CardRecord = CardRecord::
 );
 
 // SOM 21 — Soul Parry
-// Audit: unsupported — Damage prevention cannot currently use the one-or-two members of a target slot as the complete set of damage sources it prevents.
+// Audit: unsupported — Damage prevention cannot currently use the one-or-two members of a
+// target slot as the complete set of damage sources it prevents.
 pub(in crate::card::sets) static SOUL_PARRY: CardRecord = CardRecord::new(
     "Soul Parry",
     "e241ea47-cbbe-4241-94f9-315cc7cfd79b",
@@ -757,10 +769,13 @@ pub(in crate::card::sets) static ARGENT_SPHINX: CardRecord = CardRecord::new(
     "Argent Sphinx",
     "280e75af-7e43-4c15-a8a8-bec7389c6c4e",
     "Chris Rahn",
-CardRules::new_creature(mana_cost!("{2}{U}{U}"), &["Sphinx"], 4, 3).with_abilities(&[
+    CardRules::new_creature(mana_cost!("{2}{U}{U}"), &["Sphinx"], 4, 3).with_abilities(&[
         abilities::flying(),
         AbilityDef::activated(
-            "Metalcraft — {U}: Exile this creature. Return it to the battlefield under its owner's control at the beginning of the next end step. Activate only if you control three or more artifacts.",
+            "Metalcraft — {U}: Exile this creature. Return it to the \
+             battlefield under its owner's control at the beginning of \
+             the next end step. Activate only if you control three or \
+             more artifacts.",
             &[CostDef::Mana(mana_cost!("{U}"))],
             abilities::exile_until_next_end_step(EffectRecipientDef::Source),
         )
@@ -840,7 +855,8 @@ pub(in crate::card::sets) static DISSIPATION_FIELD: CardRecord = CardRecord::new
 );
 
 // SOM 33 — Grand Architect
-// Audit: unsupported — Needs an activation cost that taps another chosen untapped blue creature and produces {C}{C} restricted to artifact spells and artifact abilities.
+// Audit: unsupported — Needs an activation cost that taps another chosen untapped blue creature
+// and produces {C}{C} restricted to artifact spells and artifact abilities.
 pub(in crate::card::sets) static GRAND_ARCHITECT: CardRecord = CardRecord::new(
     "Grand Architect",
     "c59599de-c781-4c26-a159-cbf0cd72d361",
@@ -897,10 +913,12 @@ pub(in crate::card::sets) static LUMENGRID_DRAKE: CardRecord = CardRecord::new(
     "Lumengrid Drake",
     "f44e9820-2209-40a2-bc4f-46b440c05e9d",
     "Johann Bodin",
-CardRules::new_creature(mana_cost!("{3}{U}"), &["Drake"], 2, 2).with_abilities(&[
+    CardRules::new_creature(mana_cost!("{3}{U}"), &["Drake"], 2, 2).with_abilities(&[
         abilities::flying(),
         AbilityDef::triggered_if_with_targets(
-            "Metalcraft — When this creature enters, if you control three or more artifacts, return target creature to its owner's hand.",
+            "Metalcraft — When this creature enters, if you control \
+             three or more artifacts, return target creature to its \
+             owner's hand.",
             TriggerEventDef::zone_changed(
                 ObjectPredicateDef::Source,
                 None,
@@ -953,9 +971,10 @@ pub(in crate::card::sets) static QUICKSILVER_GARGANTUAN: CardRecord = CardRecord
     "Quicksilver Gargantuan",
     "b83f5aea-80f2-4f3d-8508-9619413e0087",
     "Steven Belledin",
-CardRules::new_creature(mana_cost!("{5}{U}{U}"), &["Shapeshifter"], 7, 7).with_ability(
+    CardRules::new_creature(mana_cost!("{5}{U}{U}"), &["Shapeshifter"], 7, 7).with_ability(
         AbilityDef::replacement(
-            "You may have this creature enter as a copy of any creature on the battlefield, except it's 7/7.",
+            "You may have this creature enter as a copy of any creature \
+             on the battlefield, except it's 7/7.",
             ReplacementEffectDef::CopyEntering {
                 object: ObjectPredicateDef::HasType(CardType::Creature),
                 exceptions: CopyExceptionsDef::power_toughness(7, 7),
@@ -1027,10 +1046,12 @@ pub(in crate::card::sets) static SCREECHING_SILCAW: CardRecord = CardRecord::new
     "Screeching Silcaw",
     "1767355d-82a2-495e-ae95-d91984a9c62a",
     "Mike Bierek",
-CardRules::new_creature(mana_cost!("{1}{U}"), &["Bird"], 1, 2).with_abilities(&[
+    CardRules::new_creature(mana_cost!("{1}{U}"), &["Bird"], 1, 2).with_abilities(&[
         abilities::flying(),
         AbilityDef::triggered_if(
-            "Metalcraft — Whenever this creature deals combat damage to a player, if you control three or more artifacts, that player mills four cards.",
+            "Metalcraft — Whenever this creature deals combat damage to \
+             a player, if you control three or more artifacts, that \
+             player mills four cards.",
             TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
             &METALCRAFT,
             EffectDef::Mill {
@@ -1046,43 +1067,43 @@ pub(in crate::card::sets) static SHAPE_ANEW: CardRecord = CardRecord::new(
     "Shape Anew",
     "b3d5462e-f60c-4550-b29e-4d9f9cd72385",
     "Zoltan Boros & Gabor Szikszai",
-CardRules::new_sorcery(mana_cost!("{3}{U}")).with_ability(
-        AbilityDef::spell_with_targets(
-            "The controller of target artifact sacrifices it, then reveals cards from the top of their library until they reveal an artifact card. That player puts that card onto the battlefield, then shuffles all other cards revealed this way into their library.",
-            &[AbilityTargetDef::exactly_one_permanent(
-                ObjectPredicateDef::HasType(CardType::Artifact),
-            )],
-            EffectDef::Sequence(&[
-                EffectDef::sacrifice(EffectRecipientDef::Target(TargetIndex::PRIMARY)),
-                EffectDef::RevealAndClassifyCards(RevealAndClassifyCardsDef {
-                    source: ObjectCollectionSourceDef::TopCardsThroughFirstMatching {
-                        player: PlayerRefDef::ControllerOf(ObjectRefDef::Target(
-                            TargetIndex::PRIMARY,
-                        )),
-                        object: ObjectPredicateDef::HasType(CardType::Artifact),
-                    },
+    CardRules::new_sorcery(mana_cost!("{3}{U}")).with_ability(AbilityDef::spell_with_targets(
+        "The controller of target artifact sacrifices it, then \
+         reveals cards from the top of their library until they \
+         reveal an artifact card. That player puts that card onto \
+         the battlefield, then shuffles all other cards revealed \
+         this way into their library.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Artifact),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::sacrifice(EffectRecipientDef::Target(TargetIndex::PRIMARY)),
+            EffectDef::RevealAndClassifyCards(RevealAndClassifyCardsDef {
+                source: ObjectCollectionSourceDef::TopCardsThroughFirstMatching {
+                    player: PlayerRefDef::ControllerOf(ObjectRefDef::Target(TargetIndex::PRIMARY)),
                     object: ObjectPredicateDef::HasType(CardType::Artifact),
-                    matching: Binding!("shape_anew_artifact"),
-                    remainder: Binding!("shape_anew_other_cards"),
-                    then: &EffectDef::Sequence(&[
-                        EffectDef::MoveObjects(MoveObjectsDef {
-                            input: ObjectSetDef::Binding(Binding!("shape_anew_artifact")),
-                            from: Some(ZoneKind::Library),
-                            zone: ZoneKind::Battlefield,
-                            placement: ZonePlacement::Top,
-                            moved: None,
-                            then: &EffectDef::None,
-                        }),
-                        EffectDef::ShuffleLibrary {
-                            player: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
-                                ObjectRefDef::Target(TargetIndex::PRIMARY),
-                            )),
-                        },
-                    ]),
-                }),
-            ]),
-        ),
-    ),
+                },
+                object: ObjectPredicateDef::HasType(CardType::Artifact),
+                matching: Binding!("shape_anew_artifact"),
+                remainder: Binding!("shape_anew_other_cards"),
+                then: &EffectDef::Sequence(&[
+                    EffectDef::MoveObjects(MoveObjectsDef {
+                        input: ObjectSetDef::Binding(Binding!("shape_anew_artifact")),
+                        from: Some(ZoneKind::Library),
+                        zone: ZoneKind::Battlefield,
+                        placement: ZonePlacement::Top,
+                        moved: None,
+                        then: &EffectDef::None,
+                    }),
+                    EffectDef::ShuffleLibrary {
+                        player: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
+                            ObjectRefDef::Target(TargetIndex::PRIMARY),
+                        )),
+                    },
+                ]),
+            }),
+        ]),
+    )),
 );
 
 // SOM 44 — Sky-Eel School
@@ -1132,21 +1153,22 @@ pub(in crate::card::sets) static STOIC_REBUTTAL: CardRecord = CardRecord::new(
     "Stoic Rebuttal",
     "f2805239-f30a-4eca-a10b-41673daaa287",
     "Chris Rahn",
-CardRules::new_instant(mana_cost!("{1}{U}{U}")).with_abilities(&[
+    CardRules::new_instant(mana_cost!("{1}{U}{U}")).with_abilities(&[
         abilities::this_spell_cost_reduction(
-            "Metalcraft — This spell costs {1} less to cast if you control three or more artifacts.",
-            ValueDef::IfMatchingObjectCount(&metalcraft_value(
-                1, 0,
-            )),
+            "Metalcraft — This spell costs {1} less to cast if you \
+             control three or more artifacts.",
+            ValueDef::IfMatchingObjectCount(&metalcraft_value(1, 0)),
         ),
         AbilityDef::spell_with_targets(
             "Counter target spell.",
-            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
-                object: ObjectPredicateDef::Spell,
-                zones: &[ZoneKind::Stack],
-                controller: None,
-                owner: None,
-            })],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Spell,
+                    zones: &[ZoneKind::Stack],
+                    controller: None,
+                    owner: None,
+                },
+            )],
             EffectDef::Counter {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 zone: ZoneKind::Graveyard,
@@ -1255,9 +1277,10 @@ pub(in crate::card::sets) static VEDALKEN_CERTARCH: CardRecord = CardRecord::new
     "Vedalken Certarch",
     "ffbc2a26-32f1-4d9c-8ee7-74698f64dce0",
     "Karl Kopinski",
-CardRules::new_creature(mana_cost!("{U}"), &["Vedalken", "Wizard"], 1, 1).with_ability(
+    CardRules::new_creature(mana_cost!("{U}"), &["Vedalken", "Wizard"], 1, 1).with_ability(
         AbilityDef::activated_with_targets(
-            "Metalcraft — {T}: Tap target artifact, creature, or land. Activate only if you control three or more artifacts.",
+            "Metalcraft — {T}: Tap target artifact, creature, or land. \
+             Activate only if you control three or more artifacts.",
             &[CostDef::TapSource],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::AnyOf(&[
@@ -1337,18 +1360,20 @@ pub(in crate::card::sets) static BLEAK_COVEN_VAMPIRES: CardRecord = CardRecord::
     "Bleak Coven Vampires",
     "9d3386e4-bbd6-4756-b29d-f55619e98d0d",
     "Randis Albion",
-CardRules::new_creature(mana_cost!("{3}{B}{B}"), &["Vampire", "Warrior"], 4, 3)
-        .with_ability(AbilityDef::triggered_if_with_targets(
-            "Metalcraft — When this creature enters, if you control three or more artifacts, target player loses 4 life and you gain 4 life.",
+    CardRules::new_creature(mana_cost!("{3}{B}{B}"), &["Vampire", "Warrior"], 4, 3).with_ability(
+        AbilityDef::triggered_if_with_targets(
+            "Metalcraft — When this creature enters, if you control \
+             three or more artifacts, target player loses 4 life and you \
+             gain 4 life.",
             TriggerEventDef::zone_changed(
                 ObjectPredicateDef::Source,
                 None,
                 Some(ZoneKind::Battlefield),
             ),
             &METALCRAFT,
-            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
-                PlayerRelation::Any,
-            ))],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Any),
+            )],
             EffectDef::Sequence(&[
                 EffectDef::LoseLife {
                     recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -1359,7 +1384,8 @@ CardRules::new_creature(mana_cost!("{3}{B}{B}"), &["Vampire", "Warrior"], 4, 3)
                     amount: ValueDef::Constant(4),
                 },
             ]),
-        )),
+        ),
+    ),
 );
 
 // SOM 56 — Blistergrub
@@ -1386,8 +1412,8 @@ pub(in crate::card::sets) static CARNIFEX_DEMON: CardRecord = CardRecord::new(
     "Carnifex Demon",
     "c191dba2-659d-40e7-a558-c99ece872197",
     "Aleksi Briclot",
-CardRules::new_creature(mana_cost!("{4}{B}{B}"), &["Phyrexian", "Demon"], 6, 6)
-        .with_abilities(&[
+    CardRules::new_creature(mana_cost!("{4}{B}{B}"), &["Phyrexian", "Demon"], 6, 6).with_abilities(
+        &[
             abilities::flying(),
             AbilityDef::as_enters(
                 "This creature enters with two -1/-1 counters on it.",
@@ -1399,7 +1425,8 @@ CardRules::new_creature(mana_cost!("{4}{B}{B}"), &["Phyrexian", "Demon"], 6, 6)
                 ),
             ),
             AbilityDef::activated(
-                "{B}, Remove a -1/-1 counter from this creature: Put a -1/-1 counter on each other creature.",
+                "{B}, Remove a -1/-1 counter from this creature: Put a -1/-1 \
+                 counter on each other creature.",
                 &[
                     CostDef::Mana(mana_cost!("{B}")),
                     CostDef::RemoveCountersFromSource {
@@ -1420,7 +1447,8 @@ CardRules::new_creature(mana_cost!("{4}{B}{B}"), &["Phyrexian", "Demon"], 6, 6)
                     amount: ValueDef::Constant(1),
                 },
             ),
-        ]),
+        ],
+    ),
 );
 
 // SOM 58 — Contagious Nim
@@ -1476,7 +1504,9 @@ pub(in crate::card::sets) static DROSS_HOPPER: CardRecord = CardRecord::new(
 );
 
 // SOM 61 — Exsanguinate
-// Audit: unsupported — Needs life-loss result output so the life gained equals the amount opponents actually lost, including replacement effects; the current LoseLife instruction has no result binding.
+// Audit: unsupported — Needs life-loss result output so the life gained equals the amount
+// opponents actually lost, including replacement effects; the current LoseLife instruction has
+// no result binding.
 pub(in crate::card::sets) static EXSANGUINATE: CardRecord = CardRecord::new(
     "Exsanguinate",
     "0878b541-a730-49db-b062-5a01656e269d",
@@ -1489,9 +1519,11 @@ pub(in crate::card::sets) static FLESH_ALLERGY: CardRecord = CardRecord::new(
     "Flesh Allergy",
     "9c729525-b954-42dd-9877-f4360d99b961",
     "Vance Kovacs",
-CardRules::new_sorcery(mana_cost!("{2}{B}{B}")).with_ability(
+    CardRules::new_sorcery(mana_cost!("{2}{B}{B}")).with_ability(
         AbilityDef::spell_with_additional_cost(
-            "As an additional cost to cast this spell, sacrifice a creature.\nDestroy target creature. Its controller loses life equal to the number of creatures that died this turn.",
+            "As an additional cost to cast this spell, sacrifice a \
+             creature.\nDestroy target creature. Its controller loses \
+             life equal to the number of creatures that died this turn.",
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
@@ -1539,25 +1571,29 @@ pub(in crate::card::sets) static GETH_LORD_OF_THE_VAULT: CardRecord = CardRecord
     "Geth, Lord of the Vault",
     "fed31f2f-370d-4bbe-aa57-82249ed1b4d4",
     "Whit Brachna",
-CardRules::new_creature(mana_cost!("{4}{B}{B}"), &["Phyrexian", "Zombie"], 5, 5)
+    CardRules::new_creature(mana_cost!("{4}{B}{B}"), &["Phyrexian", "Zombie"], 5, 5)
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
             abilities::intimidate(),
             AbilityDef::activated_with_targets(
-                "{X}{B}: Put target artifact or creature card with mana value X from an opponent's graveyard onto the battlefield under your control tapped. Then that player mills X cards.",
+                "{X}{B}: Put target artifact or creature card with mana \
+                 value X from an opponent's graveyard onto the battlefield \
+                 under your control tapped. Then that player mills X cards.",
                 &[CostDef::Mana(mana_cost!("{X}{B}"))],
-                &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
-                    object: ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::AnyOf(&[
-                            ObjectPredicateDef::HasType(CardType::Artifact),
-                            ObjectPredicateDef::HasType(CardType::Creature),
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::AnyOf(&[
+                                ObjectPredicateDef::HasType(CardType::Artifact),
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                            ]),
+                            ObjectPredicateDef::ManaValueEqualTo(ValueDef::ChosenX),
                         ]),
-                        ObjectPredicateDef::ManaValueEqualTo(ValueDef::ChosenX),
-                    ]),
-                    zones: &[ZoneKind::Graveyard],
-                    controller: None,
-                    owner: Some(PlayerRelation::Opponent),
-                })],
+                        zones: &[ZoneKind::Graveyard],
+                        controller: None,
+                        owner: Some(PlayerRelation::Opponent),
+                    },
+                )],
                 EffectDef::Sequence(&[
                     EffectDef::WithBattlefieldArrival {
                         effect: &EffectDef::move_to_zone(
@@ -1608,43 +1644,46 @@ pub(in crate::card::sets) static HAND_OF_THE_PRAETORS: CardRecord = CardRecord::
     "Hand of the Praetors",
     "94ca493e-f09b-4b11-bb47-0562dfc203ca",
     "Izzy",
-CardRules::new_creature(mana_cost!("{3}{B}"), &["Phyrexian", "Zombie"], 3, 2).with_abilities(&[
-        abilities::infect(),
-        AbilityDef::static_ability(
-            "Other creatures you control with infect get +1/+1.",
-            EffectDef::StaticApply {
-                recipient: EffectRecipientDef::matching_objects(
-                    ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::HasKeyword(KeywordAbility::Infect),
-                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-                    ]),
-                    &[ZoneKind::Battlefield],
-                    PlayerRelation::You,
-                ),
-                effect: AppliedEffectDef::modify_power_toughness(
-                    ValueDef::Constant(1),
-                    ValueDef::Constant(1),
-                ),
-            },
-        ),
-        AbilityDef::triggered_with_targets(
-            "Whenever you cast a creature spell with infect, target opponent gets a poison counter.",
-            TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
-                ObjectPredicateDef::HasType(CardType::Creature),
-                ObjectPredicateDef::HasKeyword(KeywordAbility::Infect),
-                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-            ])),
-            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
-                PlayerRelation::Opponent,
-            ))],
-            EffectDef::AddPlayerCounters {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                kind: CounterKind::Poison,
-                amount: ValueDef::Constant(1),
-            },
-        ),
-    ]),
+    CardRules::new_creature(mana_cost!("{3}{B}"), &["Phyrexian", "Zombie"], 3, 2).with_abilities(
+        &[
+            abilities::infect(),
+            AbilityDef::static_ability(
+                "Other creatures you control with infect get +1/+1.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::HasKeyword(KeywordAbility::Infect),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(1),
+                    ),
+                },
+            ),
+            AbilityDef::triggered_with_targets(
+                "Whenever you cast a creature spell with infect, target \
+                 opponent gets a poison counter.",
+                TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::HasKeyword(KeywordAbility::Infect),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ])),
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+                )],
+                EffectDef::AddPlayerCounters {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    kind: CounterKind::Poison,
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+        ],
+    ),
 );
 
 // SOM 67 — Ichor Rats
@@ -1696,99 +1735,93 @@ pub(in crate::card::sets) static MEMORICIDE: CardRecord = CardRecord::new(
     "Memoricide",
     "acc5b944-a9fe-4a64-bf11-51817a26f22b",
     "James Ryman",
-CardRules::new_sorcery(mana_cost!("{3}{B}")).with_ability(
-        AbilityDef::spell_with_targets(
-            "Choose a nonland card name. Search target player's graveyard, hand, and library for any number of cards with that name and exile them. Then that player shuffles.",
-            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
-                PlayerRelation::Any,
-            ))],
-            EffectDef::Sequence(&[
-                EffectDef::BindOutput {
-                    binding: Binding!("memoricide_name"),
-                    effect: &EffectDef::ChooseCardName {
-                        chooser: PlayerRefDef::EffectController,
-                        names: crate::card::CardNameSetDef::NonlandCardNames,
-                    },
+    CardRules::new_sorcery(mana_cost!("{3}{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Choose a nonland card name. Search target player's \
+         graveyard, hand, and library for any number of cards with \
+         that name and exile them. Then that player shuffles.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Player(PlayerRelation::Any),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::BindOutput {
+                binding: Binding!("memoricide_name"),
+                effect: &EffectDef::ChooseCardName {
+                    chooser: PlayerRefDef::EffectController,
+                    names: crate::card::CardNameSetDef::NonlandCardNames,
                 },
-                EffectDef::Choose(ChooseDef {
-                    binding: ObjectChoiceBindingDef::Objects(Binding!(
+            },
+            EffectDef::Choose(ChooseDef {
+                binding: ObjectChoiceBindingDef::Objects(Binding!("memoricide_graveyard")),
+                unchosen: None,
+                chooser: PlayerRefDef::EffectController,
+                candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
+                    ObjectPredicateDef::NameEquals(crate::card::CardNameDef::Binding(Binding!(
+                        "memoricide_name"
+                    ))),
+                    &[ZoneKind::Graveyard],
+                    PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                )),
+                exclude: None,
+                minimum: 0,
+                maximum: usize::MAX,
+                visibility: ChoiceVisibilityDef::Public,
+                then: &EffectDef::move_to_zone(
+                    EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!(
                         "memoricide_graveyard"
-                    )),
-                    unchosen: None,
-                    chooser: PlayerRefDef::EffectController,
-                    candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
-                        ObjectPredicateDef::NameEquals(crate::card::CardNameDef::Binding(
-                            Binding!("memoricide_name"),
-                        )),
-                        &[ZoneKind::Graveyard],
-                        PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
-                    )),
-                    exclude: None,
-                    minimum: 0,
-                    maximum: usize::MAX,
-                    visibility: ChoiceVisibilityDef::Public,
-                    then: &EffectDef::move_to_zone(
-                        EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!(
-                            "memoricide_graveyard"
-                        ))),
-                        ZoneKind::Exile,
-                        ZonePlacement::Top,
-                    ),
-                }),
-                EffectDef::Choose(ChooseDef {
-                    binding: ObjectChoiceBindingDef::Objects(Binding!("memoricide_hand")),
-                    unchosen: None,
-                    chooser: PlayerRefDef::EffectController,
-                    candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
-                        ObjectPredicateDef::NameEquals(crate::card::CardNameDef::Binding(
-                            Binding!("memoricide_name"),
-                        )),
-                        &[ZoneKind::Hand],
-                        PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
-                    )),
-                    exclude: None,
-                    minimum: 0,
-                    maximum: usize::MAX,
-                    visibility: ChoiceVisibilityDef::Private,
-                    then: &EffectDef::move_to_zone(
-                        EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!(
-                            "memoricide_hand"
-                        ))),
-                        ZoneKind::Exile,
-                        ZonePlacement::Top,
-                    ),
-                }),
-                EffectDef::Choose(ChooseDef {
-                    binding: ObjectChoiceBindingDef::Objects(Binding!("memoricide_library")),
-                    unchosen: None,
-                    chooser: PlayerRefDef::EffectController,
-                    candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
-                        ObjectPredicateDef::NameEquals(crate::card::CardNameDef::Binding(
-                            Binding!("memoricide_name"),
-                        )),
-                        &[ZoneKind::Library],
-                        PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
-                    )),
-                    exclude: None,
-                    minimum: 0,
-                    maximum: usize::MAX,
-                    visibility: ChoiceVisibilityDef::Private,
-                    then: &EffectDef::move_to_zone(
-                        EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!(
-                            "memoricide_library"
-                        ))),
-                        ZoneKind::Exile,
-                        ZonePlacement::Top,
-                    ),
-                }),
-                EffectDef::ShuffleLibrary {
-                    player: EffectRecipientDef::player(PlayerRefDef::Target(
-                        TargetIndex::PRIMARY,
-                    )),
-                },
-            ]),
-        ),
-    ),
+                    ))),
+                    ZoneKind::Exile,
+                    ZonePlacement::Top,
+                ),
+            }),
+            EffectDef::Choose(ChooseDef {
+                binding: ObjectChoiceBindingDef::Objects(Binding!("memoricide_hand")),
+                unchosen: None,
+                chooser: PlayerRefDef::EffectController,
+                candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
+                    ObjectPredicateDef::NameEquals(crate::card::CardNameDef::Binding(Binding!(
+                        "memoricide_name"
+                    ))),
+                    &[ZoneKind::Hand],
+                    PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                )),
+                exclude: None,
+                minimum: 0,
+                maximum: usize::MAX,
+                visibility: ChoiceVisibilityDef::Private,
+                then: &EffectDef::move_to_zone(
+                    EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!("memoricide_hand"))),
+                    ZoneKind::Exile,
+                    ZonePlacement::Top,
+                ),
+            }),
+            EffectDef::Choose(ChooseDef {
+                binding: ObjectChoiceBindingDef::Objects(Binding!("memoricide_library")),
+                unchosen: None,
+                chooser: PlayerRefDef::EffectController,
+                candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
+                    ObjectPredicateDef::NameEquals(crate::card::CardNameDef::Binding(Binding!(
+                        "memoricide_name"
+                    ))),
+                    &[ZoneKind::Library],
+                    PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                )),
+                exclude: None,
+                minimum: 0,
+                maximum: usize::MAX,
+                visibility: ChoiceVisibilityDef::Private,
+                then: &EffectDef::move_to_zone(
+                    EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!(
+                        "memoricide_library"
+                    ))),
+                    ZoneKind::Exile,
+                    ZonePlacement::Top,
+                ),
+            }),
+            EffectDef::ShuffleLibrary {
+                player: EffectRecipientDef::player(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+            },
+        ]),
+    )),
 );
 
 // SOM 70 — Moriok Reaver
@@ -1819,7 +1852,8 @@ pub(in crate::card::sets) static NECROGEN_SCUDDER: CardRecord = CardRecord::new(
 );
 
 // SOM 72 — Necrotic Ooze
-// Audit: unsupported — Static ability grants cannot aggregate every activated ability of every creature card in all graveyards.
+// Audit: unsupported — Static ability grants cannot aggregate every activated ability of every
+// creature card in all graveyards.
 pub(in crate::card::sets) static NECROTIC_OOZE: CardRecord = CardRecord::new(
     "Necrotic Ooze",
     "8af2c79f-a151-4628-90fe-c0ff7ccd9c2c",
@@ -1853,9 +1887,10 @@ pub(in crate::card::sets) static PAINSMITH: CardRecord = CardRecord::new(
     "Painsmith",
     "b8e531ab-29ed-4e54-ae9c-681a220666ad",
     "Eric Deschamps",
-CardRules::new_creature(mana_cost!("{1}{B}"), &["Human", "Artificer"], 2, 1).with_ability(
+    CardRules::new_creature(mana_cost!("{1}{B}"), &["Human", "Artificer"], 2, 1).with_ability(
         AbilityDef::triggered_with_targets(
-            "Whenever you cast an artifact spell, you may have target creature get +2/+0 and gain deathtouch until end of turn.",
+            "Whenever you cast an artifact spell, you may have target \
+             creature get +2/+0 and gain deathtouch until end of turn.",
             TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
                 ObjectPredicateDef::HasType(CardType::Artifact),
                 ObjectPredicateDef::ControlledBy(PlayerRelation::You),
@@ -1900,35 +1935,34 @@ pub(in crate::card::sets) static PSYCHIC_MIASMA: CardRecord = CardRecord::new(
     "Psychic Miasma",
     "fd9c3267-7988-416c-85a4-0e314e42ddb9",
     "Svetlin Velinov",
-CardRules::new_sorcery(mana_cost!("{1}{B}")).with_ability(
-        AbilityDef::spell_with_targets(
-            "Target player discards a card. If a land card is discarded this way, return this spell to its owner's hand.",
-            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
-                PlayerRelation::Any,
-            ))],
-            EffectDef::Discard {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(1),
-                selection: DiscardSelectionDef::RecipientChooses,
-                then: Some(DiscardFollowUpDef {
-                    counted: ObjectPredicateDef::HasType(CardType::Land),
-                    bound: Some(ParentBinding),
-                    effect: &EffectDef::IfCondition {
-                        condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
-                                left: ValueDef::BoundObjectCount(ParentBinding),
-                                comparison: ComparisonDef::GreaterOrEqual,
-                                right: ValueDef::Constant(1),
-                            }),
-                        then: &EffectDef::move_to_zone(
-                            EffectRecipientDef::Source,
-                            ZoneKind::Hand,
-                            ZonePlacement::Top,
-                        ),
-                    },
-                }),
-            },
-        ),
-    ),
+    CardRules::new_sorcery(mana_cost!("{1}{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Target player discards a card. If a land card is discarded \
+         this way, return this spell to its owner's hand.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Player(PlayerRelation::Any),
+        )],
+        EffectDef::Discard {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            amount: ValueDef::Constant(1),
+            selection: DiscardSelectionDef::RecipientChooses,
+            then: Some(DiscardFollowUpDef {
+                counted: ObjectPredicateDef::HasType(CardType::Land),
+                bound: Some(ParentBinding),
+                effect: &EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                        left: ValueDef::BoundObjectCount(ParentBinding),
+                        comparison: ComparisonDef::GreaterOrEqual,
+                        right: ValueDef::Constant(1),
+                    }),
+                    then: &EffectDef::move_to_zone(
+                        EffectRecipientDef::Source,
+                        ZoneKind::Hand,
+                        ZonePlacement::Top,
+                    ),
+                },
+            }),
+        },
+    )),
 );
 
 // SOM 77 — Relic Putrescence
@@ -2104,9 +2138,11 @@ pub(in crate::card::sets) static BLADE_TRIBE_BERSERKERS: CardRecord = CardRecord
     "Blade-Tribe Berserkers",
     "acd124bb-1ed1-469c-8527-d7261ea720b9",
     "Kev Walker",
-CardRules::new_creature(mana_cost!("{3}{R}"), &["Human", "Berserker"], 3, 3).with_ability(
+    CardRules::new_creature(mana_cost!("{3}{R}"), &["Human", "Berserker"], 3, 3).with_ability(
         AbilityDef::triggered_if(
-            "Metalcraft — When this creature enters, if you control three or more artifacts, this creature gets +3/+3 and gains haste until end of turn.",
+            "Metalcraft — When this creature enters, if you control \
+             three or more artifacts, this creature gets +3/+3 and gains \
+             haste until end of turn.",
             TriggerEventDef::zone_changed(
                 ObjectPredicateDef::Source,
                 None,
@@ -2136,7 +2172,9 @@ const BLOODSHOT_TRAINEE_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // SOM 86 — Cerebral Eruption
-// Audit: unsupported — Needs a conditional spell-resolution destination: revealing a land must return the currently resolving sorcery to its owner's hand instead of completing its normal move to the graveyard.
+// Audit: unsupported — Needs a conditional spell-resolution destination: revealing a land must
+// return the currently resolving sorcery to its owner's hand instead of completing its normal
+// move to the graveyard.
 pub(in crate::card::sets) static CEREBRAL_ERUPTION: CardRecord = CardRecord::new(
     "Cerebral Eruption",
     "77161159-ee2c-485d-8674-d8590ccc62e1",
@@ -2149,9 +2187,10 @@ pub(in crate::card::sets) static EMBERSMITH: CardRecord = CardRecord::new(
     "Embersmith",
     "ee86cfc8-9faa-474c-90a9-5405f3f6037c",
     "Eric Deschamps",
-CardRules::new_creature(mana_cost!("{1}{R}"), &["Human", "Artificer"], 2, 1).with_ability(
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Human", "Artificer"], 2, 1).with_ability(
         AbilityDef::triggered_with_targets(
-            "Whenever you cast an artifact spell, you may pay {1}. If you do, this creature deals 1 damage to any target.",
+            "Whenever you cast an artifact spell, you may pay {1}. If \
+             you do, this creature deals 1 damage to any target.",
             TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
                 ObjectPredicateDef::HasType(CardType::Artifact),
                 ObjectPredicateDef::ControlledBy(PlayerRelation::You),
@@ -2211,9 +2250,10 @@ pub(in crate::card::sets) static FURNACE_CELEBRATION: CardRecord = CardRecord::n
     "Furnace Celebration",
     "a21fa7cb-a8ac-4312-80d4-82ee87650a55",
     "Svetlin Velinov",
-CardRules::new_enchantment(mana_cost!("{1}{R}{R}")).with_ability(
+    CardRules::new_enchantment(mana_cost!("{1}{R}{R}")).with_ability(
         AbilityDef::triggered_with_targets(
-            "Whenever you sacrifice another permanent, you may pay {2}. If you do, this enchantment deals 2 damage to any target.",
+            "Whenever you sacrifice another permanent, you may pay {2}. \
+             If you do, this enchantment deals 2 damage to any target.",
             TriggerEventDef::Sacrificed {
                 object: ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                 player: PlayerRelation::You,
@@ -2280,10 +2320,11 @@ pub(in crate::card::sets) static HOARD_SMELTER_DRAGON: CardRecord = CardRecord::
     "Hoard-Smelter Dragon",
     "fcdd1d89-719d-4552-aeae-499c09b2ec6e",
     "Eric Deschamps",
-CardRules::new_creature(mana_cost!("{3}{R}{R}"), &["Dragon"], 5, 5).with_abilities(&[
+    CardRules::new_creature(mana_cost!("{3}{R}{R}"), &["Dragon"], 5, 5).with_abilities(&[
         abilities::flying(),
         AbilityDef::activated_with_targets(
-            "{3}{R}: Destroy target artifact. This creature gets +X/+0 until end of turn, where X is that artifact's mana value.",
+            "{3}{R}: Destroy target artifact. This creature gets +X/+0 \
+             until end of turn, where X is that artifact's mana value.",
             &[CostDef::Mana(mana_cost!("{3}{R}"))],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Artifact),
@@ -2294,12 +2335,12 @@ CardRules::new_creature(mana_cost!("{3}{R}{R}"), &["Dragon"], 5, 5).with_abiliti
                     then: None,
                 },
                 EffectDef::Apply {
-                        recipient: EffectRecipientDef::Source,
-                        effect: AppliedEffectDef::modify_power_toughness(
-                            ValueDef::TargetManaValue(TargetIndex::PRIMARY),
-                            ValueDef::Constant(0),
-                        ),
-                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::TargetManaValue(TargetIndex::PRIMARY),
+                        ValueDef::Constant(0),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                 },
             ]),
         ),
@@ -2311,17 +2352,16 @@ pub(in crate::card::sets) static KOTH_OF_THE_HAMMER: CardRecord = CardRecord::ne
     "Koth of the Hammer",
     "af8b9c79-a161-4d7d-944d-82a44a5f2ab9",
     "Jason Chan",
-CardRules::new_planeswalker(mana_cost!("{2}{R}{R}"), &["Koth"], 3)
+    CardRules::new_planeswalker(mana_cost!("{2}{R}{R}"), &["Koth"], 3)
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
             AbilityDef::activated_with_targets(
-                "+1: Untap target Mountain. It becomes a 4/4 red Elemental creature until end of turn. It's still a land.",
+                "+1: Untap target Mountain. It becomes a 4/4 red Elemental \
+                 creature until end of turn. It's still a land.",
                 &[CostDef::Loyalty(1)],
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Object {
-                        object: ObjectPredicateDef::HasAnyBasicLandType(&[
-                            BasicLandType::Mountain,
-                        ]),
+                        object: ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
                         zones: &[ZoneKind::Battlefield],
                         controller: None,
                         owner: None,
@@ -2340,9 +2380,7 @@ CardRules::new_planeswalker(mana_cost!("{2}{R}{R}"), &["Koth"], 3)
                             AppliedEffectDef::add_creature_types(CreatureTypeSetDef::named(&[
                                 "Elemental",
                             ])),
-                            AppliedEffectDef::set_colors(ColorSet::from_colors(&[
-                                ManaColor::Red,
-                            ])),
+                            AppliedEffectDef::set_colors(ColorSet::from_colors(&[ManaColor::Red])),
                             AppliedEffectDef::set_base_power_toughness(
                                 ValueDef::Constant(4),
                                 ValueDef::Constant(4),
@@ -2355,42 +2393,44 @@ CardRules::new_planeswalker(mana_cost!("{2}{R}{R}"), &["Koth"], 3)
             AbilityDef::activated(
                 "−2: Add {R} for each Mountain you control.",
                 &[CostDef::Loyalty(-2)],
-                EffectDef::AddMana(
-                    AddManaEffectDef::one(ManaColor::Red).with_variable_amount(
-                        ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-                            ObjectPredicateDef::HasAnyBasicLandType(&[
-                                BasicLandType::Mountain,
-                            ]),
-                            &[ZoneKind::Battlefield],
-                            PlayerRelation::You,
-                        )),
-                    ),
-                ),
+                EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Red).with_variable_amount(
+                    ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    )),
+                )),
             ),
             AbilityDef::activated(
-                "−5: You get an emblem with “Mountains you control have ‘{T}: This land deals 1 damage to any target.’”",
+                "−5: You get an emblem with “Mountains you control have \
+                 ‘{T}: This land deals 1 damage to any target.’”",
                 &[CostDef::Loyalty(-5)],
-                EffectDef::create_emblem("Koth of the Hammer emblem", &[AbilityDef::static_ability(
-                    "Mountains you control have “{T}: This land deals 1 damage to any target.”",
-                    EffectDef::StaticApply {
-                        recipient: EffectRecipientDef::matching_objects(
-                            ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
-                            &[ZoneKind::Battlefield],
-                            PlayerRelation::You,
-                        ),
-                        effect: AppliedEffectDef::add_ability(&AbilityDef::activated_with_targets(
-                            "{T}: This land deals 1 damage to any target.",
-                            &[CostDef::TapSource],
-                            &[AbilityTargetDef::exactly_one(
-                                AbilityTargetPredicate::AnyTarget,
-                            )],
-                            EffectDef::damage(
-                                EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                                ValueDef::Constant(1),
+                EffectDef::create_emblem(
+                    "Koth of the Hammer emblem",
+                    &[AbilityDef::static_ability(
+                        "Mountains you control have “{T}: This land deals 1 damage to any target.”",
+                        EffectDef::StaticApply {
+                            recipient: EffectRecipientDef::matching_objects(
+                                ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
+                                &[ZoneKind::Battlefield],
+                                PlayerRelation::You,
                             ),
-                        )),
-                    },
-                )]),
+                            effect: AppliedEffectDef::add_ability(
+                                &AbilityDef::activated_with_targets(
+                                    "{T}: This land deals 1 damage to any target.",
+                                    &[CostDef::TapSource],
+                                    &[AbilityTargetDef::exactly_one(
+                                        AbilityTargetPredicate::AnyTarget,
+                                    )],
+                                    EffectDef::damage(
+                                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                        ValueDef::Constant(1),
+                                    ),
+                                ),
+                            ),
+                        },
+                    )],
+                ),
             ),
         ]),
 );
@@ -2400,11 +2440,13 @@ pub(in crate::card::sets) static KULDOTHA_PHOENIX: CardRecord = CardRecord::new(
     "Kuldotha Phoenix",
     "6bb79b56-81f1-417f-b5ad-030ad29f904b",
     "Mike Bierek",
-CardRules::new_creature(mana_cost!("{2}{R}{R}{R}"), &["Phoenix"], 4, 4).with_abilities(&[
+    CardRules::new_creature(mana_cost!("{2}{R}{R}{R}"), &["Phoenix"], 4, 4).with_abilities(&[
         abilities::flying(),
         abilities::haste(),
         AbilityDef::activated(
-            "Metalcraft — {4}: Return this card from your graveyard to the battlefield. Activate only during your upkeep and only if you control three or more artifacts.",
+            "Metalcraft — {4}: Return this card from your graveyard to \
+             the battlefield. Activate only during your upkeep and only \
+             if you control three or more artifacts.",
             &[CostDef::Mana(mana_cost!("{4}"))],
             EffectDef::WithBattlefieldArrival {
                 effect: &EffectDef::move_to_zone(
@@ -2429,25 +2471,24 @@ pub(in crate::card::sets) static KULDOTHA_REBIRTH: CardRecord = CardRecord::new(
     "Kuldotha Rebirth",
     "7ee07266-a95d-4cd8-9863-1664922e9490",
     "Goran Josic",
-CardRules::new_sorcery(mana_cost!("{R}")).with_ability(
-        AbilityDef::spell_with_additional_cost(
-            "As an additional cost to cast this spell, sacrifice an artifact.\nCreate three 1/1 red Goblin creature tokens.",
-            &[],
-            CostDef::sacrifice(
-                ObjectPredicateDef::HasType(CardType::Artifact),
-                CostQuantityDef::Fixed(1),
-            ),
-            EffectDef::CreateToken(
-                CreateTokenDef::new(TokenDef::Literal(TokenCharacteristics::creature(
-                    &["Goblin"],
-                    &[ManaColor::Red],
-                    1,
-                    1,
-                )))
-                .with_count(ValueDef::Constant(3)),
-            ),
+    CardRules::new_sorcery(mana_cost!("{R}")).with_ability(AbilityDef::spell_with_additional_cost(
+        "As an additional cost to cast this spell, sacrifice an \
+         artifact.\nCreate three 1/1 red Goblin creature tokens.",
+        &[],
+        CostDef::sacrifice(
+            ObjectPredicateDef::HasType(CardType::Artifact),
+            CostQuantityDef::Fixed(1),
         ),
-    ),
+        EffectDef::CreateToken(
+            CreateTokenDef::new(TokenDef::Literal(TokenCharacteristics::creature(
+                &["Goblin"],
+                &[ManaColor::Red],
+                1,
+                1,
+            )))
+            .with_count(ValueDef::Constant(3)),
+        ),
+    )),
 );
 
 // SOM 97 — Melt Terrain
@@ -2474,7 +2515,9 @@ pub(in crate::card::sets) static MELT_TERRAIN: CardRecord = CardRecord::new(
 );
 
 // SOM 98 — Molten Psyche
-// Audit: unsupported — Needs each player to shuffle a separately remembered hand into their library, draw that many, and a metalcraft branch that reads each opponent's cards-drawn-this-turn count.
+// Audit: unsupported — Needs each player to shuffle a separately remembered hand into their
+// library, draw that many, and a metalcraft branch that reads each opponent's
+// cards-drawn-this-turn count.
 pub(in crate::card::sets) static MOLTEN_PSYCHE: CardRecord = CardRecord::new(
     "Molten Psyche",
     "57e2382d-1f27-40d1-b809-c188c19ebc72",
@@ -2483,7 +2526,9 @@ pub(in crate::card::sets) static MOLTEN_PSYCHE: CardRecord = CardRecord::new(
 );
 
 // SOM 99 — Ogre Geargrabber
-// Audit: unsupported — Needs an attack trigger that temporarily steals an opposing Equipment, attaches it to the source, and automatically unattaches it when that temporary control effect ends.
+// Audit: unsupported — Needs an attack trigger that temporarily steals an opposing Equipment,
+// attaches it to the source, and automatically unattaches it when that temporary control effect
+// ends.
 pub(in crate::card::sets) static OGRE_GEARGRABBER: CardRecord = CardRecord::new(
     "Ogre Geargrabber",
     "f0f6e2c3-0e0d-47ff-9d92-afc86a8c8aac",
@@ -2563,7 +2608,8 @@ pub(in crate::card::sets) static SPIKESHOT_ELDER: CardRecord = CardRecord::new(
 );
 
 // SOM 105 — Tunnel Ignus
-// Audit: unsupported — Trigger conditions cannot ask whether the event player already had another land enter under their control earlier this turn.
+// Audit: unsupported — Trigger conditions cannot ask whether the event player already had
+// another land enter under their control earlier this turn.
 pub(in crate::card::sets) static TUNNEL_IGNUS: CardRecord = CardRecord::new(
     "Tunnel Ignus",
     "c3016e6b-32b2-4fa7-91c0-ec8fbe345760",
@@ -2572,7 +2618,8 @@ pub(in crate::card::sets) static TUNNEL_IGNUS: CardRecord = CardRecord::new(
 );
 
 // SOM 106 — Turn to Slag
-// Audit: unsupported — Attachment queries cannot select Equipment attached to an arbitrary target object.
+// Audit: unsupported — Attachment queries cannot select Equipment attached to an arbitrary
+// target object.
 pub(in crate::card::sets) static TURN_TO_SLAG: CardRecord = CardRecord::new(
     "Turn to Slag",
     "66fd5b49-b4f2-40da-94d5-6d6fc69506f6",
@@ -2708,8 +2755,9 @@ pub(in crate::card::sets) static BLUNT_THE_ASSAULT: CardRecord = CardRecord::new
     "Blunt the Assault",
     "6ecff12a-37d5-4a7b-b615-4c5e3bd950bb",
     "Matt Stewart",
-CardRules::new_instant(mana_cost!("{3}{G}")).with_ability(AbilityDef::spell(
-        "You gain 1 life for each creature on the battlefield. Prevent all combat damage that would be dealt this turn.",
+    CardRules::new_instant(mana_cost!("{3}{G}")).with_ability(AbilityDef::spell(
+        "You gain 1 life for each creature on the battlefield. \
+         Prevent all combat damage that would be dealt this turn.",
         EffectDef::Sequence(&[
             EffectDef::GainLife {
                 recipient: EffectRecipientDef::Controller,
@@ -2795,9 +2843,11 @@ pub(in crate::card::sets) static ENGULFING_SLAGWURM: CardRecord = CardRecord::ne
     "Engulfing Slagwurm",
     "8aeabc4a-7b4f-4e3d-bcc7-423bb703563a",
     "Jaime Jones",
-CardRules::new_creature(mana_cost!("{5}{G}{G}"), &["Wurm"], 7, 7).with_ability(
+    CardRules::new_creature(mana_cost!("{5}{G}{G}"), &["Wurm"], 7, 7).with_ability(
         AbilityDef::triggered(
-            "Whenever this creature blocks or becomes blocked by a creature, destroy that creature. You gain life equal to that creature's toughness.",
+            "Whenever this creature blocks or becomes blocked by a \
+             creature, destroy that creature. You gain life equal to \
+             that creature's toughness.",
             TriggerEventDef::BlocksOrBecomesBlockedBy {
                 creature: ObjectPredicateDef::Source,
                 other: ObjectPredicateDef::HasType(CardType::Creature),
@@ -2821,23 +2871,26 @@ pub(in crate::card::sets) static EZURI_RENEGADE_LEADER: CardRecord = CardRecord:
     "Ezuri, Renegade Leader",
     "e9544132-bbb5-4ec4-af82-dad56e5091af",
     "Karl Kopinski",
-CardRules::new_creature(mana_cost!("{1}{G}{G}"), &["Elf", "Warrior"], 2, 2)
+    CardRules::new_creature(mana_cost!("{1}{G}{G}"), &["Elf", "Warrior"], 2, 2)
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
             AbilityDef::activated_with_targets(
                 "{G}: Regenerate another target Elf.",
                 &[CostDef::Mana(mana_cost!("{G}"))],
-                &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Elf")),
-                ]))
-                .excluding_source()],
+                &[
+                    AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Elf")),
+                    ]))
+                    .excluding_source(),
+                ],
                 EffectDef::Regenerate {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 },
             ),
             AbilityDef::activated(
-                "{2}{G}{G}{G}: Elf creatures you control get +3/+3 and gain trample until end of turn.",
+                "{2}{G}{G}{G}: Elf creatures you control get +3/+3 and gain \
+                 trample until end of turn.",
                 &[CostDef::Mana(mana_cost!("{2}{G}{G}{G}"))],
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::matching_objects(
@@ -2866,10 +2919,11 @@ pub(in crate::card::sets) static EZURI_S_ARCHERS: CardRecord = CardRecord::new(
     "Ezuri's Archers",
     "32cc93af-d9a0-4ed8-8c22-686d005ea77e",
     "Shelly Wan",
-CardRules::new_creature(mana_cost!("{G}"), &["Elf", "Archer"], 1, 2).with_abilities(&[
+    CardRules::new_creature(mana_cost!("{G}"), &["Elf", "Archer"], 1, 2).with_abilities(&[
         abilities::reach(),
         AbilityDef::triggered(
-            "Whenever this creature blocks a creature with flying, this creature gets +3/+0 until end of turn.",
+            "Whenever this creature blocks a creature with flying, this \
+             creature gets +3/+0 until end of turn.",
             TriggerEventDef::Blocks {
                 blocked: ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
@@ -2893,9 +2947,10 @@ pub(in crate::card::sets) static EZURI_S_BRIGADE: CardRecord = CardRecord::new(
     "Ezuri's Brigade",
     "079a6b44-3492-4484-aed1-5cd2449e702d",
     "Nic Klein",
-CardRules::new_creature(mana_cost!("{2}{G}{G}"), &["Elf", "Warrior"], 4, 4).with_ability(
+    CardRules::new_creature(mana_cost!("{2}{G}{G}"), &["Elf", "Warrior"], 4, 4).with_ability(
         AbilityDef::static_ability(
-            "Metalcraft — As long as you control three or more artifacts, this creature gets +4/+4 and has trample.",
+            "Metalcraft — As long as you control three or more \
+             artifacts, this creature gets +4/+4 and has trample.",
             EffectDef::IfCondition {
                 condition: &METALCRAFT,
                 then: &EffectDef::StaticApply {
@@ -2920,8 +2975,12 @@ pub(in crate::card::sets) static GENESIS_WAVE: CardRecord = CardRecord::new(
     "Genesis Wave",
     "c920236f-c3d7-421c-b021-103996da790e",
     "James Paick",
-CardRules::new_sorcery(mana_cost!("{X}{G}{G}{G}")).with_ability(AbilityDef::spell(
-        "Reveal the top X cards of your library. You may put any number of permanent cards with mana value X or less from among them onto the battlefield. Then put all cards revealed this way that weren't put onto the battlefield into your graveyard.",
+    CardRules::new_sorcery(mana_cost!("{X}{G}{G}{G}")).with_ability(AbilityDef::spell(
+        "Reveal the top X cards of your library. You may put any \
+         number of permanent cards with mana value X or less from \
+         among them onto the battlefield. Then put all cards \
+         revealed this way that weren't put onto the battlefield \
+         into your graveyard.",
         EffectDef::ChooseCardsFromCollection(ChooseCardsFromCollectionDef {
             source: ObjectCollectionSourceDef::TopCards {
                 player: PlayerRefDef::EffectController,
@@ -2966,7 +3025,9 @@ CardRules::new_sorcery(mana_cost!("{X}{G}{G}{G}")).with_ability(AbilityDef::spel
 );
 
 // SOM 123 — Liege of the Tangle
-// Audit: unsupported — Needs any-number land targeting plus a persistent counter-defined animation: each chosen land gets eight awakening counters and remains an 8/8 Elemental in addition to its other types even after the Liege leaves.
+// Audit: unsupported — Needs any-number land targeting plus a persistent counter-defined
+// animation: each chosen land gets eight awakening counters and remains an 8/8 Elemental in
+// addition to its other types even after the Liege leaves.
 pub(in crate::card::sets) static LIEGE_OF_THE_TANGLE: CardRecord = CardRecord::new(
     "Liege of the Tangle",
     "f7fc5b67-f521-4ba4-a10f-103e8b6af688",
@@ -3002,10 +3063,11 @@ pub(in crate::card::sets) static MOLDER_BEAST: CardRecord = CardRecord::new(
     "Molder Beast",
     "d1340a63-f549-440b-aad3-14247113896a",
     "Randis Albion",
-CardRules::new_creature(mana_cost!("{4}{G}"), &["Beast"], 5, 3).with_abilities(&[
+    CardRules::new_creature(mana_cost!("{4}{G}"), &["Beast"], 5, 3).with_abilities(&[
         abilities::trample(),
         AbilityDef::triggered(
-            "Whenever an artifact is put into a graveyard from the battlefield, this creature gets +2/+0 until end of turn.",
+            "Whenever an artifact is put into a graveyard from the \
+             battlefield, this creature gets +2/+0 until end of turn.",
             TriggerEventDef::zone_changed(
                 ObjectPredicateDef::HasType(CardType::Artifact),
                 Some(ZoneKind::Battlefield),
@@ -3071,7 +3133,8 @@ pub(in crate::card::sets) static SLICE_IN_TWAIN: CardRecord = CardRecord::new(
 );
 
 // SOM 128 — Tangle Angler
-// Audit: unsupported — Applied rules can require a creature to block every attacker, but cannot require one targeted creature to block this specific source this turn if able.
+// Audit: unsupported — Applied rules can require a creature to block every attacker, but cannot
+// require one targeted creature to block this specific source this turn if able.
 pub(in crate::card::sets) static TANGLE_ANGLER: CardRecord = CardRecord::new(
     "Tangle Angler",
     "b678bd68-e866-4081-95f9-2bd93a84d400",
@@ -3151,9 +3214,10 @@ pub(in crate::card::sets) static VIRIDIAN_REVEL: CardRecord = CardRecord::new(
     "Viridian Revel",
     "2d7f565e-0fb8-40c8-9540-213d35af846a",
     "rk post",
-CardRules::new_enchantment(mana_cost!("{1}{G}{G}")).with_ability(
+    CardRules::new_enchantment(mana_cost!("{1}{G}{G}")).with_ability(
         abilities::dies_trigger_matching(
-            "Whenever an artifact is put into an opponent's graveyard from the battlefield, you may draw a card.",
+            "Whenever an artifact is put into an opponent's graveyard \
+             from the battlefield, you may draw a card.",
             ObjectPredicateDef::All(&[
                 ObjectPredicateDef::HasType(CardType::Artifact),
                 ObjectPredicateDef::OwnedBy(PlayerRelation::Opponent),
@@ -3174,8 +3238,9 @@ pub(in crate::card::sets) static WING_PUNCTURE: CardRecord = CardRecord::new(
     "Wing Puncture",
     "05a5188b-9ae3-4ca0-8289-b8a266a9073b",
     "jD",
-CardRules::new_instant(mana_cost!("{G}")).with_ability(AbilityDef::spell_with_targets(
-        "Target creature you control deals damage equal to its power to target creature with flying.",
+    CardRules::new_instant(mana_cost!("{G}")).with_ability(AbilityDef::spell_with_targets(
+        "Target creature you control deals damage equal to its power \
+         to target creature with flying.",
         &[
             AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
                 object: ObjectPredicateDef::HasType(CardType::Creature),
@@ -3219,11 +3284,13 @@ pub(in crate::card::sets) static VENSER_THE_SOJOURNER: CardRecord = CardRecord::
     "Venser, the Sojourner",
     "3d48d62e-5c1f-464c-aa81-8a5d2690f48e",
     "Eric Deschamps",
-CardRules::new_planeswalker(mana_cost!("{3}{W}{U}"), &["Venser"], 3)
+    CardRules::new_planeswalker(mana_cost!("{3}{W}{U}"), &["Venser"], 3)
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
             AbilityDef::activated_with_targets(
-                "+2: Exile target permanent you own. Return it to the battlefield under your control at the beginning of the next end step.",
+                "+2: Exile target permanent you own. Return it to the \
+                 battlefield under your control at the beginning of the next \
+                 end step.",
                 &[CostDef::Loyalty(2)],
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Object {
@@ -3253,18 +3320,23 @@ CardRules::new_planeswalker(mana_cost!("{3}{W}{U}"), &["Venser"], 3)
             AbilityDef::activated(
                 "−8: You get an emblem with “Whenever you cast a spell, exile target permanent.”",
                 &[CostDef::Loyalty(-8)],
-                EffectDef::create_emblem("Venser, the Sojourner emblem", &[AbilityDef::triggered_with_targets(
-                    "Whenever you cast a spell, exile target permanent.",
-                    TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(PlayerRelation::You)),
-                    &[AbilityTargetDef::exactly_one_permanent(
-                        ObjectPredicateDef::Any,
+                EffectDef::create_emblem(
+                    "Venser, the Sojourner emblem",
+                    &[AbilityDef::triggered_with_targets(
+                        "Whenever you cast a spell, exile target permanent.",
+                        TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(
+                            PlayerRelation::You,
+                        )),
+                        &[AbilityTargetDef::exactly_one_permanent(
+                            ObjectPredicateDef::Any,
+                        )],
+                        EffectDef::move_to_zone(
+                            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            ZoneKind::Exile,
+                            ZonePlacement::Top,
+                        ),
                     )],
-                    EffectDef::move_to_zone(
-                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        ZoneKind::Exile,
-                        ZonePlacement::Top,
-                    ),
-                )]),
+                ),
             ),
         ]),
 );
@@ -3336,13 +3408,11 @@ pub(in crate::card::sets) static AURIOK_REPLICA: CardRecord = CardRecord::new(
     "Auriok Replica",
     "02745a0a-9872-4c30-a25d-61695c5fa9cc",
     "Zoltan Boros & Gabor Szikszai",
-CardRules::new_artifact_creature(mana_cost!("{3}"), &["Cleric"], 2, 2).with_ability(
+    CardRules::new_artifact_creature(mana_cost!("{3}"), &["Cleric"], 2, 2).with_ability(
         AbilityDef::activated(
-            "{W}, Sacrifice this creature: Prevent all damage a source of your choice would deal to you this turn.",
-            &[
-                CostDef::Mana(mana_cost!("{W}")),
-                CostDef::SacrificeSource,
-            ],
+            "{W}, Sacrifice this creature: Prevent all damage a source \
+             of your choice would deal to you this turn.",
+            &[CostDef::Mana(mana_cost!("{W}")), CostDef::SacrificeSource],
             abilities::shield_against_a_chosen_source(
                 ObjectPredicateDef::Any,
                 &EffectDef::PreventDamage {
@@ -3408,7 +3478,7 @@ pub(in crate::card::sets) static CHIMERIC_MASS: CardRecord = CardRecord::new(
     "Chimeric Mass",
     "bcdb3af4-eaba-47b0-b242-dafa25ff0969",
     "David Palumbo",
-CardRules::new_artifact(mana_cost!("{X}")).with_abilities(&[
+    CardRules::new_artifact(mana_cost!("{X}")).with_abilities(&[
         AbilityDef::as_enters(
             "This artifact enters with X charge counters on it.",
             ReplacementEffectDef::ModifyBattlefieldEntry(
@@ -3418,7 +3488,9 @@ CardRules::new_artifact(mana_cost!("{X}")).with_abilities(&[
             ),
         ),
         AbilityDef::activated(
-            "{1}: Until end of turn, this artifact becomes a Construct artifact creature with base power and toughness each equal to the number of charge counters on it.",
+            "{1}: Until end of turn, this artifact becomes a Construct \
+             artifact creature with base power and toughness each equal \
+             to the number of charge counters on it.",
             &[CostDef::Mana(mana_cost!("{1}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
@@ -3459,7 +3531,9 @@ pub(in crate::card::sets) static CHROME_STEED: CardRecord = CardRecord::new(
 );
 
 // SOM 143 — Clone Shell
-// Audit: unsupported — Needs an effect that turns the chosen linked face-down exile face up before conditionally returning it; the collection choice, ordered remainder, and linked face-down exile are otherwise declarative.
+// Audit: unsupported — Needs an effect that turns the chosen linked face-down exile face up
+// before conditionally returning it; the collection choice, ordered remainder, and linked
+// face-down exile are otherwise declarative.
 pub(in crate::card::sets) static CLONE_SHELL: CardRecord = CardRecord::new(
     "Clone Shell",
     "cc386c6c-c27e-4673-96eb-1d004fd71993",
@@ -3497,12 +3571,13 @@ pub(in crate::card::sets) static CONTAGION_ENGINE: CardRecord = CardRecord::new(
     "Contagion Engine",
     "dce72636-08e4-484e-ad81-4d1597a31ffb",
     "Daarken",
-CardRules::new_artifact(mana_cost!("{6}")).with_abilities(&[
+    CardRules::new_artifact(mana_cost!("{6}")).with_abilities(&[
         abilities::enters_trigger_with_targets(
-            "When this artifact enters, put a -1/-1 counter on each creature target player controls.",
-            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
-                PlayerRelation::Any,
-            ))],
+            "When this artifact enters, put a -1/-1 counter on each \
+             creature target player controls.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Any),
+            )],
             EffectDef::AddCounters {
                 object: EffectRecipientDef::objects_controlled_by_target(
                     ObjectPredicateDef::HasType(CardType::Creature),
@@ -3514,10 +3589,7 @@ CardRules::new_artifact(mana_cost!("{6}")).with_abilities(&[
         ),
         AbilityDef::activated(
             "{4}, {T}: Proliferate, then proliferate again.",
-            &[
-                CostDef::Mana(mana_cost!("{4}")),
-                CostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{4}")), CostDef::TapSource],
             EffectDef::Sequence(&[EffectDef::Proliferate, EffectDef::Proliferate]),
         ),
     ]),
@@ -3535,11 +3607,12 @@ pub(in crate::card::sets) static CORPSE_CUR: CardRecord = CardRecord::new(
     "Corpse Cur",
     "9c6e19a1-b9ea-4724-96d6-63c4b4967257",
     "Pete Venters",
-CardRules::new_artifact_creature(mana_cost!("{4}"), &["Phyrexian", "Dog"], 2, 2)
+    CardRules::new_artifact_creature(mana_cost!("{4}"), &["Phyrexian", "Dog"], 2, 2)
         .with_abilities(&[
             abilities::infect(),
             abilities::enters_trigger_with_targets(
-                "When this creature enters, you may return target creature card with infect from your graveyard to your hand.",
+                "When this creature enters, you may return target creature \
+                 card with infect from your graveyard to your hand.",
                 &[AbilityTargetDef {
                     predicate: AbilityTargetPredicate::Object {
                         object: ObjectPredicateDef::All(&[
@@ -3630,10 +3703,11 @@ pub(in crate::card::sets) static DARKSTEEL_JUGGERNAUT: CardRecord = CardRecord::
     "Darksteel Juggernaut",
     "ed1f540f-0d51-4e32-a4f9-c8977834572a",
     "Randis Albion",
-CardRules::new_artifact_creature(mana_cost!("{5}"), &["Juggernaut"], 0, 0).with_abilities(&[
+    CardRules::new_artifact_creature(mana_cost!("{5}"), &["Juggernaut"], 0, 0).with_abilities(&[
         abilities::indestructible(),
         AbilityDef::static_ability(
-            "Darksteel Juggernaut's power and toughness are each equal to the number of artifacts you control.",
+            "Darksteel Juggernaut's power and toughness are each equal \
+             to the number of artifacts you control.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::set_base_power_toughness(
@@ -3691,9 +3765,10 @@ pub(in crate::card::sets) static ETCHED_CHAMPION: CardRecord = CardRecord::new(
     "Etched Champion",
     "ab2242c2-7379-4fff-a745-d180685da6db",
     "Matt Cavotta",
-CardRules::new_artifact_creature(mana_cost!("{3}"), &["Soldier"], 2, 2).with_ability(
+    CardRules::new_artifact_creature(mana_cost!("{3}"), &["Soldier"], 2, 2).with_ability(
         AbilityDef::static_ability(
-            "Metalcraft — This creature has protection from each color as long as you control three or more artifacts.",
+            "Metalcraft — This creature has protection from each color \
+             as long as you control three or more artifacts.",
             EffectDef::IfCondition {
                 condition: &METALCRAFT,
                 then: &EffectDef::StaticApply {
@@ -3726,7 +3801,7 @@ pub(in crate::card::sets) static FLIGHT_SPELLBOMB: CardRecord = CardRecord::new(
     "Flight Spellbomb",
     "0fa09e06-08fd-4ecd-83fe-f0e0856547a5",
     "Franz Vohwinkel",
-CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
+    CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
         AbilityDef::activated_with_targets(
             "{T}, Sacrifice this artifact: Target creature gains flying until end of turn.",
             &[CostDef::TapSource, CostDef::SacrificeSource],
@@ -3740,7 +3815,8 @@ CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
             },
         ),
         AbilityDef::triggered(
-            "When this artifact is put into a graveyard from the battlefield, you may pay {U}. If you do, draw a card.",
+            "When this artifact is put into a graveyard from the \
+             battlefield, you may pay {U}. If you do, draw a card.",
             TriggerEventDef::zone_changed(
                 ObjectPredicateDef::Source,
                 Some(ZoneKind::Battlefield),
@@ -3773,9 +3849,11 @@ pub(in crate::card::sets) static GLINT_HAWK_IDOL: CardRecord = CardRecord::new(
     "Glint Hawk Idol",
     "0a742da4-638d-4888-94f1-db2f4ada9f94",
     "Dave Allsop",
-CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
+    CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
         AbilityDef::triggered(
-            "Whenever another artifact you control enters, you may have this artifact become a 2/2 Bird artifact creature with flying until end of turn.",
+            "Whenever another artifact you control enters, you may have \
+             this artifact become a 2/2 Bird artifact creature with \
+             flying until end of turn.",
             TriggerEventDef::zone_changed(
                 ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Artifact),
@@ -3791,7 +3869,8 @@ CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
             },
         ),
         AbilityDef::activated(
-            "{W}: This artifact becomes a 2/2 Bird artifact creature with flying until end of turn.",
+            "{W}: This artifact becomes a 2/2 Bird artifact creature \
+             with flying until end of turn.",
             &[CostDef::Mana(mana_cost!("{W}"))],
             GLINT_HAWK_IDOL_ANIMATION,
         ),
@@ -3810,7 +3889,7 @@ pub(in crate::card::sets) static GOLDEN_URN: CardRecord = CardRecord::new(
     "Golden Urn",
     "ec7abeca-da01-4962-b107-dd7a77469753",
     "Charles Urbach",
-CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
+    CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
         AbilityDef::triggered(
             "At the beginning of your upkeep, you may put a charge counter on this artifact.",
             TriggerEventDef::StepBegins {
@@ -3827,7 +3906,8 @@ CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
             },
         ),
         AbilityDef::activated(
-            "{T}, Sacrifice this artifact: You gain life equal to the number of charge counters on this artifact.",
+            "{T}, Sacrifice this artifact: You gain life equal to the \
+             number of charge counters on this artifact.",
             &[CostDef::TapSource, CostDef::SacrificeSource],
             EffectDef::GainLife {
                 recipient: EffectRecipientDef::Controller,
@@ -3842,14 +3922,16 @@ pub(in crate::card::sets) static GOLEM_ARTISAN: CardRecord = CardRecord::new(
     "Golem Artisan",
     "7ccfc314-2f18-43c2-9ccd-59bb5dbe35e9",
     "Nic Klein",
-CardRules::new_artifact_creature(mana_cost!("{5}"), &["Golem"], 3, 3).with_abilities(&[
+    CardRules::new_artifact_creature(mana_cost!("{5}"), &["Golem"], 3, 3).with_abilities(&[
         AbilityDef::activated_with_targets(
             "{2}: Target artifact creature gets +1/+1 until end of turn.",
             &[CostDef::Mana(mana_cost!("{2}"))],
-            &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
-                ObjectPredicateDef::HasType(CardType::Artifact),
-                ObjectPredicateDef::HasType(CardType::Creature),
-            ]))],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                ]),
+            )],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 effect: AppliedEffectDef::modify_power_toughness(
@@ -3860,7 +3942,8 @@ CardRules::new_artifact_creature(mana_cost!("{5}"), &["Golem"], 3, 3).with_abili
             },
         ),
         AbilityDef::modal_activated(
-            "{2}: Target artifact creature gains your choice of flying, trample, or haste until end of turn.",
+            "{2}: Target artifact creature gains your choice of flying, \
+             trample, or haste until end of turn.",
             &[CostDef::Mana(mana_cost!("{2}"))],
             &[
                 AbilityDef::spell_with_targets(
@@ -3918,7 +4001,7 @@ pub(in crate::card::sets) static GOLEM_FOUNDRY: CardRecord = CardRecord::new(
     "Golem Foundry",
     "3cef2e6a-e46b-4425-b507-3213cfd1400c",
     "Nic Klein",
-CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
+    CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
         AbilityDef::triggered(
             "Whenever you cast an artifact spell, you may put a charge counter on this artifact.",
             TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
@@ -3935,7 +4018,8 @@ CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
             },
         ),
         AbilityDef::activated(
-            "Remove three charge counters from this artifact: Create a 3/3 colorless Golem artifact creature token.",
+            "Remove three charge counters from this artifact: Create a \
+             3/3 colorless Golem artifact creature token.",
             &[CostDef::RemoveCountersFromSource {
                 kind: CounterKind::named("charge"),
                 amount: 3,
@@ -3966,7 +4050,8 @@ pub(in crate::card::sets) static GOLEM_S_HEART: CardRecord = CardRecord::new(
 );
 
 // SOM 162 — Grafted Exoskeleton
-// Audit: unsupported — Needs an Equipment trigger that captures the creature it just became unattached from and makes that former bearer sacrifice itself.
+// Audit: unsupported — Needs an Equipment trigger that captures the creature it just became
+// unattached from and makes that former bearer sacrifice itself.
 pub(in crate::card::sets) static GRAFTED_EXOSKELETON: CardRecord = CardRecord::new(
     "Grafted Exoskeleton",
     "9aa64374-0693-47c9-8b69-56def3817b14",
@@ -3979,7 +4064,7 @@ pub(in crate::card::sets) static GRINDCLOCK: CardRecord = CardRecord::new(
     "Grindclock",
     "a6df2e7f-e46e-4808-8125-42a3aa66377c",
     "Nils Hamm",
-CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
+    CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
         AbilityDef::activated(
             "{T}: Put a charge counter on this artifact.",
             &[CostDef::TapSource],
@@ -3990,11 +4075,12 @@ CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
             },
         ),
         AbilityDef::activated_with_targets(
-            "{T}: Target player mills X cards, where X is the number of charge counters on this artifact.",
+            "{T}: Target player mills X cards, where X is the number of \
+             charge counters on this artifact.",
             &[CostDef::TapSource],
-            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
-                PlayerRelation::Any,
-            ))],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Any),
+            )],
             EffectDef::Mill {
                 player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 amount: ValueDef::CountersOnSource(CounterKind::named("charge")),
@@ -4044,9 +4130,11 @@ pub(in crate::card::sets) static HORIZON_SPELLBOMB: CardRecord = CardRecord::new
     "Horizon Spellbomb",
     "9d93378e-1de2-4954-9458-dd3306f2996e",
     "Franz Vohwinkel",
-CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
+    CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
         AbilityDef::activated(
-            "{2}, {T}, Sacrifice this artifact: Search your library for a basic land card, reveal it, put it into your hand, then shuffle.",
+            "{2}, {T}, Sacrifice this artifact: Search your library for \
+             a basic land card, reveal it, put it into your hand, then \
+             shuffle.",
             &[
                 CostDef::Mana(mana_cost!("{2}")),
                 CostDef::TapSource,
@@ -4072,7 +4160,8 @@ CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
             },
         ),
         AbilityDef::triggered(
-            "When this artifact is put into a graveyard from the battlefield, you may pay {G}. If you do, draw a card.",
+            "When this artifact is put into a graveyard from the \
+             battlefield, you may pay {G}. If you do, draw a card.",
             TriggerEventDef::zone_changed(
                 ObjectPredicateDef::Source,
                 Some(ZoneKind::Battlefield),
@@ -4113,7 +4202,9 @@ pub(in crate::card::sets) static ICHORCLAW_MYR: CardRecord = CardRecord::new(
 );
 
 // SOM 167 — Infiltration Lens
-// Audit: unsupported — Needs one trigger for each creature that blocks the attached creature; the attachment-aware combat trigger currently combines the blocks and becomes-blocked directions.
+// Audit: unsupported — Needs one trigger for each creature that blocks the attached creature;
+// the attachment-aware combat trigger currently combines the blocks and becomes-blocked
+// directions.
 pub(in crate::card::sets) static INFILTRATION_LENS: CardRecord = CardRecord::new(
     "Infiltration Lens",
     "1baa10da-2733-4657-a1ea-74eb5a5a82b1",
@@ -4133,9 +4224,10 @@ pub(in crate::card::sets) static KULDOTHA_FORGEMASTER: CardRecord = CardRecord::
     "Kuldotha Forgemaster",
     "ad590bea-b872-4af7-a612-c8e8759d59df",
     "jD",
-CardRules::new_artifact_creature(mana_cost!("{5}"), &["Construct"], 3, 5).with_ability(
+    CardRules::new_artifact_creature(mana_cost!("{5}"), &["Construct"], 3, 5).with_ability(
         AbilityDef::activated(
-            "{T}, Sacrifice three artifacts: Search your library for an artifact card, put it onto the battlefield, then shuffle.",
+            "{T}, Sacrifice three artifacts: Search your library for an \
+             artifact card, put it onto the battlefield, then shuffle.",
             &[
                 CostDef::TapSource,
                 CostDef::SacrificePermanents {
@@ -4175,8 +4267,9 @@ pub(in crate::card::sets) static LIQUIMETAL_COATING: CardRecord = CardRecord::ne
     "Liquimetal Coating",
     "43ec9201-06e7-4a70-8dcf-7462a019965d",
     "Johann Bodin",
-CardRules::new_artifact(mana_cost!("{2}")).with_ability(AbilityDef::activated_with_targets(
-        "{T}: Target permanent becomes an artifact in addition to its other types until end of turn.",
+    CardRules::new_artifact(mana_cost!("{2}")).with_ability(AbilityDef::activated_with_targets(
+        "{T}: Target permanent becomes an artifact in addition to \
+         its other types until end of turn.",
         &[CostDef::TapSource],
         &[AbilityTargetDef::exactly_one_permanent(
             ObjectPredicateDef::Any,
@@ -4196,7 +4289,7 @@ pub(in crate::card::sets) static LIVEWIRE_LASH: CardRecord = CardRecord::new(
     "Livewire Lash",
     "bbef3e31-eb5a-43f7-a0b2-12348df6968d",
     "Daniel Ljunggren",
-CardRules::new_artifact(mana_cost!("{2}"))
+    CardRules::new_artifact(mana_cost!("{2}"))
         .with_subtypes(&["Equipment"])
         .with_abilities(&[
             AbilityDef::static_ability(
@@ -4210,11 +4303,13 @@ CardRules::new_artifact(mana_cost!("{2}"))
                 },
             ),
             AbilityDef::static_ability(
-                "Whenever equipped creature becomes the target of a spell, that creature deals 2 damage to any target.",
+                "Whenever equipped creature becomes the target of a spell, \
+                 that creature deals 2 damage to any target.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::AttachedPermanent,
                     effect: AppliedEffectDef::add_ability(&AbilityDef::triggered_with_targets(
-                        "Whenever this creature becomes the target of a spell, this creature deals 2 damage to any target.",
+                        "Whenever this creature becomes the target of a spell, this \
+                         creature deals 2 damage to any target.",
                         TriggerEventDef::becomes_targeted(ObjectPredicateDef::Spell),
                         &[AbilityTargetDef::exactly_one(
                             AbilityTargetPredicate::AnyTarget,
@@ -4274,7 +4369,9 @@ pub(in crate::card::sets) static MEMNITE: CardRecord = CardRecord::new(
 );
 
 // SOM 175 — Mimic Vat
-// Audit: unsupported — Needs linked optional imprint replacement across repeated creature deaths, moving the previously imprinted card back, then copying the current linked card and scheduling the token's exile at the next end step.
+// Audit: unsupported — Needs linked optional imprint replacement across repeated creature
+// deaths, moving the previously imprinted card back, then copying the current linked card and
+// scheduling the token's exile at the next end step.
 pub(in crate::card::sets) static MIMIC_VAT: CardRecord = CardRecord::new(
     "Mimic Vat",
     "736fff86-2417-4a77-b8eb-be2d1d142a9f",
@@ -4294,7 +4391,7 @@ pub(in crate::card::sets) static MOLTEN_TAIL_MASTICORE: CardRecord = CardRecord:
     "Molten-Tail Masticore",
     "48311a45-c0e1-4170-8dab-2b3495096c48",
     "Whit Brachna",
-CardRules::new_artifact_creature(mana_cost!("{4}"), &["Masticore"], 4, 4).with_abilities(&[
+    CardRules::new_artifact_creature(mana_cost!("{4}"), &["Masticore"], 4, 4).with_abilities(&[
         AbilityDef::triggered(
             "At the beginning of your upkeep, sacrifice this creature unless you discard a card.",
             TriggerEventDef::StepBegins {
@@ -4307,7 +4404,8 @@ CardRules::new_artifact_creature(mana_cost!("{4}"), &["Masticore"], 4, 4).with_a
             )),
         ),
         AbilityDef::activated_with_targets(
-            "{4}, Exile a creature card from your graveyard: This creature deals 4 damage to any target.",
+            "{4}, Exile a creature card from your graveyard: This \
+             creature deals 4 damage to any target.",
             &[
                 CostDef::Mana(mana_cost!("{4}")),
                 CostDef::MoveToZone(crate::card::MoveToZoneCostDef::new(
@@ -4382,20 +4480,21 @@ pub(in crate::card::sets) static MYR_BATTLESPHERE: CardRecord = CardRecord::new(
     "Myr Battlesphere",
     "b0ae94ed-7314-470b-baba-f2f58bbc894a",
     "Franz Vohwinkel",
-// Seven mana for eleven power across five bodies, and an attack that
+    // Seven mana for eleven power across five bodies, and an attack that
     // cashes the little ones in for damage that no blocker can stop.
     CardRules::new_artifact_creature(mana_cost!("{7}"), &["Myr", "Construct"], 4, 7)
         .with_abilities(&[
             abilities::enters_trigger(
-                "When this creature enters, create four 1/1 colorless Myr artifact creature tokens.",
+                "When this creature enters, create four 1/1 colorless Myr \
+                 artifact creature tokens.",
                 EffectDef::CreateToken(
-                    CreateTokenDef::new(TokenDef::Literal(MYR_TOKEN))
-                    .with_amount(4),
+                    CreateTokenDef::new(TokenDef::Literal(MYR_TOKEN)).with_amount(4),
                 ),
             ),
             AbilityDef::triggered(
-                "Whenever this creature attacks, you may tap X untapped Myr you control. If you do, this \
-                 creature gets +X/+0 until end of turn and deals X damage to the player or planeswalker \
+                "Whenever this creature attacks, you may tap X untapped Myr \
+                 you control. If you do, this creature gets +X/+0 until end \
+                 of turn and deals X damage to the player or planeswalker \
                  it's attacking.",
                 TriggerEventDef::attacks(ObjectPredicateDef::Source),
                 // "You may tap X untapped Myr you control": X is however many the player
@@ -4423,7 +4522,9 @@ pub(in crate::card::sets) static MYR_BATTLESPHERE: CardRecord = CardRecord::new(
                     // the Battlesphere grows, and the damage is the same count.
                     then: &EffectDef::Sequence(&[
                         EffectDef::Tap {
-                            object: EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
+                            object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                ParentBinding,
+                            )),
                         },
                         EffectDef::Apply {
                             recipient: EffectRecipientDef::Source,
@@ -4507,7 +4608,9 @@ pub(in crate::card::sets) static MYR_PROPAGATOR: CardRecord = CardRecord::new(
 );
 
 // SOM 183 — Myr Reservoir
-// Audit: unsupported — Restricted mana cannot currently combine “cast a Myr spell” with “activate an ability of a Myr source” in one produced-mana permission while retaining the source subtype check.
+// Audit: unsupported — Restricted mana cannot currently combine “cast a Myr spell” with
+// “activate an ability of a Myr source” in one produced-mana permission while retaining the
+// source subtype check.
 pub(in crate::card::sets) static MYR_RESERVOIR: CardRecord = CardRecord::new(
     "Myr Reservoir",
     "60678391-44b2-4525-94dc-ffc5a433b79b",
@@ -4604,13 +4707,13 @@ pub(in crate::card::sets) static NIHIL_SPELLBOMB: CardRecord = CardRecord::new(
     "Nihil Spellbomb",
     "603d217b-6375-46fc-992a-8dbd779da1e5",
     "Franz Vohwinkel",
-CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
+    CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
         AbilityDef::activated_with_targets(
             "{T}, Sacrifice this artifact: Exile target player's graveyard.",
             &[CostDef::TapSource, CostDef::SacrificeSource],
-            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
-                PlayerRelation::Any,
-            ))],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Any),
+            )],
             EffectDef::move_to_zone(
                 EffectRecipientDef::cards_owned_by_target(
                     ObjectPredicateDef::Any,
@@ -4622,7 +4725,8 @@ CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
             ),
         ),
         AbilityDef::triggered(
-            "When this artifact is put into a graveyard from the battlefield, you may pay {B}. If you do, draw a card.",
+            "When this artifact is put into a graveyard from the \
+             battlefield, you may pay {B}. If you do, draw a card.",
             TriggerEventDef::zone_changed(
                 ObjectPredicateDef::Source,
                 Some(ZoneKind::Battlefield),
@@ -4645,7 +4749,7 @@ pub(in crate::card::sets) static NIM_DEATHMANTLE: CardRecord = CardRecord::new(
     "Nim Deathmantle",
     "f638bd96-8424-461f-87bf-4b7a7153fd35",
     "Karl Kopinski",
-CardRules::new_artifact(mana_cost!("{2}"))
+    CardRules::new_artifact(mana_cost!("{2}"))
         .with_subtypes(&["Equipment"])
         .with_abilities(&[
             AbilityDef::static_ability(
@@ -4666,7 +4770,10 @@ CardRules::new_artifact(mana_cost!("{2}"))
                 },
             ),
             AbilityDef::triggered(
-                "Whenever a nontoken creature is put into your graveyard from the battlefield, you may pay {4}. If you do, return that card to the battlefield and attach this Equipment to it.",
+                "Whenever a nontoken creature is put into your graveyard \
+                 from the battlefield, you may pay {4}. If you do, return \
+                 that card to the battlefield and attach this Equipment to \
+                 it.",
                 TriggerEventDef::zone_changed(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
@@ -4699,20 +4806,20 @@ pub(in crate::card::sets) static ORIGIN_SPELLBOMB: CardRecord = CardRecord::new(
     "Origin Spellbomb",
     "91e7faa4-160e-47d9-a9a1-5928d9d2b5e4",
     "Franz Vohwinkel",
-CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
+    CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
         AbilityDef::activated(
-            "{1}, {T}, Sacrifice this artifact: Create a 1/1 colorless Myr artifact creature token.",
+            "{1}, {T}, Sacrifice this artifact: Create a 1/1 colorless \
+             Myr artifact creature token.",
             &[
                 CostDef::Mana(mana_cost!("{1}")),
                 CostDef::TapSource,
                 CostDef::SacrificeSource,
             ],
-            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
-                MYR_TOKEN,
-            ))),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(MYR_TOKEN))),
         ),
         AbilityDef::triggered(
-            "When this artifact is put into a graveyard from the battlefield, you may pay {W}. If you do, draw a card.",
+            "When this artifact is put into a graveyard from the \
+             battlefield, you may pay {W}. If you do, draw a card.",
             TriggerEventDef::zone_changed(
                 ObjectPredicateDef::Source,
                 Some(ZoneKind::Battlefield),
@@ -4748,7 +4855,7 @@ pub(in crate::card::sets) static PANIC_SPELLBOMB: CardRecord = CardRecord::new(
     "Panic Spellbomb",
     "e9a29832-8630-498a-9ac3-bc709a6dc95d",
     "Franz Vohwinkel",
-CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
+    CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
         AbilityDef::activated_with_targets(
             "{T}, Sacrifice this artifact: Target creature can't block this turn.",
             &[CostDef::TapSource, CostDef::SacrificeSource],
@@ -4762,7 +4869,8 @@ CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
             },
         ),
         AbilityDef::triggered(
-            "When this artifact is put into a graveyard from the battlefield, you may pay {R}. If you do, draw a card.",
+            "When this artifact is put into a graveyard from the \
+             battlefield, you may pay {R}. If you do, draw a card.",
             TriggerEventDef::zone_changed(
                 ObjectPredicateDef::Source,
                 Some(ZoneKind::Battlefield),
@@ -4803,9 +4911,10 @@ pub(in crate::card::sets) static PLATINUM_EMPERION: CardRecord = CardRecord::new
     "Platinum Emperion",
     "b7919474-db2b-441a-b368-9e430ddf70ab",
     "Chris Rahn",
-CardRules::new_artifact_creature(mana_cost!("{8}"), &["Golem"], 8, 8).with_ability(
+    CardRules::new_artifact_creature(mana_cost!("{8}"), &["Golem"], 8, 8).with_ability(
         AbilityDef::static_ability(
-            "Your life total can't change. (You can't gain or lose life. You can't pay any amount of life except 0.)",
+            "Your life total can't change. (You can't gain or lose life. \
+             You can't pay any amount of life except 0.)",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Controller,
                 effect: AppliedEffectDef::Rule(AppliedRuleDef::PlayerRule(
@@ -4817,7 +4926,8 @@ CardRules::new_artifact_creature(mana_cost!("{8}"), &["Golem"], 8, 8).with_abili
 );
 
 // SOM 194 — Precursor Golem
-// Audit: unsupported — Needs a target-lock trigger that copies an instant or sorcery once for every other targetable Golem, retargeting each copy to exactly one different Golem.
+// Audit: unsupported — Needs a target-lock trigger that copies an instant or sorcery once for
+// every other targetable Golem, retargeting each copy to exactly one different Golem.
 pub(in crate::card::sets) static PRECURSOR_GOLEM: CardRecord = CardRecord::new(
     "Precursor Golem",
     "1c4625ad-1c83-4095-a5a2-0fc9fa4dd5f2",
@@ -4826,7 +4936,9 @@ pub(in crate::card::sets) static PRECURSOR_GOLEM: CardRecord = CardRecord::new(
 );
 
 // SOM 195 — Prototype Portal
-// Audit: unsupported — The activation planner cannot evaluate CostDef::GenericMana from the mana value of ObjectSetDef::LinkedExiles; the linked imprint and token-copy operations are otherwise declarative.
+// Audit: unsupported — The activation planner cannot evaluate CostDef::GenericMana from the
+// mana value of ObjectSetDef::LinkedExiles; the linked imprint and token-copy operations are
+// otherwise declarative.
 pub(in crate::card::sets) static PROTOTYPE_PORTAL: CardRecord = CardRecord::new(
     "Prototype Portal",
     "10b264aa-303b-4982-a653-9573d39c28de",
@@ -4839,7 +4951,7 @@ pub(in crate::card::sets) static RATCHET_BOMB: CardRecord = CardRecord::new(
     "Ratchet Bomb",
     "c3db7645-20b9-4884-849b-a7d4b6d3aa00",
     "Austin Hsu",
-CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
+    CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
         AbilityDef::activated(
             "{T}: Put a charge counter on this artifact.",
             &[CostDef::TapSource],
@@ -4850,17 +4962,23 @@ CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
             },
         ),
         AbilityDef::activated(
-            "{T}, Sacrifice this artifact: Destroy each nonland permanent with mana value equal to the number of charge counters on this artifact.",
+            "{T}, Sacrifice this artifact: Destroy each nonland \
+             permanent with mana value equal to the number of charge \
+             counters on this artifact.",
             &[CostDef::TapSource, CostDef::SacrificeSource],
             EffectDef::Destroy {
-                object: EffectRecipientDef::matching_objects(ObjectPredicateDef::All(&[
+                object: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
                         ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
                         // The Bomb is already gone by the time this resolves,
                         // so the count comes from last-known information.
                         ObjectPredicateDef::ManaValueEqualTo(ValueDef::CountersOnSource(
                             CounterKind::named("charge"),
                         )),
-                    ]), &[ZoneKind::Battlefield], PlayerRelation::Any),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
                 then: None,
             },
         ),
@@ -4876,7 +4994,9 @@ pub(in crate::card::sets) static RAZORFIELD_THRESHER: CardRecord = CardRecord::n
 );
 
 // SOM 198 — Rust Tick
-// Audit: unsupported — Source-tapped duration exists, but the tap-or-untap resolution must add the untap prohibition only if its tap branch actually changed the targeted artifact from untapped to tapped.
+// Audit: unsupported — Source-tapped duration exists, but the tap-or-untap resolution must add
+// the untap prohibition only if its tap branch actually changed the targeted artifact from
+// untapped to tapped.
 pub(in crate::card::sets) static RUST_TICK: CardRecord = CardRecord::new(
     "Rust Tick",
     "1d638741-1cfe-4496-8d7e-7849a82dcb24",
@@ -4889,8 +5009,9 @@ pub(in crate::card::sets) static RUSTED_RELIC: CardRecord = CardRecord::new(
     "Rusted Relic",
     "d2419dd5-9c31-42b2-b6ef-bbdf11c558ac",
     "Igor Kieryluk",
-CardRules::new_artifact(mana_cost!("{4}")).with_ability(AbilityDef::static_ability(
-        "Metalcraft — This artifact is a 5/5 Golem artifact creature as long as you control three or more artifacts.",
+    CardRules::new_artifact(mana_cost!("{4}")).with_ability(AbilityDef::static_ability(
+        "Metalcraft — This artifact is a 5/5 Golem artifact creature \
+         as long as you control three or more artifacts.",
         EffectDef::IfCondition {
             condition: &METALCRAFT,
             then: &EffectDef::StaticApply {
@@ -4923,7 +5044,9 @@ pub(in crate::card::sets) static SABERCLAW_GOLEM: CardRecord = CardRecord::new(
 );
 
 // SOM 201 — Semblance Anvil
-// Audit: unsupported — Needs a spell-cost predicate that matches cards sharing any card type with a linked exile; the linked face-up imprint and generic reduction are otherwise declarative.
+// Audit: unsupported — Needs a spell-cost predicate that matches cards sharing any card type
+// with a linked exile; the linked face-up imprint and generic reduction are otherwise
+// declarative.
 pub(in crate::card::sets) static SEMBLANCE_ANVIL: CardRecord = CardRecord::new(
     "Semblance Anvil",
     "0380b46d-1660-404d-9d11-705d8809ea46",
@@ -4978,7 +5101,7 @@ pub(in crate::card::sets) static STEEL_HELLKITE: CardRecord = CardRecord::new(
     "Steel Hellkite",
     "b126ee24-9597-4ee8-9c4d-5caed585424a",
     "James Paick",
-CardRules::new_artifact_creature(mana_cost!("{6}"), &["Dragon"], 5, 5).with_abilities(&[
+    CardRules::new_artifact_creature(mana_cost!("{6}"), &["Dragon"], 5, 5).with_abilities(&[
         abilities::flying(),
         AbilityDef::activated(
             "{2}: This creature gets +1/+0 until end of turn.",
@@ -4993,7 +5116,9 @@ CardRules::new_artifact_creature(mana_cost!("{6}"), &["Dragon"], 5, 5).with_abil
             },
         ),
         AbilityDef::activated(
-            "{X}: Destroy each nonland permanent with mana value X whose controller was dealt combat damage by this creature this turn. Activate only once each turn.",
+            "{X}: Destroy each nonland permanent with mana value X whose \
+             controller was dealt combat damage by this creature this \
+             turn. Activate only once each turn.",
             &[CostDef::Mana(mana_cost!("{X}"))],
             EffectDef::Destroy {
                 object: EffectRecipientDef::matching_objects(
@@ -5007,15 +5132,15 @@ CardRules::new_artifact_creature(mana_cost!("{6}"), &["Dragon"], 5, 5).with_abil
                 then: None,
             },
         )
-        .with_activation_condition(
-            &TriggerConditionDef::SourceDealtDamageToOpponentThisTurn,
-        )
+        .with_activation_condition(&TriggerConditionDef::SourceDealtDamageToOpponentThisTurn)
         .once_each_turn(),
     ]),
 );
 
 // SOM 206 — Strata Scythe
-// Audit: unsupported — Needs linked basic-land imprint from the library and a dynamic count of all battlefield lands sharing the linked card's name to scale the attached creature's power and toughness.
+// Audit: unsupported — Needs linked basic-land imprint from the library and a dynamic count of
+// all battlefield lands sharing the linked card's name to scale the attached creature's power
+// and toughness.
 pub(in crate::card::sets) static STRATA_SCYTHE: CardRecord = CardRecord::new(
     "Strata Scythe",
     "8f2cb906-3748-4675-89b3-bde2f9a8444a",
@@ -5056,7 +5181,7 @@ pub(in crate::card::sets) static SWORD_OF_BODY_AND_MIND: CardRecord = CardRecord
     "Sword of Body and Mind",
     "03cc5caf-b2d7-4211-a1a4-f0ad6e70e3f4",
     "Chris Rahn",
-CardRules::new_artifact(mana_cost!("{3}"))
+    CardRules::new_artifact(mana_cost!("{3}"))
         .with_subtypes(&["Equipment"])
         .with_abilities(&[
             AbilityDef::static_ability(
@@ -5078,7 +5203,9 @@ CardRules::new_artifact(mana_cost!("{3}"))
                 },
             ),
             AbilityDef::triggered(
-                "Whenever equipped creature deals combat damage to a player, you create a 2/2 green Wolf creature token and that player mills ten cards.",
+                "Whenever equipped creature deals combat damage to a player, \
+                 you create a 2/2 green Wolf creature token and that player \
+                 mills ten cards.",
                 TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::AttachedToSource),
                 EffectDef::Sequence(&[
                     EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
@@ -5090,10 +5217,7 @@ CardRules::new_artifact(mana_cost!("{3}"))
                     },
                 ]),
             ),
-            abilities::equip(
-                &[CostDef::Mana(mana_cost!("{2}"))],
-                "Equip {2}",
-            ),
+            abilities::equip(&[CostDef::Mana(mana_cost!("{2}"))], "Equip {2}"),
         ]),
 );
 
@@ -5195,7 +5319,7 @@ pub(in crate::card::sets) static TRIGON_OF_CORRUPTION: CardRecord = CardRecord::
     "Trigon of Corruption",
     "26e215e0-836c-4b37-8f9a-9093a535bff1",
     "Nils Hamm",
-CardRules::new_artifact(mana_cost!("{4}")).with_abilities(&[
+    CardRules::new_artifact(mana_cost!("{4}")).with_abilities(&[
         AbilityDef::as_enters(
             "This artifact enters with three charge counters on it.",
             ReplacementEffectDef::ModifyBattlefieldEntry(
@@ -5207,10 +5331,7 @@ CardRules::new_artifact(mana_cost!("{4}")).with_abilities(&[
         ),
         AbilityDef::activated(
             "{B}{B}, {T}: Put a charge counter on this artifact.",
-            &[
-                CostDef::Mana(mana_cost!("{B}{B}")),
-                CostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{B}{B}")), CostDef::TapSource],
             EffectDef::AddCounters {
                 object: EffectRecipientDef::Source,
                 kind: CounterKind::named("charge"),
@@ -5218,7 +5339,8 @@ CardRules::new_artifact(mana_cost!("{4}")).with_abilities(&[
             },
         ),
         AbilityDef::activated_with_targets(
-            "{2}, {T}, Remove a charge counter from this artifact: Put a -1/-1 counter on target creature.",
+            "{2}, {T}, Remove a charge counter from this artifact: Put a \
+             -1/-1 counter on target creature.",
             &[
                 CostDef::Mana(mana_cost!("{2}")),
                 CostDef::TapSource,
@@ -5244,7 +5366,7 @@ pub(in crate::card::sets) static TRIGON_OF_INFESTATION: CardRecord = CardRecord:
     "Trigon of Infestation",
     "be409a80-846c-4883-8aee-c2e3f973fc0f",
     "Dave Allsop",
-CardRules::new_artifact(mana_cost!("{4}")).with_abilities(&[
+    CardRules::new_artifact(mana_cost!("{4}")).with_abilities(&[
         AbilityDef::as_enters(
             "This artifact enters with three charge counters on it.",
             ReplacementEffectDef::ModifyBattlefieldEntry(
@@ -5256,10 +5378,7 @@ CardRules::new_artifact(mana_cost!("{4}")).with_abilities(&[
         ),
         AbilityDef::activated(
             "{G}{G}, {T}: Put a charge counter on this artifact.",
-            &[
-                CostDef::Mana(mana_cost!("{G}{G}")),
-                CostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{G}{G}")), CostDef::TapSource],
             EffectDef::AddCounters {
                 object: EffectRecipientDef::Source,
                 kind: CounterKind::named("charge"),
@@ -5267,7 +5386,9 @@ CardRules::new_artifact(mana_cost!("{4}")).with_abilities(&[
             },
         ),
         AbilityDef::activated(
-            "{2}, {T}, Remove a charge counter from this artifact: Create a 1/1 green Phyrexian Insect creature token with infect.",
+            "{2}, {T}, Remove a charge counter from this artifact: \
+             Create a 1/1 green Phyrexian Insect creature token with \
+             infect.",
             &[
                 CostDef::Mana(mana_cost!("{2}")),
                 CostDef::TapSource,
@@ -5333,7 +5454,7 @@ pub(in crate::card::sets) static TRIGON_OF_RAGE: CardRecord = CardRecord::new(
     "Trigon of Rage",
     "1135f3b7-8c6b-47ff-b895-b7127836b0bf",
     "Marc Simonetti",
-CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
+    CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
         AbilityDef::as_enters(
             "This artifact enters with three charge counters on it.",
             ReplacementEffectDef::ModifyBattlefieldEntry(
@@ -5345,10 +5466,7 @@ CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
         ),
         AbilityDef::activated(
             "{R}{R}, {T}: Put a charge counter on this artifact.",
-            &[
-                CostDef::Mana(mana_cost!("{R}{R}")),
-                CostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{R}{R}")), CostDef::TapSource],
             EffectDef::AddCounters {
                 object: EffectRecipientDef::Source,
                 kind: CounterKind::named("charge"),
@@ -5356,7 +5474,8 @@ CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
             },
         ),
         AbilityDef::activated_with_targets(
-            "{2}, {T}, Remove a charge counter from this artifact: Target creature gets +3/+0 until end of turn.",
+            "{2}, {T}, Remove a charge counter from this artifact: \
+             Target creature gets +3/+0 until end of turn.",
             &[
                 CostDef::Mana(mana_cost!("{2}")),
                 CostDef::TapSource,
@@ -5547,12 +5666,15 @@ pub(in crate::card::sets) static WURMCOIL_ENGINE: CardRecord = CardRecord::new(
     "Wurmcoil Engine",
     "33672990-4860-4aa6-ac1b-f9da66f5da59",
     "Raymond Swanland",
-CardRules::new_artifact_creature(mana_cost!("{6}"), &["Phyrexian", "Wurm"], 6, 6)
+    CardRules::new_artifact_creature(mana_cost!("{6}"), &["Phyrexian", "Wurm"], 6, 6)
         .with_abilities(&[
             abilities::deathtouch(),
             abilities::lifelink(),
             abilities::dies_trigger(
-                "When this creature dies, create a 3/3 colorless Phyrexian Wurm artifact creature token with deathtouch and a 3/3 colorless Phyrexian Wurm artifact creature token with lifelink.",
+                "When this creature dies, create a 3/3 colorless Phyrexian \
+                 Wurm artifact creature token with deathtouch and a 3/3 \
+                 colorless Phyrexian Wurm artifact creature token with \
+                 lifelink.",
                 EffectDef::Sequence(&[
                     EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
                         TokenCharacteristics::artifact_creature(&["Phyrexian", "Wurm"], &[], 3, 3)

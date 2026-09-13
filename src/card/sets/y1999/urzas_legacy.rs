@@ -151,16 +151,19 @@ pub(in crate::card::sets) static EXPENDABLE_TROOPS: CardRecord = CardRecord::new
     "Expendable Troops",
     "f31d7d1b-a219-4653-be99-a885bc9b2e2f",
     "Carl Critchlow",
-// It only fires in combat, so the two mana buys a blocker that kills
+    // It only fires in combat, so the two mana buys a blocker that kills
     // something the turn it stops blocking.
     CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Soldier"], 2, 1).with_abilities(&[
         AbilityDef::activated_with_targets(
-            "{T}, Sacrifice this creature: It deals 2 damage to target attacking or blocking creature.",
+            "{T}, Sacrifice this creature: It deals 2 damage to target \
+             attacking or blocking creature.",
             &[CostDef::TapSource, CostDef::SacrificeSource],
-            &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
-                ObjectPredicateDef::HasType(CardType::Creature),
-                ObjectPredicateDef::AttackingOrBlocking,
-            ]))],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::AttackingOrBlocking,
+                ]),
+            )],
             EffectDef::damage(
                 EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 ValueDef::Constant(2),
@@ -250,9 +253,10 @@ pub(in crate::card::sets) static MOTHER_OF_RUNES: CardRecord = CardRecord::new(
     "Mother of Runes",
     "0b1a46ab-95cb-4c24-924f-fc2afd4fcac7",
     "Scott M. Fischer",
-CardRules::new_creature(mana_cost!("{W}"), &["Human", "Cleric"], 1, 1).with_ability(
+    CardRules::new_creature(mana_cost!("{W}"), &["Human", "Cleric"], 1, 1).with_ability(
         AbilityDef::activated_with_targets(
-            "{T}: Target creature you control gains protection from the color of your choice until end of turn.",
+            "{T}: Target creature you control gains protection from the \
+             color of your choice until end of turn.",
             &[CostDef::TapSource],
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Object {
@@ -392,17 +396,22 @@ pub(in crate::card::sets) static RADIANT_S_DRAGOONS: CardRecord = CardRecord::ne
     "Radiant's Dragoons",
     "8a0f39de-6ad2-410c-bc6c-75fd3c8d159b",
     "Pete Venters",
-// Five life and a wall, and the echo means you pay for it twice or
+    // Five life and a wall, and the echo means you pay for it twice or
     // give the wall back.
     CardRules::new_creature(mana_cost!("{3}{W}"), &["Human", "Soldier"], 2, 5).with_abilities(&[
         abilities::echo(
-            "Echo {3}{W} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
+            "Echo {3}{W} (At the beginning of your upkeep, if this came \
+             under your control since the beginning of your last upkeep, \
+             sacrifice it unless you pay its echo cost.)",
             &[CostDef::Mana(mana_cost!("{3}{W}"))],
         ),
-        abilities::enters_trigger("When this creature enters, you gain 5 life.", EffectDef::GainLife {
+        abilities::enters_trigger(
+            "When this creature enters, you gain 5 life.",
+            EffectDef::GainLife {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(5),
-            }),
+            },
+        ),
     ]),
 );
 
@@ -429,19 +438,21 @@ pub(in crate::card::sets) static TRAGIC_POET: CardRecord = CardRecord::new(
     "Tragic Poet",
     "294aa7fc-12be-4722-b288-de14a28919b2",
     "Quinton Hoover",
-// One mana held back to buy an answer out of the graveyard, which matters in
+    // One mana held back to buy an answer out of the graveyard, which matters in
     // a format where the enchantment was the removal.
     CardRules::new_creature(mana_cost!("{W}"), &["Human"], 1, 1).with_ability(
         AbilityDef::activated_with_targets(
-            "{T}, Sacrifice this creature: Return target enchantment card from your graveyard to your \
-             hand.",
+            "{T}, Sacrifice this creature: Return target enchantment \
+             card from your graveyard to your hand.",
             &[CostDef::TapSource, CostDef::SacrificeSource],
-            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
-                object: ObjectPredicateDef::HasType(CardType::Enchantment),
-                zones: &[ZoneKind::Graveyard],
-                controller: None,
-                owner: Some(PlayerRelation::You),
-            })],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Enchantment),
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: Some(PlayerRelation::You),
+                },
+            )],
             EffectDef::move_to_zone(
                 EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 ZoneKind::Hand,
@@ -1176,7 +1187,7 @@ pub(in crate::card::sets) static SLEEPER_S_GUILE: CardRecord = CardRecord::new(
     "Sleeper's Guile",
     "a001ca83-35b5-48e5-8337-92258d5affc2",
     "Daren Bader",
-// The Aura comes back when it dies, so removing the creature under it
+    // The Aura comes back when it dies, so removing the creature under it
     // costs a card and buys nothing.
     CardRules::new_enchantment(mana_cost!("{2}{B}"))
         .with_subtypes(&["Aura"])
@@ -1190,7 +1201,8 @@ pub(in crate::card::sets) static SLEEPER_S_GUILE: CardRecord = CardRecord::new(
                 },
             ),
             abilities::dies_trigger(
-                "When this Aura is put into a graveyard from the battlefield, return it to its owner's hand.",
+                "When this Aura is put into a graveyard from the \
+                 battlefield, return it to its owner's hand.",
                 EffectDef::move_to_zone(
                     EffectRecipientDef::TriggeringZoneChangeResult,
                     ZoneKind::Hand,
@@ -1205,14 +1217,15 @@ pub(in crate::card::sets) static SUBVERSION: CardRecord = CardRecord::new(
     "Subversion",
     "50f1bca9-5831-4e8b-8920-f28ebb3ffb27",
     "Rob Alexander",
-// A point a turn that no blocker answers, which is a clock a control
+    // A point a turn that no blocker answers, which is a clock a control
     // deck can win with while doing nothing else.
     CardRules::new_enchantment(mana_cost!("{3}{B}{B}")).with_ability(AbilityDef::triggered(
-        "At the beginning of your upkeep, each opponent loses 1 life. You gain life equal to the life lost this way.",
+        "At the beginning of your upkeep, each opponent loses 1 \
+         life. You gain life equal to the life lost this way.",
         TriggerEventDef::StepBegins {
-                step: TurnStepDef::Upkeep,
-                player: PlayerRelation::You,
-            },
+            step: TurnStepDef::Upkeep,
+            player: PlayerRelation::You,
+        },
         // Loss of life rather than damage, so nothing prevents it; with one
         // opponent the life gained is the same fixed point.
         EffectDef::Sequence(&[
@@ -1351,16 +1364,20 @@ pub(in crate::card::sets) static GHITU_SLINGER: CardRecord = CardRecord::new(
     "Ghitu Slinger",
     "67e4bc1d-6a4b-408a-8921-433249c960f9",
     "Melissa A. Benson",
-// Two damage and a 2/2, which is two cards' worth for one -- and the
+    // Two damage and a 2/2, which is two cards' worth for one -- and the
     // echo is what pays for it.
     CardRules::new_creature(mana_cost!("{2}{R}"), &["Human", "Nomad"], 2, 2).with_abilities(&[
         abilities::echo(
-            "Echo {2}{R} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
+            "Echo {2}{R} (At the beginning of your upkeep, if this came \
+             under your control since the beginning of your last upkeep, \
+             sacrifice it unless you pay its echo cost.)",
             &[CostDef::Mana(mana_cost!("{2}{R}"))],
         ),
         abilities::enters_trigger_with_targets(
             "When this creature enters, it deals 2 damage to any target.",
-            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
             EffectDef::damage(
                 EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 ValueDef::Constant(2),
@@ -1701,34 +1718,34 @@ pub(in crate::card::sets) static CROP_ROTATION: CardRecord = CardRecord::new(
     "Crop Rotation",
     "6563f790-862c-465a-b963-7a61f2385516",
     "DiTerlizzi",
-CardRules::new_instant(mana_cost!("{G}")).with_ability(
-        AbilityDef::spell_with_additional_cost(
-            "As an additional cost to cast this spell, sacrifice a land.\nSearch your library for a land card, put that card onto the battlefield, then shuffle.",
-            &[],
-            // Sacrificing a land is what makes this an instant-speed tutor rather than a
-            // ramp spell: the land you give up pays for the one you go and get, so the
-            // board count never moves.
-            CostDef::sacrifice(
-                ObjectPredicateDef::HasType(CardType::Land),
-                CostQuantityDef::Fixed(1),
-            ),
-            EffectDef::SearchZone {
-                player: EffectRecipientDef::Controller,
-                source: ZoneKind::Library,
-                object: ObjectPredicateDef::HasType(CardType::Land),
-                minimum: 0,
-                maximum: ValueDef::Constant(1),
-                reveal: false,
-                destination: ZoneKind::Battlefield,
-                placement: ZonePlacement::Top,
-                shuffle: true,
-                enters_tapped: false,
-                attachment: None,
-                binding: None,
-                then: None,
-            },
+    CardRules::new_instant(mana_cost!("{G}")).with_ability(AbilityDef::spell_with_additional_cost(
+        "As an additional cost to cast this spell, sacrifice a \
+         land.\nSearch your library for a land card, put that card \
+         onto the battlefield, then shuffle.",
+        &[],
+        // Sacrificing a land is what makes this an instant-speed tutor rather than a
+        // ramp spell: the land you give up pays for the one you go and get, so the
+        // board count never moves.
+        CostDef::sacrifice(
+            ObjectPredicateDef::HasType(CardType::Land),
+            CostQuantityDef::Fixed(1),
         ),
-    ),
+        EffectDef::SearchZone {
+            player: EffectRecipientDef::Controller,
+            source: ZoneKind::Library,
+            object: ObjectPredicateDef::HasType(CardType::Land),
+            minimum: 0,
+            maximum: ValueDef::Constant(1),
+            reveal: false,
+            destination: ZoneKind::Battlefield,
+            placement: ZonePlacement::Top,
+            shuffle: true,
+            enters_tapped: false,
+            attachment: None,
+            binding: None,
+            then: None,
+        },
+    )),
 );
 
 // ULG 99 — Darkwatch Elves
@@ -1761,11 +1778,13 @@ pub(in crate::card::sets) static DERANGED_HERMIT: CardRecord = CardRecord::new(
     "Deranged Hermit",
     "bf0e94c9-61c4-4cc0-b5ce-db62bc2660ee",
     "Kev Walker",
-// Five mana for eight power across five bodies, rented one echo payment
+    // Five mana for eight power across five bodies, rented one echo payment
     // at a time -- and the tokens stay when the rent goes unpaid.
     CardRules::new_creature(mana_cost!("{3}{G}{G}"), &["Elf"], 1, 1).with_abilities(&[
         abilities::echo(
-            "Echo {3}{G}{G} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
+            "Echo {3}{G}{G} (At the beginning of your upkeep, if this \
+             came under your control since the beginning of your last \
+             upkeep, sacrifice it unless you pay its echo cost.)",
             &[CostDef::Mana(mana_cost!("{3}{G}{G}"))],
         ),
         abilities::enters_trigger(
@@ -1903,17 +1922,22 @@ pub(in crate::card::sets) static MULTANI_S_ACOLYTE: CardRecord = CardRecord::new
     "Multani's Acolyte",
     "4e5fdecb-bca0-48ea-b5bb-d0886c7d3316",
     "Edward P. Beard, Jr.",
-// A 2/1 that replaces itself, rented for a turn, which is the whole
+    // A 2/1 that replaces itself, rented for a turn, which is the whole
     // echo bargain in its cheapest form.
     CardRules::new_creature(mana_cost!("{G}{G}"), &["Elf"], 2, 1).with_abilities(&[
         abilities::echo(
-            "Echo {G}{G} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
+            "Echo {G}{G} (At the beginning of your upkeep, if this came \
+             under your control since the beginning of your last upkeep, \
+             sacrifice it unless you pay its echo cost.)",
             &[CostDef::Mana(mana_cost!("{G}{G}"))],
         ),
-        abilities::enters_trigger("When this creature enters, draw a card.", EffectDef::DrawCards {
+        abilities::enters_trigger(
+            "When this creature enters, draw a card.",
+            EffectDef::DrawCards {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(1),
-            }),
+            },
+        ),
     ]),
 );
 
@@ -1931,7 +1955,7 @@ pub(in crate::card::sets) static RANCOR: CardRecord = CardRecord::new(
     "Rancor",
     "59e256c2-38df-4012-9308-ce17dd889e5f",
     "Kev Walker",
-CardRules::new_enchantment(mana_cost!("{G}"))
+    CardRules::new_enchantment(mana_cost!("{G}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
             abilities::enchant_creature(),
@@ -1940,7 +1964,10 @@ CardRules::new_enchantment(mana_cost!("{G}"))
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::AttachedPermanent,
                     effect: AppliedEffectDef::Composite(&[
-                        AppliedEffectDef::modify_power_toughness(ValueDef::Constant(2), ValueDef::Constant(0)),
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(2),
+                            ValueDef::Constant(0),
+                        ),
                         AppliedEffectDef::add_ability(&abilities::trample()),
                     ]),
                 },
@@ -1949,11 +1976,15 @@ CardRules::new_enchantment(mana_cost!("{G}"))
             // this fires whether the creature was answered or the Aura was.
             // It is the same trigger either way, and the card that comes back
             // is the one already in the graveyard.
-            abilities::dies_trigger("When this Aura is put into a graveyard from the battlefield, return it to its owner's hand.", EffectDef::move_to_zone(
+            abilities::dies_trigger(
+                "When this Aura is put into a graveyard from the \
+                 battlefield, return it to its owner's hand.",
+                EffectDef::move_to_zone(
                     EffectRecipientDef::TriggeringZoneChangeResult,
                     ZoneKind::Hand,
                     ZonePlacement::Top,
-)),
+                ),
+            ),
         ]),
 );
 
@@ -1997,12 +2028,14 @@ pub(in crate::card::sets) static SIMIAN_GRUNTS: CardRecord = CardRecord::new(
     "Simian Grunts",
     "a0aaea3e-a67a-4d9c-9059-e6beb05f97b1",
     "Pete Venters",
-// Flash on a 3/4 is a combat trick that stays; the echo is what stops it
+    // Flash on a 3/4 is a combat trick that stays; the echo is what stops it
     // being simply better than every other three-drop.
     CardRules::new_creature(mana_cost!("{2}{G}"), &["Ape"], 3, 4).with_abilities(&[
         abilities::flash(),
         abilities::echo(
-            "Echo {2}{G} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
+            "Echo {2}{G} (At the beginning of your upkeep, if this came \
+             under your control since the beginning of your last upkeep, \
+             sacrifice it unless you pay its echo cost.)",
             &[CostDef::Mana(mana_cost!("{2}{G}"))],
         ),
     ]),
@@ -2131,29 +2164,29 @@ pub(in crate::card::sets) static BEAST_OF_BURDEN: CardRecord = CardRecord::new(
     "Beast of Burden",
     "06578d72-50e9-468d-96d2-c0cbda14961a",
     "Ron Spears",
-// Six mana for a body the size of the board, which means it is a 0/0
+    // Six mana for a body the size of the board, which means it is a 0/0
     // on an empty one and dies immediately.
-    CardRules::new_creature(mana_cost!("{6}"), &["Golem"], 0, 0)
-        .with_abilities(&[
-            AbilityDef::static_ability(
-                "Beast of Burden's power and toughness are each equal to the number of creatures on the battlefield.",
-                EffectDef::StaticApply {
-                    recipient: EffectRecipientDef::Source,
-                    effect: AppliedEffectDef::define_power_toughness(
-                        ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+    CardRules::new_creature(mana_cost!("{6}"), &["Golem"], 0, 0).with_abilities(&[
+        AbilityDef::static_ability(
+            "Beast of Burden's power and toughness are each equal to the \
+             number of creatures on the battlefield.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::define_power_toughness(
+                    ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
                         ObjectPredicateDef::HasType(CardType::Creature),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::Any,
                     )),
-                        ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                    ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
                         ObjectPredicateDef::HasType(CardType::Creature),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::Any,
                     )),
-                    ),
-                },
-            ),
-        ]),
+                ),
+            },
+        ),
+    ]),
 );
 
 // ULG 123 — Crawlspace
@@ -2257,7 +2290,7 @@ pub(in crate::card::sets) static MEMORY_JAR: CardRecord = CardRecord::new(
     "Memory Jar",
     "a15d33d6-7213-4482-a1be-ac0a73644af6",
     "Donato Giancola",
-// Seven cards for everyone, and everyone gets their old hand back at the
+    // Seven cards for everyone, and everyone gets their old hand back at the
     // end of the turn -- which is a windfall only for the player who built a
     // deck that can spend seven cards in one turn.
     CardRules::new_artifact(mana_cost!("{5}")).with_ability(AbilityDef::activated(
@@ -2289,31 +2322,32 @@ pub(in crate::card::sets) static MEMORY_JAR: CardRecord = CardRecord::new(
             // the seven new cards a loan rather than a hand: whatever is left of
             // them at the end step is thrown away.
             EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
-                    "At the beginning of the next end step, each player discards their hand and returns to \
-                     their hand each card they exiled this way.",
-                    TriggerEventDef::StepBegins {
-                        step: TurnStepDef::End,
-                        player: PlayerRelation::Any,
+                "At the beginning of the next end step, each player discards \
+                 their hand and returns to their hand each card they exiled \
+                 this way.",
+                TriggerEventDef::StepBegins {
+                    step: TurnStepDef::End,
+                    player: PlayerRelation::Any,
+                },
+                EffectDef::Sequence(&[
+                    EffectDef::Discard {
+                        recipient: EffectRecipientDef::EachPlayer,
+                        // `Discard` saturates at the recipient's hand size, so the largest amount
+                        // is how "their hand" is said.
+                        amount: ValueDef::Constant(i32::MAX),
+                        selection: DiscardSelectionDef::RecipientChooses,
+                        then: None,
                     },
-                    EffectDef::Sequence(&[
-                            EffectDef::Discard {
-                                recipient: EffectRecipientDef::EachPlayer,
-                                // `Discard` saturates at the recipient's hand size, so the largest amount
-                                // is how "their hand" is said.
-                                amount: ValueDef::Constant(i32::MAX),
-                                selection: DiscardSelectionDef::RecipientChooses,
-                                then: None,
-                            },
-                            EffectDef::ReturnLinkedExiles {
-                                object: ObjectPredicateDef::Any,
-                                counters: None,
-                                zone: ZoneKind::Hand,
-                                grant: None,
-                                controller: None,
-                                transformed: false,
-                            },
-                        ]),
-                ))),
+                    EffectDef::ReturnLinkedExiles {
+                        object: ObjectPredicateDef::Any,
+                        counters: None,
+                        zone: ZoneKind::Hand,
+                        grant: None,
+                        controller: None,
+                        transformed: false,
+                    },
+                ]),
+            ))),
         ]),
     )),
 );
@@ -2384,11 +2418,13 @@ pub(in crate::card::sets) static THRAN_WAR_MACHINE: CardRecord = CardRecord::new
     "Thran War Machine",
     "5908714a-be91-4279-b87e-e2bc09dbaaba",
     "Pete Venters",
-// Four power for four that costs four again next turn and cannot be
+    // Four power for four that costs four again next turn and cannot be
     // held back, which is a rate only a deck already ahead can use.
     CardRules::new_artifact_creature(mana_cost!("{4}"), &["Construct"], 4, 5).with_abilities(&[
         abilities::echo(
-            "Echo {4} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
+            "Echo {4} (At the beginning of your upkeep, if this came \
+             under your control since the beginning of your last upkeep, \
+             sacrifice it unless you pay its echo cost.)",
             &[CostDef::Mana(mana_cost!("{4}"))],
         ),
         abilities::attacks_each_combat_if_able(),
@@ -2409,22 +2445,26 @@ pub(in crate::card::sets) static TICKING_GNOMES: CardRecord = CardRecord::new(
     "Ticking Gnomes",
     "6241755c-ff3d-44db-a99d-960bea54633e",
     "Henry Van Der Linde",
-// Three mana for a 3/3 and a ping, rented for three more -- and the ping
+    // Three mana for a 3/3 and a ping, rented for three more -- and the ping
     // is there whether or not the rent is paid.
     CardRules::new_artifact_creature(mana_cost!("{3}"), &["Construct"], 3, 3).with_abilities(&[
         abilities::echo(
-            "Echo {3} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
+            "Echo {3} (At the beginning of your upkeep, if this came \
+             under your control since the beginning of your last upkeep, \
+             sacrifice it unless you pay its echo cost.)",
             &[CostDef::Mana(mana_cost!("{3}"))],
         ),
         AbilityDef::activated_with_targets(
-        "Sacrifice this creature: It deals 1 damage to any target.",
-        &[CostDef::SacrificeSource],
-        &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)],
-        EffectDef::damage(
-            EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            ValueDef::Constant(1),
+            "Sacrifice this creature: It deals 1 damage to any target.",
+            &[CostDef::SacrificeSource],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(1),
+            ),
         ),
-    ),
     ]),
 );
 
@@ -2451,13 +2491,14 @@ pub(in crate::card::sets) static FAERIE_CONCLAVE: CardRecord = CardRecord::new(
     "Faerie Conclave",
     "ae3ede87-b026-4781-81ab-8652664f8e41",
     "Val Mayerik",
-// A land that attacks for two in the air when the game stalls, at the
+    // A land that attacks for two in the air when the game stalls, at the
     // cost of coming down tapped on turn one.
     CardRules::new_land(&[]).with_abilities(&[
         abilities::enters_tapped(CardType::Land),
         abilities::tap_for(ManaColor::Blue),
         AbilityDef::activated(
-            "{1}{U}: This land becomes a 2/1 blue Faerie creature with flying until end of turn. It's still a land.",
+            "{1}{U}: This land becomes a 2/1 blue Faerie creature with \
+             flying until end of turn. It's still a land.",
             &[CostDef::Mana(mana_cost!("{1}{U}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
@@ -2467,7 +2508,10 @@ pub(in crate::card::sets) static FAERIE_CONCLAVE: CardRecord = CardRecord::new(
                     AppliedEffectDef::set_colors(ColorSet::from_colors(&[ManaColor::Blue])),
                     AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)),
                     AppliedEffectDef::add_creature_types(CreatureTypeSetDef::named(&["Faerie"])),
-                    AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(2), ValueDef::Constant(1)),
+                    AppliedEffectDef::set_base_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(1),
+                    ),
                     AppliedEffectDef::add_ability(&abilities::flying()),
                 ]),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
@@ -2481,13 +2525,14 @@ pub(in crate::card::sets) static FORBIDDING_WATCHTOWER: CardRecord = CardRecord:
     "Forbidding Watchtower",
     "96503ed7-aa68-439f-95b0-6ac2c48e3935",
     "Mark Brill",
-// The defensive member of the cycle: a land that blocks anything on the
+    // The defensive member of the cycle: a land that blocks anything on the
     // ground and survives.
     CardRules::new_land(&[]).with_abilities(&[
         abilities::enters_tapped(CardType::Land),
         abilities::tap_for(ManaColor::White),
         AbilityDef::activated(
-            "{1}{W}: This land becomes a 1/5 white Soldier creature until end of turn. It's still a land.",
+            "{1}{W}: This land becomes a 1/5 white Soldier creature \
+             until end of turn. It's still a land.",
             &[CostDef::Mana(mana_cost!("{1}{W}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
@@ -2497,7 +2542,10 @@ pub(in crate::card::sets) static FORBIDDING_WATCHTOWER: CardRecord = CardRecord:
                     AppliedEffectDef::set_colors(ColorSet::from_colors(&[ManaColor::White])),
                     AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)),
                     AppliedEffectDef::add_creature_types(CreatureTypeSetDef::named(&["Soldier"])),
-                    AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(1), ValueDef::Constant(5)),
+                    AppliedEffectDef::set_base_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(5),
+                    ),
                 ]),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
@@ -2510,13 +2558,14 @@ pub(in crate::card::sets) static GHITU_ENCAMPMENT: CardRecord = CardRecord::new(
     "Ghitu Encampment",
     "bf09ecef-1e30-4206-9648-8fe5c8a71c71",
     "Don Hazeltine",
-// First strike makes it win the fight a 2/1 should lose, which is what a
+    // First strike makes it win the fight a 2/1 should lose, which is what a
     // land has to do to be worth attacking with.
     CardRules::new_land(&[]).with_abilities(&[
         abilities::enters_tapped(CardType::Land),
         abilities::tap_for(ManaColor::Red),
         AbilityDef::activated(
-            "{1}{R}: This land becomes a 2/1 red Warrior creature with first strike until end of turn. It's still a land.",
+            "{1}{R}: This land becomes a 2/1 red Warrior creature with \
+             first strike until end of turn. It's still a land.",
             &[CostDef::Mana(mana_cost!("{1}{R}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
@@ -2526,7 +2575,10 @@ pub(in crate::card::sets) static GHITU_ENCAMPMENT: CardRecord = CardRecord::new(
                     AppliedEffectDef::set_colors(ColorSet::from_colors(&[ManaColor::Red])),
                     AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)),
                     AppliedEffectDef::add_creature_types(CreatureTypeSetDef::named(&["Warrior"])),
-                    AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(2), ValueDef::Constant(1)),
+                    AppliedEffectDef::set_base_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(1),
+                    ),
                     AppliedEffectDef::add_ability(&abilities::first_strike()),
                 ]),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
@@ -2549,13 +2601,14 @@ pub(in crate::card::sets) static TREETOP_VILLAGE: CardRecord = CardRecord::new(
     "Treetop Village",
     "02212bd8-0c0f-4e8e-99f1-a8477476c03a",
     "Anthony S. Waters",
-// The best of the cycle: three trampling power out of a land the deck was
+    // The best of the cycle: three trampling power out of a land the deck was
     // playing anyway.
     CardRules::new_land(&[]).with_abilities(&[
         abilities::enters_tapped(CardType::Land),
         abilities::tap_for(ManaColor::Green),
         AbilityDef::activated(
-            "{1}{G}: This land becomes a 3/3 green Ape creature with trample until end of turn. It's still a land.",
+            "{1}{G}: This land becomes a 3/3 green Ape creature with \
+             trample until end of turn. It's still a land.",
             &[CostDef::Mana(mana_cost!("{1}{G}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
@@ -2565,7 +2618,10 @@ pub(in crate::card::sets) static TREETOP_VILLAGE: CardRecord = CardRecord::new(
                     AppliedEffectDef::set_colors(ColorSet::from_colors(&[ManaColor::Green])),
                     AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)),
                     AppliedEffectDef::add_creature_types(CreatureTypeSetDef::named(&["Ape"])),
-                    AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(3), ValueDef::Constant(3)),
+                    AppliedEffectDef::set_base_power_toughness(
+                        ValueDef::Constant(3),
+                        ValueDef::Constant(3),
+                    ),
                     AppliedEffectDef::add_ability(&abilities::trample()),
                 ]),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,

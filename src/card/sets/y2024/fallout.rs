@@ -41,7 +41,7 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // PIP 21 — Pre-War Formalwear
-pub(in crate::card::sets) static PRE_WAR_FORMALWEAR_21: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static PRE_WAR_FORMALWEAR: CardRecord = CardRecord::new(
     "Pre-War Formalwear",
     "19018f23-b63b-45af-8419-8959f41472d4",
     "Josu Hernaiz",
@@ -141,8 +141,11 @@ pub(in crate::card::sets) static SECURITRON_SQUADRON: CardRecord = CardRecord::n
 );
 
 // PIP 58 — Grim Reaper's Sprint
-// Audit: unsupported — Additional combat scheduling and the morbid discount are available, but the resolving condition vocabulary cannot test whether the current step is this controller's main phase. Testing only whose turn it is would incorrectly add a combat after an entry during combat or an end step.
-pub(in crate::card::sets) static GRIM_REAPER_S_SPRINT_58: CardRecord = CardRecord::new(
+// Audit: unsupported — Additional combat scheduling and the morbid discount are available, but
+// the resolving condition vocabulary cannot test whether the current step is this controller's
+// main phase. Testing only whose turn it is would incorrectly add a combat after an entry
+// during combat or an end step.
+pub(in crate::card::sets) static GRIM_REAPER_S_SPRINT: CardRecord = CardRecord::new(
     "Grim Reaper's Sprint",
     "18e76286-9e06-42de-b322-eb8aa2cdca3a",
     "Anton Solovianchyk",
@@ -150,8 +153,9 @@ pub(in crate::card::sets) static GRIM_REAPER_S_SPRINT_58: CardRecord = CardRecor
 );
 
 // PIP 388 — Megaton's Fate
-// Audit: unsupported — Rad counters require an upkeep mill, life-loss, and rad-removal procedure associated with players. Merely adding named counters would omit their rules.
-pub(in crate::card::sets) static MEGATON_S_FATE_388: CardRecord = CardRecord::new(
+// Audit: unsupported — Rad counters require an upkeep mill, life-loss, and rad-removal
+// procedure associated with players. Merely adding named counters would omit their rules.
+pub(in crate::card::sets) static MEGATON_S_FATE: CardRecord = CardRecord::new(
     "Megaton's Fate",
     "3e8c93a1-3553-4de7-8441-396aa50b26bb",
     "Chris Cold",
@@ -159,8 +163,10 @@ pub(in crate::card::sets) static MEGATON_S_FATE_388: CardRecord = CardRecord::ne
 );
 
 // PIP 583 — Bottle-Cap Blast
-// Audit: unsupported — Damage follow-ups report whether damage was dealt or identify damaged recipients, but do not expose excess damage from an ordinary damage assignment. FightExcessDef applies only to fights and cannot implement the Treasure count.
-pub(in crate::card::sets) static BOTTLE_CAP_BLAST_583: CardRecord = CardRecord::new(
+// Audit: unsupported — Damage follow-ups report whether damage was dealt or identify damaged
+// recipients, but do not expose excess damage from an ordinary damage assignment.
+// FightExcessDef applies only to fights and cannot implement the Treasure count.
+pub(in crate::card::sets) static BOTTLE_CAP_BLAST: CardRecord = CardRecord::new(
     "Bottle-Cap Blast",
     "4c4d8bfb-aaf0-41f3-a000-1df6363fb25c",
     "Liiga Smilshkalne",
@@ -168,8 +174,10 @@ pub(in crate::card::sets) static BOTTLE_CAP_BLAST_583: CardRecord = CardRecord::
 );
 
 // PIP 594 — Rose, Cutthroat Raider
-// Audit: unsupported — Attack history records creatures that attacked, but not the distinct opponents they attacked this turn. Raid alone cannot distinguish attacking an opponent from attacking only that opponent's planeswalkers for the Junk count.
-pub(in crate::card::sets) static ROSE_CUTTHROAT_RAIDER_594: CardRecord = CardRecord::new(
+// Audit: unsupported — Attack history records creatures that attacked, but not the distinct
+// opponents they attacked this turn. Raid alone cannot distinguish attacking an opponent from
+// attacking only that opponent's planeswalkers for the Junk count.
+pub(in crate::card::sets) static ROSE_CUTTHROAT_RAIDER: CardRecord = CardRecord::new(
     "Rose, Cutthroat Raider",
     "5163087f-163d-4e5e-ae6b-aca192b4358b",
     "Zezhou Chen",
@@ -177,8 +185,9 @@ pub(in crate::card::sets) static ROSE_CUTTHROAT_RAIDER_594: CardRecord = CardRec
 );
 
 // PIP 597 — Vault 21: House Gambit
-// Audit: unsupported — The collection pipeline cannot compare each revealed card's mana value with all other cards in the same chosen set to count the matching duplicates.
-pub(in crate::card::sets) static VAULT_21_HOUSE_GAMBIT_597: CardRecord = CardRecord::new(
+// Audit: unsupported — The collection pipeline cannot compare each revealed card's mana value
+// with all other cards in the same chosen set to count the matching duplicates.
+pub(in crate::card::sets) static VAULT_21_HOUSE_GAMBIT: CardRecord = CardRecord::new(
     "Vault 21: House Gambit",
     "0f4e60ea-4192-4388-8ad0-e5b3339eb872",
     "Kieran Yanner",
@@ -186,7 +195,7 @@ pub(in crate::card::sets) static VAULT_21_HOUSE_GAMBIT_597: CardRecord = CardRec
 );
 
 // PIP 973 — Sunscorched Divide
-pub(in crate::card::sets) static SUNSCORCHED_DIVIDE_973: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static SUNSCORCHED_DIVIDE: CardRecord = CardRecord::new(
     "Sunscorched Divide",
     "a2595012-a6ce-49d1-a1b6-27d06ae1fc64",
     "Zezhou Chen",
@@ -201,14 +210,14 @@ pub(in crate::card::sets) static SUNSCORCHED_DIVIDE_973: CardRecord = CardRecord
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
-    &PRE_WAR_FORMALWEAR_21,
+    &PRE_WAR_FORMALWEAR,
     &SECURITRON_SQUADRON,
-    &GRIM_REAPER_S_SPRINT_58,
-    &MEGATON_S_FATE_388,
-    &BOTTLE_CAP_BLAST_583,
-    &ROSE_CUTTHROAT_RAIDER_594,
-    &VAULT_21_HOUSE_GAMBIT_597,
-    &SUNSCORCHED_DIVIDE_973,
+    &GRIM_REAPER_S_SPRINT,
+    &MEGATON_S_FATE,
+    &BOTTLE_CAP_BLAST,
+    &ROSE_CUTTHROAT_RAIDER,
+    &VAULT_21_HOUSE_GAMBIT,
+    &SUNSCORCHED_DIVIDE,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

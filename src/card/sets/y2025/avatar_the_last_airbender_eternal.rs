@@ -29,8 +29,9 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // TLE 64 — Fire Nation Turret
-// Audit: unsupported — Firebending requires attack-generated mana retained through the combat phase. Mana expiry cannot currently be authored for the end of combat.
-pub(in crate::card::sets) static FIRE_NATION_TURRET_64: CardRecord = CardRecord::new(
+// Audit: unsupported — Firebending requires attack-generated mana retained through the combat
+// phase. Mana expiry cannot currently be authored for the end of combat.
+pub(in crate::card::sets) static FIRE_NATION_TURRET: CardRecord = CardRecord::new(
     "Fire Nation Turret",
     "f25cc190-05e2-4aba-b214-46f687c07a10",
     "Fahmi Fauzi",
@@ -40,7 +41,7 @@ pub(in crate::card::sets) static FIRE_NATION_TURRET_64: CardRecord = CardRecord:
 // TLE 76 — The Duke, Rebel Sentry
 // Audit: unsupported — Activated counter-removal costs require a fixed counter kind. Removing
 // exactly one counter of the controller's choice of any kind is not enumerated or payable.
-pub(in crate::card::sets) static THE_DUKE_REBEL_SENTRY_76: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static THE_DUKE_REBEL_SENTRY: CardRecord = CardRecord::new(
     "The Duke, Rebel Sentry",
     "cd9d91a8-7315-4355-af99-941f3cf7398c",
     "Logan Feliciano",
@@ -50,7 +51,7 @@ pub(in crate::card::sets) static THE_DUKE_REBEL_SENTRY_76: CardRecord = CardReco
 // TLE 105 — Fire Nation Occupation
 // Audit: unsupported — Firebending requires attack-generated mana that lasts until end of combat;
 // mana expiry has no end-of-combat duration.
-pub(in crate::card::sets) static FIRE_NATION_OCCUPATION_105: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static FIRE_NATION_OCCUPATION: CardRecord = CardRecord::new(
     "Fire Nation Occupation",
     "3455d55e-aef5-4eb1-bcd9-1ff9d1ab3698",
     "Arthur Yuan",
@@ -58,7 +59,7 @@ pub(in crate::card::sets) static FIRE_NATION_OCCUPATION_105: CardRecord = CardRe
 );
 
 // TLE 120 — Longshot, Rebel Bowman
-pub(in crate::card::sets) static LONGSHOT_REBEL_BOWMAN_120: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static LONGSHOT_REBEL_BOWMAN: CardRecord = CardRecord::new(
     "Longshot, Rebel Bowman",
     "b36efbe2-3798-43e5-8640-f003c77440a1",
     "Morry Hollowell",
@@ -86,8 +87,9 @@ pub(in crate::card::sets) static LONGSHOT_REBEL_BOWMAN_120: CardRecord = CardRec
 );
 
 // TLE 134 — The Cabbage Merchant
-// Audit: unsupported — Activated mana payment cannot tap two chosen Food permanents; the supported tap-source mana cost cannot represent this selection.
-pub(in crate::card::sets) static THE_CABBAGE_MERCHANT_134: CardRecord = CardRecord::new(
+// Audit: unsupported — Activated mana payment cannot tap two chosen Food permanents; the
+// supported tap-source mana cost cannot represent this selection.
+pub(in crate::card::sets) static THE_CABBAGE_MERCHANT: CardRecord = CardRecord::new(
     "The Cabbage Merchant",
     "2fea0356-6684-4730-9eb4-0262856bc1f9",
     "Patrick Gañas",
@@ -95,15 +97,55 @@ pub(in crate::card::sets) static THE_CABBAGE_MERCHANT_134: CardRecord = CardReco
 );
 
 // TLE 198 — Smellerbee, Rebel Fighter
-pub(in crate::card::sets) static SMELLERBEE_REBEL_FIGHTER_198: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static SMELLERBEE_REBEL_FIGHTER: CardRecord = CardRecord::new(
     "Smellerbee, Rebel Fighter",
     "2f1cae39-6120-4630-83c6-9ededc96308c",
     "Enishi",
-    CardRules::new_creature(mana_cost!("{3}{R}"), &["Human", "Rebel", "Ally"], 3, 3).with_supertype(CardSupertype::Legendary).with_abilities(&[
-abilities::first_strike(),
-AbilityDef::static_ability("Other creatures you control have haste.", EffectDef::StaticApply { recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::Not(&ObjectPredicateDef::Source)]), &[ZoneKind::Battlefield], PlayerRelation::You), effect: AppliedEffectDef::add_ability(&abilities::haste()) }),
-AbilityDef::triggered("Whenever Smellerbee attacks, you may discard your hand. If you do, draw cards equal to the number of attacking creatures.", TriggerEventDef::attacks(ObjectPredicateDef::Source), EffectDef::May { player: EffectRecipientDef::Controller, effect: &EffectDef::Sequence(&[EffectDef::discard_cards(EffectRecipientDef::matching_objects(ObjectPredicateDef::Any, &[ZoneKind::Hand], PlayerRelation::You)), abilities::draw_cards(ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::Attacking]), &[ZoneKind::Battlefield], PlayerRelation::Any)))]) })
-]),
+    CardRules::new_creature(mana_cost!("{3}{R}"), &["Human", "Rebel", "Ally"], 3, 3)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::first_strike(),
+            AbilityDef::static_ability(
+                "Other creatures you control have haste.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::add_ability(&abilities::haste()),
+                },
+            ),
+            AbilityDef::triggered(
+                "Whenever Smellerbee attacks, you may discard your hand. If \
+                 you do, draw cards equal to the number of attacking \
+                 creatures.",
+                TriggerEventDef::attacks(ObjectPredicateDef::Source),
+                EffectDef::May {
+                    player: EffectRecipientDef::Controller,
+                    effect: &EffectDef::Sequence(&[
+                        EffectDef::discard_cards(EffectRecipientDef::matching_objects(
+                            ObjectPredicateDef::Any,
+                            &[ZoneKind::Hand],
+                            PlayerRelation::You,
+                        )),
+                        abilities::draw_cards(ValueDef::CountMatchingObjects(
+                            &ObjectQueryDef::matching(
+                                ObjectPredicateDef::All(&[
+                                    ObjectPredicateDef::HasType(CardType::Creature),
+                                    ObjectPredicateDef::Attacking,
+                                ]),
+                                &[ZoneKind::Battlefield],
+                                PlayerRelation::Any,
+                            ),
+                        )),
+                    ]),
+                },
+            ),
+        ]),
 );
 
 // TLE 276 — Wolf Cove Villager
@@ -128,12 +170,12 @@ pub(in crate::card::sets) static WARSHIP_SCOUT: CardRecord = CardRecord::new(
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
-    &FIRE_NATION_TURRET_64,
-    &THE_DUKE_REBEL_SENTRY_76,
-    &FIRE_NATION_OCCUPATION_105,
-    &LONGSHOT_REBEL_BOWMAN_120,
-    &THE_CABBAGE_MERCHANT_134,
-    &SMELLERBEE_REBEL_FIGHTER_198,
+    &FIRE_NATION_TURRET,
+    &THE_DUKE_REBEL_SENTRY,
+    &FIRE_NATION_OCCUPATION,
+    &LONGSHOT_REBEL_BOWMAN,
+    &THE_CABBAGE_MERCHANT,
+    &SMELLERBEE_REBEL_FIGHTER,
     &WOLF_COVE_VILLAGER,
     &WARSHIP_SCOUT,
 ];

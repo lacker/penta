@@ -49,8 +49,10 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // BOK 33 — Disrupting Shoal
-// Audit: unsupported — The casting planner only chooses nonzero X from a variable mana payment or an X-sized additional cost. It cannot derive X from the mana value of the single card exiled for this alternative cost.
-pub(in crate::card::sets) static DISRUPTING_SHOAL_33: CardRecord = CardRecord::new(
+// Audit: unsupported — The casting planner only chooses nonzero X from a variable mana payment
+// or an X-sized additional cost. It cannot derive X from the mana value of the single card
+// exiled for this alternative cost.
+pub(in crate::card::sets) static DISRUPTING_SHOAL: CardRecord = CardRecord::new(
     "Disrupting Shoal",
     "15589745-4c0a-4edf-ad45-3b7fa45e70c5",
     "Scott M. Fischer",
@@ -68,7 +70,7 @@ pub(in crate::card::sets) static NINJA_OF_THE_DEEP_HOURS: CardRecord = CardRecor
     CardRules::new_creature(mana_cost!("{3}{U}"), &["Human", "Ninja"], 2, 2).with_abilities(&[
         abilities::ninjutsu!(
             "Ninjutsu {1}{U} ({1}{U}, Return an unblocked attacker you control to hand: Put this \
-            card onto the battlefield from your hand tapped and attacking.)",
+             card onto the battlefield from your hand tapped and attacking.)",
             &[crate::CostDef::Mana(mana_cost!("{1}{U}"))],
         ),
         AbilityDef::triggered(
@@ -86,7 +88,8 @@ pub(in crate::card::sets) static NINJA_OF_THE_DEEP_HOURS: CardRecord = CardRecor
 );
 
 // BOK 67 — Goryo's Vengeance
-// Audit: unsupported — Needs splice onto Arcane to append effects and targets to another spell while retaining this card in hand.
+// Audit: unsupported — Needs splice onto Arcane to append effects and targets to another spell
+// while retaining this card in hand.
 pub(in crate::card::sets) static GORYO_S_VENGEANCE: CardRecord = CardRecord::new(
     "Goryo's Vengeance",
     "3027e6c5-eed3-44e7-bb12-67569721af99",
@@ -105,7 +108,7 @@ pub(in crate::card::sets) static OKIBA_GANG_SHINOBI: CardRecord = CardRecord::ne
     CardRules::new_creature(mana_cost!("{3}{B}{B}"), &["Rat", "Ninja"], 3, 2).with_abilities(&[
         abilities::ninjutsu!(
             "Ninjutsu {3}{B} ({3}{B}, Return an unblocked attacker you control to hand: Put this \
-            card onto the battlefield from your hand tapped and attacking.)",
+             card onto the battlefield from your hand tapped and attacking.)",
             &[CostDef::Mana(mana_cost!("{3}{B}"))],
         ),
         AbilityDef::triggered(
@@ -123,8 +126,10 @@ pub(in crate::card::sets) static OKIBA_GANG_SHINOBI: CardRecord = CardRecord::ne
 );
 
 // BOK 96 — Blazing Shoal
-// Audit: unsupported — The casting planner only chooses nonzero X from a variable mana payment or an X-sized additional cost. It cannot derive X from the mana value of the single card exiled for this alternative cost.
-pub(in crate::card::sets) static BLAZING_SHOAL_96: CardRecord = CardRecord::new(
+// Audit: unsupported — The casting planner only chooses nonzero X from a variable mana payment
+// or an X-sized additional cost. It cannot derive X from the mana value of the single card
+// exiled for this alternative cost.
+pub(in crate::card::sets) static BLAZING_SHOAL: CardRecord = CardRecord::new(
     "Blazing Shoal",
     "8b915daa-d239-4460-bd6b-e1327fdf7f51",
     "Glen Angus",
@@ -132,7 +137,7 @@ pub(in crate::card::sets) static BLAZING_SHOAL_96: CardRecord = CardRecord::new(
 );
 
 // BOK 98 — Crack the Earth
-pub(in crate::card::sets) static CRACK_THE_EARTH_98: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static CRACK_THE_EARTH: CardRecord = CardRecord::new(
     "Crack the Earth",
     "8ab16152-4617-4deb-b995-195e21f8f485",
     "Wayne Reynolds",
@@ -187,13 +192,33 @@ pub(in crate::card::sets) static FUMIKO_THE_LOWBLOOD: CardRecord =
             ]),
     );
 // BOK 107 — Heartless Hidetsugu
-pub(in crate::card::sets) static HEARTLESS_HIDETSUGU_107: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static HEARTLESS_HIDETSUGU: CardRecord = CardRecord::new(
     "Heartless Hidetsugu",
     "4a3ab177-d9ab-46bf-bd92-20a9ecf2d0ad",
     "Carl Critchlow",
-    CardRules::new_creature(mana_cost!("{3}{R}{R}"), &["Ogre", "Shaman"], 4, 3).with_supertype(CardSupertype::Legendary).with_abilities(&[
-AbilityDef::activated("{T}: Heartless Hidetsugu deals damage to each player equal to half that player's life total, rounded down.", &[CostDef::TapSource], EffectDef::damage_simultaneously(&[DamageAssignmentDef::from_effect(EffectRecipientDef::Controller, ValueDef::Halved(&HalvedValueDef { value: ValueDef::LifeTotal(PlayerRelation::You), rounding: RoundingDef::Down })), DamageAssignmentDef::from_effect(EffectRecipientDef::Opponent, ValueDef::Halved(&HalvedValueDef { value: ValueDef::LifeTotal(PlayerRelation::Opponent), rounding: RoundingDef::Down }))]))
-]),
+    CardRules::new_creature(mana_cost!("{3}{R}{R}"), &["Ogre", "Shaman"], 4, 3)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[AbilityDef::activated(
+            "{T}: Heartless Hidetsugu deals damage to each player equal \
+             to half that player's life total, rounded down.",
+            &[CostDef::TapSource],
+            EffectDef::damage_simultaneously(&[
+                DamageAssignmentDef::from_effect(
+                    EffectRecipientDef::Controller,
+                    ValueDef::Halved(&HalvedValueDef {
+                        value: ValueDef::LifeTotal(PlayerRelation::You),
+                        rounding: RoundingDef::Down,
+                    }),
+                ),
+                DamageAssignmentDef::from_effect(
+                    EffectRecipientDef::Opponent,
+                    ValueDef::Halved(&HalvedValueDef {
+                        value: ValueDef::LifeTotal(PlayerRelation::Opponent),
+                        rounding: RoundingDef::Down,
+                    }),
+                ),
+            ]),
+        )]),
 );
 
 // BOK 126 — Genju of the Cedars
@@ -211,7 +236,8 @@ pub(in crate::card::sets) static GENJU_OF_THE_CEDARS: CardRecord = CardRecord::n
                 )],
             ),
             AbilityDef::activated(
-                "{2}: Enchanted Forest becomes a 4/4 green Spirit creature until end of turn. It's still a land.",
+                "{2}: Enchanted Forest becomes a 4/4 green Spirit creature \
+                 until end of turn. It's still a land.",
                 &[CostDef::Mana(mana_cost!("{2}"))],
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::AttachedPermanent,
@@ -230,7 +256,8 @@ pub(in crate::card::sets) static GENJU_OF_THE_CEDARS: CardRecord = CardRecord::n
                 },
             ),
             AbilityDef::triggered(
-                "When enchanted Forest is put into a graveyard, you may return this card from your graveyard to your hand.",
+                "When enchanted Forest is put into a graveyard, you may \
+                 return this card from your graveyard to your hand.",
                 TriggerEventDef::zone_changed(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::AttachedToSource,
@@ -272,12 +299,13 @@ pub(in crate::card::sets) static UMEZAWAS_JITTE: CardRecord = CardRecord::new(
     "Umezawa's Jitte",
     "3b6e5956-f795-451b-bb24-56462d1ced27",
     "Christopher Moeller",
-CardRules::new_artifact(mana_cost!("{2}"))
+    CardRules::new_artifact(mana_cost!("{2}"))
         .with_supertype(CardSupertype::Legendary)
         .with_subtypes(&["Equipment"])
         .with_abilities(&[
             AbilityDef::triggered(
-                "Whenever equipped creature deals combat damage, put two charge counters on Umezawa's Jitte.",
+                "Whenever equipped creature deals combat damage, put two \
+                 charge counters on Umezawa's Jitte.",
                 // Damage to a blocker counts as readily as damage to the
                 // player: the clause names no recipient at all.
                 TriggerEventDef::combat_damage_dealt_by(ObjectPredicateDef::AttachedToSource),
@@ -288,7 +316,10 @@ CardRules::new_artifact(mana_cost!("{2}"))
                 },
             ),
             AbilityDef::modal_activated(
-                "Remove a charge counter from Umezawa's Jitte: Choose one —\n• Equipped creature gets +2/+2 until end of turn.\n• Target creature gets -1/-1 until end of turn.\n• You gain 2 life.",
+                "Remove a charge counter from Umezawa's Jitte: Choose one \
+                 —\n• Equipped creature gets +2/+2 until end of turn.\n• \
+                 Target creature gets -1/-1 until end of turn.\n• You gain 2 \
+                 life.",
                 &[CostDef::RemoveCountersFromSource {
                     kind: CounterKind::named("charge"),
                     amount: 1,
@@ -338,14 +369,14 @@ CardRules::new_artifact(mana_cost!("{2}"))
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
-    &DISRUPTING_SHOAL_33,
+    &DISRUPTING_SHOAL,
     &NINJA_OF_THE_DEEP_HOURS,
     &GORYO_S_VENGEANCE,
     &OKIBA_GANG_SHINOBI,
-    &BLAZING_SHOAL_96,
-    &CRACK_THE_EARTH_98,
+    &BLAZING_SHOAL,
+    &CRACK_THE_EARTH,
     &FUMIKO_THE_LOWBLOOD,
-    &HEARTLESS_HIDETSUGU_107,
+    &HEARTLESS_HIDETSUGU,
     &GENJU_OF_THE_CEDARS,
     &MIRROR_GALLERY,
     &UMEZAWAS_JITTE,

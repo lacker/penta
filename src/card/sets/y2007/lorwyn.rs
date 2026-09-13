@@ -61,7 +61,7 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // LRW 7 — Burrenton Forge-Tender
-pub(in crate::card::sets) static BURRENTON_FORGE_TENDER_7: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static BURRENTON_FORGE_TENDER: CardRecord = CardRecord::new(
     "Burrenton Forge-Tender",
     "c000c3e4-d71a-43c8-8ded-f3da54bc088d",
     "Chuck Lukacs",
@@ -85,7 +85,8 @@ pub(in crate::card::sets) static BURRENTON_FORGE_TENDER_7: CardRecord = CardReco
 );
 
 // LRW 11 — Crib Swap
-// Audit: unsupported — Needs an all-zone creature-type characteristic-defining ability whose all-types value is copiable; battlefield all-type modifiers do not implement changeling.
+// Audit: unsupported — Needs an all-zone creature-type characteristic-defining ability whose
+// all-types value is copiable; battlefield all-type modifiers do not implement changeling.
 pub(in crate::card::sets) static CRIB_SWAP: CardRecord = CardRecord::new(
     "Crib Swap",
     "a9044585-4d44-42fb-ad7b-e0e224fbc502",
@@ -98,26 +99,36 @@ pub(in crate::card::sets) static OBLIVION_RING: CardRecord = CardRecord::new(
     "Oblivion Ring",
     "1c7fffe8-709c-4cb4-bbad-e4a0c35b616a",
     "Wayne England",
-CardRules::new_enchantment(mana_cost!("{2}{W}")).with_abilities(&[
-        abilities::enters_trigger_with_targets("When this enchantment enters, exile another target nonland permanent.", &[AbilityTargetDef::exactly_one(
-            AbilityTargetPredicate::Object {
-                object: ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
-                    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-                ]),
-                zones: &[ZoneKind::Battlefield],
-                controller: None,
-                owner: None,
-            },
-        )], EffectDef::ExileLinkedToSource {
+    CardRules::new_enchantment(mana_cost!("{2}{W}")).with_abilities(&[
+        abilities::enters_trigger_with_targets(
+            "When this enchantment enters, exile another target nonland \
+             permanent.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    ]),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+            )],
+            EffectDef::ExileLinkedToSource {
                 until_source_leaves: false,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-face_down: false,
-then: None,
-}),
+                face_down: false,
+                then: None,
+            },
+        ),
         AbilityDef::triggered(
-            "When this enchantment leaves the battlefield, return the exiled card to the battlefield under its owner's control.",
-            TriggerEventDef::zone_changed(ObjectPredicateDef::Source, Some(ZoneKind::Battlefield), None),
+            "When this enchantment leaves the battlefield, return the \
+             exiled card to the battlefield under its owner's control.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                Some(ZoneKind::Battlefield),
+                None,
+            ),
             EffectDef::ReturnLinkedExiles {
                 object: ObjectPredicateDef::Any,
                 counters: None,
@@ -285,19 +296,58 @@ pub(in crate::card::sets) static PONDER: CardRecord = CardRecord::new(
 );
 
 // LRW 97 — Wings of Velis Vel
-pub(in crate::card::sets) static WINGS_OF_VELIS_VEL_97: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static WINGS_OF_VELIS_VEL: CardRecord = CardRecord::new(
     "Wings of Velis Vel",
     "fb3c1f39-b6ac-4663-9623-bd573a1117b0",
     "Jim Pavelec",
-    CardRules::new_instant(mana_cost!("{1}{U}")).with_subtypes(&["Shapeshifter"]).with_type(CardType::Kindred).with_abilities(&[AbilityDef::static_ability("Changeling (This card is every creature type.)", EffectDef::StaticApply { recipient: EffectRecipientDef::Source, effect: AppliedEffectDef::Characteristic(crate::card::CharacteristicOperationDef::Subtypes(crate::card::SetOperationDef::Add(crate::card::CREATURE_TYPES))) }).with_source_zones(&[ZoneKind::Library, ZoneKind::Hand, ZoneKind::Graveyard, ZoneKind::Stack, ZoneKind::Exile, ZoneKind::Command]),
-
-AbilityDef::spell_with_targets("Until end of turn, target creature has base power and toughness 4/4, gains all creature types, and gains flying.", &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Creature))], EffectDef::Apply { recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY), effect: AppliedEffectDef::Composite(&[AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(4), ValueDef::Constant(4)), AppliedEffectDef::set_creature_types(CreatureTypeSetDef::ALL), AppliedEffectDef::add_ability(&abilities::flying())]), duration: ResolvedEffectDurationDef::UntilEndOfTurn })
-
-]),
+    CardRules::new_instant(mana_cost!("{1}{U}"))
+        .with_subtypes(&["Shapeshifter"])
+        .with_type(CardType::Kindred)
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Changeling (This card is every creature type.)",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::Characteristic(
+                        crate::card::CharacteristicOperationDef::Subtypes(
+                            crate::card::SetOperationDef::Add(crate::card::CREATURE_TYPES),
+                        ),
+                    ),
+                },
+            )
+            .with_source_zones(&[
+                ZoneKind::Library,
+                ZoneKind::Hand,
+                ZoneKind::Graveyard,
+                ZoneKind::Stack,
+                ZoneKind::Exile,
+                ZoneKind::Command,
+            ]),
+            AbilityDef::spell_with_targets(
+                "Until end of turn, target creature has base power and \
+                 toughness 4/4, gains all creature types, and gains flying.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::set_base_power_toughness(
+                            ValueDef::Constant(4),
+                            ValueDef::Constant(4),
+                        ),
+                        AppliedEffectDef::set_creature_types(CreatureTypeSetDef::ALL),
+                        AppliedEffectDef::add_ability(&abilities::flying()),
+                    ]),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ]),
 );
 
 // LRW 128 — Nameless Inversion
-// Audit: unsupported — Needs an all-zone creature-type characteristic-defining ability whose all-types value is copiable; battlefield all-type modifiers do not implement changeling.
+// Audit: unsupported — Needs an all-zone creature-type characteristic-defining ability whose
+// all-types value is copiable; battlefield all-type modifiers do not implement changeling.
 pub(in crate::card::sets) static NAMELESS_INVERSION: CardRecord = CardRecord::new(
     "Nameless Inversion",
     "94b4e4d2-2358-48d2-9a2a-3d17afea28f5",
@@ -335,14 +385,58 @@ pub(in crate::card::sets) static THOUGHTSEIZE: CardRecord = CardRecord::new(
 );
 
 // LRW 152 — Blades of Velis Vel
-pub(in crate::card::sets) static BLADES_OF_VELIS_VEL_152: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static BLADES_OF_VELIS_VEL: CardRecord = CardRecord::new(
     "Blades of Velis Vel",
     "5a3ac629-a8c9-4b84-a8ea-b775d7913238",
     "Ron Spencer",
-    CardRules::new_instant(mana_cost!("{1}{R}")).with_subtypes(&["Shapeshifter"]).with_abilities(&[
-AbilityDef::static_ability("Changeling (This card is every creature type.)", EffectDef::StaticApply { recipient: EffectRecipientDef::Source, effect: AppliedEffectDef::Characteristic(crate::card::CharacteristicOperationDef::Subtypes(crate::card::SetOperationDef::Add(crate::card::CREATURE_TYPES))) }).with_source_zones(&[ZoneKind::Library, ZoneKind::Hand, ZoneKind::Graveyard, ZoneKind::Stack, ZoneKind::Exile, ZoneKind::Command]),
-AbilityDef::spell_with_targets("Up to two target creatures each get +2/+0 and gain all creature types until end of turn.", &[AbilityTargetDef::up_to(AbilityTargetPredicate::Object { object: ObjectPredicateDef::HasType(CardType::Creature), zones: &[ZoneKind::Battlefield], controller: None, owner: None }, 2)], EffectDef::Apply { recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY), effect: AppliedEffectDef::Composite(&[AppliedEffectDef::modify_power_toughness(ValueDef::Constant(2), ValueDef::Constant(0)), AppliedEffectDef::set_creature_types(CreatureTypeSetDef::ALL)]), duration: ResolvedEffectDurationDef::UntilEndOfTurn })
-]).with_type(CardType::Kindred),
+    CardRules::new_instant(mana_cost!("{1}{R}"))
+        .with_subtypes(&["Shapeshifter"])
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Changeling (This card is every creature type.)",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::Characteristic(
+                        crate::card::CharacteristicOperationDef::Subtypes(
+                            crate::card::SetOperationDef::Add(crate::card::CREATURE_TYPES),
+                        ),
+                    ),
+                },
+            )
+            .with_source_zones(&[
+                ZoneKind::Library,
+                ZoneKind::Hand,
+                ZoneKind::Graveyard,
+                ZoneKind::Stack,
+                ZoneKind::Exile,
+                ZoneKind::Command,
+            ]),
+            AbilityDef::spell_with_targets(
+                "Up to two target creatures each get +2/+0 and gain all \
+                 creature types until end of turn.",
+                &[AbilityTargetDef::up_to(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: None,
+                        owner: None,
+                    },
+                    2,
+                )],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(2),
+                            ValueDef::Constant(0),
+                        ),
+                        AppliedEffectDef::set_creature_types(CreatureTypeSetDef::ALL),
+                    ]),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ])
+        .with_type(CardType::Kindred),
 );
 
 // LRW 173 — Hamletback Goliath
@@ -377,18 +471,44 @@ pub(in crate::card::sets) static HAMLETBACK_GOLIATH: CardRecord = CardRecord::ne
 );
 
 // LRW 175 — Heat Shimmer
-pub(in crate::card::sets) static HEAT_SHIMMER_175: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static HEAT_SHIMMER: CardRecord = CardRecord::new(
     "Heat Shimmer",
     "a432470c-7f68-4429-970a-3da8eabcf0b8",
     "Franz Vohwinkel",
-    CardRules::new_sorcery(mana_cost!("{2}{R}")).with_abilities(&[
-AbilityDef::spell_with_targets("Create a token that's a copy of target creature, except it has haste and \"At the beginning of the end step, exile this token.\"", &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Creature))], EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Copy(&TokenCopyDef { object: &EffectRecipientDef::Target(TargetIndex::PRIMARY), exceptions: CopyExceptionsDef::NONE.with_abilities(&[CopyAbilityDef::Ability(&abilities::haste()), CopyAbilityDef::Ability(&AbilityDef::triggered("At the beginning of the end step, exile this token.", TriggerEventDef::StepBegins { step: TurnStepDef::End, player: PlayerRelation::Any }, EffectDef::move_to_zone(EffectRecipientDef::Source, ZoneKind::Exile, ZonePlacement::Top)))]) }))))
-]),
+    CardRules::new_sorcery(mana_cost!("{2}{R}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Create a token that's a copy of target creature, except it \
+         has haste and \"At the beginning of the end step, exile \
+         this token.\"",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::CreateToken(crate::card::CreateTokenDef::new(
+            crate::card::TokenDef::Copy(&TokenCopyDef {
+                object: &EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                exceptions: CopyExceptionsDef::NONE.with_abilities(&[
+                    CopyAbilityDef::Ability(&abilities::haste()),
+                    CopyAbilityDef::Ability(&AbilityDef::triggered(
+                        "At the beginning of the end step, exile this token.",
+                        TriggerEventDef::StepBegins {
+                            step: TurnStepDef::End,
+                            player: PlayerRelation::Any,
+                        },
+                        EffectDef::move_to_zone(
+                            EffectRecipientDef::Source,
+                            ZoneKind::Exile,
+                            ZonePlacement::Top,
+                        ),
+                    )),
+                ]),
+            }),
+        )),
+    )]),
 );
 
 // LRW 186 — Needle Drop
-// Audit: unsupported — Object predicates record damage received this turn, but target-player predicates cannot require that history for the player branch of any target.
-pub(in crate::card::sets) static NEEDLE_DROP_186: CardRecord = CardRecord::new(
+// Audit: unsupported — Object predicates record damage received this turn, but target-player
+// predicates cannot require that history for the player branch of any target.
+pub(in crate::card::sets) static NEEDLE_DROP: CardRecord = CardRecord::new(
     "Needle Drop",
     "d3f89bcf-46f8-4598-a949-7f10134606aa",
     "Greg Staples",
@@ -426,53 +546,75 @@ pub(in crate::card::sets) static WILD_RICOCHET: CardRecord = CardRecord::new(
     "Wild Ricochet",
     "d76f09bc-b49a-4ad2-be2d-2a191d41b86d",
     "Dan Murayama Scott",
-CardRules::new_instant(mana_cost!("{2}{R}{R}")).with_ability(
-        AbilityDef::spell_with_targets(
-            "You may choose new targets for target instant or sorcery spell. Then copy that spell. You may choose new targets for the copy.",
-            &[AbilityTargetDef::exactly_one(
-                AbilityTargetPredicate::Object {
-                    object: ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::Spell,
-                        ObjectPredicateDef::AnyOf(&[
-                            ObjectPredicateDef::HasType(CardType::Instant),
-                            ObjectPredicateDef::HasType(CardType::Sorcery),
-                        ]),
+    CardRules::new_instant(mana_cost!("{2}{R}{R}")).with_ability(AbilityDef::spell_with_targets(
+        "You may choose new targets for target instant or sorcery \
+         spell. Then copy that spell. You may choose new targets for \
+         the copy.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Spell,
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Instant),
+                        ObjectPredicateDef::HasType(CardType::Sorcery),
                     ]),
-                    zones: &[ZoneKind::Stack],
-                    controller: None,
-                    owner: None,
+                ]),
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            },
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::ChangeStackTargets(&crate::card::ChangeStackTargetsDef {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                chooser: PlayerRefDef::EffectController,
+                change: crate::card::StackTargetChangeDef::ChooseNew {
+                    optional: true,
+                    restriction: None,
                 },
-            )],
-            EffectDef::Sequence(&[
-                EffectDef::ChangeStackTargets(&crate::card::ChangeStackTargetsDef {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    chooser: PlayerRefDef::EffectController,
-                    change: crate::card::StackTargetChangeDef::ChooseNew {
-                        optional: true,
-                        restriction: None,
-                    },
-                }),
-                EffectDef::CopyStackObject(&crate::card::CopyStackObjectDef {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    controller: PlayerRefDef::EffectController,
-                    count: ValueDef::Constant(1),
-                    retarget: true,
-                    colors: None,
-                }),
-            ]),
-        ),
-    ),
+            }),
+            EffectDef::CopyStackObject(&crate::card::CopyStackObjectDef {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                controller: PlayerRefDef::EffectController,
+                count: ValueDef::Constant(1),
+                retarget: true,
+                colors: None,
+            }),
+        ]),
+    )),
 );
 
 // LRW 207 — Elvish Harbinger
-pub(in crate::card::sets) static ELVISH_HARBINGER_207: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static ELVISH_HARBINGER: CardRecord = CardRecord::new(
     "Elvish Harbinger",
     "de789231-8358-4cbd-b8eb-1da4ce5b34c0",
     "Larry MacDougall",
     CardRules::new_creature(mana_cost!("{2}{G}"), &["Elf", "Druid"], 1, 2).with_abilities(&[
-abilities::enters_trigger("When this creature enters, you may search your library for an Elf card, reveal it, then shuffle and put that card on top.", EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Library, object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Elf")), minimum: 0, maximum: ValueDef::Constant(1), reveal: true, destination: ZoneKind::Library, placement: ZonePlacement::Top, shuffle: true, enters_tapped: false, attachment: None, binding: None, then: None }),
-abilities::tap_for_mana("{T}: Add one mana of any color.", AddManaEffectDef::any_color())
-]),
+        abilities::enters_trigger(
+            "When this creature enters, you may search your library for \
+             an Elf card, reveal it, then shuffle and put that card on \
+             top.",
+            EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Elf")),
+                minimum: 0,
+                maximum: ValueDef::Constant(1),
+                reveal: true,
+                destination: ZoneKind::Library,
+                placement: ZonePlacement::Top,
+                shuffle: true,
+                enters_tapped: false,
+                attachment: None,
+                binding: None,
+                then: None,
+            },
+        ),
+        abilities::tap_for_mana(
+            "{T}: Add one mana of any color.",
+            AddManaEffectDef::any_color(),
+        ),
+    ]),
 );
 
 // LRW 220 — Imperious Perfect
@@ -520,7 +662,7 @@ pub(in crate::card::sets) static GADDOCK_TEEG: CardRecord = CardRecord::new(
 );
 
 // LRW 257 — Herbal Poultice
-pub(in crate::card::sets) static HERBAL_POULTICE_257: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static HERBAL_POULTICE: CardRecord = CardRecord::new(
     "Herbal Poultice",
     "b20925a3-dd4f-477c-806a-a3ec0fd2e00d",
     "Scott Hampton",
@@ -539,8 +681,9 @@ pub(in crate::card::sets) static HERBAL_POULTICE_257: CardRecord = CardRecord::n
 );
 
 // LRW 259 — Rings of Brighthearth
-// Audit: unsupported — TriggerEventDef has no event for activating a nonmana ability; copying stack abilities alone cannot create the printed activation trigger.
-pub(in crate::card::sets) static RINGS_OF_BRIGHTHEARTH_259: CardRecord = CardRecord::new(
+// Audit: unsupported — TriggerEventDef has no event for activating a nonmana ability; copying
+// stack abilities alone cannot create the printed activation trigger.
+pub(in crate::card::sets) static RINGS_OF_BRIGHTHEARTH: CardRecord = CardRecord::new(
     "Rings of Brighthearth",
     "fbfd3898-cb06-4bb9-9d52-b319e1fa2217",
     "Howard Lyon",
@@ -548,7 +691,7 @@ pub(in crate::card::sets) static RINGS_OF_BRIGHTHEARTH_259: CardRecord = CardRec
 );
 
 // LRW 260 — Runed Stalactite
-pub(in crate::card::sets) static RUNED_STALACTITE_260: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static RUNED_STALACTITE: CardRecord = CardRecord::new(
     "Runed Stalactite",
     "9be88336-83c7-422d-8826-13ceb8db5534",
     "Jim Pavelec",
@@ -573,7 +716,9 @@ pub(in crate::card::sets) static RUNED_STALACTITE_260: CardRecord = CardRecord::
 );
 
 // LRW 261 — Springleaf Drum
-// Audit: unsupported — Needs an immediate mana-ability payment combining TapSource with a chosen untapped creature; ordinary nonmana activations support that tap payment but the immediate mana path does not.
+// Audit: unsupported — Needs an immediate mana-ability payment combining TapSource with a
+// chosen untapped creature; ordinary nonmana activations support that tap payment but the
+// immediate mana path does not.
 pub(in crate::card::sets) static SPRINGLEAF_DRUM: CardRecord = CardRecord::new(
     "Springleaf Drum",
     "fa8b09d0-fbd2-4441-9d87-02450412e0db",
@@ -595,8 +740,9 @@ pub(in crate::card::sets) static THORN_OF_AMETHYST: CardRecord = CardRecord::new
 );
 
 // LRW 263 — Thousand-Year Elixir
-// Audit: unsupported — No continuous rule waives summoning sickness only for creature activated abilities while leaving their attack restriction intact.
-pub(in crate::card::sets) static THOUSAND_YEAR_ELIXIR_263: CardRecord = CardRecord::new(
+// Audit: unsupported — No continuous rule waives summoning sickness only for creature activated
+// abilities while leaving their attack restriction intact.
+pub(in crate::card::sets) static THOUSAND_YEAR_ELIXIR: CardRecord = CardRecord::new(
     "Thousand-Year Elixir",
     "18743fd4-2a15-40a2-ac90-e3f0fef07e37",
     "Richard Sardinha",
@@ -604,26 +750,78 @@ pub(in crate::card::sets) static THOUSAND_YEAR_ELIXIR_263: CardRecord = CardReco
 );
 
 // LRW 265 — Wanderer's Twig
-pub(in crate::card::sets) static WANDERER_S_TWIG_265: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static WANDERER_S_TWIG: CardRecord = CardRecord::new(
     "Wanderer's Twig",
     "8ea7b2c0-c641-478f-b8d9-17aa17fa1cbe",
     "Dave Dorman",
-    CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
-AbilityDef::activated("{1}, Sacrifice this artifact: Search your library for a basic land card, reveal it, put it into your hand, then shuffle.", &[CostDef::Mana(mana_cost!("{1}")), CostDef::SacrificeSource], EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Library, object: ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Land), ObjectPredicateDef::Supertype(CardSupertype::Basic)]), minimum: 0, maximum: ValueDef::Constant(1), reveal: true, destination: ZoneKind::Hand, placement: ZonePlacement::Top, shuffle: true, enters_tapped: false, attachment: None, binding: None, then: None })
-]),
+    CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[AbilityDef::activated(
+        "{1}, Sacrifice this artifact: Search your library for a \
+         basic land card, reveal it, put it into your hand, then \
+         shuffle.",
+        &[CostDef::Mana(mana_cost!("{1}")), CostDef::SacrificeSource],
+        EffectDef::SearchZone {
+            player: EffectRecipientDef::Controller,
+            source: ZoneKind::Library,
+            object: ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Land),
+                ObjectPredicateDef::Supertype(CardSupertype::Basic),
+            ]),
+            minimum: 0,
+            maximum: ValueDef::Constant(1),
+            reveal: true,
+            destination: ZoneKind::Hand,
+            placement: ZonePlacement::Top,
+            shuffle: true,
+            enters_tapped: false,
+            attachment: None,
+            binding: None,
+            then: None,
+        },
+    )]),
 );
 
 // LRW 270 — Mosswort Bridge
-pub(in crate::card::sets) static MOSSWORT_BRIDGE_270: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static MOSSWORT_BRIDGE: CardRecord = CardRecord::new(
     "Mosswort Bridge",
     "38234590-812c-4d29-80c1-32b9e1282580",
     "Jeremy Jarvis",
     CardRules::new_land(&[]).with_abilities(&[
-abilities::enters_trigger("Hideaway 4 (When this land enters, look at the top four cards of your library, exile one face down, then put the rest on the bottom in a random order.)", abilities::hideaway(ValueDef::Constant(4))),
-abilities::enters_tapped(CardType::Land),
-abilities::tap_for(ManaColor::Green),
-AbilityDef::activated("{G}, {T}: You may play the exiled card without paying its mana cost if creatures you control have total power 10 or greater.", &[CostDef::Mana(mana_cost!("{G}")), CostDef::TapSource], EffectDef::IfCondition { condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef { left: ValueDef::AggregateObjectValues(&ObjectValueAggregateDef { objects: ObjectSetDef::Query(ObjectQueryDef::matching(ObjectPredicateDef::HasType(CardType::Creature), &[ZoneKind::Battlefield], PlayerRelation::You)), select: ObjectValueDef::Power, operation: AggregateOperationDef::Sum }), comparison: ComparisonDef::GreaterOrEqual, right: ValueDef::Constant(10) }), then: &EffectDef::MayPlayWithoutPaying(FreePlayDef { objects: ObjectSetDef::LinkedExiles, duration: FreePlayDurationDef::WhileResolving, mandatory: false, grants_haste: false }) })
-]),
+        abilities::enters_trigger(
+            "Hideaway 4 (When this land enters, look at the top four \
+             cards of your library, exile one face down, then put the \
+             rest on the bottom in a random order.)",
+            abilities::hideaway(ValueDef::Constant(4)),
+        ),
+        abilities::enters_tapped(CardType::Land),
+        abilities::tap_for(ManaColor::Green),
+        AbilityDef::activated(
+            "{G}, {T}: You may play the exiled card without paying its \
+             mana cost if creatures you control have total power 10 or \
+             greater.",
+            &[CostDef::Mana(mana_cost!("{G}")), CostDef::TapSource],
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                    left: ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
+                        objects: ObjectSetDef::Query(ObjectQueryDef::matching(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        )),
+                        select: ObjectValueDef::Power,
+                        operation: AggregateOperationDef::Sum,
+                    }),
+                    comparison: ComparisonDef::GreaterOrEqual,
+                    right: ValueDef::Constant(10),
+                }),
+                then: &EffectDef::MayPlayWithoutPaying(FreePlayDef {
+                    objects: ObjectSetDef::LinkedExiles,
+                    duration: FreePlayDurationDef::WhileResolving,
+                    mandatory: false,
+                    grants_haste: false,
+                }),
+            },
+        ),
+    ]),
 );
 
 // LRW 272 — Shelldock Isle
@@ -694,33 +892,33 @@ pub(in crate::card::sets) static SHIMMERING_GROTTO: CardRecord = CardRecord::new
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
-    &BURRENTON_FORGE_TENDER_7,
+    &BURRENTON_FORGE_TENDER,
     &CRIB_SWAP,
     &OBLIVION_RING,
     &CRYPTIC_COMMAND,
     &MULLDRIFTER,
     &PESTERMITE,
     &PONDER,
-    &WINGS_OF_VELIS_VEL_97,
+    &WINGS_OF_VELIS_VEL,
     &NAMELESS_INVERSION,
     &THOUGHTSEIZE,
-    &BLADES_OF_VELIS_VEL_152,
+    &BLADES_OF_VELIS_VEL,
     &HAMLETBACK_GOLIATH,
-    &HEAT_SHIMMER_175,
-    &NEEDLE_DROP_186,
+    &HEAT_SHIMMER,
+    &NEEDLE_DROP,
     &TARFIRE,
     &WILD_RICOCHET,
-    &ELVISH_HARBINGER_207,
+    &ELVISH_HARBINGER,
     &IMPERIOUS_PERFECT,
     &GADDOCK_TEEG,
-    &HERBAL_POULTICE_257,
-    &RINGS_OF_BRIGHTHEARTH_259,
-    &RUNED_STALACTITE_260,
+    &HERBAL_POULTICE,
+    &RINGS_OF_BRIGHTHEARTH,
+    &RUNED_STALACTITE,
     &SPRINGLEAF_DRUM,
     &THORN_OF_AMETHYST,
-    &THOUSAND_YEAR_ELIXIR_263,
-    &WANDERER_S_TWIG_265,
-    &MOSSWORT_BRIDGE_270,
+    &THOUSAND_YEAR_ELIXIR,
+    &WANDERER_S_TWIG,
+    &MOSSWORT_BRIDGE,
     &SHELLDOCK_ISLE,
     &SHIMMERING_GROTTO,
 ];

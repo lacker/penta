@@ -107,7 +107,7 @@ const MUTANT_TOKEN: TokenCharacteristics =
 const MUTAGEN_TOKEN: TokenCharacteristics = TokenCharacteristics::artifact(&["Mutagen"], &[])
     .with_abilities(&[AbilityDef::activated_with_targets(
         "{1}, {T}, Sacrifice this artifact: Put a +1/+1 counter on \
-                         target creature. Activate only as a sorcery.",
+         target creature. Activate only as a sorcery.",
         &[
             CostDef::Mana(mana_cost!("{1}")),
             CostDef::TapSource,
@@ -321,7 +321,8 @@ pub(in crate::card::sets) static FEATHERBRAINED_FILCHER: CardRecord = CardRecord
 );
 
 // TMT 7 — Grounded for Life
-// Audit: unsupported — Needs a self-cost discount conditioned on the selected target being tapped; the self-cost evaluator cannot read chosen target characteristics.
+// Audit: unsupported — Needs a self-cost discount conditioned on the selected target being
+// tapped; the self-cost evaluator cannot read chosen target characteristics.
 pub(in crate::card::sets) static GROUNDED_FOR_LIFE: CardRecord = CardRecord::new(
     "Grounded for Life",
     "72388199-85fa-4eba-9a9c-c2904e6da9ed",
@@ -475,7 +476,10 @@ pub(in crate::card::sets) static KOYA_DEATH_FROM_ABOVE: CardRecord = CardRecord:
 );
 
 // TMT 12 — The Last Ronin's Technique
-// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including returning an unblocked attacker as a cast cost, retaining its defender, and making the resulting creature enter tapped and attacking. The existing return-attacker cost is limited to hand activations for ninjutsu.
+// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including
+// returning an unblocked attacker as a cast cost, retaining its defender, and making the
+// resulting creature enter tapped and attacking. The existing return-attacker cost is limited
+// to hand activations for ninjutsu.
 pub(in crate::card::sets) static THE_LAST_RONIN_S_TECHNIQUE: CardRecord = CardRecord::new(
     "The Last Ronin's Technique",
     "dfb18239-d373-4795-8598-c82abae2cb62",
@@ -484,7 +488,9 @@ pub(in crate::card::sets) static THE_LAST_RONIN_S_TECHNIQUE: CardRecord = CardRe
 );
 
 // TMT 13 — Leader's Talent
-// Audit: unsupported — Needs a Class-level designation independent of counters and level-gated ability grants; the existing GainClassLevel path stores ordinary level counters, contrary to CR 716.2b and 716.4.
+// Audit: unsupported — Needs a Class-level designation independent of counters and level-gated
+// ability grants; the existing GainClassLevel path stores ordinary level counters, contrary to
+// CR 716.2b and 716.4.
 pub(in crate::card::sets) static LEADER_S_TALENT: CardRecord = CardRecord::new(
     "Leader's Talent",
     "4cbcb622-1aff-460f-b8fa-4502d991e0ad",
@@ -493,7 +499,10 @@ pub(in crate::card::sets) static LEADER_S_TALENT: CardRecord = CardRecord::new(
 );
 
 // TMT 14 — Leonardo, Big Brother
-// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including returning an unblocked attacker as a cast cost, retaining its defender, and making the resulting creature enter tapped and attacking. The existing return-attacker cost is limited to hand activations for ninjutsu.
+// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including
+// returning an unblocked attacker as a cast cost, retaining its defender, and making the
+// resulting creature enter tapped and attacking. The existing return-attacker cost is limited
+// to hand activations for ninjutsu.
 pub(in crate::card::sets) static LEONARDO_BIG_BROTHER: CardRecord = CardRecord::new(
     "Leonardo, Big Brother",
     "e802838f-cc8c-4313-8c3b-32a6a7248e64",
@@ -502,7 +511,10 @@ pub(in crate::card::sets) static LEONARDO_BIG_BROTHER: CardRecord = CardRecord::
 );
 
 // TMT 15 — Leonardo, Cutting Edge
-// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including returning an unblocked attacker as a cast cost, retaining its defender, and making the resulting creature enter tapped and attacking. The existing return-attacker cost is limited to hand activations for ninjutsu.
+// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including
+// returning an unblocked attacker as a cast cost, retaining its defender, and making the
+// resulting creature enter tapped and attacking. The existing return-attacker cost is limited
+// to hand activations for ninjutsu.
 pub(in crate::card::sets) static LEONARDO_CUTTING_EDGE: CardRecord = CardRecord::new(
     "Leonardo, Cutting Edge",
     "74c11ee3-19d1-4ad5-a727-1d74c565d6a5",
@@ -511,7 +523,10 @@ pub(in crate::card::sets) static LEONARDO_CUTTING_EDGE: CardRecord = CardRecord:
 );
 
 // TMT 16 — Leonardo, Leader in Blue
-// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including returning an unblocked attacker as a cast cost, retaining its defender, and making the resulting creature enter tapped and attacking. The existing return-attacker cost is limited to hand activations for ninjutsu.
+// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including
+// returning an unblocked attacker as a cast cost, retaining its defender, and making the
+// resulting creature enter tapped and attacking. The existing return-attacker cost is limited
+// to hand activations for ninjutsu.
 pub(in crate::card::sets) static LEONARDO_LEADER_IN_BLUE: CardRecord = CardRecord::new(
     "Leonardo, Leader in Blue",
     "d6eaae35-d513-43d8-be2d-b97c15e25937",
@@ -520,7 +535,10 @@ pub(in crate::card::sets) static LEONARDO_LEADER_IN_BLUE: CardRecord = CardRecor
 );
 
 // TMT 17 — Leonardo, Sewer Samurai
-// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including returning an unblocked attacker as a cast cost, retaining its defender, and making the resulting creature enter tapped and attacking. The existing return-attacker cost is limited to hand activations for ninjutsu.
+// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including
+// returning an unblocked attacker as a cast cost, retaining its defender, and making the
+// resulting creature enter tapped and attacking. The existing return-attacker cost is limited
+// to hand activations for ninjutsu.
 pub(in crate::card::sets) static LEONARDO_SEWER_SAMURAI: CardRecord = CardRecord::new(
     "Leonardo, Sewer Samurai",
     "0e3a0a26-c163-4f31-bed8-1be52a35feea",
@@ -529,7 +547,10 @@ pub(in crate::card::sets) static LEONARDO_SEWER_SAMURAI: CardRecord = CardRecord
 );
 
 // TMT 18 — Leonardo's Technique
-// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including returning an unblocked attacker as a cast cost, retaining its defender, and making the resulting creature enter tapped and attacking. The existing return-attacker cost is limited to hand activations for ninjutsu.
+// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including
+// returning an unblocked attacker as a cast cost, retaining its defender, and making the
+// resulting creature enter tapped and attacking. The existing return-attacker cost is limited
+// to hand activations for ninjutsu.
 pub(in crate::card::sets) static LEONARDO_S_TECHNIQUE: CardRecord = CardRecord::new(
     "Leonardo's Technique",
     "405e4057-e26c-4882-89a9-706868548c37",
@@ -538,7 +559,8 @@ pub(in crate::card::sets) static LEONARDO_S_TECHNIQUE: CardRecord = CardRecord::
 );
 
 // TMT 19 — Lita, Little Orphan Amphibian
-// Audit: unsupported — Needs per-source, per-turn history of which triggered modes have been chosen, with exhausted modes excluded from subsequent alliance triggers.
+// Audit: unsupported — Needs per-source, per-turn history of which triggered modes have been
+// chosen, with exhausted modes excluded from subsequent alliance triggers.
 pub(in crate::card::sets) static LITA_LITTLE_ORPHAN_AMPHIBIAN: CardRecord = CardRecord::new(
     "Lita, Little Orphan Amphibian",
     "9fbaabb5-e981-4cbf-888c-46449412711f",
@@ -787,7 +809,10 @@ pub(in crate::card::sets) static TRICERATON_COMMANDER: CardRecord = CardRecord::
 );
 
 // TMT 26 — Turncoat Kunoichi
-// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including returning an unblocked attacker as a cast cost, retaining its defender, and making the resulting creature enter tapped and attacking. The existing return-attacker cost is limited to hand activations for ninjutsu.
+// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including
+// returning an unblocked attacker as a cast cost, retaining its defender, and making the
+// resulting creature enter tapped and attacking. The existing return-attacker cost is limited
+// to hand activations for ninjutsu.
 pub(in crate::card::sets) static TURNCOAT_KUNOICHI: CardRecord = CardRecord::new(
     "Turncoat Kunoichi",
     "3ae61336-a4ee-40cd-9a18-392d96b873a4",
@@ -796,7 +821,9 @@ pub(in crate::card::sets) static TURNCOAT_KUNOICHI: CardRecord = CardRecord::new
 );
 
 // TMT 27 — Turtles Forever
-// Audit: unsupported — Needs one mandatory distinct-name search across library and outside-game cards, followed by an opponent partitioning the four revealed results; existing searches do not combine these sources or enforce distinct names across them.
+// Audit: unsupported — Needs one mandatory distinct-name search across library and outside-game
+// cards, followed by an opponent partitioning the four revealed results; existing searches do
+// not combine these sources or enforce distinct names across them.
 pub(in crate::card::sets) static TURTLES_FOREVER: CardRecord = CardRecord::new(
     "Turtles Forever",
     "f0db974a-3289-4727-9aaf-e9cca9113c87",
@@ -1053,7 +1080,9 @@ pub(in crate::card::sets) static CRUSTACEAN_COMMANDO: CardRecord = CardRecord::n
 );
 
 // TMT 34 — Does Machines
-// Audit: unsupported — Needs a Class-level designation independent of counters and level-gated ability grants; the existing GainClassLevel path stores ordinary level counters, contrary to CR 716.2b and 716.4.
+// Audit: unsupported — Needs a Class-level designation independent of counters and level-gated
+// ability grants; the existing GainClassLevel path stores ordinary level counters, contrary to
+// CR 716.2b and 716.4.
 pub(in crate::card::sets) static DOES_MACHINES: CardRecord = CardRecord::new(
     "Does Machines",
     "989da63a-2cbd-41a9-9bbb-99f4ad1c6a25",
@@ -1062,7 +1091,10 @@ pub(in crate::card::sets) static DOES_MACHINES: CardRecord = CardRecord::new(
 );
 
 // TMT 35 — Donatello, Gadget Master
-// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including returning an unblocked attacker as a cast cost, retaining its defender, and making the resulting creature enter tapped and attacking. The existing return-attacker cost is limited to hand activations for ninjutsu.
+// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including
+// returning an unblocked attacker as a cast cost, retaining its defender, and making the
+// resulting creature enter tapped and attacking. The existing return-attacker cost is limited
+// to hand activations for ninjutsu.
 pub(in crate::card::sets) static DONATELLO_GADGET_MASTER: CardRecord = CardRecord::new(
     "Donatello, Gadget Master",
     "8b5dd830-dab8-4628-845f-3d17973f9ffa",
@@ -1071,7 +1103,8 @@ pub(in crate::card::sets) static DONATELLO_GADGET_MASTER: CardRecord = CardRecor
 );
 
 // TMT 36 — Donatello, Mutant Mechanic
-// Audit: unsupported — Needs copying every counter kind and quantity from a dying artifact's last-known state to another permanent.
+// Audit: unsupported — Needs copying every counter kind and quantity from a dying artifact's
+// last-known state to another permanent.
 pub(in crate::card::sets) static DONATELLO_MUTANT_MECHANIC: CardRecord = CardRecord::new(
     "Donatello, Mutant Mechanic",
     "3271b821-8efc-49e2-96fd-c48e2b2585c6",
@@ -1136,7 +1169,10 @@ pub(in crate::card::sets) static DONATELLO_WAY_WITH_MACHINES: CardRecord = CardR
 );
 
 // TMT 39 — Donatello's Technique
-// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including returning an unblocked attacker as a cast cost, retaining its defender, and making the resulting creature enter tapped and attacking. The existing return-attacker cost is limited to hand activations for ninjutsu.
+// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including
+// returning an unblocked attacker as a cast cost, retaining its defender, and making the
+// resulting creature enter tapped and attacking. The existing return-attacker cost is limited
+// to hand activations for ninjutsu.
 pub(in crate::card::sets) static DONATELLO_S_TECHNIQUE: CardRecord = CardRecord::new(
     "Donatello's Technique",
     "e570082f-8129-44d2-b471-ec7f46a98dbd",
@@ -1145,7 +1181,9 @@ pub(in crate::card::sets) static DONATELLO_S_TECHNIQUE: CardRecord = CardRecord:
 );
 
 // TMT 40 — Fugitive Droid
-// Audit: unsupported — Needs per-controller artifact-entry history that survives the artifact leaving the battlefield; querying only current artifacts with EnteredThisTurn loses that event.
+// Audit: unsupported — Needs per-controller artifact-entry history that survives the artifact
+// leaving the battlefield; querying only current artifacts with EnteredThisTurn loses that
+// event.
 pub(in crate::card::sets) static FUGITIVE_DROID: CardRecord = CardRecord::new(
     "Fugitive Droid",
     "50c4e65f-00dc-4fc5-bd5c-8482c2848f4c",
@@ -1154,7 +1192,9 @@ pub(in crate::card::sets) static FUGITIVE_DROID: CardRecord = CardRecord::new(
 );
 
 // TMT 41 — Kitsune, Dragon's Daughter
-// Audit: unsupported — Needs two target slots constrained to different controllers during target selection and resolution; the existing atomic ExchangeControl effect does not supply that cross-target legality predicate.
+// Audit: unsupported — Needs two target slots constrained to different controllers during
+// target selection and resolution; the existing atomic ExchangeControl effect does not supply
+// that cross-target legality predicate.
 pub(in crate::card::sets) static KITSUNE_DRAGON_S_DAUGHTER: CardRecord = CardRecord::new(
     "Kitsune, Dragon's Daughter",
     "a87a9257-4535-4286-8b59-a842ac45d05e",
@@ -1163,7 +1203,10 @@ pub(in crate::card::sets) static KITSUNE_DRAGON_S_DAUGHTER: CardRecord = CardRec
 );
 
 // TMT 42 — Kitsune's Technique
-// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including returning an unblocked attacker as a cast cost, retaining its defender, and making the resulting creature enter tapped and attacking. The existing return-attacker cost is limited to hand activations for ninjutsu.
+// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including
+// returning an unblocked attacker as a cast cost, retaining its defender, and making the
+// resulting creature enter tapped and attacking. The existing return-attacker cost is limited
+// to hand activations for ninjutsu.
 pub(in crate::card::sets) static KITSUNE_S_TECHNIQUE: CardRecord = CardRecord::new(
     "Kitsune's Technique",
     "9ca5327e-df90-483c-875f-73a23781f56d",
@@ -1330,7 +1373,9 @@ pub(in crate::card::sets) static MIND_TRANSFER_PROTOCOL: CardRecord = CardRecord
 );
 
 // TMT 46 — Mondo Gecko
-// Audit: unsupported — Needs color-qualified hexproof granting protection from opponents' matching-color spells and abilities while retaining one shared color choice for the color change.
+// Audit: unsupported — Needs color-qualified hexproof granting protection from opponents'
+// matching-color spells and abilities while retaining one shared color choice for the color
+// change.
 pub(in crate::card::sets) static MONDO_GECKO: CardRecord = CardRecord::new(
     "Mondo Gecko",
     "665e44f9-bc0d-40aa-83a4-f7fe64f2506d",
@@ -1375,7 +1420,9 @@ pub(in crate::card::sets) static OOZE_SPILL: CardRecord = CardRecord::new(
 );
 
 // TMT 49 — Ray Fillet, Man Ray
-// Audit: unsupported — Needs an activation cost selecting a controlled creature and removing a +1/+1 counter from that chosen object; the current activation cost only removes counters from its own source.
+// Audit: unsupported — Needs an activation cost selecting a controlled creature and removing a
+// +1/+1 counter from that chosen object; the current activation cost only removes counters from
+// its own source.
 pub(in crate::card::sets) static RAY_FILLET_MAN_RAY: CardRecord = CardRecord::new(
     "Ray Fillet, Man Ray",
     "14e0892c-a556-43c3-974f-6be44188da2e",
@@ -1583,7 +1630,9 @@ pub(in crate::card::sets) static STOCKMAN_MAD_FLY_ENTIST: CardRecord = CardRecor
 );
 
 // TMT 55 — Turtles in Time
-// Audit: unsupported — Needs APNAP optional choices for all players before committing the corresponding hand/graveyard shuffles and draws; independent sequential offers reveal earlier players' results before later choices.
+// Audit: unsupported — Needs APNAP optional choices for all players before committing the
+// corresponding hand/graveyard shuffles and draws; independent sequential offers reveal earlier
+// players' results before later choices.
 pub(in crate::card::sets) static TURTLES_IN_TIME: CardRecord = CardRecord::new(
     "Turtles in Time",
     "bdb3efe7-7b12-4503-83e9-7977eb099db5",
@@ -1875,7 +1924,9 @@ pub(in crate::card::sets) static DREAM_BEAVERS: CardRecord = CardRecord::new(
 );
 
 // TMT 63 — Foot Mystic
-// Audit: unsupported — Needs per-controller history of a permanent leaving the battlefield this turn, including noncreatures and moves other than death; current death and entry history cannot answer disappear.
+// Audit: unsupported — Needs per-controller history of a permanent leaving the battlefield this
+// turn, including noncreatures and moves other than death; current death and entry history
+// cannot answer disappear.
 pub(in crate::card::sets) static FOOT_MYSTIC: CardRecord = CardRecord::new(
     "Foot Mystic",
     "61e40a18-6cc8-436d-826b-1cf8cd037df3",
@@ -1884,7 +1935,9 @@ pub(in crate::card::sets) static FOOT_MYSTIC: CardRecord = CardRecord::new(
 );
 
 // TMT 64 — Insectoid Exterminator
-// Audit: unsupported — Needs per-controller history of a permanent leaving the battlefield this turn, including noncreatures and moves other than death; current death and entry history cannot answer disappear.
+// Audit: unsupported — Needs per-controller history of a permanent leaving the battlefield this
+// turn, including noncreatures and moves other than death; current death and entry history
+// cannot answer disappear.
 pub(in crate::card::sets) static INSECTOID_EXTERMINATOR: CardRecord = CardRecord::new(
     "Insectoid Exterminator",
     "ff26f7ff-7f70-4204-9b48-de9e21dc89ec",
@@ -1893,7 +1946,9 @@ pub(in crate::card::sets) static INSECTOID_EXTERMINATOR: CardRecord = CardRecord
 );
 
 // TMT 65 — Lord Dregg, Insect Invader
-// Audit: unsupported — Needs per-controller history of a permanent leaving the battlefield this turn, including noncreatures and moves other than death; current death and entry history cannot answer disappear.
+// Audit: unsupported — Needs per-controller history of a permanent leaving the battlefield this
+// turn, including noncreatures and moves other than death; current death and entry history
+// cannot answer disappear.
 pub(in crate::card::sets) static LORD_DREGG_INSECT_INVADER: CardRecord = CardRecord::new(
     "Lord Dregg, Insect Invader",
     "8d1a9c8a-d0b6-4d83-a168-8078de4b14c7",
@@ -1902,7 +1957,9 @@ pub(in crate::card::sets) static LORD_DREGG_INSECT_INVADER: CardRecord = CardRec
 );
 
 // TMT 66 — Madame Null, Power Broker
-// Audit: unsupported — Needs a resolving life payment computed from the entrant's power and a retained paid-amount receipt for the counters; re-reading its power after life payment can produce a different number.
+// Audit: unsupported — Needs a resolving life payment computed from the entrant's power and a
+// retained paid-amount receipt for the counters; re-reading its power after life payment can
+// produce a different number.
 pub(in crate::card::sets) static MADAME_NULL_POWER_BROKER: CardRecord = CardRecord::new(
     "Madame Null, Power Broker",
     "4e712d5c-d6fe-40bb-b8e5-5f50c6ea8d4f",
@@ -1911,7 +1968,9 @@ pub(in crate::card::sets) static MADAME_NULL_POWER_BROKER: CardRecord = CardReco
 );
 
 // TMT 67 — Ninja Teen
-// Audit: unsupported — Needs a Class-level designation independent of counters and level-gated ability grants; the existing GainClassLevel path stores ordinary level counters, contrary to CR 716.2b and 716.4.
+// Audit: unsupported — Needs a Class-level designation independent of counters and level-gated
+// ability grants; the existing GainClassLevel path stores ordinary level counters, contrary to
+// CR 716.2b and 716.4.
 pub(in crate::card::sets) static NINJA_TEEN: CardRecord = CardRecord::new(
     "Ninja Teen",
     "0825a28f-f60b-4f80-83e3-cad6f9b266ce",
@@ -1920,7 +1979,10 @@ pub(in crate::card::sets) static NINJA_TEEN: CardRecord = CardRecord::new(
 );
 
 // TMT 68 — Oroku Saki, Shredder Rising
-// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including returning an unblocked attacker as a cast cost, retaining its defender, and making the resulting creature enter tapped and attacking. The existing return-attacker cost is limited to hand activations for ninjutsu.
+// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including
+// returning an unblocked attacker as a cast cost, retaining its defender, and making the
+// resulting creature enter tapped and attacking. The existing return-attacker cost is limited
+// to hand activations for ninjutsu.
 pub(in crate::card::sets) static OROKU_SAKI_SHREDDER_RISING: CardRecord = CardRecord::new(
     "Oroku Saki, Shredder Rising",
     "e65ff1f4-a061-4c31-a78e-92af6e7bc56f",
@@ -1966,7 +2028,8 @@ pub(in crate::card::sets) static PAIN_101: CardRecord = CardRecord::new(
 );
 
 // TMT 70 — Paramecia Coloniex
-// Audit: unsupported — Needs a source-independent reflexive trigger after optionally exiling the dying card, with graveyard targets chosen after the exile completes.
+// Audit: unsupported — Needs a source-independent reflexive trigger after optionally exiling
+// the dying card, with graveyard targets chosen after the exile completes.
 pub(in crate::card::sets) static PARAMECIA_COLONIEX: CardRecord = CardRecord::new(
     "Paramecia Coloniex",
     "654e2646-78ac-4b08-bed1-3c71355d55fc",
@@ -1975,7 +2038,9 @@ pub(in crate::card::sets) static PARAMECIA_COLONIEX: CardRecord = CardRecord::ne
 );
 
 // TMT 71 — Rat King, Verminister
-// Audit: unsupported — Needs per-controller history of a permanent leaving the battlefield this turn, including noncreatures and moves other than death; current death and entry history cannot answer disappear.
+// Audit: unsupported — Needs per-controller history of a permanent leaving the battlefield this
+// turn, including noncreatures and moves other than death; current death and entry history
+// cannot answer disappear.
 pub(in crate::card::sets) static RAT_KING_VERMINISTER: CardRecord = CardRecord::new(
     "Rat King, Verminister",
     "be464d88-8933-46e8-97b0-3be05f1976a3",
@@ -1984,7 +2049,8 @@ pub(in crate::card::sets) static RAT_KING_VERMINISTER: CardRecord = CardRecord::
 );
 
 // TMT 72 — Savanti Romero, Time's Exile
-// Audit: unsupported — Needs a scalar counting all counter kinds on the source, frozen once for both the draw and life-loss amounts; current counter values require a specific kind.
+// Audit: unsupported — Needs a scalar counting all counter kinds on the source, frozen once for
+// both the draw and life-loss amounts; current counter values require a specific kind.
 pub(in crate::card::sets) static SAVANTI_ROMERO_TIME_S_EXILE: CardRecord = CardRecord::new(
     "Savanti Romero, Time's Exile",
     "01cb8ded-7f77-4b75-b799-23e9f5efb513",
@@ -1993,7 +2059,10 @@ pub(in crate::card::sets) static SAVANTI_ROMERO_TIME_S_EXILE: CardRecord = CardR
 );
 
 // TMT 73 — Shark Shredder, Killer Clone
-// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including returning an unblocked attacker as a cast cost, retaining its defender, and making the resulting creature enter tapped and attacking. The existing return-attacker cost is limited to hand activations for ninjutsu.
+// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including
+// returning an unblocked attacker as a cast cost, retaining its defender, and making the
+// resulting creature enter tapped and attacking. The existing return-attacker cost is limited
+// to hand activations for ninjutsu.
 pub(in crate::card::sets) static SHARK_SHREDDER_KILLER_CLONE: CardRecord = CardRecord::new(
     "Shark Shredder, Killer Clone",
     "8f946b3d-7d2a-4210-a909-d16078757e3b",
@@ -2002,7 +2071,10 @@ pub(in crate::card::sets) static SHARK_SHREDDER_KILLER_CLONE: CardRecord = CardR
 );
 
 // TMT 74 — Shredder, Unrelenting
-// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including returning an unblocked attacker as a cast cost, retaining its defender, and making the resulting creature enter tapped and attacking. The existing return-attacker cost is limited to hand activations for ninjutsu.
+// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including
+// returning an unblocked attacker as a cast cost, retaining its defender, and making the
+// resulting creature enter tapped and attacking. The existing return-attacker cost is limited
+// to hand activations for ninjutsu.
 pub(in crate::card::sets) static SHREDDER_UNRELENTING: CardRecord = CardRecord::new(
     "Shredder, Unrelenting",
     "88a48867-5c65-483c-92b0-f70c53ea2a9e",
@@ -2096,7 +2168,10 @@ pub(in crate::card::sets) static SHREDDER_S_REVENGE: CardRecord = CardRecord::ne
 );
 
 // TMT 77 — Shredder's Technique
-// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including returning an unblocked attacker as a cast cost, retaining its defender, and making the resulting creature enter tapped and attacking. The existing return-attacker cost is limited to hand activations for ninjutsu.
+// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including
+// returning an unblocked attacker as a cast cost, retaining its defender, and making the
+// resulting creature enter tapped and attacking. The existing return-attacker cost is limited
+// to hand activations for ninjutsu.
 pub(in crate::card::sets) static SHREDDER_S_TECHNIQUE: CardRecord = CardRecord::new(
     "Shredder's Technique",
     "99a24349-7d11-421b-a161-c1edbb8f53b1",
@@ -2143,7 +2218,10 @@ pub(in crate::card::sets) static SOUTH_WIND_AVATAR: CardRecord = CardRecord::new
 );
 
 // TMT 79 — Splinter, Hamato Yoshi
-// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including returning an unblocked attacker as a cast cost, retaining its defender, and making the resulting creature enter tapped and attacking. The existing return-attacker cost is limited to hand activations for ninjutsu.
+// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including
+// returning an unblocked attacker as a cast cost, retaining its defender, and making the
+// resulting creature enter tapped and attacking. The existing return-attacker cost is limited
+// to hand activations for ninjutsu.
 pub(in crate::card::sets) static SPLINTER_HAMATO_YOSHI: CardRecord = CardRecord::new(
     "Splinter, Hamato Yoshi",
     "9ea9d072-aa98-405e-a475-26f93cc37e53",
@@ -2152,7 +2230,10 @@ pub(in crate::card::sets) static SPLINTER_HAMATO_YOSHI: CardRecord = CardRecord:
 );
 
 // TMT 80 — Splinter's Technique
-// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including returning an unblocked attacker as a cast cost, retaining its defender, and making the resulting creature enter tapped and attacking. The existing return-attacker cost is limited to hand activations for ninjutsu.
+// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including
+// returning an unblocked attacker as a cast cost, retaining its defender, and making the
+// resulting creature enter tapped and attacking. The existing return-attacker cost is limited
+// to hand activations for ninjutsu.
 pub(in crate::card::sets) static SPLINTER_S_TECHNIQUE: CardRecord = CardRecord::new(
     "Splinter's Technique",
     "fd3a5465-074a-4688-b79b-68e232076581",
@@ -2421,7 +2502,9 @@ pub(in crate::card::sets) static CASEY_JONES_VIGILANTE: CardRecord = CardRecord:
 );
 
 // TMT 89 — Cool but Rude
-// Audit: unsupported — Needs a Class-level designation independent of counters and level-gated ability grants; the existing GainClassLevel path stores ordinary level counters, contrary to CR 716.2b and 716.4.
+// Audit: unsupported — Needs a Class-level designation independent of counters and level-gated
+// ability grants; the existing GainClassLevel path stores ordinary level counters, contrary to
+// CR 716.2b and 716.4.
 pub(in crate::card::sets) static COOL_BUT_RUDE: CardRecord = CardRecord::new(
     "Cool but Rude",
     "a566ab2d-6ec8-4833-8ad6-210378b1a20e",
@@ -2430,7 +2513,9 @@ pub(in crate::card::sets) static COOL_BUT_RUDE: CardRecord = CardRecord::new(
 );
 
 // TMT 90 — General Traag, Heart of Stone
-// Audit: unsupported — Needs a source-independent reflexive damage trigger after an optional artifact sacrifice, with the damage target chosen after payment and retained last-known source information.
+// Audit: unsupported — Needs a source-independent reflexive damage trigger after an optional
+// artifact sacrifice, with the damage target chosen after payment and retained last-known
+// source information.
 pub(in crate::card::sets) static GENERAL_TRAAG_HEART_OF_STONE: CardRecord = CardRecord::new(
     "General Traag, Heart of Stone",
     "e02e971f-6008-4c82-acd2-2aed13009ccb",
@@ -2492,7 +2577,10 @@ pub(in crate::card::sets) static IMPROVISED_ARSENAL: CardRecord = CardRecord::ne
 );
 
 // TMT 93 — Jennika's Technique
-// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including returning an unblocked attacker as a cast cost, retaining its defender, and making the resulting creature enter tapped and attacking. The existing return-attacker cost is limited to hand activations for ninjutsu.
+// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including
+// returning an unblocked attacker as a cast cost, retaining its defender, and making the
+// resulting creature enter tapped and attacking. The existing return-attacker cost is limited
+// to hand activations for ninjutsu.
 pub(in crate::card::sets) static JENNIKA_S_TECHNIQUE: CardRecord = CardRecord::new(
     "Jennika's Technique",
     "df559199-c8b9-455b-aa07-0a042348de96",
@@ -2717,32 +2805,29 @@ pub(in crate::card::sets) static OLD_HOB_ALLEYCAT_BLUES: CardRecord = CardRecord
                     player: PlayerRelation::You,
                 },
                 EffectDef::CreateToken(
-                    CreateTokenDef::new(TokenDef::Literal(MUTANT_TOKEN))
-                    .with_created_tokens(CreatedTokensDef {
+                    CreateTokenDef::new(TokenDef::Literal(MUTANT_TOKEN)).with_created_tokens(CreatedTokensDef {
                         binding: crate::Binding!("mutant"),
                         then: &EffectDef::Sequence(&[
                             EffectDef::Apply {
-                                recipient: EffectRecipientDef::objects(ObjectSetDef::Binding(
-                                    crate::Binding!("mutant"),
-                                )),
+                                recipient: EffectRecipientDef::objects(ObjectSetDef::Binding(crate::Binding!(
+                                    "mutant"
+                                ))),
                                 effect: AppliedEffectDef::add_ability(&abilities::haste()),
                                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                             },
-                            EffectDef::InstallTrigger(InstalledTriggerDef::once(
-                                &AbilityDef::triggered(
-                                    "At the beginning of the next end step, destroy that token.",
-                                    TriggerEventDef::StepBegins {
-                                        step: TurnStepDef::End,
-                                        player: PlayerRelation::Any,
-                                    },
-                                    EffectDef::Destroy {
-                                        object: EffectRecipientDef::objects(ObjectSetDef::Binding(
-                                            crate::Binding!("mutant"),
-                                        )),
-                                        then: None,
-                                    },
-                                ),
-                            )),
+                            EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
+                                "At the beginning of the next end step, destroy that token.",
+                                TriggerEventDef::StepBegins {
+                                    step: TurnStepDef::End,
+                                    player: PlayerRelation::Any,
+                                },
+                                EffectDef::Destroy {
+                                    object: EffectRecipientDef::objects(ObjectSetDef::Binding(crate::Binding!(
+                                        "mutant"
+                                    ))),
+                                    then: None,
+                                },
+                            ))),
                         ]),
                     }),
                 ),
@@ -2751,13 +2836,11 @@ pub(in crate::card::sets) static OLD_HOB_ALLEYCAT_BLUES: CardRecord = CardRecord
                 "{1}{W}: Target attacking creature token gains indestructible \
                  until end of turn.",
                 &[CostDef::Mana(mana_cost!("{1}{W}"))],
-                &[AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Token,
-                        ObjectPredicateDef::Attacking,
-                    ]),
-                )],
+                &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Token,
+                    ObjectPredicateDef::Attacking,
+                ]))],
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     effect: AppliedEffectDef::add_ability(&abilities::indestructible()),
@@ -2787,7 +2870,8 @@ pub(in crate::card::sets) static PURPLE_DRAGON_PUNKS: CardRecord = CardRecord::n
 );
 
 // TMT 101 — Raphael, Most Attitude
-// Audit: unsupported — Needs a this-turn permission allowing exactly one play from the source's linked exile group; current per-card permissions would allow playing every linked card.
+// Audit: unsupported — Needs a this-turn permission allowing exactly one play from the source's
+// linked exile group; current per-card permissions would allow playing every linked card.
 pub(in crate::card::sets) static RAPHAEL_MOST_ATTITUDE: CardRecord = CardRecord::new(
     "Raphael, Most Attitude",
     "88385a87-f931-409f-8a21-250f0866d63d",
@@ -2796,7 +2880,8 @@ pub(in crate::card::sets) static RAPHAEL_MOST_ATTITUDE: CardRecord = CardRecord:
 );
 
 // TMT 102 — Raphael, Ninja Destroyer
-// Audit: unsupported — Needs retention of the mana produced by this triggered ability until the turn ends; current AddMana cannot mark those units to survive phase and step boundaries.
+// Audit: unsupported — Needs retention of the mana produced by this triggered ability until the
+// turn ends; current AddMana cannot mark those units to survive phase and step boundaries.
 pub(in crate::card::sets) static RAPHAEL_NINJA_DESTROYER: CardRecord = CardRecord::new(
     "Raphael, Ninja Destroyer",
     "eeffadda-cb71-4434-89bf-36db1a36da0b",
@@ -2805,7 +2890,10 @@ pub(in crate::card::sets) static RAPHAEL_NINJA_DESTROYER: CardRecord = CardRecor
 );
 
 // TMT 103 — Raphael, the Nightwatcher
-// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including returning an unblocked attacker as a cast cost, retaining its defender, and making the resulting creature enter tapped and attacking. The existing return-attacker cost is limited to hand activations for ninjutsu.
+// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including
+// returning an unblocked attacker as a cast cost, retaining its defender, and making the
+// resulting creature enter tapped and attacking. The existing return-attacker cost is limited
+// to hand activations for ninjutsu.
 pub(in crate::card::sets) static RAPHAEL_THE_NIGHTWATCHER: CardRecord = CardRecord::new(
     "Raphael, the Nightwatcher",
     "6af50b50-3776-4383-b493-7c5dd732c965",
@@ -2845,7 +2933,10 @@ pub(in crate::card::sets) static RAPHAEL_TOUGH_TURTLE: CardRecord = CardRecord::
 );
 
 // TMT 105 — Raphael's Technique
-// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including returning an unblocked attacker as a cast cost, retaining its defender, and making the resulting creature enter tapped and attacking. The existing return-attacker cost is limited to hand activations for ninjutsu.
+// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including
+// returning an unblocked attacker as a cast cost, retaining its defender, and making the
+// resulting creature enter tapped and attacking. The existing return-attacker cost is limited
+// to hand activations for ninjutsu.
 pub(in crate::card::sets) static RAPHAEL_S_TECHNIQUE: CardRecord = CardRecord::new(
     "Raphael's Technique",
     "7ce8b00f-5a4f-4206-8eb3-e79308e91f47",
@@ -3106,7 +3197,9 @@ pub(in crate::card::sets) static ZOG_TRICERATON_CASTAWAY: CardRecord = CardRecor
 );
 
 // TMT 112 — Courier of Comestibles
-// Audit: unsupported — Needs a search result recording whether a found card actually arrived in hand after replacement effects, distinct from declining the optional search or failing to find; the Food fallback must follow that result.
+// Audit: unsupported — Needs a search result recording whether a found card actually arrived in
+// hand after replacement effects, distinct from declining the optional search or failing to
+// find; the Food fallback must follow that result.
 pub(in crate::card::sets) static COURIER_OF_COMESTIBLES: CardRecord = CardRecord::new(
     "Courier of Comestibles",
     "53f5f704-2265-42bb-bff5-fd9d85bc2bfb",
@@ -3256,7 +3349,8 @@ pub(in crate::card::sets) static GUAC_MARSHMALLOW_PIZZA: CardRecord = CardRecord
 );
 
 // TMT 117 — Leatherhead, Swamp Stalker
-// Audit: unsupported — Needs an optional resolving removal of a chosen counter kind and a source-independent reflexive destruction trigger with targets chosen after that payment.
+// Audit: unsupported — Needs an optional resolving removal of a chosen counter kind and a
+// source-independent reflexive destruction trigger with targets chosen after that payment.
 pub(in crate::card::sets) static LEATHERHEAD_SWAMP_STALKER: CardRecord = CardRecord::new(
     "Leatherhead, Swamp Stalker",
     "b1f6b5b5-12ca-468d-bc53-dd0cde60e7b6",
@@ -3265,7 +3359,9 @@ pub(in crate::card::sets) static LEATHERHEAD_SWAMP_STALKER: CardRecord = CardRec
 );
 
 // TMT 118 — Michelangelo, Game Master
-// Audit: unsupported — Needs per-controller history of a permanent leaving the battlefield this turn, including noncreatures and moves other than death; current death and entry history cannot answer disappear.
+// Audit: unsupported — Needs per-controller history of a permanent leaving the battlefield this
+// turn, including noncreatures and moves other than death; current death and entry history
+// cannot answer disappear.
 pub(in crate::card::sets) static MICHELANGELO_GAME_MASTER: CardRecord = CardRecord::new(
     "Michelangelo, Game Master",
     "2e914c3d-2eed-48bf-af9a-a8998fd5111d",
@@ -3274,7 +3370,10 @@ pub(in crate::card::sets) static MICHELANGELO_GAME_MASTER: CardRecord = CardReco
 );
 
 // TMT 119 — Michelangelo, Improviser
-// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including returning an unblocked attacker as a cast cost, retaining its defender, and making the resulting creature enter tapped and attacking. The existing return-attacker cost is limited to hand activations for ninjutsu.
+// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including
+// returning an unblocked attacker as a cast cost, retaining its defender, and making the
+// resulting creature enter tapped and attacking. The existing return-attacker cost is limited
+// to hand activations for ninjutsu.
 pub(in crate::card::sets) static MICHELANGELO_IMPROVISER: CardRecord = CardRecord::new(
     "Michelangelo, Improviser",
     "955848c0-5092-4e13-97c9-5978d44d5586",
@@ -3336,7 +3435,8 @@ pub(in crate::card::sets) static MICHELANGELO_MUTANT_BFF: CardRecord = CardRecor
 );
 
 // TMT 121 — Michelangelo, Weirdness to 11
-// Audit: unsupported — Needs a replacement for a +1/+1-counter placement event adding one counter per affected controlled creature, including counters placed during battlefield entry.
+// Audit: unsupported — Needs a replacement for a +1/+1-counter placement event adding one
+// counter per affected controlled creature, including counters placed during battlefield entry.
 pub(in crate::card::sets) static MICHELANGELO_WEIRDNESS_TO_11: CardRecord = CardRecord::new(
     "Michelangelo, Weirdness to 11",
     "18477047-218d-4b2a-a086-37431b6a3025",
@@ -3345,7 +3445,10 @@ pub(in crate::card::sets) static MICHELANGELO_WEIRDNESS_TO_11: CardRecord = Card
 );
 
 // TMT 122 — Michelangelo's Technique
-// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including returning an unblocked attacker as a cast cost, retaining its defender, and making the resulting creature enter tapped and attacking. The existing return-attacker cost is limited to hand activations for ninjutsu.
+// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including
+// returning an unblocked attacker as a cast cost, retaining its defender, and making the
+// resulting creature enter tapped and attacking. The existing return-attacker cost is limited
+// to hand activations for ninjutsu.
 pub(in crate::card::sets) static MICHELANGELO_S_TECHNIQUE: CardRecord = CardRecord::new(
     "Michelangelo's Technique",
     "3a63c06a-7c59-4b72-b916-e5b6ad78c684",
@@ -3450,7 +3553,10 @@ pub(in crate::card::sets) static MUTANT_CHAIN_REACTION: CardRecord = CardRecord:
 );
 
 // TMT 126 — New Generation's Technique
-// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including returning an unblocked attacker as a cast cost, retaining its defender, and making the resulting creature enter tapped and attacking. The existing return-attacker cost is limited to hand activations for ninjutsu.
+// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including
+// returning an unblocked attacker as a cast cost, retaining its defender, and making the
+// resulting creature enter tapped and attacking. The existing return-attacker cost is limited
+// to hand activations for ninjutsu.
 pub(in crate::card::sets) static NEW_GENERATION_S_TECHNIQUE: CardRecord = CardRecord::new(
     "New Generation's Technique",
     "f1616a07-e4a1-4574-b341-d6b31d76b3c5",
@@ -3459,7 +3565,9 @@ pub(in crate::card::sets) static NEW_GENERATION_S_TECHNIQUE: CardRecord = CardRe
 );
 
 // TMT 127 — Novel Nunchaku
-// Audit: unsupported — Needs a reflexive trigger emitted by successful attachment, selecting the fight target after attachment and using the creature currently equipped when that trigger resolves.
+// Audit: unsupported — Needs a reflexive trigger emitted by successful attachment, selecting
+// the fight target after attachment and using the creature currently equipped when that trigger
+// resolves.
 pub(in crate::card::sets) static NOVEL_NUNCHAKU: CardRecord = CardRecord::new(
     "Novel Nunchaku",
     "f37ef012-c566-4d16-acf8-6079244907be",
@@ -3468,7 +3576,9 @@ pub(in crate::card::sets) static NOVEL_NUNCHAKU: CardRecord = CardRecord::new(
 );
 
 // TMT 128 — Party Dude
-// Audit: unsupported — Needs a Class-level designation independent of counters and level-gated ability grants; the existing GainClassLevel path stores ordinary level counters, contrary to CR 716.2b and 716.4.
+// Audit: unsupported — Needs a Class-level designation independent of counters and level-gated
+// ability grants; the existing GainClassLevel path stores ordinary level counters, contrary to
+// CR 716.2b and 716.4.
 pub(in crate::card::sets) static PARTY_DUDE: CardRecord = CardRecord::new(
     "Party Dude",
     "d27b6f2a-84df-4097-a66a-8e463db47f58",
@@ -3726,7 +3836,9 @@ pub(in crate::card::sets) static VENUS_TORN_BETWEEN_WORLDS: CardRecord = CardRec
 );
 
 // TMT 137 — West Wind Avatar
-// Audit: unsupported — Needs per-controller history of a permanent leaving the battlefield this turn, including noncreatures and moves other than death; current death and entry history cannot answer disappear.
+// Audit: unsupported — Needs per-controller history of a permanent leaving the battlefield this
+// turn, including noncreatures and moves other than death; current death and entry history
+// cannot answer disappear.
 pub(in crate::card::sets) static WEST_WIND_AVATAR: CardRecord = CardRecord::new(
     "West Wind Avatar",
     "f4b8f7e6-9bff-430b-b2f5-4308d57d1194",
@@ -3855,7 +3967,9 @@ pub(in crate::card::sets) static BEBOP_ROCKSTEADY: CardRecord = CardRecord::new(
 );
 
 // TMT 141 — Brilliance Unleashed
-// Audit: unsupported — Needs noncopiable type, base-stat, subtype, and flying changes on the prospective returning permanent before it enters; post-entry Apply would change entry triggers and replacement eligibility.
+// Audit: unsupported — Needs noncopiable type, base-stat, subtype, and flying changes on the
+// prospective returning permanent before it enters; post-entry Apply would change entry
+// triggers and replacement eligibility.
 pub(in crate::card::sets) static BRILLIANCE_UNLEASHED: CardRecord = CardRecord::new(
     "Brilliance Unleashed",
     "b7ab2110-5aad-46c9-8dc4-1eac24b6f46b",
@@ -3864,7 +3978,10 @@ pub(in crate::card::sets) static BRILLIANCE_UNLEASHED: CardRecord = CardRecord::
 );
 
 // TMT 142 — Dark Leo & Shredder
-// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including returning an unblocked attacker as a cast cost, retaining its defender, and making the resulting creature enter tapped and attacking. The existing return-attacker cost is limited to hand activations for ninjutsu.
+// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including
+// returning an unblocked attacker as a cast cost, retaining its defender, and making the
+// resulting creature enter tapped and attacking. The existing return-attacker cost is limited
+// to hand activations for ninjutsu.
 pub(in crate::card::sets) static DARK_LEO_SHREDDER: CardRecord = CardRecord::new(
     "Dark Leo & Shredder",
     "bab93474-2f98-49a1-874f-b794bf81bd0c",
@@ -3938,7 +4055,9 @@ pub(in crate::card::sets) static DON_LEO_PROBLEM_SOLVERS: CardRecord = CardRecor
 );
 
 // TMT 144 — Don & Raph, Hard Science
-// Audit: unsupported — Needs a consumable next-noncreature-spell-this-turn cost modifier whose affinity amount is evaluated during that spell's payment and consumed only by a successful cast.
+// Audit: unsupported — Needs a consumable next-noncreature-spell-this-turn cost modifier whose
+// affinity amount is evaluated during that spell's payment and consumed only by a successful
+// cast.
 pub(in crate::card::sets) static DON_RAPH_HARD_SCIENCE: CardRecord = CardRecord::new(
     "Don & Raph, Hard Science",
     "4f38126c-26a9-4447-801f-4f19e84c4aa5",
@@ -4013,7 +4132,10 @@ pub(in crate::card::sets) static FOOT_ELITE: CardRecord = CardRecord::new(
 );
 
 // TMT 147 — Foot Ninjas
-// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including returning an unblocked attacker as a cast cost, retaining its defender, and making the resulting creature enter tapped and attacking. The existing return-attacker cost is limited to hand activations for ninjutsu.
+// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including
+// returning an unblocked attacker as a cast cost, retaining its defender, and making the
+// resulting creature enter tapped and attacking. The existing return-attacker cost is limited
+// to hand activations for ninjutsu.
 pub(in crate::card::sets) static FOOT_NINJAS: CardRecord = CardRecord::new(
     "Foot Ninjas",
     "abb1ab9c-b067-4b75-8e5b-a893b7948df1",
@@ -4161,7 +4283,10 @@ pub(in crate::card::sets) static ICE_CREAM_KITTY: CardRecord = CardRecord::new(
 );
 
 // TMT 151 — Karai, Future of the Foot
-// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including returning an unblocked attacker as a cast cost, retaining its defender, and making the resulting creature enter tapped and attacking. The existing return-attacker cost is limited to hand activations for ninjutsu.
+// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including
+// returning an unblocked attacker as a cast cost, retaining its defender, and making the
+// resulting creature enter tapped and attacking. The existing return-attacker cost is limited
+// to hand activations for ninjutsu.
 pub(in crate::card::sets) static KARAI_FUTURE_OF_THE_FOOT: CardRecord = CardRecord::new(
     "Karai, Future of the Foot",
     "0dded2d4-1640-4431-809e-403b51b27db6",
@@ -4170,7 +4295,10 @@ pub(in crate::card::sets) static KARAI_FUTURE_OF_THE_FOOT: CardRecord = CardReco
 );
 
 // TMT 152 — Karai's Technique
-// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including returning an unblocked attacker as a cast cost, retaining its defender, and making the resulting creature enter tapped and attacking. The existing return-attacker cost is limited to hand activations for ninjutsu.
+// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including
+// returning an unblocked attacker as a cast cost, retaining its defender, and making the
+// resulting creature enter tapped and attacking. The existing return-attacker cost is limited
+// to hand activations for ninjutsu.
 pub(in crate::card::sets) static KARAI_S_TECHNIQUE: CardRecord = CardRecord::new(
     "Karai's Technique",
     "037fe188-3355-4724-b2eb-e2448fc55607",
@@ -4179,7 +4307,9 @@ pub(in crate::card::sets) static KARAI_S_TECHNIQUE: CardRecord = CardRecord::new
 );
 
 // TMT 153 — Krang & Shredder
-// Audit: unsupported — Needs per-controller history of a permanent leaving the battlefield this turn, including noncreatures and moves other than death; current death and entry history cannot answer disappear.
+// Audit: unsupported — Needs per-controller history of a permanent leaving the battlefield this
+// turn, including noncreatures and moves other than death; current death and entry history
+// cannot answer disappear.
 pub(in crate::card::sets) static KRANG_SHREDDER: CardRecord = CardRecord::new(
     "Krang & Shredder",
     "9b5437e2-e3f4-4c19-a2aa-a75f65a001bb",
@@ -4188,7 +4318,9 @@ pub(in crate::card::sets) static KRANG_SHREDDER: CardRecord = CardRecord::new(
 );
 
 // TMT 154 — The Last Ronin
-// Audit: unsupported — Needs a source-independent reflexive trigger after milling, so its graveyard target is chosen after the new cards arrive; choosing that target with the chapter trigger is too early.
+// Audit: unsupported — Needs a source-independent reflexive trigger after milling, so its
+// graveyard target is chosen after the new cards arrive; choosing that target with the chapter
+// trigger is too early.
 pub(in crate::card::sets) static THE_LAST_RONIN: CardRecord = CardRecord::new(
     "The Last Ronin",
     "72ab3ccf-3ddb-4dd1-9cfb-98802a18d954",
@@ -4254,7 +4386,8 @@ pub(in crate::card::sets) static MECHANIZED_NINJA_CAVALRY: CardRecord = CardReco
 );
 
 // TMT 157 — Mikey & Don, Party Planners
-// Audit: unsupported — Needs the top-of-library cast permission to attach an additional counter to the prospective creature entry, retaining which permission authorized the cast.
+// Audit: unsupported — Needs the top-of-library cast permission to attach an additional counter
+// to the prospective creature entry, retaining which permission authorized the cast.
 pub(in crate::card::sets) static MIKEY_DON_PARTY_PLANNERS: CardRecord = CardRecord::new(
     "Mikey & Don, Party Planners",
     "6353df1a-9a1b-41fd-985b-8c8acba36c23",
@@ -4263,7 +4396,8 @@ pub(in crate::card::sets) static MIKEY_DON_PARTY_PLANNERS: CardRecord = CardReco
 );
 
 // TMT 158 — Mikey & Leo, Chaos & Order
-// Audit: unsupported — Needs a counter-placement event matching any counter kind and identifying the player who placed it, independent of the recipient creature's controller.
+// Audit: unsupported — Needs a counter-placement event matching any counter kind and
+// identifying the player who placed it, independent of the recipient creature's controller.
 pub(in crate::card::sets) static MIKEY_LEO_CHAOS_ORDER: CardRecord = CardRecord::new(
     "Mikey & Leo, Chaos & Order",
     "9cfeb2b4-937c-4bcc-bb03-467cc0effba2",
@@ -4302,7 +4436,9 @@ pub(in crate::card::sets) static MOUSER_MARK_III: CardRecord = CardRecord::new(
 );
 
 // TMT 160 — The Neutrinos
-// Audit: unsupported — Needs a bound returning creature to enter tapped and attacking under the effect controller; the general battlefield-arrival modifier lacks an attacking destination and defender choice.
+// Audit: unsupported — Needs a bound returning creature to enter tapped and attacking under the
+// effect controller; the general battlefield-arrival modifier lacks an attacking destination
+// and defender choice.
 pub(in crate::card::sets) static THE_NEUTRINOS: CardRecord = CardRecord::new(
     "The Neutrinos",
     "1308dadc-08a9-40bd-98a4-fb66d792e27d",
@@ -4381,7 +4517,9 @@ pub(in crate::card::sets) static NORTH_WIND_AVATAR: CardRecord = CardRecord::new
 );
 
 // TMT 163 — Pizza Face, Gastromancer
-// Audit: unsupported — Needs per-controller history of a permanent leaving the battlefield this turn, including noncreatures and moves other than death; current death and entry history cannot answer disappear.
+// Audit: unsupported — Needs per-controller history of a permanent leaving the battlefield this
+// turn, including noncreatures and moves other than death; current death and entry history
+// cannot answer disappear.
 pub(in crate::card::sets) static PIZZA_FACE_GASTROMANCER: CardRecord = CardRecord::new(
     "Pizza Face, Gastromancer",
     "b03cf0bb-3207-4e8e-bb3f-e3e4367aa86e",
@@ -4407,7 +4545,9 @@ pub(in crate::card::sets) static PUNK_FROGS: CardRecord = CardRecord::new(
 );
 
 // TMT 165 — Putrid Pals
-// Audit: unsupported — Needs per-controller history of a permanent leaving the battlefield this turn, including noncreatures and moves other than death; current death and entry history cannot answer disappear.
+// Audit: unsupported — Needs per-controller history of a permanent leaving the battlefield this
+// turn, including noncreatures and moves other than death; current death and entry history
+// cannot answer disappear.
 pub(in crate::card::sets) static PUTRID_PALS: CardRecord = CardRecord::new(
     "Putrid Pals",
     "42cdb88d-675a-43bb-b85c-51c4cc526315",
@@ -4416,7 +4556,8 @@ pub(in crate::card::sets) static PUTRID_PALS: CardRecord = CardRecord::new(
 );
 
 // TMT 166 — Raph & Leo, Sibling Rivals
-// Audit: unsupported — Needs a first-combat-phase-of-the-turn condition; the current combat scheduler can add phases but does not expose that ordinal to trigger conditions.
+// Audit: unsupported — Needs a first-combat-phase-of-the-turn condition; the current combat
+// scheduler can add phases but does not expose that ordinal to trigger conditions.
 pub(in crate::card::sets) static RAPH_LEO_SIBLING_RIVALS: CardRecord = CardRecord::new(
     "Raph & Leo, Sibling Rivals",
     "49293f77-5d7b-4106-b485-db6ce0ed37e6",
@@ -4425,7 +4566,9 @@ pub(in crate::card::sets) static RAPH_LEO_SIBLING_RIVALS: CardRecord = CardRecor
 );
 
 // TMT 167 — Raph & Mikey, Troublemakers
-// Audit: unsupported — Needs a selected revealed creature card to enter tapped and attacking, including choosing its defender; current attacking-arrival support is limited to token creation and the ability source.
+// Audit: unsupported — Needs a selected revealed creature card to enter tapped and attacking,
+// including choosing its defender; current attacking-arrival support is limited to token
+// creation and the ability source.
 pub(in crate::card::sets) static RAPH_MIKEY_TROUBLEMAKERS: CardRecord = CardRecord::new(
     "Raph & Mikey, Troublemakers",
     "8795fba4-0ff3-4c04-a81c-60408608a00c",
@@ -4452,7 +4595,9 @@ pub(in crate::card::sets) static SLITHERING_CRYPTID: CardRecord = CardRecord::ne
 );
 
 // TMT 169 — Splinter, Radical Rat
-// Audit: unsupported — Needs an additional-trigger modifier for every triggered ability of qualifying Ninja creatures; the current modifier only duplicates triggers caused by specified battlefield entries.
+// Audit: unsupported — Needs an additional-trigger modifier for every triggered ability of
+// qualifying Ninja creatures; the current modifier only duplicates triggers caused by specified
+// battlefield entries.
 pub(in crate::card::sets) static SPLINTER_RADICAL_RAT: CardRecord = CardRecord::new(
     "Splinter, Radical Rat",
     "f0797466-c527-4d35-86bc-e0e90fd04073",
@@ -4497,7 +4642,9 @@ pub(in crate::card::sets) static TAINTED_TREATS: CardRecord = CardRecord::new(
 );
 
 // TMT 171 — Tokka & Rahzar, Terrible Twos
-// Audit: unsupported — Needs the triggering spell's actual total mana paid, compared with its stack mana value including chosen X; no retained cast-payment total is exposed to trigger conditions.
+// Audit: unsupported — Needs the triggering spell's actual total mana paid, compared with its
+// stack mana value including chosen X; no retained cast-payment total is exposed to trigger
+// conditions.
 pub(in crate::card::sets) static TOKKA_RAHZAR_TERRIBLE_TWOS: CardRecord = CardRecord::new(
     "Tokka & Rahzar, Terrible Twos",
     "284f9012-a58d-41da-be7c-962dca052711",
@@ -4767,7 +4914,9 @@ pub(in crate::card::sets) static OMNI_CHEESE_PIZZA: CardRecord = CardRecord::new
 );
 
 // TMT 177 — The Ooze
-// Audit: unsupported — Needs the triggering departing creature's last-known +1/+1-counter count; CountersOnObject only reads live battlefield objects and returns zero after that creature leaves.
+// Audit: unsupported — Needs the triggering departing creature's last-known +1/+1-counter
+// count; CountersOnObject only reads live battlefield objects and returns zero after that
+// creature leaves.
 pub(in crate::card::sets) static THE_OOZE: CardRecord = CardRecord::new(
     "The Ooze",
     "1f9bd4da-4626-40ba-95f4-14e3de36f989",
@@ -4877,7 +5026,8 @@ pub(in crate::card::sets) static TURTLE_BLIMP: CardRecord = CardRecord::new(
 );
 
 // TMT 181 — Turtle Van
-// Audit: unsupported — Needs per-Vehicle history identifying which creatures crewed it this turn, available to attack-trigger targeting even after subsequent crew activations.
+// Audit: unsupported — Needs per-Vehicle history identifying which creatures crewed it this
+// turn, available to attack-trigger targeting even after subsequent crew activations.
 pub(in crate::card::sets) static TURTLE_VAN: CardRecord = CardRecord::new(
     "Turtle Van",
     "fce6a8b6-b43c-4045-9378-97b2463f9b4d",

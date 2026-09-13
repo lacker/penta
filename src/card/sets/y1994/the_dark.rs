@@ -79,7 +79,9 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // DRK 1 — Angry Mob
-// Audit: unsupported — Needs a characteristic-layer effect or dynamic value for “During your turn, Angry Mob's power and toughness are each equal to 2 plus the number of Swamps your opponents control. During turns other than yours, Angry Mob's power and toughness are…”.
+// Audit: unsupported — Needs a characteristic-layer effect or dynamic value for “During your
+// turn, Angry Mob's power and toughness are each equal to 2 plus the number of Swamps your
+// opponents control. During turns other than yours, Angry Mob's power and toughness are…”.
 pub(in crate::card::sets) static ANGRY_MOB: CardRecord = CardRecord::new(
     "Angry Mob",
     "9e14db1c-0a05-47d2-9f27-df881f7f37ab",
@@ -88,7 +90,9 @@ pub(in crate::card::sets) static ANGRY_MOB: CardRecord = CardRecord::new(
 );
 
 // DRK 2 — Blood of the Martyr
-// Audit: unsupported — Needs a duration-scoped replacement/prevention effect for “Until end of turn, if damage would be dealt to any creature, you may have that damage dealt to you instead”.
+// Audit: unsupported — Needs a duration-scoped replacement/prevention effect for “Until end of
+// turn, if damage would be dealt to any creature, you may have that damage dealt to you
+// instead”.
 pub(in crate::card::sets) static BLOOD_OF_THE_MARTYR: CardRecord = CardRecord::new(
     "Blood of the Martyr",
     "22d4761d-acf2-4cb3-86a8-a3f30420a92e",
@@ -97,7 +101,8 @@ pub(in crate::card::sets) static BLOOD_OF_THE_MARTYR: CardRecord = CardRecord::n
 );
 
 // DRK 3 — Brainwash
-// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “Enchanted creature can't attack unless its controller pays {3}”.
+// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for
+// “Enchanted creature can't attack unless its controller pays {3}”.
 pub(in crate::card::sets) static BRAINWASH: CardRecord = CardRecord::new(
     "Brainwash",
     "6da4fb5a-0d24-4bee-b3f5-535ba9fe6850",
@@ -106,7 +111,8 @@ pub(in crate::card::sets) static BRAINWASH: CardRecord = CardRecord::new(
 );
 
 // DRK 4 — Cleansing
-// Audit: unsupported — Needs linked sacrifice/destruction accounting for “For each land, destroy that land unless any player pays 1 life”.
+// Audit: unsupported — Needs linked sacrifice/destruction accounting for “For each land,
+// destroy that land unless any player pays 1 life”.
 pub(in crate::card::sets) static CLEANSING: CardRecord = CardRecord::new(
     "Cleansing",
     "fc1973a3-1410-4c6d-9b09-bd9d18646a1e",
@@ -170,7 +176,8 @@ pub(in crate::card::sets) static EXORCIST: CardRecord = CardRecord::new(
 );
 
 // DRK 7 — Fasting
-// Audit: unsupported — Needs a duration-scoped replacement/prevention effect for “If you would begin your draw step, you may skip that step instead. If you do, you gain 2 life”.
+// Audit: unsupported — Needs a duration-scoped replacement/prevention effect for “If you would
+// begin your draw step, you may skip that step instead. If you do, you gain 2 life”.
 pub(in crate::card::sets) static FASTING: CardRecord = CardRecord::new(
     "Fasting",
     "8da35f9f-e72c-4154-a212-7de98f84ad7d",
@@ -209,7 +216,8 @@ pub(in crate::card::sets) static FESTIVAL: CardRecord = CardRecord::new(
 );
 
 // DRK 9 — Fire and Brimstone
-// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “Fire and Brimstone deals 4 damage to target player who attacked this turn and 4 damage to you”.
+// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “Fire and
+// Brimstone deals 4 damage to target player who attacked this turn and 4 damage to you”.
 pub(in crate::card::sets) static FIRE_AND_BRIMSTONE: CardRecord = CardRecord::new(
     "Fire and Brimstone",
     "d5208dbb-63d2-4789-8ef9-f82499a43b3a",
@@ -254,7 +262,8 @@ pub(in crate::card::sets) static KNIGHTS_OF_THORN: CardRecord = CardRecord::new(
 );
 
 // DRK 12 — Martyr's Cry
-// Audit: unsupported — Needs a zone-object query and identity-preserving continuation for “Exile all white creatures. For each creature exiled this way, its controller draws a card”.
+// Audit: unsupported — Needs a zone-object query and identity-preserving continuation for
+// “Exile all white creatures. For each creature exiled this way, its controller draws a card”.
 pub(in crate::card::sets) static MARTYR_S_CRY: CardRecord = CardRecord::new(
     "Martyr's Cry",
     "e2c9f463-d1cc-4f11-aad2-d4a4520aa978",
@@ -322,7 +331,9 @@ pub(in crate::card::sets) static PIKEMEN: CardRecord = CardRecord::new(
 );
 
 // DRK 16 — Preacher
-// Audit: unsupported — Needs duration-aware control-changing continuous effects for “{T}: For as long as this creature remains tapped, gain control of target creature of an opponent's choice they control”.
+// Audit: unsupported — Needs duration-aware control-changing continuous effects for “{T}: For
+// as long as this creature remains tapped, gain control of target creature of an opponent's
+// choice they control”.
 pub(in crate::card::sets) static PREACHER: CardRecord = CardRecord::new(
     "Preacher",
     "1e03d335-d259-4ab4-814f-9333cfd3afc9",
@@ -436,7 +447,8 @@ pub(in crate::card::sets) static APPRENTICE_WIZARD: CardRecord = CardRecord::new
 );
 
 // DRK 22 — Dance of Many
-// Audit: unsupported — Needs copiable-value or rules-text mutation support for “When this enchantment enters, create a token that's a copy of target nontoken creature”.
+// Audit: unsupported — Needs copiable-value or rules-text mutation support for “When this
+// enchantment enters, create a token that's a copy of target nontoken creature”.
 pub(in crate::card::sets) static DANCE_OF_MANY: CardRecord = CardRecord::new(
     "Dance of Many",
     "13453abe-3f05-4956-8493-382d7d2af699",
@@ -445,7 +457,9 @@ pub(in crate::card::sets) static DANCE_OF_MANY: CardRecord = CardRecord::new(
 );
 
 // DRK 23 — Deep Water
-// Audit: unsupported — Needs a duration-scoped replacement/prevention effect for “{U}: Until end of turn, if you tap a land you control for mana, it produces {U} instead of any other type”.
+// Audit: unsupported — Needs a duration-scoped replacement/prevention effect for “{U}: Until
+// end of turn, if you tap a land you control for mana, it produces {U} instead of any other
+// type”.
 pub(in crate::card::sets) static DEEP_WATER: CardRecord = CardRecord::new(
     "Deep Water",
     "9dd6a230-6bc0-499c-b7fd-4aaa2569f98f",
@@ -495,7 +509,9 @@ pub(in crate::card::sets) static ELECTRIC_EEL: CardRecord = CardRecord::new(
 );
 
 // DRK 26 — Erosion
-// Audit: unsupported — Needs an upkeep trigger whose event player is derived from the attached permanent's current controller for “At the beginning of the upkeep of enchanted land's controller, destroy that land unless that player pays {1} or 1 life”.
+// Audit: unsupported — Needs an upkeep trigger whose event player is derived from the attached
+// permanent's current controller for “At the beginning of the upkeep of enchanted land's
+// controller, destroy that land unless that player pays {1} or 1 life”.
 pub(in crate::card::sets) static EROSION: CardRecord = CardRecord::new(
     "Erosion",
     "5f4b6507-89ee-482e-aafd-8e05ada8f1ce",
@@ -594,7 +610,8 @@ pub(in crate::card::sets) static GIANT_SHARK: CardRecord = CardRecord::new(
 );
 
 // DRK 30 — Leviathan
-// Audit: unsupported — Needs a persistent tap/untap restriction or event relation for “This creature enters tapped and doesn't untap during your untap step”.
+// Audit: unsupported — Needs a persistent tap/untap restriction or event relation for “This
+// creature enters tapped and doesn't untap during your untap step”.
 pub(in crate::card::sets) static LEVIATHAN: CardRecord = CardRecord::new(
     "Leviathan",
     "b638d9be-c533-45c3-92f9-fabf56edc2df",
@@ -603,7 +620,8 @@ pub(in crate::card::sets) static LEVIATHAN: CardRecord = CardRecord::new(
 );
 
 // DRK 31 — Mana Vortex
-// Audit: unsupported — Needs linked sacrifice/destruction accounting for “At the beginning of each player's upkeep, that player sacrifices a land of their choice”.
+// Audit: unsupported — Needs linked sacrifice/destruction accounting for “At the beginning of
+// each player's upkeep, that player sacrifices a land of their choice”.
 pub(in crate::card::sets) static MANA_VORTEX: CardRecord = CardRecord::new(
     "Mana Vortex",
     "f857a00a-82e0-4227-86ee-1f9c7ca232ae",
@@ -635,7 +653,8 @@ pub(in crate::card::sets) static MERFOLK_ASSASSIN: CardRecord = CardRecord::new(
 );
 
 // DRK 33 — Mind Bomb
-// Audit: unsupported — Needs an ordered choice for each player to discard up to three cards and damage derived from each actual discard count.
+// Audit: unsupported — Needs an ordered choice for each player to discard up to three cards and
+// damage derived from each actual discard count.
 pub(in crate::card::sets) static MIND_BOMB: CardRecord = CardRecord::new(
     "Mind Bomb",
     "0ee810a5-f0f9-4b73-8194-3d1344784050",
@@ -644,7 +663,10 @@ pub(in crate::card::sets) static MIND_BOMB: CardRecord = CardRecord::new(
 );
 
 // DRK 34 — Psychic Allergy
-// Audit: unsupported — Needs a persistent dynamic characteristic choice and predicates that consume it for “At the beginning of each opponent's upkeep, this enchantment deals X damage to that player, where X is the number of nontoken permanents of the chosen color they control”.
+// Audit: unsupported — Needs a persistent dynamic characteristic choice and predicates that
+// consume it for “At the beginning of each opponent's upkeep, this enchantment deals X damage
+// to that player, where X is the number of nontoken permanents of the chosen color they
+// control”.
 pub(in crate::card::sets) static PSYCHIC_ALLERGY: CardRecord = CardRecord::new(
     "Psychic Allergy",
     "fec3275e-4491-43a8-9f23-d7b48177c103",
@@ -809,7 +831,9 @@ pub(in crate::card::sets) static ASHES_TO_ASHES: CardRecord = CardRecord::new(
 );
 
 // DRK 40 — Banshee
-// Audit: unsupported — Needs damage-history/source tracking or card-specific damage processing for “{X}, {T}: This creature deals half X damage, rounded down, to any target, and half X damage, rounded up, to you”.
+// Audit: unsupported — Needs damage-history/source tracking or card-specific damage processing
+// for “{X}, {T}: This creature deals half X damage, rounded down, to any target, and half X
+// damage, rounded up, to you”.
 pub(in crate::card::sets) static BANSHEE: CardRecord = CardRecord::new(
     "Banshee",
     "66eaa7d6-48b2-4b35-a834-790edd679e0e",
@@ -881,7 +905,9 @@ pub(in crate::card::sets) static CURSE_ARTIFACT: CardRecord = CardRecord::new(
 );
 
 // DRK 44 — Eater of the Dead
-// Audit: unsupported — Needs a zone-object query and identity-preserving continuation for “{0}: If this creature is tapped, exile target creature card from a graveyard and untap this creature”.
+// Audit: unsupported — Needs a zone-object query and identity-preserving continuation for “{0}:
+// If this creature is tapped, exile target creature card from a graveyard and untap this
+// creature”.
 pub(in crate::card::sets) static EATER_OF_THE_DEAD: CardRecord = CardRecord::new(
     "Eater of the Dead",
     "d89fe2be-bb7e-4bae-9b1f-9f0d58f20ceb",
@@ -890,7 +916,9 @@ pub(in crate::card::sets) static EATER_OF_THE_DEAD: CardRecord = CardRecord::new
 );
 
 // DRK 45 — Frankenstein's Monster
-// Audit: unsupported — Needs a duration-scoped replacement/prevention effect for “As this creature enters, exile X creature cards from your graveyard. If you can't, put this creature into its owner's graveyard instead of onto the battlefield. For each creature card…”.
+// Audit: unsupported — Needs a duration-scoped replacement/prevention effect for “As this
+// creature enters, exile X creature cards from your graveyard. If you can't, put this creature
+// into its owner's graveyard instead of onto the battlefield. For each creature card…”.
 pub(in crate::card::sets) static FRANKENSTEIN_S_MONSTER: CardRecord = CardRecord::new(
     "Frankenstein's Monster",
     "8f99894d-5ece-44f1-acce-474494ae2084",
@@ -944,7 +972,8 @@ pub(in crate::card::sets) static INQUISITION: CardRecord = CardRecord::new(
                 player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             },
             EffectDef::damage(
-                EffectRecipientDef::Target(TargetIndex::PRIMARY), // Counted after the reveal, from the hand itself: the damage is whatever is
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                // Counted after the reveal, from the hand itself: the damage is whatever is
                 // there when the spell resolves, not what the caster saw earlier.
                 ValueDef::CountMatchingObjects(&ObjectQueryDef::owned_by(
                     ObjectPredicateDef::Color(ManaColor::White),
@@ -1002,7 +1031,8 @@ pub(in crate::card::sets) static MURK_DWELLERS: CardRecord = CardRecord::new(
 );
 
 // DRK 50 — Nameless Race
-// Audit: unsupported — Needs a characteristic-layer effect or dynamic value for “Nameless Race's power and toughness are each equal to the life paid as it entered”.
+// Audit: unsupported — Needs a characteristic-layer effect or dynamic value for “Nameless
+// Race's power and toughness are each equal to the life paid as it entered”.
 pub(in crate::card::sets) static NAMELESS_RACE: CardRecord = CardRecord::new(
     "Nameless Race",
     "348a467a-4661-4fdb-af1d-9171a1a930d9",
@@ -1044,7 +1074,9 @@ pub(in crate::card::sets) static RAG_MAN: CardRecord = CardRecord::new(
 );
 
 // DRK 52 — Season of the Witch
-// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “At the beginning of the end step, destroy all untapped creatures that didn't attack this turn, except for creatures that couldn't attack”.
+// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “At the
+// beginning of the end step, destroy all untapped creatures that didn't attack this turn,
+// except for creatures that couldn't attack”.
 pub(in crate::card::sets) static SEASON_OF_THE_WITCH: CardRecord = CardRecord::new(
     "Season of the Witch",
     "06900a71-34ca-48c6-94ac-fca744356829",
@@ -1053,7 +1085,8 @@ pub(in crate::card::sets) static SEASON_OF_THE_WITCH: CardRecord = CardRecord::n
 );
 
 // DRK 53 — The Fallen
-// Audit: unsupported — Needs per-source damage history spanning the whole game for “each opponent and planeswalker it has dealt damage to this game”.
+// Audit: unsupported — Needs per-source damage history spanning the whole game for “each
+// opponent and planeswalker it has dealt damage to this game”.
 pub(in crate::card::sets) static THE_FALLEN: CardRecord = CardRecord::new(
     "The Fallen",
     "f4a176e1-b22b-4f36-ba7b-c506cb4e1bed",
@@ -1104,7 +1137,8 @@ pub(in crate::card::sets) static WORD_OF_BINDING: CardRecord = CardRecord::new(
 );
 
 // DRK 56 — Worms of the Earth
-// Audit: unsupported — Needs an any-player upkeep choice between sacrificing two lands and taking damage, followed by conditional self-destruction.
+// Audit: unsupported — Needs an any-player upkeep choice between sacrificing two lands and
+// taking damage, followed by conditional self-destruction.
 pub(in crate::card::sets) static WORMS_OF_THE_EARTH: CardRecord = CardRecord::new(
     "Worms of the Earth",
     "65a97821-ca5b-46fb-af08-86de81d0daac",
@@ -1223,7 +1257,7 @@ pub(in crate::card::sets) static ETERNAL_FLAME: CardRecord = CardRecord::new(
     "Mark Poole",
     CardRules::new_sorcery(mana_cost!("{2}{R}{R}")).with_ability(AbilityDef::spell_with_targets(
         "Eternal Flame deals X damage to target opponent or planeswalker and half X damage, \
-             rounded up, to you, where X is the number of Mountains you control.",
+         rounded up, to you, where X is the number of Mountains you control.",
         &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Opponent),
         )],
@@ -1233,7 +1267,8 @@ pub(in crate::card::sets) static ETERNAL_FLAME: CardRecord = CardRecord::new(
                 ValueDef::CountMatchingObjects(&ETERNAL_FLAME_MOUNTAINS),
             ),
             EffectDef::damage(
-                EffectRecipientDef::Controller, // Rounded up, so an odd Mountain count costs the extra point rather than
+                EffectRecipientDef::Controller,
+                // Rounded up, so an odd Mountain count costs the extra point rather than
                 // saving it -- one Mountain is one damage each way.
                 ValueDef::Halved(&HalvedValueDef::new(
                     ValueDef::CountMatchingObjects(&ETERNAL_FLAME_MOUNTAINS),
@@ -1517,7 +1552,10 @@ pub(in crate::card::sets) static INFERNO: CardRecord = CardRecord::new(
 );
 
 // DRK 72 — Mana Clash
-// Audit: unsupported — Needs a deterministic recorded coin-flip choice and both result branches for “You and target opponent each flip a coin. Mana Clash deals 1 damage to each player whose coin comes up tails. Repeat this process until both players' coins come up heads on the same flip”.
+// Audit: unsupported — Needs a deterministic recorded coin-flip choice and both result branches
+// for “You and target opponent each flip a coin. Mana Clash deals 1 damage to each player whose
+// coin comes up tails. Repeat this process until both players' coins come up heads on the same
+// flip”.
 pub(in crate::card::sets) static MANA_CLASH: CardRecord = CardRecord::new(
     "Mana Clash",
     "72955141-d990-459f-adbe-7d3d0f5f6c95",
@@ -1530,8 +1568,7 @@ pub(in crate::card::sets) static ORC_GENERAL: CardRecord = CardRecord::new(
     "Orc General",
     "65a10fd5-506e-46bf-87e6-fde134c0dc04",
     "Jesper Myrfors",
-CardRules::new_creature(mana_cost!("{2}{R}"), &["Orc", "Warrior"], 2, 2)
-        .with_abilities(&[AbilityDef::activated(
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Orc", "Warrior"], 2, 2).with_abilities(&[AbilityDef::activated(
         "{T}, Sacrifice another Orc or Goblin: Other Orc creatures get +1/+1 until end of turn.",
         &[
             CostDef::TapSource,
@@ -1606,11 +1643,13 @@ pub(in crate::card::sets) static GAEAS_TOUCH: CardRecord = CardRecord::new(
     "Gaea's Touch",
     "0e1ae3d6-6d96-4db6-bbc4-cee91bae6cf7",
     "Mark Poole",
-// A free extra land each turn, or two green mana when you are done with
+    // A free extra land each turn, or two green mana when you are done with
     // it.
     CardRules::new_enchantment(mana_cost!("{G}{G}")).with_abilities(&[
         AbilityDef::activated(
-            "{0}: You may put a basic Forest card from your hand onto the battlefield. Activate only as a sorcery and only once each turn.",
+            "{0}: You may put a basic Forest card from your hand onto \
+             the battlefield. Activate only as a sorcery and only once \
+             each turn.",
             &[],
             // A basic Forest specifically, so a nonbasic that happens to make green
             // mana is not on offer.
@@ -1679,7 +1718,8 @@ pub(in crate::card::sets) static LAND_LEECHES: CardRecord = CardRecord::new(
 );
 
 // DRK 80 — Lurker
-// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “This creature can't be the target of spells unless it attacked or blocked this turn”.
+// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “This
+// creature can't be the target of spells unless it attacked or blocked this turn”.
 pub(in crate::card::sets) static LURKER: CardRecord = CardRecord::new(
     "Lurker",
     "b39eb671-e17e-4c5a-8913-1e3be7faedfb",
@@ -1770,7 +1810,9 @@ pub(in crate::card::sets) static SAVAEN_ELVES: CardRecord = CardRecord::new(
 );
 
 // DRK 85 — Scarwood Bandits
-// Audit: unsupported — Needs duration-aware control-changing continuous effects for “{2}{G}, {T}: Unless an opponent pays {2}, gain control of target artifact for as long as this creature remains on the battlefield”.
+// Audit: unsupported — Needs duration-aware control-changing continuous effects for “{2}{G},
+// {T}: Unless an opponent pays {2}, gain control of target artifact for as long as this
+// creature remains on the battlefield”.
 pub(in crate::card::sets) static SCARWOOD_BANDITS: CardRecord = CardRecord::new(
     "Scarwood Bandits",
     "46b762a7-a774-4cb4-8ecf-dd6486a066c3",
@@ -1887,13 +1929,12 @@ pub(in crate::card::sets) static TRACKER: CardRecord = CardRecord::new(
     "Tracker",
     "35ffc69e-26f2-434f-8c89-2df108dd984a",
     "Jeff A. Menges",
-CardRules::new_creature(mana_cost!("{2}{G}"), &["Human"], 2, 2).with_abilities(&[
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Human"], 2, 2).with_abilities(&[
         AbilityDef::activated_with_targets(
-            "{G}{G}, {T}: This creature deals damage equal to its power to target creature. That creature deals damage equal to its power to this creature.",
-            &[
-                CostDef::Mana(mana_cost!("{G}{G}")),
-                CostDef::TapSource,
-            ],
+            "{G}{G}, {T}: This creature deals damage equal to its power \
+             to target creature. That creature deals damage equal to its \
+             power to this creature.",
+            &[CostDef::Mana(mana_cost!("{G}{G}")), CostDef::TapSource],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
@@ -1916,7 +1957,7 @@ pub(in crate::card::sets) static VENOM: CardRecord = CardRecord::new(
     "Venom",
     "bb0480f5-6aae-4297-afa6-3f7a5801bf95",
     "Tom Wänerstrand",
-CardRules::new_enchantment(mana_cost!("{1}{G}{G}"))
+    CardRules::new_enchantment(mana_cost!("{1}{G}{G}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
             abilities::enchant_creature(),
@@ -1929,11 +1970,14 @@ CardRules::new_enchantment(mana_cost!("{1}{G}{G}"))
                     // trigger is the enchanted creature and the pair it is part of is the one
                     // being read.
                     effect: AppliedEffectDef::add_ability(&AbilityDef::triggered(
-                        "Whenever this creature blocks or becomes blocked by a non-Wall creature, destroy the other \
-                         creature at end of combat.",
+                        "Whenever this creature blocks or becomes blocked by a \
+                         non-Wall creature, destroy the other creature at end of \
+                         combat.",
                         TriggerEventDef::BlocksOrBecomesBlockedBy {
                             creature: ObjectPredicateDef::Source,
-                            other: ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::Literal("Wall"))),
+                            other: ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(
+                                SubtypeDef::Literal("Wall"),
+                            )),
                         },
                         abilities::destroy_triggering_object_at_end_of_combat(),
                     )),
@@ -1943,7 +1987,9 @@ CardRules::new_enchantment(mana_cost!("{1}{G}{G}"))
 );
 
 // DRK 91 — Whippoorwill
-// Audit: unsupported — Needs a prohibition on preventing or redirecting damage to one creature, plus a die-replacement that exiles it. AppliedRuleDef::CannotRegenerate covers the first clause alone.
+// Audit: unsupported — Needs a prohibition on preventing or redirecting damage to one creature,
+// plus a die-replacement that exiles it. AppliedRuleDef::CannotRegenerate covers the first
+// clause alone.
 pub(in crate::card::sets) static WHIPPOORWILL: CardRecord = CardRecord::new(
     "Whippoorwill",
     "e56146bf-5db0-4bef-83bb-efa5ebec6684",
@@ -2181,7 +2227,9 @@ const FOUNTAIN_OF_YOUTH_ALTERNATE_1: PrintingRecord = PrintingRecord::alternate(
 );
 
 // DRK 104 — Living Armor
-// Audit: unsupported — Needs card-specific counter state and counter-consuming effects for “{T}, Sacrifice this artifact: Put X +0/+1 counters on target creature, where X is that creature's mana value”.
+// Audit: unsupported — Needs card-specific counter state and counter-consuming effects for
+// “{T}, Sacrifice this artifact: Put X +0/+1 counters on target creature, where X is that
+// creature's mana value”.
 pub(in crate::card::sets) static LIVING_ARMOR: CardRecord = CardRecord::new(
     "Living Armor",
     "3c31a957-ad1e-40cc-b3c4-2f4caa492b77",
@@ -2190,7 +2238,9 @@ pub(in crate::card::sets) static LIVING_ARMOR: CardRecord = CardRecord::new(
 );
 
 // DRK 105 — Necropolis
-// Audit: unsupported — Needs card-specific counter state and counter-consuming effects for “Exile a creature card from your graveyard: Put X +0/+1 counters on this creature, where X is the exiled card's mana value”.
+// Audit: unsupported — Needs card-specific counter state and counter-consuming effects for
+// “Exile a creature card from your graveyard: Put X +0/+1 counters on this creature, where X is
+// the exiled card's mana value”.
 pub(in crate::card::sets) static NECROPOLIS: CardRecord = CardRecord::new(
     "Necropolis",
     "893e8e9c-983e-4db1-8d93-10637025a559",
@@ -2203,8 +2253,10 @@ pub(in crate::card::sets) static REFLECTING_MIRROR: CardRecord = CardRecord::new
     "Reflecting Mirror",
     "d551ff93-d8da-4c21-bc3c-6451c0dde07e",
     "Mark Poole",
-CardRules::new_artifact(mana_cost!("{4}")).with_ability(AbilityDef::activated_with_targets(
-        "{X}, {T}: Change the target of target spell with a single target if that target is you. The new target must be a player. X is twice the mana value of that spell.",
+    CardRules::new_artifact(mana_cost!("{4}")).with_ability(AbilityDef::activated_with_targets(
+        "{X}, {T}: Change the target of target spell with a single \
+         target if that target is you. The new target must be a \
+         player. X is twice the mana value of that spell.",
         &[
             CostDef::ManaValueOfTarget {
                 target: TargetIndex::PRIMARY,
@@ -2212,19 +2264,21 @@ CardRules::new_artifact(mana_cost!("{4}")).with_ability(AbilityDef::activated_wi
             },
             CostDef::TapSource,
         ],
-        &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
-            object: ObjectPredicateDef::All(&[
-                ObjectPredicateDef::Spell,
-                ObjectPredicateDef::DeclaredTargetCount {
-                    minimum: 1,
-                    maximum: 1,
-                },
-                ObjectPredicateDef::HasDeclaredPlayerTarget(PlayerRelation::You),
-            ]),
-            zones: &[ZoneKind::Stack],
-            controller: None,
-            owner: None,
-        })],
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Spell,
+                    ObjectPredicateDef::DeclaredTargetCount {
+                        minimum: 1,
+                        maximum: 1,
+                    },
+                    ObjectPredicateDef::HasDeclaredPlayerTarget(PlayerRelation::You),
+                ]),
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            },
+        )],
         EffectDef::ChangeStackTargets(&ChangeStackTargetsDef {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             chooser: PlayerRefDef::EffectController,
@@ -2237,7 +2291,9 @@ CardRules::new_artifact(mana_cost!("{4}")).with_ability(AbilityDef::activated_wi
 );
 
 // DRK 107 — Runesword
-// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “{3}, {T}: Target attacking creature gets +2/+0 until end of turn. When that creature leaves the battlefield this turn, sacrifice this artifact. If the creature deals damage to a creature…”.
+// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “{3},
+// {T}: Target attacking creature gets +2/+0 until end of turn. When that creature leaves the
+// battlefield this turn, sacrifice this artifact. If the creature deals damage to a creature…”.
 pub(in crate::card::sets) static RUNESWORD: CardRecord = CardRecord::new(
     "Runesword",
     "741dbcf2-3372-45a8-b66f-d2ae12b4aac6",
@@ -2317,7 +2373,8 @@ pub(in crate::card::sets) static STANDING_STONES: CardRecord = CardRecord::new(
 );
 
 // DRK 111 — Stone Calendar
-// Audit: unsupported — Needs a battlefield-wide static spell-cost reduction; the available generic cost reducer applies only to the source card in hand.
+// Audit: unsupported — Needs a battlefield-wide static spell-cost reduction; the available
+// generic cost reducer applies only to the source card in hand.
 pub(in crate::card::sets) static STONE_CALENDAR: CardRecord = CardRecord::new(
     "Stone Calendar",
     "a49ba1a5-33b1-40f2-9780-26139ed829d7",
@@ -2370,7 +2427,9 @@ pub(in crate::card::sets) static TOWER_OF_COIREALL: CardRecord = CardRecord::new
 );
 
 // DRK 114 — Wand of Ith
-// Audit: unsupported — Needs seeded random selection with replay-visible provenance for “{3}, {T}: Target player reveals a card at random from their hand. If it's a land card, that player discards it unless they pay 1 life. If it isn't a land card, the player discards it…”.
+// Audit: unsupported — Needs seeded random selection with replay-visible provenance for “{3},
+// {T}: Target player reveals a card at random from their hand. If it's a land card, that player
+// discards it unless they pay 1 life. If it isn't a land card, the player discards it…”.
 pub(in crate::card::sets) static WAND_OF_ITH: CardRecord = CardRecord::new(
     "Wand of Ith",
     "80c9070a-8c70-480e-a476-e00f8e2c71b9",
@@ -2379,7 +2438,9 @@ pub(in crate::card::sets) static WAND_OF_ITH: CardRecord = CardRecord::new(
 );
 
 // DRK 115 — War Barge
-// Audit: unsupported — Needs a delayed leaves-the-battlefield trigger bound to the creature this activation targeted. AppliedRuleDef::CannotRegenerate covers the regeneration clause; the binding from activation to a later leave event is what is missing.
+// Audit: unsupported — Needs a delayed leaves-the-battlefield trigger bound to the creature
+// this activation targeted. AppliedRuleDef::CannotRegenerate covers the regeneration clause;
+// the binding from activation to a later leave event is what is missing.
 pub(in crate::card::sets) static WAR_BARGE: CardRecord = CardRecord::new(
     "War Barge",
     "9023c078-4169-498b-8626-a4862e0631f8",
@@ -2388,7 +2449,8 @@ pub(in crate::card::sets) static WAR_BARGE: CardRecord = CardRecord::new(
 );
 
 // DRK 116 — City of Shadows
-// Audit: unsupported — Needs the mana-ability runtime to pay this ability's mana activation cost for “{T}: Add {C} for each storage counter on this land”.
+// Audit: unsupported — Needs the mana-ability runtime to pay this ability's mana activation
+// cost for “{T}: Add {C} for each storage counter on this land”.
 pub(in crate::card::sets) static CITY_OF_SHADOWS: CardRecord = CardRecord::new(
     "City of Shadows",
     "76e5ee8a-34e5-4a2e-a04e-9fcdc7e53dda",
@@ -2401,8 +2463,10 @@ pub(in crate::card::sets) static MAZE_OF_ITH: CardRecord = CardRecord::new(
     "Maze of Ith",
     "42dcceee-2a47-4eaa-a6a3-2931b3d50244",
     "Anson Maddocks",
-CardRules::new_land(&[]).with_abilities(&[AbilityDef::activated_with_targets(
-        "{T}: Untap target attacking creature. Prevent all combat damage that would be dealt to and dealt by that creature this turn.",
+    CardRules::new_land(&[]).with_abilities(&[AbilityDef::activated_with_targets(
+        "{T}: Untap target attacking creature. Prevent all combat \
+         damage that would be dealt to and dealt by that creature \
+         this turn.",
         &[CostDef::TapSource],
         // The Maze does not remove the creature from combat: it stays an attacker,
         // keeps whatever is blocking it, and simply exchanges no combat damage.
@@ -2444,13 +2508,10 @@ pub(in crate::card::sets) static SAFE_HAVEN: CardRecord = CardRecord::new(
     "Safe Haven",
     "0d48fb47-1bed-4791-a014-504515f3d36f",
     "Christopher Rush",
-CardRules::new_land(&[]).with_abilities(&[
+    CardRules::new_land(&[]).with_abilities(&[
         AbilityDef::activated_with_targets(
             "{2}, {T}: Exile target creature you control.",
-            &[
-                CostDef::Mana(mana_cost!("{2}")),
-                CostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{2}")), CostDef::TapSource],
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Object {
                     object: ObjectPredicateDef::HasType(CardType::Creature),
@@ -2462,12 +2523,14 @@ CardRules::new_land(&[]).with_abilities(&[
             EffectDef::ExileLinkedToSource {
                 until_source_leaves: false,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-face_down: false,
-then: None,
-},
+                face_down: false,
+                then: None,
+            },
         ),
         AbilityDef::triggered(
-            "At the beginning of your upkeep, you may sacrifice this land. If you do, return each card exiled with this land to the battlefield under its owner's control.",
+            "At the beginning of your upkeep, you may sacrifice this \
+             land. If you do, return each card exiled with this land to \
+             the battlefield under its owner's control.",
             TriggerEventDef::StepBegins {
                 step: TurnStepDef::Upkeep,
                 player: PlayerRelation::You,
@@ -2493,7 +2556,9 @@ then: None,
 );
 
 // DRK 119 — Sorrow's Path
-// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “{T}: Choose two target blocking creatures controlled by the same opponent. If each of those creatures could block all creatures that the other is blocking, remove both of them from…”.
+// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “{T}:
+// Choose two target blocking creatures controlled by the same opponent. If each of those
+// creatures could block all creatures that the other is blocking, remove both of them from…”.
 pub(in crate::card::sets) static SORROW_S_PATH: CardRecord = CardRecord::new(
     "Sorrow's Path",
     "6f75946b-1690-43cc-993c-d4e451a1a41c",

@@ -42,8 +42,10 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // BBD 15 — Chakram Retriever
-// Audit: unsupported — DeckConstructionDef has ordinary Partner but no named Partner-with pairing. Substituting ordinary Partner would record a broader commander-pairing ability; the entry tutor alone would leave the card incomplete.
-pub(in crate::card::sets) static CHAKRAM_RETRIEVER_15: CardRecord = CardRecord::new(
+// Audit: unsupported — DeckConstructionDef has ordinary Partner but no named Partner-with
+// pairing. Substituting ordinary Partner would record a broader commander-pairing ability; the
+// entry tutor alone would leave the card incomplete.
+pub(in crate::card::sets) static CHAKRAM_RETRIEVER: CardRecord = CardRecord::new(
     "Chakram Retriever",
     "b57d518c-21bb-4451-8248-9ee838460c09",
     "Dmitry Burmak",
@@ -55,8 +57,12 @@ pub(in crate::card::sets) static SPELLSEEKER: CardRecord = CardRecord::new(
     "Spellseeker",
     "74b4c336-5d4c-4bc5-b82a-35084a6ad808",
     "Igor Kieryluk",
-CardRules::new_creature(mana_cost!("{2}{U}"), &["Human", "Wizard"], 1, 1).with_ability(
-        abilities::enters_trigger("When this creature enters, you may search your library for an instant or sorcery card with mana value 2 or less, reveal it, put it into your hand, then shuffle.", EffectDef::May {
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Human", "Wizard"], 1, 1).with_ability(
+        abilities::enters_trigger(
+            "When this creature enters, you may search your library for \
+             an instant or sorcery card with mana value 2 or less, \
+             reveal it, put it into your hand, then shuffle.",
+            EffectDef::May {
                 player: EffectRecipientDef::Controller,
                 effect: &EffectDef::SearchZone {
                     player: EffectRecipientDef::Controller,
@@ -81,29 +87,105 @@ CardRules::new_creature(mana_cost!("{2}{U}"), &["Human", "Wizard"], 1, 1).with_a
                     binding: None,
                     then: None,
                 },
-            }),
+            },
+        ),
     ),
 );
 
 // BBD 56 — Bonus Round
-pub(in crate::card::sets) static BONUS_ROUND_56: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static BONUS_ROUND: CardRecord = CardRecord::new(
     "Bonus Round",
     "e21aa266-4264-4e02-9403-02930e641573",
     "Lake Hurwitz",
-    CardRules::new_sorcery(mana_cost!("{1}{R}{R}")).with_abilities(&[
-AbilityDef::spell("Until end of turn, whenever a player casts an instant or sorcery spell, that player copies it and may choose new targets for the copy.", EffectDef::InstallTrigger(InstalledTriggerDef { lifetime: InstalledTriggerLifetimeDef::ThisTurn, ability: &AbilityDef::triggered("Whenever a player casts an instant or sorcery spell, that player copies it and may choose new targets for the copy.", TriggerEventDef::spell_cast(ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Instant), ObjectPredicateDef::HasType(CardType::Sorcery)])), EffectDef::CopyStackObject(&CopyStackObjectDef { object: EffectRecipientDef::TriggeringObject, controller: PlayerRefDef::EventPlayer, count: ValueDef::Constant(1), retarget: true, colors: None })) }))
-]),
+    CardRules::new_sorcery(mana_cost!("{1}{R}{R}")).with_abilities(&[AbilityDef::spell(
+        "Until end of turn, whenever a player casts an instant or \
+         sorcery spell, that player copies it and may choose new \
+         targets for the copy.",
+        EffectDef::InstallTrigger(InstalledTriggerDef {
+            lifetime: InstalledTriggerLifetimeDef::ThisTurn,
+            ability: &AbilityDef::triggered(
+                "Whenever a player casts an instant or sorcery spell, that \
+                 player copies it and may choose new targets for the copy.",
+                TriggerEventDef::spell_cast(ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Instant),
+                    ObjectPredicateDef::HasType(CardType::Sorcery),
+                ])),
+                EffectDef::CopyStackObject(&CopyStackObjectDef {
+                    object: EffectRecipientDef::TriggeringObject,
+                    controller: PlayerRefDef::EventPlayer,
+                    count: ValueDef::Constant(1),
+                    retarget: true,
+                    colors: None,
+                }),
+            ),
+        }),
+    )]),
 );
 
 // BBD 62 — Najeela, the Blade-Blossom
-pub(in crate::card::sets) static NAJEELA_THE_BLADE_BLOSSOM_62: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static NAJEELA_THE_BLADE_BLOSSOM: CardRecord = CardRecord::new(
     "Najeela, the Blade-Blossom",
     "2cb1d1da-6077-46b5-8c63-39882b8016f2",
     "Matt Stewart",
-    CardRules::new_creature(mana_cost!("{2}{R}"), &["Human", "Warrior"], 3, 2).with_supertype(CardSupertype::Legendary).with_abilities(&[
-AbilityDef::triggered("Whenever a Warrior attacks, you may have its controller create a 1/1 white Warrior creature token that’s tapped and attacking.", TriggerEventDef::attacks(ObjectPredicateDef::Subtype(SubtypeDef::Literal("Warrior"))), EffectDef::May { player: EffectRecipientDef::Controller, effect: &EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(crate::card::TokenCharacteristics::creature(&["Warrior"], &[ManaColor::White], 1, 1))).with_controller(PlayerRefDef::ControllerOf(ObjectRefDef::TriggeringObject)).entering_tapped().entering_attacking()) }),
-AbilityDef::activated("{W}{U}{B}{R}{G}: Untap all attacking creatures. They gain trample, lifelink, and haste until end of turn. After this phase, there is an additional combat phase. Activate only during combat.", &[CostDef::Mana(mana_cost!("{W}{U}{B}{R}{G}"))], EffectDef::Sequence(&[EffectDef::Untap { object: EffectRecipientDef::matching_objects(ObjectPredicateDef::Attacking, &[ZoneKind::Battlefield], PlayerRelation::Any) }, EffectDef::Apply { recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::Attacking, &[ZoneKind::Battlefield], PlayerRelation::Any), effect: AppliedEffectDef::Composite(&[AppliedEffectDef::add_ability(&abilities::trample()), AppliedEffectDef::add_ability(&abilities::lifelink()), AppliedEffectDef::add_ability(&abilities::haste())]), duration: ResolvedEffectDurationDef::UntilEndOfTurn }, EffectDef::ScheduleTurnPhases(&[TurnPhaseDef::Combat])])).with_activation_timing(ActivationTimingDef::DuringCombat)
-]),
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Human", "Warrior"], 3, 2)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::triggered(
+                "Whenever a Warrior attacks, you may have its controller \
+                 create a 1/1 white Warrior creature token that’s tapped and \
+                 attacking.",
+                TriggerEventDef::attacks(ObjectPredicateDef::Subtype(SubtypeDef::Literal(
+                    "Warrior",
+                ))),
+                EffectDef::May {
+                    player: EffectRecipientDef::Controller,
+                    effect: &EffectDef::CreateToken(
+                        crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(
+                            crate::card::TokenCharacteristics::creature(
+                                &["Warrior"],
+                                &[ManaColor::White],
+                                1,
+                                1,
+                            ),
+                        ))
+                        .with_controller(PlayerRefDef::ControllerOf(ObjectRefDef::TriggeringObject))
+                        .entering_tapped()
+                        .entering_attacking(),
+                    ),
+                },
+            ),
+            AbilityDef::activated(
+                "{W}{U}{B}{R}{G}: Untap all attacking creatures. They gain \
+                 trample, lifelink, and haste until end of turn. After this \
+                 phase, there is an additional combat phase. Activate only \
+                 during combat.",
+                &[CostDef::Mana(mana_cost!("{W}{U}{B}{R}{G}"))],
+                EffectDef::Sequence(&[
+                    EffectDef::Untap {
+                        object: EffectRecipientDef::matching_objects(
+                            ObjectPredicateDef::Attacking,
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::Any,
+                        ),
+                    },
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::matching_objects(
+                            ObjectPredicateDef::Attacking,
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::Any,
+                        ),
+                        effect: AppliedEffectDef::Composite(&[
+                            AppliedEffectDef::add_ability(&abilities::trample()),
+                            AppliedEffectDef::add_ability(&abilities::lifelink()),
+                            AppliedEffectDef::add_ability(&abilities::haste()),
+                        ]),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                    EffectDef::ScheduleTurnPhases(&[TurnPhaseDef::Combat]),
+                ]),
+            )
+            .with_activation_timing(ActivationTimingDef::DuringCombat),
+        ]),
 );
 
 // BBD 71 — Grothama, All-Devouring
@@ -116,8 +198,10 @@ pub(in crate::card::sets) static GROTHAMA_ALL_DEVOURING: CardRecord = CardRecord
 );
 
 // BBD 79 — Sentinel Tower
-// Audit: unsupported — Its trigger needs a frozen count of earlier instant/sorcery casts; the filtered spell-count value reads resolution-time history and the cast-time snapshot counts all spell types.
-pub(in crate::card::sets) static SENTINEL_TOWER_79: CardRecord = CardRecord::new(
+// Audit: unsupported — Its trigger needs a frozen count of earlier instant/sorcery casts; the
+// filtered spell-count value reads resolution-time history and the cast-time snapshot counts
+// all spell types.
+pub(in crate::card::sets) static SENTINEL_TOWER: CardRecord = CardRecord::new(
     "Sentinel Tower",
     "25d9500e-a536-4f8e-bfdd-6cb08f709890",
     "Jung Park",
@@ -125,7 +209,7 @@ pub(in crate::card::sets) static SENTINEL_TOWER_79: CardRecord = CardRecord::new
 );
 
 // BBD 81 — Bountiful Promenade
-pub(in crate::card::sets) static BOUNTIFUL_PROMENADE_81: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static BOUNTIFUL_PROMENADE: CardRecord = CardRecord::new(
     "Bountiful Promenade",
     "21865ed6-5edd-41f4-9ae0-f501872d91dc",
     "Jung Park",
@@ -146,7 +230,7 @@ pub(in crate::card::sets) static BOUNTIFUL_PROMENADE_81: CardRecord = CardRecord
 );
 
 // BBD 82 — Luxury Suite
-pub(in crate::card::sets) static LUXURY_SUITE_82: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static LUXURY_SUITE: CardRecord = CardRecord::new(
     "Luxury Suite",
     "81298b0b-9d47-4777-998e-0c17821ef536",
     "Jonas De Ro",
@@ -167,7 +251,7 @@ pub(in crate::card::sets) static LUXURY_SUITE_82: CardRecord = CardRecord::new(
 );
 
 // BBD 83 — Morphic Pool
-pub(in crate::card::sets) static MORPHIC_POOL_83: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static MORPHIC_POOL: CardRecord = CardRecord::new(
     "Morphic Pool",
     "63b9efd6-0709-4d4b-a907-d8a77ec1a327",
     "Grzegorz Rutkowski",
@@ -188,7 +272,7 @@ pub(in crate::card::sets) static MORPHIC_POOL_83: CardRecord = CardRecord::new(
 );
 
 // BBD 84 — Sea of Clouds
-pub(in crate::card::sets) static SEA_OF_CLOUDS_84: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static SEA_OF_CLOUDS: CardRecord = CardRecord::new(
     "Sea of Clouds",
     "080aebe8-535e-4632-b733-8aba98abff22",
     "Florian de Gesincourt",
@@ -209,7 +293,7 @@ pub(in crate::card::sets) static SEA_OF_CLOUDS_84: CardRecord = CardRecord::new(
 );
 
 // BBD 85 — Spire Garden
-pub(in crate::card::sets) static SPIRE_GARDEN_85: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static SPIRE_GARDEN: CardRecord = CardRecord::new(
     "Spire Garden",
     "64943615-7543-4acd-a884-22ece8f0ed3e",
     "Darek Zabrocki",
@@ -237,17 +321,17 @@ const PULSE_OF_MURASA_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
-    &CHAKRAM_RETRIEVER_15,
+    &CHAKRAM_RETRIEVER,
     &SPELLSEEKER,
-    &BONUS_ROUND_56,
-    &NAJEELA_THE_BLADE_BLOSSOM_62,
+    &BONUS_ROUND,
+    &NAJEELA_THE_BLADE_BLOSSOM,
     &GROTHAMA_ALL_DEVOURING,
-    &SENTINEL_TOWER_79,
-    &BOUNTIFUL_PROMENADE_81,
-    &LUXURY_SUITE_82,
-    &MORPHIC_POOL_83,
-    &SEA_OF_CLOUDS_84,
-    &SPIRE_GARDEN_85,
+    &SENTINEL_TOWER,
+    &BOUNTIFUL_PROMENADE,
+    &LUXURY_SUITE,
+    &MORPHIC_POOL,
+    &SEA_OF_CLOUDS,
+    &SPIRE_GARDEN,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] =

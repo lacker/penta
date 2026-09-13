@@ -1003,20 +1003,23 @@ pub(in crate::card::sets) static INSOLENCE: CardRecord = CardRecord::new(
     "Insolence",
     "d8009a37-f966-4a71-9a2a-469127758dc6",
     "Carl Critchlow",
-// It punishes the creature for doing anything at all, which against a
+    // It punishes the creature for doing anything at all, which against a
     // deck of tap abilities is a clock the opponent starts themselves.
     CardRules::new_enchantment(mana_cost!("{2}{R}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
             abilities::enchant_creature(),
             AbilityDef::triggered(
-            "Whenever enchanted creature becomes tapped, this Aura deals 2 damage to that creature's controller.",
-            TriggerEventDef::tapped(ObjectPredicateDef::AttachedToSource),
-            EffectDef::damage(
-                EffectRecipientDef::player(PlayerRefDef::ControllerOf(ObjectRefDef::AttachedToSource)),
-                ValueDef::Constant(2),
+                "Whenever enchanted creature becomes tapped, this Aura deals \
+                 2 damage to that creature's controller.",
+                TriggerEventDef::tapped(ObjectPredicateDef::AttachedToSource),
+                EffectDef::damage(
+                    EffectRecipientDef::player(PlayerRefDef::ControllerOf(
+                        ObjectRefDef::AttachedToSource,
+                    )),
+                    ValueDef::Constant(2),
+                ),
             ),
-        ),
         ]),
 );
 
@@ -1353,9 +1356,10 @@ pub(in crate::card::sets) static QUIRION_DRYAD: CardRecord = CardRecord::new(
     "Quirion Dryad",
     "f6841ae6-b15f-488e-9cae-2cc5ec668278",
     "Don Hazeltine",
-CardRules::new_creature(mana_cost!("{1}{G}"), &["Dryad"], 1, 1).with_ability(
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Dryad"], 1, 1).with_ability(
         AbilityDef::triggered(
-            "Whenever you cast a spell that's white, blue, black, or red, put a +1/+1 counter on this creature.",
+            "Whenever you cast a spell that's white, blue, black, or \
+             red, put a +1/+1 counter on this creature.",
             TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
                 ObjectPredicateDef::AnyOf(&[
                     ObjectPredicateDef::Color(ManaColor::White),
@@ -1477,12 +1481,13 @@ pub(in crate::card::sets) static CAVERN_HARPY: CardRecord = CardRecord::new(
     "Cavern Harpy",
     "adfb0804-50d6-4bca-8733-72e01030a543",
     "Daren Bader",
-// The two halves loop: bouncing itself for a life lets the arrival
+    // The two halves loop: bouncing itself for a life lets the arrival
     // trigger pick up something worth replaying, over and over.
     CardRules::new_creature(mana_cost!("{U}{B}"), &["Harpy", "Beast"], 2, 1).with_abilities(&[
         abilities::flying(),
         abilities::enters_trigger(
-            "When this creature enters, return a blue or black creature you control to its owner's hand.",
+            "When this creature enters, return a blue or black creature \
+             you control to its owner's hand.",
             // The Harpy is itself blue and black, so it is always a legal
             // answer to its own trigger.
             return_a_creature_you_control(ObjectPredicateDef::All(&[
@@ -1651,14 +1656,15 @@ pub(in crate::card::sets) static DESTRUCTIVE_FLOW: CardRecord = CardRecord::new(
     "Destructive Flow",
     "7db86e34-c3ec-4a29-8779-81350a985644",
     "Don Hazeltine",
-// Three colours to cast, which is the joke: it punishes exactly the
+    // Three colours to cast, which is the joke: it punishes exactly the
     // mana base that could have paid for it.
     CardRules::new_enchantment(mana_cost!("{B}{R}{G}")).with_ability(AbilityDef::triggered(
-        "At the beginning of each player's upkeep, that player sacrifices a nonbasic land of their choice.",
+        "At the beginning of each player's upkeep, that player \
+         sacrifices a nonbasic land of their choice.",
         TriggerEventDef::StepBegins {
-                step: TurnStepDef::Upkeep,
-                player: PlayerRelation::Any,
-            },
+            step: TurnStepDef::Upkeep,
+            player: PlayerRelation::Any,
+        },
         EffectDef::SacrificeOfChoice {
             player: EffectRecipientDef::player(PlayerRefDef::EventPlayer),
             object: ObjectPredicateDef::All(&[
@@ -1748,10 +1754,11 @@ pub(in crate::card::sets) static ELADAMRI_S_CALL: CardRecord = CardRecord::new(
     "Eladamri's Call",
     "dcb79f39-5ef3-4ad6-9a43-04beb27d8480",
     "Kev Walker",
-// Any creature in the deck for two mana at instant speed, which makes
+    // Any creature in the deck for two mana at instant speed, which makes
     // a one-of threat as reliable as a playset.
     CardRules::new_instant(mana_cost!("{G}{W}")).with_ability(AbilityDef::spell(
-        "Search your library for a creature card, reveal that card, put it into your hand, then shuffle.",
+        "Search your library for a creature card, reveal that card, \
+         put it into your hand, then shuffle.",
         EffectDef::SearchZone {
             player: EffectRecipientDef::Controller,
             source: ZoneKind::Library,
@@ -2172,18 +2179,21 @@ pub(in crate::card::sets) static CROSIS_S_CATACOMBS: CardRecord = CardRecord::ne
     "Crosis's Catacombs",
     "7caad74f-c0d0-4eca-94be-b89a2c9a3980",
     "Edward P. Beard, Jr.",
-// A three-colour land that costs a land: the fixing is real and so is
+    // A three-colour land that costs a land: the fixing is real and so is
     // the turn of tempo it takes back.
     CardRules::new_land(&["Lair"]).with_abilities(&[
         abilities::enters_trigger(
-            "When this land enters, sacrifice it unless you return a non-Lair land you control to its owner's hand.",
+            "When this land enters, sacrifice it unless you return a \
+             non-Lair land you control to its owner's hand.",
             EffectDef::PayOr(PayOrDef::unless(
                 &[CostDef::MovePermanentMatching {
                     // The Lair itself is excluded by its own subtype, so a
                     // second one cannot pay for the first.
                     object: ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Land),
-                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::Literal("Lair"))),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::Literal(
+                            "Lair",
+                        ))),
                         ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                     ]),
                     zone: ZoneKind::Hand,
@@ -2208,17 +2218,20 @@ pub(in crate::card::sets) static DARIGAAZ_S_CALDERA: CardRecord = CardRecord::ne
     "Darigaaz's Caldera",
     "752f6f0c-af30-4937-b4a7-48f493e007a0",
     "Franz Vohwinkel",
-// The Jund member of the cycle.
+    // The Jund member of the cycle.
     CardRules::new_land(&["Lair"]).with_abilities(&[
         abilities::enters_trigger(
-            "When this land enters, sacrifice it unless you return a non-Lair land you control to its owner's hand.",
+            "When this land enters, sacrifice it unless you return a \
+             non-Lair land you control to its owner's hand.",
             EffectDef::PayOr(PayOrDef::unless(
                 &[CostDef::MovePermanentMatching {
                     // The Lair itself is excluded by its own subtype, so a
                     // second one cannot pay for the first.
                     object: ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Land),
-                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::Literal("Lair"))),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::Literal(
+                            "Lair",
+                        ))),
                         ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                     ]),
                     zone: ZoneKind::Hand,
@@ -2243,17 +2256,20 @@ pub(in crate::card::sets) static DROMAR_S_CAVERN: CardRecord = CardRecord::new(
     "Dromar's Cavern",
     "85f10cee-6a63-438e-a9df-6b902dd025b8",
     "Franz Vohwinkel",
-// The Esper member.
+    // The Esper member.
     CardRules::new_land(&["Lair"]).with_abilities(&[
         abilities::enters_trigger(
-            "When this land enters, sacrifice it unless you return a non-Lair land you control to its owner's hand.",
+            "When this land enters, sacrifice it unless you return a \
+             non-Lair land you control to its owner's hand.",
             EffectDef::PayOr(PayOrDef::unless(
                 &[CostDef::MovePermanentMatching {
                     // The Lair itself is excluded by its own subtype, so a
                     // second one cannot pay for the first.
                     object: ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Land),
-                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::Literal("Lair"))),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::Literal(
+                            "Lair",
+                        ))),
                         ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                     ]),
                     zone: ZoneKind::Hand,
@@ -2278,7 +2294,7 @@ pub(in crate::card::sets) static FORSAKEN_CITY: CardRecord = CardRecord::new(
     "Forsaken City",
     "676703fe-bd80-413c-8704-1da5d3248b7e",
     "Dana Knutson",
-// Perfect mana for a deck with cards to spare, and a dead land for one
+    // Perfect mana for a deck with cards to spare, and a dead land for one
     // without: the Stasis deck is holding a hand it is not casting anyway.
     CardRules::new_land(&[]).with_abilities(&[
         AbilityDef::static_ability(
@@ -2289,7 +2305,8 @@ pub(in crate::card::sets) static FORSAKEN_CITY: CardRecord = CardRecord::new(
             },
         ),
         AbilityDef::triggered(
-            "At the beginning of your upkeep, you may exile a card from your hand. If you do, untap this land.",
+            "At the beginning of your upkeep, you may exile a card from \
+             your hand. If you do, untap this land.",
             TriggerEventDef::StepBegins {
                 step: TurnStepDef::Upkeep,
                 player: PlayerRelation::You,
@@ -2312,17 +2329,15 @@ pub(in crate::card::sets) static FORSAKEN_CITY: CardRecord = CardRecord::new(
                     maximum: 1,
                     visibility: ChoiceVisibilityDef::Public,
                     then: &EffectDef::Sequence(&[
-                                EffectDef::move_to_zone(
-                                    EffectRecipientDef::object(ObjectRefDef::Binding(
-                                        ParentBinding,
-                                    )),
-                                    ZoneKind::Exile,
-                                    ZonePlacement::Top,
-                                ),
-                                EffectDef::Untap {
-                                    object: EffectRecipientDef::Source,
-                                },
-                            ]),
+                        EffectDef::move_to_zone(
+                            EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
+                            ZoneKind::Exile,
+                            ZonePlacement::Top,
+                        ),
+                        EffectDef::Untap {
+                            object: EffectRecipientDef::Source,
+                        },
+                    ]),
                 }),
             },
         ),
@@ -2348,17 +2363,20 @@ pub(in crate::card::sets) static RITH_S_GROVE: CardRecord = CardRecord::new(
     "Rith's Grove",
     "740fa25d-9c1f-44eb-9eb4-0dd514cb315a",
     "Scott Bailey",
-// The Naya member.
+    // The Naya member.
     CardRules::new_land(&["Lair"]).with_abilities(&[
         abilities::enters_trigger(
-            "When this land enters, sacrifice it unless you return a non-Lair land you control to its owner's hand.",
+            "When this land enters, sacrifice it unless you return a \
+             non-Lair land you control to its owner's hand.",
             EffectDef::PayOr(PayOrDef::unless(
                 &[CostDef::MovePermanentMatching {
                     // The Lair itself is excluded by its own subtype, so a
                     // second one cannot pay for the first.
                     object: ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Land),
-                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::Literal("Lair"))),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::Literal(
+                            "Lair",
+                        ))),
                         ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                     ]),
                     zone: ZoneKind::Hand,
@@ -2383,36 +2401,38 @@ pub(in crate::card::sets) static TERMINAL_MORAINE: CardRecord = CardRecord::new(
     "Terminal Moraine",
     "353a8ea8-3f1f-4f77-95bc-b09b96996285",
     "Scott Bailey",
-// A colourless land that turns into whatever colour was missing, three
+    // A colourless land that turns into whatever colour was missing, three
     // mana and a turn later than you wanted it.
     CardRules::new_land(&[]).with_abilities(&[
         abilities::tap_for(ManaColor::Colorless),
         AbilityDef::activated(
-        "{2}, {T}, Sacrifice this land: Search your library for a basic land card, put that card onto the battlefield tapped, then shuffle.",
-        &[
-            CostDef::Mana(mana_cost!("{2}")),
-            CostDef::TapSource,
-            CostDef::SacrificeSource,
-        ],
-        EffectDef::SearchZone {
-            player: EffectRecipientDef::Controller,
-            source: ZoneKind::Library,
-            object: ObjectPredicateDef::All(&[
-                ObjectPredicateDef::HasType(CardType::Land),
-                ObjectPredicateDef::Supertype(CardSupertype::Basic),
-            ]),
-            minimum: 0,
-            maximum: ValueDef::Constant(1),
-            reveal: false,
-            destination: ZoneKind::Battlefield,
-            placement: ZonePlacement::Top,
-            shuffle: true,
-            enters_tapped: true,
-            attachment: None,
-            binding: None,
-            then: None,
-        },
-    ),
+            "{2}, {T}, Sacrifice this land: Search your library for a \
+             basic land card, put that card onto the battlefield tapped, \
+             then shuffle.",
+            &[
+                CostDef::Mana(mana_cost!("{2}")),
+                CostDef::TapSource,
+                CostDef::SacrificeSource,
+            ],
+            EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                ]),
+                minimum: 0,
+                maximum: ValueDef::Constant(1),
+                reveal: false,
+                destination: ZoneKind::Battlefield,
+                placement: ZonePlacement::Top,
+                shuffle: true,
+                enters_tapped: true,
+                attachment: None,
+                binding: None,
+                then: None,
+            },
+        ),
     ]),
 );
 
@@ -2421,26 +2441,36 @@ pub(in crate::card::sets) static TREVAS_RUINS: CardRecord = CardRecord::new(
     "Treva's Ruins",
     "8bae2458-b54f-426a-ad40-13529a73c423",
     "Jerry Tiritilli",
-// Three colours for the price of a land drop you already made: the Lair
+    // Three colours for the price of a land drop you already made: the Lair
     // costs tempo rather than cards.
     CardRules::new_land(&["Lair"]).with_abilities(&[
-        abilities::enters_trigger("When this land enters, sacrifice it unless you return a non-Lair land you control to its owner's hand.", EffectDef::PayOr(PayOrDef::unless(
-            &[CostDef::MovePermanentMatching {
-                // The Lair itself is excluded by its own subtype, so a second one cannot pay
-                // for the first.
-                object: ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::HasType(CardType::Land),
-                    ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::Literal("Lair"))),
-                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                ]),
-                zone: ZoneKind::Hand,
-            }],
-            &EffectDef::sacrifice(EffectRecipientDef::Source),
-        ))),
+        abilities::enters_trigger(
+            "When this land enters, sacrifice it unless you return a \
+             non-Lair land you control to its owner's hand.",
+            EffectDef::PayOr(PayOrDef::unless(
+                &[CostDef::MovePermanentMatching {
+                    // The Lair itself is excluded by its own subtype, so a second one cannot pay
+                    // for the first.
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::Literal(
+                            "Lair",
+                        ))),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ]),
+                    zone: ZoneKind::Hand,
+                }],
+                &EffectDef::sacrifice(EffectRecipientDef::Source),
+            )),
+        ),
         AbilityDef::activated_mana(
             "{T}: Add {G}, {W}, or {U}.",
             &[CostDef::TapSource],
-            EffectDef::AddMana(AddManaEffectDef::choice(&[ManaColor::Green, ManaColor::White, ManaColor::Blue])),
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::Green,
+                ManaColor::White,
+                ManaColor::Blue,
+            ])),
         ),
     ]),
 );

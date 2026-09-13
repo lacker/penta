@@ -73,7 +73,7 @@ pub(in crate::card::sets) static BALEFUL_STRIX: CardRecord = CardRecord::new(
 );
 
 // PC2 101 — Maelstrom Wanderer
-pub(in crate::card::sets) static MAELSTROM_WANDERER_101: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static MAELSTROM_WANDERER: CardRecord = CardRecord::new(
     "Maelstrom Wanderer",
     "9129baf5-ffa9-4ffb-bcab-19d6a42dbfcc",
     "Thomas M. Baxa",
@@ -97,6 +97,6 @@ pub(in crate::card::sets) static MAELSTROM_WANDERER_101: CardRecord = CardRecord
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[&BEETLEBACK_CHIEF, &BALEFUL_STRIX, &MAELSTROM_WANDERER_101];
+    &[&BEETLEBACK_CHIEF, &BALEFUL_STRIX, &MAELSTROM_WANDERER];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

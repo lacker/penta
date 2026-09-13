@@ -80,15 +80,16 @@ pub(in crate::card::sets) static KARN_SCION_OF_URZA: CardRecord = CardRecord::ne
     "Karn, Scion of Urza",
     "07a3d9e8-8597-498b-869c-cff79e0df516",
     "Chase Stone",
-// Colorless, so every deck can play him: a card every turn that the
+    // Colorless, so every deck can play him: a card every turn that the
     // other player picks, the pile of leftovers he can cash in later, and a
     // body that grows with the artifacts the deck is made of.
     CardRules::new_planeswalker(mana_cost!("{4}"), &["Karn"], 5)
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
             AbilityDef::activated(
-                "+1: Reveal the top two cards of your library. An opponent chooses one of them. Put that \
-                 card into your hand and exile the other with a silver counter on it.",
+                "+1: Reveal the top two cards of your library. An opponent \
+                 chooses one of them. Put that card into your hand and exile \
+                 the other with a silver counter on it.",
                 &[CostDef::Loyalty(1)],
                 abilities::bind_top_cards_then(
                     PlayerRefDef::EffectController,
@@ -98,45 +99,46 @@ pub(in crate::card::sets) static KARN_SCION_OF_URZA: CardRecord = CardRecord::ne
                             input: ObjectSetDef::Binding(ParentBinding),
                             then: &EffectDef::None,
                         }),
-                            EffectDef::Choose(ChooseDef {
-                                binding: ObjectChoiceBindingDef::Objects(KARN_CHOSEN),
-                                unchosen: Some(KARN_REST),
-                                chooser: PlayerRefDef::Opponent,
-                                candidates: ObjectSetDef::Binding(ParentBinding),
-                                exclude: None,
-                                minimum: 1,
-                                maximum: 1,
-                                visibility: ChoiceVisibilityDef::Public,
-                                then: &EffectDef::Sequence(&[
-                                        EffectDef::MoveObjects(MoveObjectsDef {
-                                            input: ObjectSetDef::Binding(KARN_CHOSEN),
-                                            from: Some(ZoneKind::Library),
-                                            zone: ZoneKind::Hand,
-                                            placement: ZonePlacement::Top,
-                                            moved: None,
-                                            then: &EffectDef::None,
-                                        }),
-                                            EffectDef::MoveObjects(MoveObjectsDef {
-                                                input: ObjectSetDef::Binding(KARN_REST),
-                                                from: Some(ZoneKind::Library),
-                                                zone: ZoneKind::Exile,
-                                                placement: ZonePlacement::Top,
-                                                moved: Some(ParentBinding),
-                                                then: &EffectDef::AddCounters {
-                                                    object: EffectRecipientDef::objects(
-                                                        ObjectSetDef::Binding(ParentBinding),
-                                                    ),
-                                                    kind: CounterKind::named("silver"),
-                                                    amount: ValueDef::Constant(1),
-                                                },
-                                            }),
-                                    ]),
-                            }),
+                        EffectDef::Choose(ChooseDef {
+                            binding: ObjectChoiceBindingDef::Objects(KARN_CHOSEN),
+                            unchosen: Some(KARN_REST),
+                            chooser: PlayerRefDef::Opponent,
+                            candidates: ObjectSetDef::Binding(ParentBinding),
+                            exclude: None,
+                            minimum: 1,
+                            maximum: 1,
+                            visibility: ChoiceVisibilityDef::Public,
+                            then: &EffectDef::Sequence(&[
+                                EffectDef::MoveObjects(MoveObjectsDef {
+                                    input: ObjectSetDef::Binding(KARN_CHOSEN),
+                                    from: Some(ZoneKind::Library),
+                                    zone: ZoneKind::Hand,
+                                    placement: ZonePlacement::Top,
+                                    moved: None,
+                                    then: &EffectDef::None,
+                                }),
+                                EffectDef::MoveObjects(MoveObjectsDef {
+                                    input: ObjectSetDef::Binding(KARN_REST),
+                                    from: Some(ZoneKind::Library),
+                                    zone: ZoneKind::Exile,
+                                    placement: ZonePlacement::Top,
+                                    moved: Some(ParentBinding),
+                                    then: &EffectDef::AddCounters {
+                                        object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                            ParentBinding,
+                                        )),
+                                        kind: CounterKind::named("silver"),
+                                        amount: ValueDef::Constant(1),
+                                    },
+                                }),
+                            ]),
+                        }),
                     ]),
                 ),
             ),
             AbilityDef::activated(
-                "\u{2212}1: Put a card you own with a silver counter on it from exile into your hand.",
+                "\u{2212}1: Put a card you own with a silver counter on it \
+                 from exile into your hand.",
                 &[CostDef::Loyalty(-1)],
                 EffectDef::Choose(ChooseDef {
                     binding: ObjectChoiceBindingDef::Object(ParentBinding),
@@ -162,12 +164,13 @@ pub(in crate::card::sets) static KARN_SCION_OF_URZA: CardRecord = CardRecord::ne
                 }),
             ),
             AbilityDef::activated(
-                "\u{2212}2: Create a 0/0 colorless Construct artifact creature token with \"This token \
-                 gets +1/+1 for each artifact you control.\"",
+                "\u{2212}2: Create a 0/0 colorless Construct artifact \
+                 creature token with \"This token gets +1/+1 for each \
+                 artifact you control.\"",
                 &[CostDef::Loyalty(-2)],
                 EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
-                    TokenCharacteristics::artifact_creature(&["Construct"], &[], 0, 0).with_abilities(&[
-                        AbilityDef::static_ability(
+                    TokenCharacteristics::artifact_creature(&["Construct"], &[], 0, 0)
+                        .with_abilities(&[AbilityDef::static_ability(
                             "This token gets +1/+1 for each artifact you control.",
                             EffectDef::StaticApply {
                                 recipient: EffectRecipientDef::Source,
@@ -176,8 +179,7 @@ pub(in crate::card::sets) static KARN_SCION_OF_URZA: CardRecord = CardRecord::ne
                                     ValueDef::CountMatchingObjects(&ARTIFACTS_YOU_CONTROL),
                                 ),
                             },
-                        ),
-                    ]),
+                        )]),
                 ))),
             ),
         ]),
@@ -210,7 +212,9 @@ pub(in crate::card::sets) static ADAMANT_WILL: CardRecord = CardRecord::new(
 );
 
 // DOM 23 — Knight of Grace
-// Audit: unsupported — Needs hexproof filtered by an opposing spell or ability source being black; protection from black would incorrectly also prevent damage, blocking, and attachments.
+// Audit: unsupported — Needs hexproof filtered by an opposing spell or ability source being
+// black; protection from black would incorrectly also prevent damage, blocking, and
+// attachments.
 pub(in crate::card::sets) static KNIGHT_OF_GRACE: CardRecord = CardRecord::new(
     "Knight of Grace",
     "7bbbddc0-f8b3-4255-bd82-d50f829ca009",
@@ -255,14 +259,45 @@ pub(in crate::card::sets) static LYRA_DAWNBRINGER: CardRecord = CardRecord::new(
 );
 
 // DOM 36 — Teshar, Ancestor's Apostle
-pub(in crate::card::sets) static TESHAR_ANCESTOR_S_APOSTLE_36: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static TESHAR_ANCESTOR_S_APOSTLE: CardRecord = CardRecord::new(
     "Teshar, Ancestor's Apostle",
     "f6d115b4-51d5-4898-b56c-2729aa428018",
     "Even Amundsen",
-    CardRules::new_creature(mana_cost!("{3}{W}"), &["Bird", "Cleric"], 2, 2).with_supertype(CardSupertype::Legendary).with_abilities(&[
-abilities::flying(),
-AbilityDef::triggered_with_targets("Whenever you cast a historic spell, return target creature card with mana value 3 or less from your graveyard to the battlefield. (Artifacts, legendaries, and Sagas are historic.)", TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Artifact), ObjectPredicateDef::Supertype(CardSupertype::Legendary), ObjectPredicateDef::Subtype(SubtypeDef::Literal("Saga"))]), ObjectPredicateDef::ControlledBy(PlayerRelation::You)])), &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object { object: ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::ManaValueAtMost(3)]), zones: &[ZoneKind::Graveyard], controller: None, owner: Some(PlayerRelation::You) })], EffectDef::move_to_zone(EffectRecipientDef::Target(TargetIndex::PRIMARY), ZoneKind::Battlefield, ZonePlacement::Top))
-]),
+    CardRules::new_creature(mana_cost!("{3}{W}"), &["Bird", "Cleric"], 2, 2)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::flying(),
+            AbilityDef::triggered_with_targets(
+                "Whenever you cast a historic spell, return target creature \
+                 card with mana value 3 or less from your graveyard to the \
+                 battlefield. (Artifacts, legendaries, and Sagas are \
+                 historic.)",
+                TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        ObjectPredicateDef::Supertype(CardSupertype::Legendary),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Saga")),
+                    ]),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ])),
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::ManaValueAtMost(3),
+                        ]),
+                        zones: &[ZoneKind::Graveyard],
+                        controller: None,
+                        owner: Some(PlayerRelation::You),
+                    },
+                )],
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Battlefield,
+                    ZonePlacement::Top,
+                ),
+            ),
+        ]),
 );
 
 // DOM 68 — Tempest Djinn
@@ -310,17 +345,98 @@ pub(in crate::card::sets) static CAST_DOWN: CardRecord = CardRecord::new(
 );
 
 // DOM 93 — Final Parting
-pub(in crate::card::sets) static FINAL_PARTING_93: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static FINAL_PARTING: CardRecord = CardRecord::new(
     "Final Parting",
     "de8803f6-9efa-4323-b8c5-29bdd5a48f9a",
     "Eric Deschamps",
-    CardRules::new_sorcery(mana_cost!("{3}{B}{B}")).with_abilities(&[
-AbilityDef::spell("Search your library for two cards. Put one into your hand and the other into your graveyard. Then shuffle.", EffectDef::Sequence(&[EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Library, object: ObjectPredicateDef::Any, minimum: 2, maximum: ValueDef::Constant(2), reveal: false, destination: ZoneKind::Library, placement: ZonePlacement::Top, shuffle: false, enters_tapped: false, attachment: None, binding: Some(Binding!("part_found")), then: Some(&EffectDef::IfElseCondition { condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef { left: ValueDef::BoundObjectCount(Binding!("part_found")), comparison: ComparisonDef::GreaterOrEqual, right: ValueDef::Constant(2) }), then: &EffectDef::Choose(ChooseDef { chooser: PlayerRefDef::EffectController, candidates: ObjectSetDef::Binding(Binding!("part_found")), exclude: None, minimum: 1, maximum: 1, binding: ObjectChoiceBindingDef::Objects(Binding!("part_hand")), unchosen: Some(Binding!("part_grave")), visibility: ChoiceVisibilityDef::Private, then: &EffectDef::Sequence(&[EffectDef::move_to_zone(EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!("part_hand"))), ZoneKind::Hand, ZonePlacement::Top), EffectDef::move_to_zone(EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!("part_grave"))), ZoneKind::Graveyard, ZonePlacement::Top)]) }), otherwise: &EffectDef::Choose(ChooseDef { chooser: PlayerRefDef::EffectController, candidates: ObjectSetDef::Binding(Binding!("part_found")), exclude: None, minimum: 0, maximum: 1, binding: ObjectChoiceBindingDef::Objects(Binding!("part_short_hand")), unchosen: Some(Binding!("part_short_grave")), visibility: ChoiceVisibilityDef::Private, then: &EffectDef::Sequence(&[EffectDef::move_to_zone(EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!("part_short_hand"))), ZoneKind::Hand, ZonePlacement::Top), EffectDef::move_to_zone(EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!("part_short_grave"))), ZoneKind::Graveyard, ZonePlacement::Top)]) }) }) }, EffectDef::ShuffleLibrary { player: EffectRecipientDef::Controller }]))
-]),
+    CardRules::new_sorcery(mana_cost!("{3}{B}{B}")).with_abilities(&[AbilityDef::spell(
+        "Search your library for two cards. Put one into your hand \
+         and the other into your graveyard. Then shuffle.",
+        EffectDef::Sequence(&[
+            EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                object: ObjectPredicateDef::Any,
+                minimum: 2,
+                maximum: ValueDef::Constant(2),
+                reveal: false,
+                destination: ZoneKind::Library,
+                placement: ZonePlacement::Top,
+                shuffle: false,
+                enters_tapped: false,
+                attachment: None,
+                binding: Some(Binding!("part_found")),
+                then: Some(&EffectDef::IfElseCondition {
+                    condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                        left: ValueDef::BoundObjectCount(Binding!("part_found")),
+                        comparison: ComparisonDef::GreaterOrEqual,
+                        right: ValueDef::Constant(2),
+                    }),
+                    then: &EffectDef::Choose(ChooseDef {
+                        chooser: PlayerRefDef::EffectController,
+                        candidates: ObjectSetDef::Binding(Binding!("part_found")),
+                        exclude: None,
+                        minimum: 1,
+                        maximum: 1,
+                        binding: ObjectChoiceBindingDef::Objects(Binding!("part_hand")),
+                        unchosen: Some(Binding!("part_grave")),
+                        visibility: ChoiceVisibilityDef::Private,
+                        then: &EffectDef::Sequence(&[
+                            EffectDef::move_to_zone(
+                                EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!(
+                                    "part_hand"
+                                ))),
+                                ZoneKind::Hand,
+                                ZonePlacement::Top,
+                            ),
+                            EffectDef::move_to_zone(
+                                EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!(
+                                    "part_grave"
+                                ))),
+                                ZoneKind::Graveyard,
+                                ZonePlacement::Top,
+                            ),
+                        ]),
+                    }),
+                    otherwise: &EffectDef::Choose(ChooseDef {
+                        chooser: PlayerRefDef::EffectController,
+                        candidates: ObjectSetDef::Binding(Binding!("part_found")),
+                        exclude: None,
+                        minimum: 0,
+                        maximum: 1,
+                        binding: ObjectChoiceBindingDef::Objects(Binding!("part_short_hand")),
+                        unchosen: Some(Binding!("part_short_grave")),
+                        visibility: ChoiceVisibilityDef::Private,
+                        then: &EffectDef::Sequence(&[
+                            EffectDef::move_to_zone(
+                                EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!(
+                                    "part_short_hand"
+                                ))),
+                                ZoneKind::Hand,
+                                ZonePlacement::Top,
+                            ),
+                            EffectDef::move_to_zone(
+                                EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!(
+                                    "part_short_grave"
+                                ))),
+                                ZoneKind::Graveyard,
+                                ZonePlacement::Top,
+                            ),
+                        ]),
+                    }),
+                }),
+            },
+            EffectDef::ShuffleLibrary {
+                player: EffectRecipientDef::Controller,
+            },
+        ]),
+    )]),
 );
 
 // DOM 97 — Knight of Malice
-// Audit: unsupported — Needs hexproof filtered by an opposing spell or ability source being white; protection from white would incorrectly also prevent damage, blocking, and attachments.
+// Audit: unsupported — Needs hexproof filtered by an opposing spell or ability source being
+// white; protection from white would incorrectly also prevent damage, blocking, and
+// attachments.
 pub(in crate::card::sets) static KNIGHT_OF_MALICE: CardRecord = CardRecord::new(
     "Knight of Malice",
     "b45266f0-eb4f-4a06-bc64-8c2d774b4cc5",
@@ -368,8 +484,10 @@ pub(in crate::card::sets) static GHITU_LAVARUNNER: CardRecord = CardRecord::new(
 );
 
 // DOM 146 — Squee, the Immortal
-// Audit: unsupported — There is no intrinsic cast-from-exile permission. Exile-play effects grant permission when they move a card, which cannot authorize this card after any arbitrary path into exile.
-pub(in crate::card::sets) static SQUEE_THE_IMMORTAL_146: CardRecord = CardRecord::new(
+// Audit: unsupported — There is no intrinsic cast-from-exile permission. Exile-play effects
+// grant permission when they move a card, which cannot authorize this card after any arbitrary
+// path into exile.
+pub(in crate::card::sets) static SQUEE_THE_IMMORTAL: CardRecord = CardRecord::new(
     "Squee, the Immortal",
     "a3974c62-a524-454e-9ce7-2c23b704e5cb",
     "Svetlin Velinov",
@@ -377,7 +495,7 @@ pub(in crate::card::sets) static SQUEE_THE_IMMORTAL_146: CardRecord = CardRecord
 );
 
 // DOM 151 — Warlord's Fury
-pub(in crate::card::sets) static WARLORD_S_FURY_151: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static WARLORD_S_FURY: CardRecord = CardRecord::new(
     "Warlord's Fury",
     "0ebd63cf-7e8c-4c8d-844d-98535d5f3039",
     "Volkan Baǵa",
@@ -456,7 +574,8 @@ pub(in crate::card::sets) static GROW_FROM_THE_ASHES: CardRecord = CardRecord::n
 );
 
 // DOM 199 — Muldrotha, the Gravetide
-// Audit: unsupported — Needs a graveyard play allowance consumed by a player-chosen permanent type for each cast, with separate per-turn allowances for every permanent type and lands.
+// Audit: unsupported — Needs a graveyard play allowance consumed by a player-chosen permanent
+// type for each cast, with separate per-turn allowances for every permanent type and lands.
 pub(in crate::card::sets) static MULDROTHA_THE_GRAVETIDE: CardRecord = CardRecord::new(
     "Muldrotha, the Gravetide",
     "c654737d-34ac-42ff-ae27-3a3bbb930fc1",
@@ -497,7 +616,7 @@ pub(in crate::card::sets) static TEFERI_HERO_OF_DOMINARIA: CardRecord = CardReco
     "Teferi, Hero of Dominaria",
     "5d10b752-d9cb-419d-a5c4-d4ee1acb655e",
     "Chris Rallis",
-// Five mana that draws a card and leaves two lands up, so the turn he
+    // Five mana that draws a card and leaves two lands up, so the turn he
     // lands is not the turn he costs you: the plus pays for the counterspell
     // held behind him.
     CardRules::new_planeswalker(mana_cost!("{3}{W}{U}"), &["Teferi"], 4)
@@ -537,14 +656,17 @@ pub(in crate::card::sets) static TEFERI_HERO_OF_DOMINARIA: CardRecord = CardReco
                             maximum: 2,
                             visibility: ChoiceVisibilityDef::Public,
                             then: &EffectDef::Untap {
-                                object: EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
+                                object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                    ParentBinding,
+                                )),
                             },
                         }),
                     ))),
                 ]),
             ),
             AbilityDef::activated_with_targets(
-                "\u{2212}3: Put target nonland permanent into its owner's library third from the top.",
+                "\u{2212}3: Put target nonland permanent into its owner's \
+                 library third from the top.",
                 &[CostDef::Loyalty(-3)],
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
@@ -559,29 +681,33 @@ pub(in crate::card::sets) static TEFERI_HERO_OF_DOMINARIA: CardRecord = CardReco
                 ),
             ),
             AbilityDef::activated(
-                "\u{2212}8: You get an emblem with \"Whenever you draw a card, exile target permanent an \
-                 opponent controls.\"",
+                "\u{2212}8: You get an emblem with \"Whenever you draw a \
+                 card, exile target permanent an opponent controls.\"",
                 &[CostDef::Loyalty(-8)],
                 // One trigger per card drawn, which is what makes the emblem and the plus
                 // the same card: every draw for the rest of the game eats a permanent.
-                EffectDef::create_emblem("Teferi, Hero of Dominaria emblem", &[AbilityDef::triggered_with_targets(
-                    "Whenever you draw a card, exile target permanent an opponent controls.",
-                    TriggerEventDef::DrewCard(DrawEventMatcherDef::any(PlayerRelation::You)),
-                    &[AbilityTargetDef::exactly_one_permanent(
-                        ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
+                EffectDef::create_emblem(
+                    "Teferi, Hero of Dominaria emblem",
+                    &[AbilityDef::triggered_with_targets(
+                        "Whenever you draw a card, exile target permanent an opponent controls.",
+                        TriggerEventDef::DrewCard(DrawEventMatcherDef::any(PlayerRelation::You)),
+                        &[AbilityTargetDef::exactly_one_permanent(
+                            ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
+                        )],
+                        EffectDef::move_to_zone(
+                            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            ZoneKind::Exile,
+                            ZonePlacement::Top,
+                        ),
                     )],
-                    EffectDef::move_to_zone(
-                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        ZoneKind::Exile,
-                        ZonePlacement::Top,
-                    ),
-                )]),
+                ),
             ),
         ]),
 );
 
 // DOM 213 — Damping Sphere
-// Audit: unsupported — Needs a static replacement changing a land ability producing two or more mana into exactly {C}.
+// Audit: unsupported — Needs a static replacement changing a land ability producing two or more
+// mana into exactly {C}.
 pub(in crate::card::sets) static DAMPING_SPHERE: CardRecord = CardRecord::new(
     "Damping Sphere",
     "a5c7d16b-8f4e-42b9-be24-3cb091932d7c",
@@ -594,12 +720,14 @@ pub(in crate::card::sets) static HELM_OF_THE_HOST: CardRecord = CardRecord::new(
     "Helm of the Host",
     "1d65d20c-09e5-4139-838b-7e0e48eb2b2b",
     "Igor Kieryluk",
-CardRules::new_artifact(mana_cost!("{4}"))
+    CardRules::new_artifact(mana_cost!("{4}"))
         .with_supertype(CardSupertype::Legendary)
         .with_subtypes(&["Equipment"])
         .with_abilities(&[
             AbilityDef::triggered(
-                "At the beginning of combat on your turn, create a token that's a copy of equipped creature, except the token isn't legendary. That token gains haste.",
+                "At the beginning of combat on your turn, create a token \
+                 that's a copy of equipped creature, except the token isn't \
+                 legendary. That token gains haste.",
                 TriggerEventDef::StepBegins {
                     step: TurnStepDef::BeginningOfCombat,
                     player: PlayerRelation::You,
@@ -607,12 +735,15 @@ CardRules::new_artifact(mana_cost!("{4}"))
                 EffectDef::CreateToken(
                     CreateTokenDef::new(TokenDef::Copy(&crate::card::TokenCopyDef {
                         object: &EffectRecipientDef::AttachedPermanent,
-                        exceptions: CopyExceptionsDef::NONE.without_supertypes(&[CardSupertype::Legendary]),
+                        exceptions: CopyExceptionsDef::NONE
+                            .without_supertypes(&[CardSupertype::Legendary]),
                     }))
                     .with_created_tokens(CreatedTokensDef {
                         binding: ParentBinding,
                         then: &EffectDef::Apply {
-                            recipient: EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
+                            recipient: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                ParentBinding,
+                            )),
                             effect: AppliedEffectDef::add_ability(&abilities::haste()),
                             duration: ResolvedEffectDurationDef::Permanent,
                         },
@@ -624,8 +755,9 @@ CardRules::new_artifact(mana_cost!("{4}"))
 );
 
 // DOM 224 — Mox Amber
-// Audit: unsupported — The mana-type selection domain can inspect mana-producing abilities, but cannot derive the colors of legendary creatures and planeswalkers.
-pub(in crate::card::sets) static MOX_AMBER_224: CardRecord = CardRecord::new(
+// Audit: unsupported — The mana-type selection domain can inspect mana-producing abilities, but
+// cannot derive the colors of legendary creatures and planeswalkers.
+pub(in crate::card::sets) static MOX_AMBER: CardRecord = CardRecord::new(
     "Mox Amber",
     "66024e69-ad60-4c9a-a0ca-da138d33ad80",
     "Steven Belledin",
@@ -633,7 +765,7 @@ pub(in crate::card::sets) static MOX_AMBER_224: CardRecord = CardRecord::new(
 );
 
 // DOM 234 — Traxos, Scourge of Kroog
-pub(in crate::card::sets) static TRAXOS_SCOURGE_OF_KROOG_234: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static TRAXOS_SCOURGE_OF_KROOG: CardRecord = CardRecord::new(
     "Traxos, Scourge of Kroog",
     "dab80216-3df7-4e4f-8732-16dd6cac6bcf",
     "Lius Lasahido",
@@ -672,7 +804,7 @@ pub(in crate::card::sets) static TRAXOS_SCOURGE_OF_KROOG_234: CardRecord = CardR
 );
 
 // DOM 236 — Voltaic Servant
-pub(in crate::card::sets) static VOLTAIC_SERVANT_236: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static VOLTAIC_SERVANT: CardRecord = CardRecord::new(
     "Voltaic Servant",
     "28564ac6-8b9b-4b99-9630-8fb3158d354c",
     "Jonas De Ro",
@@ -694,7 +826,7 @@ pub(in crate::card::sets) static VOLTAIC_SERVANT_236: CardRecord = CardRecord::n
 );
 
 // DOM 238 — Cabal Stronghold
-pub(in crate::card::sets) static CABAL_STRONGHOLD_238: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static CABAL_STRONGHOLD: CardRecord = CardRecord::new(
     "Cabal Stronghold",
     "0bda51ef-ee3e-48d4-92e2-c9083bbe0f80",
     "Dimitar Marinski",
@@ -725,24 +857,24 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ADAMANT_WILL,
     &KNIGHT_OF_GRACE,
     &LYRA_DAWNBRINGER,
-    &TESHAR_ANCESTOR_S_APOSTLE_36,
+    &TESHAR_ANCESTOR_S_APOSTLE,
     &TEMPEST_DJINN,
     &CAST_DOWN,
-    &FINAL_PARTING_93,
+    &FINAL_PARTING,
     &KNIGHT_OF_MALICE,
     &GHITU_LAVARUNNER,
-    &SQUEE_THE_IMMORTAL_146,
-    &WARLORD_S_FURY_151,
+    &SQUEE_THE_IMMORTAL,
+    &WARLORD_S_FURY,
     &GROW_FROM_THE_ASHES,
     &MULDROTHA_THE_GRAVETIDE,
     &TATYOVA_BENTHIC_DRUID,
     &TEFERI_HERO_OF_DOMINARIA,
     &DAMPING_SPHERE,
     &HELM_OF_THE_HOST,
-    &MOX_AMBER_224,
-    &TRAXOS_SCOURGE_OF_KROOG_234,
-    &VOLTAIC_SERVANT_236,
-    &CABAL_STRONGHOLD_238,
+    &MOX_AMBER,
+    &TRAXOS_SCOURGE_OF_KROOG,
+    &VOLTAIC_SERVANT,
+    &CABAL_STRONGHOLD,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

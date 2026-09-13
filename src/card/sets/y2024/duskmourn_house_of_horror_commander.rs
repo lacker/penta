@@ -86,12 +86,16 @@ pub(in crate::card::sets) static URSINE_MONSTROSITY: CardRecord = CardRecord::ne
     "Ursine Monstrosity",
     "73cc6df4-3564-4ace-bf8a-eac3e62d725a",
     "Carlos Palma Cruchaga",
-// The bear feeds itself: every combat mills one more card, and every
+    // The bear feeds itself: every combat mills one more card, and every
     // card type that turns up is another point in both directions.
     CardRules::new_creature(mana_cost!("{2}{G}"), &["Bear", "Mutant"], 3, 3).with_abilities(&[
         abilities::trample(),
         AbilityDef::triggered(
-            "At the beginning of combat on your turn, mill a card and choose an opponent at random. This creature attacks that player this combat if able. Until end of turn, this creature gains indestructible and gets +1/+1 for each card type among cards in your graveyard.",
+            "At the beginning of combat on your turn, mill a card and \
+             choose an opponent at random. This creature attacks that \
+             player this combat if able. Until end of turn, this \
+             creature gains indestructible and gets +1/+1 for each card \
+             type among cards in your graveyard.",
             TriggerEventDef::StepBegins {
                 step: TurnStepDef::BeginningOfCombat,
                 player: PlayerRelation::You,
@@ -111,7 +115,9 @@ pub(in crate::card::sets) static URSINE_MONSTROSITY: CardRecord = CardRecord::ne
                         // satisfy it, which is what separates this from the plain "attacks each
                         // combat if able". It is granted for the turn rather than printed, and the
                         // trigger renews it at the beginning of every combat.
-                        AppliedEffectDef::add_ability(&abilities::attacks_player_each_combat_if_able()),
+                        AppliedEffectDef::add_ability(
+                            &abilities::attacks_player_each_combat_if_able(),
+                        ),
                         // Read as the trigger resolves, which is after the mill: the card it
                         // just put there counts toward its own bonus.
                         AppliedEffectDef::modify_power_toughness(
@@ -127,8 +133,10 @@ pub(in crate::card::sets) static URSINE_MONSTROSITY: CardRecord = CardRecord::ne
 );
 
 // DSC 66 — Giggling Skitterspike
-// Audit: unsupported — Monstrous status is not represented. A +1/+1-counter test would allow repeated monstrosity after counters are removed and suppress it after unrelated counters are added.
-pub(in crate::card::sets) static GIGGLING_SKITTERSPIKE_66: CardRecord = CardRecord::new(
+// Audit: unsupported — Monstrous status is not represented. A +1/+1-counter test would allow
+// repeated monstrosity after counters are removed and suppress it after unrelated counters are
+// added.
+pub(in crate::card::sets) static GIGGLING_SKITTERSPIKE: CardRecord = CardRecord::new(
     "Giggling Skitterspike",
     "a7360ffb-5a45-490f-9adf-d540a404e64d",
     "Nino Is",
@@ -159,7 +167,7 @@ const GOLGARI_ROT_FARM_REPRINT: PrintingRecord = PrintingRecord::reprint(
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &METAMORPHOSIS_FANATIC,
     &URSINE_MONSTROSITY,
-    &GIGGLING_SKITTERSPIKE_66,
+    &GIGGLING_SKITTERSPIKE,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[

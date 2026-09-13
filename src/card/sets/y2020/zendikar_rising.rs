@@ -67,7 +67,7 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // ZNR 4 — Archon of Emeria
-pub(in crate::card::sets) static ARCHON_OF_EMERIA_4: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static ARCHON_OF_EMERIA: CardRecord = CardRecord::new(
     "Archon of Emeria",
     "228c1650-da3c-4099-91b6-18e3873c9cdb",
     "Ryan Pancoast",
@@ -106,7 +106,7 @@ pub(in crate::card::sets) static DAUNTLESS_UNITY: CardRecord = CardRecord::new(
     "Dauntless Unity",
     "b12a4d17-68e6-4133-99fd-e501e24e6c6b",
     "Josu Hernaiz",
-// The kicked mode trades a point of toughness for a point of power, so
+    // The kicked mode trades a point of toughness for a point of power, so
     // it is the better combat trick and the worse blocking one.
     CardRules::new_instant(mana_cost!("{1}{W}")).with_abilities(&[
         AbilityDef::alternative_cast(
@@ -116,7 +116,9 @@ pub(in crate::card::sets) static DAUNTLESS_UNITY: CardRecord = CardRecord::new(
             EffectDef::None,
         ),
         AbilityDef::spell(
-            "Creatures you control get +1/+1 until end of turn. If this spell was kicked, those creatures get +2/+1 until end of turn instead.",
+            "Creatures you control get +1/+1 until end of turn. If this \
+             spell was kicked, those creatures get +2/+1 until end of \
+             turn instead.",
             // "Instead" makes the two exclusive, so one condition picks a
             // branch rather than the kicked mode stacking on the base one.
             EffectDef::IfElseCondition {
@@ -216,90 +218,125 @@ pub(in crate::card::sets) static SKYCLAVE_APPARITION: CardRecord = CardRecord::n
     "Skyclave Apparition",
     "b83cfbaa-7890-4f6f-878b-4edb45677371",
     "Donato Giancola",
-// Three mana for a body and an answer, and the answer is only undone by
+    // Three mana for a body and an answer, and the answer is only undone by
     // killing the body -- which hands back an Illusion rather than the card.
-    CardRules::new_creature(mana_cost!("{1}{W}{W}"), &["Kor", "Spirit"], 2, 2)
-        .with_abilities(&[
-            abilities::enters_trigger_with_targets(
-                "When this creature enters, exile up to one target nonland, nontoken permanent you don't \
-                 control with mana value 4 or less.",
-                // Everything the exile clause excludes, in one predicate: a land is safe, a
-                // token is safe, and anything expensive is safe. "You don't control" is the
-                // controller half rather than part of the predicate.
-                &[AbilityTargetDef::up_to(
-                    AbilityTargetPredicate::Object {
-                        object: ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
-                            ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
-                            ObjectPredicateDef::ManaValueAtMost(4),
-                        ]),
-                        zones: &[ZoneKind::Battlefield],
-                        controller: Some(PlayerRelation::Opponent),
-                        owner: None,
-                    },
-                    1,
-                )],
-                EffectDef::ExileLinkedToSource {
-                    until_source_leaves: false,
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    face_down: false,
-                    then: None,
+    CardRules::new_creature(mana_cost!("{1}{W}{W}"), &["Kor", "Spirit"], 2, 2).with_abilities(&[
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, exile up to one target nonland, \
+             nontoken permanent you don't control with mana value 4 or \
+             less.",
+            // Everything the exile clause excludes, in one predicate: a land is safe, a
+            // token is safe, and anything expensive is safe. "You don't control" is the
+            // controller half rather than part of the predicate.
+            &[AbilityTargetDef::up_to(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
+                        ObjectPredicateDef::ManaValueAtMost(4),
+                    ]),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::Opponent),
+                    owner: None,
+                },
+                1,
+            )],
+            EffectDef::ExileLinkedToSource {
+                until_source_leaves: false,
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                face_down: false,
+                then: None,
+            },
+        ),
+        // Leaves, not dies: the card stays in exile whatever happened to the
+        // Apparition, and the token is what its owner gets instead.
+        AbilityDef::triggered(
+            "When this creature leaves the battlefield, the exiled \
+             card's owner creates an X/X blue Illusion creature token, \
+             where X is the mana value of the exiled card.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                Some(ZoneKind::Battlefield),
+                None,
+            ),
+            abilities::bind_objects_then(
+                crate::card::ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::LinkedExiles),
+                // One token per exiled card, which is one token: the exile clause is "up to
+                // one target". Binding the pile is also what makes the clause do nothing at
+                // all when nothing was exiled -- the Apparition that entered with no legal
+                // target leaves without paying anybody.
+                &EffectDef::ForEachInBinding {
+                    objects: ParentBinding,
+                    binding: ParentBinding,
+                    // The token is the exiled card's owner's, not the Apparition controller's:
+                    // what they get back for the permanent that is not coming back.
+                    effect: &EffectDef::CreateToken(
+                        CreateTokenDef::new(TokenDef::Literal(
+                            TokenCharacteristics::creature_with_stats(
+                                &["Illusion"],
+                                &[ManaColor::Blue],
+                                // "Where X is the mana value of the exiled card": both halves read the same
+                                // card, which is the one the leave trigger just bound.
+                                &TokenStatsDef {
+                                    power: ValueDef::ObjectManaValue(ObjectRefDef::Binding(
+                                        ParentBinding,
+                                    )),
+                                    toughness: ValueDef::ObjectManaValue(ObjectRefDef::Binding(
+                                        ParentBinding,
+                                    )),
+                                },
+                            ),
+                        ))
+                        .with_controller(PlayerRefDef::OwnerOf(
+                            ObjectRefDef::Binding(ParentBinding),
+                        )),
+                    ),
                 },
             ),
-            // Leaves, not dies: the card stays in exile whatever happened to the
-            // Apparition, and the token is what its owner gets instead.
-            AbilityDef::triggered(
-                "When this creature leaves the battlefield, the exiled card's owner creates an X/X blue \
-                 Illusion creature token, where X is the mana value of the exiled card.",
-                TriggerEventDef::zone_changed(
-                    ObjectPredicateDef::Source,
-                    Some(ZoneKind::Battlefield),
-                    None,
-                ),
-                abilities::bind_objects_then(
-                    crate::card::ObjectCollectionSourceDef::ObjectSet(
-                        ObjectSetDef::LinkedExiles,
-                    ),
-                    // One token per exiled card, which is one token: the exile clause is "up to
-                    // one target". Binding the pile is also what makes the clause do nothing at
-                    // all when nothing was exiled -- the Apparition that entered with no legal
-                    // target leaves without paying anybody.
-                    &EffectDef::ForEachInBinding {
-                        objects: ParentBinding,
-                        binding: ParentBinding,
-                        // The token is the exiled card's owner's, not the Apparition controller's:
-                        // what they get back for the permanent that is not coming back.
-                        effect: &EffectDef::CreateToken(
-                            CreateTokenDef::new(TokenDef::Literal(
-                                TokenCharacteristics::creature_with_stats(
-                                    &["Illusion"],
-                                    &[ManaColor::Blue],
-                                    // "Where X is the mana value of the exiled card": both halves read the same
-                                    // card, which is the one the leave trigger just bound.
-                                    &TokenStatsDef {
-                                        power: ValueDef::ObjectManaValue(ObjectRefDef::Binding(ParentBinding)),
-                                        toughness: ValueDef::ObjectManaValue(ObjectRefDef::Binding(ParentBinding)),
-                                    },
-                                ),
-                            ))
-                            .with_controller(PlayerRefDef::OwnerOf(ObjectRefDef::Binding(ParentBinding))),
-                        ),
-                    },
-                ),
-            ),
-        ]),
+        ),
+    ]),
 );
 
 // ZNR 60 — Glasspool Mimic // Glasspool Shore
-pub(in crate::card::sets) static GLASSPOOL_MIMIC_GLASSPOOL_SHORE_60: CardRecord = CardRecord::new_mdfc(
+pub(in crate::card::sets) static GLASSPOOL_MIMIC_GLASSPOOL_SHORE: CardRecord = CardRecord::new_mdfc(
     "Glasspool Mimic // Glasspool Shore",
     "5adcb500-8c77-4925-8e2c-1243502827d1",
     "Johan Grenier",
-    &[("Glasspool Mimic", CardRules::new_creature(mana_cost!("{2}{U}"), &["Shapeshifter", "Rogue"], 0, 0).with_ability(AbilityDef::replacement("You may have this creature enter as a copy of a creature you control, except it's a Shapeshifter Rogue in addition to its other types.", ReplacementEffectDef::CopyEntering { object: ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::ControlledBy(PlayerRelation::You)]), exceptions: crate::card::CopyExceptionsDef::NONE.with_added_creature_types(&["Shapeshifter", "Rogue"]) }))), ("Glasspool Shore", CardRules::new_land(&[]).with_abilities(&[AbilityDef::as_enters("This land enters tapped.", ReplacementEffectDef::ModifyBattlefieldEntry(BattlefieldEntryModificationDef::Tapped)), abilities::tap_for(ManaColor::Blue)]))],
+    &[
+        (
+            "Glasspool Mimic",
+            CardRules::new_creature(mana_cost!("{2}{U}"), &["Shapeshifter", "Rogue"], 0, 0)
+                .with_ability(AbilityDef::replacement(
+                    "You may have this creature enter as a copy of a creature \
+                     you control, except it's a Shapeshifter Rogue in addition \
+                     to its other types.",
+                    ReplacementEffectDef::CopyEntering {
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                        ]),
+                        exceptions: crate::card::CopyExceptionsDef::NONE
+                            .with_added_creature_types(&["Shapeshifter", "Rogue"]),
+                    },
+                )),
+        ),
+        (
+            "Glasspool Shore",
+            CardRules::new_land(&[]).with_abilities(&[
+                AbilityDef::as_enters(
+                    "This land enters tapped.",
+                    ReplacementEffectDef::ModifyBattlefieldEntry(
+                        BattlefieldEntryModificationDef::Tapped,
+                    ),
+                ),
+                abilities::tap_for(ManaColor::Blue),
+            ]),
+        ),
+    ],
 );
 
 // ZNR 76 — Sea Gate Restoration // Sea Gate, Reborn
-pub(in crate::card::sets) static SEA_GATE_RESTORATION_SEA_GATE_REBORN_76: CardRecord =
+pub(in crate::card::sets) static SEA_GATE_RESTORATION_SEA_GATE_REBORN: CardRecord =
     CardRecord::new_mdfc(
         "Sea Gate Restoration // Sea Gate, Reborn",
         "193071fe-180b-4d35-ba78-9c16675c29fc",
@@ -307,31 +344,32 @@ pub(in crate::card::sets) static SEA_GATE_RESTORATION_SEA_GATE_REBORN_76: CardRe
         &[
             (
                 "Sea Gate Restoration",
-                CardRules::new_sorcery(mana_cost!("{4}{U}{U}{U}")).with_ability(
-                    AbilityDef::spell(
-                        "Draw cards equal to the number of cards in your hand plus one. You have no maximum hand size for the rest of the game.",
-                        EffectDef::Sequence(&[
-                            EffectDef::DrawCards {
-                                recipient: EffectRecipientDef::Controller,
-                                amount: ValueDef::CardsInHandAbove {
-                                    player: PlayerRelation::You,
-                                    threshold: 0,
-                                },
+                CardRules::new_sorcery(mana_cost!("{4}{U}{U}{U}")).with_ability(AbilityDef::spell(
+                    "Draw cards equal to the number of cards in your hand plus \
+                     one. You have no maximum hand size for the rest of the game.",
+                    EffectDef::Sequence(&[
+                        EffectDef::DrawCards {
+                            recipient: EffectRecipientDef::Controller,
+                            amount: ValueDef::CardsInHandAbove {
+                                player: PlayerRelation::You,
+                                threshold: 0,
                             },
-                            EffectDef::DrawCards {
-                                recipient: EffectRecipientDef::Controller,
-                                amount: ValueDef::Constant(1),
-                            },
-                            EffectDef::Apply {
-                                recipient: EffectRecipientDef::Controller,
-                                effect: AppliedEffectDef::Rule(crate::card::AppliedRuleDef::PlayerRule(
+                        },
+                        EffectDef::DrawCards {
+                            recipient: EffectRecipientDef::Controller,
+                            amount: ValueDef::Constant(1),
+                        },
+                        EffectDef::Apply {
+                            recipient: EffectRecipientDef::Controller,
+                            effect: AppliedEffectDef::Rule(
+                                crate::card::AppliedRuleDef::PlayerRule(
                                     crate::card::PlayerRuleDef::NoMaximumHandSize,
-                                )),
-                                duration: ResolvedEffectDurationDef::Permanent,
-                            },
-                        ]),
-                    ),
-                ),
+                                ),
+                            ),
+                            duration: ResolvedEffectDurationDef::Permanent,
+                        },
+                    ]),
+                )),
             ),
             (
                 "Sea Gate, Reborn",
@@ -356,11 +394,42 @@ pub(in crate::card::sets) static SEA_GATE_RESTORATION_SEA_GATE_REBORN_76: CardRe
     );
 
 // ZNR 80 — Silundi Vision // Silundi Isle
-pub(in crate::card::sets) static SILUNDI_VISION_SILUNDI_ISLE_80: CardRecord = CardRecord::new_mdfc(
+pub(in crate::card::sets) static SILUNDI_VISION_SILUNDI_ISLE: CardRecord = CardRecord::new_mdfc(
     "Silundi Vision // Silundi Isle",
     "11568cdf-6148-494c-8b98-f5ca5797d775",
     "Randy Vargas",
-    &[("Silundi Vision", CardRules::new_instant(mana_cost!("{2}{U}")).with_ability(AbilityDef::spell("Look at the top six cards of your library. You may reveal an instant or sorcery card from among them and put it into your hand. Put the rest on the bottom of your library in a random order.", abilities::look_at_top_cards_reveal_choice_to_hand_rest_random_bottom(ValueDef::Constant(6), ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Instant), ObjectPredicateDef::HasType(CardType::Sorcery)]), 0, 1)))), ("Silundi Isle", CardRules::new_land(&[]).with_abilities(&[AbilityDef::as_enters("This land enters tapped.", ReplacementEffectDef::ModifyBattlefieldEntry(BattlefieldEntryModificationDef::Tapped)), abilities::tap_for(ManaColor::Blue)]))],
+    &[
+        (
+            "Silundi Vision",
+            CardRules::new_instant(mana_cost!("{2}{U}")).with_ability(AbilityDef::spell(
+                "Look at the top six cards of your library. You may reveal \
+                 an instant or sorcery card from among them and put it into \
+                 your hand. Put the rest on the bottom of your library in a \
+                 random order.",
+                abilities::look_at_top_cards_reveal_choice_to_hand_rest_random_bottom(
+                    ValueDef::Constant(6),
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Instant),
+                        ObjectPredicateDef::HasType(CardType::Sorcery),
+                    ]),
+                    0,
+                    1,
+                ),
+            )),
+        ),
+        (
+            "Silundi Isle",
+            CardRules::new_land(&[]).with_abilities(&[
+                AbilityDef::as_enters(
+                    "This land enters tapped.",
+                    ReplacementEffectDef::ModifyBattlefieldEntry(
+                        BattlefieldEntryModificationDef::Tapped,
+                    ),
+                ),
+                abilities::tap_for(ManaColor::Blue),
+            ]),
+        ),
+    ],
 );
 
 // ZNR 85 — Thieving Skydiver
@@ -427,15 +496,15 @@ pub(in crate::card::sets) static BLOODCHIEFS_THIRST: CardRecord = CardRecord::ne
     "Bloodchief's Thirst",
     "059e8447-6b1c-4651-a734-a8fea2cbf7b2",
     "Jason Rainville",
-// One black kills most of what an aggressive deck leads with; four kills
+    // One black kills most of what an aggressive deck leads with; four kills
     // whatever is left, which is why the card is played over a cheaper
     // removal spell that can only do the first job.
     CardRules::new_sorcery(mana_cost!("{B}")).with_abilities(&[
-        abilities::kicker(
-            &[CostDef::Mana(mana_cost!("{2}{B}"))],
-        ),
+        abilities::kicker(&[CostDef::Mana(mana_cost!("{2}{B}"))]),
         AbilityDef::spell_with_targets(
-            "Destroy target creature or planeswalker with mana value 2 or less. If this spell was kicked, instead destroy target creature or planeswalker.",
+            "Destroy target creature or planeswalker with mana value 2 \
+             or less. If this spell was kicked, instead destroy target \
+             creature or planeswalker.",
             // The mana-value bound is part of what may be targeted rather than something
             // checked on resolution, so an unkicked Thirst never points at anything
             // bigger in the first place.
@@ -514,11 +583,65 @@ pub(in crate::card::sets) static HIGHBORN_VAMPIRE: CardRecord = CardRecord::new(
 );
 
 // ZNR 111 — Malakir Rebirth // Malakir Mire
-pub(in crate::card::sets) static MALAKIR_REBIRTH_MALAKIR_MIRE_111: CardRecord = CardRecord::new_mdfc(
+pub(in crate::card::sets) static MALAKIR_REBIRTH_MALAKIR_MIRE: CardRecord = CardRecord::new_mdfc(
     "Malakir Rebirth // Malakir Mire",
     "609d3ecf-f88d-4268-a8d3-4bf2bcf5df60",
     "Marta Nael",
-    &[("Malakir Rebirth", CardRules::new_instant(mana_cost!("{B}")).with_ability(AbilityDef::spell_with_targets("Choose target creature. You lose 2 life. Until end of turn, that creature gains \"When this creature dies, return it to the battlefield tapped under its owner's control.\"", &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Creature))], EffectDef::Sequence(&[EffectDef::LoseLife { recipient: EffectRecipientDef::Controller, amount: ValueDef::Constant(2) }, EffectDef::Apply { recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY), effect: AppliedEffectDef::add_ability(&AbilityDef::triggered("When this creature dies, return it to the battlefield tapped under its owner's control.", TriggerEventDef::zone_changed(ObjectPredicateDef::Source, Some(ZoneKind::Battlefield), Some(ZoneKind::Graveyard)), EffectDef::WithBattlefieldArrival { effect: &EffectDef::move_to_zone(EffectRecipientDef::object(ObjectRefDef::ZoneChangeResultOfTriggeringObject), ZoneKind::Battlefield, ZonePlacement::Top), arrival: BattlefieldArrivalDef { controller: None, modifications: &[BattlefieldEntryModificationDef::Tapped], attachment: None, counters: None } })), duration: ResolvedEffectDurationDef::UntilEndOfTurn }])))), ("Malakir Mire", CardRules::new_land(&[]).with_abilities(&[abilities::enters_tapped(CardType::Land), abilities::tap_for(ManaColor::Black)]))]);
+    &[
+        (
+            "Malakir Rebirth",
+            CardRules::new_instant(mana_cost!("{B}")).with_ability(AbilityDef::spell_with_targets(
+                "Choose target creature. You lose 2 life. Until end of turn, \
+                 that creature gains \"When this creature dies, return it to \
+                 the battlefield tapped under its owner's control.\"",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )],
+                EffectDef::Sequence(&[
+                    EffectDef::LoseLife {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(2),
+                    },
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        effect: AppliedEffectDef::add_ability(&AbilityDef::triggered(
+                            "When this creature dies, return it to the battlefield \
+                             tapped under its owner's control.",
+                            TriggerEventDef::zone_changed(
+                                ObjectPredicateDef::Source,
+                                Some(ZoneKind::Battlefield),
+                                Some(ZoneKind::Graveyard),
+                            ),
+                            EffectDef::WithBattlefieldArrival {
+                                effect: &EffectDef::move_to_zone(
+                                    EffectRecipientDef::object(
+                                        ObjectRefDef::ZoneChangeResultOfTriggeringObject,
+                                    ),
+                                    ZoneKind::Battlefield,
+                                    ZonePlacement::Top,
+                                ),
+                                arrival: BattlefieldArrivalDef {
+                                    controller: None,
+                                    modifications: &[BattlefieldEntryModificationDef::Tapped],
+                                    attachment: None,
+                                    counters: None,
+                                },
+                            },
+                        )),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                ]),
+            )),
+        ),
+        (
+            "Malakir Mire",
+            CardRules::new_land(&[]).with_abilities(&[
+                abilities::enters_tapped(CardType::Land),
+                abilities::tap_for(ManaColor::Black),
+            ]),
+        ),
+    ],
+);
 
 // ZNR 112 — Marauding Blight-Priest
 pub(in crate::card::sets) static MARAUDING_BLIGHT_PRIEST: CardRecord = CardRecord::new(
@@ -573,19 +696,59 @@ pub(in crate::card::sets) static NULLPRIEST_OF_OBLIVION: CardRecord = CardRecord
 );
 
 // ZNR 153 — Relic Robber
-pub(in crate::card::sets) static RELIC_ROBBER_153: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static RELIC_ROBBER: CardRecord = CardRecord::new(
     "Relic Robber",
     "4540205c-eee8-4db3-8757-710de874b313",
     "Slawomir Maniak",
     CardRules::new_creature(mana_cost!("{2}{R}"), &["Goblin", "Rogue"], 2, 2).with_abilities(&[
-abilities::haste(),
-AbilityDef::triggered("Whenever this creature deals combat damage to a player, that player creates a 0/1 colorless Goblin Construct artifact creature token with \"This token can't block\" and \"At the beginning of your upkeep, this token deals 1 damage to you.\"", TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source), EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(crate::card::TokenCharacteristics::artifact_creature(&["Goblin", "Construct"], &[], 0, 1).with_abilities(&[AbilityDef::static_ability("This token cannot block.", EffectDef::StaticApply { recipient: EffectRecipientDef::Source, effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK) }), AbilityDef::triggered("At the beginning of your upkeep, this token deals 1 damage to you.", TriggerEventDef::StepBegins { step: TurnStepDef::Upkeep, player: PlayerRelation::You }, EffectDef::damage(EffectRecipientDef::Controller, ValueDef::Constant(1)))]))).with_controller(PlayerRefDef::EventPlayer)))
-]),
+        abilities::haste(),
+        AbilityDef::triggered(
+            "Whenever this creature deals combat damage to a player, \
+             that player creates a 0/1 colorless Goblin Construct \
+             artifact creature token with \"This token can't block\" and \
+             \"At the beginning of your upkeep, this token deals 1 \
+             damage to you.\"",
+            TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
+            EffectDef::CreateToken(
+                crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(
+                    crate::card::TokenCharacteristics::artifact_creature(
+                        &["Goblin", "Construct"],
+                        &[],
+                        0,
+                        1,
+                    )
+                    .with_abilities(&[
+                        AbilityDef::static_ability(
+                            "This token cannot block.",
+                            EffectDef::StaticApply {
+                                recipient: EffectRecipientDef::Source,
+                                effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+                            },
+                        ),
+                        AbilityDef::triggered(
+                            "At the beginning of your upkeep, this token deals 1 damage \
+                             to you.",
+                            TriggerEventDef::StepBegins {
+                                step: TurnStepDef::Upkeep,
+                                player: PlayerRelation::You,
+                            },
+                            EffectDef::damage(
+                                EffectRecipientDef::Controller,
+                                ValueDef::Constant(1),
+                            ),
+                        ),
+                    ]),
+                ))
+                .with_controller(PlayerRefDef::EventPlayer),
+            ),
+        ),
+    ]),
 );
 
 // ZNR 156 — Roiling Vortex
-// Audit: unsupported — Needs an upkeep trigger for each player, a spell-cast mana-spent condition, and a turn-duration opponent life-gain prohibition.
-pub(in crate::card::sets) static ROILING_VORTEX_156: CardRecord = CardRecord::new(
+// Audit: unsupported — Needs an upkeep trigger for each player, a spell-cast mana-spent
+// condition, and a turn-duration opponent life-gain prohibition.
+pub(in crate::card::sets) static ROILING_VORTEX: CardRecord = CardRecord::new(
     "Roiling Vortex",
     "0b057eb7-8439-4d26-89df-c345ab2773e1",
     "Campbell White",
@@ -593,7 +756,7 @@ pub(in crate::card::sets) static ROILING_VORTEX_156: CardRecord = CardRecord::ne
 );
 
 // ZNR 164 — Sneaking Guide
-pub(in crate::card::sets) static SNEAKING_GUIDE_164: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static SNEAKING_GUIDE: CardRecord = CardRecord::new(
     "Sneaking Guide",
     "569c9e8c-7808-49d0-82c1-72d5b835f51c",
     "Dan Murayama Scott",
@@ -619,12 +782,48 @@ pub(in crate::card::sets) static SNEAKING_GUIDE_164: CardRecord = CardRecord::ne
 );
 
 // ZNR 166 — Spikefield Hazard // Spikefield Cave
-pub(in crate::card::sets) static SPIKEFIELD_HAZARD_SPIKEFIELD_CAVE_166: CardRecord =
+pub(in crate::card::sets) static SPIKEFIELD_HAZARD_SPIKEFIELD_CAVE: CardRecord =
     CardRecord::new_mdfc(
-    "Spikefield Hazard // Spikefield Cave",
-    "a69541db-3f4e-412f-aa8e-dec1e74f74dc",
-    "Tomasz Jedruszek",
-    &[("Spikefield Hazard", CardRules::new_instant(mana_cost!("{R}")).with_ability(AbilityDef::spell_with_targets("Spikefield Hazard deals 1 damage to any target. If a permanent dealt damage this way would die this turn, exile it instead.", &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)], EffectDef::DealDamage(DamageDef::new(EffectRecipientDef::Target(TargetIndex::PRIMARY), ValueDef::Constant(1)).with_follow_up(DamageFollowUpDef::ApplyToDamaged { effect: &AppliedEffectDef::Rule(AppliedRuleDef::ExileInsteadOfDying), duration: ResolvedEffectDurationDef::UntilEndOfTurn }))))), ("Spikefield Cave", CardRules::new_land(&[]).with_abilities(&[abilities::enters_tapped(CardType::Land), abilities::tap_for(ManaColor::Red)]))]);
+        "Spikefield Hazard // Spikefield Cave",
+        "a69541db-3f4e-412f-aa8e-dec1e74f74dc",
+        "Tomasz Jedruszek",
+        &[
+            (
+                "Spikefield Hazard",
+                CardRules::new_instant(mana_cost!("{R}")).with_ability(
+                    AbilityDef::spell_with_targets(
+                        "Spikefield Hazard deals 1 damage to any target. If a \
+                         permanent dealt damage this way would die this turn, exile \
+                         it instead.",
+                        &[AbilityTargetDef::exactly_one(
+                            AbilityTargetPredicate::AnyTarget,
+                        )],
+                        EffectDef::DealDamage(
+                            DamageDef::new(
+                                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                ValueDef::Constant(1),
+                            )
+                            .with_follow_up(
+                                DamageFollowUpDef::ApplyToDamaged {
+                                    effect: &AppliedEffectDef::Rule(
+                                        AppliedRuleDef::ExileInsteadOfDying,
+                                    ),
+                                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                                },
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+            (
+                "Spikefield Cave",
+                CardRules::new_land(&[]).with_abilities(&[
+                    abilities::enters_tapped(CardType::Land),
+                    abilities::tap_for(ManaColor::Red),
+                ]),
+            ),
+        ],
+    );
 
 // ZNR 167 — Spitfire Lagac
 pub(in crate::card::sets) static SPITFIRE_LAGAC: CardRecord = CardRecord::new(
@@ -649,12 +848,55 @@ pub(in crate::card::sets) static SPITFIRE_LAGAC: CardRecord = CardRecord::new(
 );
 
 // ZNR 174 — Valakut Awakening // Valakut Stoneforge
-pub(in crate::card::sets) static VALAKUT_AWAKENING_VALAKUT_STONEFORGE_174: CardRecord =
+pub(in crate::card::sets) static VALAKUT_AWAKENING_VALAKUT_STONEFORGE: CardRecord =
     CardRecord::new_mdfc(
-    "Valakut Awakening // Valakut Stoneforge",
-    "228e551e-023a-4c9a-8f32-58dae6ffdf7f",
-    "Campbell White",
-    &[("Valakut Awakening", CardRules::new_instant(mana_cost!("{2}{R}")).with_ability(AbilityDef::spell("Put any number of cards from your hand on the bottom of your library, then draw that many cards plus one.", EffectDef::Choose(ChooseDef { chooser: PlayerRefDef::EffectController, candidates: ObjectSetDef::Query(ObjectQueryDef::matching(ObjectPredicateDef::Any, &[ZoneKind::Hand], PlayerRelation::You)), exclude: None, minimum: 0, maximum: 255, binding: ObjectChoiceBindingDef::OrderedObjects(Binding!("awakening_hand")), unchosen: None, visibility: ChoiceVisibilityDef::Private, then: &EffectDef::Sequence(&[EffectDef::move_to_zone(EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!("awakening_hand"))), ZoneKind::Library, ZonePlacement::Bottom), abilities::draw_cards(ValueDef::Sum(&SumValueDef { left: ValueDef::BoundObjectCount(Binding!("awakening_hand")), right: ValueDef::Constant(1) }))]) })))), ("Valakut Stoneforge", CardRules::new_land(&[]).with_abilities(&[abilities::enters_tapped(CardType::Land), abilities::tap_for(ManaColor::Red)]))]);
+        "Valakut Awakening // Valakut Stoneforge",
+        "228e551e-023a-4c9a-8f32-58dae6ffdf7f",
+        "Campbell White",
+        &[
+            (
+                "Valakut Awakening",
+                CardRules::new_instant(mana_cost!("{2}{R}")).with_ability(AbilityDef::spell(
+                    "Put any number of cards from your hand on the bottom of \
+                     your library, then draw that many cards plus one.",
+                    EffectDef::Choose(ChooseDef {
+                        chooser: PlayerRefDef::EffectController,
+                        candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
+                            ObjectPredicateDef::Any,
+                            &[ZoneKind::Hand],
+                            PlayerRelation::You,
+                        )),
+                        exclude: None,
+                        minimum: 0,
+                        maximum: 255,
+                        binding: ObjectChoiceBindingDef::OrderedObjects(Binding!("awakening_hand")),
+                        unchosen: None,
+                        visibility: ChoiceVisibilityDef::Private,
+                        then: &EffectDef::Sequence(&[
+                            EffectDef::move_to_zone(
+                                EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!(
+                                    "awakening_hand"
+                                ))),
+                                ZoneKind::Library,
+                                ZonePlacement::Bottom,
+                            ),
+                            abilities::draw_cards(ValueDef::Sum(&SumValueDef {
+                                left: ValueDef::BoundObjectCount(Binding!("awakening_hand")),
+                                right: ValueDef::Constant(1),
+                            })),
+                        ]),
+                    }),
+                )),
+            ),
+            (
+                "Valakut Stoneforge",
+                CardRules::new_land(&[]).with_abilities(&[
+                    abilities::enters_tapped(CardType::Land),
+                    abilities::tap_for(ManaColor::Red),
+                ]),
+            ),
+        ],
+    );
 
 // ZNR 178 — Ancient Greenwarden
 pub(in crate::card::sets) static ANCIENT_GREENWARDEN: CardRecord = CardRecord::new(
@@ -679,7 +921,7 @@ pub(in crate::card::sets) static ANCIENT_GREENWARDEN: CardRecord = CardRecord::n
         ),
         AbilityDef::static_ability(
             "If a land entering causes a triggered ability of a permanent you control to \
-                 trigger, that ability triggers an additional time.",
+             trigger, that ability triggers an additional time.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Controller,
                 effect: AppliedEffectDef::Rule(AppliedRuleDef::ModifyTriggers(
@@ -699,11 +941,56 @@ pub(in crate::card::sets) static ANCIENT_GREENWARDEN: CardRecord = CardRecord::n
 );
 
 // ZNR 179 — Ashaya, Soul of the Wild
-pub(in crate::card::sets) static ASHAYA_SOUL_OF_THE_WILD_179: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static ASHAYA_SOUL_OF_THE_WILD: CardRecord = CardRecord::new(
     "Ashaya, Soul of the Wild",
     "74943390-d25f-47cb-90bb-cbf70c87f4a2",
     "Chase Stone",
-    CardRules::new_creature(mana_cost!("{3}{G}{G}"), &["Elemental"], 0, 0).with_supertype(CardSupertype::Legendary).with_abilities(&[AbilityDef::static_ability("Ashaya's power and toughness are each equal to the number of lands you control.", EffectDef::StaticApply { recipient: EffectRecipientDef::Source, effect: AppliedEffectDef::define_power_toughness(ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(ObjectPredicateDef::HasType(CardType::Land), &[ZoneKind::Battlefield], PlayerRelation::You)), ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(ObjectPredicateDef::HasType(CardType::Land), &[ZoneKind::Battlefield], PlayerRelation::You))) }), AbilityDef::static_ability("Nontoken creatures you control are Forest lands in addition to their other types. (They're still affected by summoning sickness.)", EffectDef::StaticApply { recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::Not(&ObjectPredicateDef::Token)]), &[ZoneKind::Battlefield], PlayerRelation::You), effect: AppliedEffectDef::Composite(&[AppliedEffectDef::Characteristic(CharacteristicOperationDef::CardTypes(SetOperationDef::Add(CardTypeSet::single(CardType::Land)))), AppliedEffectDef::add_basic_land_types(&[crate::card::BasicLandType::Forest])]) })]),
+    CardRules::new_creature(mana_cost!("{3}{G}{G}"), &["Elemental"], 0, 0)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Ashaya's power and toughness are each equal to the number \
+                 of lands you control.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::define_power_toughness(
+                        ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                            ObjectPredicateDef::HasType(CardType::Land),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        )),
+                        ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                            ObjectPredicateDef::HasType(CardType::Land),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        )),
+                    ),
+                },
+            ),
+            AbilityDef::static_ability(
+                "Nontoken creatures you control are Forest lands in addition \
+                 to their other types. (They're still affected by summoning \
+                 sickness.)",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::Characteristic(CharacteristicOperationDef::CardTypes(
+                            SetOperationDef::Add(CardTypeSet::single(CardType::Land)),
+                        )),
+                        AppliedEffectDef::add_basic_land_types(&[
+                            crate::card::BasicLandType::Forest,
+                        ]),
+                    ]),
+                },
+            ),
+        ]),
 );
 
 // ZNR 181 — Broken Wings
@@ -782,79 +1069,81 @@ const fn omnath_resolution(amount: u8) -> TriggerConditionDef {
     }
 }
 
-pub(in crate::card::sets) static OMNATH_LOCUS_OF_CREATION: CardRecord =
-    CardRecord::new(
+pub(in crate::card::sets) static OMNATH_LOCUS_OF_CREATION: CardRecord = CardRecord::new(
     "Omnath, Locus of Creation",
     "4e4fb50c-a81f-44d3-93c5-fa9a0b37f617",
     "Chris Rahn",
-// Four colours for a 4/4 that replaces itself, and a deck full of
-        // fetchlands turns the third land of a turn into eight damage.
-        CardRules::new_creature(mana_cost!("{R}{G}{W}{U}"), &["Elemental"], 4, 4)
-            .with_supertype(CardSupertype::Legendary)
-            .with_abilities(&[
-                abilities::enters_trigger(
-                    "When Omnath enters, draw a card.",
-                    EffectDef::DrawCards {
-                        recipient: EffectRecipientDef::Controller,
-                        amount: ValueDef::Constant(1),
-                    },
+    // Four colours for a 4/4 that replaces itself, and a deck full of
+    // fetchlands turns the third land of a turn into eight damage.
+    CardRules::new_creature(mana_cost!("{R}{G}{W}{U}"), &["Elemental"], 4, 4)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::enters_trigger(
+                "When Omnath enters, draw a card.",
+                EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+            AbilityDef::triggered(
+                "Landfall — Whenever a land you control enters, you gain 4 \
+                 life if this is the first time this ability has resolved \
+                 this turn. If it's the second time, add {R}{G}{W}{U}. If \
+                 it's the third time, Omnath deals 4 damage to each opponent \
+                 and each planeswalker you don't control.",
+                TriggerEventDef::zone_changed(
+                    // A land arriving under its controller. Landfall watches the battlefield
+                    // rather than the land drop, so a land put onto the battlefield by a fetch
+                    // or a search counts the same way one played from hand does.
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ]),
+                    None,
+                    Some(ZoneKind::Battlefield),
                 ),
-                AbilityDef::triggered(
-                    "Landfall — Whenever a land you control enters, you gain 4 life if this is the first time \
-                     this ability has resolved this turn. If it's the second time, add {R}{G}{W}{U}. If it's \
-                     the third time, Omnath deals 4 damage to each opponent and each planeswalker you don't \
-                     control.",
-                    TriggerEventDef::zone_changed(
-                        // A land arriving under its controller. Landfall watches the battlefield
-                        // rather than the land drop, so a land put onto the battlefield by a fetch
-                        // or a search counts the same way one played from hand does.
-                        ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::HasType(CardType::Land),
-                            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                // Three exclusive branches on one count, so a fourth land does nothing at
+                // all rather than repeating the third.
+                EffectDef::Sequence(&[
+                    EffectDef::IfCondition {
+                        // The count includes the resolution asking, so the first time reads one.
+                        condition: &omnath_resolution(1),
+                        then: &EffectDef::GainLife {
+                            recipient: EffectRecipientDef::Controller,
+                            amount: ValueDef::Constant(4),
+                        },
+                    },
+                    EffectDef::IfCondition {
+                        condition: &omnath_resolution(2),
+                        // Four mana of four colours is four separate additions: what the pool ends
+                        // up holding is the same either way, and one `AddMana` names a run of like
+                        // units plus at most one other.
+                        then: &EffectDef::Sequence(&[
+                            EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Red)),
+                            EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Green)),
+                            EffectDef::AddMana(AddManaEffectDef::one(ManaColor::White)),
+                            EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Blue)),
                         ]),
-                        None,
-                        Some(ZoneKind::Battlefield),
-                    ),
-                    // Three exclusive branches on one count, so a fourth land does nothing at
-                    // all rather than repeating the third.
-                    EffectDef::Sequence(&[
-                        EffectDef::IfCondition {
-                            // The count includes the resolution asking, so the first time reads one.
-                            condition: &omnath_resolution(1),
-                            then: &EffectDef::GainLife {
-                                recipient: EffectRecipientDef::Controller,
-                                amount: ValueDef::Constant(4),
-                            },
-                        },
-                        EffectDef::IfCondition {
-                            condition: &omnath_resolution(2),
-                            // Four mana of four colours is four separate additions: what the pool ends
-                            // up holding is the same either way, and one `AddMana` names a run of like
-                            // units plus at most one other.
-                            then: &EffectDef::Sequence(&[
-                                EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Red)),
-                                EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Green)),
-                                EffectDef::AddMana(AddManaEffectDef::one(ManaColor::White)),
-                                EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Blue)),
-                            ]),
-                        },
-                        EffectDef::IfCondition {
-                            condition: &omnath_resolution(3),
-                            then: &EffectDef::Sequence(&[
-                                EffectDef::damage(EffectRecipientDef::Opponent, ValueDef::Constant(4)),
-                                EffectDef::damage(
-                                    EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::matching(
+                    },
+                    EffectDef::IfCondition {
+                        condition: &omnath_resolution(3),
+                        then: &EffectDef::Sequence(&[
+                            EffectDef::damage(EffectRecipientDef::Opponent, ValueDef::Constant(4)),
+                            EffectDef::damage(
+                                EffectRecipientDef::objects(ObjectSetDef::Query(
+                                    ObjectQueryDef::matching(
                                         ObjectPredicateDef::HasType(CardType::Planeswalker),
                                         &[ZoneKind::Battlefield],
                                         PlayerRelation::NotYou,
-                                    ))),
-                                    ValueDef::Constant(4),
-                                ),
-                            ]),
-                        },
-                    ]),
-                ),
-            ]),
+                                    ),
+                                )),
+                                ValueDef::Constant(4),
+                            ),
+                        ]),
+                    },
+                ]),
+            ),
+        ]),
 );
 
 // ZNR 245 — Lithoform Engine
@@ -870,15 +1159,13 @@ pub(in crate::card::sets) static LITHOFORM_ENGINE: CardRecord = CardRecord::new(
     "Lithoform Engine",
     "6683416a-5820-4cd0-b28a-60a53239e9ef",
     "Colin Boyer",
-CardRules::new_artifact(mana_cost!("{4}"))
+    CardRules::new_artifact(mana_cost!("{4}"))
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
             AbilityDef::activated_with_targets(
-                "{2}, {T}: Copy target activated or triggered ability you control. You may choose new targets for the copy.",
-                &[
-                    CostDef::Mana(mana_cost!("{2}")),
-                    CostDef::TapSource,
-                ],
+                "{2}, {T}: Copy target activated or triggered ability you \
+                 control. You may choose new targets for the copy.",
+                &[CostDef::Mana(mana_cost!("{2}")), CostDef::TapSource],
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Object {
                         object: ObjectPredicateDef::Ability,
@@ -890,11 +1177,9 @@ CardRules::new_artifact(mana_cost!("{4}"))
                 EffectDef::CopyStackObject(&LITHOFORM_RETARGET_COPY),
             ),
             AbilityDef::activated_with_targets(
-                "{3}, {T}: Copy target instant or sorcery spell you control. You may choose new targets for the copy.",
-                &[
-                    CostDef::Mana(mana_cost!("{3}")),
-                    CostDef::TapSource,
-                ],
+                "{3}, {T}: Copy target instant or sorcery spell you control. \
+                 You may choose new targets for the copy.",
+                &[CostDef::Mana(mana_cost!("{3}")), CostDef::TapSource],
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Object {
                         object: ObjectPredicateDef::All(&[
@@ -913,10 +1198,7 @@ CardRules::new_artifact(mana_cost!("{4}"))
             ),
             AbilityDef::activated_with_targets(
                 "{4}, {T}: Copy target permanent spell you control. (The copy becomes a token.)",
-                &[
-                    CostDef::Mana(mana_cost!("{4}")),
-                    CostDef::TapSource,
-                ],
+                &[CostDef::Mana(mana_cost!("{4}")), CostDef::TapSource],
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Object {
                         object: ObjectPredicateDef::All(&[
@@ -943,7 +1225,7 @@ CardRules::new_artifact(mana_cost!("{4}"))
 );
 
 // ZNR 259 — Brightclimb Pathway // Grimclimb Pathway
-pub(in crate::card::sets) static BRIGHTCLIMB_PATHWAY_GRIMCLIMB_PATHWAY_259: CardRecord =
+pub(in crate::card::sets) static BRIGHTCLIMB_PATHWAY_GRIMCLIMB_PATHWAY: CardRecord =
     CardRecord::new_mdfc(
         "Brightclimb Pathway // Grimclimb Pathway",
         "d24c3d51-795d-4c01-a34a-3280fccd2d78",
@@ -1003,7 +1285,7 @@ pub(in crate::card::sets) static CRAWLING_BARRENS: CardRecord = CardRecord::new(
 );
 
 // ZNR 263 — Needleverge Pathway // Pillarverge Pathway
-pub(in crate::card::sets) static NEEDLEVERGE_PATHWAY_PILLARVERGE_PATHWAY_263: CardRecord =
+pub(in crate::card::sets) static NEEDLEVERGE_PATHWAY_PILLARVERGE_PATHWAY: CardRecord =
     CardRecord::new_mdfc(
         "Needleverge Pathway // Pillarverge Pathway",
         "6559047e-6ede-4815-a3a0-389062094f9d",
@@ -1021,7 +1303,7 @@ pub(in crate::card::sets) static NEEDLEVERGE_PATHWAY_PILLARVERGE_PATHWAY_263: Ca
     );
 
 // ZNR 264 — Riverglide Pathway // Lavaglide Pathway
-pub(in crate::card::sets) static RIVERGLIDE_PATHWAY_LAVAGLIDE_PATHWAY_264: CardRecord =
+pub(in crate::card::sets) static RIVERGLIDE_PATHWAY_LAVAGLIDE_PATHWAY: CardRecord =
     CardRecord::new_mdfc(
         "Riverglide Pathway // Lavaglide Pathway",
         "2668ac91-6cda-4f81-a08d-4fc5f9cb35b2",
@@ -1039,7 +1321,7 @@ pub(in crate::card::sets) static RIVERGLIDE_PATHWAY_LAVAGLIDE_PATHWAY_264: CardR
     );
 
 // ZNR 286 — Clearwater Pathway // Murkwater Pathway
-pub(in crate::card::sets) static CLEARWATER_PATHWAY_MURKWATER_PATHWAY_286: CardRecord =
+pub(in crate::card::sets) static CLEARWATER_PATHWAY_MURKWATER_PATHWAY: CardRecord =
     CardRecord::new_mdfc(
         "Clearwater Pathway // Murkwater Pathway",
         "b0fe4b53-18f6-42eb-b03f-cab3e5a7fba6",
@@ -1057,7 +1339,7 @@ pub(in crate::card::sets) static CLEARWATER_PATHWAY_MURKWATER_PATHWAY_286: CardR
     );
 
 // ZNR 287 — Cragcrown Pathway // Timbercrown Pathway
-pub(in crate::card::sets) static CRAGCROWN_PATHWAY_TIMBERCROWN_PATHWAY_287: CardRecord =
+pub(in crate::card::sets) static CRAGCROWN_PATHWAY_TIMBERCROWN_PATHWAY: CardRecord =
     CardRecord::new_mdfc(
         "Cragcrown Pathway // Timbercrown Pathway",
         "050602c0-b5b7-4076-af33-0f7a58d0b260",
@@ -1075,8 +1357,9 @@ pub(in crate::card::sets) static CRAGCROWN_PATHWAY_TIMBERCROWN_PATHWAY_287: Card
     );
 
 // ZNR 300 — Moraug, Fury of Akoum
-// Audit: unsupported — Needs a per-creature attacks-this-turn value and a landfall trigger that schedules combat plus an opening-combat untap.
-pub(in crate::card::sets) static MORAUG_FURY_OF_AKOUM_300: CardRecord = CardRecord::new(
+// Audit: unsupported — Needs a per-creature attacks-this-turn value and a landfall trigger that
+// schedules combat plus an opening-combat untap.
+pub(in crate::card::sets) static MORAUG_FURY_OF_AKOUM: CardRecord = CardRecord::new(
     "Moraug, Fury of Akoum",
     "aecfbd48-7da0-4b44-b9a2-d31412f65eb1",
     "Dominik Mayer",
@@ -1125,8 +1408,9 @@ const THIEVING_SKYDIVER_ALTERNATE_1: PrintingRecord = PrintingRecord::alternate(
 );
 
 // ZNR 336 — Agadeem's Awakening // Agadeem, the Undercrypt
-// Audit: unsupported — Needs a modal DFC and a variable-card graveyard selection with pairwise distinct mana values.
-pub(in crate::card::sets) static AGADEEM_S_AWAKENING_AGADEEM_THE_UNDERCRYPT_336: CardRecord =
+// Audit: unsupported — Needs a modal DFC and a variable-card graveyard selection with pairwise
+// distinct mana values.
+pub(in crate::card::sets) static AGADEEM_S_AWAKENING_AGADEEM_THE_UNDERCRYPT: CardRecord =
     CardRecord::new(
         "Agadeem's Awakening // Agadeem, the Undercrypt",
         "499c2b20-e83e-40ff-919e-1d134ad50c0a",
@@ -1135,18 +1419,21 @@ pub(in crate::card::sets) static AGADEEM_S_AWAKENING_AGADEEM_THE_UNDERCRYPT_336:
     );
 
 // ZNR 354 — Shatterskull Smashing // Shatterskull, the Hammer Pass
-// Audit: unsupported — DividedTotal accepts fixed amounts or chosen X, but not the conditional total 2X. Doubling each share from an X-sized division cannot express odd shares such as 1 and 11 when X is six.
-pub(in crate::card::sets) static SHATTERSKULL_SMASHING_SHATTERSKULL_354: CardRecord =
-    CardRecord::new(
-        "Shatterskull Smashing // Shatterskull, the Hammer Pass",
-        "243d374f-5b40-4cff-99f5-079ba873d44b",
-        "Adam Paquette",
-        crate::card::CardRules::unsupported(),
-    );
+// Audit: unsupported — DividedTotal accepts fixed amounts or chosen X, but not the conditional
+// total 2X. Doubling each share from an X-sized division cannot express odd shares such as 1
+// and 11 when X is six.
+pub(in crate::card::sets) static SHATTERSKULL_SMASHING_SHATTERSKULL: CardRecord = CardRecord::new(
+    "Shatterskull Smashing // Shatterskull, the Hammer Pass",
+    "243d374f-5b40-4cff-99f5-079ba873d44b",
+    "Adam Paquette",
+    crate::card::CardRules::unsupported(),
+);
 
 // ZNR 374 — Forsaken Monument
-// Audit: unsupported — TapEventMatcherDef can match tapping for mana, but cannot require that the event actually produced colorless mana. A source's possible mana output does not answer which type was produced.
-pub(in crate::card::sets) static FORSAKEN_MONUMENT_374: CardRecord = CardRecord::new(
+// Audit: unsupported — TapEventMatcherDef can match tapping for mana, but cannot require that
+// the event actually produced colorless mana. A source's possible mana output does not answer
+// which type was produced.
+pub(in crate::card::sets) static FORSAKEN_MONUMENT: CardRecord = CardRecord::new(
     "Forsaken Monument",
     "0c8f362c-f035-48b3-8e74-ef23240b44f7",
     "Piotr Dura",
@@ -1154,43 +1441,43 @@ pub(in crate::card::sets) static FORSAKEN_MONUMENT_374: CardRecord = CardRecord:
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
-    &ARCHON_OF_EMERIA_4,
+    &ARCHON_OF_EMERIA,
     &DAUNTLESS_UNITY,
     &FELIDAR_RETREAT,
     &SKYCLAVE_APPARITION,
-    &GLASSPOOL_MIMIC_GLASSPOOL_SHORE_60,
-    &SEA_GATE_RESTORATION_SEA_GATE_REBORN_76,
-    &SILUNDI_VISION_SILUNDI_ISLE_80,
+    &GLASSPOOL_MIMIC_GLASSPOOL_SHORE,
+    &SEA_GATE_RESTORATION_SEA_GATE_REBORN,
+    &SILUNDI_VISION_SILUNDI_ISLE,
     &THIEVING_SKYDIVER,
     &BLOODCHIEFS_THIRST,
     &FEED_THE_SWARM,
     &HIGHBORN_VAMPIRE,
-    &MALAKIR_REBIRTH_MALAKIR_MIRE_111,
+    &MALAKIR_REBIRTH_MALAKIR_MIRE,
     &MARAUDING_BLIGHT_PRIEST,
     &NULLPRIEST_OF_OBLIVION,
-    &RELIC_ROBBER_153,
-    &ROILING_VORTEX_156,
-    &SNEAKING_GUIDE_164,
-    &SPIKEFIELD_HAZARD_SPIKEFIELD_CAVE_166,
+    &RELIC_ROBBER,
+    &ROILING_VORTEX,
+    &SNEAKING_GUIDE,
+    &SPIKEFIELD_HAZARD_SPIKEFIELD_CAVE,
     &SPITFIRE_LAGAC,
-    &VALAKUT_AWAKENING_VALAKUT_STONEFORGE_174,
+    &VALAKUT_AWAKENING_VALAKUT_STONEFORGE,
     &ANCIENT_GREENWARDEN,
-    &ASHAYA_SOUL_OF_THE_WILD_179,
+    &ASHAYA_SOUL_OF_THE_WILD,
     &BROKEN_WINGS,
     &GNARLID_COLONY,
     &OMNATH_LOCUS_OF_CREATION,
     &LITHOFORM_ENGINE,
-    &BRIGHTCLIMB_PATHWAY_GRIMCLIMB_PATHWAY_259,
+    &BRIGHTCLIMB_PATHWAY_GRIMCLIMB_PATHWAY,
     &CRAWLING_BARRENS,
-    &NEEDLEVERGE_PATHWAY_PILLARVERGE_PATHWAY_263,
-    &RIVERGLIDE_PATHWAY_LAVAGLIDE_PATHWAY_264,
-    &CLEARWATER_PATHWAY_MURKWATER_PATHWAY_286,
-    &CRAGCROWN_PATHWAY_TIMBERCROWN_PATHWAY_287,
-    &MORAUG_FURY_OF_AKOUM_300,
+    &NEEDLEVERGE_PATHWAY_PILLARVERGE_PATHWAY,
+    &RIVERGLIDE_PATHWAY_LAVAGLIDE_PATHWAY,
+    &CLEARWATER_PATHWAY_MURKWATER_PATHWAY,
+    &CRAGCROWN_PATHWAY_TIMBERCROWN_PATHWAY,
+    &MORAUG_FURY_OF_AKOUM,
     &LUMINARCH_ASPIRANT,
-    &AGADEEM_S_AWAKENING_AGADEEM_THE_UNDERCRYPT_336,
-    &SHATTERSKULL_SMASHING_SHATTERSKULL_354,
-    &FORSAKEN_MONUMENT_374,
+    &AGADEEM_S_AWAKENING_AGADEEM_THE_UNDERCRYPT,
+    &SHATTERSKULL_SMASHING_SHATTERSKULL,
+    &FORSAKEN_MONUMENT,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] =

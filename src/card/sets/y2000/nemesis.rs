@@ -136,7 +136,8 @@ const fn fading(counters: u16, text: &'static str) -> [AbilityDef; 2] {
 }
 
 // NEM 1 — Angelic Favor
-// Audit: unsupported — Needs a spell-casting restriction to the combat phase; activation timing restrictions do not restrict spells.
+// Audit: unsupported — Needs a spell-casting restriction to the combat phase; activation timing
+// restrictions do not restrict spells.
 pub(in crate::card::sets) static ANGELIC_FAVOR: CardRecord = CardRecord::new(
     "Angelic Favor",
     "871ad2f3-1dd2-45ea-881d-529aad3b76ec",
@@ -181,7 +182,8 @@ pub(in crate::card::sets) static AVENGER_EN_DAL: CardRecord = CardRecord::new(
 );
 
 // NEM 3 — Blinding Angel
-// Audit: unsupported — Needs a consumable instruction making the damaged player skip their next combat phase.
+// Audit: unsupported — Needs a consumable instruction making the damaged player skip their next
+// combat phase.
 pub(in crate::card::sets) static BLINDING_ANGEL: CardRecord = CardRecord::new(
     "Blinding Angel",
     "48c25553-6554-4e31-9012-c50da1f0a171",
@@ -288,7 +290,8 @@ pub(in crate::card::sets) static DEFIANT_FALCON: CardRecord = CardRecord::new(
 );
 
 // NEM 7 — Defiant Vanguard
-// Audit: unsupported — Needs a per-blocking-creature event and a turn-long set of creatures it blocked, preserved for simultaneous end-of-combat destruction.
+// Audit: unsupported — Needs a per-blocking-creature event and a turn-long set of creatures it
+// blocked, preserved for simultaneous end-of-combat destruction.
 pub(in crate::card::sets) static DEFIANT_VANGUARD: CardRecord = CardRecord::new(
     "Defiant Vanguard",
     "4c0bd267-59ec-41df-b0b7-37f6e6d6b073",
@@ -510,7 +513,8 @@ pub(in crate::card::sets) static NETTER_EN_DAL: CardRecord = CardRecord::new(
 );
 
 // NEM 14 — Noble Stand
-// Audit: unsupported — Needs a trigger once for each creature that blocks; the current Blocks event is source-specific and fires for each blocked attacker.
+// Audit: unsupported — Needs a trigger once for each creature that blocks; the current Blocks
+// event is source-specific and fires for each blocked attacker.
 pub(in crate::card::sets) static NOBLE_STAND: CardRecord = CardRecord::new(
     "Noble Stand",
     "5f53ab12-7c16-43b1-b9f9-a5e523cf431b",
@@ -545,7 +549,8 @@ pub(in crate::card::sets) static OFF_BALANCE: CardRecord = CardRecord::new(
 );
 
 // NEM 16 — Oracle's Attendants
-// Audit: unsupported — Needs a resolving damage-source choice and creature-to-creature redirection restricted to that source.
+// Audit: unsupported — Needs a resolving damage-source choice and creature-to-creature
+// redirection restricted to that source.
 pub(in crate::card::sets) static ORACLE_S_ATTENDANTS: CardRecord = CardRecord::new(
     "Oracle's Attendants",
     "e2e0ea3e-9826-408d-835b-18dfecaac8af",
@@ -696,7 +701,9 @@ pub(in crate::card::sets) static SILKENFIST_ORDER: CardRecord = CardRecord::new(
 );
 
 // NEM 21 — Sivvi's Ruse
-// Audit: unsupported — Needs a live creature-only prevention group for the spell controller, including later arrivals and control changes; resolving shields currently freeze object recipients or also protect the player.
+// Audit: unsupported — Needs a live creature-only prevention group for the spell controller,
+// including later arrivals and control changes; resolving shields currently freeze object
+// recipients or also protect the player.
 pub(in crate::card::sets) static SIVVI_S_RUSE: CardRecord = CardRecord::new(
     "Sivvi's Ruse",
     "132112a0-0fb0-4a80-927d-39d34cf10159",
@@ -705,7 +712,8 @@ pub(in crate::card::sets) static SIVVI_S_RUSE: CardRecord = CardRecord::new(
 );
 
 // NEM 22 — Sivvi's Valor
-// Audit: unsupported — Needs a duration-scoped replacement redirecting all damage from a targeted creature to the spell controller.
+// Audit: unsupported — Needs a duration-scoped replacement redirecting all damage from a
+// targeted creature to the spell controller.
 pub(in crate::card::sets) static SIVVI_S_VALOR: CardRecord = CardRecord::new(
     "Sivvi's Valor",
     "9d15f7b5-5070-4742-a05c-623822d874fb",
@@ -747,7 +755,8 @@ pub(in crate::card::sets) static SPIRITUAL_ASYLUM: CardRecord = CardRecord::new(
 );
 
 // NEM 24 — Topple
-// Audit: unsupported — Needs a live greatest-power comparison during target selection and revalidation; current target predicates cannot evaluate a battlefield maximum aggregate.
+// Audit: unsupported — Needs a live greatest-power comparison during target selection and
+// revalidation; current target predicates cannot evaluate a battlefield maximum aggregate.
 pub(in crate::card::sets) static TOPPLE: CardRecord = CardRecord::new(
     "Topple",
     "a7c25c67-4214-4318-a718-7d351e713f80",
@@ -1014,7 +1023,8 @@ pub(in crate::card::sets) static ORAXID: CardRecord = CardRecord::new(
 );
 
 // NEM 36 — Pale Moon
-// Audit: unsupported — Needs a temporary mana-production replacement changing only the type of mana from tapped nonbasic lands.
+// Audit: unsupported — Needs a temporary mana-production replacement changing only the type of
+// mana from tapped nonbasic lands.
 pub(in crate::card::sets) static PALE_MOON: CardRecord = CardRecord::new(
     "Pale Moon",
     "aeb282bb-d0b8-4822-8197-ff0523549309",
@@ -1512,7 +1522,8 @@ pub(in crate::card::sets) static TRICKSTER_MAGE: CardRecord = CardRecord::new(
 );
 
 // NEM 50 — Wandering Eye
-// Audit: unsupported — Needs continuous public visibility for every player's hand, including cards drawn after this creature enters.
+// Audit: unsupported — Needs continuous public visibility for every player's hand, including
+// cards drawn after this creature enters.
 pub(in crate::card::sets) static WANDERING_EYE: CardRecord = CardRecord::new(
     "Wandering Eye",
     "2869efd2-060f-4af3-b0dc-b7dc5e1143b8",
@@ -1921,7 +1932,8 @@ pub(in crate::card::sets) static MIND_SWORDS: CardRecord = CardRecord::new(
 );
 
 // NEM 61 — Murderous Betrayal
-// Audit: unsupported — Needs an activation life cost computed as half the payer's current life rounded up; fixed life costs cannot express it.
+// Audit: unsupported — Needs an activation life cost computed as half the payer's current life
+// rounded up; fixed life costs cannot express it.
 pub(in crate::card::sets) static MURDEROUS_BETRAYAL: CardRecord = CardRecord::new(
     "Murderous Betrayal",
     "f13a3ed0-aa57-4082-b6b0-b1078c93c0b2",
@@ -2511,7 +2523,8 @@ pub(in crate::card::sets) static ANCIENT_HYDRA: CardRecord = CardRecord::new(
 );
 
 // NEM 77 — Arc Mage
-// Audit: unsupported — Needs divided-target allocation during ability activation; the current divided-damage target procedure is spell-only.
+// Audit: unsupported — Needs divided-target allocation during ability activation; the current
+// divided-damage target procedure is spell-only.
 pub(in crate::card::sets) static ARC_MAGE: CardRecord = CardRecord::new(
     "Arc Mage",
     "62982dab-4c27-45b3-9740-38fec3df7226",
@@ -2919,7 +2932,8 @@ pub(in crate::card::sets) static LACCOLITH_WHELP: CardRecord = CardRecord::new(
 );
 
 // NEM 92 — Mana Cache
-// Audit: unsupported — Needs an activation window during the activating player's turn strictly before the end step, including for an ability open to any player.
+// Audit: unsupported — Needs an activation window during the activating player's turn strictly
+// before the end step, including for an ability open to any player.
 pub(in crate::card::sets) static MANA_CACHE: CardRecord = CardRecord::new(
     "Mana Cache",
     "583a33b3-7833-48e5-88c3-849a5771ef6e",
@@ -3017,27 +3031,35 @@ pub(in crate::card::sets) static MOGG_TOADY: CardRecord = CardRecord::new(
     "Mogg Toady",
     "ee8edaf6-d46e-4efb-8bc0-ec11e06eb499",
     "Mike Ploog",
-    CardRules::new_creature(mana_cost!("{1}{R}"),
-&["Goblin"],
-2,
-2).with_abilities(&[AbilityDef::static_ability("This creature can't attack unless you control more creatures than defending player.\nThis creature can't block unless you control more creatures than attacking player.",
-EffectDef::IfCondition {
-condition:&TriggerConditionDef::ValueComparison(&ValueComparisonDef {
-left:ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(ObjectPredicateDef::HasType(CardType::Creature),
-&[ZoneKind::Battlefield],
-PlayerRelation::You)),
-comparison:ComparisonDef::LessOrEqual,
-right:ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(ObjectPredicateDef::HasType(CardType::Creature),
-&[ZoneKind::Battlefield],
-PlayerRelation::Opponent))}
-),
-then:&EffectDef::StaticApply {
-recipient:EffectRecipientDef::Source,
-effect:AppliedEffectDef::Composite(&[AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_ATTACK),
-AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK)])}
-}
-)]),
-
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Goblin"], 2, 2).with_abilities(&[
+        AbilityDef::static_ability(
+            "This creature can't attack unless you control more \
+             creatures than defending player.\nThis creature can't block \
+             unless you control more creatures than attacking player.",
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                    left: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    )),
+                    comparison: ComparisonDef::LessOrEqual,
+                    right: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Opponent,
+                    )),
+                }),
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_ATTACK),
+                        AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+                    ]),
+                },
+            },
+        ),
+    ]),
 );
 
 // NEM 96 — Moggcatcher
@@ -3306,7 +3328,8 @@ pub(in crate::card::sets) static COILING_WOODWORM: CardRecord = CardRecord::new(
 );
 
 // NEM 104 — Fog Patch
-// Audit: unsupported — Needs a declare-blockers-only spell restriction and an effect making attackers blocked without declaring blockers.
+// Audit: unsupported — Needs a declare-blockers-only spell restriction and an effect making
+// attackers blocked without declaring blockers.
 pub(in crate::card::sets) static FOG_PATCH: CardRecord = CardRecord::new(
     "Fog Patch",
     "133f9e4f-2b1b-4a24-ad19-285a2c5845b5",
@@ -3315,7 +3338,8 @@ pub(in crate::card::sets) static FOG_PATCH: CardRecord = CardRecord::new(
 );
 
 // NEM 105 — Harvest Mage
-// Audit: unsupported — Needs a temporary mana-production replacement changing both amount and type, with a color choice for every affected land activation.
+// Audit: unsupported — Needs a temporary mana-production replacement changing both amount and
+// type, with a color choice for every affected land activation.
 pub(in crate::card::sets) static HARVEST_MAGE: CardRecord = CardRecord::new(
     "Harvest Mage",
     "95b29329-b9a3-4d59-b0f8-2abc67337760",
@@ -3384,7 +3408,8 @@ pub(in crate::card::sets) static NESTING_WURM: CardRecord = CardRecord::new(
 );
 
 // NEM 108 — Overlaid Terrain
-// Audit: unsupported — Needs an as-enters sacrifice of all controlled lands before entry completes; entry replacements cannot perform ordinary sacrifice effects.
+// Audit: unsupported — Needs an as-enters sacrifice of all controlled lands before entry
+// completes; entry replacements cannot perform ordinary sacrifice effects.
 pub(in crate::card::sets) static OVERLAID_TERRAIN: CardRecord = CardRecord::new(
     "Overlaid Terrain",
     "230c7926-9a4b-4ead-b4c8-889f84210545",

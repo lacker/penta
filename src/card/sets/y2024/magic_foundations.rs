@@ -302,7 +302,9 @@ pub(in crate::card::sets) static ARMASAUR_GUIDE: CardRecord = CardRecord::new(
 );
 
 // FDN 4 — Cat Collector
-// Audit: unsupported — Needs a life-gain event ordinal for the first gain in a turn; a per-source trigger limit incorrectly triggers after an earlier gain that occurred before this creature entered.
+// Audit: unsupported — Needs a life-gain event ordinal for the first gain in a turn; a
+// per-source trigger limit incorrectly triggers after an earlier gain that occurred before this
+// creature entered.
 pub(in crate::card::sets) static CAT_COLLECTOR: CardRecord = CardRecord::new(
     "Cat Collector",
     "526fe356-bff1-4211-9e88-bf913ac76b1d",
@@ -398,7 +400,8 @@ pub(in crate::card::sets) static CLAWS_OUT: CardRecord = CardRecord::new(
 );
 
 // FDN 7 — Crystal Barricade
-// Audit: unsupported — Needs a noncombat-only damage matcher for its prevention replacement; current damage-kind matching exposes Any and Combat, but not Noncombat.
+// Audit: unsupported — Needs a noncombat-only damage matcher for its prevention replacement;
+// current damage-kind matching exposes Any and Combat, but not Noncombat.
 pub(in crate::card::sets) static CRYSTAL_BARRICADE: CardRecord = CardRecord::new(
     "Crystal Barricade",
     "905d3e02-ea06-45e7-9adb-c8e7583323a2",
@@ -463,7 +466,9 @@ pub(in crate::card::sets) static DAZZLING_ANGEL: CardRecord = CardRecord::new(
 );
 
 // FDN 10 — Divine Resilience
-// Audit: unsupported — Needs target-count bounds that change with a kicker payment: exactly one when unkicked and zero or more when kicked; current slots have fixed minimum/maximum bounds or one exact computed count.
+// Audit: unsupported — Needs target-count bounds that change with a kicker payment: exactly one
+// when unkicked and zero or more when kicked; current slots have fixed minimum/maximum bounds
+// or one exact computed count.
 pub(in crate::card::sets) static DIVINE_RESILIENCE: CardRecord = CardRecord::new(
     "Divine Resilience",
     "f3a08245-a535-4d24-b8c0-78759bb9c4b0",
@@ -472,7 +477,9 @@ pub(in crate::card::sets) static DIVINE_RESILIENCE: CardRecord = CardRecord::new
 );
 
 // FDN 11 — Exemplar of Light
-// Audit: unsupported — Needs counter-placement events to identify the player instructed to place the counters; current CountersPlaced matches the object and counter kind but not the placing player.
+// Audit: unsupported — Needs counter-placement events to identify the player instructed to
+// place the counters; current CountersPlaced matches the object and counter kind but not the
+// placing player.
 pub(in crate::card::sets) static EXEMPLAR_OF_LIGHT: CardRecord = CardRecord::new(
     "Exemplar of Light",
     "920c8fc5-fdd2-446a-a676-5c363f96928f",
@@ -568,7 +575,8 @@ pub(in crate::card::sets) static GUARDED_HEIR: CardRecord = CardRecord::new(
 );
 
 // FDN 15 — Hare Apparent
-// Audit: unsupported — Needs declarative deck-construction metadata allowing an unlimited number of this named card; card rules currently have no per-card copy-limit exception.
+// Audit: unsupported — Needs declarative deck-construction metadata allowing an unlimited
+// number of this named card; card rules currently have no per-card copy-limit exception.
 pub(in crate::card::sets) static HARE_APPARENT: CardRecord = CardRecord::new(
     "Hare Apparent",
     "9fc6f0e9-eb5f-4bc0-b3d7-756644b66d12",
@@ -590,7 +598,8 @@ pub(in crate::card::sets) static HELPFUL_HUNTER: CardRecord = CardRecord::new(
 );
 
 // FDN 17 — Herald of Eternal Dawn
-// Audit: unsupported — Needs player-scoped prohibitions on losing the game and opponents winning, applied to every game-ending condition and alternate win/loss effect.
+// Audit: unsupported — Needs player-scoped prohibitions on losing the game and opponents
+// winning, applied to every game-ending condition and alternate win/loss effect.
 pub(in crate::card::sets) static HERALD_OF_ETERNAL_DAWN: CardRecord = CardRecord::new(
     "Herald of Eternal Dawn",
     "c9fdfebf-98e0-4718-bac3-6eee1cd0623d",
@@ -672,7 +681,8 @@ pub(in crate::card::sets) static JOUST_THROUGH: CardRecord = CardRecord::new(
 );
 
 // FDN 20 — Luminous Rebuke
-// Audit: unsupported — Needs a self spell-cost reduction based on whether the chosen target is tapped; self-cost evaluation does not read selected spell targets.
+// Audit: unsupported — Needs a self spell-cost reduction based on whether the chosen target is
+// tapped; self-cost evaluation does not read selected spell targets.
 pub(in crate::card::sets) static LUMINOUS_REBUKE: CardRecord = CardRecord::new(
     "Luminous Rebuke",
     "621839e1-2756-4cdc-a25c-5f76ea98dd87",
@@ -890,7 +900,8 @@ pub(in crate::card::sets) static TWINBLADE_BLESSING: CardRecord = CardRecord::ne
 );
 
 // FDN 27 — Valkyrie's Call
-// Audit: unsupported — Needs additional Angel type and flying established simultaneously with the return to the battlefield (CR 611.2e), before entry replacements and trigger matching.
+// Audit: unsupported — Needs additional Angel type and flying established simultaneously with
+// the return to the battlefield (CR 611.2e), before entry replacements and trigger matching.
 pub(in crate::card::sets) static VALKYRIE_S_CALL: CardRecord = CardRecord::new(
     "Valkyrie's Call",
     "0e1f1ff2-fa8f-4d38-b631-2d6e08e614c8",
@@ -899,7 +910,9 @@ pub(in crate::card::sets) static VALKYRIE_S_CALL: CardRecord = CardRecord::new(
 );
 
 // FDN 28 — Vanguard Seraph
-// Audit: unsupported — Needs the first life-gain event of the turn to be identifiable independently of when this creature entered; a once-per-turn trigger limit only counts its own triggers.
+// Audit: unsupported — Needs the first life-gain event of the turn to be identifiable
+// independently of when this creature entered; a once-per-turn trigger limit only counts its
+// own triggers.
 pub(in crate::card::sets) static VANGUARD_SERAPH: CardRecord = CardRecord::new(
     "Vanguard Seraph",
     "4329c861-fc16-4a96-9c03-25af6ac2adc8",
@@ -1043,7 +1056,8 @@ pub(in crate::card::sets) static CLINQUANT_SKYMAGE: CardRecord = CardRecord::new
 );
 
 // FDN 34 — Curator of Destinies
-// Audit: unsupported — Needs a library partition choice with one face-down pile and one face-up pile, followed by an opponent choosing a pile without seeing the hidden pile.
+// Audit: unsupported — Needs a library partition choice with one face-down pile and one face-up
+// pile, followed by an opponent choosing a pile without seeing the hidden pile.
 pub(in crate::card::sets) static CURATOR_OF_DESTINIES: CardRecord = CardRecord::new(
     "Curator of Destinies",
     "9ff79da7-c3f7-4541-87a0-503544c699b5",
@@ -1149,7 +1163,7 @@ pub(in crate::card::sets) static FAEBLOOM_TRICK: CardRecord = CardRecord::new(
     "Annie Stegg",
     CardRules::new_instant(mana_cost!("{2}{U}")).with_abilities(&[AbilityDef::spell(
         "Create two 1/1 blue Faerie creature tokens with flying. \
-             When you do, tap target creature an opponent controls.",
+         When you do, tap target creature an opponent controls.",
         EffectDef::CreateToken(
             CreateTokenDef::new(TokenDef::Literal(
                 TokenCharacteristics::creature(&["Faerie"], &[ManaColor::Blue], 1, 1)
@@ -1456,7 +1470,9 @@ pub(in crate::card::sets) static KIORA_THE_RISING_TIDE: CardRecord = CardRecord:
 );
 
 // FDN 46 — Lunar Insight
-// Audit: unsupported — Needs an aggregate counting distinct mana values among a changing set of permanents; current object aggregates count objects or combine scalar values without distinctness.
+// Audit: unsupported — Needs an aggregate counting distinct mana values among a changing set of
+// permanents; current object aggregates count objects or combine scalar values without
+// distinctness.
 pub(in crate::card::sets) static LUNAR_INSIGHT: CardRecord = CardRecord::new(
     "Lunar Insight",
     "a9a159f6-fecf-4bdd-b2f8-a9665a5cc32d",
@@ -1530,7 +1546,9 @@ pub(in crate::card::sets) static RUNE_SEALED_WALL: CardRecord = CardRecord::new(
 );
 
 // FDN 50 — Skyship Buccaneer
-// Audit: unsupported — Needs per-player attack history for the current turn, retained after attacking creatures leave or change controllers; current object predicates only identify individual permanents that attacked.
+// Audit: unsupported — Needs per-player attack history for the current turn, retained after
+// attacking creatures leave or change controllers; current object predicates only identify
+// individual permanents that attacked.
 pub(in crate::card::sets) static SKYSHIP_BUCCANEER: CardRecord = CardRecord::new(
     "Skyship Buccaneer",
     "62958fc3-55dc-4b97-a070-490d6ed27820",
@@ -1639,7 +1657,8 @@ pub(in crate::card::sets) static UNCHARTED_VOYAGE: CardRecord = CardRecord::new(
 );
 
 // FDN 54 — Abyssal Harvester
-// Audit: unsupported — Needs a graveyard-entry timestamp predicate for cards put there this turn; EnteredThisTurn only describes battlefield permanents.
+// Audit: unsupported — Needs a graveyard-entry timestamp predicate for cards put there this
+// turn; EnteredThisTurn only describes battlefield permanents.
 pub(in crate::card::sets) static ABYSSAL_HARVESTER: CardRecord = CardRecord::new(
     "Abyssal Harvester",
     "f2e0f538-5825-47e9-883c-3ec6fd5b25ea",
@@ -1769,7 +1788,8 @@ pub(in crate::card::sets) static BLASPHEMOUS_EDICT: CardRecord = CardRecord::new
 );
 
 // FDN 58 — Bloodthirsty Conqueror
-// Audit: unsupported — Needs a life-loss event carrying the amount actually lost, including payments and life-total changes; damage events cannot represent every life loss.
+// Audit: unsupported — Needs a life-loss event carrying the amount actually lost, including
+// payments and life-total changes; damage events cannot represent every life loss.
 pub(in crate::card::sets) static BLOODTHIRSTY_CONQUEROR: CardRecord = CardRecord::new(
     "Bloodthirsty Conqueror",
     "ce860ed4-a5bd-4347-9eab-dd716ea84db1",
@@ -1811,7 +1831,9 @@ pub(in crate::card::sets) static CRYPT_FEASTER: CardRecord = CardRecord::new(
 );
 
 // FDN 60 — Gutless Plunderer
-// Audit: unsupported — Needs per-player attack history for the current turn, retained after attacking creatures leave or change controllers; current object predicates only identify individual permanents that attacked.
+// Audit: unsupported — Needs per-player attack history for the current turn, retained after
+// attacking creatures leave or change controllers; current object predicates only identify
+// individual permanents that attacked.
 pub(in crate::card::sets) static GUTLESS_PLUNDERER: CardRecord = CardRecord::new(
     "Gutless Plunderer",
     "909d7778-c7f8-4fa4-89f2-8b32e86e96e4",
@@ -1886,7 +1908,9 @@ pub(in crate::card::sets) static HUNGRY_GHOUL: CardRecord = CardRecord::new(
 );
 
 // FDN 63 — Infernal Vessel
-// Audit: unsupported — Needs the returning creature to have its additional Demon type as it enters; applying a type effect afterward gives entry replacements and triggers incorrect characteristics.
+// Audit: unsupported — Needs the returning creature to have its additional Demon type as it
+// enters; applying a type effect afterward gives entry replacements and triggers incorrect
+// characteristics.
 pub(in crate::card::sets) static INFERNAL_VESSEL: CardRecord = CardRecord::new(
     "Infernal Vessel",
     "877b6330-2d0b-4f2f-a848-f10b06fb4ef5",
@@ -1917,7 +1941,9 @@ pub(in crate::card::sets) static INFESTATION_SAGE: CardRecord = CardRecord::new(
 );
 
 // FDN 65 — Midnight Snack
-// Audit: unsupported — Needs per-player attack history for the current turn, retained after attacking creatures leave or change controllers; current object predicates only identify individual permanents that attacked.
+// Audit: unsupported — Needs per-player attack history for the current turn, retained after
+// attacking creatures leave or change controllers; current object predicates only identify
+// individual permanents that attacked.
 pub(in crate::card::sets) static MIDNIGHT_SNACK: CardRecord = CardRecord::new(
     "Midnight Snack",
     "c9b7543f-2a45-4db6-b560-d15507a58c91",
@@ -1926,7 +1952,9 @@ pub(in crate::card::sets) static MIDNIGHT_SNACK: CardRecord = CardRecord::new(
 );
 
 // FDN 66 — Nine-Lives Familiar
-// Audit: unsupported — Needs a delayed battlefield arrival carrying a frozen last-known revival-counter count minus one; entry counters cannot read a scalar captured by an earlier death trigger.
+// Audit: unsupported — Needs a delayed battlefield arrival carrying a frozen last-known
+// revival-counter count minus one; entry counters cannot read a scalar captured by an earlier
+// death trigger.
 pub(in crate::card::sets) static NINE_LIVES_FAMILIAR: CardRecord = CardRecord::new(
     "Nine-Lives Familiar",
     "988c23f6-59fe-49f9-a9ce-9881dccb7033",
@@ -2028,7 +2056,8 @@ pub(in crate::card::sets) static SEEKER_S_FOLLY: CardRecord = CardRecord::new(
 );
 
 // FDN 70 — Soul-Shackled Zombie
-// Audit: unsupported — Needs a target-group constraint requiring all selected cards to have the same graveyard owner, while permitting either player's graveyard.
+// Audit: unsupported — Needs a target-group constraint requiring all selected cards to have the
+// same graveyard owner, while permitting either player's graveyard.
 pub(in crate::card::sets) static SOUL_SHACKLED_ZOMBIE: CardRecord = CardRecord::new(
     "Soul-Shackled Zombie",
     "deea5690-6eb2-4353-b917-cbbf840e4e71",
@@ -2058,7 +2087,8 @@ pub(in crate::card::sets) static STAB: CardRecord = CardRecord::new(
 );
 
 // FDN 72 — Tinybones, Bauble Burglar
-// Audit: unsupported — Needs counters on exiled cards and a global exile-play permission selecting opponent-owned cards with a particular counter, restricted to your turn.
+// Audit: unsupported — Needs counters on exiled cards and a global exile-play permission
+// selecting opponent-owned cards with a particular counter, restricted to your turn.
 pub(in crate::card::sets) static TINYBONES_BAUBLE_BURGLAR: CardRecord = CardRecord::new(
     "Tinybones, Bauble Burglar",
     "ff3d85bc-ef2d-4251-baf4-a14bd0cee61e",
@@ -2313,7 +2343,9 @@ pub(in crate::card::sets) static BULK_UP: CardRecord = CardRecord::new(
 );
 
 // FDN 81 — Chandra, Flameshaper
-// Audit: unsupported — Needs a play permission granted to a card selected from an already-exiled group, without moving that card again; existing exile-and-play instructions couple the permission to the exile move.
+// Audit: unsupported — Needs a play permission granted to a card selected from an
+// already-exiled group, without moving that card again; existing exile-and-play instructions
+// couple the permission to the exile move.
 pub(in crate::card::sets) static CHANDRA_FLAMESHAPER: CardRecord = CardRecord::new(
     "Chandra, Flameshaper",
     "a22d21ec-0fb3-4574-a803-6442ec13167e",
@@ -2445,7 +2477,9 @@ pub(in crate::card::sets) static ELECTRODUPLICATE: CardRecord = CardRecord::new(
 );
 
 // FDN 86 — Fiery Annihilation
-// Audit: unsupported — Needs a target constraint tying the optional Equipment target to the earlier creature target's attachment relation, including rechecking both targets at resolution.
+// Audit: unsupported — Needs a target constraint tying the optional Equipment target to the
+// earlier creature target's attachment relation, including rechecking both targets at
+// resolution.
 pub(in crate::card::sets) static FIERY_ANNIHILATION: CardRecord = CardRecord::new(
     "Fiery Annihilation",
     "54fe00aa-d284-48f9-b5a2-1bd4c5fa8e58",
@@ -2454,7 +2488,9 @@ pub(in crate::card::sets) static FIERY_ANNIHILATION: CardRecord = CardRecord::ne
 );
 
 // FDN 87 — Goblin Boarders
-// Audit: unsupported — Needs per-player attack history for the current turn, retained after attacking creatures leave or change controllers; current object predicates only identify individual permanents that attacked.
+// Audit: unsupported — Needs per-player attack history for the current turn, retained after
+// attacking creatures leave or change controllers; current object predicates only identify
+// individual permanents that attacked.
 pub(in crate::card::sets) static GOBLIN_BOARDERS: CardRecord = CardRecord::new(
     "Goblin Boarders",
     "4409a063-bf2a-4a49-803e-3ce6bd474353",
@@ -2463,7 +2499,9 @@ pub(in crate::card::sets) static GOBLIN_BOARDERS: CardRecord = CardRecord::new(
 );
 
 // FDN 88 — Goblin Negotiation
-// Audit: unsupported — Needs excess-damage output from an ordinary damage instruction, including prevention and lethal deathtouch semantics; the current excess continuation is available only on fight.
+// Audit: unsupported — Needs excess-damage output from an ordinary damage instruction,
+// including prevention and lethal deathtouch semantics; the current excess continuation is
+// available only on fight.
 pub(in crate::card::sets) static GOBLIN_NEGOTIATION: CardRecord = CardRecord::new(
     "Goblin Negotiation",
     "f2016585-e26c-4d13-b09f-af6383c192f7",
@@ -2472,7 +2510,9 @@ pub(in crate::card::sets) static GOBLIN_NEGOTIATION: CardRecord = CardRecord::ne
 );
 
 // FDN 89 — Gorehorn Raider
-// Audit: unsupported — Needs per-player attack history for the current turn, retained after attacking creatures leave or change controllers; current object predicates only identify individual permanents that attacked.
+// Audit: unsupported — Needs per-player attack history for the current turn, retained after
+// attacking creatures leave or change controllers; current object predicates only identify
+// individual permanents that attacked.
 pub(in crate::card::sets) static GOREHORN_RAIDER: CardRecord = CardRecord::new(
     "Gorehorn Raider",
     "78ce6c40-3452-4aa0-a45b-dbfd70f8d220",
@@ -2535,7 +2575,9 @@ pub(in crate::card::sets) static RITE_OF_THE_DRAGONCALLER: CardRecord = CardReco
 );
 
 // FDN 93 — Searslicer Goblin
-// Audit: unsupported — Needs per-player attack history for the current turn, retained after attacking creatures leave or change controllers; current object predicates only identify individual permanents that attacked.
+// Audit: unsupported — Needs per-player attack history for the current turn, retained after
+// attacking creatures leave or change controllers; current object predicates only identify
+// individual permanents that attacked.
 pub(in crate::card::sets) static SEARSLICER_GOBLIN: CardRecord = CardRecord::new(
     "Searslicer Goblin",
     "94ad0b97-a318-4e76-ac79-b3e83417c333",
@@ -2593,7 +2635,9 @@ pub(in crate::card::sets) static SOWER_OF_CHAOS: CardRecord = CardRecord::new(
 );
 
 // FDN 96 — Strongbox Raider
-// Audit: unsupported — Needs per-player attack history for the current turn, retained after attacking creatures leave or change controllers; current object predicates only identify individual permanents that attacked.
+// Audit: unsupported — Needs per-player attack history for the current turn, retained after
+// attacking creatures leave or change controllers; current object predicates only identify
+// individual permanents that attacked.
 pub(in crate::card::sets) static STRONGBOX_RAIDER: CardRecord = CardRecord::new(
     "Strongbox Raider",
     "b2223eb8-59f9-489b-a3f3-b6496218cb79",
@@ -2602,7 +2646,9 @@ pub(in crate::card::sets) static STRONGBOX_RAIDER: CardRecord = CardRecord::new(
 );
 
 // FDN 97 — Twinflame Tyrant
-// Audit: unsupported — Needs a prospective damage amount multiplier filtered by source controller and damage recipient; current damage rules support prevention and limits, but no multiplication replacement.
+// Audit: unsupported — Needs a prospective damage amount multiplier filtered by source
+// controller and damage recipient; current damage rules support prevention and limits, but no
+// multiplication replacement.
 pub(in crate::card::sets) static TWINFLAME_TYRANT: CardRecord = CardRecord::new(
     "Twinflame Tyrant",
     "1eb34f51-0bd2-43c3-af95-2ce8dabcc7bb",
@@ -3028,7 +3074,9 @@ pub(in crate::card::sets) static QUAKESTRIDER_CERATOPS: CardRecord = CardRecord:
 );
 
 // FDN 111 — Quilled Greatwurm
-// Audit: unsupported — Needs a graveyard casting cost that removes six counters of player-chosen kinds distributed among controlled creatures; current removal costs fix one counter kind or one source.
+// Audit: unsupported — Needs a graveyard casting cost that removes six counters of
+// player-chosen kinds distributed among controlled creatures; current removal costs fix one
+// counter kind or one source.
 pub(in crate::card::sets) static QUILLED_GREATWURM: CardRecord = CardRecord::new(
     "Quilled Greatwurm",
     "31b60531-3d33-4e66-923a-29008716b15c",
@@ -3037,7 +3085,9 @@ pub(in crate::card::sets) static QUILLED_GREATWURM: CardRecord = CardRecord::new
 );
 
 // FDN 112 — Spinner of Souls
-// Audit: unsupported — Needs a reveal-until operation that keeps nonmatching cards in the library and puts them on the bottom in random order; MillUntil mills the intervening cards and ExileFromTopUntil exiles them.
+// Audit: unsupported — Needs a reveal-until operation that keeps nonmatching cards in the
+// library and puts them on the bottom in random order; MillUntil mills the intervening cards
+// and ExileFromTopUntil exiles them.
 pub(in crate::card::sets) static SPINNER_OF_SOULS: CardRecord = CardRecord::new(
     "Spinner of Souls",
     "f50a8dec-b079-4192-9098-6cdc1026c693",
@@ -3133,7 +3183,9 @@ pub(in crate::card::sets) static TREETOP_SNARESPINNER: CardRecord = CardRecord::
 );
 
 // FDN 115 — Alesha, Who Laughs at Fate
-// Audit: unsupported — Needs per-player attack history for the current turn, retained after attacking creatures leave or change controllers; current object predicates only identify individual permanents that attacked.
+// Audit: unsupported — Needs per-player attack history for the current turn, retained after
+// attacking creatures leave or change controllers; current object predicates only identify
+// individual permanents that attacked.
 pub(in crate::card::sets) static ALESHA_WHO_LAUGHS_AT_FATE: CardRecord = CardRecord::new(
     "Alesha, Who Laughs at Fate",
     "a93e3406-4e29-4bc0-ae52-cbd2ac1f99a4",
@@ -3259,7 +3311,8 @@ pub(in crate::card::sets) static DREADWING_SCAVENGER: CardRecord = CardRecord::n
 );
 
 // FDN 119 — Elenda, Saint of Dusk
-// Audit: unsupported — Needs hexproof filtered by an opposing spell or ability source being an instant; existing hexproof has no source-characteristic filter.
+// Audit: unsupported — Needs hexproof filtered by an opposing spell or ability source being an
+// instant; existing hexproof has no source-characteristic filter.
 pub(in crate::card::sets) static ELENDA_SAINT_OF_DUSK: CardRecord = CardRecord::new(
     "Elenda, Saint of Dusk",
     "24955f5f-093c-4d33-b0c1-911cd36032ce",
@@ -3420,7 +3473,8 @@ pub(in crate::card::sets) static KYKAR_ZEPHYR_AWAKENER: CardRecord = CardRecord:
 );
 
 // FDN 123 — Niv-Mizzet, Visionary
-// Audit: unsupported — Needs a noncombat-only damage trigger matcher; the shared damage-kind vocabulary currently exposes Any and Combat without Noncombat.
+// Audit: unsupported — Needs a noncombat-only damage trigger matcher; the shared damage-kind
+// vocabulary currently exposes Any and Combat without Noncombat.
 pub(in crate::card::sets) static NIV_MIZZET_VISIONARY: CardRecord = CardRecord::new(
     "Niv-Mizzet, Visionary",
     "7a69a618-d588-4745-8ede-0ff0a9f356f1",
@@ -3429,7 +3483,9 @@ pub(in crate::card::sets) static NIV_MIZZET_VISIONARY: CardRecord = CardRecord::
 );
 
 // FDN 124 — Perforating Artist
-// Audit: unsupported — Needs per-player attack history for the current turn, retained after attacking creatures leave or change controllers; current object predicates only identify individual permanents that attacked.
+// Audit: unsupported — Needs per-player attack history for the current turn, retained after
+// attacking creatures leave or change controllers; current object predicates only identify
+// individual permanents that attacked.
 pub(in crate::card::sets) static PERFORATING_ARTIST: CardRecord = CardRecord::new(
     "Perforating Artist",
     "72980409-53f0-43c1-965e-06f22e7bb608",
@@ -3477,7 +3533,8 @@ pub(in crate::card::sets) static WARDENS_OF_THE_CYCLE: CardRecord = CardRecord::
 );
 
 // FDN 126 — Zimone, Paradox Sculptor
-// Audit: unsupported — Needs an effect that doubles a dynamically enumerated collection of counter kinds on each selected object; existing counter effects name one fixed counter kind.
+// Audit: unsupported — Needs an effect that doubles a dynamically enumerated collection of
+// counter kinds on each selected object; existing counter effects name one fixed counter kind.
 pub(in crate::card::sets) static ZIMONE_PARADOX_SCULPTOR: CardRecord = CardRecord::new(
     "Zimone, Paradox Sculptor",
     "20ccbfdd-ddae-440c-9bc0-38b15a56fdd1",
@@ -3486,7 +3543,9 @@ pub(in crate::card::sets) static ZIMONE_PARADOX_SCULPTOR: CardRecord = CardRecor
 );
 
 // FDN 127 — Banner of Kinship
-// Audit: unsupported — Needs entry-value queries to read the entering object's newly chosen creature type before that object exists on the battlefield; current query matching cannot see that prospective scalar choice.
+// Audit: unsupported — Needs entry-value queries to read the entering object's newly chosen
+// creature type before that object exists on the battlefield; current query matching cannot see
+// that prospective scalar choice.
 pub(in crate::card::sets) static BANNER_OF_KINSHIP: CardRecord = CardRecord::new(
     "Banner of Kinship",
     "a14c16c0-4053-46b0-8fa6-be8b4a7a1c8a",
@@ -3495,7 +3554,9 @@ pub(in crate::card::sets) static BANNER_OF_KINSHIP: CardRecord = CardRecord::new
 );
 
 // FDN 128 — Fishing Pole
-// Audit: unsupported — Needs a granted mana-independent activation cost that taps the granting Equipment, plus an untap event carrying its attached creature and an actual counter-removal result for the token condition.
+// Audit: unsupported — Needs a granted mana-independent activation cost that taps the granting
+// Equipment, plus an untap event carrying its attached creature and an actual counter-removal
+// result for the token condition.
 pub(in crate::card::sets) static FISHING_POLE: CardRecord = CardRecord::new(
     "Fishing Pole",
     "c95ab836-3277-4223-9aaa-ef2c77256b65",
@@ -5121,15 +5182,16 @@ pub(in crate::card::sets) static KELLAN_PLANAR_TRAILBLAZER: CardRecord = CardRec
     "Kellan, Planar Trailblazer",
     "0e413f37-b59a-4302-86d3-2abce81edc78",
     "Aaron J. Riley",
-// One mana for a 2/1 that grows into what the rest of the turn's mana
+    // One mana for a 2/1 that grows into what the rest of the turn's mana
     // has nothing better to do with.
     CardRules::new_creature(mana_cost!("{R}"), &["Human", "Faerie", "Scout"], 2, 1)
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
             AbilityDef::activated(
-                "{1}{R}: If Kellan is a Scout, it becomes a Human Faerie Detective and gains \"Whenever \
-                 Kellan deals combat damage to a player, exile the top card of your library. You may play \
-                 that card this turn.\"",
+                "{1}{R}: If Kellan is a Scout, it becomes a Human Faerie \
+                 Detective and gains \"Whenever Kellan deals combat damage \
+                 to a player, exile the top card of your library. You may \
+                 play that card this turn.\"",
                 &[CostDef::Mana(mana_cost!("{1}{R}"))],
                 EffectDef::IfCondition {
                     // Each activation asks what Kellan is now, so the two have to be paid in
@@ -5143,16 +5205,20 @@ pub(in crate::card::sets) static KELLAN_PLANAR_TRAILBLAZER: CardRecord = CardRec
                         // the Scout it was is gone and the second activation has something to ask
                         // about.
                         effect: AppliedEffectDef::Composite(&[
-                            AppliedEffectDef::Characteristic(CharacteristicOperationDef::CreatureTypes(
-                                SetOperationDef::Set(CreatureTypeSetDef::named(&["Human", "Faerie", "Detective"])),
-                            )),
+                            AppliedEffectDef::Characteristic(
+                                CharacteristicOperationDef::CreatureTypes(SetOperationDef::Set(
+                                    CreatureTypeSetDef::named(&["Human", "Faerie", "Detective"]),
+                                )),
+                            ),
                             // The Detective's own clause, granted rather than printed: a card exiled
                             // off the top and playable for the turn, which is what the second
                             // activation is paying to turn on.
                             AppliedEffectDef::add_ability(&AbilityDef::triggered(
-                                "Whenever Kellan deals combat damage to a player, exile the top card of your library. You may \
-                                 play that card this turn.",
-                                TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
+                                "Whenever Kellan deals combat damage to a player, exile the \
+                                 top card of your library. You may play that card this turn.",
+                                TriggerEventDef::combat_damage_to_player(
+                                    ObjectPredicateDef::Source,
+                                ),
                                 EffectDef::ExileTopOfLibraryToPlay {
                                     player: EffectRecipientDef::Controller,
                                     amount: ValueDef::Constant(1),
@@ -5170,8 +5236,8 @@ pub(in crate::card::sets) static KELLAN_PLANAR_TRAILBLAZER: CardRecord = CardRec
                 },
             ),
             AbilityDef::activated(
-                "{2}{R}: If Kellan is a Detective, it becomes a 3/2 Human Faerie Rogue and gains double \
-                 strike.",
+                "{2}{R}: If Kellan is a Detective, it becomes a 3/2 Human \
+                 Faerie Rogue and gains double strike.",
                 &[CostDef::Mana(mana_cost!("{2}{R}"))],
                 EffectDef::IfCondition {
                     condition: &TriggerConditionDef::SourceMatches {
@@ -5180,15 +5246,19 @@ pub(in crate::card::sets) static KELLAN_PLANAR_TRAILBLAZER: CardRecord = CardRec
                     then: &EffectDef::Apply {
                         recipient: EffectRecipientDef::Source,
                         effect: AppliedEffectDef::Composite(&[
-                            AppliedEffectDef::Characteristic(CharacteristicOperationDef::PowerToughness(
-                                PowerToughnessOperationDef::SetBase {
-                                    power: ValueDef::Constant(3),
-                                    toughness: ValueDef::Constant(2),
-                                },
-                            )),
-                            AppliedEffectDef::Characteristic(CharacteristicOperationDef::CreatureTypes(
-                                SetOperationDef::Set(CreatureTypeSetDef::named(&["Human", "Faerie", "Rogue"])),
-                            )),
+                            AppliedEffectDef::Characteristic(
+                                CharacteristicOperationDef::PowerToughness(
+                                    PowerToughnessOperationDef::SetBase {
+                                        power: ValueDef::Constant(3),
+                                        toughness: ValueDef::Constant(2),
+                                    },
+                                ),
+                            ),
+                            AppliedEffectDef::Characteristic(
+                                CharacteristicOperationDef::CreatureTypes(SetOperationDef::Set(
+                                    CreatureTypeSetDef::named(&["Human", "Faerie", "Rogue"]),
+                                )),
+                            ),
                             AppliedEffectDef::add_ability(&abilities::double_strike()),
                         ]),
                         duration: ResolvedEffectDurationDef::Permanent,

@@ -91,7 +91,7 @@ pub(in crate::card::sets) static REALITY_SMASHER: CardRecord = CardRecord::new(
 );
 
 // OGW 8 — Spatial Contortion
-pub(in crate::card::sets) static SPATIAL_CONTORTION_8: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static SPATIAL_CONTORTION: CardRecord = CardRecord::new(
     "Spatial Contortion",
     "4e2acf70-7625-4b77-83c1-0e08436da31f",
     "Daarken",
@@ -177,7 +177,7 @@ pub(in crate::card::sets) static THOUGHT_KNOT_SEER: CardRecord = CardRecord::new
 );
 
 // OGW 12 — Warping Wail
-pub(in crate::card::sets) static WARPING_WAIL_12: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static WARPING_WAIL: CardRecord = CardRecord::new(
     "Warping Wail",
     "f2ef4db8-b51c-4f52-84f1-6fee31c4a14c",
     "Jason Felix",
@@ -271,16 +271,56 @@ pub(in crate::card::sets) static MAKE_A_STAND: CardRecord = CardRecord::new(
 );
 
 // OGW 44 — Dimensional Infiltrator
-pub(in crate::card::sets) static DIMENSIONAL_INFILTRATOR_44: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static DIMENSIONAL_INFILTRATOR: CardRecord = CardRecord::new(
     "Dimensional Infiltrator",
     "0ea28dd5-57b0-4255-a3d9-1c190c446f20",
     "Chase Stone",
     CardRules::new_creature(mana_cost!("{1}{U}"), &["Eldrazi"], 2, 1).with_abilities(&[
-abilities::devoid(),
-abilities::flash(),
-abilities::flying(),
-AbilityDef::activated_with_targets("{1}{C}: Target opponent exiles the top card of their library. If it's a land card, you may return this creature to its owner's hand. ({C} represents colorless mana.)", &[CostDef::Mana(mana_cost!("{1}{C}"))], &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(PlayerRelation::Opponent))], EffectDef::BindObjects(BindObjectsDef { source: ObjectCollectionSourceDef::TopCards { player: PlayerRefDef::Target(TargetIndex::PRIMARY), count: ValueDef::Constant(1) }, binding: Binding!("infiltrator_top"), then: &EffectDef::MoveObjects(MoveObjectsDef { input: ObjectSetDef::Binding(Binding!("infiltrator_top")), from: Some(ZoneKind::Library), zone: ZoneKind::Exile, placement: ZonePlacement::Top, moved: Some(Binding!("infiltrator_exiled")), then: &EffectDef::ForEachInBinding { objects: Binding!("infiltrator_exiled"), binding: Binding!("infiltrator_card"), effect: &EffectDef::IfCondition { condition: &TriggerConditionDef::BoundObjectMatches { binding: Binding!("infiltrator_card"), object: ObjectPredicateDef::HasType(CardType::Land) }, then: &EffectDef::May { player: EffectRecipientDef::Controller, effect: &EffectDef::move_to_zone(EffectRecipientDef::Source, ZoneKind::Hand, ZonePlacement::Top) } } } }) }))
-]),
+        abilities::devoid(),
+        abilities::flash(),
+        abilities::flying(),
+        AbilityDef::activated_with_targets(
+            "{1}{C}: Target opponent exiles the top card of their \
+             library. If it's a land card, you may return this creature \
+             to its owner's hand. ({C} represents colorless mana.)",
+            &[CostDef::Mana(mana_cost!("{1}{C}"))],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+            )],
+            EffectDef::BindObjects(BindObjectsDef {
+                source: ObjectCollectionSourceDef::TopCards {
+                    player: PlayerRefDef::Target(TargetIndex::PRIMARY),
+                    count: ValueDef::Constant(1),
+                },
+                binding: Binding!("infiltrator_top"),
+                then: &EffectDef::MoveObjects(MoveObjectsDef {
+                    input: ObjectSetDef::Binding(Binding!("infiltrator_top")),
+                    from: Some(ZoneKind::Library),
+                    zone: ZoneKind::Exile,
+                    placement: ZonePlacement::Top,
+                    moved: Some(Binding!("infiltrator_exiled")),
+                    then: &EffectDef::ForEachInBinding {
+                        objects: Binding!("infiltrator_exiled"),
+                        binding: Binding!("infiltrator_card"),
+                        effect: &EffectDef::IfCondition {
+                            condition: &TriggerConditionDef::BoundObjectMatches {
+                                binding: Binding!("infiltrator_card"),
+                                object: ObjectPredicateDef::HasType(CardType::Land),
+                            },
+                            then: &EffectDef::May {
+                                player: EffectRecipientDef::Controller,
+                                effect: &EffectDef::move_to_zone(
+                                    EffectRecipientDef::Source,
+                                    ZoneKind::Hand,
+                                    ZonePlacement::Top,
+                                ),
+                            },
+                        },
+                    },
+                }),
+            }),
+        ),
+    ]),
 );
 
 // OGW 63 — Sphinx of the Final Word
@@ -345,7 +385,7 @@ pub(in crate::card::sets) static UNTAMED_HUNGER: CardRecord = CardRecord::new(
 );
 
 // OGW 108 — Expedite
-pub(in crate::card::sets) static EXPEDITE_108: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static EXPEDITE: CardRecord = CardRecord::new(
     "Expedite",
     "59c65eb7-4353-45ce-9c2e-1791c2804ccf",
     "Kieran Yanner",
@@ -370,10 +410,11 @@ pub(in crate::card::sets) static PULSE_OF_MURASA: CardRecord = CardRecord::new(
     "Pulse of Murasa",
     "c0c8057f-b45b-4f67-90cd-c808b5e9cbfa",
     "Matt Stewart",
-// Either graveyard, so it also answers an opponent's reanimation target
+    // Either graveyard, so it also answers an opponent's reanimation target
     // by handing the card back to them rather than leaving it where it is.
     CardRules::new_instant(mana_cost!("{2}{G}")).with_ability(AbilityDef::spell_with_targets(
-        "Return target creature or land card from a graveyard to its owner's hand. You gain 6 life.",
+        "Return target creature or land card from a graveyard to its \
+         owner's hand. You gain 6 life.",
         &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::Object {
                 object: ObjectPredicateDef::AnyOf(&[
@@ -475,7 +516,7 @@ pub(in crate::card::sets) static AYLI_ETERNAL_PILGRIM: CardRecord = CardRecord::
 // Audit: unsupported — Needs a name restriction bound to the targeted creature's pre-move name
 // and owner, lasting until your next turn even when that card changes zones; play restrictions
 // have no bound-name matcher.
-pub(in crate::card::sets) static REFLECTOR_MAGE_157: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static REFLECTOR_MAGE: CardRecord = CardRecord::new(
     "Reflector Mage",
     "9473fe01-83f6-4432-ab01-f7953d2ca904",
     "Willian Murai",
@@ -483,8 +524,9 @@ pub(in crate::card::sets) static REFLECTOR_MAGE_157: CardRecord = CardRecord::ne
 );
 
 // OGW 172 — Holdout Settlement
-// Audit: unsupported — Mana-ability eligibility rejects the additional TapPermanents cost; the other creature cannot be reserved and tapped during immediate mana production.
-pub(in crate::card::sets) static HOLDOUT_SETTLEMENT_172: CardRecord = CardRecord::new(
+// Audit: unsupported — Mana-ability eligibility rejects the additional TapPermanents cost; the
+// other creature cannot be reserved and tapped during immediate mana production.
+pub(in crate::card::sets) static HOLDOUT_SETTLEMENT: CardRecord = CardRecord::new(
     "Holdout Settlement",
     "cf08c317-6f2d-47e3-ab5b-8af73fd3e404",
     "Kieran Yanner",
@@ -503,19 +545,19 @@ pub(in crate::card::sets) static WASTES: CardRecord = CardRecord::new(
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &REALITY_SMASHER,
-    &SPATIAL_CONTORTION_8,
+    &SPATIAL_CONTORTION,
     &THOUGHT_KNOT_SEER,
-    &WARPING_WAIL_12,
+    &WARPING_WAIL,
     &MAKE_A_STAND,
-    &DIMENSIONAL_INFILTRATOR_44,
+    &DIMENSIONAL_INFILTRATOR,
     &SPHINX_OF_THE_FINAL_WORD,
     &UNTAMED_HUNGER,
-    &EXPEDITE_108,
+    &EXPEDITE,
     &PULSE_OF_MURASA,
     &TAJURU_PATHWARDEN,
     &AYLI_ETERNAL_PILGRIM,
-    &REFLECTOR_MAGE_157,
-    &HOLDOUT_SETTLEMENT_172,
+    &REFLECTOR_MAGE,
+    &HOLDOUT_SETTLEMENT,
     &WASTES,
 ];
 

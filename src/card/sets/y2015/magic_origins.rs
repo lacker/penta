@@ -48,7 +48,9 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // ORI 4 — Archangel of Tithes
-// Audit: unsupported — Needs attack/block declaration taxes conditioned on this source being untapped or attacking, including the planeswalkers it protects; costed declarations lack this conditional source-state composition.
+// Audit: unsupported — Needs attack/block declaration taxes conditioned on this source being
+// untapped or attacking, including the planeswalkers it protects; costed declarations lack this
+// conditional source-state composition.
 pub(in crate::card::sets) static ARCHANGEL_OF_TITHES: CardRecord = CardRecord::new(
     "Archangel of Tithes",
     "1af50bf1-c51e-4592-86bf-4197ec85a45d",
@@ -57,7 +59,9 @@ pub(in crate::card::sets) static ARCHANGEL_OF_TITHES: CardRecord = CardRecord::n
 );
 
 // ORI 58 — Harbinger of the Tides
-// Audit: unsupported — Needs a casting route that grants instant timing only when an optional additional mana payment is made; existing flash permissions do not carry a timing-specific surcharge.
+// Audit: unsupported — Needs a casting route that grants instant timing only when an optional
+// additional mana payment is made; existing flash permissions do not carry a timing-specific
+// surcharge.
 pub(in crate::card::sets) static HARBINGER_OF_THE_TIDES: CardRecord = CardRecord::new(
     "Harbinger of the Tides",
     "94ca53de-cffb-4740-b318-a4ebfb3a31af",
@@ -75,134 +79,167 @@ pub(in crate::card::sets) static JACE_VRYN_S_PRODIGY: CardRecord = CardRecord::n
             "Jace, Vryn's Prodigy",
             const {
                 CardRules::new_creature(mana_cost!("{1}{U}"), &["Human", "Wizard"], 0, 2)
-                .with_supertype(CardSupertype::Legendary)
-                .with_abilities(&const { [AbilityDef::activated(
-                    "{T}: Draw a card, then discard a card. If there are five or more cards in your graveyard, \
-                     exile Jace, then return him to the battlefield transformed under his owner's control.",
-                    &[CostDef::TapSource],
-                    EffectDef::Sequence(&const { [
-                        EffectDef::DrawCards {
-                            recipient: EffectRecipientDef::Controller,
-                            amount: ValueDef::Constant(1),
-                        },
-                        EffectDef::Discard {
-                            recipient: EffectRecipientDef::Controller,
-                            amount: ValueDef::Constant(1),
-                            selection: DiscardSelectionDef::RecipientChooses,
-                            then: None,
-                        },
-                        EffectDef::IfCondition {
-                            // Counted after the loot, so the card just discarded is one of the five --
-                            // which is what makes the turn he arrives and the turn he flips so often
-                            // the same turn.
-                            condition: &TriggerConditionDef::ObjectCount {
-                                query: ObjectQueryDef::matching(
-                                    ObjectPredicateDef::Any,
-                                    &[ZoneKind::Graveyard],
-                                    PlayerRelation::You,
+                    .with_supertype(CardSupertype::Legendary)
+                    .with_abilities(
+                        &const {
+                            [AbilityDef::activated(
+                                "{T}: Draw a card, then discard a card. If there are five or \
+                                 more cards in your graveyard, exile Jace, then return him \
+                                 to the battlefield transformed under his owner's control.",
+                                &[CostDef::TapSource],
+                                EffectDef::Sequence(
+                                    &const {
+                                        [
+                                            EffectDef::DrawCards {
+                                                recipient: EffectRecipientDef::Controller,
+                                                amount: ValueDef::Constant(1),
+                                            },
+                                            EffectDef::Discard {
+                                                recipient: EffectRecipientDef::Controller,
+                                                amount: ValueDef::Constant(1),
+                                                selection: DiscardSelectionDef::RecipientChooses,
+                                                then: None,
+                                            },
+                                            EffectDef::IfCondition {
+                                                // Counted after the loot, so the card just discarded is one of the five
+                                                // --
+                                                // which is what makes the turn he arrives and the turn he flips so
+                                                // often
+                                                // the same turn.
+                                                condition: &TriggerConditionDef::ObjectCount {
+                                                    query: ObjectQueryDef::matching(
+                                                        ObjectPredicateDef::Any,
+                                                        &[ZoneKind::Graveyard],
+                                                        PlayerRelation::You,
+                                                    ),
+                                                    comparison: ComparisonDef::GreaterOrEqual,
+                                                    amount: 5,
+                                                },
+                                                // The same exile-and-return every flip creature uses: one resolution,
+                                                // so he
+                                                // is gone and back before anything else happens, and what comes back is
+                                                // a
+                                                // new object with the loyalty the back face prints.
+                                                then: &EffectDef::Sequence(&[
+                                                    EffectDef::ExileLinkedToSource {
+                                                        until_source_leaves: false,
+                                                        object: EffectRecipientDef::Source,
+                                                        face_down: false,
+                                                        then: None,
+                                                    },
+                                                    EffectDef::ReturnLinkedExiles {
+                                                        object: ObjectPredicateDef::Any,
+                                                        counters: None,
+                                                        zone: ZoneKind::Battlefield,
+                                                        grant: None,
+                                                        controller: None,
+                                                        transformed: true,
+                                                    },
+                                                ]),
+                                            },
+                                        ]
+                                    },
                                 ),
-                                comparison: ComparisonDef::GreaterOrEqual,
-                                amount: 5,
-                            },
-                            // The same exile-and-return every flip creature uses: one resolution, so he
-                            // is gone and back before anything else happens, and what comes back is a
-                            // new object with the loyalty the back face prints.
-                            then: &EffectDef::Sequence(&[
-                                EffectDef::ExileLinkedToSource {
-                                    until_source_leaves: false,
-                                    object: EffectRecipientDef::Source,
-                                    face_down: false,
-                                    then: None,
-                                },
-                                EffectDef::ReturnLinkedExiles {
-                                    object: ObjectPredicateDef::Any,
-                                    counters: None,
-                                    zone: ZoneKind::Battlefield,
-                                    grant: None,
-                                    controller: None,
-                                    transformed: true,
-                                },
-                            ]),
+                            )]
                         },
-                    ] }),
-                )] })
+                    )
             },
         ),
         (
             "Jace, Telepath Unbound",
             const {
                 CardRules::new_planeswalker_without_mana_cost(&["Jace"])
-                .with_supertype(CardSupertype::Legendary)
-                .with_starting_loyalty(5)
-                .printed_colors(&[crate::card::ManaColor::Blue])
-                .with_abilities(&const { [
-                    AbilityDef::activated_with_targets(
-                        "+1: Up to one target creature gets -2/-0 until your next turn.",
-                        &[CostDef::Loyalty(1)],
-                        // "Up to one", so a Jace with nothing worth shrinking still ticks up.
-                        &const { [AbilityTargetDef::up_to(
-                            AbilityTargetPredicate::Object {
-                                object: ObjectPredicateDef::HasType(CardType::Creature),
-                                zones: &[ZoneKind::Battlefield],
-                                controller: None,
-                                owner: None,
-                            },
-                            1,
-                        )] },
-                        // "Until your next turn" rather than until end of turn: the creature is
-                        // smaller on their swing back as well, which is what makes the plus a
-                        // defensive ability rather than a combat trick.
-                        EffectDef::Apply {
-                            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                            effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(-2), ValueDef::Constant(0)),
-                            duration: ResolvedEffectDurationDef::UntilYourNextTurn,
+                    .with_supertype(CardSupertype::Legendary)
+                    .with_starting_loyalty(5)
+                    .printed_colors(&[crate::card::ManaColor::Blue])
+                    .with_abilities(
+                        &const {
+                            [
+                                AbilityDef::activated_with_targets(
+                                    "+1: Up to one target creature gets -2/-0 until your next turn.",
+                                    &[CostDef::Loyalty(1)],
+                                    // "Up to one", so a Jace with nothing worth shrinking still ticks up.
+                                    &const {
+                                        [AbilityTargetDef::up_to(
+                                            AbilityTargetPredicate::Object {
+                                                object: ObjectPredicateDef::HasType(CardType::Creature),
+                                                zones: &[ZoneKind::Battlefield],
+                                                controller: None,
+                                                owner: None,
+                                            },
+                                            1,
+                                        )]
+                                    },
+                                    // "Until your next turn" rather than until end of turn: the creature is
+                                    // smaller on their swing back as well, which is what makes the plus a
+                                    // defensive ability rather than a combat trick.
+                                    EffectDef::Apply {
+                                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                        effect: AppliedEffectDef::modify_power_toughness(
+                                            ValueDef::Constant(-2),
+                                            ValueDef::Constant(0),
+                                        ),
+                                        duration: ResolvedEffectDurationDef::UntilYourNextTurn,
+                                    },
+                                ),
+                                // Written as the flashback his clause comes to: the cost is the card's
+                                // own, the window is this turn, and the card is exiled rather than left
+                                // in the graveyard. What differs from the printed wording is that the
+                                // card is lent the keyword, so anything reading "has flashback" would
+                                // see it.
+                                AbilityDef::activated_with_targets(
+                                    "\u{2212}3: You may cast target instant or sorcery card from \
+                                     your graveyard this turn. If that spell would be put into \
+                                     your graveyard, exile it instead.",
+                                    &[CostDef::Loyalty(-3)],
+                                    &const {
+                                        [AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                                            object: ObjectPredicateDef::AnyOf(&[
+                                                ObjectPredicateDef::HasType(CardType::Instant),
+                                                ObjectPredicateDef::HasType(CardType::Sorcery),
+                                            ]),
+                                            zones: &[ZoneKind::Graveyard],
+                                            controller: None,
+                                            owner: Some(PlayerRelation::You),
+                                        })]
+                                    },
+                                    EffectDef::Apply {
+                                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                        effect: AppliedEffectDef::add_ability(
+                                            &const { abilities::flashback_for_card_mana_cost() },
+                                        ),
+                                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                                    },
+                                ),
+                                AbilityDef::activated(
+                                    "\u{2212}9: You get an emblem with \"Whenever you cast a \
+                                     spell, target opponent mills five cards.\"",
+                                    &[CostDef::Loyalty(-9)],
+                                    EffectDef::create_emblem(
+                                        "Jace, Telepath \
+                                         Unbound emblem",
+                                        &const {
+                                            [AbilityDef::triggered_with_targets(
+                                                "Whenever you cast a spell, target opponent mills five cards.",
+                                                TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(
+                                                    PlayerRelation::You,
+                                                )),
+                                                &const {
+                                                    [AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
+                                                        PlayerRelation::Opponent,
+                                                    ))]
+                                                },
+                                                EffectDef::Mill {
+                                                    player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                                    amount: ValueDef::Constant(5),
+                                                },
+                                            )]
+                                        },
+                                    ),
+                                ),
+                            ]
                         },
-                    ),
-                    // Written as the flashback his clause comes to: the cost is the card's
-                    // own, the window is this turn, and the card is exiled rather than left
-                    // in the graveyard. What differs from the printed wording is that the
-                    // card is lent the keyword, so anything reading "has flashback" would
-                    // see it.
-                    AbilityDef::activated_with_targets(
-                        "\u{2212}3: You may cast target instant or sorcery card from your graveyard this turn. \
-                         If that spell would be put into your graveyard, exile it instead.",
-                        &[CostDef::Loyalty(-3)],
-                        &const { [AbilityTargetDef::exactly_one(
-                                AbilityTargetPredicate::Object {
-                                    object: ObjectPredicateDef::AnyOf(&[
-                                        ObjectPredicateDef::HasType(CardType::Instant),
-                                        ObjectPredicateDef::HasType(CardType::Sorcery),
-                                    ]),
-                                    zones: &[ZoneKind::Graveyard],
-                                    controller: None,
-                                    owner: Some(PlayerRelation::You),
-                                },
-                            )] },
-                        EffectDef::Apply {
-                            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                            effect: AppliedEffectDef::add_ability(&const {
-                                abilities::flashback_for_card_mana_cost()
-                            }),
-                            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                        },
-                    ),
-                    AbilityDef::activated(
-                        "\u{2212}9: You get an emblem with \"Whenever you cast a spell, target opponent mills \
-                         five cards.\"",
-                        &[CostDef::Loyalty(-9)],
-                        EffectDef::create_emblem("Jace, Telepath Unbound emblem", &const { [AbilityDef::triggered_with_targets(
-                            "Whenever you cast a spell, target opponent mills five cards.",
-                            TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(PlayerRelation::You)),
-                            &const { [AbilityTargetDef::exactly_one(
-                                AbilityTargetPredicate::Player(PlayerRelation::Opponent),
-                            )] },
-                            EffectDef::Mill {
-                                player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                                amount: ValueDef::Constant(5),
-                            },
-                        )] }),
-                    ),
-                ] })
+                    )
             },
         ),
     ],
@@ -229,17 +266,53 @@ pub(in crate::card::sets) static JHESSIAN_THIEF: CardRecord = CardRecord::new(
 );
 
 // ORI 90 — Dark Petition
-pub(in crate::card::sets) static DARK_PETITION_90: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static DARK_PETITION: CardRecord = CardRecord::new(
     "Dark Petition",
     "e9df9c5e-7087-42b2-9001-c89d40a66c68",
     "Igor Kieryluk",
-    CardRules::new_sorcery(mana_cost!("{3}{B}{B}")).with_abilities(&[
-AbilityDef::spell("Search your library for a card, put that card into your hand, then shuffle.\nSpell mastery — If there are two or more instant and/or sorcery cards in your graveyard, add {B}{B}{B}.", EffectDef::Sequence(&[EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Library, object: ObjectPredicateDef::Any, minimum: 0, maximum: ValueDef::Constant(1), reveal: false, destination: ZoneKind::Hand, placement: ZonePlacement::Top, shuffle: true, enters_tapped: false, attachment: None, binding: None, then: None }, EffectDef::IfCondition { condition: &TriggerConditionDef::ObjectCount { query: ObjectQueryDef::matching(ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Instant), ObjectPredicateDef::HasType(CardType::Sorcery)]), &[ZoneKind::Graveyard], PlayerRelation::You), comparison: ComparisonDef::GreaterOrEqual, amount: 2 }, then: &EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Black).with_amount(3)) }]))
-]),
+    CardRules::new_sorcery(mana_cost!("{3}{B}{B}")).with_abilities(&[AbilityDef::spell(
+        "Search your library for a card, put that card into your \
+         hand, then shuffle.\nSpell mastery — If there are two or \
+         more instant and/or sorcery cards in your graveyard, add \
+         {B}{B}{B}.",
+        EffectDef::Sequence(&[
+            EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                object: ObjectPredicateDef::Any,
+                minimum: 0,
+                maximum: ValueDef::Constant(1),
+                reveal: false,
+                destination: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+                shuffle: true,
+                enters_tapped: false,
+                attachment: None,
+                binding: None,
+                then: None,
+            },
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::ObjectCount {
+                    query: ObjectQueryDef::matching(
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Instant),
+                            ObjectPredicateDef::HasType(CardType::Sorcery),
+                        ]),
+                        &[ZoneKind::Graveyard],
+                        PlayerRelation::You,
+                    ),
+                    comparison: ComparisonDef::GreaterOrEqual,
+                    amount: 2,
+                },
+                then: &EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Black).with_amount(3)),
+            },
+        ]),
+    )]),
 );
 
 // ORI 92 — Demonic Pact
-// Audit: unsupported — Needs per-incarnation history of previously selected upkeep modes, excluding them from later choices; ordinary modal triggers have no persistent used-mode set.
+// Audit: unsupported — Needs per-incarnation history of previously selected upkeep modes,
+// excluding them from later choices; ordinary modal triggers have no persistent used-mode set.
 pub(in crate::card::sets) static DEMONIC_PACT: CardRecord = CardRecord::new(
     "Demonic Pact",
     "82c04014-91f9-4197-b4b4-f62c4739a5c2",
@@ -248,19 +321,47 @@ pub(in crate::card::sets) static DEMONIC_PACT: CardRecord = CardRecord::new(
 );
 
 // ORI 137 — Chandra's Ignition
-pub(in crate::card::sets) static CHANDRA_S_IGNITION_137: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static CHANDRA_S_IGNITION: CardRecord = CardRecord::new(
     "Chandra's Ignition",
     "7d4c90de-49aa-43ed-a18a-f7f96268e5eb",
     "Eric Deschamps",
     CardRules::new_sorcery(mana_cost!("{3}{R}{R}")).with_abilities(&[
-AbilityDef::spell_with_targets("Target creature you control deals damage equal to its power to each other creature and each opponent.", &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object { object: ObjectPredicateDef::HasType(CardType::Creature), zones: &[ZoneKind::Battlefield], controller: Some(PlayerRelation::You), owner: None })], EffectDef::damage_simultaneously(&[
- crate::card::DamageAssignmentDef::from(ObjectRefDef::Target(TargetIndex::PRIMARY), EffectRecipientDef::objects(crate::card::ObjectSetDef::Query(ObjectQueryDef::matching(ObjectPredicateDef::HasType(CardType::Creature), &[ZoneKind::Battlefield], PlayerRelation::Any).excluding_target(TargetIndex::PRIMARY))), ValueDef::TargetPower(TargetIndex::PRIMARY)),
- crate::card::DamageAssignmentDef::from(ObjectRefDef::Target(TargetIndex::PRIMARY), EffectRecipientDef::Opponent, ValueDef::TargetPower(TargetIndex::PRIMARY)),
-]))]),
+        AbilityDef::spell_with_targets(
+            "Target creature you control deals damage equal to its power \
+             to each other creature and each opponent.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                },
+            )],
+            EffectDef::damage_simultaneously(&[
+                crate::card::DamageAssignmentDef::from(
+                    ObjectRefDef::Target(TargetIndex::PRIMARY),
+                    EffectRecipientDef::objects(crate::card::ObjectSetDef::Query(
+                        ObjectQueryDef::matching(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::Any,
+                        )
+                        .excluding_target(TargetIndex::PRIMARY),
+                    )),
+                    ValueDef::TargetPower(TargetIndex::PRIMARY),
+                ),
+                crate::card::DamageAssignmentDef::from(
+                    ObjectRefDef::Target(TargetIndex::PRIMARY),
+                    EffectRecipientDef::Opponent,
+                    ValueDef::TargetPower(TargetIndex::PRIMARY),
+                ),
+            ]),
+        ),
+    ]),
 );
 
 // ORI 155 — Magmatic Insight
-pub(in crate::card::sets) static MAGMATIC_INSIGHT_155: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static MAGMATIC_INSIGHT: CardRecord = CardRecord::new(
     "Magmatic Insight",
     "f00192e0-439d-43b2-882c-90a2d52103f8",
     "Ryan Barger",
@@ -397,7 +498,7 @@ pub(in crate::card::sets) static DWYNEN_S_ELITE: CardRecord = CardRecord::new(
 );
 
 // ORI 174 — Elemental Bond
-pub(in crate::card::sets) static ELEMENTAL_BOND_174: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static ELEMENTAL_BOND: CardRecord = CardRecord::new(
     "Elemental Bond",
     "554a8769-c840-4c9d-9959-b075c174457b",
     "David Gaillet",
@@ -417,7 +518,9 @@ pub(in crate::card::sets) static ELEMENTAL_BOND_174: CardRecord = CardRecord::ne
 );
 
 // ORI 183 — Joraga Invocation
-// Audit: unsupported — Needs each affected creature to be blocked by at least one creature if able; MustBeBlockedBy requires every matching creature to block, which is a different requirement.
+// Audit: unsupported — Needs each affected creature to be blocked by at least one creature if
+// able; MustBeBlockedBy requires every matching creature to block, which is a different
+// requirement.
 pub(in crate::card::sets) static JORAGA_INVOCATION: CardRecord = CardRecord::new(
     "Joraga Invocation",
     "65c89431-0881-4aa6-ac15-d4c13b075273",
@@ -426,29 +529,83 @@ pub(in crate::card::sets) static JORAGA_INVOCATION: CardRecord = CardRecord::new
 );
 
 // ORI 207 — Woodland Bellower
-pub(in crate::card::sets) static WOODLAND_BELLOWER_207: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static WOODLAND_BELLOWER: CardRecord = CardRecord::new(
     "Woodland Bellower",
     "a706d4bb-0b44-4e43-b340-7de799c086b8",
     "Jasper Sandner",
     CardRules::new_creature(mana_cost!("{4}{G}{G}"), &["Beast"], 6, 5).with_abilities(&[
-abilities::enters_trigger("When this creature enters, you may search your library for a nonlegendary green creature card with mana value 3 or less, put it onto the battlefield, then shuffle.", EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Library, object: ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(CardSupertype::Legendary)), ObjectPredicateDef::Color(ManaColor::Green), ObjectPredicateDef::ManaValueAtMost(3)]), minimum: 0, maximum: ValueDef::Constant(1), reveal: false, destination: ZoneKind::Battlefield, placement: ZonePlacement::Top, shuffle: true, enters_tapped: false, attachment: None, binding: None, then: None })
-]),
+        abilities::enters_trigger(
+            "When this creature enters, you may search your library for \
+             a nonlegendary green creature card with mana value 3 or \
+             less, put it onto the battlefield, then shuffle.",
+            EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(
+                        CardSupertype::Legendary,
+                    )),
+                    ObjectPredicateDef::Color(ManaColor::Green),
+                    ObjectPredicateDef::ManaValueAtMost(3),
+                ]),
+                minimum: 0,
+                maximum: ValueDef::Constant(1),
+                reveal: false,
+                destination: ZoneKind::Battlefield,
+                placement: ZonePlacement::Top,
+                shuffle: true,
+                enters_tapped: false,
+                attachment: None,
+                binding: None,
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // ORI 229 — Hangarback Walker
-pub(in crate::card::sets) static HANGARBACK_WALKER_229: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static HANGARBACK_WALKER: CardRecord = CardRecord::new(
     "Hangarback Walker",
     "791c21fb-fc78-4106-9a42-abc73f41ab8b",
     "Daarken",
     CardRules::new_artifact_creature(mana_cost!("{X}{X}"), &["Construct"], 0, 0).with_abilities(&[
-AbilityDef::as_enters("This creature enters with X +1/+1 counters on it.", ReplacementEffectDef::ModifyBattlefieldEntry(BattlefieldEntryModificationDef::AddCastXCounters { kind: CounterKind::PlusOnePlusOne })),
-abilities::dies_trigger("When this creature dies, create a 1/1 colorless Thopter artifact creature token with flying for each +1/+1 counter on this creature.", EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(crate::card::TokenCharacteristics::artifact_creature(&["Thopter"], &[], 1, 1).with_abilities(&[abilities::flying()]))).with_count(ValueDef::CountersOnSource(CounterKind::PlusOnePlusOne)))),
-AbilityDef::activated("{1}, {T}: Put a +1/+1 counter on this creature.", &[CostDef::Mana(mana_cost!("{1}")), CostDef::TapSource], EffectDef::AddCounters { object: EffectRecipientDef::Source, kind: CounterKind::PlusOnePlusOne, amount: ValueDef::Constant(1) })
-]),
+        AbilityDef::as_enters(
+            "This creature enters with X +1/+1 counters on it.",
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCastXCounters {
+                    kind: CounterKind::PlusOnePlusOne,
+                },
+            ),
+        ),
+        abilities::dies_trigger(
+            "When this creature dies, create a 1/1 colorless Thopter \
+             artifact creature token with flying for each +1/+1 counter \
+             on this creature.",
+            EffectDef::CreateToken(
+                crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(
+                    crate::card::TokenCharacteristics::artifact_creature(&["Thopter"], &[], 1, 1)
+                        .with_abilities(&[abilities::flying()]),
+                ))
+                .with_count(ValueDef::CountersOnSource(CounterKind::PlusOnePlusOne)),
+            ),
+        ),
+        AbilityDef::activated(
+            "{1}, {T}: Put a +1/+1 counter on this creature.",
+            &[CostDef::Mana(mana_cost!("{1}")), CostDef::TapSource],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // ORI 236 — Pyromancer's Goggles
-// Audit: unsupported — Needs a delayed trigger tied to a particular produced mana unit being spent to cast a red instant or sorcery, retaining the cast spell for a copy with optional new targets.
+// Audit: unsupported — Needs a delayed trigger tied to a particular produced mana unit being
+// spent to cast a red instant or sorcery, retaining the cast spell for a copy with optional new
+// targets.
 pub(in crate::card::sets) static PYROMANCER_S_GOGGLES: CardRecord = CardRecord::new(
     "Pyromancer's Goggles",
     "1163ce9f-cf22-422e-a4b5-0240b88e2816",
@@ -461,18 +618,18 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &HARBINGER_OF_THE_TIDES,
     &JACE_VRYN_S_PRODIGY,
     &JHESSIAN_THIEF,
-    &DARK_PETITION_90,
+    &DARK_PETITION,
     &DEMONIC_PACT,
-    &CHANDRA_S_IGNITION_137,
-    &MAGMATIC_INSIGHT_155,
+    &CHANDRA_S_IGNITION,
+    &MAGMATIC_INSIGHT,
     &SKYRAKER_GIANT,
     &CONCLAVE_NATURALISTS,
     &DWYNEN_GILT_LEAF_DAEN,
     &DWYNEN_S_ELITE,
-    &ELEMENTAL_BOND_174,
+    &ELEMENTAL_BOND,
     &JORAGA_INVOCATION,
-    &WOODLAND_BELLOWER_207,
-    &HANGARBACK_WALKER_229,
+    &WOODLAND_BELLOWER,
+    &HANGARBACK_WALKER,
     &PYROMANCER_S_GOGGLES,
 ];
 

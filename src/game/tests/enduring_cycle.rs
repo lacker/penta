@@ -283,7 +283,7 @@ fn innocence_includes_entry_counters_in_its_power_test() {
     let mut game = ready_game();
     put(&mut game, cards::ENDURING_INNOCENCE);
     // Arrival counters already contribute to power when the trigger checks it.
-    let walker = card(80_000, cards::HANGARBACK_WALKER_229, PlayerId::One);
+    let walker = card(80_000, cards::HANGARBACK_WALKER, PlayerId::One);
     game.players[0].graveyard.push(walker.clone());
     game.move_target_to_zone(
         Target::Card(walker.id),

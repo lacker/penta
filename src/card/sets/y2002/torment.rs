@@ -312,13 +312,17 @@ pub(in crate::card::sets) static ALTER_REALITY: CardRecord = CardRecord::new(
     "Justin Sweet",
     CardRules::new_instant(mana_cost!("{1}{U}")).with_abilities(&[
         AbilityDef::spell_with_targets(
-            "Change the text of target spell or permanent by replacing all instances of one color word with another. (This effect lasts indefinitely.)",
-            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
-                object: ObjectPredicateDef::Any,
-                zones: &[ZoneKind::Battlefield, ZoneKind::Stack],
-                controller: None,
-                owner: None,
-            })],
+            "Change the text of target spell or permanent by replacing \
+             all instances of one color word with another. (This effect \
+             lasts indefinitely.)",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Any,
+                    zones: &[ZoneKind::Battlefield, ZoneKind::Stack],
+                    controller: None,
+                    owner: None,
+                },
+            )],
             EffectDef::ChangeText {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 kind: TextChangeKindDef::ColorWord,
@@ -831,7 +835,7 @@ pub(in crate::card::sets) static FACELESS_BUTCHER: CardRecord = CardRecord::new(
     "Faceless Butcher",
     "4073be21-c54a-4eee-9109-f3adfe757c4e",
     "Daren Bader",
-// The exile is not a "may" and not optional: with only its own body on
+    // The exile is not a "may" and not optional: with only its own body on
     // the board the Butcher has to eat something, and killing it hands the
     // creature back.
     CardRules::new_creature(mana_cost!("{2}{B}{B}"), &["Nightmare", "Horror"], 2, 3)
@@ -857,7 +861,8 @@ pub(in crate::card::sets) static FACELESS_BUTCHER: CardRecord = CardRecord::new(
                 },
             ),
             AbilityDef::triggered(
-                "When this creature leaves the battlefield, return the exiled card to the battlefield under its owner's control.",
+                "When this creature leaves the battlefield, return the \
+                 exiled card to the battlefield under its owner's control.",
                 TriggerEventDef::zone_changed(
                     ObjectPredicateDef::Source,
                     Some(ZoneKind::Battlefield),
@@ -916,7 +921,7 @@ pub(in crate::card::sets) static ICHORID: CardRecord = CardRecord::new(
     "Ichorid",
     "97431dca-54ca-47ef-ab00-943140e8e758",
     "rk post",
-CardRules::new_creature(mana_cost!("{3}{B}"), &["Horror"], 3, 1).with_abilities(&[
+    CardRules::new_creature(mana_cost!("{3}{B}"), &["Horror"], 3, 1).with_abilities(&[
         abilities::haste(),
         AbilityDef::triggered(
             "At the beginning of the end step, sacrifice this creature.",
@@ -927,7 +932,10 @@ CardRules::new_creature(mana_cost!("{3}{B}"), &["Horror"], 3, 1).with_abilities(
             EffectDef::sacrifice(EffectRecipientDef::Source),
         ),
         AbilityDef::triggered_if(
-            "At the beginning of your upkeep, if this card is in your graveyard, you may exile a black creature card other than this card from your graveyard. If you do, return this card to the battlefield.",
+            "At the beginning of your upkeep, if this card is in your \
+             graveyard, you may exile a black creature card other than \
+             this card from your graveyard. If you do, return this card \
+             to the battlefield.",
             TriggerEventDef::StepBegins {
                 step: TurnStepDef::Upkeep,
                 player: PlayerRelation::You,
@@ -951,23 +959,21 @@ CardRules::new_creature(mana_cost!("{3}{B}"), &["Horror"], 3, 1).with_abilities(
                 visibility: ChoiceVisibilityDef::Public,
                 then: &EffectDef::IfCondition {
                     condition: &TriggerConditionDef::BoundObjectMatches {
-                            binding: ParentBinding,
-                            object: ObjectPredicateDef::Any,
-                        },
+                        binding: ParentBinding,
+                        object: ObjectPredicateDef::Any,
+                    },
                     then: &EffectDef::Sequence(&[
-                                EffectDef::move_to_zone(
-                                    EffectRecipientDef::object(ObjectRefDef::Binding(
-                                        ParentBinding,
-                                    )),
-                                    ZoneKind::Exile,
-                                    ZonePlacement::Top,
-                                ),
-                                EffectDef::move_to_zone(
-                                    EffectRecipientDef::Source,
-                                    ZoneKind::Battlefield,
-                                    ZonePlacement::Top,
-                                ),
-                            ]),
+                        EffectDef::move_to_zone(
+                            EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
+                            ZoneKind::Exile,
+                            ZonePlacement::Top,
+                        ),
+                        EffectDef::move_to_zone(
+                            EffectRecipientDef::Source,
+                            ZoneKind::Battlefield,
+                            ZonePlacement::Top,
+                        ),
+                    ]),
                 },
             }),
         )
@@ -1438,11 +1444,12 @@ pub(in crate::card::sets) static GRIM_LAVAMANCER: CardRecord = CardRecord::new(
     "Grim Lavamancer",
     "5dd72697-24be-42c7-a6d9-a837bdbd4662",
     "Jim Nelson",
-// The graveyard is the limit: two cards a turn is the rate, and a deck
+    // The graveyard is the limit: two cards a turn is the rate, and a deck
     // that empties its hand quickly is the one that can pay it.
     CardRules::new_creature(mana_cost!("{R}"), &["Human", "Wizard"], 1, 1).with_ability(
         AbilityDef::activated_with_targets(
-            "{R}, {T}, Exile two cards from your graveyard: This creature deals 2 damage to any target.",
+            "{R}, {T}, Exile two cards from your graveyard: This \
+             creature deals 2 damage to any target.",
             &[
                 CostDef::Mana(mana_cost!("{R}")),
                 CostDef::TapSource,
@@ -1606,7 +1613,9 @@ pub(in crate::card::sets) static SKULLSCORCH: CardRecord = CardRecord::new(
 );
 
 // TOR 115 — Sonic Seizure
-// Audit: unsupported — Needs a random discard as a spell additional cost. The shared runtime allows CostDef::DiscardCardsAtRandom on an activated ability but not on a cast; the spell-side allowlist offers only Discard, which lets the caster choose.
+// Audit: unsupported — Needs a random discard as a spell additional cost. The shared runtime
+// allows CostDef::DiscardCardsAtRandom on an activated ability but not on a cast; the
+// spell-side allowlist offers only Discard, which lets the caster choose.
 pub(in crate::card::sets) static SONIC_SEIZURE: CardRecord = CardRecord::new(
     "Sonic Seizure",
     "98eb9371-aa20-4790-baf8-a1ad95de39de",

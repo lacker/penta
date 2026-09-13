@@ -362,7 +362,8 @@ pub(in crate::card::sets) static EXHAUSTION: CardRecord = CardRecord::new(
 );
 
 // POR 55 — Flux
-// Audit: unsupported — Needs APNAP choices of any number of hand cards while preserving each player's discarded count for their draw.
+// Audit: unsupported — Needs APNAP choices of any number of hand cards while preserving each
+// player's discarded count for their draw.
 pub(in crate::card::sets) static FLUX: CardRecord = CardRecord::new(
     "Flux",
     "3c26bf66-8fa8-4f69-9556-c9fcc56a7f33",
@@ -391,7 +392,7 @@ pub(in crate::card::sets) static HORNED_TURTLE: CardRecord = CardRecord::new(
 );
 
 // POR 64 — Personal Tutor
-pub(in crate::card::sets) static PERSONAL_TUTOR_64: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static PERSONAL_TUTOR: CardRecord = CardRecord::new(
     "Personal Tutor",
     "1edc3917-fded-4773-8f8d-62bd861c1131",
     "D. Alexander Gregory",
@@ -529,11 +530,12 @@ pub(in crate::card::sets) static GRAVEDIGGER: CardRecord = CardRecord::new(
     "Gravedigger",
     "b979d70e-d514-420f-886c-f60e2bb1861f",
     "Scott M. Fischer",
-// Four mana for a body and a card, which is why it is the floor every
+    // Four mana for a body and a card, which is why it is the floor every
     // black limited deck is measured against.
     CardRules::new_creature(mana_cost!("{3}{B}"), &["Zombie"], 2, 2).with_ability(
         abilities::enters_trigger_with_targets(
-            "When this creature enters, you may return target creature card from your graveyard to your hand.",
+            "When this creature enters, you may return target creature \
+             card from your graveyard to your hand.",
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Object {
                     object: ObjectPredicateDef::HasType(CardType::Creature),
@@ -650,8 +652,9 @@ pub(in crate::card::sets) static CRAVEN_GIANT: CardRecord = CardRecord::new(
 );
 
 // POR 136 — Last Chance
-// Audit: unsupported — Extra turns are supported, but no delayed-loss trigger can be bound to the specific extra turn this spell creates.
-pub(in crate::card::sets) static LAST_CHANCE_136: CardRecord = CardRecord::new(
+// Audit: unsupported — Extra turns are supported, but no delayed-loss trigger can be bound to
+// the specific extra turn this spell creates.
+pub(in crate::card::sets) static LAST_CHANCE: CardRecord = CardRecord::new(
     "Last Chance",
     "86f2c423-1694-466e-9a7d-4ec99e53578d",
     "Hannibal King",
@@ -796,7 +799,7 @@ pub(in crate::card::sets) static GORILLA_WARRIOR: CardRecord = CardRecord::new(
 );
 
 // POR 172 — Mobilize
-pub(in crate::card::sets) static MOBILIZE_172: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static MOBILIZE: CardRecord = CardRecord::new(
     "Mobilize",
     "9712ecaa-4059-44ba-98b7-07bfe7411b5b",
     "Rebecca Guay",
@@ -920,9 +923,10 @@ pub(in crate::card::sets) static WOOD_ELVES: CardRecord = CardRecord::new(
     "Wood Elves",
     "b7f1fb90-5c85-46a5-802d-248cc0250921",
     "Rebecca Guay",
-CardRules::new_creature(mana_cost!("{2}{G}"), &["Elf", "Scout"], 1, 1).with_ability(
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Elf", "Scout"], 1, 1).with_ability(
         abilities::enters_trigger(
-            "When this creature enters, search your library for a Forest card, put that card onto the battlefield, then shuffle.",
+            "When this creature enters, search your library for a Forest \
+             card, put that card onto the battlefield, then shuffle.",
             EffectDef::SearchZone {
                 player: EffectRecipientDef::Controller,
                 source: ZoneKind::Library,
@@ -966,7 +970,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &FLUX,
     &GIANT_OCTOPUS,
     &HORNED_TURTLE,
-    &PERSONAL_TUTOR_64,
+    &PERSONAL_TUTOR,
     &PHANTOM_WARRIOR,
     &THEFT_OF_DREAMS,
     &TIDAL_SURGE,
@@ -979,7 +983,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &SERPENT_WARRIOR,
     &BLAZE,
     &CRAVEN_GIANT,
-    &LAST_CHANCE_136,
+    &LAST_CHANCE,
     &LAVA_AXE,
     &RAGING_GOBLIN,
     &RAIN_OF_SALT,
@@ -989,7 +993,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &BULL_HIPPO,
     &CHARGING_RHINO,
     &GORILLA_WARRIOR,
-    &MOBILIZE_172,
+    &MOBILIZE,
     &MONSTROUS_GROWTH,
     &NATURAL_SPRING,
     &NEEDLE_STORM,

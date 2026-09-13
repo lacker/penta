@@ -48,13 +48,34 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // C15 11 — Gigantoplasm
-pub(in crate::card::sets) static GIGANTOPLASM_11: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static GIGANTOPLASM: CardRecord = CardRecord::new(
     "Gigantoplasm",
     "27163b43-61e2-495c-b544-55c349eba99c",
     "Kev Walker",
     CardRules::new_creature(mana_cost!("{3}{U}"), &["Shapeshifter"], 0, 0).with_abilities(&[
-AbilityDef::replacement("You may have this creature enter as a copy of any creature on the battlefield, except it has \"{X}: This creature has base power and toughness X/X.\"", ReplacementEffectDef::CopyEntering { object: ObjectPredicateDef::HasType(CardType::Creature), exceptions: CopyExceptionsDef::NONE.with_abilities(&[CopyAbilityDef::Ability(&AbilityDef::activated("{X}: This creature has base power and toughness X/X.", &[CostDef::Mana(mana_cost!("{X}"))], EffectDef::Apply { recipient: EffectRecipientDef::Source, effect: AppliedEffectDef::set_base_power_toughness(ValueDef::ChosenX, ValueDef::ChosenX), duration: ResolvedEffectDurationDef::Permanent }))]) })
-]),
+        AbilityDef::replacement(
+            "You may have this creature enter as a copy of any creature \
+             on the battlefield, except it has \"{X}: This creature has \
+             base power and toughness X/X.\"",
+            ReplacementEffectDef::CopyEntering {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                exceptions: CopyExceptionsDef::NONE.with_abilities(&[CopyAbilityDef::Ability(
+                    &AbilityDef::activated(
+                        "{X}: This creature has base power and toughness X/X.",
+                        &[CostDef::Mana(mana_cost!("{X}"))],
+                        EffectDef::Apply {
+                            recipient: EffectRecipientDef::Source,
+                            effect: AppliedEffectDef::set_base_power_toughness(
+                                ValueDef::ChosenX,
+                                ValueDef::ChosenX,
+                            ),
+                            duration: ResolvedEffectDurationDef::Permanent,
+                        },
+                    ),
+                )]),
+            },
+        ),
+    ]),
 );
 
 // C15 14 — Mystic Confluence
@@ -204,19 +225,55 @@ pub(in crate::card::sets) static CALLER_OF_THE_PACK: CardRecord = CardRecord::ne
 );
 
 // C15 37 — Great Oak Guardian
-pub(in crate::card::sets) static GREAT_OAK_GUARDIAN_37: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static GREAT_OAK_GUARDIAN: CardRecord = CardRecord::new(
     "Great Oak Guardian",
     "be0637cd-ccc4-4314-801d-9f780e5476c2",
     "Steven Belledin",
     CardRules::new_creature(mana_cost!("{5}{G}"), &["Treefolk"], 4, 5).with_abilities(&[
-abilities::flash(),
-abilities::reach(),
-AbilityDef::triggered_with_targets("When this creature enters, creatures target player controls get +2/+2 until end of turn. Untap them.", TriggerEventDef::zone_changed(ObjectPredicateDef::Source, None, Some(ZoneKind::Battlefield)), &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(PlayerRelation::Any))], EffectDef::Sequence(&[EffectDef::Apply { recipient: EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::controlled_by(ObjectPredicateDef::HasType(CardType::Creature), &[ZoneKind::Battlefield], PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY))))), effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(2), ValueDef::Constant(2)), duration: ResolvedEffectDurationDef::UntilEndOfTurn }, EffectDef::Untap { object: EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::controlled_by(ObjectPredicateDef::HasType(CardType::Creature), &[ZoneKind::Battlefield], PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY))))) }]))
-]),
+        abilities::flash(),
+        abilities::reach(),
+        AbilityDef::triggered_with_targets(
+            "When this creature enters, creatures target player controls \
+             get +2/+2 until end of turn. Untap them.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Any),
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                        ObjectQueryDef::controlled_by(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            &[ZoneKind::Battlefield],
+                            PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                        ),
+                    )),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(2),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+                EffectDef::Untap {
+                    object: EffectRecipientDef::objects(ObjectSetDef::Query(
+                        ObjectQueryDef::controlled_by(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            &[ZoneKind::Battlefield],
+                            PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                        ),
+                    )),
+                },
+            ]),
+        ),
+    ]),
 );
 
 // C15 55 — Thought Vessel
-pub(in crate::card::sets) static THOUGHT_VESSEL_55: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static THOUGHT_VESSEL: CardRecord = CardRecord::new(
     "Thought Vessel",
     "e0cd769e-1aaf-458c-849f-3b6ebc7fd8c5",
     "rk post",
@@ -237,7 +294,7 @@ pub(in crate::card::sets) static THOUGHT_VESSEL_55: CardRecord = CardRecord::new
 );
 
 // C15 56 — Command Beacon
-pub(in crate::card::sets) static COMMAND_BEACON_56: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static COMMAND_BEACON: CardRecord = CardRecord::new(
     "Command Beacon",
     "166fa02f-e456-48ca-8ac3-d217afceff4d",
     "Jonas De Ro",
@@ -282,14 +339,14 @@ const NINJA_OF_THE_DEEP_HOURS_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
-    &GIGANTOPLASM_11,
+    &GIGANTOPLASM,
     &MYSTIC_CONFLUENCE,
     &DREAD_SUMMONS,
     &FIERY_CONFLUENCE,
     &CALLER_OF_THE_PACK,
-    &GREAT_OAK_GUARDIAN_37,
-    &THOUGHT_VESSEL_55,
-    &COMMAND_BEACON_56,
+    &GREAT_OAK_GUARDIAN,
+    &THOUGHT_VESSEL,
+    &COMMAND_BEACON,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] =

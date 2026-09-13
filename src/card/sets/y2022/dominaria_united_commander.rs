@@ -43,14 +43,44 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // DMC 8 — The Reaver Cleaver
-pub(in crate::card::sets) static THE_REAVER_CLEAVER_8: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static THE_REAVER_CLEAVER: CardRecord = CardRecord::new(
     "The Reaver Cleaver",
     "5bcd1591-b5b9-49fc-9f2a-45f31ed1871e",
     "Yigit Koroglu",
-    CardRules::new_artifact(mana_cost!("{2}{R}")).with_subtypes(&["Equipment"]).with_supertype(CardSupertype::Legendary).with_abilities(&[
-AbilityDef::static_ability("Equipped creature gets +1/+1 and has trample and \"Whenever this creature deals combat damage to a player or planeswalker, create that many Treasure tokens.\"", EffectDef::StaticApply { recipient: EffectRecipientDef::AttachedPermanent, effect: AppliedEffectDef::Composite(&[AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(1)), AppliedEffectDef::add_ability(&abilities::trample()), AppliedEffectDef::add_ability(&AbilityDef::triggered("Whenever this creature deals combat damage to a player or planeswalker, create that many Treasure tokens.", TriggerEventDef::combat_damage_to_player_or_planeswalker(ObjectPredicateDef::Source), EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(crate::card::tokens::treasure())).with_count(ValueDef::DamageEventAmount))))]) }),
-abilities::equip(&[CostDef::Mana(mana_cost!("{3}"))], "Equip {3}")
-]),
+    CardRules::new_artifact(mana_cost!("{2}{R}"))
+        .with_subtypes(&["Equipment"])
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Equipped creature gets +1/+1 and has trample and \"Whenever \
+                 this creature deals combat damage to a player or \
+                 planeswalker, create that many Treasure tokens.\"",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(1),
+                            ValueDef::Constant(1),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::trample()),
+                        AppliedEffectDef::add_ability(&AbilityDef::triggered(
+                            "Whenever this creature deals combat damage to a player or \
+                             planeswalker, create that many Treasure tokens.",
+                            TriggerEventDef::combat_damage_to_player_or_planeswalker(
+                                ObjectPredicateDef::Source,
+                            ),
+                            EffectDef::CreateToken(
+                                crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(
+                                    crate::card::tokens::treasure(),
+                                ))
+                                .with_count(ValueDef::DamageEventAmount),
+                            ),
+                        )),
+                    ]),
+                },
+            ),
+            abilities::equip(&[CostDef::Mana(mana_cost!("{3}"))], "Equip {3}"),
+        ]),
 );
 
 // DMC 10 — Cadric, Soul Kindler
@@ -58,7 +88,7 @@ pub(in crate::card::sets) static CADRIC_SOUL_KINDLER: CardRecord = CardRecord::n
     "Cadric, Soul Kindler",
     "f82f8cab-5039-4e3a-a2ba-cbf829db80ed",
     "Joseph Weston",
-CardRules::new_creature(mana_cost!("{2}{R}{W}"), &["Dwarf", "Wizard"], 4, 3)
+    CardRules::new_creature(mana_cost!("{2}{R}{W}"), &["Dwarf", "Wizard"], 4, 3)
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
             AbilityDef::static_ability(
@@ -73,7 +103,10 @@ CardRules::new_creature(mana_cost!("{2}{R}{W}"), &["Dwarf", "Wizard"], 4, 3)
                 },
             ),
             AbilityDef::triggered(
-                "Whenever another nontoken legendary permanent you control enters, you may pay {1}. If you do, create a token that's a copy of it. That token gains haste. Sacrifice it at the beginning of the next end step.",
+                "Whenever another nontoken legendary permanent you control \
+                 enters, you may pay {1}. If you do, create a token that's a \
+                 copy of it. That token gains haste. Sacrifice it at the \
+                 beginning of the next end step.",
                 TriggerEventDef::zone_changed(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::Supertype(CardSupertype::Legendary),
@@ -95,20 +128,24 @@ CardRules::new_creature(mana_cost!("{2}{R}{W}"), &["Dwarf", "Wizard"], 4, 3)
                             binding: ParentBinding,
                             then: &EffectDef::Sequence(&[
                                 EffectDef::Apply {
-                                    recipient: EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
+                                    recipient: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                        ParentBinding,
+                                    )),
                                     effect: AppliedEffectDef::add_ability(&abilities::haste()),
                                     duration: ResolvedEffectDurationDef::Permanent,
                                 },
-                                EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
-                                    "Sacrifice it at the beginning of the next end step.",
-                                    TriggerEventDef::StepBegins {
-                                        step: TurnStepDef::End,
-                                        player: PlayerRelation::Any,
-                                    },
-                                    EffectDef::sacrifice(EffectRecipientDef::objects(ObjectSetDef::Binding(
-                                        ParentBinding,
-                                    ))),
-                                ))),
+                                EffectDef::InstallTrigger(InstalledTriggerDef::once(
+                                    &AbilityDef::triggered(
+                                        "Sacrifice it at the beginning of the next end step.",
+                                        TriggerEventDef::StepBegins {
+                                            step: TurnStepDef::End,
+                                            player: PlayerRelation::Any,
+                                        },
+                                        EffectDef::sacrifice(EffectRecipientDef::objects(
+                                            ObjectSetDef::Binding(ParentBinding),
+                                        )),
+                                    ),
+                                )),
                             ]),
                         }),
                     ),
@@ -122,15 +159,16 @@ pub(in crate::card::sets) static TORSTEN_FOUNDER_OF_BENALIA: CardRecord = CardRe
     "Torsten, Founder of Benalia",
     "0783b426-a527-42c1-9271-be28b229e1c6",
     "Volkan Baǵa",
-// Seven mana, and the two halves answer the two ways it goes wrong: it
+    // Seven mana, and the two halves answer the two ways it goes wrong: it
     // refills your hand the turn it lands, and leaves seven bodies behind if
     // somebody kills it.
     CardRules::new_creature(mana_cost!("{5}{G}{W}"), &["Human", "Soldier"], 7, 7)
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
             abilities::enters_trigger(
-                "When Torsten enters, reveal the top seven cards of your library. Put any number of \
-                 creature and/or land cards from among them into your hand and the rest on the bottom of \
+                "When Torsten enters, reveal the top seven cards of your \
+                 library. Put any number of creature and/or land cards from \
+                 among them into your hand and the rest on the bottom of \
                  your library in a random order.",
                 // "Any number", so the choice is real: a land you would rather not draw
                 // later can be left to the bottom, which is the only reason the clause is
@@ -150,9 +188,11 @@ pub(in crate::card::sets) static TORSTEN_FOUNDER_OF_BENALIA: CardRecord = CardRe
                 "When Torsten dies, create seven 1/1 white Soldier creature tokens.",
                 EffectDef::CreateToken(
                     CreateTokenDef::new(TokenDef::Literal(
-                        TokenCharacteristics::creature(&["Soldier"], &[ManaColor::White], 1, 1).with_art(
-                            CardArt::new("8c4b0257-2ca5-4015-9d63-d7cf6e87ab9d", "Justine Cruz"),
-                        ),
+                        TokenCharacteristics::creature(&["Soldier"], &[ManaColor::White], 1, 1)
+                            .with_art(CardArt::new(
+                                "8c4b0257-2ca5-4015-9d63-d7cf6e87ab9d",
+                                "Justine Cruz",
+                            )),
                     ))
                     .with_count(ValueDef::Constant(7)),
                 ),
@@ -161,8 +201,11 @@ pub(in crate::card::sets) static TORSTEN_FOUNDER_OF_BENALIA: CardRecord = CardRe
 );
 
 // DMC 49 — Dihada, Binder of Wills
-// Audit: unsupported — The ultimate must freeze all affected permanents across the control change before granting haste. Ability-grant validation cannot retain battlefield provenance through an ordinary object binding, and re-querying nonlands after the control change can miss permanents whose types changed.
-pub(in crate::card::sets) static DIHADA_BINDER_OF_WILLS_49: CardRecord = CardRecord::new(
+// Audit: unsupported — The ultimate must freeze all affected permanents across the control
+// change before granting haste. Ability-grant validation cannot retain battlefield provenance
+// through an ordinary object binding, and re-querying nonlands after the control change can
+// miss permanents whose types changed.
+pub(in crate::card::sets) static DIHADA_BINDER_OF_WILLS: CardRecord = CardRecord::new(
     "Dihada, Binder of Wills",
     "cea0ea07-6963-4de1-953d-b1ac41d8c6b5",
     "Néstor Ossandón Leal",
@@ -170,8 +213,9 @@ pub(in crate::card::sets) static DIHADA_BINDER_OF_WILLS_49: CardRecord = CardRec
 );
 
 // DMC 93 — Gerrard's Hourglass Pendant
-// Audit: unsupported — The graveyard-return activation needs identities of cards put there from the battlefield during this turn. That turn-scoped zone-change history is not retained.
-pub(in crate::card::sets) static GERRARD_S_HOURGLASS_PENDANT_93: CardRecord = CardRecord::new(
+// Audit: unsupported — The graveyard-return activation needs identities of cards put there from
+// the battlefield during this turn. That turn-scoped zone-change history is not retained.
+pub(in crate::card::sets) static GERRARD_S_HOURGLASS_PENDANT: CardRecord = CardRecord::new(
     "Gerrard's Hourglass Pendant",
     "091135ec-4f4c-432c-bd6c-e7e2fb7561a3",
     "Sam Burley",
@@ -179,11 +223,11 @@ pub(in crate::card::sets) static GERRARD_S_HOURGLASS_PENDANT_93: CardRecord = Ca
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
-    &THE_REAVER_CLEAVER_8,
+    &THE_REAVER_CLEAVER,
     &CADRIC_SOUL_KINDLER,
     &TORSTEN_FOUNDER_OF_BENALIA,
-    &DIHADA_BINDER_OF_WILLS_49,
-    &GERRARD_S_HOURGLASS_PENDANT_93,
+    &DIHADA_BINDER_OF_WILLS,
+    &GERRARD_S_HOURGLASS_PENDANT,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

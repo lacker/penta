@@ -89,7 +89,7 @@ pub(in crate::card::sets) static SPELL_SNARE: CardRecord = CardRecord::new(
 );
 
 // DIS 34 — Tidespout Tyrant
-pub(in crate::card::sets) static TIDESPOUT_TYRANT_34: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static TIDESPOUT_TYRANT: CardRecord = CardRecord::new(
     "Tidespout Tyrant",
     "44865244-2b9f-4734-a4da-49613b23ee4d",
     "Dany Orizio",
@@ -299,12 +299,14 @@ pub(in crate::card::sets) static COILING_ORACLE: CardRecord = CardRecord::new(
     "Coiling Oracle",
     "55a6ba2a-b372-4b15-9a1e-09b41316eab7",
     "Mark Zug",
-// Either a land drop or a card, decided by the top of the library
+    // Either a land drop or a card, decided by the top of the library
     // rather than by its controller -- which is why it is a ramp spell in a
     // land-heavy deck and a cantrip in every other one.
     CardRules::new_creature(mana_cost!("{G}{U}"), &["Snake", "Elf", "Druid"], 1, 1).with_ability(
         abilities::enters_trigger(
-            "When this creature enters, reveal the top card of your library. If it's a land card, put it onto the battlefield. Otherwise, put that card into your hand.",
+            "When this creature enters, reveal the top card of your \
+             library. If it's a land card, put it onto the battlefield. \
+             Otherwise, put that card into your hand.",
             abilities::bind_top_cards_then(
                 PlayerRefDef::EffectController,
                 ValueDef::Constant(1),
@@ -322,23 +324,23 @@ pub(in crate::card::sets) static COILING_ORACLE: CardRecord = CardRecord::new(
                         matching: ORACLE_LAND,
                         remainder: ORACLE_NONLAND,
                         then: &EffectDef::Sequence(&[
-                                EffectDef::MoveObjects(MoveObjectsDef {
-                                    input: ObjectSetDef::Binding(ORACLE_LAND),
-                                    from: Some(ZoneKind::Library),
-                                    zone: ZoneKind::Battlefield,
-                                    placement: ZonePlacement::Top,
-                                    moved: None,
-                                    then: &EffectDef::None,
-                                }),
-                                EffectDef::MoveObjects(MoveObjectsDef {
-                                    input: ObjectSetDef::Binding(ORACLE_NONLAND),
-                                    from: Some(ZoneKind::Library),
-                                    zone: ZoneKind::Hand,
-                                    placement: ZonePlacement::Top,
-                                    moved: None,
-                                    then: &EffectDef::None,
-                                }),
-                            ]),
+                            EffectDef::MoveObjects(MoveObjectsDef {
+                                input: ObjectSetDef::Binding(ORACLE_LAND),
+                                from: Some(ZoneKind::Library),
+                                zone: ZoneKind::Battlefield,
+                                placement: ZonePlacement::Top,
+                                moved: None,
+                                then: &EffectDef::None,
+                            }),
+                            EffectDef::MoveObjects(MoveObjectsDef {
+                                input: ObjectSetDef::Binding(ORACLE_NONLAND),
+                                from: Some(ZoneKind::Library),
+                                zone: ZoneKind::Hand,
+                                placement: ZonePlacement::Top,
+                                moved: None,
+                                then: &EffectDef::None,
+                            }),
+                        ]),
                     }),
                 ]),
             ),
@@ -347,7 +349,7 @@ pub(in crate::card::sets) static COILING_ORACLE: CardRecord = CardRecord::new(
 );
 
 // DIS 112 — Grand Arbiter Augustin IV
-pub(in crate::card::sets) static GRAND_ARBITER_AUGUSTIN_IV_112: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static GRAND_ARBITER_AUGUSTIN_IV: CardRecord = CardRecord::new(
     "Grand Arbiter Augustin IV",
     "a2ac328b-923f-48dd-a4f5-de389ade9125",
     "Zoltan Boros & Gabor Szikszai",
@@ -416,8 +418,9 @@ pub(in crate::card::sets) static TRYGON_PREDATOR: CardRecord = CardRecord::new(
 );
 
 // DIS 162 — Magewright's Stone
-// Audit: unsupported — Ability predicates distinguish activated abilities but cannot inspect whether their activation cost contains the tap symbol.
-pub(in crate::card::sets) static MAGEWRIGHT_S_STONE_162: CardRecord = CardRecord::new(
+// Audit: unsupported — Ability predicates distinguish activated abilities but cannot inspect
+// whether their activation cost contains the tap symbol.
+pub(in crate::card::sets) static MAGEWRIGHT_S_STONE: CardRecord = CardRecord::new(
     "Magewright's Stone",
     "d27e8442-91ce-4106-bfc6-a1f6e0e34c2d",
     "Carl Critchlow",
@@ -425,7 +428,7 @@ pub(in crate::card::sets) static MAGEWRIGHT_S_STONE_162: CardRecord = CardRecord
 );
 
 // DIS 166 — Simic Signet
-pub(in crate::card::sets) static SIMIC_SIGNET_166: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static SIMIC_SIGNET: CardRecord = CardRecord::new(
     "Simic Signet",
     "90107d10-e2aa-4cb7-a000-039f0c581b47",
     "Greg Hildebrandt",
@@ -481,11 +484,17 @@ pub(in crate::card::sets) static GHOST_QUARTER: CardRecord = CardRecord::new(
     "Ghost Quarter",
     "893eb7e4-5d8d-477b-aaa7-fb85ef2a54fc",
     "Heather Hudson",
-CardRules::new_land(&[]).with_abilities(&[
+    CardRules::new_land(&[]).with_abilities(&[
         abilities::tap_for(ManaColor::Colorless),
-        AbilityDef::activated_with_targets("{T}, Sacrifice this land: Destroy target land. Its controller may search their library for a basic land card, put it onto the battlefield, then shuffle.", &[CostDef::TapSource, CostDef::SacrificeSource], &[AbilityTargetDef::exactly_one_permanent(
-            ObjectPredicateDef::HasType(CardType::Land),
-        )], EffectDef::Sequence(&[
+        AbilityDef::activated_with_targets(
+            "{T}, Sacrifice this land: Destroy target land. Its \
+             controller may search their library for a basic land card, \
+             put it onto the battlefield, then shuffle.",
+            &[CostDef::TapSource, CostDef::SacrificeSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Land),
+            )],
+            EffectDef::Sequence(&[
                 EffectDef::Destroy {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     then: None,
@@ -497,25 +506,26 @@ CardRules::new_land(&[]).with_abilities(&[
                 EffectDef::May {
                     player: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
                     effect: &EffectDef::SearchZone {
-                    player: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
-                    source: ZoneKind::Library,
-                    object: ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::HasType(CardType::Land),
-                        ObjectPredicateDef::Supertype(CardSupertype::Basic),
-                    ]),
-                    minimum: 0,
-                    maximum: ValueDef::Constant(1),
-                    reveal: false,
-                    destination: ZoneKind::Battlefield,
-                    placement: ZonePlacement::Top,
-                    shuffle: true,
+                        player: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
+                        source: ZoneKind::Library,
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Land),
+                            ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                        ]),
+                        minimum: 0,
+                        maximum: ValueDef::Constant(1),
+                        reveal: false,
+                        destination: ZoneKind::Battlefield,
+                        placement: ZonePlacement::Top,
+                        shuffle: true,
                         enters_tapped: false,
                         attachment: None,
                         binding: None,
                         then: None,
                     },
                 },
-            ])),
+            ]),
+        ),
     ]),
 );
 
@@ -570,17 +580,17 @@ pub(in crate::card::sets) static SIMIC_GROWTH_CHAMBER: CardRecord = CardRecord::
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &GUARDIAN_OF_THE_GUILDPACT,
     &SPELL_SNARE,
-    &TIDESPOUT_TYRANT_34,
+    &TIDESPOUT_TYRANT,
     &INFERNAL_TUTOR,
     &MACABRE_WALTZ,
     &WITS_END,
     &UTOPIA_SPRAWL,
     &AZORIUS_FIRST_WING,
     &COILING_ORACLE,
-    &GRAND_ARBITER_AUGUSTIN_IV_112,
+    &GRAND_ARBITER_AUGUSTIN_IV,
     &TRYGON_PREDATOR,
-    &MAGEWRIGHT_S_STONE_162,
-    &SIMIC_SIGNET_166,
+    &MAGEWRIGHT_S_STONE,
+    &SIMIC_SIGNET,
     &AZORIUS_CHANCERY,
     &BLOOD_CRYPT,
     &BREEDING_POOL,

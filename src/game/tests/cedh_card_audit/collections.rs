@@ -10,7 +10,7 @@ fn amphibian_downpour_storm_copy_enters_as_an_aura_token_with_its_new_target() {
             .push(creature(125_001, cards::GRIZZLY_BEARS, PlayerId::Two));
         game.battlefield
             .push(creature(125_002, cards::SERRA_ANGEL, PlayerId::Two));
-        let aura = card(125_003, cards::AMPHIBIAN_DOWNPOUR_51, PlayerId::One);
+        let aura = card(125_003, cards::AMPHIBIAN_DOWNPOUR, PlayerId::One);
         game.players[0].hand.push(aura.clone());
         game.add_unrestricted_mana(PlayerId::One, ManaColor::Blue, 3);
         game.apply(
@@ -116,7 +116,7 @@ fn obstinate_gargoyle_distinguishes_controlled_auras_from_any_equipment() {
         game.set_prepared_engine_enabled(prepared);
         let id = GameObjectId(125_020);
         game.battlefield
-            .push(creature(id.0, cards::OBSTINATE_GARGOYLE_195, PlayerId::One));
+            .push(creature(id.0, cards::OBSTINATE_GARGOYLE, PlayerId::One));
         let mut aura = creature(125_021, cards::GIANT_STRENGTH, PlayerId::Two);
         aura.attached_to = Some(id);
         game.battlefield.push(aura);
@@ -155,7 +155,7 @@ fn realmbreaker_borrows_a_milled_land_tapped_and_exiles_every_later_departure() 
             game.set_prepared_engine_enabled(prepared);
             game.battlefield.push(creature(
                 125_030,
-                cards::REALMBREAKER_THE_INVASION_TREE_374,
+                cards::REALMBREAKER_THE_INVASION_TREE,
                 PlayerId::One,
             ));
             game.players[1].library = vec![card(125_031, cards::FOREST, PlayerId::Two)];
@@ -201,7 +201,7 @@ fn savage_order_shuffles_after_a_failed_search() {
             card(125_041, cards::FOREST, PlayerId::One),
             card(125_042, cards::ISLAND, PlayerId::One),
         ];
-        let order = card(125_043, cards::SAVAGE_ORDER_32, PlayerId::One);
+        let order = card(125_043, cards::SAVAGE_ORDER, PlayerId::One);
         game.players[0].hand.push(order.clone());
         game.add_unrestricted_mana(PlayerId::One, ManaColor::Green, 4);
         let action = game
@@ -237,7 +237,7 @@ fn kediss_triggers_for_an_opponent_but_has_no_other_opponent_to_damage() {
         let commander = game.battlefield[0].card.id;
         game.battlefield.push(creature(
             125_050,
-            cards::KEDISS_EMBERCLAW_FAMILIAR_573,
+            cards::KEDISS_EMBERCLAW_FAMILIAR,
             PlayerId::One,
         ));
         game.deal_combat_damage_to_player(commander, PlayerId::One, 1);

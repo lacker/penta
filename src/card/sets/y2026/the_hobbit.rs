@@ -340,7 +340,9 @@ pub(in crate::card::sets) static TROOP_OF_PONIES: CardRecord = CardRecord::new(
 );
 
 // HOB 4 — Belladonna Took
-// Audit: unsupported — Needs per-ability resolution history retained after its source leaves the battlefield; SourceResolutionsThisTurn currently reads only a live permanent, so queued second and third resolutions lose their rewards.
+// Audit: unsupported — Needs per-ability resolution history retained after its source leaves
+// the battlefield; SourceResolutionsThisTurn currently reads only a live permanent, so queued
+// second and third resolutions lose their rewards.
 pub(in crate::card::sets) static BELLADONNA_TOOK: CardRecord = CardRecord::new(
     "Belladonna Took",
     "88f0c189-c9ed-4ea3-ae62-3d8ac6c7fecf",
@@ -349,7 +351,8 @@ pub(in crate::card::sets) static BELLADONNA_TOOK: CardRecord = CardRecord::new(
 );
 
 // HOB 5 — Bilbo's Gambit
-// Audit: unsupported — Needs an optional cast-time gift promise and its give-gift event at resolution, independent of ordinary additional costs.
+// Audit: unsupported — Needs an optional cast-time gift promise and its give-gift event at
+// resolution, independent of ordinary additional costs.
 pub(in crate::card::sets) static BILBO_S_GAMBIT: CardRecord = CardRecord::new(
     "Bilbo's Gambit",
     "45ad01f0-cda8-4931-82bb-cb4949e56ae9",
@@ -453,7 +456,9 @@ pub(in crate::card::sets) static CELEBRATE_THE_MOUNTAIN_KING: CardRecord = CardR
 );
 
 // HOB 8 — Dáin, Lord of the Iron Hills
-// Audit: unsupported — Needs the enduring-story player designation, acquired once when the artifact/legendary/Saga union reaches three and retained after those permanents leave; a live object count does not implement storied.
+// Audit: unsupported — Needs the enduring-story player designation, acquired once when the
+// artifact/legendary/Saga union reaches three and retained after those permanents leave; a live
+// object count does not implement storied.
 pub(in crate::card::sets) static DAIN_LORD_OF_THE_IRON_HILLS: CardRecord = CardRecord::new(
     "Dáin, Lord of the Iron Hills",
     "99d27749-d16c-45e9-accc-6a01351c17f9",
@@ -564,7 +569,9 @@ pub(in crate::card::sets) static EAGLE_OF_THE_GREAT_SHELF: CardRecord = CardReco
 );
 
 // HOB 12 — The Eagles Are Coming!
-// Audit: unsupported — Needs target cardinality conditional on paying kicker: exactly one un-kicked, but zero through any number when kicked. Current target counts cannot change both minimum and maximum from an optional cast-cost choice.
+// Audit: unsupported — Needs target cardinality conditional on paying kicker: exactly one
+// un-kicked, but zero through any number when kicked. Current target counts cannot change both
+// minimum and maximum from an optional cast-cost choice.
 pub(in crate::card::sets) static THE_EAGLES_ARE_COMING: CardRecord = CardRecord::new(
     "The Eagles Are Coming!",
     "0bda1b62-47fc-42c2-a841-ccad8ea0db48",
@@ -620,7 +627,9 @@ pub(in crate::card::sets) static ESGAROTH_GARRISON: CardRecord = CardRecord::new
 );
 
 // HOB 14 — Fíli the Pathfinder
-// Audit: unsupported — Needs the enduring-story player designation, acquired once when the artifact/legendary/Saga union reaches three and retained after those permanents leave; a live object count does not implement storied.
+// Audit: unsupported — Needs the enduring-story player designation, acquired once when the
+// artifact/legendary/Saga union reaches three and retained after those permanents leave; a live
+// object count does not implement storied.
 pub(in crate::card::sets) static FILI_THE_PATHFINDER: CardRecord = CardRecord::new(
     "Fíli the Pathfinder",
     "b02142f3-5e55-40dc-a02c-9113fb7d763c",
@@ -695,7 +704,9 @@ pub(in crate::card::sets) static IRON_HILLS_BLACKSMITH: CardRecord = CardRecord:
 );
 
 // HOB 17 — Kíli the Resourceful
-// Audit: unsupported — Needs the enduring-story player designation, acquired once when the artifact/legendary/Saga union reaches three and retained after those permanents leave; a live object count does not implement storied.
+// Audit: unsupported — Needs the enduring-story player designation, acquired once when the
+// artifact/legendary/Saga union reaches three and retained after those permanents leave; a live
+// object count does not implement storied.
 pub(in crate::card::sets) static KILI_THE_RESOURCEFUL: CardRecord = CardRecord::new(
     "Kíli the Resourceful",
     "1805532f-6d99-47d0-9529-5f5831a7fdc8",
@@ -782,7 +793,8 @@ pub(in crate::card::sets) static LAKE_TOWN_TOYMAKER: CardRecord = CardRecord::ne
 );
 
 // HOB 20 — Magnificent End
-// Audit: unsupported — Needs a self-cost reduction that can inspect whether the chosen creature target is tapped; the current self-cost evaluator cannot read target characteristics.
+// Audit: unsupported — Needs a self-cost reduction that can inspect whether the chosen creature
+// target is tapped; the current self-cost evaluator cannot read target characteristics.
 pub(in crate::card::sets) static MAGNIFICENT_END: CardRecord = CardRecord::new(
     "Magnificent End",
     "430c8916-1167-400b-9cad-d301f59d5e5d",
@@ -912,7 +924,9 @@ pub(in crate::card::sets) static THE_MOUNTAIN_KING_S_RETURN: CardRecord = CardRe
 );
 
 // HOB 23 — Ori, Keeper of Songs
-// Audit: unsupported — Needs the enduring-story player designation, acquired once when the artifact/legendary/Saga union reaches three and retained after those permanents leave; a live object count does not implement storied.
+// Audit: unsupported — Needs the enduring-story player designation, acquired once when the
+// artifact/legendary/Saga union reaches three and retained after those permanents leave; a live
+// object count does not implement storied.
 pub(in crate::card::sets) static ORI_KEEPER_OF_SONGS: CardRecord = CardRecord::new(
     "Ori, Keeper of Songs",
     "c5727af5-a487-4b16-8278-81c3c928c417",
@@ -971,7 +985,8 @@ pub(in crate::card::sets) static THE_QUEEN_OF_DALE: CardRecord = CardRecord::new
 );
 
 // HOB 25 — Roads Go Ever, Ever On
-// Audit: unsupported — Needs a source-independent installed trigger that chooses a new creature target for each attack this turn; installed triggers currently require an empty target list.
+// Audit: unsupported — Needs a source-independent installed trigger that chooses a new creature
+// target for each attack this turn; installed triggers currently require an empty target list.
 pub(in crate::card::sets) static ROADS_GO_EVER_EVER_ON: CardRecord = CardRecord::new(
     "Roads Go Ever, Ever On",
     "b3c1ebd6-967f-4b8c-8f1f-442ce8c1da24",
@@ -1159,7 +1174,9 @@ pub(in crate::card::sets) static VELVETWING_BUTTERFLIES: CardRecord = CardRecord
 });
 
 // HOB 31 — Vow to Erebor
-// Audit: unsupported — Needs a general attachment move between a chosen Equipment and a separately targeted host; current Attach and AttachToSource always use the resolving ability source as one endpoint.
+// Audit: unsupported — Needs a general attachment move between a chosen Equipment and a
+// separately targeted host; current Attach and AttachToSource always use the resolving ability
+// source as one endpoint.
 pub(in crate::card::sets) static VOW_TO_EREBOR: CardRecord = CardRecord::new(
     "Vow to Erebor",
     "8d4f3eb5-fedf-45d6-8bd8-aacbe0ce33b2",
@@ -1168,7 +1185,9 @@ pub(in crate::card::sets) static VOW_TO_EREBOR: CardRecord = CardRecord::new(
 );
 
 // HOB 32 — Bilbo, Luckwearer // Burglar's Plot
-// Audit: unsupported — Needs two targets constrained to share a card type when chosen and rechecked on resolution; the existing atomic ExchangeControl effect does not supply that cross-target legality predicate.
+// Audit: unsupported — Needs two targets constrained to share a card type when chosen and
+// rechecked on resolution; the existing atomic ExchangeControl effect does not supply that
+// cross-target legality predicate.
 pub(in crate::card::sets) static BILBO_LUCKWEARER: CardRecord = CardRecord::new(
     "Bilbo, Luckwearer // Burglar's Plot",
     "8bff0aa6-16d9-4c83-b598-ef00a3b33d2c",
@@ -1177,7 +1196,9 @@ pub(in crate::card::sets) static BILBO_LUCKWEARER: CardRecord = CardRecord::new(
 );
 
 // HOB 33 — Bilbo, Thief in the Night
-// Audit: unsupported — Needs an immediate optional graveyard cast at its ordinary mana cost, with an exile-instead-of-graveyard rider limited to instant and sorcery spells cast through that permission.
+// Audit: unsupported — Needs an immediate optional graveyard cast at its ordinary mana cost,
+// with an exile-instead-of-graveyard rider limited to instant and sorcery spells cast through
+// that permission.
 pub(in crate::card::sets) static BILBO_THIEF_IN_THE_NIGHT: CardRecord = CardRecord::new(
     "Bilbo, Thief in the Night",
     "484c7f83-8339-4ae1-8350-68ce1f7d05a3",
@@ -1256,7 +1277,9 @@ pub(in crate::card::sets) static CONFUSTICATE_AND_BEBOTHER: CardRecord = CardRec
 );
 
 // HOB 36 — Elrond, Moon-Reader
-// Audit: unsupported — Needs an ability-activation event matching the source creature, including immediate mana abilities; stack target-selection and cast events cannot represent all activations.
+// Audit: unsupported — Needs an ability-activation event matching the source creature,
+// including immediate mana abilities; stack target-selection and cast events cannot represent
+// all activations.
 pub(in crate::card::sets) static ELROND_MOON_READER: CardRecord = CardRecord::new(
     "Elrond, Moon-Reader",
     "fbcb310c-be73-46f8-8e65-8632454ccc6e",
@@ -1578,7 +1601,8 @@ pub(in crate::card::sets) static LONG_LAKE_NUISANCE: CardRecord = CardRecord::ne
 );
 
 // HOB 46 — The Lord of the Eagles
-// Audit: unsupported — Needs a self-cost reduction by the aggregate power of controlled flying creatures; the cost-value evaluator does not support ObjectValueAggregate.
+// Audit: unsupported — Needs a self-cost reduction by the aggregate power of controlled flying
+// creatures; the cost-value evaluator does not support ObjectValueAggregate.
 pub(in crate::card::sets) static THE_LORD_OF_THE_EAGLES: CardRecord = CardRecord::new(
     "The Lord of the Eagles",
     "fa0554fc-9448-4ae2-8712-4f4f7af3c7b4",
@@ -1863,7 +1887,9 @@ pub(in crate::card::sets) static RAVENHILL_FLOCK: CardRecord = CardRecord::new(
 );
 
 // HOB 53 — Riddles in the Dark
-// Audit: unsupported — Needs an opponent pile choice presenting one revealed pile and one concealed pile with distinct visibility; current ChooseGroup uses a single visibility policy for both groups.
+// Audit: unsupported — Needs an opponent pile choice presenting one revealed pile and one
+// concealed pile with distinct visibility; current ChooseGroup uses a single visibility policy
+// for both groups.
 pub(in crate::card::sets) static RIDDLES_IN_THE_DARK: CardRecord = CardRecord::new(
     "Riddles in the Dark",
     "a6129286-7437-4ba4-be55-586a22cd67ca",
@@ -2019,7 +2045,9 @@ pub(in crate::card::sets) static SOUND_THE_TRUMPETS: CardRecord = CardRecord::ne
 );
 
 // HOB 56 — Thranduil's Decree
-// Audit: unsupported — Needs a free-cast permission on a bound countered-and-exiled card lasting while it remains exiled; FreePlay currently supports only the resolving instruction or the current turn.
+// Audit: unsupported — Needs a free-cast permission on a bound countered-and-exiled card
+// lasting while it remains exiled; FreePlay currently supports only the resolving instruction
+// or the current turn.
 pub(in crate::card::sets) static THRANDUIL_S_DECREE: CardRecord = CardRecord::new(
     "Thranduil's Decree",
     "e4ded4c1-0e3e-47c5-8fdc-e7c187f68b12",
@@ -2028,7 +2056,8 @@ pub(in crate::card::sets) static THRANDUIL_S_DECREE: CardRecord = CardRecord::ne
 );
 
 // HOB 57 — Uncover the Moon-Letters
-// Audit: unsupported — Needs the triggering spell's actual mana-paid total, retained as a cast receipt and exposed as an effect value.
+// Audit: unsupported — Needs the triggering spell's actual mana-paid total, retained as a cast
+// receipt and exposed as an effect value.
 pub(in crate::card::sets) static UNCOVER_THE_MOON_LETTERS: CardRecord = CardRecord::new(
     "Uncover the Moon-Letters",
     "79edf5f6-f6b6-4271-bd2a-14a980f30616",
@@ -2037,7 +2066,8 @@ pub(in crate::card::sets) static UNCOVER_THE_MOON_LETTERS: CardRecord = CardReco
 );
 
 // HOB 58 — Uneasy Partings
-// Audit: unsupported — Needs a self-cost reduction based on chosen target characteristics (attacking and nontoken); current self-cost values have no chosen-target context.
+// Audit: unsupported — Needs a self-cost reduction based on chosen target characteristics
+// (attacking and nontoken); current self-cost values have no chosen-target context.
 pub(in crate::card::sets) static UNEASY_PARTINGS: CardRecord = CardRecord::new(
     "Uneasy Partings",
     "e49866d4-966a-40f9-b08d-18e5af6d726b",
@@ -2046,7 +2076,9 @@ pub(in crate::card::sets) static UNEASY_PARTINGS: CardRecord = CardRecord::new(
 );
 
 // HOB 59 — Wizard's Staff
-// Audit: unsupported — Needs an additional-trigger modifier for every triggered ability of the equipped creature; the existing modifier is limited to triggers caused by battlefield entries.
+// Audit: unsupported — Needs an additional-trigger modifier for every triggered ability of the
+// equipped creature; the existing modifier is limited to triggers caused by battlefield
+// entries.
 pub(in crate::card::sets) static WIZARD_S_STAFF: CardRecord = CardRecord::new(
     "Wizard's Staff",
     "0de529a7-bdc5-4581-a169-1ad123bc099a",
@@ -2055,7 +2087,9 @@ pub(in crate::card::sets) static WIZARD_S_STAFF: CardRecord = CardRecord::new(
 );
 
 // HOB 60 — Along the Crooked Way
-// Audit: unsupported — Needs per-card graveyard-departure events for all destinations, including hand and exile. The engine records a per-turn graveyard-departure flag but publishes ordinary zone-change triggers only for some destinations.
+// Audit: unsupported — Needs per-card graveyard-departure events for all destinations,
+// including hand and exile. The engine records a per-turn graveyard-departure flag but
+// publishes ordinary zone-change triggers only for some destinations.
 pub(in crate::card::sets) static ALONG_THE_CROOKED_WAY: CardRecord = CardRecord::new(
     "Along the Crooked Way",
     "3696d65c-fffd-4685-bb2d-e8769bf476e3",
@@ -2064,7 +2098,9 @@ pub(in crate::card::sets) static ALONG_THE_CROOKED_WAY: CardRecord = CardRecord:
 );
 
 // HOB 61 — Azog, Moria's Ruin
-// Audit: unsupported — Needs a frozen amass amount from the targeted creature's power before creating or choosing an Army. The target can survive destruction, so rereading its power after Army creation can change X.
+// Audit: unsupported — Needs a frozen amass amount from the targeted creature's power before
+// creating or choosing an Army. The target can survive destruction, so rereading its power
+// after Army creation can change X.
 pub(in crate::card::sets) static AZOG_MORIA_S_RUIN: CardRecord = CardRecord::new(
     "Azog, Moria's Ruin",
     "135da718-affc-46ba-be57-c12c23b54dad",
@@ -2446,7 +2482,9 @@ pub(in crate::card::sets) static GNASHING_OF_TEETH: CardRecord = CardRecord::new
 );
 
 // HOB 70 — Gollum, Riddle Master
-// Audit: unsupported — Needs a durable odd/even entry choice and per-source history of exhausted triggered modes; current modal triggers cannot exclude modes chosen by earlier resolutions.
+// Audit: unsupported — Needs a durable odd/even entry choice and per-source history of
+// exhausted triggered modes; current modal triggers cannot exclude modes chosen by earlier
+// resolutions.
 pub(in crate::card::sets) static GOLLUM_RIDDLE_MASTER: CardRecord = CardRecord::new(
     "Gollum, Riddle Master",
     "bbdc7e37-c65a-497a-92b7-a30a6e369c71",
@@ -2503,7 +2541,8 @@ pub(in crate::card::sets) static GOLLUM_SILENT_SLINKER: CardRecord = CardRecord:
 });
 
 // HOB 72 — Gollum the Abandoned
-// Audit: unsupported — Needs a graveyard activation that pays an artifact-or-creature sacrifice cost; the graveyard activation payer does not support sacrifice-permanent costs.
+// Audit: unsupported — Needs a graveyard activation that pays an artifact-or-creature sacrifice
+// cost; the graveyard activation payer does not support sacrifice-permanent costs.
 pub(in crate::card::sets) static GOLLUM_THE_ABANDONED: CardRecord = CardRecord::new(
     "Gollum the Abandoned",
     "50d91ef3-6f5d-4255-8d47-be731b5dad30",
@@ -2621,7 +2660,9 @@ pub(in crate::card::sets) static GREAT_UGLY_LOOKING_GOBLIN: CardRecord = CardRec
 });
 
 // HOB 75 — Head of the Hunt
-// Audit: unsupported — Needs a source-independent reflexive trigger emitted when the death replacement actually exiles a creature; creating the Wolf inside the replacement would have the wrong timing.
+// Audit: unsupported — Needs a source-independent reflexive trigger emitted when the death
+// replacement actually exiles a creature; creating the Wolf inside the replacement would have
+// the wrong timing.
 pub(in crate::card::sets) static HEAD_OF_THE_HUNT: CardRecord = CardRecord::new(
     "Head of the Hunt",
     "3ffe34d4-72f4-4562-a948-8909b9321e59",
@@ -2630,7 +2671,8 @@ pub(in crate::card::sets) static HEAD_OF_THE_HUNT: CardRecord = CardRecord::new(
 );
 
 // HOB 76 — Inside Information
-// Audit: unsupported — Needs a persistent exile play permission with a life payment equal to each chosen spell's mana value as its alternative cast cost.
+// Audit: unsupported — Needs a persistent exile play permission with a life payment equal to
+// each chosen spell's mana value as its alternative cast cost.
 pub(in crate::card::sets) static INSIDE_INFORMATION: CardRecord = CardRecord::new(
     "Inside Information",
     "9763bd56-fa4b-4907-ad15-c3f040c5fc0a",
@@ -2639,7 +2681,9 @@ pub(in crate::card::sets) static INSIDE_INFORMATION: CardRecord = CardRecord::ne
 );
 
 // HOB 77 — The Master of Lake-town
-// Audit: unsupported — Needs a life-loss event carrying the affected player and actual lost amount, including damage and life payments; current life-gain and damage events do not cover all life loss.
+// Audit: unsupported — Needs a life-loss event carrying the affected player and actual lost
+// amount, including damage and life payments; current life-gain and damage events do not cover
+// all life loss.
 pub(in crate::card::sets) static THE_MASTER_OF_LAKE_TOWN: CardRecord = CardRecord::new(
     "The Master of Lake-town",
     "3788ada6-34a9-41af-a31c-2d090550e503",
@@ -3041,7 +3085,9 @@ pub(in crate::card::sets) static STONY_VOICED_GOBLINS: CardRecord = CardRecord::
 );
 
 // HOB 86 — Supper for Spiders
-// Audit: unsupported — Needs noncopiable Food artifact/type/ability changes on the prospective returning cards before they enter, together with battlefield-to-graveyard-this-turn identity history.
+// Audit: unsupported — Needs noncopiable Food artifact/type/ability changes on the prospective
+// returning cards before they enter, together with battlefield-to-graveyard-this-turn identity
+// history.
 pub(in crate::card::sets) static SUPPER_FOR_SPIDERS: CardRecord = CardRecord::new(
     "Supper for Spiders",
     "5b25e454-06bb-43ca-9a9f-57164f7a70c4",
@@ -3050,7 +3096,9 @@ pub(in crate::card::sets) static SUPPER_FOR_SPIDERS: CardRecord = CardRecord::ne
 );
 
 // HOB 87 — Balin, Loremaster
-// Audit: unsupported — Needs the enduring-story player designation, acquired once when the artifact/legendary/Saga union reaches three and retained after those permanents leave; a live object count does not implement storied.
+// Audit: unsupported — Needs the enduring-story player designation, acquired once when the
+// artifact/legendary/Saga union reaches three and retained after those permanents leave; a live
+// object count does not implement storied.
 pub(in crate::card::sets) static BALIN_LOREMASTER: CardRecord = CardRecord::new(
     "Balin, Loremaster",
     "42d7ca7b-c983-40fd-ad57-59f6972bb375",
@@ -3059,7 +3107,9 @@ pub(in crate::card::sets) static BALIN_LOREMASTER: CardRecord = CardRecord::new(
 );
 
 // HOB 88 — Bombur, Gentle Dreamer
-// Audit: unsupported — Needs the enduring-story player designation, acquired once when the artifact/legendary/Saga union reaches three and retained after those permanents leave; a live object count does not implement storied.
+// Audit: unsupported — Needs the enduring-story player designation, acquired once when the
+// artifact/legendary/Saga union reaches three and retained after those permanents leave; a live
+// object count does not implement storied.
 pub(in crate::card::sets) static BOMBUR_GENTLE_DREAMER: CardRecord = CardRecord::new(
     "Bombur, Gentle Dreamer",
     "63c317e7-432c-4817-8db4-3670a1d84be3",
@@ -3189,7 +3239,8 @@ pub(in crate::card::sets) static BURN_BURN_TREE_AND_FERN: CardRecord = CardRecor
 );
 
 // HOB 91 — Dáin Ironfoot
-// Audit: unsupported — Needs a reflexive trigger after token creation, choosing the attachment target after the Axe token exists and retaining it if the source leaves.
+// Audit: unsupported — Needs a reflexive trigger after token creation, choosing the attachment
+// target after the Axe token exists and retaining it if the source leaves.
 pub(in crate::card::sets) static DAIN_IRONFOOT: CardRecord = CardRecord::new(
     "Dáin Ironfoot",
     "7112e460-9160-4535-ad94-93f1f4ac04cf",
@@ -3198,7 +3249,9 @@ pub(in crate::card::sets) static DAIN_IRONFOOT: CardRecord = CardRecord::new(
 );
 
 // HOB 92 — Desert Were-Worm
-// Audit: unsupported — Needs the attack-event condition reader to sum attacking creatures' power before applying the first-qualifying-trigger limit; AggregateObjectValues is evaluated during resolution but not when this trigger is captured.
+// Audit: unsupported — Needs the attack-event condition reader to sum attacking creatures'
+// power before applying the first-qualifying-trigger limit; AggregateObjectValues is evaluated
+// during resolution but not when this trigger is captured.
 pub(in crate::card::sets) static DESERT_WERE_WORM: CardRecord = CardRecord::new(
     "Desert Were-Worm",
     "fc12c22a-11ff-4fb0-bc42-dd8490b8efb7",
@@ -3262,7 +3315,8 @@ pub(in crate::card::sets) static DORI_BEARER_OF_FRIENDS: CardRecord = CardRecord
 );
 
 // HOB 95 — Dwarven Mauler
-// Audit: unsupported — Needs equip-cost reduction based on the activation's chosen target; the current ability-cost modifier matches the ability source, not its recipient.
+// Audit: unsupported — Needs equip-cost reduction based on the activation's chosen target; the
+// current ability-cost modifier matches the ability source, not its recipient.
 pub(in crate::card::sets) static DWARVEN_MAULER: CardRecord = CardRecord::new(
     "Dwarven Mauler",
     "bd0f0415-43af-4f5d-8999-853c5d42780d",
@@ -3271,7 +3325,9 @@ pub(in crate::card::sets) static DWARVEN_MAULER: CardRecord = CardRecord::new(
 );
 
 // HOB 96 — Gandalf, Goblins' Bane // Flameshape
-// Audit: unsupported — Needs a face-down exile play permission gated dynamically on controlling a Wizard and lasting while each card remains exiled; current exile permissions do not carry such conditions.
+// Audit: unsupported — Needs a face-down exile play permission gated dynamically on controlling
+// a Wizard and lasting while each card remains exiled; current exile permissions do not carry
+// such conditions.
 pub(in crate::card::sets) static GANDALF_GOBLINS_BANE: CardRecord = CardRecord::new(
     "Gandalf, Goblins' Bane // Flameshape",
     "9b0d29a1-7da9-4fb3-8536-8ff8d8acae0b",
@@ -3306,7 +3362,9 @@ pub(in crate::card::sets) static GANDALF_SPARK_STARTER: CardRecord = CardRecord:
 );
 
 // HOB 98 — Getaway Barrel
-// Audit: unsupported — Needs selecting the first member of a randomized matching-card collection without a player choice; current RandomizeObjectOrder can bind the shuffled group but cannot project its first member.
+// Audit: unsupported — Needs selecting the first member of a randomized matching-card
+// collection without a player choice; current RandomizeObjectOrder can bind the shuffled group
+// but cannot project its first member.
 pub(in crate::card::sets) static GETAWAY_BARREL: CardRecord = CardRecord::new(
     "Getaway Barrel",
     "e4819aa6-5d28-4a37-942d-89523e30c4e1",
@@ -3417,7 +3475,9 @@ pub(in crate::card::sets) static GOBLIN_TOWN_FLUNKIES: CardRecord = CardRecord::
 );
 
 // HOB 101 — Gundabad Opportunist
-// Audit: unsupported — Needs an exile play permission that expires at the end of the controller's next turn; the existing next-turn permission expires after a later opponent turn.
+// Audit: unsupported — Needs an exile play permission that expires at the end of the
+// controller's next turn; the existing next-turn permission expires after a later opponent
+// turn.
 pub(in crate::card::sets) static GUNDABAD_OPPORTUNIST: CardRecord = CardRecord::new(
     "Gundabad Opportunist",
     "bc4a60b8-a5bb-4dbf-8d48-95caf757eac3",
@@ -3426,7 +3486,8 @@ pub(in crate::card::sets) static GUNDABAD_OPPORTUNIST: CardRecord = CardRecord::
 );
 
 // HOB 102 — Iron Hills Stalwart
-// Audit: unsupported — Needs a general attachment move between two target slots; current Attach and AttachToSource always use the resolving ability source as one endpoint.
+// Audit: unsupported — Needs a general attachment move between two target slots; current Attach
+// and AttachToSource always use the resolving ability source as one endpoint.
 pub(in crate::card::sets) static IRON_HILLS_STALWART: CardRecord = CardRecord::new(
     "Iron Hills Stalwart",
     "46daa9ac-0ac7-4df9-b9d2-e03ab5b56c72",
@@ -3435,7 +3496,9 @@ pub(in crate::card::sets) static IRON_HILLS_STALWART: CardRecord = CardRecord::n
 );
 
 // HOB 103 — Last Light of Durin's Day
-// Audit: unsupported — Needs a single search over any chosen subset of hand and library, preserving whether the library was actually searched for the conditional shuffle; current searches have one fixed source.
+// Audit: unsupported — Needs a single search over any chosen subset of hand and library,
+// preserving whether the library was actually searched for the conditional shuffle; current
+// searches have one fixed source.
 pub(in crate::card::sets) static LAST_LIGHT_OF_DURIN_S_DAY: CardRecord = CardRecord::new(
     "Last Light of Durin's Day",
     "df29484b-de4b-4bab-995a-7605745780d9",
@@ -3738,7 +3801,9 @@ pub(in crate::card::sets) static MISTY_MOUNTAINS_RAIDER: CardRecord = CardRecord
 );
 
 // HOB 106 — Óin the Brave
-// Audit: unsupported — Needs the enduring-story player designation, acquired once when the artifact/legendary/Saga union reaches three and retained after those permanents leave; a live object count does not implement storied.
+// Audit: unsupported — Needs the enduring-story player designation, acquired once when the
+// artifact/legendary/Saga union reaches three and retained after those permanents leave; a live
+// object count does not implement storied.
 pub(in crate::card::sets) static OIN_THE_BRAVE: CardRecord = CardRecord::new(
     "Óin the Brave",
     "9984b9ef-e81c-48f4-aa33-0504171a2d3c",
@@ -3916,7 +3981,9 @@ pub(in crate::card::sets) static SMAUG_S_FURY: CardRecord = CardRecord::new(
 );
 
 // HOB 112 — Snowslope Hunter
-// Audit: unsupported — Needs an exile play permission that expires at the end of the controller's next turn; the existing next-turn permission expires after a later opponent turn.
+// Audit: unsupported — Needs an exile play permission that expires at the end of the
+// controller's next turn; the existing next-turn permission expires after a later opponent
+// turn.
 pub(in crate::card::sets) static SNOWSLOPE_HUNTER: CardRecord = CardRecord::new(
     "Snowslope Hunter",
     "47666099-ffb2-4d07-a801-70524dba0837",
@@ -3967,7 +4034,8 @@ pub(in crate::card::sets) static STONE_GIANT_OF_HIGH_PASS: CardRecord = CardReco
 );
 
 // HOB 114 — Thorin, Mountain-king
-// Audit: unsupported — Needs a source-independent reflexive trigger after one or more Equipment successfully attach, with its damage target chosen after those attachment moves.
+// Audit: unsupported — Needs a source-independent reflexive trigger after one or more Equipment
+// successfully attach, with its damage target chosen after those attachment moves.
 pub(in crate::card::sets) static THORIN_MOUNTAIN_KING: CardRecord = CardRecord::new(
     "Thorin, Mountain-king",
     "117347af-0dd7-4350-901d-8c8a81387e22",
@@ -4164,7 +4232,9 @@ pub(in crate::card::sets) static BEJEWELED_WARG: CardRecord = CardRecord::new(
 );
 
 // HOB 118 — Beorn, Reluctant Host // Till and Tend
-// Audit: unsupported — Needs a temporary additional-land-play allowance for Till and Tend; MayPlayAdditionalLands currently works only as a static rule on a permanent, so neither Adventure face is enabled.
+// Audit: unsupported — Needs a temporary additional-land-play allowance for Till and Tend;
+// MayPlayAdditionalLands currently works only as a static rule on a permanent, so neither
+// Adventure face is enabled.
 pub(in crate::card::sets) static BEORN_RELUCTANT_HOST: CardRecord = CardRecord::new(
     "Beorn, Reluctant Host // Till and Tend",
     "804589b7-3ef9-473d-97cc-c61a2d41f70d",
@@ -4254,7 +4324,9 @@ pub(in crate::card::sets) static BEORN_THE_FIERCE: CardRecord = CardRecord::new(
 );
 
 // HOB 120 — Beorn's Hospitality
-// Audit: unsupported — Needs a resolving effect that grants an executable characteristic-defining static ability; permanent animation can set fixed base power and toughness, but cannot grant the continually updated land-count definition.
+// Audit: unsupported — Needs a resolving effect that grants an executable
+// characteristic-defining static ability; permanent animation can set fixed base power and
+// toughness, but cannot grant the continually updated land-count definition.
 pub(in crate::card::sets) static BEORN_S_HOSPITALITY: CardRecord = CardRecord::new(
     "Beorn's Hospitality",
     "153ca57e-30f0-4ad7-ae9d-c55cbf0fd4c9",
@@ -4912,7 +4984,9 @@ pub(in crate::card::sets) static QUARREL: CardRecord = CardRecord::new(
 );
 
 // HOB 136 — Radagast of Rhosgobel
-// Audit: unsupported — Needs a battlefield spell-cost modifier conditioned on having cast no creature spells this turn; cost modifiers ignore enclosing IfCondition and their amount reader cannot evaluate that conditional history.
+// Audit: unsupported — Needs a battlefield spell-cost modifier conditioned on having cast no
+// creature spells this turn; cost modifiers ignore enclosing IfCondition and their amount
+// reader cannot evaluate that conditional history.
 pub(in crate::card::sets) static RADAGAST_OF_RHOSGOBEL: CardRecord = CardRecord::new(
     "Radagast of Rhosgobel",
     "5741bbad-a6e4-45e0-b827-73f48c9975bf",
@@ -5163,7 +5237,9 @@ const WOOD_ELVES_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // HOB 143 — Woodland Weavemaster
-// Audit: unsupported — Needs a single mana permission allowing either Elf spell casts or Elf-source activations; current restriction lists are conjunctions, so combining CastSpell and ActivateAbility permits neither use.
+// Audit: unsupported — Needs a single mana permission allowing either Elf spell casts or
+// Elf-source activations; current restriction lists are conjunctions, so combining CastSpell
+// and ActivateAbility permits neither use.
 pub(in crate::card::sets) static WOODLAND_WEAVEMASTER: CardRecord = CardRecord::new(
     "Woodland Weavemaster",
     "fe2b4bcf-56de-44d3-83af-aeb27f82c25e",
@@ -5327,7 +5403,9 @@ pub(in crate::card::sets) static BARD_S_COMPANY: CardRecord = CardRecord::new(
 );
 
 // HOB 147 — Bifur, Melodic Rider
-// Audit: unsupported — Needs the enduring-story player designation, acquired once when the artifact/legendary/Saga union reaches three and retained after those permanents leave; a live object count does not implement storied.
+// Audit: unsupported — Needs the enduring-story player designation, acquired once when the
+// artifact/legendary/Saga union reaches three and retained after those permanents leave; a live
+// object count does not implement storied.
 pub(in crate::card::sets) static BIFUR_MELODIC_RIDER: CardRecord = CardRecord::new(
     "Bifur, Melodic Rider",
     "ee88cc80-8fbf-451c-b2b8-09158426c26a",
@@ -5336,7 +5414,9 @@ pub(in crate::card::sets) static BIFUR_MELODIC_RIDER: CardRecord = CardRecord::n
 );
 
 // HOB 148 — Bolg of the North
-// Audit: unsupported — Needs a source-independent reflexive trigger after sacrificing the creature, with late damage targeting and an actual excess-damage receipt for the following amass amount.
+// Audit: unsupported — Needs a source-independent reflexive trigger after sacrificing the
+// creature, with late damage targeting and an actual excess-damage receipt for the following
+// amass amount.
 pub(in crate::card::sets) static BOLG_OF_THE_NORTH: CardRecord = CardRecord::new(
     "Bolg of the North",
     "7b2d2a7f-88e0-45a9-8579-a6736bcd66eb",
@@ -5583,7 +5663,9 @@ pub(in crate::card::sets) static DUSKWATCH_HUNTER: CardRecord = CardRecord::new(
 );
 
 // HOB 154 — Dwalin, Weaponmaster
-// Audit: unsupported — Needs hone counters with their intrinsic Equipment effect granting +1/+0 per counter to the equipped creature, independent of printed abilities and preserved through ability removal.
+// Audit: unsupported — Needs hone counters with their intrinsic Equipment effect granting +1/+0
+// per counter to the equipped creature, independent of printed abilities and preserved through
+// ability removal.
 pub(in crate::card::sets) static DWALIN_WEAPONMASTER: CardRecord = CardRecord::new(
     "Dwalin, Weaponmaster",
     "196d9287-a37d-4b27-a83b-a5489a54f081",
@@ -5802,7 +5884,8 @@ pub(in crate::card::sets) static GOBLIN_PLATE_MAIL: CardRecord = CardRecord::new
 );
 
 // HOB 158 — The Great Goblin
-// Audit: unsupported — Needs counter-placement events matching any counter kind and identifying the placing player, plus correctly bounded next-turn exile play permissions.
+// Audit: unsupported — Needs counter-placement events matching any counter kind and identifying
+// the placing player, plus correctly bounded next-turn exile play permissions.
 pub(in crate::card::sets) static THE_GREAT_GOBLIN: CardRecord = CardRecord::new(
     "The Great Goblin",
     "78d8f53e-537d-4eaa-99e3-cac57fa53d22",
@@ -5997,7 +6080,8 @@ pub(in crate::card::sets) static SILVAN_REVELER: CardRecord = CardRecord::new(
 );
 
 // HOB 164 — Smaug, Wicked Worm
-// Audit: unsupported — Needs the spell's cast receipt to record mana produced by Treasure sources even when those sources were sacrificed and no longer exist.
+// Audit: unsupported — Needs the spell's cast receipt to record mana produced by Treasure
+// sources even when those sources were sacrificed and no longer exist.
 pub(in crate::card::sets) static SMAUG_WICKED_WORM: CardRecord = CardRecord::new(
     "Smaug, Wicked Worm",
     "19cc91f0-e724-41ac-b6d8-9a293bd63b42",
@@ -6006,7 +6090,9 @@ pub(in crate::card::sets) static SMAUG_WICKED_WORM: CardRecord = CardRecord::new
 );
 
 // HOB 165 — Thorin Oakenshield
-// Audit: unsupported — Needs the enduring-story player designation, acquired once when the artifact/legendary/Saga union reaches three and retained after those permanents leave; a live object count does not implement storied.
+// Audit: unsupported — Needs the enduring-story player designation, acquired once when the
+// artifact/legendary/Saga union reaches three and retained after those permanents leave; a live
+// object count does not implement storied.
 pub(in crate::card::sets) static THORIN_OAKENSHIELD: CardRecord = CardRecord::new(
     "Thorin Oakenshield",
     "c7e18609-d1ed-4829-be11-f2ce2cfcbc49",
@@ -6102,7 +6188,8 @@ pub(in crate::card::sets) static THRANDUIL_SINDARIN_LIEGE: CardRecord = CardReco
 });
 
 // HOB 167 — Thranduil, the Elvenking
-// Audit: unsupported — Needs a dynamic grant of activated abilities from all qualifying graveyard Elf cards, including their source remapping and activation cost contexts.
+// Audit: unsupported — Needs a dynamic grant of activated abilities from all qualifying
+// graveyard Elf cards, including their source remapping and activation cost contexts.
 pub(in crate::card::sets) static THRANDUIL_THE_ELVENKING: CardRecord = CardRecord::new(
     "Thranduil, the Elvenking",
     "fe2fe8fa-3b99-44c1-bab9-922e5c864952",
@@ -6175,7 +6262,9 @@ pub(in crate::card::sets) static THRANDUIL_S_COMPANY: CardRecord = CardRecord::n
 );
 
 // HOB 169 — Tom, Bert, and William
-// Audit: unsupported — Needs a noncopiable artifact-only type change on the prospective returning permanent before it enters; applying it after entry changes triggers and replacement eligibility.
+// Audit: unsupported — Needs a noncopiable artifact-only type change on the prospective
+// returning permanent before it enters; applying it after entry changes triggers and
+// replacement eligibility.
 pub(in crate::card::sets) static TOM_BERT_AND_WILLIAM: CardRecord = CardRecord::new(
     "Tom, Bert, and William",
     "211a9764-3c60-46ba-bb53-e6692640ec8f",
@@ -6250,7 +6339,8 @@ pub(in crate::card::sets) static THE_ARKENSTONE: CardRecord = CardRecord::new(
 });
 
 // HOB 171 — The Black Arrow
-// Audit: unsupported — Needs a bound receipt identifying whether the targeted Dragon actually received damage, including prevention and redirection, before deciding to destroy it.
+// Audit: unsupported — Needs a bound receipt identifying whether the targeted Dragon actually
+// received damage, including prevention and redirection, before deciding to destroy it.
 pub(in crate::card::sets) static THE_BLACK_ARROW: CardRecord = CardRecord::new(
     "The Black Arrow",
     "ab181190-d53d-4972-8cd5-8e54b45f2276",
@@ -6345,7 +6435,8 @@ pub(in crate::card::sets) static GIANT_S_BOULDER: CardRecord = CardRecord::new(
 );
 
 // HOB 174 — Glamdring, Foe-hammer // Gleam of Death
-// Audit: unsupported — Needs a spell-cost reduction read from the currently equipped creature's power; the cost evaluator cannot read ObjectPower(AttachedToSource).
+// Audit: unsupported — Needs a spell-cost reduction read from the currently equipped creature's
+// power; the cost evaluator cannot read ObjectPower(AttachedToSource).
 pub(in crate::card::sets) static GLAMDRING_FOE_HAMMER: CardRecord = CardRecord::new(
     "Glamdring, Foe-hammer // Gleam of Death",
     "a5cfbfde-783e-46ca-b3cf-11f16209d6cb",
@@ -6354,7 +6445,8 @@ pub(in crate::card::sets) static GLAMDRING_FOE_HAMMER: CardRecord = CardRecord::
 );
 
 // HOB 175 — Key to the Side-Door
-// Audit: unsupported — Needs a discard-cost predicate joining the candidate legendary card's name to the names of legendary permanents its payer controls.
+// Audit: unsupported — Needs a discard-cost predicate joining the candidate legendary card's
+// name to the names of legendary permanents its payer controls.
 pub(in crate::card::sets) static KEY_TO_THE_SIDE_DOOR: CardRecord = CardRecord::new(
     "Key to the Side-Door",
     "898c14a2-d897-4341-83ed-eee666df9648",
@@ -6404,7 +6496,8 @@ pub(in crate::card::sets) static MY_PRECIOUS: CardRecord = CardRecord::new(
 });
 
 // HOB 177 — Orcrist, Goblin-cleaver
-// Audit: unsupported — Needs a resolving creature-type choice bound to the following token-count query; creature-type choices currently exist only as battlefield-entry choices.
+// Audit: unsupported — Needs a resolving creature-type choice bound to the following
+// token-count query; creature-type choices currently exist only as battlefield-entry choices.
 pub(in crate::card::sets) static ORCRIST_GOBLIN_CLEAVER: CardRecord = CardRecord::new(
     "Orcrist, Goblin-cleaver",
     "f54f1c1d-6a22-43e9-a842-0a1ae25b323c",
@@ -6413,7 +6506,9 @@ pub(in crate::card::sets) static ORCRIST_GOBLIN_CLEAVER: CardRecord = CardRecord
 );
 
 // HOB 178 — Sting, Bilbo's Sword
-// Audit: unsupported — Needs hone counters with their intrinsic Equipment effect granting +1/+0 per counter to the equipped creature, independent of printed abilities and preserved through ability removal.
+// Audit: unsupported — Needs hone counters with their intrinsic Equipment effect granting +1/+0
+// per counter to the equipped creature, independent of printed abilities and preserved through
+// ability removal.
 pub(in crate::card::sets) static STING_BILBO_S_SWORD: CardRecord = CardRecord::new(
     "Sting, Bilbo's Sword",
     "d6a8d698-c454-42c4-ad4e-9a7625d5569f",
@@ -6497,7 +6592,9 @@ pub(in crate::card::sets) static WELL_WORN_SPATULA: CardRecord = CardRecord::new
 );
 
 // HOB 181 — Elven Passage
-// Audit: unsupported — Needs a behold-Elf choice over a controlled permanent or a revealed hand card, retaining the optional choice through the search-result untap continuation; the existing named-action vocabulary has no behold action.
+// Audit: unsupported — Needs a behold-Elf choice over a controlled permanent or a revealed hand
+// card, retaining the optional choice through the search-result untap continuation; the
+// existing named-action vocabulary has no behold action.
 pub(in crate::card::sets) static ELVEN_PASSAGE: CardRecord = CardRecord::new(
     "Elven Passage",
     "dd1fd2ab-2565-4798-a832-fc849df82f74",

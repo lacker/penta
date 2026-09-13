@@ -167,31 +167,31 @@ pub(in crate::card::sets) static LEDGER_SHREDDER: CardRecord = CardRecord::new(
     "Ledger Shredder",
     "7ea4b5bc-18a4-45db-a56a-ab3f8bd2fb0d",
     "Mila Pesic",
-// Two mana that filters a hand and gets bigger for it, and does both on
+    // Two mana that filters a hand and gets bigger for it, and does both on
     // the opponent's turn too.
-    CardRules::new_creature(mana_cost!("{1}{U}"), &["Bird", "Advisor"], 1, 3)
-        .with_abilities(&[
-            abilities::flying(),
-            // A player, not you: the Shredder grows on their turn as readily as on
-            // yours, which is what makes it a two-drop worth playing in a deck that
-            // is not casting two spells a turn itself.
-            AbilityDef::triggered_if(
-                "Whenever a player casts their second spell each turn, this creature connives. (Draw a \
-                 card, then discard a card. If you discarded a nonland card, put a +1/+1 counter on this \
-                 creature.)",
-                TriggerEventDef::spell_cast(ObjectPredicateDef::Any),
-                // Exactly the second, not the second or later: the spell that caused the
-                // trigger has already been counted by the time this is read. "Their"
-                // second, so the count is the casting player's own rather than anybody's.
-                &TriggerConditionDef::SpellsCastThisTurn {
-                    quantifier: QuantifierDef::Any,
-                    player: PlayerRelation::EventPlayer,
-                    comparison: ComparisonDef::Equal,
-                    amount: 2,
-                },
-                abilities::connive(),
-            ),
-        ]),
+    CardRules::new_creature(mana_cost!("{1}{U}"), &["Bird", "Advisor"], 1, 3).with_abilities(&[
+        abilities::flying(),
+        // A player, not you: the Shredder grows on their turn as readily as on
+        // yours, which is what makes it a two-drop worth playing in a deck that
+        // is not casting two spells a turn itself.
+        AbilityDef::triggered_if(
+            "Whenever a player casts their second spell each turn, this \
+             creature connives. (Draw a card, then discard a card. If \
+             you discarded a nonland card, put a +1/+1 counter on this \
+             creature.)",
+            TriggerEventDef::spell_cast(ObjectPredicateDef::Any),
+            // Exactly the second, not the second or later: the spell that caused the
+            // trigger has already been counted by the time this is read. "Their"
+            // second, so the count is the casting player's own rather than anybody's.
+            &TriggerConditionDef::SpellsCastThisTurn {
+                quantifier: QuantifierDef::Any,
+                player: PlayerRelation::EventPlayer,
+                comparison: ComparisonDef::Equal,
+                amount: 2,
+            },
+            abilities::connive(),
+        ),
+    ]),
 );
 
 // SNC 51 — An Offer You Can't Refuse
@@ -226,7 +226,9 @@ pub(in crate::card::sets) static AN_OFFER_YOU_CAN_T_REFUSE: CardRecord = CardRec
 );
 
 // SNC 66 — Witness Protection
-// Audit: unsupported — Needs a static effect that replaces the attached permanent's complete card-type set, rather than adding types; full card-type replacement is outside the shared static runtime boundary.
+// Audit: unsupported — Needs a static effect that replaces the attached permanent's complete
+// card-type set, rather than adding types; full card-type replacement is outside the shared
+// static runtime boundary.
 pub(in crate::card::sets) static WITNESS_PROTECTION: CardRecord = CardRecord::new(
     "Witness Protection",
     "a2be6f2c-8ad0-402d-a7ca-9fe817e83b72",
@@ -283,22 +285,34 @@ pub(in crate::card::sets) static FAKE_YOUR_OWN_DEATH: CardRecord = CardRecord::n
 );
 
 // SNC 102 — Big Score
-pub(in crate::card::sets) static BIG_SCORE_102: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static BIG_SCORE: CardRecord = CardRecord::new(
     "Big Score",
     "39d1578f-e2cf-4b93-8204-ed5434feb183",
     "Gaboleps",
-    CardRules::new_instant(mana_cost!("{3}{R}")).with_ability(AbilityDef::spell_with_additional_cost(
-        "As an additional cost to cast this spell, discard a card. Draw two cards and create two Treasure tokens.",
-        &[], CostDef::DiscardCards(1),
-        EffectDef::Sequence(&[
-            EffectDef::DrawCards { recipient: EffectRecipientDef::Controller, amount: ValueDef::Constant(2) },
-            EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(tokens::treasure())).with_count(ValueDef::Constant(2))),
-        ]),
-    )),
+    CardRules::new_instant(mana_cost!("{3}{R}")).with_ability(
+        AbilityDef::spell_with_additional_cost(
+            "As an additional cost to cast this spell, discard a card. \
+             Draw two cards and create two Treasure tokens.",
+            &[],
+            CostDef::DiscardCards(1),
+            EffectDef::Sequence(&[
+                EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(2),
+                },
+                EffectDef::CreateToken(
+                    crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(
+                        tokens::treasure(),
+                    ))
+                    .with_count(ValueDef::Constant(2)),
+                ),
+            ]),
+        ),
+    ),
 );
 
 // SNC 108 — Goldhound
-pub(in crate::card::sets) static GOLDHOUND_108: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static GOLDHOUND: CardRecord = CardRecord::new(
     "Goldhound",
     "c059e4b4-1542-4b5c-810a-9f0abac5792b",
     "Donato Giancola",
@@ -351,8 +365,9 @@ pub(in crate::card::sets) static INVOLUNTARY_EMPLOYMENT: CardRecord = CardRecord
 );
 
 // SNC 112 — Jaxis, the Troublemaker
-// Audit: unsupported — There is no blitz alternative-cast procedure with its linked haste, death-draw, and delayed-sacrifice clauses; ordinary dash has a different end-step action.
-pub(in crate::card::sets) static JAXIS_THE_TROUBLEMAKER_112: CardRecord = CardRecord::new(
+// Audit: unsupported — There is no blitz alternative-cast procedure with its linked haste,
+// death-draw, and delayed-sacrifice clauses; ordinary dash has a different end-step action.
+pub(in crate::card::sets) static JAXIS_THE_TROUBLEMAKER: CardRecord = CardRecord::new(
     "Jaxis, the Troublemaker",
     "78127c0c-672f-4e4b-9c23-6a5f237228fd",
     "Zoltan Boros",
@@ -369,8 +384,10 @@ pub(in crate::card::sets) static MAYHEM_PATROL: CardRecord = CardRecord::new(
 );
 
 // SNC 122 — Rob the Archives
-// Audit: unsupported — There is no casualty optional cast cost that produces its separate reflexive copy trigger. Treating the sacrifice as kicker would give the wrong cost identity and trigger timing.
-pub(in crate::card::sets) static ROB_THE_ARCHIVES_122: CardRecord = CardRecord::new(
+// Audit: unsupported — There is no casualty optional cast cost that produces its separate
+// reflexive copy trigger. Treating the sacrifice as kicker would give the wrong cost identity
+// and trigger timing.
+pub(in crate::card::sets) static ROB_THE_ARCHIVES: CardRecord = CardRecord::new(
     "Rob the Archives",
     "a3ec95f6-88c8-4daf-882f-8b4bc73452c3",
     "Steve Argyle",
@@ -378,15 +395,50 @@ pub(in crate::card::sets) static ROB_THE_ARCHIVES_122: CardRecord = CardRecord::
 );
 
 // SNC 124 — Sticky Fingers
-pub(in crate::card::sets) static STICKY_FINGERS_124: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static STICKY_FINGERS: CardRecord = CardRecord::new(
     "Sticky Fingers",
     "3678fa3d-d41f-4b7a-b25e-6fc5f78876c7",
     "Mark Behm",
-    CardRules::new_enchantment(mana_cost!("{R}")).with_subtypes(&["Aura"]).with_abilities(&[
-abilities::aura_spell("Enchant creature", &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Creature))]),
-AbilityDef::static_ability("Enchanted creature has menace and \"Whenever this creature deals combat damage to a player, create a Treasure token.\" (It can't be blocked except by two or more creatures. The token is an artifact with \"{T}, Sacrifice this token: Add one mana of any color.\")", EffectDef::StaticApply { recipient: EffectRecipientDef::AttachedPermanent, effect: AppliedEffectDef::Composite(&[AppliedEffectDef::add_ability(&abilities::menace()), AppliedEffectDef::add_ability(&AbilityDef::triggered("Whenever this creature deals combat damage to a player, create a Treasure token.", TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source), EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(crate::card::tokens::treasure())))))]) }),
-AbilityDef::triggered("When enchanted creature dies, draw a card.", TriggerEventDef::zone_changed(ObjectPredicateDef::AttachedToSource, Some(ZoneKind::Battlefield), Some(ZoneKind::Graveyard)), abilities::draw_cards(ValueDef::Constant(1)))
-]),
+    CardRules::new_enchantment(mana_cost!("{R}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::aura_spell(
+                "Enchant creature",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )],
+            ),
+            AbilityDef::static_ability(
+                "Enchanted creature has menace and \"Whenever this creature \
+                 deals combat damage to a player, create a Treasure token.\" \
+                 (It can't be blocked except by two or more creatures. The \
+                 token is an artifact with \"{T}, Sacrifice this token: Add \
+                 one mana of any color.\")",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::add_ability(&abilities::menace()),
+                        AppliedEffectDef::add_ability(&AbilityDef::triggered(
+                            "Whenever this creature deals combat damage to a player, \
+                             create a Treasure token.",
+                            TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
+                            EffectDef::CreateToken(crate::card::CreateTokenDef::new(
+                                crate::card::TokenDef::Literal(crate::card::tokens::treasure()),
+                            )),
+                        )),
+                    ]),
+                },
+            ),
+            AbilityDef::triggered(
+                "When enchanted creature dies, draw a card.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::AttachedToSource,
+                    Some(ZoneKind::Battlefield),
+                    Some(ZoneKind::Graveyard),
+                ),
+                abilities::draw_cards(ValueDef::Constant(1)),
+            ),
+        ]),
 );
 
 // SNC 131 — Witty Roastmaster
@@ -394,11 +446,12 @@ pub(in crate::card::sets) static WITTY_ROASTMASTER: CardRecord = CardRecord::new
     "Witty Roastmaster",
     "71d13f19-482b-4a2e-9692-b7d7caf2f9f5",
     "Joe Slucher",
-// "Alliance" is an ability word; the clause is an ordinary arrival
+    // "Alliance" is an ability word; the clause is an ordinary arrival
     // trigger that fires for tokens as readily as for cast creatures.
     CardRules::new_creature(mana_cost!("{2}{R}"), &["Devil", "Citizen"], 3, 2).with_ability(
         AbilityDef::triggered(
-            "Alliance — Whenever another creature you control enters, this creature deals 1 damage to each opponent.",
+            "Alliance — Whenever another creature you control enters, \
+             this creature deals 1 damage to each opponent.",
             TriggerEventDef::zone_changed(
                 ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
@@ -434,15 +487,59 @@ pub(in crate::card::sets) static JEWEL_THIEF: CardRecord = CardRecord::new(
 );
 
 // SNC 160 — Topiary Stomper
-pub(in crate::card::sets) static TOPIARY_STOMPER_160: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static TOPIARY_STOMPER: CardRecord = CardRecord::new(
     "Topiary Stomper",
     "87bb2699-280f-4e1e-b3f8-73efe6088f31",
     "Robin Olausson",
-    CardRules::new_creature(mana_cost!("{1}{G}{G}"), &["Plant", "Dinosaur"], 4, 4).with_abilities(&[
-abilities::vigilance(),
-abilities::enters_trigger("When this creature enters, search your library for a basic land card, put it onto the battlefield tapped, then shuffle.", EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Library, object: ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Land), ObjectPredicateDef::Supertype(CardSupertype::Basic)]), minimum: 0, maximum: ValueDef::Constant(1), reveal: false, destination: ZoneKind::Battlefield, placement: ZonePlacement::Top, shuffle: true, enters_tapped: true, attachment: None, binding: None, then: None }),
-AbilityDef::static_ability("This creature can't attack or block unless you control seven or more lands.", EffectDef::IfCondition { condition: &TriggerConditionDef::ObjectCount { query: ObjectQueryDef::matching(ObjectPredicateDef::HasType(CardType::Land), &[ZoneKind::Battlefield], PlayerRelation::You), comparison: ComparisonDef::Less, amount: 7 }, then: &EffectDef::StaticApply { recipient: EffectRecipientDef::Source, effect: AppliedEffectDef::Composite(&[AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_ATTACK), AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK)]) } })
-]),
+    CardRules::new_creature(mana_cost!("{1}{G}{G}"), &["Plant", "Dinosaur"], 4, 4).with_abilities(
+        &[
+            abilities::vigilance(),
+            abilities::enters_trigger(
+                "When this creature enters, search your library for a basic \
+                 land card, put it onto the battlefield tapped, then shuffle.",
+                EffectDef::SearchZone {
+                    player: EffectRecipientDef::Controller,
+                    source: ZoneKind::Library,
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                    ]),
+                    minimum: 0,
+                    maximum: ValueDef::Constant(1),
+                    reveal: false,
+                    destination: ZoneKind::Battlefield,
+                    placement: ZonePlacement::Top,
+                    shuffle: true,
+                    enters_tapped: true,
+                    attachment: None,
+                    binding: None,
+                    then: None,
+                },
+            ),
+            AbilityDef::static_ability(
+                "This creature can't attack or block unless you control \
+                 seven or more lands.",
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::ObjectCount {
+                        query: ObjectQueryDef::matching(
+                            ObjectPredicateDef::HasType(CardType::Land),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        ),
+                        comparison: ComparisonDef::Less,
+                        amount: 7,
+                    },
+                    then: &EffectDef::StaticApply {
+                        recipient: EffectRecipientDef::Source,
+                        effect: AppliedEffectDef::Composite(&[
+                            AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_ATTACK),
+                            AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+                        ]),
+                    },
+                },
+            ),
+        ],
+    ),
 );
 
 // SNC 161 — Venom Connoisseur
@@ -540,7 +637,7 @@ pub(in crate::card::sets) static BODY_DROPPER: CardRecord = CardRecord::new(
 );
 
 // SNC 230 — Void Rend
-pub(in crate::card::sets) static VOID_REND_230: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static VOID_REND: CardRecord = CardRecord::new(
     "Void Rend",
     "2daab74d-d66b-4164-aa19-24e8d5536f7d",
     "Rovina Cai",
@@ -605,20 +702,48 @@ pub(in crate::card::sets) static ZIATORAS_PROVING_GROUND: CardRecord = CardRecor
 );
 
 // SNC 426 — Professional Face-Breaker
-pub(in crate::card::sets) static PROFESSIONAL_FACE_BREAKER_426: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static PROFESSIONAL_FACE_BREAKER: CardRecord = CardRecord::new(
     "Professional Face-Breaker",
     "2b7e703f-dcd2-4a99-846f-758d4858453a",
     "Dan Murayama Scott",
     CardRules::new_creature(mana_cost!("{2}{R}"), &["Human", "Warrior"], 2, 3).with_abilities(&[
-abilities::menace(),
-AbilityDef::triggered("Whenever one or more creatures you control deal combat damage to a player, create a Treasure token.", TriggerEventDef::CombatDamageDealtToPlayers { sources: ObjectPredicateDef::ControlledBy(PlayerRelation::You), players: PlayerRelation::Any }, EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(crate::card::tokens::treasure())))),
-AbilityDef::activated("Sacrifice a Treasure: Exile the top card of your library. You may play that card this turn.", &[CostDef::sacrifice_permanent(ObjectPredicateDef::Subtype(SubtypeDef::Literal("Treasure")))], EffectDef::ExileTopOfLibraryToPlay { player: EffectRecipientDef::Controller, amount: ValueDef::Constant(1), free: false, face_down: false, duration: ExilePlayDurationDef::ThisTurn, spend_any_color: false, play_condition: None, cast_only: false })
-]),
+        abilities::menace(),
+        AbilityDef::triggered(
+            "Whenever one or more creatures you control deal combat \
+             damage to a player, create a Treasure token.",
+            TriggerEventDef::CombatDamageDealtToPlayers {
+                sources: ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                players: PlayerRelation::Any,
+            },
+            EffectDef::CreateToken(crate::card::CreateTokenDef::new(
+                crate::card::TokenDef::Literal(crate::card::tokens::treasure()),
+            )),
+        ),
+        AbilityDef::activated(
+            "Sacrifice a Treasure: Exile the top card of your library. \
+             You may play that card this turn.",
+            &[CostDef::sacrifice_permanent(ObjectPredicateDef::Subtype(
+                SubtypeDef::Literal("Treasure"),
+            ))],
+            EffectDef::ExileTopOfLibraryToPlay {
+                player: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+                free: false,
+                face_down: false,
+                duration: ExilePlayDurationDef::ThisTurn,
+                spend_any_color: false,
+                play_condition: None,
+                cast_only: false,
+            },
+        ),
+    ]),
 );
 
 // SNC 440 — Unlicensed Hearse
-// Audit: unsupported — Target slots cannot require that every card in a multi-target group have the same graveyard owner. Separate modes for each graveyard would incorrectly prevent a copy from retargeting into the other graveyard.
-pub(in crate::card::sets) static UNLICENSED_HEARSE_440: CardRecord = CardRecord::new(
+// Audit: unsupported — Target slots cannot require that every card in a multi-target group have
+// the same graveyard owner. Separate modes for each graveyard would incorrectly prevent a copy
+// from retargeting into the other graveyard.
+pub(in crate::card::sets) static UNLICENSED_HEARSE: CardRecord = CardRecord::new(
     "Unlicensed Hearse",
     "9066fb8f-8568-4e87-bee9-573f6c204a26",
     "Chris Seaman",
@@ -633,26 +758,26 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &AN_OFFER_YOU_CAN_T_REFUSE,
     &WITNESS_PROTECTION,
     &FAKE_YOUR_OWN_DEATH,
-    &BIG_SCORE_102,
-    &GOLDHOUND_108,
+    &BIG_SCORE,
+    &GOLDHOUND,
     &INVOLUNTARY_EMPLOYMENT,
-    &JAXIS_THE_TROUBLEMAKER_112,
+    &JAXIS_THE_TROUBLEMAKER,
     &MAYHEM_PATROL,
-    &ROB_THE_ARCHIVES_122,
-    &STICKY_FINGERS_124,
+    &ROB_THE_ARCHIVES,
+    &STICKY_FINGERS,
     &WITTY_ROASTMASTER,
     &JEWEL_THIEF,
-    &TOPIARY_STOMPER_160,
+    &TOPIARY_STOMPER,
     &VENOM_CONNOISSEUR,
     &BODY_DROPPER,
-    &VOID_REND_230,
+    &VOID_REND,
     &JETMIRS_GARDEN,
     &RAFFINES_TOWER,
     &SPARAS_HEADQUARTERS,
     &XANDERS_LOUNGE,
     &ZIATORAS_PROVING_GROUND,
-    &PROFESSIONAL_FACE_BREAKER_426,
-    &UNLICENSED_HEARSE_440,
+    &PROFESSIONAL_FACE_BREAKER,
+    &UNLICENSED_HEARSE,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

@@ -587,7 +587,7 @@ fn trigger_modifiers_checkpoint_preserves_observer_order_links_and_payments() {
     let mut game = ready_game();
     game.put_onto_battlefield(PlayerId::One, cards::STRICT_PROCTOR)
         .unwrap();
-    game.put_onto_battlefield(PlayerId::Two, cards::ELESH_NORN_MOTHER_OF_MACHINES_416)
+    game.put_onto_battlefield(PlayerId::Two, cards::ELESH_NORN_MOTHER_OF_MACHINES)
         .unwrap();
     game.put_onto_battlefield(PlayerId::Two, cards::BALEFUL_STRIX)
         .unwrap();

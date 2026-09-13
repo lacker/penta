@@ -154,8 +154,8 @@ const ROBOT_TOKEN: TokenCharacteristics =
 const LANDER_TOKEN: TokenCharacteristics = TokenCharacteristics::artifact(&["Lander"], &[])
     .with_abilities(&[AbilityDef::activated(
         "{2}, {T}, Sacrifice this token: Search your library for a \
-                         basic land card, put it onto the battlefield tapped, then \
-                         shuffle.",
+         basic land card, put it onto the battlefield tapped, then \
+         shuffle.",
         &[
             CostDef::Mana(mana_cost!("{2}")),
             CostDef::TapSource,
@@ -191,7 +191,10 @@ const ROBOT_TOKEN_2: TokenCharacteristics =
     ));
 
 // EOE 1 — Anticausal Vestige
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell, without an extra counterable enters trigger, and owner cast permission that starts only after the exile turn has ended; the existing Warp helper installs an enters trigger and grants permission immediately.
+// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
+// without an extra counterable enters trigger, and owner cast permission that starts only after
+// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
+// permission immediately.
 pub(in crate::card::sets) static ANTICAUSAL_VESTIGE: CardRecord = CardRecord::new(
     "Anticausal Vestige",
     "35372b69-6086-44e0-9f7c-681e362e5142",
@@ -209,14 +212,18 @@ pub(in crate::card::sets) static TEZZERET_CRUEL_CAPTAIN: CardRecord = CardRecord
     "Tezzeret, Cruel Captain",
     "02e8e540-8aa3-4e6a-9a11-c3949cab5f0f",
     "Chris Rahn",
-// Three colourless for a planeswalker that an artifact deck keeps
+    // Three colourless for a planeswalker that an artifact deck keeps
     // topping up, and whose zero is free every turn.
     CardRules::new_planeswalker(mana_cost!("{3}"), &["Tezzeret"], 4)
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
             AbilityDef::triggered(
                 "Whenever an artifact you control enters, put a loyalty counter on Tezzeret.",
-                TriggerEventDef::zone_changed(AN_ARTIFACT_YOU_CONTROL, None, Some(ZoneKind::Battlefield)),
+                TriggerEventDef::zone_changed(
+                    AN_ARTIFACT_YOU_CONTROL,
+                    None,
+                    Some(ZoneKind::Battlefield),
+                ),
                 EffectDef::AddCounters {
                     object: EffectRecipientDef::Source,
                     kind: CounterKind::Loyalty,
@@ -224,8 +231,8 @@ pub(in crate::card::sets) static TEZZERET_CRUEL_CAPTAIN: CardRecord = CardRecord
                 },
             ),
             AbilityDef::activated_with_targets(
-                "0: Untap target artifact or creature. If it\'s an artifact creature, put a +1/+1 counter \
-                 on it.",
+                "0: Untap target artifact or creature. If it\'s an artifact \
+                 creature, put a +1/+1 counter on it.",
                 &[CostDef::Loyalty(0)],
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::AnyOf(&[
@@ -241,12 +248,12 @@ pub(in crate::card::sets) static TEZZERET_CRUEL_CAPTAIN: CardRecord = CardRecord
                         // The rider is asked of the target as the ability resolves, so an artifact
                         // animated in response is a legal thing to grow.
                         condition: &TriggerConditionDef::TargetMatches {
-                                slot: TargetIndex::PRIMARY,
-                                object: ObjectPredicateDef::All(&[
-                                    ObjectPredicateDef::HasType(CardType::Artifact),
-                                    ObjectPredicateDef::HasType(CardType::Creature),
-                                ]),
-                            },
+                            slot: TargetIndex::PRIMARY,
+                            object: ObjectPredicateDef::All(&[
+                                ObjectPredicateDef::HasType(CardType::Artifact),
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                            ]),
+                        },
                         then: &EffectDef::AddCounters {
                             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                             kind: CounterKind::PlusOnePlusOne,
@@ -256,8 +263,9 @@ pub(in crate::card::sets) static TEZZERET_CRUEL_CAPTAIN: CardRecord = CardRecord
                 ]),
             ),
             AbilityDef::activated(
-                "−3: Search your library for an artifact card with mana value 1 or less, reveal it, put \
-                 it into your hand, then shuffle.",
+                "−3: Search your library for an artifact card with mana \
+                 value 1 or less, reveal it, put it into your hand, then \
+                 shuffle.",
                 &[CostDef::Loyalty(-3)],
                 EffectDef::SearchZone {
                     player: EffectRecipientDef::Controller,
@@ -280,21 +288,25 @@ pub(in crate::card::sets) static TEZZERET_CRUEL_CAPTAIN: CardRecord = CardRecord
                 },
             ),
             AbilityDef::activated(
-                "−7: You get an emblem with \"At the beginning of combat on your turn, put three +1/+1 \
-                 counters on target artifact you control. If it\'s not a creature, it becomes a 0/0 Robot \
+                "−7: You get an emblem with \"At the beginning of combat on \
+                 your turn, put three +1/+1 counters on target artifact you \
+                 control. If it\'s not a creature, it becomes a 0/0 Robot \
                  artifact creature.\"",
                 &[CostDef::Loyalty(-7)],
                 EffectDef::CreateEmblem {
-                    emblem: EmblemCharacteristics::new("Tezzeret, Cruel Captain emblem", &[AbilityDef::triggered_with_targets(
-                            "At the beginning of combat on your turn, put three +1/+1 counters on target artifact you \
-                             control. If it's not a creature, it becomes a 0/0 Robot artifact creature.",
+                    emblem: EmblemCharacteristics::new(
+                        "Tezzeret, Cruel Captain emblem",
+                        &[AbilityDef::triggered_with_targets(
+                            "At the beginning of combat on your turn, put three +1/+1 \
+                             counters on target artifact you control. If it's not a \
+                             creature, it becomes a 0/0 Robot artifact creature.",
                             TriggerEventDef::StepBegins {
                                 step: TurnStepDef::BeginningOfCombat,
                                 player: PlayerRelation::You,
                             },
                             &[AbilityTargetDef::exactly_one_permanent(
-                                    AN_ARTIFACT_YOU_CONTROL,
-                                )],
+                                AN_ARTIFACT_YOU_CONTROL,
+                            )],
                             EffectDef::Sequence(&[
                                 EffectDef::AddCounters {
                                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -303,31 +315,44 @@ pub(in crate::card::sets) static TEZZERET_CRUEL_CAPTAIN: CardRecord = CardRecord
                                 },
                                 EffectDef::IfCondition {
                                     condition: &TriggerConditionDef::TargetMatches {
-                                            slot: TargetIndex::PRIMARY,
-                                            object: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
-                                        },
+                                        slot: TargetIndex::PRIMARY,
+                                        object: ObjectPredicateDef::Not(
+                                            &ObjectPredicateDef::HasType(CardType::Creature),
+                                        ),
+                                    },
                                     then: &EffectDef::Apply {
                                         recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                                         // "If it's not a creature, it becomes a 0/0 Robot artifact creature." The
                                         // counters go on first, so an artifact that was not a creature ends up a
                                         // 3/3: the base is what changes, and the counters sit on top of it.
                                         effect: AppliedEffectDef::Composite(&[
-                                            AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)),
-                                            AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&["Robot"])),
-                                            AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(0), ValueDef::Constant(0)),
+                                            AppliedEffectDef::add_card_types(CardTypeSet::single(
+                                                CardType::Creature,
+                                            )),
+                                            AppliedEffectDef::set_creature_types(
+                                                CreatureTypeSetDef::named(&["Robot"]),
+                                            ),
+                                            AppliedEffectDef::set_base_power_toughness(
+                                                ValueDef::Constant(0),
+                                                ValueDef::Constant(0),
+                                            ),
                                         ]),
                                         duration: ResolvedEffectDurationDef::Permanent,
                                     },
                                 },
                             ]),
-                        )]),
+                        )],
+                    ),
                 },
             ),
         ]),
 );
 
 // EOE 3 — All-Fates Stalker
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell, without an extra counterable enters trigger, and owner cast permission that starts only after the exile turn has ended; the existing Warp helper installs an enters trigger and grants permission immediately.
+// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
+// without an extra counterable enters trigger, and owner cast permission that starts only after
+// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
+// permission immediately.
 pub(in crate::card::sets) static ALL_FATES_STALKER: CardRecord = CardRecord::new(
     "All-Fates Stalker",
     "82ae4f7b-8122-4af6-8079-888eabf1a11e",
@@ -336,7 +361,11 @@ pub(in crate::card::sets) static ALL_FATES_STALKER: CardRecord = CardRecord::new
 );
 
 // EOE 4 — Astelli Reclaimer
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell, without an extra counterable enters trigger, and owner cast permission that starts only after the exile turn has ended; the existing Warp helper installs an enters trigger and grants permission immediately. Also needs the source spell's mana-spent amount retained for target selection after the source leaves.
+// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
+// without an extra counterable enters trigger, and owner cast permission that starts only after
+// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
+// permission immediately. Also needs the source spell's mana-spent amount retained for target
+// selection after the source leaves.
 pub(in crate::card::sets) static ASTELLI_RECLAIMER: CardRecord = CardRecord::new(
     "Astelli Reclaimer",
     "4fb36405-cd28-432f-b0a4-e74ff8be928d",
@@ -454,13 +483,14 @@ pub(in crate::card::sets) static COSMOGRAND_ZENITH: CardRecord = CardRecord::new
     "Cosmogrand Zenith",
     "b3c1e5e3-4e6b-456a-958c-7a75c38f8183",
     "Anna Steinbauer",
-// Three mana for a 2/4 that pays a second time every turn the hand has
+    // Three mana for a 2/4 that pays a second time every turn the hand has
     // two spells in it, and the choice is between going wider and going
     // taller.
-    CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Soldier"], 2, 4)
-        .with_abilities(&[AbilityDef::defined(
-            "Whenever you cast your second spell each turn, choose one —\n• Create two 1/1 white Human \
-             Soldier creature tokens.\n• Put a +1/+1 counter on each creature you control.",
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Soldier"], 2, 4).with_abilities(&[
+        AbilityDef::defined(
+            "Whenever you cast your second spell each turn, choose one \
+             —\n• Create two 1/1 white Human Soldier creature tokens.\n• \
+             Put a +1/+1 counter on each creature you control.",
             DeclarativeAbilityDef::Triggered(
                 TriggeredAbilityDef::new(TriggerEventDef::spell_cast(
                     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
@@ -503,7 +533,8 @@ pub(in crate::card::sets) static COSMOGRAND_ZENITH: CardRecord = CardRecord::new
                 ])),
             ),
             EffectDef::None,
-        )]),
+        ),
+    ]),
 );
 
 // EOE 10 — Dawnstrike Vanguard
@@ -550,7 +581,9 @@ pub(in crate::card::sets) static DAWNSTRIKE_VANGUARD: CardRecord = CardRecord::n
 );
 
 // EOE 11 — Dockworker Drone
-// Audit: unsupported — Needs copying the entire last-known inventory of counter kinds and amounts from a departed object to another; existing add/remove effects name one fixed counter kind.
+// Audit: unsupported — Needs copying the entire last-known inventory of counter kinds and
+// amounts from a departed object to another; existing add/remove effects name one fixed counter
+// kind.
 pub(in crate::card::sets) static DOCKWORKER_DRONE: CardRecord = CardRecord::new(
     "Dockworker Drone",
     "eeff069f-427b-42ad-afb1-36f0e547fb74",
@@ -647,7 +680,10 @@ pub(in crate::card::sets) static EMERGENCY_EJECT: CardRecord = CardRecord::new(
 );
 
 // EOE 15 — Exalted Sunborn
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell, without an extra counterable enters trigger, and owner cast permission that starts only after the exile turn has ended; the existing Warp helper installs an enters trigger and grants permission immediately.
+// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
+// without an extra counterable enters trigger, and owner cast permission that starts only after
+// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
+// permission immediately.
 pub(in crate::card::sets) static EXALTED_SUNBORN: CardRecord = CardRecord::new(
     "Exalted Sunborn",
     "7e1fe101-f634-41e5-9aa4-e8d7474535dc",
@@ -762,7 +798,10 @@ pub(in crate::card::sets) static FOCUS_FIRE: CardRecord = CardRecord::new(
 );
 
 // EOE 19 — Haliya, Guided by Light
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell, without an extra counterable enters trigger, and owner cast permission that starts only after the exile turn has ended; the existing Warp helper installs an enters trigger and grants permission immediately.
+// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
+// without an extra counterable enters trigger, and owner cast permission that starts only after
+// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
+// permission immediately.
 pub(in crate::card::sets) static HALIYA_GUIDED_BY_LIGHT: CardRecord = CardRecord::new(
     "Haliya, Guided by Light",
     "6f7c63ae-5df3-410f-8643-b8c69133ca9d",
@@ -771,7 +810,8 @@ pub(in crate::card::sets) static HALIYA_GUIDED_BY_LIGHT: CardRecord = CardRecord
 );
 
 // EOE 20 — Hardlight Containment
-// Audit: unsupported — Needs exile-until-source-leaves with immediate return when the duration ends (CR 610.3); an ordinary leaves trigger returns through the stack too late.
+// Audit: unsupported — Needs exile-until-source-leaves with immediate return when the duration
+// ends (CR 610.3); an ordinary leaves trigger returns through the stack too late.
 pub(in crate::card::sets) static HARDLIGHT_CONTAINMENT: CardRecord = CardRecord::new(
     "Hardlight Containment",
     "0b934241-4d6b-4b9c-99f1-c49cb387cf56",
@@ -846,7 +886,10 @@ pub(in crate::card::sets) static HONORED_KNIGHT_CAPTAIN: CardRecord = CardRecord
 );
 
 // EOE 23 — Knight Luminary
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell, without an extra counterable enters trigger, and owner cast permission that starts only after the exile turn has ended; the existing Warp helper installs an enters trigger and grants permission immediately.
+// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
+// without an extra counterable enters trigger, and owner cast permission that starts only after
+// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
+// permission immediately.
 pub(in crate::card::sets) static KNIGHT_LUMINARY: CardRecord = CardRecord::new(
     "Knight Luminary",
     "34334971-c1b7-4506-a6dd-77f66b3ae4e7",
@@ -855,7 +898,9 @@ pub(in crate::card::sets) static KNIGHT_LUMINARY: CardRecord = CardRecord::new(
 );
 
 // EOE 24 — Lightstall Inquisitor
-// Audit: unsupported — Needs an indefinite owner play permission that also makes lands played through it enter tapped; existing surcharge permissions do not carry this land-entry modification.
+// Audit: unsupported — Needs an indefinite owner play permission that also makes lands played
+// through it enter tapped; existing surcharge permissions do not carry this land-entry
+// modification.
 pub(in crate::card::sets) static LIGHTSTALL_INQUISITOR: CardRecord = CardRecord::new(
     "Lightstall Inquisitor",
     "635245e9-c27f-4a51-a6f1-bae62e696542",
@@ -954,7 +999,9 @@ pub(in crate::card::sets) static LUXKNIGHT_BREACHER: CardRecord = CardRecord::ne
 );
 
 // EOE 27 — Pinnacle Starcage
-// Audit: unsupported — Needs exile-until-source-leaves with immediate return and a linked group of exiled objects retained for the second ability; a leaves trigger is not the printed duration.
+// Audit: unsupported — Needs exile-until-source-leaves with immediate return and a linked group
+// of exiled objects retained for the second ability; a leaves trigger is not the printed
+// duration.
 pub(in crate::card::sets) static PINNACLE_STARCAGE: CardRecord = CardRecord::new(
     "Pinnacle Starcage",
     "b1f40c4c-a955-4d9c-8225-251fa4159124",
@@ -1066,7 +1113,10 @@ pub(in crate::card::sets) static RADIANT_STRIKE: CardRecord = CardRecord::new(
 );
 
 // EOE 30 — Rayblade Trooper
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell, without an extra counterable enters trigger, and owner cast permission that starts only after the exile turn has ended; the existing Warp helper installs an enters trigger and grants permission immediately.
+// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
+// without an extra counterable enters trigger, and owner cast permission that starts only after
+// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
+// permission immediately.
 pub(in crate::card::sets) static RAYBLADE_TROOPER: CardRecord = CardRecord::new(
     "Rayblade Trooper",
     "c08c7bf9-a2ed-45c6-8b48-15122d9d9e37",
@@ -1170,7 +1220,8 @@ pub(in crate::card::sets) static RESCUE_SKIFF: CardRecord = CardRecord::new(
 );
 
 // EOE 33 — Scout for Survivors
-// Audit: unsupported — Needs a total mana-value limit shared by all chosen targets; target declarations currently constrain each object and target count independently.
+// Audit: unsupported — Needs a total mana-value limit shared by all chosen targets; target
+// declarations currently constrain each object and target count independently.
 pub(in crate::card::sets) static SCOUT_FOR_SURVIVORS: CardRecord = CardRecord::new(
     "Scout for Survivors",
     "ebf3a6dd-a447-46f9-8b10-091ac8cbaa18",
@@ -1179,7 +1230,8 @@ pub(in crate::card::sets) static SCOUT_FOR_SURVIVORS: CardRecord = CardRecord::n
 );
 
 // EOE 34 — Seam Rip
-// Audit: unsupported — Needs exile-until-source-leaves with immediate return when the duration ends (CR 610.3); an ordinary leaves trigger returns through the stack too late.
+// Audit: unsupported — Needs exile-until-source-leaves with immediate return when the duration
+// ends (CR 610.3); an ordinary leaves trigger returns through the stack too late.
 pub(in crate::card::sets) static SEAM_RIP: CardRecord = CardRecord::new(
     "Seam Rip",
     "9d298847-2d02-4593-b4d3-c5b722edac1e",
@@ -1319,7 +1371,10 @@ pub(in crate::card::sets) static SQUIRE_S_LIGHTBLADE: CardRecord = CardRecord::n
 );
 
 // EOE 37 — Starfield Shepherd
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell, without an extra counterable enters trigger, and owner cast permission that starts only after the exile turn has ended; the existing Warp helper installs an enters trigger and grants permission immediately.
+// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
+// without an extra counterable enters trigger, and owner cast permission that starts only after
+// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
+// permission immediately.
 pub(in crate::card::sets) static STARFIELD_SHEPHERD: CardRecord = CardRecord::new(
     "Starfield Shepherd",
     "1226e575-aa78-4c68-be1d-6e5c2dc6315b",
@@ -1384,7 +1439,9 @@ pub(in crate::card::sets) static STARPORT_SECURITY: CardRecord = CardRecord::new
 );
 
 // EOE 40 — Sunstar Chaplain
-// Audit: unsupported — Needs an activation cost choosing a controlled creature and removing exactly one +1/+1 counter from it; ordinary counter-removal costs name only the ability source.
+// Audit: unsupported — Needs an activation cost choosing a controlled creature and removing
+// exactly one +1/+1 counter from it; ordinary counter-removal costs name only the ability
+// source.
 pub(in crate::card::sets) static SUNSTAR_CHAPLAIN: CardRecord = CardRecord::new(
     "Sunstar Chaplain",
     "83719626-3ff8-4566-9911-88212e753c69",
@@ -1519,7 +1576,10 @@ pub(in crate::card::sets) static WEDGELIGHT_RAMMER: CardRecord = CardRecord::new
 );
 
 // EOE 44 — Weftblade Enhancer
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell, without an extra counterable enters trigger, and owner cast permission that starts only after the exile turn has ended; the existing Warp helper installs an enters trigger and grants permission immediately.
+// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
+// without an extra counterable enters trigger, and owner cast permission that starts only after
+// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
+// permission immediately.
 pub(in crate::card::sets) static WEFTBLADE_ENHANCER: CardRecord = CardRecord::new(
     "Weftblade Enhancer",
     "8d72b00c-5043-4630-949a-fc17eeb962bc",
@@ -1677,7 +1737,10 @@ pub(in crate::card::sets) static CLOUDSCULPT_TECHNICIAN: CardRecord = CardRecord
 );
 
 // EOE 50 — Codecracker Hound
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell, without an extra counterable enters trigger, and owner cast permission that starts only after the exile turn has ended; the existing Warp helper installs an enters trigger and grants permission immediately.
+// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
+// without an extra counterable enters trigger, and owner cast permission that starts only after
+// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
+// permission immediately.
 pub(in crate::card::sets) static CODECRACKER_HOUND: CardRecord = CardRecord::new(
     "Codecracker Hound",
     "6723b891-6013-4ec6-b439-2233d270dc48",
@@ -1781,7 +1844,7 @@ pub(in crate::card::sets) static CRYOGEN_RELIC: CardRecord = CardRecord::new(
     "Cryogen Relic",
     "7bfb33b6-e2bf-498f-8c58-ae21a840cf75",
     "Eelis Kyttanen",
-// Sacrificing it draws the second card, so the tap-down costs nothing
+    // Sacrificing it draws the second card, so the tap-down costs nothing
     // in cards -- only the two mana and the artifact itself.
     CardRules::new_artifact(mana_cost!("{1}{U}")).with_abilities(&[
         AbilityDef::triggered(
@@ -1806,7 +1869,8 @@ pub(in crate::card::sets) static CRYOGEN_RELIC: CardRecord = CardRecord::new(
             },
         ),
         AbilityDef::activated_with_targets(
-            "{1}{U}, Sacrifice this artifact: Put a stun counter on up to one target tapped creature.",
+            "{1}{U}, Sacrifice this artifact: Put a stun counter on up \
+             to one target tapped creature.",
             &[
                 CostDef::Mana(mana_cost!("{1}{U}")),
                 CostDef::SacrificeSource,
@@ -1989,7 +2053,8 @@ pub(in crate::card::sets) static EMISSARY_ESCORT: CardRecord = CardRecord::new(
 );
 
 // EOE 57 — Gigastorm Titan
-// Audit: unsupported — Needs a self spell-cost condition for another spell cast this turn; cost_reduction_value does not evaluate cast-history values or conditional branches over them.
+// Audit: unsupported — Needs a self spell-cost condition for another spell cast this turn;
+// cost_reduction_value does not evaluate cast-history values or conditional branches over them.
 pub(in crate::card::sets) static GIGASTORM_TITAN: CardRecord = CardRecord::new(
     "Gigastorm Titan",
     "abc83e0a-0ae5-4087-a751-058a1ba6a920",
@@ -2217,7 +2282,8 @@ pub(in crate::card::sets) static MECHAN_NAVIGATOR: CardRecord = CardRecord::new(
 );
 
 // EOE 65 — Mechan Shieldmate
-// Audit: unsupported — Needs artifact-entry history for the current turn retained after the artifact leaves or changes controllers; current entry predicates inspect live permanents.
+// Audit: unsupported — Needs artifact-entry history for the current turn retained after the
+// artifact leaves or changes controllers; current entry predicates inspect live permanents.
 pub(in crate::card::sets) static MECHAN_SHIELDMATE: CardRecord = CardRecord::new(
     "Mechan Shieldmate",
     "745b2119-4d9f-431f-89b9-10ad48b6dc47",
@@ -2226,7 +2292,10 @@ pub(in crate::card::sets) static MECHAN_SHIELDMATE: CardRecord = CardRecord::new
 );
 
 // EOE 66 — Mechanozoa
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell, without an extra counterable enters trigger, and owner cast permission that starts only after the exile turn has ended; the existing Warp helper installs an enters trigger and grants permission immediately.
+// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
+// without an extra counterable enters trigger, and owner cast permission that starts only after
+// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
+// permission immediately.
 pub(in crate::card::sets) static MECHANOZOA: CardRecord = CardRecord::new(
     "Mechanozoa",
     "0cb8d8ce-329a-4a97-b3d8-796703ebcb37",
@@ -2235,7 +2304,8 @@ pub(in crate::card::sets) static MECHANOZOA: CardRecord = CardRecord::new(
 );
 
 // EOE 67 — Mental Modulation
-// Audit: unsupported — Needs a self spell-cost condition based on whose turn it is; self-cost evaluation only reads root reduction values and cannot branch on ActivePlayer.
+// Audit: unsupported — Needs a self spell-cost condition based on whose turn it is; self-cost
+// evaluation only reads root reduction values and cannot branch on ActivePlayer.
 pub(in crate::card::sets) static MENTAL_MODULATION: CardRecord = CardRecord::new(
     "Mental Modulation",
     "0f2d12fc-38a0-42e6-9caa-7c18bfcf0011",
@@ -2244,7 +2314,8 @@ pub(in crate::card::sets) static MENTAL_MODULATION: CardRecord = CardRecord::new
 );
 
 // EOE 68 — Mm'menon, the Right Hand
-// Audit: unsupported — Needs a mana-spending restriction based on the cast origin zone, excluding the hand; existing CastSpell restrictions only match spell characteristics.
+// Audit: unsupported — Needs a mana-spending restriction based on the cast origin zone,
+// excluding the hand; existing CastSpell restrictions only match spell characteristics.
 pub(in crate::card::sets) static MM_MENON_THE_RIGHT_HAND: CardRecord = CardRecord::new(
     "Mm'menon, the Right Hand",
     "82add0a0-e402-4b31-b101-81c0bf332015",
@@ -2253,7 +2324,9 @@ pub(in crate::card::sets) static MM_MENON_THE_RIGHT_HAND: CardRecord = CardRecor
 );
 
 // EOE 69 — Moonlit Meditation
-// Audit: unsupported — Needs an optional replacement for the first token-creation batch of each turn, substituting copies of an attached object; token replacements do not retain this batch ordinal or optional choice.
+// Audit: unsupported — Needs an optional replacement for the first token-creation batch of each
+// turn, substituting copies of an attached object; token replacements do not retain this batch
+// ordinal or optional choice.
 pub(in crate::card::sets) static MOONLIT_MEDITATION: CardRecord = CardRecord::new(
     "Moonlit Meditation",
     "f2a56007-5bca-4edf-9cc4-5f77a273636c",
@@ -2321,7 +2394,10 @@ pub(in crate::card::sets) static NANOFORM_SENTINEL: CardRecord = CardRecord::new
 );
 
 // EOE 72 — Quantum Riddler
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell, without an extra counterable enters trigger, and owner cast permission that starts only after the exile turn has ended; the existing Warp helper installs an enters trigger and grants permission immediately.
+// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
+// without an extra counterable enters trigger, and owner cast permission that starts only after
+// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
+// permission immediately.
 pub(in crate::card::sets) static QUANTUM_RIDDLER: CardRecord = CardRecord::new(
     "Quantum Riddler",
     "120be808-ff3b-4fca-96a1-4db6b9825856",
@@ -2378,7 +2454,9 @@ pub(in crate::card::sets) static SCOUR_FOR_SCRAP: CardRecord = CardRecord::new(
 );
 
 // EOE 74 — Selfcraft Mechan
-// Audit: unsupported — Needs a sacrifice-created reflexive trigger that chooses its target after the sacrifice and survives the source leaving; OptionalEffectTaken only observes battlefield listeners.
+// Audit: unsupported — Needs a sacrifice-created reflexive trigger that chooses its target
+// after the sacrifice and survives the source leaving; OptionalEffectTaken only observes
+// battlefield listeners.
 pub(in crate::card::sets) static SELFCRAFT_MECHAN: CardRecord = CardRecord::new(
     "Selfcraft Mechan",
     "5b2de056-5c27-44d6-871d-909411bd52dd",
@@ -2387,7 +2465,10 @@ pub(in crate::card::sets) static SELFCRAFT_MECHAN: CardRecord = CardRecord::new(
 );
 
 // EOE 75 — Sinister Cryologist
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell, without an extra counterable enters trigger, and owner cast permission that starts only after the exile turn has ended; the existing Warp helper installs an enters trigger and grants permission immediately.
+// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
+// without an extra counterable enters trigger, and owner cast permission that starts only after
+// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
+// permission immediately.
 pub(in crate::card::sets) static SINISTER_CRYOLOGIST: CardRecord = CardRecord::new(
     "Sinister Cryologist",
     "e8fbe740-05ec-4ced-bb9d-3084c8c2b631",
@@ -2479,7 +2560,10 @@ pub(in crate::card::sets) static SPECIMEN_FREIGHTER: CardRecord = CardRecord::ne
 );
 
 // EOE 77 — Starbreach Whale
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell, without an extra counterable enters trigger, and owner cast permission that starts only after the exile turn has ended; the existing Warp helper installs an enters trigger and grants permission immediately.
+// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
+// without an extra counterable enters trigger, and owner cast permission that starts only after
+// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
+// permission immediately.
 pub(in crate::card::sets) static STARBREACH_WHALE: CardRecord = CardRecord::new(
     "Starbreach Whale",
     "8a1a0476-7145-4493-97e5-4fc05c85e476",
@@ -2488,7 +2572,10 @@ pub(in crate::card::sets) static STARBREACH_WHALE: CardRecord = CardRecord::new(
 );
 
 // EOE 78 — Starfield Vocalist
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell, without an extra counterable enters trigger, and owner cast permission that starts only after the exile turn has ended; the existing Warp helper installs an enters trigger and grants permission immediately.
+// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
+// without an extra counterable enters trigger, and owner cast permission that starts only after
+// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
+// permission immediately.
 pub(in crate::card::sets) static STARFIELD_VOCALIST: CardRecord = CardRecord::new(
     "Starfield Vocalist",
     "deca0b2a-e7f3-444a-883d-7c41dd62c9cc",
@@ -2497,7 +2584,10 @@ pub(in crate::card::sets) static STARFIELD_VOCALIST: CardRecord = CardRecord::ne
 );
 
 // EOE 79 — Starwinder
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell, without an extra counterable enters trigger, and owner cast permission that starts only after the exile turn has ended; the existing Warp helper installs an enters trigger and grants permission immediately.
+// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
+// without an extra counterable enters trigger, and owner cast permission that starts only after
+// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
+// permission immediately.
 pub(in crate::card::sets) static STARWINDER: CardRecord = CardRecord::new(
     "Starwinder",
     "27d1a010-5790-4b35-9fdc-0e366eed021d",
@@ -2670,7 +2760,8 @@ pub(in crate::card::sets) static TRACTOR_BEAM: CardRecord = CardRecord::new(
 );
 
 // EOE 83 — Unravel
-// Audit: unsupported — Needs the amount of mana actually spent on a targeted spell, captured before countering it; current target values expose mana value but not its payment amount.
+// Audit: unsupported — Needs the amount of mana actually spent on a targeted spell, captured
+// before countering it; current target values expose mana value but not its payment amount.
 pub(in crate::card::sets) static UNRAVEL: CardRecord = CardRecord::new(
     "Unravel",
     "e8978214-c853-453d-872d-af56bdaaa3d7",
@@ -2679,7 +2770,8 @@ pub(in crate::card::sets) static UNRAVEL: CardRecord = CardRecord::new(
 );
 
 // EOE 84 — Uthros Psionicist
-// Audit: unsupported — Needs a shared spell-cost condition based on the ordinal of the spell being cast this turn; current external cost conditions only expose Always and TargetsSource.
+// Audit: unsupported — Needs a shared spell-cost condition based on the ordinal of the spell
+// being cast this turn; current external cost conditions only expose Always and TargetsSource.
 pub(in crate::card::sets) static UTHROS_PSIONICIST: CardRecord = CardRecord::new(
     "Uthros Psionicist",
     "e23cc5fd-afe4-480c-8858-ed80a082584e",
@@ -2734,7 +2826,9 @@ pub(in crate::card::sets) static UTHROS_SCANSHIP: CardRecord = CardRecord::new(
 );
 
 // EOE 86 — Weftwalking
-// Audit: unsupported — Needs a player-wide free-cast alternative restricted to the first spell on that player's own turn; existing alternative permissions do not enforce that cast-history condition.
+// Audit: unsupported — Needs a player-wide free-cast alternative restricted to the first spell
+// on that player's own turn; existing alternative permissions do not enforce that cast-history
+// condition.
 pub(in crate::card::sets) static WEFTWALKING: CardRecord = CardRecord::new(
     "Weftwalking",
     "39d48ddd-4529-4284-9da3-5272ad362b9b",
@@ -2743,7 +2837,9 @@ pub(in crate::card::sets) static WEFTWALKING: CardRecord = CardRecord::new(
 );
 
 // EOE 87 — Alpharael, Stonechosen
-// Audit: unsupported — Needs turn history for any nonland permanent leaving the battlefield and for any spell cast using Warp, retained across subsequent zone and control changes; the current permanent-left tally includes lands and the spell history has no Warp-cost predicate.
+// Audit: unsupported — Needs turn history for any nonland permanent leaving the battlefield and
+// for any spell cast using Warp, retained across subsequent zone and control changes; the
+// current permanent-left tally includes lands and the spell history has no Warp-cost predicate.
 pub(in crate::card::sets) static ALPHARAEL_STONECHOSEN: CardRecord = CardRecord::new(
     "Alpharael, Stonechosen",
     "33063d26-37f7-4e35-8da2-5770dfabdc41",
@@ -2842,7 +2938,9 @@ pub(in crate::card::sets) static BEAMSAW_PROSPECTOR: CardRecord = CardRecord::ne
 );
 
 // EOE 90 — Blade of the Swarm
-// Audit: unsupported — Needs an exile target predicate identifying cards with a Warp alternative-cost ability; current object predicates cannot inspect that alternative-cast ability kind.
+// Audit: unsupported — Needs an exile target predicate identifying cards with a Warp
+// alternative-cost ability; current object predicates cannot inspect that alternative-cast
+// ability kind.
 pub(in crate::card::sets) static BLADE_OF_THE_SWARM: CardRecord = CardRecord::new(
     "Blade of the Swarm",
     "b157330a-2652-4ed9-b8fa-8e72b4eda15c",
@@ -2851,7 +2949,9 @@ pub(in crate::card::sets) static BLADE_OF_THE_SWARM: CardRecord = CardRecord::ne
 );
 
 // EOE 91 — Chorale of the Void
-// Audit: unsupported — Needs turn history for any nonland permanent leaving the battlefield and for any spell cast using Warp, retained across subsequent zone and control changes; the current permanent-left tally includes lands and the spell history has no Warp-cost predicate.
+// Audit: unsupported — Needs turn history for any nonland permanent leaving the battlefield and
+// for any spell cast using Warp, retained across subsequent zone and control changes; the
+// current permanent-left tally includes lands and the spell history has no Warp-cost predicate.
 pub(in crate::card::sets) static CHORALE_OF_THE_VOID: CardRecord = CardRecord::new(
     "Chorale of the Void",
     "7389fe88-f6ff-4497-a037-9ca283fb89e3",
@@ -2893,7 +2993,8 @@ pub(in crate::card::sets) static COMET_CRAWLER: CardRecord = CardRecord::new(
 );
 
 // EOE 93 — Dark Endurance
-// Audit: unsupported — Needs a self spell-cost reduction that inspects whether its selected target is blocking; current self-cost evaluation does not read selected targets.
+// Audit: unsupported — Needs a self spell-cost reduction that inspects whether its selected
+// target is blocking; current self-cost evaluation does not read selected targets.
 pub(in crate::card::sets) static DARK_ENDURANCE: CardRecord = CardRecord::new(
     "Dark Endurance",
     "fac87b49-a0cd-42d5-b30a-efc6d5526fc3",
@@ -2902,7 +3003,9 @@ pub(in crate::card::sets) static DARK_ENDURANCE: CardRecord = CardRecord::new(
 );
 
 // EOE 94 — Decode Transmissions
-// Audit: unsupported — Needs turn history for any nonland permanent leaving the battlefield and for any spell cast using Warp, retained across subsequent zone and control changes; the current permanent-left tally includes lands and the spell history has no Warp-cost predicate.
+// Audit: unsupported — Needs turn history for any nonland permanent leaving the battlefield and
+// for any spell cast using Warp, retained across subsequent zone and control changes; the
+// current permanent-left tally includes lands and the spell history has no Warp-cost predicate.
 pub(in crate::card::sets) static DECODE_TRANSMISSIONS: CardRecord = CardRecord::new(
     "Decode Transmissions",
     "cecb4936-14ca-49f9-b209-6519cab54b30",
@@ -3005,7 +3108,9 @@ pub(in crate::card::sets) static DUBIOUS_DELICACY: CardRecord = CardRecord::new(
 );
 
 // EOE 97 — Elegy Acolyte
-// Audit: unsupported — Needs turn history for any nonland permanent leaving the battlefield and for any spell cast using Warp, retained across subsequent zone and control changes; the current permanent-left tally includes lands and the spell history has no Warp-cost predicate.
+// Audit: unsupported — Needs turn history for any nonland permanent leaving the battlefield and
+// for any spell cast using Warp, retained across subsequent zone and control changes; the
+// current permanent-left tally includes lands and the spell history has no Warp-cost predicate.
 pub(in crate::card::sets) static ELEGY_ACOLYTE: CardRecord = CardRecord::new(
     "Elegy Acolyte",
     "c69ed7c7-1f49-4299-b3e6-75150258ac59",
@@ -3039,7 +3144,9 @@ pub(in crate::card::sets) static EMBRACE_OBLIVION: CardRecord = CardRecord::new(
 );
 
 // EOE 99 — Entropic Battlecruiser
-// Audit: unsupported — Needs individual-card discard triggers, including separate trigger objects for a multi-card discard; DiscardedCards emits one event for the entire batch and its amount, so multiplying life loss would change countering and response opportunities.
+// Audit: unsupported — Needs individual-card discard triggers, including separate trigger
+// objects for a multi-card discard; DiscardedCards emits one event for the entire batch and its
+// amount, so multiplying life loss would change countering and response opportunities.
 pub(in crate::card::sets) static ENTROPIC_BATTLECRUISER: CardRecord = CardRecord::new(
     "Entropic Battlecruiser",
     "cc59796b-9025-44b6-a188-cf6684ebffb9",
@@ -3241,7 +3348,9 @@ pub(in crate::card::sets) static HULLCARVER: CardRecord = CardRecord::new(
 );
 
 // EOE 106 — Hylderblade
-// Audit: unsupported — Needs turn history for any nonland permanent leaving the battlefield and for any spell cast using Warp, retained across subsequent zone and control changes; the current permanent-left tally includes lands and the spell history has no Warp-cost predicate.
+// Audit: unsupported — Needs turn history for any nonland permanent leaving the battlefield and
+// for any spell cast using Warp, retained across subsequent zone and control changes; the
+// current permanent-left tally includes lands and the spell history has no Warp-cost predicate.
 pub(in crate::card::sets) static HYLDERBLADE: CardRecord = CardRecord::new(
     "Hylderblade",
     "ac80cf18-0707-4358-bdd4-0c2b90d0a1d9",
@@ -3250,7 +3359,9 @@ pub(in crate::card::sets) static HYLDERBLADE: CardRecord = CardRecord::new(
 );
 
 // EOE 107 — Hymn of the Faller
-// Audit: unsupported — Needs turn history for any nonland permanent leaving the battlefield and for any spell cast using Warp, retained across subsequent zone and control changes; the current permanent-left tally includes lands and the spell history has no Warp-cost predicate.
+// Audit: unsupported — Needs turn history for any nonland permanent leaving the battlefield and
+// for any spell cast using Warp, retained across subsequent zone and control changes; the
+// current permanent-left tally includes lands and the spell history has no Warp-cost predicate.
 pub(in crate::card::sets) static HYMN_OF_THE_FALLER: CardRecord = CardRecord::new(
     "Hymn of the Faller",
     "e468d528-6cf0-4563-9da2-e388ba56cb9d",
@@ -3259,7 +3370,9 @@ pub(in crate::card::sets) static HYMN_OF_THE_FALLER: CardRecord = CardRecord::ne
 );
 
 // EOE 108 — Insatiable Skittermaw
-// Audit: unsupported — Needs turn history for any nonland permanent leaving the battlefield and for any spell cast using Warp, retained across subsequent zone and control changes; the current permanent-left tally includes lands and the spell history has no Warp-cost predicate.
+// Audit: unsupported — Needs turn history for any nonland permanent leaving the battlefield and
+// for any spell cast using Warp, retained across subsequent zone and control changes; the
+// current permanent-left tally includes lands and the spell history has no Warp-cost predicate.
 pub(in crate::card::sets) static INSATIABLE_SKITTERMAW: CardRecord = CardRecord::new(
     "Insatiable Skittermaw",
     "e9d30cca-ea33-418f-bba3-5103f1dbd751",
@@ -3366,7 +3479,10 @@ pub(in crate::card::sets) static MONOIST_SENTRY: CardRecord = CardRecord::new(
 );
 
 // EOE 112 — Perigee Beckoner
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell, without an extra counterable enters trigger, and owner cast permission that starts only after the exile turn has ended; the existing Warp helper installs an enters trigger and grants permission immediately.
+// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
+// without an extra counterable enters trigger, and owner cast permission that starts only after
+// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
+// permission immediately.
 pub(in crate::card::sets) static PERIGEE_BECKONER: CardRecord = CardRecord::new(
     "Perigee Beckoner",
     "f3666a08-d449-496f-969a-bf21d4afbd77",
@@ -3669,7 +3785,10 @@ pub(in crate::card::sets) static SUSURIAN_DIRGECRAFT: CardRecord = CardRecord::n
 );
 
 // EOE 118 — Susurian Voidborn
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell, without an extra counterable enters trigger, and owner cast permission that starts only after the exile turn has ended; the existing Warp helper installs an enters trigger and grants permission immediately.
+// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
+// without an extra counterable enters trigger, and owner cast permission that starts only after
+// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
+// permission immediately.
 pub(in crate::card::sets) static SUSURIAN_VOIDBORN: CardRecord = CardRecord::new(
     "Susurian Voidborn",
     "beb97e7b-0ae7-4b08-9ceb-6a7f825bcd49",
@@ -3703,7 +3822,9 @@ pub(in crate::card::sets) static SWARM_CULLER: CardRecord = CardRecord::new(
 );
 
 // EOE 120 — Temporal Intervention
-// Audit: unsupported — Needs turn history for any nonland permanent leaving the battlefield and for any spell cast using Warp, retained across subsequent zone and control changes; the current permanent-left tally includes lands and the spell history has no Warp-cost predicate.
+// Audit: unsupported — Needs turn history for any nonland permanent leaving the battlefield and
+// for any spell cast using Warp, retained across subsequent zone and control changes; the
+// current permanent-left tally includes lands and the spell history has no Warp-cost predicate.
 pub(in crate::card::sets) static TEMPORAL_INTERVENTION: CardRecord = CardRecord::new(
     "Temporal Intervention",
     "79f9525a-4cb7-411e-b7b5-2113e93bcbc3",
@@ -3712,7 +3833,10 @@ pub(in crate::card::sets) static TEMPORAL_INTERVENTION: CardRecord = CardRecord:
 );
 
 // EOE 121 — Timeline Culler
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell, without an extra counterable enters trigger, and owner cast permission that starts only after the exile turn has ended; the existing Warp helper installs an enters trigger and grants permission immediately.
+// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
+// without an extra counterable enters trigger, and owner cast permission that starts only after
+// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
+// permission immediately.
 pub(in crate::card::sets) static TIMELINE_CULLER: CardRecord = CardRecord::new(
     "Timeline Culler",
     "33410410-72f2-49c4-9e63-a72202cd075a",
@@ -3721,7 +3845,9 @@ pub(in crate::card::sets) static TIMELINE_CULLER: CardRecord = CardRecord::new(
 );
 
 // EOE 122 — Tragic Trajectory
-// Audit: unsupported — Needs turn history for any nonland permanent leaving the battlefield and for any spell cast using Warp, retained across subsequent zone and control changes; the current permanent-left tally includes lands and the spell history has no Warp-cost predicate.
+// Audit: unsupported — Needs turn history for any nonland permanent leaving the battlefield and
+// for any spell cast using Warp, retained across subsequent zone and control changes; the
+// current permanent-left tally includes lands and the spell history has no Warp-cost predicate.
 pub(in crate::card::sets) static TRAGIC_TRAJECTORY: CardRecord = CardRecord::new(
     "Tragic Trajectory",
     "78c8bc60-1378-4028-8ab1-3286e459bffb",
@@ -3759,7 +3885,9 @@ const VIRUS_BEETLE_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // EOE 125 — Voidforged Titan
-// Audit: unsupported — Needs turn history for any nonland permanent leaving the battlefield and for any spell cast using Warp, retained across subsequent zone and control changes; the current permanent-left tally includes lands and the spell history has no Warp-cost predicate.
+// Audit: unsupported — Needs turn history for any nonland permanent leaving the battlefield and
+// for any spell cast using Warp, retained across subsequent zone and control changes; the
+// current permanent-left tally includes lands and the spell history has no Warp-cost predicate.
 pub(in crate::card::sets) static VOIDFORGED_TITAN: CardRecord = CardRecord::new(
     "Voidforged Titan",
     "6119c016-01b2-44f3-9550-6988324c1d1f",
@@ -3788,7 +3916,9 @@ pub(in crate::card::sets) static VOTE_OUT: CardRecord = CardRecord::new(
 );
 
 // EOE 127 — Xu-Ifit, Osteoharmonist
-// Audit: unsupported — Needs a return instruction establishing the extra Skeleton subtype and removed abilities as the creature enters, before entry replacement and trigger matching (CR 611.2e).
+// Audit: unsupported — Needs a return instruction establishing the extra Skeleton subtype and
+// removed abilities as the creature enters, before entry replacement and trigger matching (CR
+// 611.2e).
 pub(in crate::card::sets) static XU_IFIT_OSTEOHARMONIST: CardRecord = CardRecord::new(
     "Xu-Ifit, Osteoharmonist",
     "c0838f25-2193-4305-b73a-bf0c0bb4981a",
@@ -4098,7 +4228,8 @@ pub(in crate::card::sets) static FRONTLINE_WAR_RAGER: CardRecord = CardRecord::n
 );
 
 // EOE 135 — Full Bore
-// Audit: unsupported — Needs a predicate reading the Warp alternative-cost choice of a targeted permanent; SourceCastWith only examines the resolving ability source.
+// Audit: unsupported — Needs a predicate reading the Warp alternative-cost choice of a targeted
+// permanent; SourceCastWith only examines the resolving ability source.
 pub(in crate::card::sets) static FULL_BORE: CardRecord = CardRecord::new(
     "Full Bore",
     "cfee64ef-d22d-4024-bc65-59cbd1731d1c",
@@ -4175,7 +4306,9 @@ pub(in crate::card::sets) static INVASIVE_MANEUVERS: CardRecord = CardRecord::ne
 );
 
 // EOE 138 — Kav Landseeker
-// Audit: unsupported — Needs a delayed trigger at the end step of the controller's next turn, skipping the current turn; installed step triggers do not have that earliest-turn restriction.
+// Audit: unsupported — Needs a delayed trigger at the end step of the controller's next turn,
+// skipping the current turn; installed step triggers do not have that earliest-turn
+// restriction.
 pub(in crate::card::sets) static KAV_LANDSEEKER: CardRecord = CardRecord::new(
     "Kav Landseeker",
     "7a5a7e89-50e3-43cb-af93-d7d80a630c11",
@@ -4221,7 +4354,9 @@ pub(in crate::card::sets) static KAVARON_HARRIER: CardRecord = CardRecord::new(
 );
 
 // EOE 140 — Kavaron Skywarden
-// Audit: unsupported — Needs turn history for any nonland permanent leaving the battlefield and for any spell cast using Warp, retained across subsequent zone and control changes; the current permanent-left tally includes lands and the spell history has no Warp-cost predicate.
+// Audit: unsupported — Needs turn history for any nonland permanent leaving the battlefield and
+// for any spell cast using Warp, retained across subsequent zone and control changes; the
+// current permanent-left tally includes lands and the spell history has no Warp-cost predicate.
 pub(in crate::card::sets) static KAVARON_SKYWARDEN: CardRecord = CardRecord::new(
     "Kavaron Skywarden",
     "617038a8-0544-4d0e-8ff1-c786e60ecd59",
@@ -4263,7 +4398,9 @@ pub(in crate::card::sets) static KAVARON_TURBODRONE: CardRecord = CardRecord::ne
 );
 
 // EOE 142 — Lithobraking
-// Audit: unsupported — Needs a spell-created reflexive trigger after the optional sacrifice; OptionalEffectTaken only observes battlefield sources and does not create a surviving spell continuation.
+// Audit: unsupported — Needs a spell-created reflexive trigger after the optional sacrifice;
+// OptionalEffectTaken only observes battlefield sources and does not create a surviving spell
+// continuation.
 pub(in crate::card::sets) static LITHOBRAKING: CardRecord = CardRecord::new(
     "Lithobraking",
     "5a22024c-2c0f-4487-98d1-ee89cf3dba89",
@@ -4297,7 +4434,10 @@ pub(in crate::card::sets) static MELDED_MOXITE: CardRecord = CardRecord::new(
 );
 
 // EOE 144 — Memorial Team Leader
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell, without an extra counterable enters trigger, and owner cast permission that starts only after the exile turn has ended; the existing Warp helper installs an enters trigger and grants permission immediately.
+// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
+// without an extra counterable enters trigger, and owner cast permission that starts only after
+// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
+// permission immediately.
 pub(in crate::card::sets) static MEMORIAL_TEAM_LEADER: CardRecord = CardRecord::new(
     "Memorial Team Leader",
     "3ddc240a-62df-4773-98d7-48a9adaf1846",
@@ -4400,7 +4540,10 @@ pub(in crate::card::sets) static NEBULA_DRAGON: CardRecord = CardRecord::new(
 );
 
 // EOE 148 — Nova Hellkite
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell, without an extra counterable enters trigger, and owner cast permission that starts only after the exile turn has ended; the existing Warp helper installs an enters trigger and grants permission immediately.
+// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
+// without an extra counterable enters trigger, and owner cast permission that starts only after
+// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
+// permission immediately.
 pub(in crate::card::sets) static NOVA_HELLKITE: CardRecord = CardRecord::new(
     "Nova Hellkite",
     "424af0d0-398c-4d78-9ad5-2171bf1bcbd1",
@@ -4409,7 +4552,9 @@ pub(in crate::card::sets) static NOVA_HELLKITE: CardRecord = CardRecord::new(
 );
 
 // EOE 149 — Orbital Plunge
-// Audit: unsupported — Needs an excess-damage result and conditional continuation for an ordinary damage assignment; current damage follow-ups report intended recipients or apply effects, while excess follow-ups are fight-specific.
+// Audit: unsupported — Needs an excess-damage result and conditional continuation for an
+// ordinary damage assignment; current damage follow-ups report intended recipients or apply
+// effects, while excess follow-ups are fight-specific.
 pub(in crate::card::sets) static ORBITAL_PLUNGE: CardRecord = CardRecord::new(
     "Orbital Plunge",
     "2dc7cc17-5319-4694-99c6-8c56a0b40a44",
@@ -4516,7 +4661,9 @@ pub(in crate::card::sets) static PAIN_FOR_ALL: CardRecord = CardRecord::new(
 );
 
 // EOE 152 — Plasma Bolt
-// Audit: unsupported — Needs turn history for any nonland permanent leaving the battlefield and for any spell cast using Warp, retained across subsequent zone and control changes; the current permanent-left tally includes lands and the spell history has no Warp-cost predicate.
+// Audit: unsupported — Needs turn history for any nonland permanent leaving the battlefield and
+// for any spell cast using Warp, retained across subsequent zone and control changes; the
+// current permanent-left tally includes lands and the spell history has no Warp-cost predicate.
 pub(in crate::card::sets) static PLASMA_BOLT: CardRecord = CardRecord::new(
     "Plasma Bolt",
     "a1a1834b-76c2-4496-b8c5-18b69ab34c4c",
@@ -4525,7 +4672,11 @@ pub(in crate::card::sets) static PLASMA_BOLT: CardRecord = CardRecord::new(
 );
 
 // EOE 153 — Possibility Technician
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell, without an extra counterable enters trigger, and owner cast permission that starts only after the exile turn has ended; the existing Warp helper installs an enters trigger and grants permission immediately. Also needs an indefinite controller play permission conditional on currently controlling a Kavu.
+// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
+// without an extra counterable enters trigger, and owner cast permission that starts only after
+// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
+// permission immediately. Also needs an indefinite controller play permission conditional on
+// currently controlling a Kavu.
 pub(in crate::card::sets) static POSSIBILITY_TECHNICIAN: CardRecord = CardRecord::new(
     "Possibility Technician",
     "4b146c78-403f-48c8-941d-41114498bb89",
@@ -4534,7 +4685,10 @@ pub(in crate::card::sets) static POSSIBILITY_TECHNICIAN: CardRecord = CardRecord
 );
 
 // EOE 154 — Red Tiger Mechan
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell, without an extra counterable enters trigger, and owner cast permission that starts only after the exile turn has ended; the existing Warp helper installs an enters trigger and grants permission immediately.
+// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
+// without an extra counterable enters trigger, and owner cast permission that starts only after
+// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
+// permission immediately.
 pub(in crate::card::sets) static RED_TIGER_MECHAN: CardRecord = CardRecord::new(
     "Red Tiger Mechan",
     "b7b2fa48-cd2d-42ea-afd8-8cbd7a1bcdab",
@@ -4599,7 +4753,9 @@ pub(in crate::card::sets) static RIG_FOR_WAR: CardRecord = CardRecord::new(
 );
 
 // EOE 157 — Roving Actuator
-// Audit: unsupported — Needs turn history for any nonland permanent leaving the battlefield and for any spell cast using Warp, retained across subsequent zone and control changes; the current permanent-left tally includes lands and the spell history has no Warp-cost predicate.
+// Audit: unsupported — Needs turn history for any nonland permanent leaving the battlefield and
+// for any spell cast using Warp, retained across subsequent zone and control changes; the
+// current permanent-left tally includes lands and the spell history has no Warp-cost predicate.
 pub(in crate::card::sets) static ROVING_ACTUATOR: CardRecord = CardRecord::new(
     "Roving Actuator",
     "1111173b-ea49-4de4-b5b0-07d768c626b9",
@@ -4772,7 +4928,11 @@ pub(in crate::card::sets) static SYSTEMS_OVERRIDE: CardRecord = CardRecord::new(
 );
 
 // EOE 162 — Tannuk, Steadfast Second
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell, without an extra counterable enters trigger, and owner cast permission that starts only after the exile turn has ended; the existing Warp helper installs an enters trigger and grants permission immediately. Also needs granting a complete Warp alternative to matching cards in hand.
+// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
+// without an extra counterable enters trigger, and owner cast permission that starts only after
+// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
+// permission immediately. Also needs granting a complete Warp alternative to matching cards in
+// hand.
 pub(in crate::card::sets) static TANNUK_STEADFAST_SECOND: CardRecord = CardRecord::new(
     "Tannuk, Steadfast Second",
     "44607ed3-9523-40ac-9f61-0edd011cf762",
@@ -4781,7 +4941,9 @@ pub(in crate::card::sets) static TANNUK_STEADFAST_SECOND: CardRecord = CardRecor
 );
 
 // EOE 163 — Terminal Velocity
-// Audit: unsupported — Needs permanent triggered-ability grants to the newly returned object identified by a zone-move binding; catalog validation rejects these grants because it cannot establish that the bound recipient is on the battlefield.
+// Audit: unsupported — Needs permanent triggered-ability grants to the newly returned object
+// identified by a zone-move binding; catalog validation rejects these grants because it cannot
+// establish that the bound recipient is on the battlefield.
 pub(in crate::card::sets) static TERMINAL_VELOCITY: CardRecord = CardRecord::new(
     "Terminal Velocity",
     "1d18dc06-16f0-4a3b-8d52-dbf4aa2c393d",
@@ -5006,7 +5168,7 @@ pub(in crate::card::sets) static WEAPONS_MANUFACTURING: CardRecord = CardRecord:
                 .with_name("Munitions")
                 .with_abilities(&[AbilityDef::triggered_with_targets(
                     "When this token leaves the battlefield, it deals 2 damage to \
-                 any target.",
+                     any target.",
                     TriggerEventDef::zone_changed(
                         ObjectPredicateDef::Source,
                         Some(ZoneKind::Battlefield),
@@ -5025,7 +5187,10 @@ pub(in crate::card::sets) static WEAPONS_MANUFACTURING: CardRecord = CardRecord:
 );
 
 // EOE 169 — Weftstalker Ardent
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell, without an extra counterable enters trigger, and owner cast permission that starts only after the exile turn has ended; the existing Warp helper installs an enters trigger and grants permission immediately.
+// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
+// without an extra counterable enters trigger, and owner cast permission that starts only after
+// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
+// permission immediately.
 pub(in crate::card::sets) static WEFTSTALKER_ARDENT: CardRecord = CardRecord::new(
     "Weftstalker Ardent",
     "cddb48cc-8eb1-47ce-90f0-7aad1e93e2c4",
@@ -5114,7 +5279,8 @@ pub(in crate::card::sets) static ATMOSPHERIC_GREENHOUSE: CardRecord = CardRecord
 );
 
 // EOE 172 — Bioengineered Future
-// Audit: unsupported — Needs a land-entry tally for the current turn retained after lands leave or change controllers; live entered-this-turn queries cannot supply the printed count.
+// Audit: unsupported — Needs a land-entry tally for the current turn retained after lands leave
+// or change controllers; live entered-this-turn queries cannot supply the printed count.
 pub(in crate::card::sets) static BIOENGINEERED_FUTURE: CardRecord = CardRecord::new(
     "Bioengineered Future",
     "800ee479-c1dc-4dd0-9b98-436c78997958",
@@ -5193,7 +5359,11 @@ pub(in crate::card::sets) static BLOOMING_STINGER: CardRecord = CardRecord::new(
 );
 
 // EOE 175 — Broodguard Elite
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell, without an extra counterable enters trigger, and owner cast permission that starts only after the exile turn has ended; the existing Warp helper installs an enters trigger and grants permission immediately. Also needs transferring every last-known counter kind and amount from the departed creature.
+// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
+// without an extra counterable enters trigger, and owner cast permission that starts only after
+// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
+// permission immediately. Also needs transferring every last-known counter kind and amount from
+// the departed creature.
 pub(in crate::card::sets) static BROODGUARD_ELITE: CardRecord = CardRecord::new(
     "Broodguard Elite",
     "08b1d019-65ab-4dea-9076-041fd6338a35",
@@ -5202,7 +5372,8 @@ pub(in crate::card::sets) static BROODGUARD_ELITE: CardRecord = CardRecord::new(
 );
 
 // EOE 176 — Close Encounter
-// Audit: unsupported — Needs an exile identity marker identifying cards exiled specifically by Warp, and an additional-cost choice spanning that group and controlled creatures.
+// Audit: unsupported — Needs an exile identity marker identifying cards exiled specifically by
+// Warp, and an additional-cost choice spanning that group and controlled creatures.
 pub(in crate::card::sets) static CLOSE_ENCOUNTER: CardRecord = CardRecord::new(
     "Close Encounter",
     "a8a77351-9115-470f-8141-222c1916b337",
@@ -5263,7 +5434,10 @@ const DIPLOMATIC_RELATIONS_ALTERNATE_1: PrintingRecord = PrintingRecord::alterna
 );
 
 // EOE 178 — Drix Fatemaker
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell, without an extra counterable enters trigger, and owner cast permission that starts only after the exile turn has ended; the existing Warp helper installs an enters trigger and grants permission immediately.
+// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
+// without an extra counterable enters trigger, and owner cast permission that starts only after
+// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
+// permission immediately.
 pub(in crate::card::sets) static DRIX_FATEMAKER: CardRecord = CardRecord::new(
     "Drix Fatemaker",
     "1beb7566-305e-4091-bdc4-cf4c789ac05a",
@@ -5321,7 +5495,10 @@ pub(in crate::card::sets) static EUMIDIAN_TERRABOTANIST: CardRecord = CardRecord
 );
 
 // EOE 181 — Eusocial Engineering
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell, without an extra counterable enters trigger, and owner cast permission that starts only after the exile turn has ended; the existing Warp helper installs an enters trigger and grants permission immediately.
+// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
+// without an extra counterable enters trigger, and owner cast permission that starts only after
+// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
+// permission immediately.
 pub(in crate::card::sets) static EUSOCIAL_ENGINEERING: CardRecord = CardRecord::new(
     "Eusocial Engineering",
     "011bd7d8-6d60-482a-91b7-d3f0aad13b71",
@@ -5330,7 +5507,9 @@ pub(in crate::card::sets) static EUSOCIAL_ENGINEERING: CardRecord = CardRecord::
 );
 
 // EOE 182 — Famished Worldsire
-// Audit: unsupported — Needs an as-entry optional variable sacrifice of lands, with counters derived from the committed sacrifice count; existing entry replacements cannot execute that selection.
+// Audit: unsupported — Needs an as-entry optional variable sacrifice of lands, with counters
+// derived from the committed sacrifice count; existing entry replacements cannot execute that
+// selection.
 pub(in crate::card::sets) static FAMISHED_WORLDSIRE: CardRecord = CardRecord::new(
     "Famished Worldsire",
     "2934c9c8-d23a-462b-83d5-94e88c8663ac",
@@ -5377,7 +5556,8 @@ pub(in crate::card::sets) static FRENZIED_BALOTH: CardRecord = CardRecord::new(
 );
 
 // EOE 184 — Fungal Colossus
-// Audit: unsupported — Needs DistinctNamesAmong in spell-cost evaluation; it is available for resolving effects and conditions, but cost_reduction_value currently returns zero for it.
+// Audit: unsupported — Needs DistinctNamesAmong in spell-cost evaluation; it is available for
+// resolving effects and conditions, but cost_reduction_value currently returns zero for it.
 pub(in crate::card::sets) static FUNGAL_COLOSSUS: CardRecord = CardRecord::new(
     "Fungal Colossus",
     "9dc9559f-cece-4c85-807c-158291666007",
@@ -5402,7 +5582,9 @@ pub(in crate::card::sets) static GALACTIC_WAYFARER: CardRecord = CardRecord::new
 );
 
 // EOE 186 — Gene Pollinator
-// Audit: unsupported — Needs a mana-ability payment that taps a separately chosen untapped permanent in addition to its source; TapPermanents is implemented for ordinary activations but rejected by mana activation enumeration and payment.
+// Audit: unsupported — Needs a mana-ability payment that taps a separately chosen untapped
+// permanent in addition to its source; TapPermanents is implemented for ordinary activations
+// but rejected by mana activation enumeration and payment.
 pub(in crate::card::sets) static GENE_POLLINATOR: CardRecord = CardRecord::new(
     "Gene Pollinator",
     "ce7a8eec-a029-4ee1-b2d6-405d903d4640",
@@ -5411,7 +5593,10 @@ pub(in crate::card::sets) static GENE_POLLINATOR: CardRecord = CardRecord::new(
 );
 
 // EOE 187 — Germinating Wurm
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell, without an extra counterable enters trigger, and owner cast permission that starts only after the exile turn has ended; the existing Warp helper installs an enters trigger and grants permission immediately.
+// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
+// without an extra counterable enters trigger, and owner cast permission that starts only after
+// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
+// permission immediately.
 pub(in crate::card::sets) static GERMINATING_WURM: CardRecord = CardRecord::new(
     "Germinating Wurm",
     "fcde173a-6314-4904-bddd-68b2ab1e4867",
@@ -5678,7 +5863,10 @@ pub(in crate::card::sets) static LASHWHIP_PREDATOR: CardRecord = CardRecord::new
 );
 
 // EOE 196 — Loading Zone
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell, without an extra counterable enters trigger, and owner cast permission that starts only after the exile turn has ended; the existing Warp helper installs an enters trigger and grants permission immediately.
+// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
+// without an extra counterable enters trigger, and owner cast permission that starts only after
+// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
+// permission immediately.
 pub(in crate::card::sets) static LOADING_ZONE: CardRecord = CardRecord::new(
     "Loading Zone",
     "0d2c95bd-79af-4a23-b265-62cc0b164e3e",
@@ -6131,7 +6319,9 @@ pub(in crate::card::sets) static SLEDGE_CLASS_SEEDSHIP: CardRecord = CardRecord:
 );
 
 // EOE 209 — Tapestry Warden
-// Audit: unsupported — Needs a continuous modifier that substitutes toughness for power when resolving a Station ability; current tap payments and value projections have no Station contribution override.
+// Audit: unsupported — Needs a continuous modifier that substitutes toughness for power when
+// resolving a Station ability; current tap payments and value projections have no Station
+// contribution override.
 pub(in crate::card::sets) static TAPESTRY_WARDEN: CardRecord = CardRecord::new(
     "Tapestry Warden",
     "7cbbab6c-43ae-4e50-97ce-532a3316591a",
@@ -6140,7 +6330,8 @@ pub(in crate::card::sets) static TAPESTRY_WARDEN: CardRecord = CardRecord::new(
 );
 
 // EOE 210 — Terrasymbiosis
-// Audit: unsupported — Needs counter-placement events identifying the placing player, plus a per-turn use consumed only when the optional draw is accepted.
+// Audit: unsupported — Needs counter-placement events identifying the placing player, plus a
+// per-turn use consumed only when the optional draw is accepted.
 pub(in crate::card::sets) static TERRASYMBIOSIS: CardRecord = CardRecord::new(
     "Terrasymbiosis",
     "26008c7d-5dbe-4da2-b475-4dd307e7bc68",
@@ -6352,7 +6543,8 @@ pub(in crate::card::sets) static COSMOGOYF: CardRecord = CardRecord::new(
 );
 
 // EOE 216 — Dyadrine, Synthesis Amalgam
-// Audit: unsupported — Needs a resolving payment that chooses two distinct controlled creatures and removes one +1/+1 counter from each; current fixed counter removal is source-only.
+// Audit: unsupported — Needs a resolving payment that chooses two distinct controlled creatures
+// and removes one +1/+1 counter from each; current fixed counter removal is source-only.
 pub(in crate::card::sets) static DYADRINE_SYNTHESIS_AMALGAM: CardRecord = CardRecord::new(
     "Dyadrine, Synthesis Amalgam",
     "994ca692-7138-4dcb-bf46-5da530f86036",
@@ -6415,7 +6607,8 @@ pub(in crate::card::sets) static GENEMORPH_IMAGO: CardRecord = CardRecord::new(
 );
 
 // EOE 218 — Haliya, Ascendant Cadet
-// Audit: unsupported — Needs a combat-damage batch trigger filtered by controlled creatures with +1/+1 counters, firing once per damaged player rather than once per creature.
+// Audit: unsupported — Needs a combat-damage batch trigger filtered by controlled creatures
+// with +1/+1 counters, firing once per damaged player rather than once per creature.
 pub(in crate::card::sets) static HALIYA_ASCENDANT_CADET: CardRecord = CardRecord::new(
     "Haliya, Ascendant Cadet",
     "683d6eba-7f98-4105-b318-7f2290012f32",
@@ -6511,7 +6704,9 @@ pub(in crate::card::sets) static INFINITE_GUIDELINE_STATION: CardRecord = CardRe
 );
 
 // EOE 220 — Interceptor Mechan
-// Audit: unsupported — Needs turn history for any nonland permanent leaving the battlefield and for any spell cast using Warp, retained across subsequent zone and control changes; the current permanent-left tally includes lands and the spell history has no Warp-cost predicate.
+// Audit: unsupported — Needs turn history for any nonland permanent leaving the battlefield and
+// for any spell cast using Warp, retained across subsequent zone and control changes; the
+// current permanent-left tally includes lands and the spell history has no Warp-cost predicate.
 pub(in crate::card::sets) static INTERCEPTOR_MECHAN: CardRecord = CardRecord::new(
     "Interceptor Mechan",
     "198211af-f413-4e9b-9baf-4b4fcb81eadc",
@@ -6552,7 +6747,8 @@ pub(in crate::card::sets) static MM_MENON_UTHROS_EXILE: CardRecord = CardRecord:
 );
 
 // EOE 222 — Mutinous Massacre
-// Audit: unsupported — Needs a predicate testing odd or even mana value across a changing creature set; the existing scalar comparison vocabulary has no parity operation.
+// Audit: unsupported — Needs a predicate testing odd or even mana value across a changing
+// creature set; the existing scalar comparison vocabulary has no parity operation.
 pub(in crate::card::sets) static MUTINOUS_MASSACRE: CardRecord = CardRecord::new(
     "Mutinous Massacre",
     "42d5034f-18f0-4d57-9840-6be52c286247",
@@ -6561,7 +6757,10 @@ pub(in crate::card::sets) static MUTINOUS_MASSACRE: CardRecord = CardRecord::new
 );
 
 // EOE 223 — Pinnacle Emissary
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell, without an extra counterable enters trigger, and owner cast permission that starts only after the exile turn has ended; the existing Warp helper installs an enters trigger and grants permission immediately.
+// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
+// without an extra counterable enters trigger, and owner cast permission that starts only after
+// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
+// permission immediately.
 pub(in crate::card::sets) static PINNACLE_EMISSARY: CardRecord = CardRecord::new(
     "Pinnacle Emissary",
     "3c922347-f05f-40a4-bbee-6bc02a1e0de5",
@@ -6982,7 +7181,8 @@ pub(in crate::card::sets) static SYR_VONDAM_THE_LUCENT: CardRecord = CardRecord:
 );
 
 // EOE 233 — Tannuk, Memorial Ensign
-// Audit: unsupported — Needs per-ability resolution history retained after its source leaves the battlefield; SourceResolutionsThisTurn only reads a live permanent.
+// Audit: unsupported — Needs per-ability resolution history retained after its source leaves
+// the battlefield; SourceResolutionsThisTurn only reads a live permanent.
 pub(in crate::card::sets) static TANNUK_MEMORIAL_ENSIGN: CardRecord = CardRecord::new(
     "Tannuk, Memorial Ensign",
     "52498b7b-0389-4e7b-b29f-7ac86aab9229",
@@ -7019,7 +7219,10 @@ pub(in crate::card::sets) static ALL_FATES_SCROLL: CardRecord = CardRecord::new(
 );
 
 // EOE 235 — Bygone Colossus
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell, without an extra counterable enters trigger, and owner cast permission that starts only after the exile turn has ended; the existing Warp helper installs an enters trigger and grants permission immediately.
+// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
+// without an extra counterable enters trigger, and owner cast permission that starts only after
+// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
+// permission immediately.
 pub(in crate::card::sets) static BYGONE_COLOSSUS: CardRecord = CardRecord::new(
     "Bygone Colossus",
     "4bb8f2ef-4398-4a07-9130-5005356a3b4a",
@@ -7170,7 +7373,8 @@ pub(in crate::card::sets) static DAWNSIRE_SUNSTAR_DREADNOUGHT: CardRecord = Card
 );
 
 // EOE 239 — The Dominion Bracelet
-// Audit: unsupported — Needs control of another player's complete next-turn decisions, including private information, mana choices, and their legal actions.
+// Audit: unsupported — Needs control of another player's complete next-turn decisions,
+// including private information, mana choices, and their legal actions.
 pub(in crate::card::sets) static THE_DOMINION_BRACELET: CardRecord = CardRecord::new(
     "The Dominion Bracelet",
     "f5360880-2849-45d6-b1aa-08c7e01083af",
@@ -7381,7 +7585,8 @@ pub(in crate::card::sets) static PINNACLE_KILL_SHIP: CardRecord = CardRecord::ne
 );
 
 // EOE 245 — Survey Mechan
-// Audit: unsupported — Needs DistinctNamesAmong in activation-cost evaluation; ordinary cost_reduction_value does not evaluate the distinct-name aggregate.
+// Audit: unsupported — Needs DistinctNamesAmong in activation-cost evaluation; ordinary
+// cost_reduction_value does not evaluate the distinct-name aggregate.
 pub(in crate::card::sets) static SURVEY_MECHAN: CardRecord = CardRecord::new(
     "Survey Mechan",
     "9b4278ea-6cd8-45ad-b024-daf3dedd29e0",
@@ -7390,7 +7595,9 @@ pub(in crate::card::sets) static SURVEY_MECHAN: CardRecord = CardRecord::new(
 );
 
 // EOE 246 — Thaumaton Torpedo
-// Audit: unsupported — Needs player attack history filtered by Spacecraft and retained after those attackers leave or change controllers; current history only inspects individual live attackers.
+// Audit: unsupported — Needs player attack history filtered by Spacecraft and retained after
+// those attackers leave or change controllers; current history only inspects individual live
+// attackers.
 pub(in crate::card::sets) static THAUMATON_TORPEDO: CardRecord = CardRecord::new(
     "Thaumaton Torpedo",
     "1817f1b5-960a-435c-bdec-8cc8cbcb3358",
@@ -7785,7 +7992,8 @@ const SACRED_FOUNDRY_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // EOE 257 — Secluded Starforge
-// Audit: unsupported — Needs a variable-size artifact-tap activation cost with chosen X retained for the effect; ordinary tap-cost enumeration supports fixed counts only.
+// Audit: unsupported — Needs a variable-size artifact-tap activation cost with chosen X
+// retained for the effect; ordinary tap-cost enumeration supports fixed counts only.
 pub(in crate::card::sets) static SECLUDED_STARFORGE: CardRecord = CardRecord::new(
     "Secluded Starforge",
     "a997ff9f-045a-44a2-983d-f36414cef1ab",
@@ -8183,7 +8391,10 @@ const TANNUK_STEADFAST_SECOND_ALTERNATE_1: PrintingRecord = PrintingRecord::alte
 );
 
 // EOE 297 — Mightform Harmonizer
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell, without an extra counterable enters trigger, and owner cast permission that starts only after the exile turn has ended; the existing Warp helper installs an enters trigger and grants permission immediately.
+// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
+// without an extra counterable enters trigger, and owner cast permission that starts only after
+// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
+// permission immediately.
 pub(in crate::card::sets) static MIGHTFORM_HARMONIZER: CardRecord = CardRecord::new(
     "Mightform Harmonizer",
     "29bc9be4-4fc3-440a-a851-0c7f8989c9b5",
@@ -8983,7 +9194,7 @@ pub(in crate::card::sets) static THE_ENDSTONE: CardRecord = CardRecord::new(
     "The Endstone",
     "1227eb7f-c2a5-4112-98d0-70275a63c26a",
     "Hidetaka Tenjin",
-// Seven mana that draws a card for everything you do and hands the ten
+    // Seven mana that draws a card for everything you do and hands the ten
     // life back every end step, which is what makes the seven payable.
     CardRules::new_artifact(mana_cost!("{7}"))
         .with_supertype(CardSupertype::Legendary)
@@ -8997,7 +9208,9 @@ pub(in crate::card::sets) static THE_ENDSTONE: CardRecord = CardRecord::new(
                         land: ObjectPredicateDef::Any,
                         player: PlayerRelation::You,
                     },
-                    TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(PlayerRelation::You)),
+                    TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(
+                        PlayerRelation::You,
+                    )),
                 ]),
                 EffectDef::DrawCards {
                     recipient: EffectRecipientDef::Controller,
@@ -9005,8 +9218,8 @@ pub(in crate::card::sets) static THE_ENDSTONE: CardRecord = CardRecord::new(
                 },
             ),
             AbilityDef::triggered(
-                "At the beginning of your end step, your life total becomes half your starting life \
-                 total, rounded up.",
+                "At the beginning of your end step, your life total becomes \
+                 half your starting life total, rounded up.",
                 TriggerEventDef::StepBegins {
                     step: TurnStepDef::End,
                     player: PlayerRelation::You,

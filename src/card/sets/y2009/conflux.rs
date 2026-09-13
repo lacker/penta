@@ -83,8 +83,10 @@ pub(in crate::card::sets) static PATH_TO_EXILE: CardRecord = CardRecord::new(
     "Path to Exile",
     "29b7a8b1-b98e-483a-87a4-73bd831c03d4",
     "Todd Lockwood",
-CardRules::new_instant(mana_cost!("{W}")).with_ability(AbilityDef::spell_with_targets(
-        "Exile target creature. Its controller may search their library for a basic land card, put that card onto the battlefield tapped, then shuffle.",
+    CardRules::new_instant(mana_cost!("{W}")).with_ability(AbilityDef::spell_with_targets(
+        "Exile target creature. Its controller may search their \
+         library for a basic land card, put that card onto the \
+         battlefield tapped, then shuffle.",
         &[AbilityTargetDef::exactly_one_permanent(
             ObjectPredicateDef::HasType(CardType::Creature),
         )],
@@ -120,8 +122,9 @@ CardRules::new_instant(mana_cost!("{W}")).with_ability(AbilityDef::spell_with_ta
 );
 
 // CON 31 — Master Transmuter
-// Audit: unsupported — Returning a chosen battlefield permanent is not supported by the activated-cost planner; ReturnToHand currently has a casting-cost path only.
-pub(in crate::card::sets) static MASTER_TRANSMUTER_31: CardRecord = CardRecord::new(
+// Audit: unsupported — Returning a chosen battlefield permanent is not supported by the
+// activated-cost planner; ReturnToHand currently has a casting-cost path only.
+pub(in crate::card::sets) static MASTER_TRANSMUTER: CardRecord = CardRecord::new(
     "Master Transmuter",
     "252482b2-aaa7-49f3-af8c-30923ca98994",
     "Chippy",
@@ -129,13 +132,34 @@ pub(in crate::card::sets) static MASTER_TRANSMUTER_31: CardRecord = CardRecord::
 );
 
 // CON 48 — Kederekt Parasite
-pub(in crate::card::sets) static KEDEREKT_PARASITE_48: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static KEDEREKT_PARASITE: CardRecord = CardRecord::new(
     "Kederekt Parasite",
     "878c7d8c-4df0-43ac-8197-d89c8be5e70d",
     "Dan Murayama Scott",
     CardRules::new_creature(mana_cost!("{B}"), &["Horror"], 1, 1).with_abilities(&[
-AbilityDef::triggered_if("Whenever an opponent draws a card, if you control a red permanent, you may have this creature deal 1 damage to that player.", TriggerEventDef::DrewCard(DrawEventMatcherDef::any(PlayerRelation::Opponent)), &TriggerConditionDef::ObjectCount { query: ObjectQueryDef::matching(ObjectPredicateDef::Color(ManaColor::Red), &[ZoneKind::Battlefield], PlayerRelation::You), comparison: ComparisonDef::GreaterOrEqual, amount: 1 }, EffectDef::May { player: EffectRecipientDef::Controller, effect: &EffectDef::damage(EffectRecipientDef::player(PlayerRefDef::EventPlayer), ValueDef::Constant(1)) })
-]),
+        AbilityDef::triggered_if(
+            "Whenever an opponent draws a card, if you control a red \
+             permanent, you may have this creature deal 1 damage to that \
+             player.",
+            TriggerEventDef::DrewCard(DrawEventMatcherDef::any(PlayerRelation::Opponent)),
+            &TriggerConditionDef::ObjectCount {
+                query: ObjectQueryDef::matching(
+                    ObjectPredicateDef::Color(ManaColor::Red),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                comparison: ComparisonDef::GreaterOrEqual,
+                amount: 1,
+            },
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::damage(
+                    EffectRecipientDef::player(PlayerRefDef::EventPlayer),
+                    ValueDef::Constant(1),
+                ),
+            },
+        ),
+    ]),
 );
 
 // CON 60 — Canyon Minotaur
@@ -182,55 +206,57 @@ pub(in crate::card::sets) static KNIGHT_OF_THE_RELIQUARY: CardRecord = CardRecor
     "Knight of the Reliquary",
     "ad8b8518-c09e-4cb7-95b2-08e4e370d89c",
     "Michael Komarck",
-// Three mana for a body that grows a point every time it fetches, which
+    // Three mana for a body that grows a point every time it fetches, which
     // is what makes the utility lands in the deck worth a card each.
-    CardRules::new_creature(mana_cost!("{1}{G}{W}"), &["Human", "Knight"], 2, 2)
-        .with_abilities(&[
-            AbilityDef::static_ability(
-                "This creature gets +1/+1 for each land card in your graveyard.",
-                EffectDef::StaticApply {
-                    recipient: EffectRecipientDef::Source,
-                    effect: AppliedEffectDef::modify_power_toughness(
-                        ValueDef::CountMatchingObjects(&RELIQUARY_LAND_CARDS),
-                        ValueDef::CountMatchingObjects(&RELIQUARY_LAND_CARDS),
-                    ),
+    CardRules::new_creature(mana_cost!("{1}{G}{W}"), &["Human", "Knight"], 2, 2).with_abilities(&[
+        AbilityDef::static_ability(
+            "This creature gets +1/+1 for each land card in your graveyard.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::CountMatchingObjects(&RELIQUARY_LAND_CARDS),
+                    ValueDef::CountMatchingObjects(&RELIQUARY_LAND_CARDS),
+                ),
+            },
+        ),
+        AbilityDef::activated(
+            "{T}, Sacrifice a Forest or Plains: Search your library for \
+             a land card, put it onto the battlefield, then shuffle.",
+            &[
+                CostDef::TapSource,
+                CostDef::SacrificePermanent {
+                    // A Forest or a Plains by basic land type rather than by name, so a dual
+                    // with either type pays for her too.
+                    object: ObjectPredicateDef::HasAnyBasicLandType(&[
+                        BasicLandType::Forest,
+                        BasicLandType::Plains,
+                    ]),
+                    controller: PlayerRelation::You,
                 },
-            ),
-            AbilityDef::activated(
-                "{T}, Sacrifice a Forest or Plains: Search your library for a land card, put it onto the \
-                 battlefield, then shuffle.",
-                &[
-                    CostDef::TapSource,
-                    CostDef::SacrificePermanent {
-                        // A Forest or a Plains by basic land type rather than by name, so a dual
-                        // with either type pays for her too.
-                        object: ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest, BasicLandType::Plains]),
-                        controller: PlayerRelation::You,
-                    },
-                ],
-                EffectDef::SearchZone {
-                    player: EffectRecipientDef::Controller,
-                    source: ZoneKind::Library,
-                    object: ObjectPredicateDef::HasType(CardType::Land),
-                    minimum: 0,
-                    maximum: ValueDef::Constant(1),
-                    reveal: false,
-                    destination: ZoneKind::Battlefield,
-                    placement: ZonePlacement::Top,
-                    shuffle: true,
-                    // Untapped, unlike the Wight's: the land she finds can be used
-                    // the turn it arrives.
-                    enters_tapped: false,
-                    attachment: None,
-                    binding: None,
-                    then: None,
-                },
-            ),
-        ]),
+            ],
+            EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                object: ObjectPredicateDef::HasType(CardType::Land),
+                minimum: 0,
+                maximum: ValueDef::Constant(1),
+                reveal: false,
+                destination: ZoneKind::Battlefield,
+                placement: ZonePlacement::Top,
+                shuffle: true,
+                // Untapped, unlike the Wight's: the land she finds can be used
+                // the turn it arrives.
+                enters_tapped: false,
+                attachment: None,
+                binding: None,
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // CON 116 — Magister Sphinx
-pub(in crate::card::sets) static MAGISTER_SPHINX_116: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static MAGISTER_SPHINX: CardRecord = CardRecord::new(
     "Magister Sphinx",
     "cd2abff9-6927-42cc-8cf1-a0876d3a45d7",
     "Steven Belledin",
@@ -256,18 +282,22 @@ pub(in crate::card::sets) static NICOL_BOLAS_PLANESWALKER: CardRecord = CardReco
     "Nicol Bolas, Planeswalker",
     "48ee3939-bc12-4275-a446-9de36f0b4672",
     "D. Alexander Gregory",
-CardRules::new_planeswalker(mana_cost!("{4}{U}{B}{B}{R}"), &["Bolas"], 5)
+    CardRules::new_planeswalker(mana_cost!("{4}{U}{B}{B}{R}"), &["Bolas"], 5)
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
             AbilityDef::activated_with_targets(
                 "+3: Destroy target noncreature permanent.",
                 &[CostDef::Loyalty(3)],
-                &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
-                    object: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
-                    zones: &[ZoneKind::Battlefield],
-                    controller: None,
-                    owner: None,
-                })],
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(
+                            CardType::Creature,
+                        )),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: None,
+                        owner: None,
+                    },
+                )],
                 EffectDef::Destroy {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     then: None,
@@ -276,7 +306,9 @@ CardRules::new_planeswalker(mana_cost!("{4}{U}{B}{B}{R}"), &["Bolas"], 5)
             AbilityDef::activated_with_targets(
                 "−2: Gain control of target creature.",
                 &[CostDef::Loyalty(-2)],
-                &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Creature))],
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )],
                 EffectDef::gain_control(
                     EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     PlayerRefDef::EffectController,
@@ -284,9 +316,14 @@ CardRules::new_planeswalker(mana_cost!("{4}{U}{B}{B}{R}"), &["Bolas"], 5)
                 ),
             ),
             AbilityDef::activated_with_targets(
-                "−9: Nicol Bolas deals 7 damage to target player or planeswalker. That player or that planeswalker's controller discards seven then sacrifices seven permanents of their choice.",
+                "−9: Nicol Bolas deals 7 damage to target player or \
+                 planeswalker. That player or that planeswalker's controller \
+                 discards seven then sacrifices seven permanents of their \
+                 choice.",
                 &[CostDef::Loyalty(-9)],
-                &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any))],
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
+                )],
                 EffectDef::Sequence(&[
                     EffectDef::damage(
                         EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -313,7 +350,9 @@ CardRules::new_planeswalker(mana_cost!("{4}{U}{B}{B}{R}"), &["Bolas"], 5)
 );
 
 // CON 121 — Progenitus
-// Audit: unsupported — Needs the hidden-zone graveyard replacement to reveal the redirected card to every player before shuffling it into its owner's library; the movement replacement currently redirects and shuffles without publishing that reveal.
+// Audit: unsupported — Needs the hidden-zone graveyard replacement to reveal the redirected
+// card to every player before shuffling it into its owner's library; the movement replacement
+// currently redirects and shuffles without publishing that reveal.
 pub(in crate::card::sets) static PROGENITUS: CardRecord = CardRecord::new(
     "Progenitus",
     "bcc764b0-3046-4bde-b424-c0f4e1a6169b",
@@ -322,7 +361,7 @@ pub(in crate::card::sets) static PROGENITUS: CardRecord = CardRecord::new(
 );
 
 // CON 135 — Bone Saw
-pub(in crate::card::sets) static BONE_SAW_135: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static BONE_SAW: CardRecord = CardRecord::new(
     "Bone Saw",
     "a3bf79d6-4b4a-4fdd-a831-36eff2523661",
     "Pete Venters",
@@ -406,15 +445,15 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &AVEN_SQUIRE,
     &CELESTIAL_PURGE,
     &PATH_TO_EXILE,
-    &MASTER_TRANSMUTER_31,
-    &KEDEREKT_PARASITE_48,
+    &MASTER_TRANSMUTER,
+    &KEDEREKT_PARASITE,
     &CANYON_MINOTAUR,
     &NOBLE_HIERARCH,
     &KNIGHT_OF_THE_RELIQUARY,
-    &MAGISTER_SPHINX_116,
+    &MAGISTER_SPHINX,
     &NICOL_BOLAS_PLANESWALKER,
     &PROGENITUS,
-    &BONE_SAW_135,
+    &BONE_SAW,
     &ANCIENT_ZIGGURAT,
     &EXOTIC_ORCHARD,
     &RELIQUARY_TOWER,

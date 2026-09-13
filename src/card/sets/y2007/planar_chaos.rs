@@ -149,18 +149,45 @@ pub(in crate::card::sets) static SUNLANCE: CardRecord = CardRecord::new(
 );
 
 // PLC 44 — Pongify
-pub(in crate::card::sets) static PONGIFY_44: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static PONGIFY: CardRecord = CardRecord::new(
     "Pongify",
     "cce74a84-4441-4f2e-89d8-df0b096790ed",
     "Heather Hudson",
-    CardRules::new_instant(mana_cost!("{U}")).with_abilities(&[
-AbilityDef::spell_with_targets("Destroy target creature. It can't be regenerated. Its controller creates a 3/3 green Ape creature token.", &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Creature))], EffectDef::Sequence(&[EffectDef::WithRule { rule: AppliedRuleDef::CannotRegenerate, effect: &EffectDef::Destroy { object: EffectRecipientDef::Target(TargetIndex::PRIMARY), then: None } }, EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(crate::card::TokenCharacteristics::creature(&["Ape"], &[ManaColor::Green], 3, 3))).with_controller(PlayerRefDef::ControllerOf(ObjectRefDef::Target(TargetIndex::PRIMARY))))]))
-]),
+    CardRules::new_instant(mana_cost!("{U}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Destroy target creature. It can't be regenerated. Its \
+         controller creates a 3/3 green Ape creature token.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::WithRule {
+                rule: AppliedRuleDef::CannotRegenerate,
+                effect: &EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    then: None,
+                },
+            },
+            EffectDef::CreateToken(
+                crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(
+                    crate::card::TokenCharacteristics::creature(
+                        &["Ape"],
+                        &[ManaColor::Green],
+                        3,
+                        3,
+                    ),
+                ))
+                .with_controller(PlayerRefDef::ControllerOf(
+                    ObjectRefDef::Target(TargetIndex::PRIMARY),
+                )),
+            ),
+        ]),
+    )]),
 );
 
 // PLC 63 — Big Game Hunter
-// Audit: unsupported — Madness needs a discard-to-exile replacement and linked triggered cast-or-graveyard procedure; the current alternative-cast model has no madness procedure.
-pub(in crate::card::sets) static BIG_GAME_HUNTER_63: CardRecord = CardRecord::new(
+// Audit: unsupported — Madness needs a discard-to-exile replacement and linked triggered
+// cast-or-graveyard procedure; the current alternative-cast model has no madness procedure.
+pub(in crate::card::sets) static BIG_GAME_HUNTER: CardRecord = CardRecord::new(
     "Big Game Hunter",
     "a61f38a9-6f15-4186-a602-78cdb00f2d75",
     "Carl Critchlow",
@@ -208,18 +235,23 @@ pub(in crate::card::sets) static EXTIRPATE: CardRecord = CardRecord::new(
     "Extirpate",
     "2608b5fc-3b58-4b02-aef1-35d885b16b01",
     "Jon Foster",
-CardRules::new_instant(mana_cost!("{B}")).with_abilities(&[
+    CardRules::new_instant(mana_cost!("{B}")).with_abilities(&[
         abilities::split_second(),
         AbilityDef::spell_with_targets(
-            "Choose target card in a graveyard other than a basic land card. Search its owner's graveyard, hand, and library for all cards with the same name as that card and exile them. Then that player shuffles.",
-            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
-                object: ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(
-                    CardSupertype::Basic,
-                )),
-                zones: &[ZoneKind::Graveyard],
-                controller: None,
-                owner: None,
-            })],
+            "Choose target card in a graveyard other than a basic land \
+             card. Search its owner's graveyard, hand, and library for \
+             all cards with the same name as that card and exile them. \
+             Then that player shuffles.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(
+                        CardSupertype::Basic,
+                    )),
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: None,
+                },
+            )],
             EffectDef::Choose(ChooseDef {
                 binding: ObjectChoiceBindingDef::Object(Binding!("extirpate_target")),
                 unchosen: None,
@@ -230,18 +262,9 @@ CardRules::new_instant(mana_cost!("{B}")).with_abilities(&[
                 maximum: 1,
                 visibility: ChoiceVisibilityDef::Public,
                 then: &EffectDef::Sequence(&[
-                    abilities::search_and_exile(
-                        ZoneKind::Graveyard,
-                        Binding!("extirpate_target"),
-                    ),
-                    abilities::search_and_exile(
-                        ZoneKind::Hand,
-                        Binding!("extirpate_target"),
-                    ),
-                    abilities::search_and_exile(
-                        ZoneKind::Library,
-                        Binding!("extirpate_target"),
-                    ),
+                    abilities::search_and_exile(ZoneKind::Graveyard, Binding!("extirpate_target")),
+                    abilities::search_and_exile(ZoneKind::Hand, Binding!("extirpate_target")),
+                    abilities::search_and_exile(ZoneKind::Library, Binding!("extirpate_target")),
                     EffectDef::ShuffleLibrary {
                         player: EffectRecipientDef::player(PlayerRefDef::OwnerOf(
                             ObjectRefDef::Binding(Binding!("extirpate_target")),
@@ -254,18 +277,48 @@ CardRules::new_instant(mana_cost!("{B}")).with_abilities(&[
 );
 
 // PLC 72 — Imp's Mischief
-pub(in crate::card::sets) static IMP_S_MISCHIEF_72: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static IMP_S_MISCHIEF: CardRecord = CardRecord::new(
     "Imp's Mischief",
     "22ec70a6-40b7-41da-a6c0-c140cadf5509",
     "Thomas M. Baxa",
-    CardRules::new_instant(mana_cost!("{1}{B}")).with_abilities(&[
-AbilityDef::spell_with_targets("Change the target of target spell with a single target. You lose life equal to that spell's mana value.", &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object { object: ObjectPredicateDef::All(&[ObjectPredicateDef::Spell, ObjectPredicateDef::DeclaredTargetCount { minimum: 1, maximum: 1 }]), zones: &[ZoneKind::Stack], controller: None, owner: None })], EffectDef::Sequence(&[EffectDef::ChangeStackTargets(&ChangeStackTargetsDef { object: EffectRecipientDef::Target(TargetIndex::PRIMARY), chooser: PlayerRefDef::EffectController, change: StackTargetChangeDef::ChooseNew { optional: false, restriction: None } }), EffectDef::LoseLife { recipient: EffectRecipientDef::Controller, amount: ValueDef::ObjectManaValue(ObjectRefDef::Target(TargetIndex::PRIMARY)) }]))
-]),
+    CardRules::new_instant(mana_cost!("{1}{B}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Change the target of target spell with a single target. You \
+         lose life equal to that spell's mana value.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Spell,
+                    ObjectPredicateDef::DeclaredTargetCount {
+                        minimum: 1,
+                        maximum: 1,
+                    },
+                ]),
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            },
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::ChangeStackTargets(&ChangeStackTargetsDef {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                chooser: PlayerRefDef::EffectController,
+                change: StackTargetChangeDef::ChooseNew {
+                    optional: false,
+                    restriction: None,
+                },
+            }),
+            EffectDef::LoseLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::ObjectManaValue(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+            },
+        ]),
+    )]),
 );
 
 // PLC 76 — Muck Drubb
-// Audit: unsupported — Madness needs a discard-to-exile replacement and linked triggered cast-or-graveyard procedure; the current alternative-cast model has no madness procedure.
-pub(in crate::card::sets) static MUCK_DRUBB_76: CardRecord = CardRecord::new(
+// Audit: unsupported — Madness needs a discard-to-exile replacement and linked triggered
+// cast-or-graveyard procedure; the current alternative-cast model has no madness procedure.
+pub(in crate::card::sets) static MUCK_DRUBB: CardRecord = CardRecord::new(
     "Muck Drubb",
     "e5bda3fc-89e8-44c2-bcfb-d17064bbc391",
     "Jim Nelson",
@@ -318,7 +371,7 @@ pub(in crate::card::sets) static ROUGH_TUMBLE: CardRecord = CardRecord::new_spli
 );
 
 // PLC 122 — Simian Spirit Guide
-pub(in crate::card::sets) static SIMIAN_SPIRIT_GUIDE_122: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static SIMIAN_SPIRIT_GUIDE: CardRecord = CardRecord::new(
     "Simian Spirit Guide",
     "5d7f701c-dcdc-4067-8d00-b4b7aadee9ba",
     "Dave DeVries",
@@ -337,9 +390,10 @@ pub(in crate::card::sets) static FUNGAL_BEHEMOTH: CardRecord = CardRecord::new(
     "Fungal Behemoth",
     "53c1910b-9475-4551-b9a0-4b24511a6f98",
     "Mark Tedin",
-CardRules::new_creature(mana_cost!("{3}{G}"), &["Fungus"], 0, 0).with_abilities(&[
+    CardRules::new_creature(mana_cost!("{3}{G}"), &["Fungus"], 0, 0).with_abilities(&[
         AbilityDef::static_ability(
-            "Fungal Behemoth's power and toughness are each equal to the number of +1/+1 counters on creatures you control.",
+            "Fungal Behemoth's power and toughness are each equal to the \
+             number of +1/+1 counters on creatures you control.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::define_power_toughness(
@@ -366,10 +420,14 @@ CardRules::new_creature(mana_cost!("{3}{G}"), &["Fungus"], 0, 0).with_abilities(
         ),
         abilities::suspend(
             "Suspend X—{X}{G}{G}. X can't be 0.",
-            &crate::card::SuspendAbilityDef::chosen_x(&[crate::CostDef::Mana(mana_cost!("{X}{G}{G}"))], 1),
+            &crate::card::SuspendAbilityDef::chosen_x(
+                &[crate::CostDef::Mana(mana_cost!("{X}{G}{G}"))],
+                1,
+            ),
         ),
         AbilityDef::triggered_with_targets(
-            "Whenever a time counter is removed from this card while it's exiled, you may put a +1/+1 counter on target creature.",
+            "Whenever a time counter is removed from this card while \
+             it's exiled, you may put a +1/+1 counter on target creature.",
             TriggerEventDef::CountersRemoved {
                 object: ObjectPredicateDef::Source,
                 kind: CounterKind::named("time"),
@@ -415,14 +473,14 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &MANA_TITHE,
     &MESA_ENCHANTRESS,
     &SUNLANCE,
-    &PONGIFY_44,
-    &BIG_GAME_HUNTER_63,
+    &PONGIFY,
+    &BIG_GAME_HUNTER,
     &ENSLAVE,
     &EXTIRPATE,
-    &IMP_S_MISCHIEF_72,
-    &MUCK_DRUBB_76,
+    &IMP_S_MISCHIEF,
+    &MUCK_DRUBB,
     &ROUGH_TUMBLE,
-    &SIMIAN_SPIRIT_GUIDE_122,
+    &SIMIAN_SPIRIT_GUIDE,
     &FUNGAL_BEHEMOTH,
     &URBORG_TOMB_OF_YAWGMOTH,
 ];

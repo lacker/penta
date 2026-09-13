@@ -51,11 +51,12 @@ pub(in crate::card::sets) static ECHOING_TRUTH: CardRecord = CardRecord::new(
     "Echoing Truth",
     "4aefedd7-1bf5-4148-9084-d7d8f1138140",
     "Greg Staples",
-CardRules::new_instant(mana_cost!("{1}{U}")).with_ability(AbilityDef::spell_with_targets(
-        "Return target nonland permanent and all other permanents with the same name as that permanent to their owners' hands.",
-        &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Not(
-            &ObjectPredicateDef::HasType(CardType::Land),
-        ))],
+    CardRules::new_instant(mana_cost!("{1}{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Return target nonland permanent and all other permanents \
+         with the same name as that permanent to their owners' hands.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+        )],
         EffectDef::move_to_zone(
             EffectRecipientDef::objects(ObjectSetDef::Union(&[
                 ObjectSetDef::One(ObjectRefDef::Target(TargetIndex::PRIMARY)),
@@ -76,18 +77,43 @@ CardRules::new_instant(mana_cost!("{1}{U}")).with_ability(AbilityDef::spell_with
 );
 
 // DST 31 — Reshape
-pub(in crate::card::sets) static RESHAPE_31: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static RESHAPE: CardRecord = CardRecord::new(
     "Reshape",
     "05a8d65d-0c6f-433d-a818-002c242a17e8",
     "Jon Foster",
-    CardRules::new_sorcery(mana_cost!("{X}{U}{U}")).with_abilities(&[
-AbilityDef::spell("As an additional cost to cast this spell, sacrifice an artifact.\nSearch your library for an artifact card with mana value X or less, put it onto the battlefield, then shuffle.", EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Library, object: ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Artifact), ObjectPredicateDef::ManaValueAtMostValue(ValueDef::ChosenX)]), minimum: 0, maximum: ValueDef::Constant(1), reveal: false, destination: ZoneKind::Battlefield, placement: ZonePlacement::Top, shuffle: true, enters_tapped: false, attachment: None, binding: None, then: None }).with_spell_additional_cost(&CostDef::sacrifice_permanent(ObjectPredicateDef::HasType(CardType::Artifact)))
-]),
+    CardRules::new_sorcery(mana_cost!("{X}{U}{U}")).with_abilities(&[AbilityDef::spell(
+        "As an additional cost to cast this spell, sacrifice an \
+         artifact.\nSearch your library for an artifact card with \
+         mana value X or less, put it onto the battlefield, then \
+         shuffle.",
+        EffectDef::SearchZone {
+            player: EffectRecipientDef::Controller,
+            source: ZoneKind::Library,
+            object: ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Artifact),
+                ObjectPredicateDef::ManaValueAtMostValue(ValueDef::ChosenX),
+            ]),
+            minimum: 0,
+            maximum: ValueDef::Constant(1),
+            reveal: false,
+            destination: ZoneKind::Battlefield,
+            placement: ZonePlacement::Top,
+            shuffle: true,
+            enters_tapped: false,
+            attachment: None,
+            binding: None,
+            then: None,
+        },
+    )
+    .with_spell_additional_cost(&CostDef::sacrifice_permanent(ObjectPredicateDef::HasType(
+        CardType::Artifact,
+    )))]),
 );
 
 // DST 35 — Vedalken Engineer
-// Audit: unsupported — Restricted mana currently conjoins restrictions; it cannot permit either casting an artifact spell or activating an artifact ability while forbidding other payments.
-pub(in crate::card::sets) static VEDALKEN_ENGINEER_35: CardRecord = CardRecord::new(
+// Audit: unsupported — Restricted mana currently conjoins restrictions; it cannot permit either
+// casting an artifact spell or activating an artifact ability while forbidding other payments.
+pub(in crate::card::sets) static VEDALKEN_ENGINEER: CardRecord = CardRecord::new(
     "Vedalken Engineer",
     "d06a2d9a-9401-4711-97b6-825652090c4d",
     "Lars Grant-West",
@@ -150,8 +176,9 @@ pub(in crate::card::sets) static ECHOING_COURAGE: CardRecord = CardRecord::new(
     "Echoing Courage",
     "6f37bf33-f340-44eb-a092-1cb9385c8981",
     "Greg Staples",
-CardRules::new_instant(mana_cost!("{1}{G}")).with_ability(AbilityDef::spell_with_targets(
-        "Target creature and all other creatures with the same name as that creature get +2/+2 until end of turn.",
+    CardRules::new_instant(mana_cost!("{1}{G}")).with_ability(AbilityDef::spell_with_targets(
+        "Target creature and all other creatures with the same name \
+         as that creature get +2/+2 until end of turn.",
         &[AbilityTargetDef::exactly_one_permanent(
             ObjectPredicateDef::HasType(CardType::Creature),
         )],
@@ -178,14 +205,54 @@ CardRules::new_instant(mana_cost!("{1}{G}")).with_ability(AbilityDef::spell_with
 );
 
 // DST 91 — Aether Vial
-pub(in crate::card::sets) static AETHER_VIAL_91: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static AETHER_VIAL: CardRecord = CardRecord::new(
     "Aether Vial",
     "741c479b-5e92-4837-9673-9bc72aa11d26",
     "Greg Hildebrandt",
     CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
-AbilityDef::triggered("At the beginning of your upkeep, you may put a charge counter on this artifact.", TriggerEventDef::StepBegins { step: TurnStepDef::Upkeep, player: PlayerRelation::You }, EffectDef::May { player: EffectRecipientDef::Controller, effect: &EffectDef::AddCounters { object: EffectRecipientDef::Source, kind: CounterKind::named("charge"), amount: ValueDef::Constant(1) } }),
-AbilityDef::activated("{T}: You may put a creature card with mana value equal to the number of charge counters on this artifact from your hand onto the battlefield.", &[CostDef::TapSource], EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Hand, object: ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::ManaValueEqualTo(ValueDef::CountersOnSource(CounterKind::named("charge")))]), minimum: 0, maximum: ValueDef::Constant(1), reveal: false, destination: ZoneKind::Battlefield, placement: ZonePlacement::Top, shuffle: false, enters_tapped: false, attachment: None, binding: None, then: None })
-]),
+        AbilityDef::triggered(
+            "At the beginning of your upkeep, you may put a charge \
+             counter on this artifact.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
+            },
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::AddCounters {
+                    object: EffectRecipientDef::Source,
+                    kind: CounterKind::named("charge"),
+                    amount: ValueDef::Constant(1),
+                },
+            },
+        ),
+        AbilityDef::activated(
+            "{T}: You may put a creature card with mana value equal to \
+             the number of charge counters on this artifact from your \
+             hand onto the battlefield.",
+            &[CostDef::TapSource],
+            EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Hand,
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::ManaValueEqualTo(ValueDef::CountersOnSource(
+                        CounterKind::named("charge"),
+                    )),
+                ]),
+                minimum: 0,
+                maximum: ValueDef::Constant(1),
+                reveal: false,
+                destination: ZoneKind::Battlefield,
+                placement: ZonePlacement::Top,
+                shuffle: false,
+                enters_tapped: false,
+                attachment: None,
+                binding: None,
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // DST 92 — Angel's Feather
@@ -209,19 +276,67 @@ pub(in crate::card::sets) static ANGEL_S_FEATHER: CardRecord = CardRecord::new(
 );
 
 // DST 101 — Arcbound Reclaimer
-pub(in crate::card::sets) static ARCBOUND_RECLAIMER_101: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static ARCBOUND_RECLAIMER: CardRecord = CardRecord::new(
     "Arcbound Reclaimer",
     "3e4c5228-1dff-4df0-9d14-f8103364c701",
     "Jon Foster",
     CardRules::new_artifact_creature(mana_cost!("{4}"), &["Golem"], 0, 0).with_abilities(&[
-AbilityDef::activated_with_targets("Remove a +1/+1 counter from this creature: Put target artifact card from your graveyard on top of your library.", &[CostDef::RemoveCountersFromSource { kind: CounterKind::PlusOnePlusOne, amount: 1 }], &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object { object: ObjectPredicateDef::HasType(CardType::Artifact), zones: &[ZoneKind::Graveyard], controller: None, owner: Some(PlayerRelation::You) })], EffectDef::move_to_zone(EffectRecipientDef::Target(TargetIndex::PRIMARY), ZoneKind::Library, ZonePlacement::Top)),
-AbilityDef::replacement("Modular 2 (This creature enters with two +1/+1 counters on it.)", ReplacementEffectDef::ModifyBattlefieldEntry(BattlefieldEntryModificationDef::AddCounters { kind: CounterKind::PlusOnePlusOne, amount: 2 })),
-abilities::dies_trigger_with_targets("When this creature dies, you may put its +1/+1 counters on target artifact creature.", &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Artifact),ObjectPredicateDef::HasType(CardType::Creature)]))], EffectDef::May { player: EffectRecipientDef::Controller, effect: &EffectDef::AddCounters { object: EffectRecipientDef::Target(TargetIndex::PRIMARY), kind: CounterKind::PlusOnePlusOne, amount: ValueDef::CountersOnSource(CounterKind::PlusOnePlusOne) } })
-]),
+        AbilityDef::activated_with_targets(
+            "Remove a +1/+1 counter from this creature: Put target \
+             artifact card from your graveyard on top of your library.",
+            &[CostDef::RemoveCountersFromSource {
+                kind: CounterKind::PlusOnePlusOne,
+                amount: 1,
+            }],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Artifact),
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: Some(PlayerRelation::You),
+                },
+            )],
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Library,
+                ZonePlacement::Top,
+            ),
+        ),
+        AbilityDef::replacement(
+            "Modular 2 (This creature enters with two +1/+1 counters on \
+             it.)",
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCounters {
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: 2,
+                },
+            ),
+        ),
+        abilities::dies_trigger_with_targets(
+            "When this creature dies, you may put its +1/+1 counters on \
+             target artifact creature.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                ]),
+            )],
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::AddCounters {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::CountersOnSource(CounterKind::PlusOnePlusOne),
+                },
+            },
+        ),
+    ]),
 );
 
 // DST 109 — Darksteel Colossus
-// Audit: unsupported — Needs the hidden-zone graveyard replacement to reveal the redirected card to every player before shuffling it into its owner's library; the movement replacement currently redirects and shuffles without publishing that reveal.
+// Audit: unsupported — Needs the hidden-zone graveyard replacement to reveal the redirected
+// card to every player before shuffling it into its owner's library; the movement replacement
+// currently redirects and shuffles without publishing that reveal.
 pub(in crate::card::sets) static DARKSTEEL_COLOSSUS: CardRecord = CardRecord::new(
     "Darksteel Colossus",
     "cbc27b24-f085-48b0-8757-cd11fbf25b91",
@@ -323,7 +438,10 @@ pub(in crate::card::sets) static KRAKEN_S_EYE: CardRecord = CardRecord::new(
 );
 
 // DST 127 — Leonin Bola
-// Audit: unsupported — Needs unattaching the Equipment as an activation cost. EffectDef::Unattach exists but only as an effect, and CostDef has no unattach variant; Special is a marker the runtime rejects rather than a general escape hatch. Paying only the tap would make the ability repeatable, which is the opposite of what the card does.
+// Audit: unsupported — Needs unattaching the Equipment as an activation cost.
+// EffectDef::Unattach exists but only as an effect, and CostDef has no unattach variant;
+// Special is a marker the runtime rejects rather than a general escape hatch. Paying only the
+// tap would make the ability repeatable, which is the opposite of what the card does.
 pub(in crate::card::sets) static LEONIN_BOLA: CardRecord = CardRecord::new(
     "Leonin Bola",
     "a7eab112-20a6-414f-84c9-678580485420",
@@ -332,8 +450,9 @@ pub(in crate::card::sets) static LEONIN_BOLA: CardRecord = CardRecord::new(
 );
 
 // DST 130 — Mycosynth Lattice
-// Audit: unsupported — No global permission lets every player spend mana as any color for all payments; the existing spend-as-any-color rule is restricted to creature abilities.
-pub(in crate::card::sets) static MYCOSYNTH_LATTICE_130: CardRecord = CardRecord::new(
+// Audit: unsupported — No global permission lets every player spend mana as any color for all
+// payments; the existing spend-as-any-color rule is restricted to creature abilities.
+pub(in crate::card::sets) static MYCOSYNTH_LATTICE: CardRecord = CardRecord::new(
     "Mycosynth Lattice",
     "e7e7f15a-074a-4137-88ca-e5d376d146fd",
     "Anthony S. Waters & Cara Mitten",
@@ -345,14 +464,17 @@ pub(in crate::card::sets) static SERUM_POWDER: CardRecord = CardRecord::new(
     "Serum Powder",
     "8330afd6-f43a-4955-a704-8f2b963cd0c6",
     "Matt Thompson",
-CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
+    CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
         AbilityDef::activated_mana(
             "{T}: Add {C}.",
             &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless)),
         ),
         AbilityDef::mulligan_action(
-            "Any time you could mulligan and this card is in your hand, you may exile all the cards from your hand, then draw that many cards. (You can do this in addition to taking mulligans.)",
+            "Any time you could mulligan and this card is in your hand, \
+             you may exile all the cards from your hand, then draw that \
+             many cards. (You can do this in addition to taking \
+             mulligans.)",
             abilities::bind_objects_then(
                 crate::card::ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Query(
                     ObjectQueryDef::matching(
@@ -363,9 +485,7 @@ CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
                 )),
                 &EffectDef::Sequence(&[
                     EffectDef::move_to_zone(
-                        EffectRecipientDef::objects(ObjectSetDef::Binding(
-                            ParentBinding,
-                        )),
+                        EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
                         ZoneKind::Exile,
                         ZonePlacement::Top,
                     ),
@@ -420,8 +540,9 @@ pub(in crate::card::sets) static SKULLCLAMP: CardRecord = CardRecord::new(
 );
 
 // DST 154 — Trinisphere
-// Audit: unsupported — Cost modifiers cannot impose a minimum total mana payment after all increases and reductions.
-pub(in crate::card::sets) static TRINISPHERE_154: CardRecord = CardRecord::new(
+// Audit: unsupported — Cost modifiers cannot impose a minimum total mana payment after all
+// increases and reductions.
+pub(in crate::card::sets) static TRINISPHERE: CardRecord = CardRecord::new(
     "Trinisphere",
     "d465597a-362e-4bd0-b547-f11d8807e597",
     "Tim Hildebrandt",
@@ -429,7 +550,7 @@ pub(in crate::card::sets) static TRINISPHERE_154: CardRecord = CardRecord::new(
 );
 
 // DST 156 — Voltaic Construct
-pub(in crate::card::sets) static VOLTAIC_CONSTRUCT_156: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static VOLTAIC_CONSTRUCT: CardRecord = CardRecord::new(
     "Voltaic Construct",
     "a1ca55ec-d262-40d8-b654-40e177bcfd6e",
     "Jeff Easley",
@@ -494,19 +615,55 @@ pub(in crate::card::sets) static WURM_S_TOOTH: CardRecord = CardRecord::new(
 );
 
 // DST 163 — Blinkmoth Nexus
-pub(in crate::card::sets) static BLINKMOTH_NEXUS_163: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static BLINKMOTH_NEXUS: CardRecord = CardRecord::new(
     "Blinkmoth Nexus",
     "bf51c665-7823-4d6a-b1da-8c2d93dae10b",
     "Brian Snõddy",
     CardRules::new_land(&[]).with_abilities(&[
-abilities::tap_for(ManaColor::Colorless),
-AbilityDef::activated("{1}: This land becomes a 1/1 Blinkmoth artifact creature with flying until end of turn. It's still a land.", &[CostDef::Mana(mana_cost!("{1}"))], EffectDef::Apply { recipient: EffectRecipientDef::Source, effect: AppliedEffectDef::Composite(&[AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Artifact)), AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)), AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&["Blinkmoth"])), AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(1), ValueDef::Constant(1)), AppliedEffectDef::add_ability(&abilities::flying())]), duration: ResolvedEffectDurationDef::UntilEndOfTurn }),
-AbilityDef::activated_with_targets("{1}, {T}: Target Blinkmoth creature gets +1/+1 until end of turn.", &[CostDef::Mana(mana_cost!("{1}")), CostDef::TapSource], &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::Subtype(SubtypeDef::Literal("Blinkmoth"))]))], EffectDef::Apply { recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY), effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(1)), duration: ResolvedEffectDurationDef::UntilEndOfTurn })
-]),
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated(
+            "{1}: This land becomes a 1/1 Blinkmoth artifact creature \
+             with flying until end of turn. It's still a land.",
+            &[CostDef::Mana(mana_cost!("{1}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Artifact)),
+                    AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)),
+                    AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&["Blinkmoth"])),
+                    AppliedEffectDef::set_base_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(1),
+                    ),
+                    AppliedEffectDef::add_ability(&abilities::flying()),
+                ]),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+        AbilityDef::activated_with_targets(
+            "{1}, {T}: Target Blinkmoth creature gets +1/+1 until end of \
+             turn.",
+            &[CostDef::Mana(mana_cost!("{1}")), CostDef::TapSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Blinkmoth")),
+                ]),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // DST 164 — Darksteel Citadel
-pub(in crate::card::sets) static DARKSTEEL_CITADEL_164: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static DARKSTEEL_CITADEL: CardRecord = CardRecord::new(
     "Darksteel Citadel",
     "c5d0e808-d67b-4ea3-9c04-d20269fe692c",
     "John Avon",
@@ -520,14 +677,14 @@ pub(in crate::card::sets) static DARKSTEEL_CITADEL_164: CardRecord = CardRecord:
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ECHOING_TRUTH,
-    &RESHAPE_31,
-    &VEDALKEN_ENGINEER_35,
+    &RESHAPE,
+    &VEDALKEN_ENGINEER,
     &ESSENCE_DRAIN,
     &ECHOING_RUIN,
     &ECHOING_COURAGE,
-    &AETHER_VIAL_91,
+    &AETHER_VIAL,
     &ANGEL_S_FEATHER,
-    &ARCBOUND_RECLAIMER_101,
+    &ARCBOUND_RECLAIMER,
     &DARKSTEEL_COLOSSUS,
     &DARKSTEEL_FORGE,
     &DARKSTEEL_INGOT,
@@ -535,15 +692,15 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &DRAGON_S_CLAW,
     &KRAKEN_S_EYE,
     &LEONIN_BOLA,
-    &MYCOSYNTH_LATTICE_130,
+    &MYCOSYNTH_LATTICE,
     &SERUM_POWDER,
     &SKULLCLAMP,
-    &TRINISPHERE_154,
-    &VOLTAIC_CONSTRUCT_156,
+    &TRINISPHERE,
+    &VOLTAIC_CONSTRUCT,
     &VULSHOK_MORNINGSTAR,
     &WURM_S_TOOTH,
-    &BLINKMOTH_NEXUS_163,
-    &DARKSTEEL_CITADEL_164,
+    &BLINKMOTH_NEXUS,
+    &DARKSTEEL_CITADEL,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

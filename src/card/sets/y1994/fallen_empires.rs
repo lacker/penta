@@ -108,7 +108,9 @@ const COMBAT_MEDIC_ALTERNATE_3: PrintingRecord = PrintingRecord::alternate(
 );
 
 // FEM 2 — Farrel's Mantle
-// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “Whenever enchanted creature attacks and isn't blocked, its controller may have it deal damage equal to its power plus 2 to another target creature. If that player does, the attacking…”.
+// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “Whenever
+// enchanted creature attacks and isn't blocked, its controller may have it deal damage equal to
+// its power plus 2 to another target creature. If that player does, the attacking…”.
 pub(in crate::card::sets) static FARREL_S_MANTLE: CardRecord = CardRecord::new(
     "Farrel's Mantle",
     "af092da3-8713-4a59-86d3-827b942d6456",
@@ -171,7 +173,9 @@ const FARRELS_ZEALOT_ALTERNATE_2: PrintingRecord = PrintingRecord::alternate(
 );
 
 // FEM 4 — Farrelite Priest
-// Audit: unsupported — Needs the mana-ability runtime to pay this ability's mana activation cost for “{1}: Add {W}. If this ability has been activated four or more times this turn, sacrifice this creature at the beginning of the next end step”.
+// Audit: unsupported — Needs the mana-ability runtime to pay this ability's mana activation
+// cost for “{1}: Add {W}. If this ability has been activated four or more times this turn,
+// sacrifice this creature at the beginning of the next end step”.
 pub(in crate::card::sets) static FARRELITE_PRIEST: CardRecord = CardRecord::new(
     "Farrelite Priest",
     "e11bf79b-a951-4d0c-acdf-d8ba5290a648",
@@ -180,7 +184,8 @@ pub(in crate::card::sets) static FARRELITE_PRIEST: CardRecord = CardRecord::new(
 );
 
 // FEM 5 — Hand of Justice
-// Audit: unsupported — Needs a persistent tap/untap restriction or event relation for “{T}, Tap three untapped white creatures you control: Destroy target creature”.
+// Audit: unsupported — Needs a persistent tap/untap restriction or event relation for “{T}, Tap
+// three untapped white creatures you control: Destroy target creature”.
 pub(in crate::card::sets) static HAND_OF_JUSTICE: CardRecord = CardRecord::new(
     "Hand of Justice",
     "7a899b2d-825c-4929-a769-f4df70bf6a17",
@@ -189,7 +194,9 @@ pub(in crate::card::sets) static HAND_OF_JUSTICE: CardRecord = CardRecord::new(
 );
 
 // FEM 6 — Heroism
-// Audit: unsupported — Needs a per-creature optional payment offered to the opposing controller, repeated for each attacking red creature; preventing one creature's combat damage is already expressible.
+// Audit: unsupported — Needs a per-creature optional payment offered to the opposing
+// controller, repeated for each attacking red creature; preventing one creature's combat damage
+// is already expressible.
 pub(in crate::card::sets) static HEROISM: CardRecord = CardRecord::new(
     "Heroism",
     "08ee87a0-a7eb-4472-9045-85d11e8a1501",
@@ -593,7 +600,8 @@ pub(in crate::card::sets) static DEEP_SPAWN: CardRecord = CardRecord::new(
 );
 
 // FEM 18a — High Tide
-// Audit: unsupported — Needs cost/mana provenance or dynamic payment support for “Until end of turn, whenever a player taps an Island for mana, that player adds an additional {U}”.
+// Audit: unsupported — Needs cost/mana provenance or dynamic payment support for “Until end of
+// turn, whenever a player taps an Island for mana, that player adds an additional {U}”.
 pub(in crate::card::sets) static HIGH_TIDE: CardRecord = CardRecord::new(
     "High Tide",
     "4686bbb9-517f-4cce-aa7a-5db41e22c02b",
@@ -742,7 +750,8 @@ pub(in crate::card::sets) static HOMARID_SHAMAN: CardRecord = CardRecord::new(
 );
 
 // FEM 21 — Homarid Spawning Bed
-// Audit: unsupported — Needs Camarid token creation whose count is the sacrificed creature's mana value.
+// Audit: unsupported — Needs Camarid token creation whose count is the sacrificed creature's
+// mana value.
 pub(in crate::card::sets) static HOMARID_SPAWNING_BED: CardRecord = CardRecord::new(
     "Homarid Spawning Bed",
     "2cbb62fc-3cd9-41a6-804a-4ff9a766897f",
@@ -842,7 +851,9 @@ pub(in crate::card::sets) static RIVER_MERFOLK: CardRecord = CardRecord::new(
 );
 
 // FEM 25 — Seasinger
-// Audit: unsupported — Needs duration-aware control-changing continuous effects for “{T}: Gain control of target creature whose controller controls an Island for as long as you control this creature and this creature remains tapped”.
+// Audit: unsupported — Needs duration-aware control-changing continuous effects for “{T}: Gain
+// control of target creature whose controller controls an Island for as long as you control
+// this creature and this creature remains tapped”.
 pub(in crate::card::sets) static SEASINGER: CardRecord = CardRecord::new(
     "Seasinger",
     "c5266aa1-e2ea-46b9-91ab-b94a7bb7e9f9",
@@ -874,7 +885,9 @@ pub(in crate::card::sets) static SVYELUNITE_PRIEST: CardRecord = CardRecord::new
 );
 
 // FEM 27a — Tidal Flats
-// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “{U}{U}: For each attacking creature without flying, its controller may pay {1}. If that player doesn't, creatures you control blocking that creature gain first strike until end of turn”.
+// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “{U}{U}:
+// For each attacking creature without flying, its controller may pay {1}. If that player
+// doesn't, creatures you control blocking that creature gain first strike until end of turn”.
 pub(in crate::card::sets) static TIDAL_FLATS: CardRecord = CardRecord::new(
     "Tidal Flats",
     "2e820f3f-434e-4d09-91b9-0ebd6966b393",
@@ -899,7 +912,9 @@ const TIDAL_FLATS_ALTERNATE_2: PrintingRecord = PrintingRecord::alternate(
 );
 
 // FEM 28 — Tidal Influence
-// Audit: unsupported — Needs card-specific counter state and counter-consuming effects for “As long as there are exactly three tide counters on this enchantment, all blue creatures get +2/+0”.
+// Audit: unsupported — Needs card-specific counter state and counter-consuming effects for “As
+// long as there are exactly three tide counters on this enchantment, all blue creatures get
+// +2/+0”.
 pub(in crate::card::sets) static TIDAL_INFLUENCE: CardRecord = CardRecord::new(
     "Tidal Influence",
     "b2192c7b-ef6f-4ff6-9017-b1a125340517",
@@ -1012,7 +1027,10 @@ const VODALIAN_SOLDIERS_ALTERNATE_3: PrintingRecord = PrintingRecord::alternate(
 );
 
 // FEM 32 — Vodalian War Machine
-// Audit: unsupported — Needs the permanents tapped to pay this card's own costs recorded for the turn, for “When this creature dies, destroy all Merfolk tapped this turn to pay for its abilities”. Tapping another creature as a cost and attacking despite defender are both available.
+// Audit: unsupported — Needs the permanents tapped to pay this card's own costs recorded for
+// the turn, for “When this creature dies, destroy all Merfolk tapped this turn to pay for its
+// abilities”. Tapping another creature as a cost and attacking despite defender are both
+// available.
 pub(in crate::card::sets) static VODALIAN_WAR_MACHINE: CardRecord = CardRecord::new(
     "Vodalian War Machine",
     "cd962ff0-4aa6-453e-931e-bd36fc034273",
@@ -1156,7 +1174,10 @@ pub(in crate::card::sets) static DERELOR: CardRecord = CardRecord::new(
 );
 
 // FEM 37 — Ebon Praetor
-// Audit: unsupported — Needs card-specific counter state and counter-consuming effects for “Sacrifice a creature: Remove a -2/-2 counter from this creature. If the sacrificed creature was a Thrull, put a +1/+0 counter on this creature. Activate only during your upkeep and only…”.
+// Audit: unsupported — Needs card-specific counter state and counter-consuming effects for
+// “Sacrifice a creature: Remove a -2/-2 counter from this creature. If the sacrificed creature
+// was a Thrull, put a +1/+0 counter on this creature. Activate only during your upkeep and
+// only…”.
 pub(in crate::card::sets) static EBON_PRAETOR: CardRecord = CardRecord::new(
     "Ebon Praetor",
     "40451f7a-692a-422d-99d3-d93a4d9315e0",
@@ -1375,7 +1396,8 @@ const ORDER_OF_THE_EBON_HAND_ALTERNATE_2: PrintingRecord = PrintingRecord::alter
 );
 
 // FEM 43 — Soul Exchange
-// Audit: unsupported — Needs a zone-object query and identity-preserving continuation for “As an additional cost to cast this spell, exile a creature you control”.
+// Audit: unsupported — Needs a zone-object query and identity-preserving continuation for “As
+// an additional cost to cast this spell, exile a creature you control”.
 pub(in crate::card::sets) static SOUL_EXCHANGE: CardRecord = CardRecord::new(
     "Soul Exchange",
     "9f73597d-f453-4d37-b2ef-c54ef683a884",
@@ -1453,7 +1475,8 @@ pub(in crate::card::sets) static THRULL_RETAINER: CardRecord = CardRecord::new(
 );
 
 // FEM 46 — Thrull Wizard
-// Audit: unsupported — Needs an unless-payment offering a choice between two mana costs. Reading a spell's color is available.
+// Audit: unsupported — Needs an unless-payment offering a choice between two mana costs.
+// Reading a spell's color is available.
 pub(in crate::card::sets) static THRULL_WIZARD: CardRecord = CardRecord::new(
     "Thrull Wizard",
     "c4e732fb-cbef-4fd8-b704-e4d513a6cf2d",
@@ -1462,7 +1485,9 @@ pub(in crate::card::sets) static THRULL_WIZARD: CardRecord = CardRecord::new(
 );
 
 // FEM 47 — Tourach's Chant
-// Audit: unsupported — Needs card-specific counter state and counter-consuming effects for “Whenever a player puts a Forest onto the battlefield, this enchantment deals 3 damage to that player unless they put a -1/-1 counter on a creature they control”.
+// Audit: unsupported — Needs card-specific counter state and counter-consuming effects for
+// “Whenever a player puts a Forest onto the battlefield, this enchantment deals 3 damage to
+// that player unless they put a -1/-1 counter on a creature they control”.
 pub(in crate::card::sets) static TOURACH_S_CHANT: CardRecord = CardRecord::new(
     "Tourach's Chant",
     "06883fd2-eccd-47c6-8c34-10d95e923685",
@@ -1471,7 +1496,9 @@ pub(in crate::card::sets) static TOURACH_S_CHANT: CardRecord = CardRecord::new(
 );
 
 // FEM 48 — Tourach's Gate
-// Audit: unsupported — Needs the clause's conditional recipient set or dynamic modifier value for “Tap enchanted land: Attacking creatures you control get +2/-1 until end of turn. Activate only if enchanted land is untapped”.
+// Audit: unsupported — Needs the clause's conditional recipient set or dynamic modifier value
+// for “Tap enchanted land: Attacking creatures you control get +2/-1 until end of turn.
+// Activate only if enchanted land is untapped”.
 pub(in crate::card::sets) static TOURACH_S_GATE: CardRecord = CardRecord::new(
     "Tourach's Gate",
     "d77f6401-a9fb-449c-b511-6fb837055bb4",
@@ -1522,7 +1549,8 @@ const BRASSCLAW_ORCS_ALTERNATE_3: PrintingRecord = PrintingRecord::alternate(
 );
 
 // FEM 50 — Dwarven Armorer
-// Audit: unsupported — Needs card-specific counter state and counter-consuming effects for “{R}, {T}, Discard a card: Put a +0/+1 counter or a +1/+0 counter on target creature”.
+// Audit: unsupported — Needs card-specific counter state and counter-consuming effects for
+// “{R}, {T}, Discard a card: Put a +0/+1 counter or a +1/+0 counter on target creature”.
 pub(in crate::card::sets) static DWARVEN_ARMORER: CardRecord = CardRecord::new(
     "Dwarven Armorer",
     "1d50bf06-97ab-4874-a484-9289f41dc98e",
@@ -1531,7 +1559,8 @@ pub(in crate::card::sets) static DWARVEN_ARMORER: CardRecord = CardRecord::new(
 );
 
 // FEM 51 — Dwarven Catapult
-// Audit: unsupported — Needs damage divided evenly with downward rounding across a dynamically counted opponent creature set.
+// Audit: unsupported — Needs damage divided evenly with downward rounding across a dynamically
+// counted opponent creature set.
 pub(in crate::card::sets) static DWARVEN_CATAPULT: CardRecord = CardRecord::new(
     "Dwarven Catapult",
     "8c1c6932-638a-4df7-bf9b-8d921f7484d9",
@@ -1646,7 +1675,9 @@ const GOBLIN_CHIRURGEON_ALTERNATE_2: PrintingRecord = PrintingRecord::alternate(
 );
 
 // FEM 55 — Goblin Flotilla
-// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “At the beginning of each combat, unless you pay {R}, whenever this creature blocks or becomes blocked by a creature this combat, that creature gains first strike until end of turn”.
+// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “At the
+// beginning of each combat, unless you pay {R}, whenever this creature blocks or becomes
+// blocked by a creature this combat, that creature gains first strike until end of turn”.
 pub(in crate::card::sets) static GOBLIN_FLOTILLA: CardRecord = CardRecord::new(
     "Goblin Flotilla",
     "87024efe-4a74-49fe-a43a-480bed0a650a",
@@ -1659,10 +1690,13 @@ pub(in crate::card::sets) static GOBLIN_GRENADE: CardRecord = CardRecord::new(
     "Goblin Grenade",
     "8837eaba-9602-4f63-9897-85583fcdcf51",
     "Ron Spencer",
-CardRules::new_sorcery(mana_cost!("{R}")).with_abilities(&[
+    CardRules::new_sorcery(mana_cost!("{R}")).with_abilities(&[
         AbilityDef::spell_with_additional_cost(
-            "As an additional cost to cast this spell, sacrifice a Goblin.\nGoblin Grenade deals 5 damage to any target.",
-            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)],
+            "As an additional cost to cast this spell, sacrifice a \
+             Goblin.\nGoblin Grenade deals 5 damage to any target.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
             CostDef::sacrifice(
                 ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
                 CostQuantityDef::Fixed(1),
@@ -1696,7 +1730,7 @@ pub(in crate::card::sets) static GOBLIN_KITES: CardRecord = CardRecord::new(
     "Goblin Kites",
     "a0a27ac3-2273-469a-92ba-3f4a3d55de6f",
     "Anson Maddocks",
-CardRules::new_enchantment(mana_cost!("{1}{R}")).with_ability(
+    CardRules::new_enchantment(mana_cost!("{1}{R}")).with_ability(
         AbilityDef::activated_with_targets(
             "{R}: Target creature you control with toughness 2 or less gains flying until end \
              of turn. Flip a coin at the beginning of the next end step. If you lose the \
@@ -1724,8 +1758,8 @@ CardRules::new_enchantment(mana_cost!("{1}{R}")).with_ability(
                     duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                 },
                 EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
-                    "Flip a coin at the beginning of the next end step. If you lose the flip, sacrifice \
-                     that creature.",
+                    "Flip a coin at the beginning of the next end step. If you \
+                     lose the flip, sacrifice that creature.",
                     TriggerEventDef::StepBegins {
                         step: TurnStepDef::End,
                         player: PlayerRelation::Any,
@@ -1785,7 +1819,8 @@ const GOBLIN_WAR_DRUMS_ALTERNATE_3: PrintingRecord = PrintingRecord::alternate(
 );
 
 // FEM 59 — Goblin Warrens
-// Audit: unsupported — Needs an activated cost that selects and sacrifices two Goblins; only one chosen permanent can currently be sacrificed as a cost.
+// Audit: unsupported — Needs an activated cost that selects and sacrifices two Goblins; only
+// one chosen permanent can currently be sacrificed as a cost.
 pub(in crate::card::sets) static GOBLIN_WARRENS: CardRecord = CardRecord::new(
     "Goblin Warrens",
     "bbec4aa5-3319-43dc-8347-5633edbd7018",
@@ -1952,7 +1987,9 @@ pub(in crate::card::sets) static ORGG: CardRecord = CardRecord::new(
 );
 
 // FEM 64 — Raiding Party
-// Audit: unsupported — Needs a persistent tap/untap restriction or event relation for “Sacrifice an Orc: Each player may tap any number of untapped white creatures they control. For each creature tapped this way, that player chooses up to two Plains. Then destroy all…”.
+// Audit: unsupported — Needs a persistent tap/untap restriction or event relation for
+// “Sacrifice an Orc: Each player may tap any number of untapped white creatures they control.
+// For each creature tapped this way, that player chooses up to two Plains. Then destroy all…”.
 pub(in crate::card::sets) static RAIDING_PARTY: CardRecord = CardRecord::new(
     "Raiding Party",
     "907a3396-706b-4ca2-9973-bca758986032",
@@ -2017,40 +2054,39 @@ pub(in crate::card::sets) static ELVISH_FARMER: CardRecord = CardRecord::new(
     "Elvish Farmer",
     "40a9710e-b2f8-4746-8640-d450f58a6e49",
     "Richard Kane Ferguson",
-CardRules::new_creature(mana_cost!("{1}{G}"), &["Elf"], 0, 2).with_abilities(&[
-            AbilityDef::triggered(
-                "At the beginning of your upkeep, put a spore counter on this creature.",
-                TriggerEventDef::StepBegins {
-                    step: TurnStepDef::Upkeep,
-                    player: PlayerRelation::You,
-                },
-                EffectDef::AddCounters {
-                    object: EffectRecipientDef::Source,
-                    kind: CounterKind::named("spore"),
-                    amount: ValueDef::Constant(1),
-                },
-            ),
-            AbilityDef::activated(
-                "Remove three spore counters from this creature: Create a 1/1 green Saproling creature token.",
-                &[CostDef::RemoveCountersFromSource {
-                    kind: CounterKind::named("spore"),
-                    amount: 3,
-                }],
-                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
-                    SAPROLING_TOKEN,
-                ))),
-            ),
-            AbilityDef::activated(
-                "Sacrifice a Saproling: You gain 2 life.",
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Elf"], 0, 2).with_abilities(&[
+        AbilityDef::triggered(
+            "At the beginning of your upkeep, put a spore counter on this creature.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
+            },
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::named("spore"),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        AbilityDef::activated(
+            "Remove three spore counters from this creature: Create a \
+             1/1 green Saproling creature token.",
+            &[CostDef::RemoveCountersFromSource {
+                kind: CounterKind::named("spore"),
+                amount: 3,
+            }],
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(SAPROLING_TOKEN))),
+        ),
+        AbilityDef::activated(
+            "Sacrifice a Saproling: You gain 2 life.",
             &[CostDef::SacrificePermanent {
                 object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Saproling")),
                 controller: PlayerRelation::You,
             }],
-                EffectDef::GainLife {
-                    recipient: EffectRecipientDef::Controller,
-                    amount: ValueDef::Constant(2),
-                },
-            ),
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(2),
+            },
+        ),
     ]),
 );
 
@@ -2204,7 +2240,9 @@ pub(in crate::card::sets) static FUNGAL_BLOOM: CardRecord = CardRecord::new(
 );
 
 // FEM 71a — Night Soil
-// Audit: unsupported — Needs a zone-object query and identity-preserving continuation for “{1}, Exile two creature cards from a single graveyard: Create a 1/1 green Saproling creature token”.
+// Audit: unsupported — Needs a zone-object query and identity-preserving continuation for “{1},
+// Exile two creature cards from a single graveyard: Create a 1/1 green Saproling creature
+// token”.
 pub(in crate::card::sets) static NIGHT_SOIL: CardRecord = CardRecord::new(
     "Night Soil",
     "4cda6d18-d4b1-4b8a-a72e-f90115adf4c3",
@@ -2288,32 +2326,32 @@ pub(in crate::card::sets) static SPORE_FLOWER: CardRecord = CardRecord::new(
     "Spore Flower",
     "f9681dc0-d0fc-4d5b-a23c-63ec1cc8343d",
     "Margaret Organ-Kean",
-CardRules::new_creature(mana_cost!("{G}{G}"), &["Fungus"], 0, 1)
-        .with_abilities(&[
-            AbilityDef::triggered(
-                "At the beginning of your upkeep, put a spore counter on this creature.",
-                TriggerEventDef::StepBegins {
-                    step: TurnStepDef::Upkeep,
-                    player: PlayerRelation::You,
-                },
-                EffectDef::AddCounters {
-                    object: EffectRecipientDef::Source,
-                    kind: CounterKind::named("spore"),
-                    amount: ValueDef::Constant(1),
-                },
-            ),
-            AbilityDef::activated(
-                "Remove three spore counters from this creature: Prevent all combat damage that would be dealt this turn.",
-                &[CostDef::RemoveCountersFromSource {
-                    kind: CounterKind::named("spore"),
-                    amount: 3,
-                }],
-                EffectDef::PreventDamage {
-                    prevention: DamagePreventionDef::unlimited(DamageEventMatcherDef::COMBAT),
-                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                },
-            ),
-        ]),
+    CardRules::new_creature(mana_cost!("{G}{G}"), &["Fungus"], 0, 1).with_abilities(&[
+        AbilityDef::triggered(
+            "At the beginning of your upkeep, put a spore counter on this creature.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
+            },
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::named("spore"),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        AbilityDef::activated(
+            "Remove three spore counters from this creature: Prevent all \
+             combat damage that would be dealt this turn.",
+            &[CostDef::RemoveCountersFromSource {
+                kind: CounterKind::named("spore"),
+                amount: 3,
+            }],
+            EffectDef::PreventDamage {
+                prevention: DamagePreventionDef::unlimited(DamageEventMatcherDef::COMBAT),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // FEM 74a — Thallid
@@ -2321,31 +2359,29 @@ pub(in crate::card::sets) static THALLID: CardRecord = CardRecord::new(
     "Thallid",
     "4caaf31b-86a9-485b-8da7-d5b526ed1233",
     "Edward P. Beard, Jr.",
-CardRules::new_creature(mana_cost!("{G}"), &["Fungus"], 1, 1)
-        .with_abilities(&[
-            AbilityDef::triggered(
-                "At the beginning of your upkeep, put a spore counter on this creature.",
-                TriggerEventDef::StepBegins {
-                    step: TurnStepDef::Upkeep,
-                    player: PlayerRelation::You,
-                },
-                EffectDef::AddCounters {
-                    object: EffectRecipientDef::Source,
-                    kind: CounterKind::named("spore"),
-                    amount: ValueDef::Constant(1),
-                },
-            ),
-            AbilityDef::activated(
-                "Remove three spore counters from this creature: Create a 1/1 green Saproling creature token.",
-                &[CostDef::RemoveCountersFromSource {
-                    kind: CounterKind::named("spore"),
-                    amount: 3,
-                }],
-                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
-                    SAPROLING_TOKEN,
-                ))),
-            ),
-        ]),
+    CardRules::new_creature(mana_cost!("{G}"), &["Fungus"], 1, 1).with_abilities(&[
+        AbilityDef::triggered(
+            "At the beginning of your upkeep, put a spore counter on this creature.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
+            },
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::named("spore"),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        AbilityDef::activated(
+            "Remove three spore counters from this creature: Create a \
+             1/1 green Saproling creature token.",
+            &[CostDef::RemoveCountersFromSource {
+                kind: CounterKind::named("spore"),
+                amount: 3,
+            }],
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(SAPROLING_TOKEN))),
+        ),
+    ]),
 );
 
 // FEM 74b — Thallid (alternate printing)
@@ -2377,46 +2413,50 @@ pub(in crate::card::sets) static THALLID_DEVOURER: CardRecord = CardRecord::new(
     "Thallid Devourer",
     "aa533845-4c4b-4072-aa39-8e56ce7ec325",
     "Ron Spencer",
-CardRules::new_creature(mana_cost!("{1}{G}{G}"), &["Fungus"], 2, 2).with_abilities(&[
-            AbilityDef::triggered(
-                "At the beginning of your upkeep, put a spore counter on this creature.",
-                TriggerEventDef::StepBegins {
-                    step: TurnStepDef::Upkeep,
-                    player: PlayerRelation::You,
-                },
-                EffectDef::AddCounters {
-                    object: EffectRecipientDef::Source,
-                    kind: CounterKind::named("spore"),
-                    amount: ValueDef::Constant(1),
-                },
-            ),
-            AbilityDef::activated(
-                "Remove three spore counters from this creature: Create a 1/1 green Saproling creature token.",
-                &[CostDef::RemoveCountersFromSource {
-                    kind: CounterKind::named("spore"),
-                    amount: 3,
-                }],
-                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
-                    SAPROLING_TOKEN,
-                ))),
-            ),
-            AbilityDef::activated(
-                "Sacrifice a Saproling: This creature gets +1/+2 until end of turn.",
+    CardRules::new_creature(mana_cost!("{1}{G}{G}"), &["Fungus"], 2, 2).with_abilities(&[
+        AbilityDef::triggered(
+            "At the beginning of your upkeep, put a spore counter on this creature.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
+            },
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::named("spore"),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        AbilityDef::activated(
+            "Remove three spore counters from this creature: Create a \
+             1/1 green Saproling creature token.",
+            &[CostDef::RemoveCountersFromSource {
+                kind: CounterKind::named("spore"),
+                amount: 3,
+            }],
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(SAPROLING_TOKEN))),
+        ),
+        AbilityDef::activated(
+            "Sacrifice a Saproling: This creature gets +1/+2 until end of turn.",
             &[CostDef::SacrificePermanent {
                 object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Saproling")),
                 controller: PlayerRelation::You,
             }],
-                EffectDef::Apply {
-                    recipient: EffectRecipientDef::Source,
-                    effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(2)),
-                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                },
-            ),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(2),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
     ]),
 );
 
 // FEM 76 — Thelon's Chant
-// Audit: unsupported — Needs card-specific counter state and counter-consuming effects for “Whenever a player puts a Swamp onto the battlefield, this enchantment deals 3 damage to that player unless the player puts a -1/-1 counter on a creature they control”.
+// Audit: unsupported — Needs card-specific counter state and counter-consuming effects for
+// “Whenever a player puts a Swamp onto the battlefield, this enchantment deals 3 damage to that
+// player unless the player puts a -1/-1 counter on a creature they control”.
 pub(in crate::card::sets) static THELON_S_CHANT: CardRecord = CardRecord::new(
     "Thelon's Chant",
     "9d970195-0a09-4cb4-a2c0-c16fcab5c859",
@@ -2425,7 +2465,9 @@ pub(in crate::card::sets) static THELON_S_CHANT: CardRecord = CardRecord::new(
 );
 
 // FEM 77 — Thelon's Curse
-// Audit: unsupported — Needs a persistent tap/untap restriction or event relation for “At the beginning of each player's upkeep, that player may choose any number of tapped blue creatures they control and pay {U} for each creature chosen this way. If the player does, untap…”.
+// Audit: unsupported — Needs a persistent tap/untap restriction or event relation for “At the
+// beginning of each player's upkeep, that player may choose any number of tapped blue creatures
+// they control and pay {U} for each creature chosen this way. If the player does, untap…”.
 pub(in crate::card::sets) static THELON_S_CURSE: CardRecord = CardRecord::new(
     "Thelon's Curse",
     "9b868846-cc3c-4756-a5dd-2335bb380567",
@@ -2438,35 +2480,41 @@ pub(in crate::card::sets) static THELONITE_DRUID: CardRecord = CardRecord::new(
     "Thelonite Druid",
     "cd8772dd-513d-4dd0-a5db-5214dc8da4e0",
     "Margaret Organ-Kean",
-CardRules::new_creature(
-        mana_cost!("{2}{G}"),
-        &["Human", "Cleric", "Druid"],
-        1,
-        1,
-    )
-    .with_ability(AbilityDef::activated(
-        "{1}{G}, {T}, Sacrifice a creature: Forests you control become 2/3 creatures until end of turn. They're still lands.",
-        &[
-            CostDef::Mana(mana_cost!("{1}{G}")),
-            CostDef::TapSource,
-            CostDef::SacrificePermanent {
-                object: ObjectPredicateDef::HasType(CardType::Creature),
-                controller: PlayerRelation::You,
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Human", "Cleric", "Druid"], 1, 1)
+        .with_ability(AbilityDef::activated(
+            "{1}{G}, {T}, Sacrifice a creature: Forests you control \
+             become 2/3 creatures until end of turn. They're still lands.",
+            &[
+                CostDef::Mana(mana_cost!("{1}{G}")),
+                CostDef::TapSource,
+                CostDef::SacrificePermanent {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    controller: PlayerRelation::You,
+                },
+            ],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::add_card_types(crate::card::CardTypeSet::single(
+                        CardType::Creature,
+                    )),
+                    AppliedEffectDef::set_base_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(3),
+                    ),
+                ]),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
-        ],
-        EffectDef::Apply {
-            recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]), &[ZoneKind::Battlefield], PlayerRelation::You),
-            effect: AppliedEffectDef::Composite(&[
-                AppliedEffectDef::add_card_types(crate::card::CardTypeSet::single(CardType::Creature)),
-                AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(2), ValueDef::Constant(3)),
-            ]),
-            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-        },
-    )),
+        )),
 );
 
 // FEM 79 — Thelonite Monk
-// Audit: unsupported — Needs its permanent-duration target-land characteristic effect and green-creature sacrifice cost authored and tested.
+// Audit: unsupported — Needs its permanent-duration target-land characteristic effect and
+// green-creature sacrifice cost authored and tested.
 pub(in crate::card::sets) static THELONITE_MONK: CardRecord = CardRecord::new(
     "Thelonite Monk",
     "5400ff25-c70e-4095-a228-190601b86043",
@@ -2558,7 +2606,9 @@ pub(in crate::card::sets) static AEOLIPILE: CardRecord = CardRecord::new(
 );
 
 // FEM 82 — Balm of Restoration
-// Audit: unsupported — Needs modal activated abilities: modes are chosen only while casting a spell, so an activated ability has no mode selection to freeze. Both of its modes are available.
+// Audit: unsupported — Needs modal activated abilities: modes are chosen only while casting a
+// spell, so an activated ability has no mode selection to freeze. Both of its modes are
+// available.
 pub(in crate::card::sets) static BALM_OF_RESTORATION: CardRecord = CardRecord::new(
     "Balm of Restoration",
     "7f95de4a-7fae-42bc-9660-39ea7685ca02",
@@ -2567,7 +2617,9 @@ pub(in crate::card::sets) static BALM_OF_RESTORATION: CardRecord = CardRecord::n
 );
 
 // FEM 83 — Conch Horn
-// Audit: unsupported — Needs ordered-library inspection, selection, and visibility handling for “{1}, {T}, Sacrifice this artifact: Draw two cards, then put a card from your hand on top of your library”.
+// Audit: unsupported — Needs ordered-library inspection, selection, and visibility handling for
+// “{1}, {T}, Sacrifice this artifact: Draw two cards, then put a card from your hand on top of
+// your library”.
 pub(in crate::card::sets) static CONCH_HORN: CardRecord = CardRecord::new(
     "Conch Horn",
     "860a9ba3-e4c4-4af9-bdfe-1ada39289fd5",
@@ -2576,7 +2628,10 @@ pub(in crate::card::sets) static CONCH_HORN: CardRecord = CardRecord::new(
 );
 
 // FEM 84 — Delif's Cone
-// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “{T}, Sacrifice this artifact: This turn, when target creature you control attacks and isn't blocked, you may gain life equal to its power. If you do, it assigns no combat damage this turn”.
+// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “{T},
+// Sacrifice this artifact: This turn, when target creature you control attacks and isn't
+// blocked, you may gain life equal to its power. If you do, it assigns no combat damage this
+// turn”.
 pub(in crate::card::sets) static DELIF_S_CONE: CardRecord = CardRecord::new(
     "Delif's Cone",
     "262b8788-c5a0-4c8e-9d58-b769b1b0a2ff",
@@ -2585,7 +2640,9 @@ pub(in crate::card::sets) static DELIF_S_CONE: CardRecord = CardRecord::new(
 );
 
 // FEM 85 — Delif's Cube
-// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “{2}, {T}: This turn, when target creature you control attacks and isn't blocked, it assigns no combat damage this turn and you put a cube counter on this artifact”.
+// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “{2},
+// {T}: This turn, when target creature you control attacks and isn't blocked, it assigns no
+// combat damage this turn and you put a cube counter on this artifact”.
 pub(in crate::card::sets) static DELIF_S_CUBE: CardRecord = CardRecord::new(
     "Delif's Cube",
     "14749600-9eca-4122-b04f-30ddda091b74",
@@ -2750,7 +2807,7 @@ pub(in crate::card::sets) static BOTTOMLESS_VAULT: CardRecord = CardRecord::new(
     "Bottomless Vault",
     "639ae988-d1d1-4ead-b0f8-47fc39eb64a0",
     "Pat Lewis",
-CardRules::new_land(&[]).with_abilities(&[
+    CardRules::new_land(&[]).with_abilities(&[
         abilities::enters_tapped(CardType::Land),
         AbilityDef::static_ability(
             "You may choose not to untap this land during your untap step.",
@@ -2773,7 +2830,8 @@ CardRules::new_land(&[]).with_abilities(&[
             },
         ),
         AbilityDef::activated_mana(
-            "{T}, Remove any number of storage counters from this land: Add {B} for each storage counter removed this way.",
+            "{T}, Remove any number of storage counters from this land: \
+             Add {B} for each storage counter removed this way.",
             &[
                 CostDef::TapSource,
                 CostDef::RemoveAnyNumberOfCountersFromSource(CounterKind::named("storage")),
@@ -2788,7 +2846,7 @@ pub(in crate::card::sets) static DWARVEN_HOLD: CardRecord = CardRecord::new(
     "Dwarven Hold",
     "a3142ded-ff62-4817-aa54-75a7ea4498a6",
     "Pat Lewis",
-CardRules::new_land(&[]).with_abilities(&[
+    CardRules::new_land(&[]).with_abilities(&[
         abilities::enters_tapped(CardType::Land),
         AbilityDef::static_ability(
             "You may choose not to untap this land during your untap step.",
@@ -2811,7 +2869,8 @@ CardRules::new_land(&[]).with_abilities(&[
             },
         ),
         AbilityDef::activated_mana(
-            "{T}, Remove any number of storage counters from this land: Add {R} for each storage counter removed this way.",
+            "{T}, Remove any number of storage counters from this land: \
+             Add {R} for each storage counter removed this way.",
             &[
                 CostDef::TapSource,
                 CostDef::RemoveAnyNumberOfCountersFromSource(CounterKind::named("storage")),
@@ -2895,7 +2954,7 @@ pub(in crate::card::sets) static HOLLOW_TREES: CardRecord = CardRecord::new(
     "Hollow Trees",
     "90845410-e09a-4753-ad4c-bf2b2f3c95ac",
     "Pat Lewis",
-CardRules::new_land(&[]).with_abilities(&[
+    CardRules::new_land(&[]).with_abilities(&[
         abilities::enters_tapped(CardType::Land),
         AbilityDef::static_ability(
             "You may choose not to untap this land during your untap step.",
@@ -2918,7 +2977,8 @@ CardRules::new_land(&[]).with_abilities(&[
             },
         ),
         AbilityDef::activated_mana(
-            "{T}, Remove any number of storage counters from this land: Add {G} for each storage counter removed this way.",
+            "{T}, Remove any number of storage counters from this land: \
+             Add {G} for each storage counter removed this way.",
             &[
                 CostDef::TapSource,
                 CostDef::RemoveAnyNumberOfCountersFromSource(CounterKind::named("storage")),
@@ -2933,7 +2993,7 @@ pub(in crate::card::sets) static ICATIAN_STORE: CardRecord = CardRecord::new(
     "Icatian Store",
     "d7cd8d8c-52c7-402f-92e1-5e5866f2555a",
     "Pat Lewis",
-CardRules::new_land(&[]).with_abilities(&[
+    CardRules::new_land(&[]).with_abilities(&[
         abilities::enters_tapped(CardType::Land),
         AbilityDef::static_ability(
             "You may choose not to untap this land during your untap step.",
@@ -2956,7 +3016,8 @@ CardRules::new_land(&[]).with_abilities(&[
             },
         ),
         AbilityDef::activated_mana(
-            "{T}, Remove any number of storage counters from this land: Add {W} for each storage counter removed this way.",
+            "{T}, Remove any number of storage counters from this land: \
+             Add {W} for each storage counter removed this way.",
             &[
                 CostDef::TapSource,
                 CostDef::RemoveAnyNumberOfCountersFromSource(CounterKind::named("storage")),
@@ -2967,7 +3028,9 @@ CardRules::new_land(&[]).with_abilities(&[
 );
 
 // FEM 99 — Rainbow Vale
-// Audit: unsupported — Needs duration-aware control-changing continuous effects for “{T}: Add one mana of any color. An opponent gains control of this land at the beginning of the next end step”.
+// Audit: unsupported — Needs duration-aware control-changing continuous effects for “{T}: Add
+// one mana of any color. An opponent gains control of this land at the beginning of the next
+// end step”.
 pub(in crate::card::sets) static RAINBOW_VALE: CardRecord = CardRecord::new(
     "Rainbow Vale",
     "c1b138e1-f8fc-435c-9aed-98004768479c",
@@ -3003,7 +3066,7 @@ pub(in crate::card::sets) static SAND_SILOS: CardRecord = CardRecord::new(
     "Sand Silos",
     "3f6f1fcb-d903-4a31-abab-40488569eef6",
     "Pat Lewis",
-CardRules::new_land(&[]).with_abilities(&[
+    CardRules::new_land(&[]).with_abilities(&[
         abilities::enters_tapped(CardType::Land),
         AbilityDef::static_ability(
             "You may choose not to untap this land during your untap step.",
@@ -3026,7 +3089,8 @@ CardRules::new_land(&[]).with_abilities(&[
             },
         ),
         AbilityDef::activated_mana(
-            "{T}, Remove any number of storage counters from this land: Add {U} for each storage counter removed this way.",
+            "{T}, Remove any number of storage counters from this land: \
+             Add {U} for each storage counter removed this way.",
             &[
                 CostDef::TapSource,
                 CostDef::RemoveAnyNumberOfCountersFromSource(CounterKind::named("storage")),

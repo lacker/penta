@@ -95,12 +95,12 @@ fn a_self_modifier_works_from_exile_and_does_not_discount_another_copy() {
     let mut game = ready_game();
     game.players[0]
         .exile
-        .push(card(20_000, cards::CAVERN_HOARD_DRAGON_114, PlayerId::One));
+        .push(card(20_000, cards::CAVERN_HOARD_DRAGON, PlayerId::One));
     game.permit_cast_this_turn(GameObjectId(20_000), PlayerId::One);
     game.battlefield.extend([
         creature(30_000, cards::SOL_RING, PlayerId::Two),
         creature(30_001, cards::BLACK_VISE, PlayerId::Two),
-        creature(30_002, cards::CAVERN_HOARD_DRAGON_114, PlayerId::One),
+        creature(30_002, cards::CAVERN_HOARD_DRAGON, PlayerId::One),
     ]);
     game.players[0].mana_pool.red = 2;
     game.players[0].mana_pool.colorless = 4;

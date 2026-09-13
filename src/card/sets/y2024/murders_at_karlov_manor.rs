@@ -145,7 +145,8 @@ const SPIRIT_TOKEN: TokenCharacteristics =
         ));
 
 // MKM 1 — Case of the Shattered Pact
-// Audit: unsupported — Needs a Case solved designation, the rules-triggered end-step solve check, and solved-only ability gating; the engine has no Case state or solve event.
+// Audit: unsupported — Needs a Case solved designation, the rules-triggered end-step solve
+// check, and solved-only ability gating; the engine has no Case state or solve event.
 pub(in crate::card::sets) static CASE_OF_THE_SHATTERED_PACT: CardRecord = CardRecord::new(
     "Case of the Shattered Pact",
     "2a70f0ae-d49b-4cc8-9f76-895039c3dc39",
@@ -154,7 +155,9 @@ pub(in crate::card::sets) static CASE_OF_THE_SHATTERED_PACT: CardRecord = CardRe
 );
 
 // MKM 2 — Absolving Lammasu
-// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block rules, plus operations and predicates to suspect a creature, clear that status, and observe it independently of granted abilities.
+// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block
+// rules, plus operations and predicates to suspect a creature, clear that status, and observe
+// it independently of granted abilities.
 pub(in crate::card::sets) static ABSOLVING_LAMMASU: CardRecord = CardRecord::new(
     "Absolving Lammasu",
     "bd6e71a1-713e-4eca-bd65-9f0638c16794",
@@ -163,7 +166,8 @@ pub(in crate::card::sets) static ABSOLVING_LAMMASU: CardRecord = CardRecord::new
 );
 
 // MKM 3 — Assemble the Players
-// Audit: unsupported — Needs a once-per-turn allowance on top-of-library creature casting; the existing top-card play permission has no per-turn use limit.
+// Audit: unsupported — Needs a once-per-turn allowance on top-of-library creature casting; the
+// existing top-card play permission has no per-turn use limit.
 pub(in crate::card::sets) static ASSEMBLE_THE_PLAYERS: CardRecord = CardRecord::new(
     "Assemble the Players",
     "f5bcb21a-8559-4791-8cd0-482e7b8dcfd2",
@@ -172,7 +176,9 @@ pub(in crate::card::sets) static ASSEMBLE_THE_PLAYERS: CardRecord = CardRecord::
 );
 
 // MKM 4 — Aurelia's Vindicator
-// Audit: unsupported — Needs a face-up trigger event retaining the variable X paid for disguise, so the later trigger can choose up to that many targets even after the source leaves.
+// Audit: unsupported — Needs a face-up trigger event retaining the variable X paid for
+// disguise, so the later trigger can choose up to that many targets even after the source
+// leaves.
 pub(in crate::card::sets) static AURELIA_S_VINDICATOR: CardRecord = CardRecord::new(
     "Aurelia's Vindicator",
     "5901dff4-e09b-4747-9297-797a1a057cd5",
@@ -210,7 +216,8 @@ pub(in crate::card::sets) static AUSPICIOUS_ARRIVAL: CardRecord = CardRecord::ne
 );
 
 // MKM 6 — Call a Surprise Witness
-// Audit: unsupported — Needs battlefield arrival characteristics that add the Spirit type to the returned creature before entry replacements and triggers inspect it.
+// Audit: unsupported — Needs battlefield arrival characteristics that add the Spirit type to
+// the returned creature before entry replacements and triggers inspect it.
 pub(in crate::card::sets) static CALL_A_SURPRISE_WITNESS: CardRecord = CardRecord::new(
     "Call a Surprise Witness",
     "f5148def-cf1a-460e-8dfd-856103940892",
@@ -219,7 +226,8 @@ pub(in crate::card::sets) static CALL_A_SURPRISE_WITNESS: CardRecord = CardRecor
 );
 
 // MKM 7 — Case File Auditor
-// Audit: unsupported — Needs a committed solve-a-Case event observed by other permanents; the engine currently has neither solved Case state nor a solve event.
+// Audit: unsupported — Needs a committed solve-a-Case event observed by other permanents; the
+// engine currently has neither solved Case state nor a solve event.
 pub(in crate::card::sets) static CASE_FILE_AUDITOR: CardRecord = CardRecord::new(
     "Case File Auditor",
     "70a52038-9d1c-4be1-8dbe-6f0ee916ba94",
@@ -236,7 +244,8 @@ const CASE_FILE_AUDITOR_ALTERNATE_1: PrintingRecord = PrintingRecord::alternate(
 );
 
 // MKM 8 — Case of the Gateway Express
-// Audit: unsupported — Needs a Case solved designation, the rules-triggered end-step solve check, and solved-only ability gating; the engine has no Case state or solve event.
+// Audit: unsupported — Needs a Case solved designation, the rules-triggered end-step solve
+// check, and solved-only ability gating; the engine has no Case state or solve event.
 pub(in crate::card::sets) static CASE_OF_THE_GATEWAY_EXPRESS: CardRecord = CardRecord::new(
     "Case of the Gateway Express",
     "0862bf07-8a76-4e80-bba2-20d22f8eee30",
@@ -245,7 +254,9 @@ pub(in crate::card::sets) static CASE_OF_THE_GATEWAY_EXPRESS: CardRecord = CardR
 );
 
 // MKM 9 — Case of the Pilfered Proof
-// Audit: unsupported — Needs committed turn-face-up events, persistent solved-Case state with an end-step solve check, and a token-creation replacement that adds a Clue to each creation batch while solved.
+// Audit: unsupported — Needs committed turn-face-up events, persistent solved-Case state with
+// an end-step solve check, and a token-creation replacement that adds a Clue to each creation
+// batch while solved.
 pub(in crate::card::sets) static CASE_OF_THE_PILFERED_PROOF: CardRecord = CardRecord::new(
     "Case of the Pilfered Proof",
     "32927bf2-63c1-4402-99dc-3a0f2f8e0f9c",
@@ -254,7 +265,8 @@ pub(in crate::card::sets) static CASE_OF_THE_PILFERED_PROOF: CardRecord = CardRe
 );
 
 // MKM 10 — Case of the Uneaten Feast
-// Audit: unsupported — Needs a Case solved designation, the rules-triggered end-step solve check, and solved-only ability gating; the engine has no Case state or solve event.
+// Audit: unsupported — Needs a Case solved designation, the rules-triggered end-step solve
+// check, and solved-only ability gating; the engine has no Case state or solve event.
 pub(in crate::card::sets) static CASE_OF_THE_UNEATEN_FEAST: CardRecord = CardRecord::new(
     "Case of the Uneaten Feast",
     "ac63941b-3f78-4bd3-8b05-ca12aaaa006c",
@@ -285,7 +297,8 @@ pub(in crate::card::sets) static DEFENESTRATED_PHANTOM: CardRecord = CardRecord:
 );
 
 // MKM 12 — Delney, Streetwise Lookout
-// Audit: unsupported — Needs doubling of arbitrary triggered abilities from creatures selected by effective power; the existing additional-trigger rule only covers enters triggers.
+// Audit: unsupported — Needs doubling of arbitrary triggered abilities from creatures selected
+// by effective power; the existing additional-trigger rule only covers enters triggers.
 pub(in crate::card::sets) static DELNEY_STREETWISE_LOOKOUT: CardRecord = CardRecord::new(
     "Delney, Streetwise Lookout",
     "be219928-3d0e-4d00-b124-152ce8a8c13b",
@@ -377,7 +390,9 @@ pub(in crate::card::sets) static DUE_DILIGENCE: CardRecord = CardRecord::new(
 );
 
 // MKM 15 — Essence of Antiquity
-// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and its controller, dispatched to source and observing abilities; the current turn-up special action emits no such trigger event.
+// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and
+// its controller, dispatched to source and observing abilities; the current turn-up special
+// action emits no such trigger event.
 pub(in crate::card::sets) static ESSENCE_OF_ANTIQUITY: CardRecord = CardRecord::new(
     "Essence of Antiquity",
     "aee2945d-bf6d-4328-a482-df24c2973b56",
@@ -386,7 +401,9 @@ pub(in crate::card::sets) static ESSENCE_OF_ANTIQUITY: CardRecord = CardRecord::
 );
 
 // MKM 16 — Forum Familiar
-// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and its controller, dispatched to source and observing abilities; the current turn-up special action emits no such trigger event.
+// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and
+// its controller, dispatched to source and observing abilities; the current turn-up special
+// action emits no such trigger event.
 pub(in crate::card::sets) static FORUM_FAMILIAR: CardRecord = CardRecord::new(
     "Forum Familiar",
     "b06a243d-acc8-42cd-926c-98a4cc96ab21",
@@ -395,7 +412,8 @@ pub(in crate::card::sets) static FORUM_FAMILIAR: CardRecord = CardRecord::new(
 );
 
 // MKM 17 — Griffnaut Tracker
-// Audit: unsupported — Needs a cross-target constraint requiring all selected graveyard cards to have the same owner, while allowing either player's graveyard.
+// Audit: unsupported — Needs a cross-target constraint requiring all selected graveyard cards
+// to have the same owner, while allowing either player's graveyard.
 pub(in crate::card::sets) static GRIFFNAUT_TRACKER: CardRecord = CardRecord::new(
     "Griffnaut Tracker",
     "95f5d048-226f-49a4-a2ce-a6fa99aa9e8a",
@@ -480,7 +498,9 @@ pub(in crate::card::sets) static INSIDE_SOURCE: CardRecord = CardRecord::new(
 );
 
 // MKM 20 — Karlov Watchdog
-// Audit: unsupported — Needs a rule prohibiting opponents' permanents from being turned face up during your turn, checked by both turn-up special actions and effect-driven turn-up operations.
+// Audit: unsupported — Needs a rule prohibiting opponents' permanents from being turned face up
+// during your turn, checked by both turn-up special actions and effect-driven turn-up
+// operations.
 pub(in crate::card::sets) static KARLOV_WATCHDOG: CardRecord = CardRecord::new(
     "Karlov Watchdog",
     "79cfb366-ae2a-4b3d-9a80-383a32db1509",
@@ -560,7 +580,8 @@ pub(in crate::card::sets) static MAKE_YOUR_MOVE: CardRecord = CardRecord::new(
 );
 
 // MKM 23 — Makeshift Binding
-// Audit: unsupported — Needs exile-until-source-leaves with immediate return when the duration ends (CR 610.3); a leaves trigger would incorrectly delay the return through the stack.
+// Audit: unsupported — Needs exile-until-source-leaves with immediate return when the duration
+// ends (CR 610.3); a leaves trigger would incorrectly delay the return through the stack.
 pub(in crate::card::sets) static MAKESHIFT_BINDING: CardRecord = CardRecord::new(
     "Makeshift Binding",
     "e45d2e0c-d70d-40e5-8c3d-db6803393516",
@@ -765,14 +786,14 @@ pub(in crate::card::sets) static NOVICE_INSPECTOR: CardRecord = CardRecord::new(
     "Novice Inspector",
     "0ad38866-fc5f-4f62-89c1-afc0f50765aa",
     "Fajareka Setiawan",
-// One mana for a blocker and half a card, which is the floor a white
+    // One mana for a blocker and half a card, which is the floor a white
     // one-drop has to clear to be playable at all.
     CardRules::new_creature(mana_cost!("{W}"), &["Human", "Detective"], 1, 2).with_ability(
         abilities::enters_trigger(
-            "When this creature enters, investigate. (Create a Clue token. It's an artifact with \"{2}, Sacrifice this token: Draw a card.\")",
-            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
-                CLUE_TOKEN,
-            ))),
+            "When this creature enters, investigate. (Create a Clue \
+             token. It's an artifact with \"{2}, Sacrifice this token: \
+             Draw a card.\")",
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(CLUE_TOKEN))),
         ),
     ),
 );
@@ -810,7 +831,9 @@ pub(in crate::card::sets) static ON_THE_JOB: CardRecord = CardRecord::new(
 );
 
 // MKM 31 — Perimeter Enforcer
-// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and its controller, dispatched to source and observing abilities; the current turn-up special action emits no such trigger event.
+// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and
+// its controller, dispatched to source and observing abilities; the current turn-up special
+// action emits no such trigger event.
 pub(in crate::card::sets) static PERIMETER_ENFORCER: CardRecord = CardRecord::new(
     "Perimeter Enforcer",
     "1f88d077-5082-4a67-91e4-97aafb9a5e91",
@@ -888,7 +911,9 @@ pub(in crate::card::sets) static SEASONED_CONSULTANT: CardRecord = CardRecord::n
 );
 
 // MKM 34 — Tenth District Hero
-// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana value at least the threshold, including nonminimal sets, and named-action completion; current aggregate payment selections require a minimal set.
+// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana
+// value at least the threshold, including nonminimal sets, and named-action completion; current
+// aggregate payment selections require a minimal set.
 pub(in crate::card::sets) static TENTH_DISTRICT_HERO: CardRecord = CardRecord::new(
     "Tenth District Hero",
     "7c65a79e-f28a-4f30-95a4-1ea55fd84564",
@@ -897,7 +922,9 @@ pub(in crate::card::sets) static TENTH_DISTRICT_HERO: CardRecord = CardRecord::n
 );
 
 // MKM 35 — Unyielding Gatekeeper
-// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and its controller, dispatched to source and observing abilities; the current turn-up special action emits no such trigger event.
+// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and
+// its controller, dispatched to source and observing abilities; the current turn-up special
+// action emits no such trigger event.
 pub(in crate::card::sets) static UNYIELDING_GATEKEEPER: CardRecord = CardRecord::new(
     "Unyielding Gatekeeper",
     "f3a0d597-d2df-4aaf-8084-c8eeda64ce60",
@@ -995,7 +1022,9 @@ pub(in crate::card::sets) static WRENCH: CardRecord = CardRecord::new(
 );
 
 // MKM 38 — Agency Outfitter
-// Audit: unsupported — Needs a single search spanning any selected subset of hand, graveyard, and library, selecting at most one card of each named identity and shuffling only when the library was searched.
+// Audit: unsupported — Needs a single search spanning any selected subset of hand, graveyard,
+// and library, selecting at most one card of each named identity and shuffling only when the
+// library was searched.
 pub(in crate::card::sets) static AGENCY_OUTFITTER: CardRecord = CardRecord::new(
     "Agency Outfitter",
     "8112f133-535e-4264-8357-9cbf97957710",
@@ -1004,7 +1033,9 @@ pub(in crate::card::sets) static AGENCY_OUTFITTER: CardRecord = CardRecord::new(
 );
 
 // MKM 39 — Behind the Mask
-// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana value at least the threshold, including nonminimal sets, and named-action completion; current aggregate payment selections require a minimal set.
+// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana
+// value at least the threshold, including nonminimal sets, and named-action completion; current
+// aggregate payment selections require a minimal set.
 pub(in crate::card::sets) static BEHIND_THE_MASK: CardRecord = CardRecord::new(
     "Behind the Mask",
     "e522b043-fbd8-48a4-9f20-39e2a66a35ec",
@@ -1040,7 +1071,9 @@ pub(in crate::card::sets) static BENTHIC_CRIMINOLOGISTS: CardRecord = CardRecord
 );
 
 // MKM 41 — Bubble Smuggler
-// Audit: unsupported — Needs prospective turn-face-up modifications that place counters as the permanent is turned face up, before state-based actions or face-up triggers inspect its characteristics.
+// Audit: unsupported — Needs prospective turn-face-up modifications that place counters as the
+// permanent is turned face up, before state-based actions or face-up triggers inspect its
+// characteristics.
 pub(in crate::card::sets) static BUBBLE_SMUGGLER: CardRecord = CardRecord::new(
     "Bubble Smuggler",
     "6b863ee0-d9f3-4b1e-993d-5212731d9353",
@@ -1138,7 +1171,8 @@ pub(in crate::card::sets) static CANDLESTICK: CardRecord = CardRecord::new(
 );
 
 // MKM 44 — Case of the Filched Falcon
-// Audit: unsupported — Needs a Case solved designation, the rules-triggered end-step solve check, and solved-only ability gating; the engine has no Case state or solve event.
+// Audit: unsupported — Needs a Case solved designation, the rules-triggered end-step solve
+// check, and solved-only ability gating; the engine has no Case state or solve event.
 pub(in crate::card::sets) static CASE_OF_THE_FILCHED_FALCON: CardRecord = CardRecord::new(
     "Case of the Filched Falcon",
     "266be5bd-71ba-4511-8b71-d0b03885a28d",
@@ -1147,7 +1181,8 @@ pub(in crate::card::sets) static CASE_OF_THE_FILCHED_FALCON: CardRecord = CardRe
 );
 
 // MKM 45 — Case of the Ransacked Lab
-// Audit: unsupported — Needs a Case solved designation, the rules-triggered end-step solve check, and solved-only ability gating; the engine has no Case state or solve event.
+// Audit: unsupported — Needs a Case solved designation, the rules-triggered end-step solve
+// check, and solved-only ability gating; the engine has no Case state or solve event.
 pub(in crate::card::sets) static CASE_OF_THE_RANSACKED_LAB: CardRecord = CardRecord::new(
     "Case of the Ransacked Lab",
     "16a9a596-61de-4fcf-aae0-41836c3deca5",
@@ -1177,7 +1212,9 @@ pub(in crate::card::sets) static COLD_CASE_CRACKER: CardRecord = CardRecord::new
 );
 
 // MKM 47 — Conspiracy Unraveler
-// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana value at least the threshold, including nonminimal sets, and named-action completion; current aggregate payment selections require a minimal set.
+// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana
+// value at least the threshold, including nonminimal sets, and named-action completion; current
+// aggregate payment selections require a minimal set.
 pub(in crate::card::sets) static CONSPIRACY_UNRAVELER: CardRecord = CardRecord::new(
     "Conspiracy Unraveler",
     "88e791fc-bf9f-49b6-b5f2-a24d4b3e360e",
@@ -1186,7 +1223,9 @@ pub(in crate::card::sets) static CONSPIRACY_UNRAVELER: CardRecord = CardRecord::
 );
 
 // MKM 48 — Coveted Falcon
-// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and its controller, dispatched to source and observing abilities; the current turn-up special action emits no such trigger event.
+// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and
+// its controller, dispatched to source and observing abilities; the current turn-up special
+// action emits no such trigger event.
 pub(in crate::card::sets) static COVETED_FALCON: CardRecord = CardRecord::new(
     "Coveted Falcon",
     "bc936987-d58b-4e7c-870f-379bcae77727",
@@ -1195,7 +1234,9 @@ pub(in crate::card::sets) static COVETED_FALCON: CardRecord = CardRecord::new(
 );
 
 // MKM 49 — Crimestopper Sprite
-// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana value at least the threshold, including nonminimal sets, and named-action completion; current aggregate payment selections require a minimal set.
+// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana
+// value at least the threshold, including nonminimal sets, and named-action completion; current
+// aggregate payment selections require a minimal set.
 pub(in crate::card::sets) static CRIMESTOPPER_SPRITE: CardRecord = CardRecord::new(
     "Crimestopper Sprite",
     "dc4ac597-38f0-48b5-ac2d-dfb0b169f834",
@@ -1361,7 +1402,9 @@ pub(in crate::card::sets) static DRAMATIC_ACCUSATION: CardRecord = CardRecord::n
 );
 
 // MKM 54 — Eliminate the Impossible
-// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block rules, plus operations and predicates to suspect a creature, clear that status, and observe it independently of granted abilities.
+// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block
+// rules, plus operations and predicates to suspect a creature, clear that status, and observe
+// it independently of granted abilities.
 pub(in crate::card::sets) static ELIMINATE_THE_IMPOSSIBLE: CardRecord = CardRecord::new(
     "Eliminate the Impossible",
     "486f1cc2-c162-448e-91a9-577d7d796584",
@@ -1370,7 +1413,9 @@ pub(in crate::card::sets) static ELIMINATE_THE_IMPOSSIBLE: CardRecord = CardReco
 );
 
 // MKM 55 — Exit Specialist
-// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and its controller, dispatched to source and observing abilities; the current turn-up special action emits no such trigger event.
+// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and
+// its controller, dispatched to source and observing abilities; the current turn-up special
+// action emits no such trigger event.
 pub(in crate::card::sets) static EXIT_SPECIALIST: CardRecord = CardRecord::new(
     "Exit Specialist",
     "268f142d-9fb1-4673-b804-add1f08dacb9",
@@ -1418,38 +1463,47 @@ pub(in crate::card::sets) static FORENSIC_GADGETEER: CardRecord = CardRecord::ne
     "Forensic Gadgeteer",
     "97d08a15-e61c-4421-a541-c68a4f87cb74",
     "Volkan Baǵa",
-// Every artifact you cast is a card later, and every artifact you
+    // Every artifact you cast is a card later, and every artifact you
     // already have is cheaper to use -- including the Clues it just made.
-    CardRules::new_creature(mana_cost!("{2}{U}"), &["Vedalken", "Artificer", "Detective"], 2, 3)
-        .with_abilities(&[
-            AbilityDef::triggered(
-                "Whenever you cast an artifact spell, investigate. (Create a Clue token. It's an artifact with \"{2}, Sacrifice this token: Draw a card.\")",
-                // An artifact spell you cast, which is the whole of the trigger: what it
-                // does is not part of the condition.
-                TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+    CardRules::new_creature(
+        mana_cost!("{2}{U}"),
+        &["Vedalken", "Artificer", "Detective"],
+        2,
+        3,
+    )
+    .with_abilities(&[
+        AbilityDef::triggered(
+            "Whenever you cast an artifact spell, investigate. (Create a \
+             Clue token. It's an artifact with \"{2}, Sacrifice this \
+             token: Draw a card.\")",
+            // An artifact spell you cast, which is the whole of the trigger: what it
+            // does is not part of the condition.
+            TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Artifact),
+                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+            ])),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(CLUE_TOKEN))),
+        ),
+        AbilityDef::static_ability(
+            "Activated abilities of artifacts you control cost {1} less \
+             to activate. This effect can't reduce the mana in that cost \
+             to less than one mana.",
+            EffectDef::ModifyCost(CostModificationDef::AbilityReduction {
+                permanent: ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Artifact),
                     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                ])),
-                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
-                    CLUE_TOKEN,
-                ))),
-            ),
-            AbilityDef::static_ability(
-                "Activated abilities of artifacts you control cost {1} less to activate. This effect can't reduce the mana in that cost to less than one mana.",
-                EffectDef::ModifyCost(CostModificationDef::AbilityReduction {
-                    permanent: ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::HasType(CardType::Artifact),
-                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                    ]),
-                    amount: ValueDef::Constant(1),
-                    minimum: 1,
-                }),
-            ),
-        ]),
+                ]),
+                amount: ValueDef::Constant(1),
+                minimum: 1,
+            }),
+        ),
+    ]),
 );
 
 // MKM 58 — Forensic Researcher
-// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana value at least the threshold, including nonminimal sets, and named-action completion; current aggregate payment selections require a minimal set.
+// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana
+// value at least the threshold, including nonminimal sets, and named-action completion; current
+// aggregate payment selections require a minimal set.
 pub(in crate::card::sets) static FORENSIC_RESEARCHER: CardRecord = CardRecord::new(
     "Forensic Researcher",
     "1384df5d-d705-49cb-a982-1588cbf303d8",
@@ -1458,7 +1512,9 @@ pub(in crate::card::sets) static FORENSIC_RESEARCHER: CardRecord = CardRecord::n
 );
 
 // MKM 59 — Furtive Courier
-// Audit: unsupported — Needs controller-relative history recording whether an artifact was sacrificed this turn, including sacrifices before this permanent entered, for the printed condition.
+// Audit: unsupported — Needs controller-relative history recording whether an artifact was
+// sacrificed this turn, including sacrifices before this permanent entered, for the printed
+// condition.
 pub(in crate::card::sets) static FURTIVE_COURIER: CardRecord = CardRecord::new(
     "Furtive Courier",
     "6f359fc2-b9e4-4a01-9d04-442bb160b01e",
@@ -1516,7 +1572,9 @@ pub(in crate::card::sets) static HOTSHOT_INVESTIGATORS: CardRecord = CardRecord:
 );
 
 // MKM 61 — Intrude on the Mind
-// Audit: unsupported — Needs pile division with the opponent choosing the retained pile and a bound result for the cards actually put into the graveyard, so the created token receives the correct number of counters.
+// Audit: unsupported — Needs pile division with the opponent choosing the retained pile and a
+// bound result for the cards actually put into the graveyard, so the created token receives the
+// correct number of counters.
 pub(in crate::card::sets) static INTRUDE_ON_THE_MIND: CardRecord = CardRecord::new(
     "Intrude on the Mind",
     "fbe62f47-df17-4646-88ca-89a8ec4deee9",
@@ -1602,7 +1660,9 @@ pub(in crate::card::sets) static LIVING_CONUNDRUM: CardRecord = CardRecord::new(
 );
 
 // MKM 64 — Lost in the Maze
-// Audit: unsupported — Needs an enters-trigger target count derived from the source spell's retained X value; cast-target-count validation currently rejects SourceCastX, and the live-source value is lost if the enchantment leaves before its trigger resolves.
+// Audit: unsupported — Needs an enters-trigger target count derived from the source spell's
+// retained X value; cast-target-count validation currently rejects SourceCastX, and the
+// live-source value is lost if the enchantment leaves before its trigger resolves.
 pub(in crate::card::sets) static LOST_IN_THE_MAZE: CardRecord = CardRecord::new(
     "Lost in the Maze",
     "6308dc62-d945-4761-aa4c-ef8e9271e901",
@@ -1611,7 +1671,9 @@ pub(in crate::card::sets) static LOST_IN_THE_MAZE: CardRecord = CardRecord::new(
 );
 
 // MKM 65 — Mistway Spy
-// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and its controller, dispatched to source and observing abilities; the current turn-up special action emits no such trigger event.
+// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and
+// its controller, dispatched to source and observing abilities; the current turn-up special
+// action emits no such trigger event.
 pub(in crate::card::sets) static MISTWAY_SPY: CardRecord = CardRecord::new(
     "Mistway Spy",
     "e8578839-046f-4afd-a0e7-4737ded9e6eb",
@@ -1673,7 +1735,9 @@ const PROFT_S_EIDETIC_MEMORY_ALTERNATE_1: PrintingRecord = PrintingRecord::alter
 );
 
 // MKM 68 — Projektor Inspector
-// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and its controller, dispatched to source and observing abilities; the current turn-up special action emits no such trigger event.
+// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and
+// its controller, dispatched to source and observing abilities; the current turn-up special
+// action emits no such trigger event.
 pub(in crate::card::sets) static PROJEKTOR_INSPECTOR: CardRecord = CardRecord::new(
     "Projektor Inspector",
     "ad378843-e2b0-48d6-90dc-b584e857473d",
@@ -1682,7 +1746,9 @@ pub(in crate::card::sets) static PROJEKTOR_INSPECTOR: CardRecord = CardRecord::n
 );
 
 // MKM 69 — Reasonable Doubt
-// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block rules, plus operations and predicates to suspect a creature, clear that status, and observe it independently of granted abilities.
+// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block
+// rules, plus operations and predicates to suspect a creature, clear that status, and observe
+// it independently of granted abilities.
 pub(in crate::card::sets) static REASONABLE_DOUBT: CardRecord = CardRecord::new(
     "Reasonable Doubt",
     "270570a3-8637-4e4e-92d9-e985474cd5d2",
@@ -1691,7 +1757,9 @@ pub(in crate::card::sets) static REASONABLE_DOUBT: CardRecord = CardRecord::new(
 );
 
 // MKM 70 — Reenact the Crime
-// Audit: unsupported — Needs typed zone-change history identifying cards put into graveyards this turn from any zone; present graveyard contents cannot establish when or how a card arrived.
+// Audit: unsupported — Needs typed zone-change history identifying cards put into graveyards
+// this turn from any zone; present graveyard contents cannot establish when or how a card
+// arrived.
 pub(in crate::card::sets) static REENACT_THE_CRIME: CardRecord = CardRecord::new(
     "Reenact the Crime",
     "d942e4ce-f582-4264-89aa-9b4a743e6b29",
@@ -1792,7 +1860,9 @@ const SUDDEN_SETBACK_ALTERNATE_1: PrintingRecord = PrintingRecord::alternate(
 );
 
 // MKM 73 — Surveillance Monitor
-// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana value at least the threshold, including nonminimal sets, and named-action completion; current aggregate payment selections require a minimal set.
+// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana
+// value at least the threshold, including nonminimal sets, and named-action completion; current
+// aggregate payment selections require a minimal set.
 pub(in crate::card::sets) static SURVEILLANCE_MONITOR: CardRecord = CardRecord::new(
     "Surveillance Monitor",
     "703b874d-6739-4063-9891-e9c040dd9618",
@@ -1832,7 +1902,9 @@ pub(in crate::card::sets) static UNAUTHORIZED_EXIT: CardRecord = CardRecord::new
 );
 
 // MKM 75 — Agency Coroner
-// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block rules, plus operations and predicates to suspect a creature, clear that status, and observe it independently of granted abilities.
+// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block
+// rules, plus operations and predicates to suspect a creature, clear that status, and observe
+// it independently of granted abilities.
 pub(in crate::card::sets) static AGENCY_CORONER: CardRecord = CardRecord::new(
     "Agency Coroner",
     "d63f2c23-e877-42e3-9362-5d003a173c6d",
@@ -1841,7 +1913,9 @@ pub(in crate::card::sets) static AGENCY_CORONER: CardRecord = CardRecord::new(
 );
 
 // MKM 76 — Alley Assailant
-// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and its controller, dispatched to source and observing abilities; the current turn-up special action emits no such trigger event.
+// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and
+// its controller, dispatched to source and observing abilities; the current turn-up special
+// action emits no such trigger event.
 pub(in crate::card::sets) static ALLEY_ASSAILANT: CardRecord = CardRecord::new(
     "Alley Assailant",
     "edf238c9-61de-4f3a-b82f-05af46e5e81b",
@@ -1850,7 +1924,9 @@ pub(in crate::card::sets) static ALLEY_ASSAILANT: CardRecord = CardRecord::new(
 );
 
 // MKM 77 — Barbed Servitor
-// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block rules, plus operations and predicates to suspect a creature, clear that status, and observe it independently of granted abilities.
+// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block
+// rules, plus operations and predicates to suspect a creature, clear that status, and observe
+// it independently of granted abilities.
 pub(in crate::card::sets) static BARBED_SERVITOR: CardRecord = CardRecord::new(
     "Barbed Servitor",
     "1c34e4ae-9bf3-4098-88f1-267e7d6cfa35",
@@ -1894,7 +1970,8 @@ pub(in crate::card::sets) static BASILICA_STALKER: CardRecord = CardRecord::new(
 );
 
 // MKM 79 — Case of the Gorgon's Kiss
-// Audit: unsupported — Needs a Case solved designation, the rules-triggered end-step solve check, and solved-only ability gating; the engine has no Case state or solve event.
+// Audit: unsupported — Needs a Case solved designation, the rules-triggered end-step solve
+// check, and solved-only ability gating; the engine has no Case state or solve event.
 pub(in crate::card::sets) static CASE_OF_THE_GORGON_S_KISS: CardRecord = CardRecord::new(
     "Case of the Gorgon's Kiss",
     "45e4c07a-3205-4193-8163-b0e63e6242a4",
@@ -1911,7 +1988,8 @@ const CASE_OF_THE_GORGON_S_KISS_ALTERNATE_1: PrintingRecord = PrintingRecord::al
 );
 
 // MKM 80 — Case of the Stashed Skeleton
-// Audit: unsupported — Needs a Case solved designation, the rules-triggered end-step solve check, and solved-only ability gating; the engine has no Case state or solve event.
+// Audit: unsupported — Needs a Case solved designation, the rules-triggered end-step solve
+// check, and solved-only ability gating; the engine has no Case state or solve event.
 pub(in crate::card::sets) static CASE_OF_THE_STASHED_SKELETON: CardRecord = CardRecord::new(
     "Case of the Stashed Skeleton",
     "4b120cbe-f0af-46c5-863f-03ecadf0435c",
@@ -1973,7 +2051,9 @@ pub(in crate::card::sets) static CEREBRAL_CONFISCATION: CardRecord = CardRecord:
 );
 
 // MKM 82 — Clandestine Meddler
-// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block rules, plus operations and predicates to suspect a creature, clear that status, and observe it independently of granted abilities.
+// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block
+// rules, plus operations and predicates to suspect a creature, clear that status, and observe
+// it independently of granted abilities.
 pub(in crate::card::sets) static CLANDESTINE_MEDDLER: CardRecord = CardRecord::new(
     "Clandestine Meddler",
     "2e069de0-3218-456c-b191-93e755634783",
@@ -1990,7 +2070,9 @@ const CLANDESTINE_MEDDLER_ALTERNATE_1: PrintingRecord = PrintingRecord::alternat
 );
 
 // MKM 83 — Deadly Cover-Up
-// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana value at least the threshold, including nonminimal sets, and named-action completion; current aggregate payment selections require a minimal set.
+// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana
+// value at least the threshold, including nonminimal sets, and named-action completion; current
+// aggregate payment selections require a minimal set.
 pub(in crate::card::sets) static DEADLY_COVER_UP: CardRecord = CardRecord::new(
     "Deadly Cover-Up",
     "3876aa0f-b199-43f5-8a91-c2d620b8ef84",
@@ -1999,7 +2081,9 @@ pub(in crate::card::sets) static DEADLY_COVER_UP: CardRecord = CardRecord::new(
 );
 
 // MKM 84 — Extract a Confession
-// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana value at least the threshold, including nonminimal sets, and named-action completion; current aggregate payment selections require a minimal set.
+// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana
+// value at least the threshold, including nonminimal sets, and named-action completion; current
+// aggregate payment selections require a minimal set.
 pub(in crate::card::sets) static EXTRACT_A_CONFESSION: CardRecord = CardRecord::new(
     "Extract a Confession",
     "256c8b6e-4031-458b-8eb9-bbfe58405a0c",
@@ -2106,7 +2190,9 @@ pub(in crate::card::sets) static HUNTED_BONEBRUTE: CardRecord = CardRecord::new(
 );
 
 // MKM 88 — Illicit Masquerade
-// Audit: unsupported — Needs a target exclusion for the particular dying card's new graveyard incarnation; ordinary target exclusion identifies this enchantment, not the event's zone-change successor.
+// Audit: unsupported — Needs a target exclusion for the particular dying card's new graveyard
+// incarnation; ordinary target exclusion identifies this enchantment, not the event's
+// zone-change successor.
 pub(in crate::card::sets) static ILLICIT_MASQUERADE: CardRecord = CardRecord::new(
     "Illicit Masquerade",
     "2a7a3ec4-afaa-45e1-8cde-f15bf4bd7379",
@@ -2115,7 +2201,9 @@ pub(in crate::card::sets) static ILLICIT_MASQUERADE: CardRecord = CardRecord::ne
 );
 
 // MKM 89 — It Doesn't Add Up
-// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block rules, plus operations and predicates to suspect a creature, clear that status, and observe it independently of granted abilities.
+// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block
+// rules, plus operations and predicates to suspect a creature, clear that status, and observe
+// it independently of granted abilities.
 pub(in crate::card::sets) static IT_DOESN_T_ADD_UP: CardRecord = CardRecord::new(
     "It Doesn't Add Up",
     "fa02dbc2-ad01-47fd-b39e-f0a695029f26",
@@ -2221,7 +2309,9 @@ pub(in crate::card::sets) static LONG_GOODBYE: CardRecord = CardRecord::new(
 );
 
 // MKM 93 — Macabre Reconstruction
-// Audit: unsupported — Needs typed zone-change history identifying cards put into graveyards this turn from any zone; present graveyard contents cannot establish when or how a card arrived.
+// Audit: unsupported — Needs typed zone-change history identifying cards put into graveyards
+// this turn from any zone; present graveyard contents cannot establish when or how a card
+// arrived.
 pub(in crate::card::sets) static MACABRE_RECONSTRUCTION: CardRecord = CardRecord::new(
     "Macabre Reconstruction",
     "abb6184c-e3d0-4275-b25b-95e4a64b26f3",
@@ -2230,7 +2320,8 @@ pub(in crate::card::sets) static MACABRE_RECONSTRUCTION: CardRecord = CardRecord
 );
 
 // MKM 94 — Massacre Girl, Known Killer
-// Audit: unsupported — Needs wither damage semantics: damage to creatures must place -1/-1 counters instead of marking damage, including damage from dynamically granted wither.
+// Audit: unsupported — Needs wither damage semantics: damage to creatures must place -1/-1
+// counters instead of marking damage, including damage from dynamically granted wither.
 pub(in crate::card::sets) static MASSACRE_GIRL_KNOWN_KILLER: CardRecord = CardRecord::new(
     "Massacre Girl, Known Killer",
     "cb1c8800-9d33-485c-b776-042003b9ea92",
@@ -2275,7 +2366,9 @@ pub(in crate::card::sets) static NIGHTDRINKER_MOROII: CardRecord = CardRecord::n
 );
 
 // MKM 97 — Outrageous Robbery
-// Audit: unsupported — Needs exile-play permission that privately reveals face-down exiled cards to its grantee; the existing face-down exile operation grants visibility only to the cards' owner.
+// Audit: unsupported — Needs exile-play permission that privately reveals face-down exiled
+// cards to its grantee; the existing face-down exile operation grants visibility only to the
+// cards' owner.
 pub(in crate::card::sets) static OUTRAGEOUS_ROBBERY: CardRecord = CardRecord::new(
     "Outrageous Robbery",
     "b87813fa-ad12-4062-bb9e-436d8418fba5",
@@ -2320,7 +2413,9 @@ pub(in crate::card::sets) static PERSUASIVE_INTERROGATORS: CardRecord = CardReco
 );
 
 // MKM 99 — Polygraph Orb
-// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana value at least the threshold, including nonminimal sets, and named-action completion; current aggregate payment selections require a minimal set.
+// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana
+// value at least the threshold, including nonminimal sets, and named-action completion; current
+// aggregate payment selections require a minimal set.
 pub(in crate::card::sets) static POLYGRAPH_ORB: CardRecord = CardRecord::new(
     "Polygraph Orb",
     "a6cc4c6f-4a84-4d42-89fa-7405f7ad6ba0",
@@ -2329,7 +2424,9 @@ pub(in crate::card::sets) static POLYGRAPH_ORB: CardRecord = CardRecord::new(
 );
 
 // MKM 100 — Presumed Dead
-// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block rules, plus operations and predicates to suspect a creature, clear that status, and observe it independently of granted abilities.
+// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block
+// rules, plus operations and predicates to suspect a creature, clear that status, and observe
+// it independently of granted abilities.
 pub(in crate::card::sets) static PRESUMED_DEAD: CardRecord = CardRecord::new(
     "Presumed Dead",
     "4dd64e5c-ea0b-4ea0-aba3-88e7e96ac7ba",
@@ -2338,7 +2435,9 @@ pub(in crate::card::sets) static PRESUMED_DEAD: CardRecord = CardRecord::new(
 );
 
 // MKM 101 — Repeat Offender
-// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block rules, plus operations and predicates to suspect a creature, clear that status, and observe it independently of granted abilities.
+// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block
+// rules, plus operations and predicates to suspect a creature, clear that status, and observe
+// it independently of granted abilities.
 pub(in crate::card::sets) static REPEAT_OFFENDER: CardRecord = CardRecord::new(
     "Repeat Offender",
     "0c2ca1e7-e0de-4d29-a81b-62185ccd295f",
@@ -2347,7 +2446,9 @@ pub(in crate::card::sets) static REPEAT_OFFENDER: CardRecord = CardRecord::new(
 );
 
 // MKM 102 — Rot Farm Mortipede
-// Audit: unsupported — Needs a batched graveyard-leave event filtered to creature cards and owner, firing once for one or more cards leaving together. The existing ZoneChanged event fires separately per card.
+// Audit: unsupported — Needs a batched graveyard-leave event filtered to creature cards and
+// owner, firing once for one or more cards leaving together. The existing ZoneChanged event
+// fires separately per card.
 pub(in crate::card::sets) static ROT_FARM_MORTIPEDE: CardRecord = CardRecord::new(
     "Rot Farm Mortipede",
     "023b0142-663a-47e7-a9f1-0b565a172b60",
@@ -2456,7 +2557,9 @@ pub(in crate::card::sets) static SNARLING_GOREHOUND: CardRecord = CardRecord::ne
 );
 
 // MKM 106 — Soul Enervation
-// Audit: unsupported — Needs a batched graveyard-leave event filtered to creature cards and owner, firing once for one or more cards leaving together. The existing ZoneChanged event fires separately per card.
+// Audit: unsupported — Needs a batched graveyard-leave event filtered to creature cards and
+// owner, firing once for one or more cards leaving together. The existing ZoneChanged event
+// fires separately per card.
 pub(in crate::card::sets) static SOUL_ENERVATION: CardRecord = CardRecord::new(
     "Soul Enervation",
     "6f22ac67-06ce-47cc-a515-d216d30b9cae",
@@ -2494,7 +2597,10 @@ pub(in crate::card::sets) static TOXIN_ANALYSIS: CardRecord = CardRecord::new(
 );
 
 // MKM 108 — Undercity Eliminator
-// Audit: unsupported — Needs a reflexive trigger installed by the resolving sacrifice or discard clause, retaining its source and selected objects even after the source leaves. SacrificePerformed currently only comes from the legacy sacrifice-of-choice path and requires a live source.
+// Audit: unsupported — Needs a reflexive trigger installed by the resolving sacrifice or
+// discard clause, retaining its source and selected objects even after the source leaves.
+// SacrificePerformed currently only comes from the legacy sacrifice-of-choice path and requires
+// a live source.
 pub(in crate::card::sets) static UNDERCITY_ELIMINATOR: CardRecord = CardRecord::new(
     "Undercity Eliminator",
     "a67a4c5e-215b-4f03-87f7-c1af4f9f0a63",
@@ -2577,7 +2683,8 @@ pub(in crate::card::sets) static VEIN_RIPPER: CardRecord = CardRecord::new(
 );
 
 // MKM 111 — Anzrag's Rampage
-// Audit: unsupported — Needs per-turn history counting artifacts put into graveyards from the battlefield, independently of their current zones and of when this spell was cast.
+// Audit: unsupported — Needs per-turn history counting artifacts put into graveyards from the
+// battlefield, independently of their current zones and of when this spell was cast.
 pub(in crate::card::sets) static ANZRAG_S_RAMPAGE: CardRecord = CardRecord::new(
     "Anzrag's Rampage",
     "9dc52b53-3e4f-4d7d-851f-86c6e0ac67b2",
@@ -2609,7 +2716,8 @@ pub(in crate::card::sets) static BOLRAC_CLAN_BASHER: CardRecord = CardRecord::ne
 );
 
 // MKM 113 — Case of the Burning Masks
-// Audit: unsupported — Needs a Case solved designation, the rules-triggered end-step solve check, and solved-only ability gating; the engine has no Case state or solve event.
+// Audit: unsupported — Needs a Case solved designation, the rules-triggered end-step solve
+// check, and solved-only ability gating; the engine has no Case state or solve event.
 pub(in crate::card::sets) static CASE_OF_THE_BURNING_MASKS: CardRecord = CardRecord::new(
     "Case of the Burning Masks",
     "29ee07df-215f-45a6-9a5a-708143d73e45",
@@ -2618,7 +2726,8 @@ pub(in crate::card::sets) static CASE_OF_THE_BURNING_MASKS: CardRecord = CardRec
 );
 
 // MKM 114 — Case of the Crimson Pulse
-// Audit: unsupported — Needs a Case solved designation, the rules-triggered end-step solve check, and solved-only ability gating; the engine has no Case state or solve event.
+// Audit: unsupported — Needs a Case solved designation, the rules-triggered end-step solve
+// check, and solved-only ability gating; the engine has no Case state or solve event.
 pub(in crate::card::sets) static CASE_OF_THE_CRIMSON_PULSE: CardRecord = CardRecord::new(
     "Case of the Crimson Pulse",
     "bb18b1de-bc08-4522-b891-6117a8271534",
@@ -2627,7 +2736,9 @@ pub(in crate::card::sets) static CASE_OF_THE_CRIMSON_PULSE: CardRecord = CardRec
 );
 
 // MKM 115 — Caught Red-Handed
-// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block rules, plus operations and predicates to suspect a creature, clear that status, and observe it independently of granted abilities.
+// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block
+// rules, plus operations and predicates to suspect a creature, clear that status, and observe
+// it independently of granted abilities.
 pub(in crate::card::sets) static CAUGHT_RED_HANDED: CardRecord = CardRecord::new(
     "Caught Red-Handed",
     "95bc5f89-2f01-40c4-9883-4c90ab89fcbb",
@@ -2668,7 +2779,9 @@ pub(in crate::card::sets) static THE_CHASE_IS_ON: CardRecord = CardRecord::new(
 );
 
 // MKM 117 — Concealed Weapon
-// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and its controller, dispatched to source and observing abilities; the current turn-up special action emits no such trigger event.
+// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and
+// its controller, dispatched to source and observing abilities; the current turn-up special
+// action emits no such trigger event.
 pub(in crate::card::sets) static CONCEALED_WEAPON: CardRecord = CardRecord::new(
     "Concealed Weapon",
     "38e31fa6-a445-47c6-a73f-135087f6d760",
@@ -2677,7 +2790,8 @@ pub(in crate::card::sets) static CONCEALED_WEAPON: CardRecord = CardRecord::new(
 );
 
 // MKM 118 — Connecting the Dots
-// Audit: unsupported — Needs linked face-down exile that conceals cards even from their owner; the existing face-down exile visibility policy permits the owner to inspect them.
+// Audit: unsupported — Needs linked face-down exile that conceals cards even from their owner;
+// the existing face-down exile visibility policy permits the owner to inspect them.
 pub(in crate::card::sets) static CONNECTING_THE_DOTS: CardRecord = CardRecord::new(
     "Connecting the Dots",
     "8e02731a-8698-4b41-99c3-f0a19fc31430",
@@ -2686,7 +2800,9 @@ pub(in crate::card::sets) static CONNECTING_THE_DOTS: CardRecord = CardRecord::n
 );
 
 // MKM 119 — Convenient Target
-// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block rules, plus operations and predicates to suspect a creature, clear that status, and observe it independently of granted abilities.
+// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block
+// rules, plus operations and predicates to suspect a creature, clear that status, and observe
+// it independently of granted abilities.
 pub(in crate::card::sets) static CONVENIENT_TARGET: CardRecord = CardRecord::new(
     "Convenient Target",
     "2d2cf2ae-9152-41c4-9dc4-a19da5812869",
@@ -2695,7 +2811,10 @@ pub(in crate::card::sets) static CONVENIENT_TARGET: CardRecord = CardRecord::new
 );
 
 // MKM 120 — Cornered Crook
-// Audit: unsupported — Needs a reflexive trigger installed by the resolving sacrifice or discard clause, retaining its source and selected objects even after the source leaves. SacrificePerformed currently only comes from the legacy sacrifice-of-choice path and requires a live source.
+// Audit: unsupported — Needs a reflexive trigger installed by the resolving sacrifice or
+// discard clause, retaining its source and selected objects even after the source leaves.
+// SacrificePerformed currently only comes from the legacy sacrifice-of-choice path and requires
+// a live source.
 pub(in crate::card::sets) static CORNERED_CROOK: CardRecord = CardRecord::new(
     "Cornered Crook",
     "a3aff1ea-1d25-49c3-a2d9-f435124a5969",
@@ -2744,7 +2863,9 @@ pub(in crate::card::sets) static DEMAND_ANSWERS: CardRecord = CardRecord::new(
 );
 
 // MKM 123 — Expedited Inheritance
-// Audit: unsupported — Needs exile-play permission ending at cleanup of the affected player's next turn; the existing turn-count duration also remains usable during the following opponent turn.
+// Audit: unsupported — Needs exile-play permission ending at cleanup of the affected player's
+// next turn; the existing turn-count duration also remains usable during the following opponent
+// turn.
 pub(in crate::card::sets) static EXPEDITED_INHERITANCE: CardRecord = CardRecord::new(
     "Expedited Inheritance",
     "b65209da-cf48-4d37-b045-7d181070fd05",
@@ -2753,7 +2874,9 @@ pub(in crate::card::sets) static EXPEDITED_INHERITANCE: CardRecord = CardRecord:
 );
 
 // MKM 124 — Expose the Culprit
-// Audit: unsupported — Needs effect-driven face-up turning, predicates for face-up creatures with disguise, and a concealed exile-and-shuffle operation that cloaks the mixed pile without exposing card identities.
+// Audit: unsupported — Needs effect-driven face-up turning, predicates for face-up creatures
+// with disguise, and a concealed exile-and-shuffle operation that cloaks the mixed pile without
+// exposing card identities.
 pub(in crate::card::sets) static EXPOSE_THE_CULPRIT: CardRecord = CardRecord::new(
     "Expose the Culprit",
     "31aadd3d-5ce1-44ba-ac6d-b192a9ea491b",
@@ -2762,7 +2885,10 @@ pub(in crate::card::sets) static EXPOSE_THE_CULPRIT: CardRecord = CardRecord::ne
 );
 
 // MKM 125 — Felonious Rage
-// Audit: unsupported — Needs a delayed dies trigger matching the saved target incarnation for this turn and retaining the spell controller. The event predicate has no bound-object identity match, and granting a dies ability would change its controller if the creature changed control.
+// Audit: unsupported — Needs a delayed dies trigger matching the saved target incarnation for
+// this turn and retaining the spell controller. The event predicate has no bound-object
+// identity match, and granting a dies ability would change its controller if the creature
+// changed control.
 pub(in crate::card::sets) static FELONIOUS_RAGE: CardRecord = CardRecord::new(
     "Felonious Rage",
     "4538d6a8-a24a-40e3-b894-45a30882c92a",
@@ -2771,7 +2897,9 @@ pub(in crate::card::sets) static FELONIOUS_RAGE: CardRecord = CardRecord::new(
 );
 
 // MKM 126 — Frantic Scapegoat
-// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block rules, plus operations and predicates to suspect a creature, clear that status, and observe it independently of granted abilities.
+// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block
+// rules, plus operations and predicates to suspect a creature, clear that status, and observe
+// it independently of granted abilities.
 pub(in crate::card::sets) static FRANTIC_SCAPEGOAT: CardRecord = CardRecord::new(
     "Frantic Scapegoat",
     "eb81e343-7242-44b1-9ce6-1dddd104f764",
@@ -2780,7 +2908,8 @@ pub(in crate::card::sets) static FRANTIC_SCAPEGOAT: CardRecord = CardRecord::new
 );
 
 // MKM 127 — Fugitive Codebreaker
-// Audit: unsupported — Needs a face-up trigger event and a disguise-cost reduction based on the current number of instant and sorcery cards in its controller's graveyard.
+// Audit: unsupported — Needs a face-up trigger event and a disguise-cost reduction based on the
+// current number of instant and sorcery cards in its controller's graveyard.
 pub(in crate::card::sets) static FUGITIVE_CODEBREAKER: CardRecord = CardRecord::new(
     "Fugitive Codebreaker",
     "b682bf8a-06dc-4828-bc46-9e1427bf981f",
@@ -2889,7 +3018,9 @@ pub(in crate::card::sets) static GEARBANE_ORANGUTAN: CardRecord = CardRecord::ne
 );
 
 // MKM 130 — Goblin Maskmaker
-// Audit: unsupported — Needs a rules-visible face-down object predicate; existing face-down characteristics do not expose face-down status to object queries, cast reductions, mana restrictions, or event filters.
+// Audit: unsupported — Needs a rules-visible face-down object predicate; existing face-down
+// characteristics do not expose face-down status to object queries, cast reductions, mana
+// restrictions, or event filters.
 pub(in crate::card::sets) static GOBLIN_MASKMAKER: CardRecord = CardRecord::new(
     "Goblin Maskmaker",
     "6154a991-c602-4fca-91a3-3830060da60e",
@@ -2947,7 +3078,9 @@ pub(in crate::card::sets) static HARRIED_DRONESMITH: CardRecord = CardRecord::ne
 );
 
 // MKM 132 — Incinerator of the Guilty
-// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana value at least the threshold, including nonminimal sets, and named-action completion; current aggregate payment selections require a minimal set.
+// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana
+// value at least the threshold, including nonminimal sets, and named-action completion; current
+// aggregate payment selections require a minimal set.
 pub(in crate::card::sets) static INCINERATOR_OF_THE_GUILTY: CardRecord = CardRecord::new(
     "Incinerator of the Guilty",
     "0c6aca64-a554-45c1-9f23-4f7878abeda5",
@@ -2956,7 +3089,9 @@ pub(in crate::card::sets) static INCINERATOR_OF_THE_GUILTY: CardRecord = CardRec
 );
 
 // MKM 133 — Innocent Bystander
-// Audit: unsupported — Needs damage-event matching by committed damage amount; the event-time condition evaluator cannot read TriggerEventAmount, so it cannot distinguish a single hit of 3 or more from smaller hits.
+// Audit: unsupported — Needs damage-event matching by committed damage amount; the event-time
+// condition evaluator cannot read TriggerEventAmount, so it cannot distinguish a single hit of
+// 3 or more from smaller hits.
 pub(in crate::card::sets) static INNOCENT_BYSTANDER: CardRecord = CardRecord::new(
     "Innocent Bystander",
     "085f4595-4ae5-428e-a934-e918774df6fd",
@@ -3061,7 +3196,9 @@ pub(in crate::card::sets) static KRENKO_BARON_OF_TIN_STREET: CardRecord = CardRe
 );
 
 // MKM 136 — Krenko's Buzzcrusher
-// Audit: unsupported — Needs APNAP per-player optional nonbasic-land selections retained as one group before destruction; ChooseForEachPlayer currently requires an exact count, rather than allowing each player to choose up to one.
+// Audit: unsupported — Needs APNAP per-player optional nonbasic-land selections retained as one
+// group before destruction; ChooseForEachPlayer currently requires an exact count, rather than
+// allowing each player to choose up to one.
 pub(in crate::card::sets) static KRENKO_S_BUZZCRUSHER: CardRecord = CardRecord::new(
     "Krenko's Buzzcrusher",
     "0edcda2a-071b-40c5-9fb3-8a4ff87ca00e",
@@ -3070,7 +3207,9 @@ pub(in crate::card::sets) static KRENKO_S_BUZZCRUSHER: CardRecord = CardRecord::
 );
 
 // MKM 137 — Lamplight Phoenix
-// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana value at least the threshold, including nonminimal sets, and named-action completion; current aggregate payment selections require a minimal set.
+// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana
+// value at least the threshold, including nonminimal sets, and named-action completion; current
+// aggregate payment selections require a minimal set.
 pub(in crate::card::sets) static LAMPLIGHT_PHOENIX: CardRecord = CardRecord::new(
     "Lamplight Phoenix",
     "2faa0e56-527c-4be5-b8c9-b10ccde275f5",
@@ -3079,7 +3218,9 @@ pub(in crate::card::sets) static LAMPLIGHT_PHOENIX: CardRecord = CardRecord::new
 );
 
 // MKM 138 — Offender at Large
-// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and its controller, dispatched to source and observing abilities; the current turn-up special action emits no such trigger event.
+// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and
+// its controller, dispatched to source and observing abilities; the current turn-up special
+// action emits no such trigger event.
 pub(in crate::card::sets) static OFFENDER_AT_LARGE: CardRecord = CardRecord::new(
     "Offender at Large",
     "f096ff4a-85f4-46f1-9478-e8921f21309d",
@@ -3088,7 +3229,9 @@ pub(in crate::card::sets) static OFFENDER_AT_LARGE: CardRecord = CardRecord::new
 );
 
 // MKM 139 — Person of Interest
-// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block rules, plus operations and predicates to suspect a creature, clear that status, and observe it independently of granted abilities.
+// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block
+// rules, plus operations and predicates to suspect a creature, clear that status, and observe
+// it independently of granted abilities.
 pub(in crate::card::sets) static PERSON_OF_INTEREST: CardRecord = CardRecord::new(
     "Person of Interest",
     "7d56ebff-67c8-4bc7-a533-ddde4ce0c2af",
@@ -3097,7 +3240,9 @@ pub(in crate::card::sets) static PERSON_OF_INTEREST: CardRecord = CardRecord::ne
 );
 
 // MKM 140 — Pyrotechnic Performer
-// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and its controller, dispatched to source and observing abilities; the current turn-up special action emits no such trigger event.
+// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and
+// its controller, dispatched to source and observing abilities; the current turn-up special
+// action emits no such trigger event.
 pub(in crate::card::sets) static PYROTECHNIC_PERFORMER: CardRecord = CardRecord::new(
     "Pyrotechnic Performer",
     "0fa5671b-2651-4944-a50a-c768ec70229e",
@@ -3180,7 +3325,9 @@ pub(in crate::card::sets) static RED_HERRING: CardRecord = CardRecord::new(
 );
 
 // MKM 143 — Rubblebelt Braggart
-// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block rules, plus operations and predicates to suspect a creature, clear that status, and observe it independently of granted abilities.
+// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block
+// rules, plus operations and predicates to suspect a creature, clear that status, and observe
+// it independently of granted abilities.
 pub(in crate::card::sets) static RUBBLEBELT_BRAGGART: CardRecord = CardRecord::new(
     "Rubblebelt Braggart",
     "f90f8691-210a-4bf0-9fc2-fb2efcf057fb",
@@ -3196,7 +3343,9 @@ const SHOCK_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // MKM 145 — Suspicious Detonation
-// Audit: unsupported — Needs controller-relative history recording whether an artifact was sacrificed this turn, including sacrifices before this permanent entered, for the printed condition.
+// Audit: unsupported — Needs controller-relative history recording whether an artifact was
+// sacrificed this turn, including sacrifices before this permanent entered, for the printed
+// condition.
 pub(in crate::card::sets) static SUSPICIOUS_DETONATION: CardRecord = CardRecord::new(
     "Suspicious Detonation",
     "6e280482-ed7e-4011-899e-096ff7bd4c41",
@@ -3205,7 +3354,9 @@ pub(in crate::card::sets) static SUSPICIOUS_DETONATION: CardRecord = CardRecord:
 );
 
 // MKM 146 — Torch the Witness
-// Audit: unsupported — Needs an ordinary damage-result continuation exposing excess damage after prevention and replacement; only the fight operation currently exposes an excess-damage follow-up.
+// Audit: unsupported — Needs an ordinary damage-result continuation exposing excess damage
+// after prevention and replacement; only the fight operation currently exposes an excess-damage
+// follow-up.
 pub(in crate::card::sets) static TORCH_THE_WITNESS: CardRecord = CardRecord::new(
     "Torch the Witness",
     "22bbf709-d8e9-4e3b-8ec8-206f1b2162b3",
@@ -3280,7 +3431,9 @@ pub(in crate::card::sets) static AFTERMATH_ANALYST: CardRecord = CardRecord::new
 );
 
 // MKM 149 — Airtight Alibi
-// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block rules, plus operations and predicates to suspect a creature, clear that status, and observe it independently of granted abilities.
+// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block
+// rules, plus operations and predicates to suspect a creature, clear that status, and observe
+// it independently of granted abilities.
 pub(in crate::card::sets) static AIRTIGHT_ALIBI: CardRecord = CardRecord::new(
     "Airtight Alibi",
     "bffbbe21-0a1d-48b9-903e-81c109aa11de",
@@ -3289,7 +3442,9 @@ pub(in crate::card::sets) static AIRTIGHT_ALIBI: CardRecord = CardRecord::new(
 );
 
 // MKM 150 — Analyze the Pollen
-// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana value at least the threshold, including nonminimal sets, and named-action completion; current aggregate payment selections require a minimal set.
+// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana
+// value at least the threshold, including nonminimal sets, and named-action completion; current
+// aggregate payment selections require a minimal set.
 pub(in crate::card::sets) static ANALYZE_THE_POLLEN: CardRecord = CardRecord::new(
     "Analyze the Pollen",
     "5563967f-09fd-4ccf-8892-4dd0c2544c98",
@@ -3437,7 +3592,9 @@ pub(in crate::card::sets) static AUDIENCE_WITH_TROSTANI: CardRecord = CardRecord
 );
 
 // MKM 153 — Axebane Ferox
-// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana value at least the threshold, including nonminimal sets, and named-action completion; current aggregate payment selections require a minimal set.
+// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana
+// value at least the threshold, including nonminimal sets, and named-action completion; current
+// aggregate payment selections require a minimal set.
 pub(in crate::card::sets) static AXEBANE_FEROX: CardRecord = CardRecord::new(
     "Axebane Ferox",
     "610a0de4-a4f7-446b-8477-00c917cb4789",
@@ -3446,7 +3603,9 @@ pub(in crate::card::sets) static AXEBANE_FEROX: CardRecord = CardRecord::new(
 );
 
 // MKM 154 — Bite Down on Crime
-// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana value at least the threshold, including nonminimal sets, and named-action completion; current aggregate payment selections require a minimal set.
+// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana
+// value at least the threshold, including nonminimal sets, and named-action completion; current
+// aggregate payment selections require a minimal set.
 pub(in crate::card::sets) static BITE_DOWN_ON_CRIME: CardRecord = CardRecord::new(
     "Bite Down on Crime",
     "29bbfe93-8225-444c-835b-33ffa006ef66",
@@ -3455,7 +3614,8 @@ pub(in crate::card::sets) static BITE_DOWN_ON_CRIME: CardRecord = CardRecord::ne
 );
 
 // MKM 155 — Case of the Locked Hothouse
-// Audit: unsupported — Needs a Case solved designation, the rules-triggered end-step solve check, and solved-only ability gating; the engine has no Case state or solve event.
+// Audit: unsupported — Needs a Case solved designation, the rules-triggered end-step solve
+// check, and solved-only ability gating; the engine has no Case state or solve event.
 pub(in crate::card::sets) static CASE_OF_THE_LOCKED_HOTHOUSE: CardRecord = CardRecord::new(
     "Case of the Locked Hothouse",
     "0929a1bd-e35c-4ca5-8c8c-dd304cf4b830",
@@ -3464,7 +3624,8 @@ pub(in crate::card::sets) static CASE_OF_THE_LOCKED_HOTHOUSE: CardRecord = CardR
 );
 
 // MKM 156 — Case of the Trampled Garden
-// Audit: unsupported — Needs a Case solved designation, the rules-triggered end-step solve check, and solved-only ability gating; the engine has no Case state or solve event.
+// Audit: unsupported — Needs a Case solved designation, the rules-triggered end-step solve
+// check, and solved-only ability gating; the engine has no Case state or solve event.
 pub(in crate::card::sets) static CASE_OF_THE_TRAMPLED_GARDEN: CardRecord = CardRecord::new(
     "Case of the Trampled Garden",
     "9e80f5c7-ae29-473c-ac64-04bcbc629385",
@@ -3473,7 +3634,9 @@ pub(in crate::card::sets) static CASE_OF_THE_TRAMPLED_GARDEN: CardRecord = CardR
 );
 
 // MKM 157 — Chalk Outline
-// Audit: unsupported — Needs a batched graveyard-leave event filtered to creature cards and owner, firing once for one or more cards leaving together. The existing ZoneChanged event fires separately per card.
+// Audit: unsupported — Needs a batched graveyard-leave event filtered to creature cards and
+// owner, firing once for one or more cards leaving together. The existing ZoneChanged event
+// fires separately per card.
 pub(in crate::card::sets) static CHALK_OUTLINE: CardRecord = CardRecord::new(
     "Chalk Outline",
     "b3ff56c1-4153-4e15-9ac6-06d93fa2ae50",
@@ -3482,7 +3645,9 @@ pub(in crate::card::sets) static CHALK_OUTLINE: CardRecord = CardRecord::new(
 );
 
 // MKM 158 — Culvert Ambusher
-// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and its controller, dispatched to source and observing abilities; the current turn-up special action emits no such trigger event.
+// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and
+// its controller, dispatched to source and observing abilities; the current turn-up special
+// action emits no such trigger event.
 pub(in crate::card::sets) static CULVERT_AMBUSHER: CardRecord = CardRecord::new(
     "Culvert Ambusher",
     "2ccdc58b-1e7e-402c-88f9-c789ff1dae31",
@@ -3515,7 +3680,9 @@ pub(in crate::card::sets) static FANATICAL_STRENGTH: CardRecord = CardRecord::ne
 );
 
 // MKM 160 — Flourishing Bloom-Kin
-// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and its controller, dispatched to source and observing abilities; the current turn-up special action emits no such trigger event.
+// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and
+// its controller, dispatched to source and observing abilities; the current turn-up special
+// action emits no such trigger event.
 pub(in crate::card::sets) static FLOURISHING_BLOOM_KIN: CardRecord = CardRecord::new(
     "Flourishing Bloom-Kin",
     "5ddcb31e-9301-44f1-b138-0573fbf56a47",
@@ -3557,7 +3724,8 @@ pub(in crate::card::sets) static GET_A_LEG_UP: CardRecord = CardRecord::new(
 );
 
 // MKM 162 — Glint Weaver
-// Audit: unsupported — Needs distributing counters according to cast-time target allocations; divided damage is implemented, but AddCounters does not consume per-target allocations.
+// Audit: unsupported — Needs distributing counters according to cast-time target allocations;
+// divided damage is implemented, but AddCounters does not consume per-target allocations.
 pub(in crate::card::sets) static GLINT_WEAVER: CardRecord = CardRecord::new(
     "Glint Weaver",
     "c8eff4d0-67ad-4900-b33d-605659b59161",
@@ -3566,7 +3734,9 @@ pub(in crate::card::sets) static GLINT_WEAVER: CardRecord = CardRecord::new(
 );
 
 // MKM 163 — Greenbelt Radical
-// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and its controller, dispatched to source and observing abilities; the current turn-up special action emits no such trigger event.
+// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and
+// its controller, dispatched to source and observing abilities; the current turn-up special
+// action emits no such trigger event.
 pub(in crate::card::sets) static GREENBELT_RADICAL: CardRecord = CardRecord::new(
     "Greenbelt Radical",
     "88e62346-cc62-4938-970c-b56beeb79fa6",
@@ -3608,7 +3778,9 @@ pub(in crate::card::sets) static HARD_HITTING_QUESTION: CardRecord = CardRecord:
 );
 
 // MKM 165 — Hedge Whisperer
-// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana value at least the threshold, including nonminimal sets, and named-action completion; current aggregate payment selections require a minimal set.
+// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana
+// value at least the threshold, including nonminimal sets, and named-action completion; current
+// aggregate payment selections require a minimal set.
 pub(in crate::card::sets) static HEDGE_WHISPERER: CardRecord = CardRecord::new(
     "Hedge Whisperer",
     "4627adcd-ace7-4777-a7e6-fc80ac6b9dfe",
@@ -3667,7 +3839,8 @@ pub(in crate::card::sets) static HIDE_IN_PLAIN_SIGHT: CardRecord = CardRecord::n
 );
 
 // MKM 167 — A Killer Among Us
-// Audit: unsupported — Needs a private durable creature-type choice, a reveal-chosen-type activation cost, and public disclosure of that previously hidden choice.
+// Audit: unsupported — Needs a private durable creature-type choice, a reveal-chosen-type
+// activation cost, and public disclosure of that previously hidden choice.
 pub(in crate::card::sets) static A_KILLER_AMONG_US: CardRecord = CardRecord::new(
     "A Killer Among Us",
     "2c1392c5-91a5-4e6e-803d-ed032e4d594b",
@@ -3715,7 +3888,9 @@ pub(in crate::card::sets) static LOXODON_EAVESDROPPER: CardRecord = CardRecord::
 );
 
 // MKM 169 — Nervous Gardener
-// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and its controller, dispatched to source and observing abilities; the current turn-up special action emits no such trigger event.
+// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and
+// its controller, dispatched to source and observing abilities; the current turn-up special
+// action emits no such trigger event.
 pub(in crate::card::sets) static NERVOUS_GARDENER: CardRecord = CardRecord::new(
     "Nervous Gardener",
     "93b747c7-b342-47f8-a190-16c393b20607",
@@ -3784,7 +3959,8 @@ pub(in crate::card::sets) static PICK_YOUR_POISON: CardRecord = CardRecord::new(
 );
 
 // MKM 171 — Pompous Gadabout
-// Audit: unsupported — Needs a predicate for a creature having no rules-visible name; matching a display name or an empty literal is not the nameless-object rule.
+// Audit: unsupported — Needs a predicate for a creature having no rules-visible name; matching
+// a display name or an empty literal is not the nameless-object rule.
 pub(in crate::card::sets) static POMPOUS_GADABOUT: CardRecord = CardRecord::new(
     "Pompous Gadabout",
     "6d803b93-c1df-4a02-9dbb-d347c841d4d7",
@@ -3793,7 +3969,8 @@ pub(in crate::card::sets) static POMPOUS_GADABOUT: CardRecord = CardRecord::new(
 );
 
 // MKM 172 — The Pride of Hull Clade
-// Audit: unsupported — Needs self spell-cost reduction from the total toughness of controlled creatures; the self-cost evaluator accepts object counts but not characteristic aggregates.
+// Audit: unsupported — Needs self spell-cost reduction from the total toughness of controlled
+// creatures; the self-cost evaluator accepts object counts but not characteristic aggregates.
 pub(in crate::card::sets) static THE_PRIDE_OF_HULL_CLADE: CardRecord = CardRecord::new(
     "The Pride of Hull Clade",
     "edb40ab9-e552-4eb5-9c35-09094136dd4f",
@@ -3870,7 +4047,9 @@ pub(in crate::card::sets) static RUBBLEBELT_MAVERICK: CardRecord = CardRecord::n
 );
 
 // MKM 175 — Sample Collector
-// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana value at least the threshold, including nonminimal sets, and named-action completion; current aggregate payment selections require a minimal set.
+// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana
+// value at least the threshold, including nonminimal sets, and named-action completion; current
+// aggregate payment selections require a minimal set.
 pub(in crate::card::sets) static SAMPLE_COLLECTOR: CardRecord = CardRecord::new(
     "Sample Collector",
     "76f7480c-82cc-4ddd-b619-c1a609c29a13",
@@ -3879,7 +4058,9 @@ pub(in crate::card::sets) static SAMPLE_COLLECTOR: CardRecord = CardRecord::new(
 );
 
 // MKM 176 — Sharp-Eyed Rookie
-// Audit: unsupported — Needs an intervening-if comparison between the triggering entrant's power or toughness and the source's corresponding characteristic, checked both when triggering and resolving with last-known information.
+// Audit: unsupported — Needs an intervening-if comparison between the triggering entrant's
+// power or toughness and the source's corresponding characteristic, checked both when
+// triggering and resolving with last-known information.
 pub(in crate::card::sets) static SHARP_EYED_ROOKIE: CardRecord = CardRecord::new(
     "Sharp-Eyed Rookie",
     "3d5d4788-a970-4e09-89a1-740eca9331d9",
@@ -3888,7 +4069,9 @@ pub(in crate::card::sets) static SHARP_EYED_ROOKIE: CardRecord = CardRecord::new
 );
 
 // MKM 177 — Slime Against Humanity
-// Audit: unsupported — Needs a declarative deck-construction exception permitting any number of copies of this named card; current deck-copy validation has no card-declared unlimited-copy allowance.
+// Audit: unsupported — Needs a declarative deck-construction exception permitting any number of
+// copies of this named card; current deck-copy validation has no card-declared unlimited-copy
+// allowance.
 pub(in crate::card::sets) static SLIME_AGAINST_HUMANITY: CardRecord = CardRecord::new(
     "Slime Against Humanity",
     "1eb21318-d32e-4724-8908-c0d7613de2f4",
@@ -3952,7 +4135,9 @@ pub(in crate::card::sets) static TOPIARY_PANTHER: CardRecord = CardRecord::new(
 );
 
 // MKM 180 — Tunnel Tipster
-// Audit: unsupported — Needs a rules-visible face-down object predicate; existing face-down characteristics do not expose face-down status to object queries, cast reductions, mana restrictions, or event filters.
+// Audit: unsupported — Needs a rules-visible face-down object predicate; existing face-down
+// characteristics do not expose face-down status to object queries, cast reductions, mana
+// restrictions, or event filters.
 pub(in crate::card::sets) static TUNNEL_TIPSTER: CardRecord = CardRecord::new(
     "Tunnel Tipster",
     "3e29b890-35b9-4e2a-9b4c-9417ca7db31d",
@@ -3997,7 +4182,9 @@ pub(in crate::card::sets) static UNDERGROWTH_RECON: CardRecord = CardRecord::new
 );
 
 // MKM 182 — Vengeful Creeper
-// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and its controller, dispatched to source and observing abilities; the current turn-up special action emits no such trigger event.
+// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and
+// its controller, dispatched to source and observing abilities; the current turn-up special
+// action emits no such trigger event.
 pub(in crate::card::sets) static VENGEFUL_CREEPER: CardRecord = CardRecord::new(
     "Vengeful Creeper",
     "7a914416-effd-4eda-b609-2773c53a08ec",
@@ -4006,7 +4193,9 @@ pub(in crate::card::sets) static VENGEFUL_CREEPER: CardRecord = CardRecord::new(
 );
 
 // MKM 183 — Vitu-Ghazi Inspector
-// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana value at least the threshold, including nonminimal sets, and named-action completion; current aggregate payment selections require a minimal set.
+// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana
+// value at least the threshold, including nonminimal sets, and named-action completion; current
+// aggregate payment selections require a minimal set.
 pub(in crate::card::sets) static VITU_GHAZI_INSPECTOR: CardRecord = CardRecord::new(
     "Vitu-Ghazi Inspector",
     "664d15d7-2724-4a9b-b5a7-8042d4b7da7b",
@@ -4015,7 +4204,9 @@ pub(in crate::card::sets) static VITU_GHAZI_INSPECTOR: CardRecord = CardRecord::
 );
 
 // MKM 184 — Agrus Kos, Spirit of Justice
-// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block rules, plus operations and predicates to suspect a creature, clear that status, and observe it independently of granted abilities.
+// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block
+// rules, plus operations and predicates to suspect a creature, clear that status, and observe
+// it independently of granted abilities.
 pub(in crate::card::sets) static AGRUS_KOS_SPIRIT_OF_JUSTICE: CardRecord = CardRecord::new(
     "Agrus Kos, Spirit of Justice",
     "58aeac7c-1275-49d4-9915-7604ae4bfdff",
@@ -4063,7 +4254,9 @@ pub(in crate::card::sets) static ALQUIST_PROFT_MASTER_SLEUTH: CardRecord = CardR
 );
 
 // MKM 186 — Anzrag, the Quake-Mole
-// Audit: unsupported — Needs a combat requirement that this creature be blocked by at least one creature if able. MustBeBlockedBy currently requires all matching creatures to block rather than allowing any one blocker.
+// Audit: unsupported — Needs a combat requirement that this creature be blocked by at least one
+// creature if able. MustBeBlockedBy currently requires all matching creatures to block rather
+// than allowing any one blocker.
 pub(in crate::card::sets) static ANZRAG_THE_QUAKE_MOLE: CardRecord = CardRecord::new(
     "Anzrag, the Quake-Mole",
     "70e9d8b8-4b32-4414-b32f-1f47523239c5",
@@ -4120,7 +4313,10 @@ pub(in crate::card::sets) static AURELIA_THE_LAW_ABOVE: CardRecord = CardRecord:
 );
 
 // MKM 189 — Blood Spatter Analysis
-// Audit: unsupported — Needs a reflexive trigger installed by the resolving sacrifice or discard clause, retaining its source and selected objects even after the source leaves. SacrificePerformed currently only comes from the legacy sacrifice-of-choice path and requires a live source.
+// Audit: unsupported — Needs a reflexive trigger installed by the resolving sacrifice or
+// discard clause, retaining its source and selected objects even after the source leaves.
+// SacrificePerformed currently only comes from the legacy sacrifice-of-choice path and requires
+// a live source.
 pub(in crate::card::sets) static BLOOD_SPATTER_ANALYSIS: CardRecord = CardRecord::new(
     "Blood Spatter Analysis",
     "2b80feb8-5cc8-4e91-ac22-a733305a67de",
@@ -4229,7 +4425,8 @@ const BREAK_OUT_ALTERNATE_1: PrintingRecord = PrintingRecord::alternate(
 );
 
 // MKM 191 — Buried in the Garden
-// Audit: unsupported — Needs exile-until-source-leaves with immediate return when the duration ends (CR 610.3); a leaves trigger would incorrectly delay the return through the stack.
+// Audit: unsupported — Needs exile-until-source-leaves with immediate return when the duration
+// ends (CR 610.3); a leaves trigger would incorrectly delay the return through the stack.
 pub(in crate::card::sets) static BURIED_IN_THE_GARDEN: CardRecord = CardRecord::new(
     "Buried in the Garden",
     "7e144609-e1f6-4bdc-8d14-b735ef4140d3",
@@ -4278,7 +4475,9 @@ pub(in crate::card::sets) static COERCED_TO_KILL: CardRecord = CardRecord::new(
 );
 
 // MKM 193 — Crowd-Control Warden
-// Audit: unsupported — Needs prospective turn-face-up modifications that place counters as the permanent is turned face up, before state-based actions or face-up triggers inspect its characteristics.
+// Audit: unsupported — Needs prospective turn-face-up modifications that place counters as the
+// permanent is turned face up, before state-based actions or face-up triggers inspect its
+// characteristics.
 pub(in crate::card::sets) static CROWD_CONTROL_WARDEN: CardRecord = CardRecord::new(
     "Crowd-Control Warden",
     "cdf0578f-4966-4ecd-81e1-83ae13126f13",
@@ -4312,7 +4511,9 @@ pub(in crate::card::sets) static CURIOUS_CADAVER: CardRecord = CardRecord::new(
 );
 
 // MKM 195 — Deadly Complication
-// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block rules, plus operations and predicates to suspect a creature, clear that status, and observe it independently of granted abilities.
+// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block
+// rules, plus operations and predicates to suspect a creature, clear that status, and observe
+// it independently of granted abilities.
 pub(in crate::card::sets) static DEADLY_COMPLICATION: CardRecord = CardRecord::new(
     "Deadly Complication",
     "7c68981c-037c-42e7-9b7f-6f07edab5f2e",
@@ -4321,7 +4522,9 @@ pub(in crate::card::sets) static DEADLY_COMPLICATION: CardRecord = CardRecord::n
 );
 
 // MKM 196 — Detective's Satchel
-// Audit: unsupported — Needs controller-relative history recording whether an artifact was sacrificed this turn, including sacrifices before this permanent entered, for the printed condition.
+// Audit: unsupported — Needs controller-relative history recording whether an artifact was
+// sacrificed this turn, including sacrifices before this permanent entered, for the printed
+// condition.
 pub(in crate::card::sets) static DETECTIVE_S_SATCHEL: CardRecord = CardRecord::new(
     "Detective's Satchel",
     "2c05bf2d-7d4f-4717-b1ea-ec4284854f4f",
@@ -4330,7 +4533,9 @@ pub(in crate::card::sets) static DETECTIVE_S_SATCHEL: CardRecord = CardRecord::n
 );
 
 // MKM 197 — Dog Walker
-// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and its controller, dispatched to source and observing abilities; the current turn-up special action emits no such trigger event.
+// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and
+// its controller, dispatched to source and observing abilities; the current turn-up special
+// action emits no such trigger event.
 pub(in crate::card::sets) static DOG_WALKER: CardRecord = CardRecord::new(
     "Dog Walker",
     "a6e0adb7-a030-4dcc-9284-cd91c7598a22",
@@ -4407,7 +4612,9 @@ pub(in crate::card::sets) static DRAG_THE_CANAL: CardRecord = CardRecord::new(
 );
 
 // MKM 200 — Etrata, Deadly Fugitive
-// Audit: unsupported — Needs a rules-visible face-down object predicate; existing face-down characteristics do not expose face-down status to object queries, cast reductions, mana restrictions, or event filters.
+// Audit: unsupported — Needs a rules-visible face-down object predicate; existing face-down
+// characteristics do not expose face-down status to object queries, cast reductions, mana
+// restrictions, or event filters.
 pub(in crate::card::sets) static ETRATA_DEADLY_FUGITIVE: CardRecord = CardRecord::new(
     "Etrata, Deadly Fugitive",
     "4410db5a-62af-43ac-979d-88a7c975f7bd",
@@ -4416,7 +4623,9 @@ pub(in crate::card::sets) static ETRATA_DEADLY_FUGITIVE: CardRecord = CardRecord
 );
 
 // MKM 201 — Evidence Examiner
-// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana value at least the threshold, including nonminimal sets, and named-action completion; current aggregate payment selections require a minimal set.
+// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana
+// value at least the threshold, including nonminimal sets, and named-action completion; current
+// aggregate payment selections require a minimal set.
 pub(in crate::card::sets) static EVIDENCE_EXAMINER: CardRecord = CardRecord::new(
     "Evidence Examiner",
     "f53a6ee7-86e1-4d2d-994c-214e0ec08dad",
@@ -4488,7 +4697,9 @@ pub(in crate::card::sets) static EZRIM_AGENCY_CHIEF: CardRecord = CardRecord::ne
 );
 
 // MKM 203 — Faerie Snoop
-// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and its controller, dispatched to source and observing abilities; the current turn-up special action emits no such trigger event.
+// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and
+// its controller, dispatched to source and observing abilities; the current turn-up special
+// action emits no such trigger event.
 pub(in crate::card::sets) static FAERIE_SNOOP: CardRecord = CardRecord::new(
     "Faerie Snoop",
     "20267dab-8898-4b44-8ef4-8a239967662c",
@@ -4497,7 +4708,9 @@ pub(in crate::card::sets) static FAERIE_SNOOP: CardRecord = CardRecord::new(
 );
 
 // MKM 204 — Gadget Technician
-// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and its controller, dispatched to source and observing abilities; the current turn-up special action emits no such trigger event.
+// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and
+// its controller, dispatched to source and observing abilities; the current turn-up special
+// action emits no such trigger event.
 pub(in crate::card::sets) static GADGET_TECHNICIAN: CardRecord = CardRecord::new(
     "Gadget Technician",
     "3b489a54-ee43-4962-be7b-16e0e28800e0",
@@ -4538,7 +4751,9 @@ pub(in crate::card::sets) static GLEAMING_GEARDRAKE: CardRecord = CardRecord::ne
 );
 
 // MKM 206 — Granite Witness
-// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and its controller, dispatched to source and observing abilities; the current turn-up special action emits no such trigger event.
+// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and
+// its controller, dispatched to source and observing abilities; the current turn-up special
+// action emits no such trigger event.
 pub(in crate::card::sets) static GRANITE_WITNESS: CardRecord = CardRecord::new(
     "Granite Witness",
     "daee9d98-f8c6-4980-8f23-c6c636b69430",
@@ -4571,8 +4786,8 @@ pub(in crate::card::sets) static ILL_TIMED_EXPLOSION: CardRecord = CardRecord::n
                         bound: Some(crate::Binding!("discarded")),
                         effect: &EffectDef::ReflexiveTrigger(&AbilityDef::triggered(
                             "When you do, Ill-Timed Explosion deals X damage to each \
-                         creature, where X is the greatest mana value among cards \
-                         discarded this way.",
+                             creature, where X is the greatest mana value among cards \
+                             discarded this way.",
                             TriggerEventDef::Reflexive,
                             EffectDef::damage(
                                 EffectRecipientDef::objects(ObjectSetDef::Query(
@@ -4597,7 +4812,9 @@ pub(in crate::card::sets) static ILL_TIMED_EXPLOSION: CardRecord = CardRecord::n
 );
 
 // MKM 208 — Insidious Roots
-// Audit: unsupported — Needs a batched graveyard-leave event filtered to creature cards and owner, firing once for one or more cards leaving together. The existing ZoneChanged event fires separately per card.
+// Audit: unsupported — Needs a batched graveyard-leave event filtered to creature cards and
+// owner, firing once for one or more cards leaving together. The existing ZoneChanged event
+// fires separately per card.
 pub(in crate::card::sets) static INSIDIOUS_ROOTS: CardRecord = CardRecord::new(
     "Insidious Roots",
     "0bb91a22-2040-4a37-85f8-5f22de8c5907",
@@ -4606,7 +4823,9 @@ pub(in crate::card::sets) static INSIDIOUS_ROOTS: CardRecord = CardRecord::new(
 );
 
 // MKM 209 — Izoni, Center of the Web
-// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana value at least the threshold, including nonminimal sets, and named-action completion; current aggregate payment selections require a minimal set.
+// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana
+// value at least the threshold, including nonminimal sets, and named-action completion; current
+// aggregate payment selections require a minimal set.
 pub(in crate::card::sets) static IZONI_CENTER_OF_THE_WEB: CardRecord = CardRecord::new(
     "Izoni, Center of the Web",
     "70ea66cd-587a-4ca9-9ca8-d7d2046bfbed",
@@ -4661,7 +4880,9 @@ pub(in crate::card::sets) static JUDITH_CARNAGE_CONNOISSEUR: CardRecord = CardRe
 );
 
 // MKM 211 — Kaya, Spirits' Justice
-// Audit: unsupported — Needs a batched exile event that retains the actual exiled creatures or creature cards and their previous controller or owner, permitting a copy choice from that event rather than all cards currently exiled.
+// Audit: unsupported — Needs a batched exile event that retains the actual exiled creatures or
+// creature cards and their previous controller or owner, permitting a copy choice from that
+// event rather than all cards currently exiled.
 pub(in crate::card::sets) static KAYA_SPIRITS_JUSTICE: CardRecord = CardRecord::new(
     "Kaya, Spirits' Justice",
     "a2827593-4951-4ba7-b73e-c27de56f2606",
@@ -4670,7 +4891,8 @@ pub(in crate::card::sets) static KAYA_SPIRITS_JUSTICE: CardRecord = CardRecord::
 );
 
 // MKM 212 — Kellan, Inquisitive Prodigy // Tail the Suspect
-// Audit: unsupported — Needs a temporary additional-land-play allowance created by a resolving spell; MayPlayAdditionalLands currently works only as a static rule on a permanent.
+// Audit: unsupported — Needs a temporary additional-land-play allowance created by a resolving
+// spell; MayPlayAdditionalLands currently works only as a static rule on a permanent.
 pub(in crate::card::sets) static KELLAN_INQUISITIVE_PRODIGY: CardRecord = CardRecord::new(
     "Kellan, Inquisitive Prodigy // Tail the Suspect",
     "c49690c7-c282-4eb4-8da3-5e0c46a80fc4",
@@ -4713,7 +4935,9 @@ const KRAUL_WHIPCRACKER_ALTERNATE_1: PrintingRecord = PrintingRecord::alternate(
 );
 
 // MKM 214 — Kylox, Visionary Inventor
-// Audit: unsupported — Needs a cast-during-resolution permission restricted to instant and sorcery cards in the resulting exile group; the existing FreeWhileResolving permission offers every nonland card and has no spell-type restriction.
+// Audit: unsupported — Needs a cast-during-resolution permission restricted to instant and
+// sorcery cards in the resulting exile group; the existing FreeWhileResolving permission offers
+// every nonland card and has no spell-type restriction.
 pub(in crate::card::sets) static KYLOX_VISIONARY_INVENTOR: CardRecord = CardRecord::new(
     "Kylox, Visionary Inventor",
     "00faa272-91ad-407b-9175-8fa1d02585b8",
@@ -4722,7 +4946,9 @@ pub(in crate::card::sets) static KYLOX_VISIONARY_INVENTOR: CardRecord = CardReco
 );
 
 // MKM 215 — Kylox's Voltstrider
-// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana value at least the threshold, including nonminimal sets, and named-action completion; current aggregate payment selections require a minimal set.
+// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana
+// value at least the threshold, including nonminimal sets, and named-action completion; current
+// aggregate payment selections require a minimal set.
 pub(in crate::card::sets) static KYLOX_S_VOLTSTRIDER: CardRecord = CardRecord::new(
     "Kylox's Voltstrider",
     "86a8a1af-b1cf-47fc-ab42-7efa07a1c95b",
@@ -4879,7 +5105,8 @@ pub(in crate::card::sets) static MEDDLING_YOUTHS: CardRecord = CardRecord::new(
 );
 
 // MKM 220 — Niv-Mizzet, Guildpact
-// Audit: unsupported — Needs counting distinct color pairs among exactly two-colored permanents; color count and individual color predicates cannot express that aggregate.
+// Audit: unsupported — Needs counting distinct color pairs among exactly two-colored
+// permanents; color count and individual color predicates cannot express that aggregate.
 pub(in crate::card::sets) static NIV_MIZZET_GUILDPACT: CardRecord = CardRecord::new(
     "Niv-Mizzet, Guildpact",
     "32a8fda6-8614-45cd-879c-0cb7fa29647e",
@@ -4912,7 +5139,9 @@ pub(in crate::card::sets) static NO_MORE_LIES: CardRecord = CardRecord::new(
 );
 
 // MKM 222 — Officious Interrogation
-// Audit: unsupported — Needs an additional colored mana cost calculated from the number of declared player targets beyond the first; existing target-count values do not feed a printed per-target mana surcharge.
+// Audit: unsupported — Needs an additional colored mana cost calculated from the number of
+// declared player targets beyond the first; existing target-count values do not feed a printed
+// per-target mana surcharge.
 pub(in crate::card::sets) static OFFICIOUS_INTERROGATION: CardRecord = CardRecord::new(
     "Officious Interrogation",
     "a433ca4c-82d0-4e49-bc8e-98e18dd174e9",
@@ -5007,7 +5236,9 @@ pub(in crate::card::sets) static RAKDOS_PATRON_OF_CHAOS: CardRecord = CardRecord
 );
 
 // MKM 225 — Rakish Scoundrel
-// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and its controller, dispatched to source and observing abilities; the current turn-up special action emits no such trigger event.
+// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and
+// its controller, dispatched to source and observing abilities; the current turn-up special
+// action emits no such trigger event.
 pub(in crate::card::sets) static RAKISH_SCOUNDREL: CardRecord = CardRecord::new(
     "Rakish Scoundrel",
     "6aaa8c6b-7ef7-45db-99c9-4a6e7f177b94",
@@ -5016,7 +5247,8 @@ pub(in crate::card::sets) static RAKISH_SCOUNDREL: CardRecord = CardRecord::new(
 );
 
 // MKM 226 — Relive the Past
-// Audit: unsupported — Needs battlefield arrival characteristics that make the returned permanents 5/5 Elemental creatures before entry replacements and triggers inspect them.
+// Audit: unsupported — Needs battlefield arrival characteristics that make the returned
+// permanents 5/5 Elemental creatures before entry replacements and triggers inspect them.
 pub(in crate::card::sets) static RELIVE_THE_PAST: CardRecord = CardRecord::new(
     "Relive the Past",
     "20948cd2-e40c-4648-832f-ab0f1cc21610",
@@ -5104,7 +5336,9 @@ pub(in crate::card::sets) static RIFTBURST_HELLION: CardRecord = CardRecord::new
 );
 
 // MKM 229 — Rune-Brand Juggler
-// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block rules, plus operations and predicates to suspect a creature, clear that status, and observe it independently of granted abilities.
+// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block
+// rules, plus operations and predicates to suspect a creature, clear that status, and observe
+// it independently of granted abilities.
 pub(in crate::card::sets) static RUNE_BRAND_JUGGLER: CardRecord = CardRecord::new(
     "Rune-Brand Juggler",
     "5288cf17-9d79-4d35-85f1-bf4d0a73494b",
@@ -5113,7 +5347,9 @@ pub(in crate::card::sets) static RUNE_BRAND_JUGGLER: CardRecord = CardRecord::ne
 );
 
 // MKM 230 — Sanguine Savior
-// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and its controller, dispatched to source and observing abilities; the current turn-up special action emits no such trigger event.
+// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and
+// its controller, dispatched to source and observing abilities; the current turn-up special
+// action emits no such trigger event.
 pub(in crate::card::sets) static SANGUINE_SAVIOR: CardRecord = CardRecord::new(
     "Sanguine Savior",
     "9cba5503-ba99-43d8-8062-66d905e0d86b",
@@ -5220,7 +5456,9 @@ pub(in crate::card::sets) static SOUL_SEARCH: CardRecord = CardRecord::new(
 );
 
 // MKM 233 — Sumala Sentry
-// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and its controller, dispatched to source and observing abilities; the current turn-up special action emits no such trigger event.
+// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and
+// its controller, dispatched to source and observing abilities; the current turn-up special
+// action emits no such trigger event.
 pub(in crate::card::sets) static SUMALA_SENTRY: CardRecord = CardRecord::new(
     "Sumala Sentry",
     "3b9d4691-59d1-4e97-9b5d-8017788fbcb3",
@@ -5271,7 +5509,9 @@ pub(in crate::card::sets) static TEYSA_OPULENT_OLIGARCH: CardRecord = CardRecord
 );
 
 // MKM 235 — Tin Street Gossip
-// Audit: unsupported — Needs a rules-visible face-down object predicate; existing face-down characteristics do not expose face-down status to object queries, cast reductions, mana restrictions, or event filters.
+// Audit: unsupported — Needs a rules-visible face-down object predicate; existing face-down
+// characteristics do not expose face-down status to object queries, cast reductions, mana
+// restrictions, or event filters.
 pub(in crate::card::sets) static TIN_STREET_GOSSIP: CardRecord = CardRecord::new(
     "Tin Street Gossip",
     "4094b13f-28d4-48b6-8cce-3c44656745b7",
@@ -5280,7 +5520,9 @@ pub(in crate::card::sets) static TIN_STREET_GOSSIP: CardRecord = CardRecord::new
 );
 
 // MKM 236 — Tolsimir, Midnight's Light
-// Audit: unsupported — Needs a source-specific attacked-this-combat fact and an individual blocker requirement tied to the triggering Wolf; attacked-this-turn also counts earlier combats.
+// Audit: unsupported — Needs a source-specific attacked-this-combat fact and an individual
+// blocker requirement tied to the triggering Wolf; attacked-this-turn also counts earlier
+// combats.
 pub(in crate::card::sets) static TOLSIMIR_MIDNIGHT_S_LIGHT: CardRecord = CardRecord::new(
     "Tolsimir, Midnight's Light",
     "08d22402-c41d-43d7-be1f-42be1e300726",
@@ -5405,7 +5647,9 @@ const UNDERCOVER_CROCODELF_ALTERNATE_1: PrintingRecord = PrintingRecord::alterna
 );
 
 // MKM 240 — Urgent Necropsy
-// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana value at least the threshold, including nonminimal sets, and named-action completion; current aggregate payment selections require a minimal set.
+// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana
+// value at least the threshold, including nonminimal sets, and named-action completion; current
+// aggregate payment selections require a minimal set.
 pub(in crate::card::sets) static URGENT_NECROPSY: CardRecord = CardRecord::new(
     "Urgent Necropsy",
     "d2ac346a-fc46-4023-aa60-4d55170697dc",
@@ -5576,7 +5820,8 @@ pub(in crate::card::sets) static WISPDRINKER_VAMPIRE: CardRecord = CardRecord::n
 );
 
 // MKM 244 — Worldsoul's Rage
-// Audit: unsupported — Needs a resolution-time up-to-X object selection spanning hand and graveyard; Choose has fixed bounds and game-action object choices require an exact count.
+// Audit: unsupported — Needs a resolution-time up-to-X object selection spanning hand and
+// graveyard; Choose has fixed bounds and game-action object choices require an exact count.
 pub(in crate::card::sets) static WORLDSOUL_S_RAGE: CardRecord = CardRecord::new(
     "Worldsoul's Rage",
     "fc3340bd-1d8c-4c21-a59d-e092fcbe02e3",
@@ -5585,7 +5830,9 @@ pub(in crate::card::sets) static WORLDSOUL_S_RAGE: CardRecord = CardRecord::new(
 );
 
 // MKM 245 — Yarus, Roar of the Old Gods
-// Audit: unsupported — Needs a rules-visible face-down object predicate; existing face-down characteristics do not expose face-down status to object queries, cast reductions, mana restrictions, or event filters.
+// Audit: unsupported — Needs a rules-visible face-down object predicate; existing face-down
+// characteristics do not expose face-down status to object queries, cast reductions, mana
+// restrictions, or event filters.
 pub(in crate::card::sets) static YARUS_ROAR_OF_THE_OLD_GODS: CardRecord = CardRecord::new(
     "Yarus, Roar of the Old Gods",
     "326845a7-7502-4dc3-8f3e-867d6c84e931",
@@ -5594,7 +5841,8 @@ pub(in crate::card::sets) static YARUS_ROAR_OF_THE_OLD_GODS: CardRecord = CardRe
 );
 
 // MKM 246 — Cease // Desist
-// Audit: unsupported — Needs a cross-target constraint requiring all selected graveyard cards to have the same owner, while allowing either player's graveyard.
+// Audit: unsupported — Needs a cross-target constraint requiring all selected graveyard cards
+// to have the same owner, while allowing either player's graveyard.
 pub(in crate::card::sets) static CEASE: CardRecord = CardRecord::new(
     "Cease // Desist",
     "cb59130a-a134-4383-b983-e4b526d11fb4",
@@ -5603,7 +5851,9 @@ pub(in crate::card::sets) static CEASE: CardRecord = CardRecord::new(
 );
 
 // MKM 247 — Flotsam // Jetsam
-// Audit: unsupported — Needs a cast-during-resolution offer from an opponent's graveyard with a graveyard-only exile replacement on the resulting spell; existing graveyard permission defers casting to ordinary timing.
+// Audit: unsupported — Needs a cast-during-resolution offer from an opponent's graveyard with a
+// graveyard-only exile replacement on the resulting spell; existing graveyard permission defers
+// casting to ordinary timing.
 pub(in crate::card::sets) static FLOTSAM: CardRecord = CardRecord::new(
     "Flotsam // Jetsam",
     "c1500cbf-5619-465e-a97b-75e676ce789b",
@@ -5658,7 +5908,8 @@ pub(in crate::card::sets) static FUSS: CardRecord = CardRecord::new_split(
 );
 
 // MKM 249 — Hustle // Bustle
-// Audit: unsupported — Needs an effect that turns a chosen face-down permanent face up without paying its turn-up cost, and reports whether turning it face up was possible.
+// Audit: unsupported — Needs an effect that turns a chosen face-down permanent face up without
+// paying its turn-up cost, and reports whether turning it face up was possible.
 pub(in crate::card::sets) static HUSTLE: CardRecord = CardRecord::new(
     "Hustle // Bustle",
     "5f664827-e22e-43af-82f1-861b3c7607f1",
@@ -5667,7 +5918,8 @@ pub(in crate::card::sets) static HUSTLE: CardRecord = CardRecord::new(
 );
 
 // MKM 250 — Push // Pull
-// Audit: unsupported — Needs a cross-target constraint requiring all selected graveyard cards to have the same owner, while allowing either player's graveyard.
+// Audit: unsupported — Needs a cross-target constraint requiring all selected graveyard cards
+// to have the same owner, while allowing either player's graveyard.
 pub(in crate::card::sets) static PUSH: CardRecord = CardRecord::new(
     "Push // Pull",
     "85835473-b9b6-4f4a-bb93-fef93d5ec57b",
@@ -5676,7 +5928,9 @@ pub(in crate::card::sets) static PUSH: CardRecord = CardRecord::new(
 );
 
 // MKM 251 — Cryptex
-// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana value at least the threshold, including nonminimal sets, and named-action completion; current aggregate payment selections require a minimal set.
+// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana
+// value at least the threshold, including nonminimal sets, and named-action completion; current
+// aggregate payment selections require a minimal set.
 pub(in crate::card::sets) static CRYPTEX: CardRecord = CardRecord::new(
     "Cryptex",
     "f92a2563-6cfb-4d12-9513-b44d1a7a20ab",
@@ -5719,7 +5973,8 @@ pub(in crate::card::sets) static GRAVESTONE_STRIDER: CardRecord = CardRecord::ne
 );
 
 // MKM 253 — Lumbering Laundry
-// Audit: unsupported — Needs temporary permission to inspect opponents' face-down battlefield objects without revealing them publicly.
+// Audit: unsupported — Needs temporary permission to inspect opponents' face-down battlefield
+// objects without revealing them publicly.
 pub(in crate::card::sets) static LUMBERING_LAUNDRY: CardRecord = CardRecord::new(
     "Lumbering Laundry",
     "080ad039-1669-4735-9864-76f4c61fc59e",
@@ -5835,7 +6090,9 @@ pub(in crate::card::sets) static THINKING_CAP: CardRecord = CardRecord::new(
 );
 
 // MKM 258 — Branch of Vitu-Ghazi
-// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and its controller, dispatched to source and observing abilities; the current turn-up special action emits no such trigger event.
+// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and
+// its controller, dispatched to source and observing abilities; the current turn-up special
+// action emits no such trigger event.
 pub(in crate::card::sets) static BRANCH_OF_VITU_GHAZI: CardRecord = CardRecord::new(
     "Branch of Vitu-Ghazi",
     "73a8169f-b858-47a5-9c76-2e7c50ad4ecd",
@@ -5873,11 +6130,12 @@ pub(in crate::card::sets) static ESCAPE_TUNNEL: CardRecord = CardRecord::new(
     "Escape Tunnel",
     "93ddde4f-d35e-4128-8f43-d0eadbd715de",
     "Carlos Palma Cruchaga",
-// A land that taps for nothing: both halves spend the land itself, so
+    // A land that taps for nothing: both halves spend the land itself, so
     // playing it is a decision about which one the deck wants later.
     CardRules::new_land(&[]).with_abilities(&[
         AbilityDef::activated(
-            "{T}, Sacrifice this land: Search your library for a basic land card, put it onto the battlefield tapped, then shuffle.",
+            "{T}, Sacrifice this land: Search your library for a basic \
+             land card, put it onto the battlefield tapped, then shuffle.",
             &[CostDef::TapSource, CostDef::SacrificeSource],
             EffectDef::SearchZone {
                 player: EffectRecipientDef::Controller,
@@ -5900,7 +6158,8 @@ pub(in crate::card::sets) static ESCAPE_TUNNEL: CardRecord = CardRecord::new(
             },
         ),
         AbilityDef::activated_with_targets(
-            "{T}, Sacrifice this land: Target creature with power 2 or less can't be blocked this turn.",
+            "{T}, Sacrifice this land: Target creature with power 2 or \
+             less can't be blocked this turn.",
             &[CostDef::TapSource, CostDef::SacrificeSource],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::All(&[
@@ -6014,7 +6273,9 @@ const RAUCOUS_THEATER_ALTERNATE_1: PrintingRecord = PrintingRecord::alternate(
 );
 
 // MKM 267 — Scene of the Crime
-// Audit: unsupported — Needs a mana-ability payment that selects and taps another untapped creature. The mana activation enumerator rejects TapPermanents and cannot carry that selected object through an immediate mana payment.
+// Audit: unsupported — Needs a mana-ability payment that selects and taps another untapped
+// creature. The mana activation enumerator rejects TapPermanents and cannot carry that selected
+// object through an immediate mana payment.
 pub(in crate::card::sets) static SCENE_OF_THE_CRIME: CardRecord = CardRecord::new(
     "Scene of the Crime",
     "de039992-631b-4feb-a522-acdb0a6d1f26",
@@ -7122,7 +7383,7 @@ pub(in crate::card::sets) static PROFT_S_EIDETIC_MEMORY: CardRecord = CardRecord
     "Proft's Eidetic Memory",
     "a3472756-0305-4567-b425-f7dbf9b3cc7f",
     "Julie Dillon",
-// Two mana that replaces itself and then turns every spare cantrip into
+    // Two mana that replaces itself and then turns every spare cantrip into
     // permanent power, as long as there is a creature to put it on.
     CardRules::new_enchantment(mana_cost!("{1}{U}"))
         .with_supertype(CardSupertype::Legendary)
@@ -7137,15 +7398,18 @@ pub(in crate::card::sets) static PROFT_S_EIDETIC_MEMORY: CardRecord = CardRecord
             AbilityDef::static_ability(
                 "You have no maximum hand size.",
                 EffectDef::StaticApply {
-                    recipient: EffectRecipientDef::players(PlayerSetDef::Related(PlayerRelation::You)),
+                    recipient: EffectRecipientDef::players(PlayerSetDef::Related(
+                        PlayerRelation::You,
+                    )),
                     effect: AppliedEffectDef::Rule(AppliedRuleDef::PlayerRule(
                         crate::card::PlayerRuleDef::NoMaximumHandSize,
                     )),
                 },
             ),
             AbilityDef::triggered_if_with_targets(
-                "At the beginning of combat on your turn, if you've drawn more than one card this turn, \
-                 put X +1/+1 counters on target creature you control, where X is the number of cards \
+                "At the beginning of combat on your turn, if you've drawn \
+                 more than one card this turn, put X +1/+1 counters on \
+                 target creature you control, where X is the number of cards \
                  you've drawn this turn minus one.",
                 TriggerEventDef::StepBegins {
                     step: TurnStepDef::BeginningOfCombat,
@@ -7447,7 +7711,9 @@ const WOJEK_INVESTIGATOR_ALTERNATE_3: PrintingRecord = PrintingRecord::alternate
 );
 
 // MKM 430 — Melek, Reforged Researcher
-// Audit: unsupported — Needs a spell-cost condition selecting the first instant or sorcery cast each turn. Matching spell-cast history exists, but cost adjustments cannot gate a fixed discount on that history being empty.
+// Audit: unsupported — Needs a spell-cost condition selecting the first instant or sorcery cast
+// each turn. Matching spell-cast history exists, but cost adjustments cannot gate a fixed
+// discount on that history being empty.
 pub(in crate::card::sets) static MELEK_REFORGED_RESEARCHER: CardRecord = CardRecord::new(
     "Melek, Reforged Researcher",
     "01c5ede0-a098-4f21-8b7e-795a83e75aae",
@@ -7456,7 +7722,9 @@ pub(in crate::card::sets) static MELEK_REFORGED_RESEARCHER: CardRecord = CardRec
 );
 
 // MKM 431 — Tomik, Wielder of Law
-// Audit: unsupported — Needs an attack-declaration count filtered to creatures attacking you or your planeswalkers, excluding attacks against battles; the current batch matcher filters attackers without inspecting their attack defender.
+// Audit: unsupported — Needs an attack-declaration count filtered to creatures attacking you or
+// your planeswalkers, excluding attacks against battles; the current batch matcher filters
+// attackers without inspecting their attack defender.
 pub(in crate::card::sets) static TOMIK_WIELDER_OF_LAW: CardRecord = CardRecord::new(
     "Tomik, Wielder of Law",
     "2c5a7550-fe1a-4797-9583-70ab56cfac0d",

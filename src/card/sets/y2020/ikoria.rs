@@ -66,8 +66,9 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // IKO 11 — Drannith Magistrate
-// Audit: unsupported — Needs a static cast prohibition based on a spell's origin zone being other than its controller's hand.
-pub(in crate::card::sets) static DRANNITH_MAGISTRATE_11: CardRecord = CardRecord::new(
+// Audit: unsupported — Needs a static cast prohibition based on a spell's origin zone being
+// other than its controller's hand.
+pub(in crate::card::sets) static DRANNITH_MAGISTRATE: CardRecord = CardRecord::new(
     "Drannith Magistrate",
     "98b0a4a8-9319-451b-9b79-b0bca7a41e91",
     "Kieran Yanner",
@@ -127,7 +128,9 @@ pub(in crate::card::sets) static VORACIOUS_GREATSHARK: CardRecord = CardRecord::
 );
 
 // IKO 91 — Heartless Act
-// Audit: unsupported — Needs one up-to-three counter-removal choice distributed among any counter kinds on the target; current removal effects specify one kind or remove every counter.
+// Audit: unsupported — Needs one up-to-three counter-removal choice distributed among any
+// counter kinds on the target; current removal effects specify one kind or remove every
+// counter.
 pub(in crate::card::sets) static HEARTLESS_ACT: CardRecord = CardRecord::new(
     "Heartless Act",
     "e4e6794a-feeb-4fc8-a2ee-38c75c18aaae",
@@ -221,19 +224,81 @@ pub(in crate::card::sets) static COLOSSIFICATION: CardRecord = CardRecord::new(
 );
 
 // IKO 162 — Kogla, the Titan Ape
-pub(in crate::card::sets) static KOGLA_THE_TITAN_APE_162: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static KOGLA_THE_TITAN_APE: CardRecord = CardRecord::new(
     "Kogla, the Titan Ape",
     "3c35ca79-eb72-427a-a8ed-404b2214389a",
     "Chris Rahn",
-    CardRules::new_creature(mana_cost!("{3}{G}{G}{G}"), &["Ape"], 7, 6).with_supertype(CardSupertype::Legendary).with_abilities(&[
-abilities::enters_trigger_with_targets("When Kogla enters, it fights up to one target creature you don't control.", &[AbilityTargetDef::up_to(AbilityTargetPredicate::Object { object: ObjectPredicateDef::HasType(CardType::Creature), zones: &[ZoneKind::Battlefield], controller: Some(PlayerRelation::NotYou), owner: None }, 1)], EffectDef::Fight { first: ObjectRefDef::Source, second: ObjectRefDef::Target(TargetIndex::PRIMARY), excess: None }),
-AbilityDef::triggered_with_targets("Whenever Kogla attacks, destroy target artifact or enchantment defending player controls.", TriggerEventDef::attacks(ObjectPredicateDef::Source), &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object { object: ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Artifact), ObjectPredicateDef::HasType(CardType::Enchantment)]), zones: &[ZoneKind::Battlefield], controller: Some(PlayerRelation::DefendingPlayer), owner: None })], EffectDef::destroy_target(TargetIndex::PRIMARY)),
-AbilityDef::activated_with_targets("{1}{G}: Return target Human you control to its owner's hand. Kogla gains indestructible until end of turn.", &[CostDef::Mana(mana_cost!("{1}{G}"))], &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object { object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Human")), zones: &[ZoneKind::Battlefield], controller: Some(PlayerRelation::You), owner: None })], EffectDef::Sequence(&[EffectDef::move_to_zone(EffectRecipientDef::Target(TargetIndex::PRIMARY), ZoneKind::Hand, ZonePlacement::Top), EffectDef::Apply { recipient: EffectRecipientDef::Source, effect: AppliedEffectDef::add_ability(&abilities::indestructible()), duration: ResolvedEffectDurationDef::UntilEndOfTurn }]))
-]),
+    CardRules::new_creature(mana_cost!("{3}{G}{G}{G}"), &["Ape"], 7, 6)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::enters_trigger_with_targets(
+                "When Kogla enters, it fights up to one target creature you \
+                 don't control.",
+                &[AbilityTargetDef::up_to(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::NotYou),
+                        owner: None,
+                    },
+                    1,
+                )],
+                EffectDef::Fight {
+                    first: ObjectRefDef::Source,
+                    second: ObjectRefDef::Target(TargetIndex::PRIMARY),
+                    excess: None,
+                },
+            ),
+            AbilityDef::triggered_with_targets(
+                "Whenever Kogla attacks, destroy target artifact or \
+                 enchantment defending player controls.",
+                TriggerEventDef::attacks(ObjectPredicateDef::Source),
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Artifact),
+                            ObjectPredicateDef::HasType(CardType::Enchantment),
+                        ]),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::DefendingPlayer),
+                        owner: None,
+                    },
+                )],
+                EffectDef::destroy_target(TargetIndex::PRIMARY),
+            ),
+            AbilityDef::activated_with_targets(
+                "{1}{G}: Return target Human you control to its owner's \
+                 hand. Kogla gains indestructible until end of turn.",
+                &[CostDef::Mana(mana_cost!("{1}{G}"))],
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Human")),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::You),
+                        owner: None,
+                    },
+                )],
+                EffectDef::Sequence(&[
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ZoneKind::Hand,
+                        ZonePlacement::Top,
+                    ),
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::Source,
+                        effect: AppliedEffectDef::add_ability(&abilities::indestructible()),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                ]),
+            ),
+        ]),
 );
 
 // IKO 170 — Ram Through
-// Audit: unsupported — Needs excess-damage routing on a one-sided damage effect. DealDamage carries no excess routing option and FightExcessDef attaches only to Fight, so "if the creature you control has trample, excess damage is dealt to that creature's controller instead" cannot be said without dropping the trample clause.
+// Audit: unsupported — Needs excess-damage routing on a one-sided damage effect. DealDamage
+// carries no excess routing option and FightExcessDef attaches only to Fight, so "if the
+// creature you control has trample, excess damage is dealt to that creature's controller
+// instead" cannot be said without dropping the trample clause.
 pub(in crate::card::sets) static RAM_THROUGH: CardRecord = CardRecord::new(
     "Ram Through",
     "ac0b24e7-14e7-45ee-b5d8-bdb8674b669c",
@@ -242,7 +307,7 @@ pub(in crate::card::sets) static RAM_THROUGH: CardRecord = CardRecord::new(
 );
 
 // IKO 174 — Titanoth Rex
-pub(in crate::card::sets) static TITANOTH_REX_174: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static TITANOTH_REX: CardRecord = CardRecord::new(
     "Titanoth Rex",
     "9d02e1e8-b85b-4e26-8ab8-ca2f49d05b88",
     "Svetlin Velinov",
@@ -274,8 +339,9 @@ pub(in crate::card::sets) static TITANOTH_REX_174: CardRecord = CardRecord::new(
 );
 
 // IKO 216 — Winota, Joiner of Forces
-// Audit: unsupported — Needs a frozen top-library choice that puts a selected Human card onto the battlefield tapped and attacking, then randomizes the remainder.
-pub(in crate::card::sets) static WINOTA_JOINER_OF_FORCES_216: CardRecord = CardRecord::new(
+// Audit: unsupported — Needs a frozen top-library choice that puts a selected Human card onto
+// the battlefield tapped and attacking, then randomizes the remainder.
+pub(in crate::card::sets) static WINOTA_JOINER_OF_FORCES: CardRecord = CardRecord::new(
     "Winota, Joiner of Forces",
     "5dd13a6c-23d3-44ce-a628-cb1c19d777c4",
     "Magali Villeneuve",
@@ -283,8 +349,9 @@ pub(in crate::card::sets) static WINOTA_JOINER_OF_FORCES_216: CardRecord = CardR
 );
 
 // IKO 222 — Jegantha, the Wellspring
-// Audit: unsupported — Needs companion deck validation over repeated mana symbols and a mana restriction forbidding generic-cost payment.
-pub(in crate::card::sets) static JEGANTHA_THE_WELLSPRING_222: CardRecord = CardRecord::new(
+// Audit: unsupported — Needs companion deck validation over repeated mana symbols and a mana
+// restriction forbidding generic-cost payment.
+pub(in crate::card::sets) static JEGANTHA_THE_WELLSPRING: CardRecord = CardRecord::new(
     "Jegantha, the Wellspring",
     "1d52e527-3835-4350-8c01-0f2d5d623b9c",
     "Chris Rahn",
@@ -296,7 +363,7 @@ pub(in crate::card::sets) static LURRUS_OF_THE_DREAM_DEN: CardRecord = CardRecor
     "Lurrus of the Dream-Den",
     "5ad36fb2-c44e-4085-ba0d-54277841ad3a",
     "Slawomir Maniak",
-// Three mana for a lifelinking body that turns every cheap permanent in
+    // Three mana for a lifelinking body that turns every cheap permanent in
     // the graveyard back into a card, one a turn -- which is why the decks
     // that play him keep their curve at two.
     CardRules::new_creature(mana_cost!("{1}{W/B}{W/B}"), &["Cat", "Nightmare"], 3, 2)
@@ -307,8 +374,9 @@ pub(in crate::card::sets) static LURRUS_OF_THE_DREAM_DEN: CardRecord = CardRecor
                  (If this card is your chosen companion, you may put it into your hand from \
                  outside the game for {3} as a sorcery.)",
                 DeckConstructionDef::Companion(CompanionConditionDef::PermanentManaValueAtMost(2)),
-                "Both halves are here: the deck-construction condition the deck layer checks, and the \
-                 special action that takes it from outside the game for {3}.",
+                "Both halves are here: the deck-construction condition the \
+                 deck layer checks, and the special action that takes it \
+                 from outside the game for {3}.",
             ),
             abilities::lifelink(),
             AbilityDef::static_ability(
@@ -341,7 +409,8 @@ pub(in crate::card::sets) static LURRUS_OF_THE_DREAM_DEN: CardRecord = CardRecor
 );
 
 // IKO 232 — Yorion, Sky Nomad
-// Audit: unsupported — Needs the companion condition comparing starting deck size with the format minimum.
+// Audit: unsupported — Needs the companion condition comparing starting deck size with the
+// format minimum.
 pub(in crate::card::sets) static YORION_SKY_NOMAD: CardRecord = CardRecord::new(
     "Yorion, Sky Nomad",
     "275426c4-c14e-47d0-a9d4-24da7f6f6911",
@@ -354,7 +423,7 @@ pub(in crate::card::sets) static ZIRDA_THE_DAWNWAKER: CardRecord = CardRecord::n
     "Zirda, the Dawnwaker",
     "1bd8e61c-2ee8-4243-a848-7008810db8a0",
     "Jesper Ejsing",
-// Three mana for a 3/3 that makes every activated ability on the board
+    // Three mana for a 3/3 that makes every activated ability on the board
     // two cheaper, which is what a deck full of equipment and pingers is
     // waiting for.
     CardRules::new_creature(mana_cost!("{1}{R/W}{R/W}"), &["Elemental", "Fox"], 3, 3)
@@ -367,8 +436,9 @@ pub(in crate::card::sets) static ZIRDA_THE_DAWNWAKER: CardRecord = CardRecord::n
                 DeckConstructionDef::Companion(
                     CompanionConditionDef::EveryPermanentHasAnActivatedAbility,
                 ),
-                "Both halves are here: the deck-construction condition the deck layer checks, and the \
-                 special action that takes it from outside the game for {3}.",
+                "Both halves are here: the deck-construction condition the \
+                 deck layer checks, and the special action that takes it \
+                 from outside the game for {3}.",
             ),
             AbilityDef::static_ability(
                 "Abilities you activate that aren't mana abilities cost {2} less to activate. \
@@ -441,8 +511,9 @@ pub(in crate::card::sets) static ZAGOTH_TRIOME: CardRecord = CardRecord::new(
 );
 
 // IKO 275 — Zilortha, Strength Incarnate
-// Audit: unsupported — Needs a combat lethal-damage rule that substitutes controlled creatures' power for toughness.
-pub(in crate::card::sets) static ZILORTHA_STRENGTH_INCARNATE_275: CardRecord = CardRecord::new(
+// Audit: unsupported — Needs a combat lethal-damage rule that substitutes controlled creatures'
+// power for toughness.
+pub(in crate::card::sets) static ZILORTHA_STRENGTH_INCARNATE: CardRecord = CardRecord::new(
     "Zilortha, Strength Incarnate",
     "9a0639a0-c898-4a07-975c-a02bdd53175b",
     "Antonio José Manzanedo",
@@ -450,8 +521,9 @@ pub(in crate::card::sets) static ZILORTHA_STRENGTH_INCARNATE_275: CardRecord = C
 );
 
 // IKO 338 — Kinnan, Bonder Prodigy
-// Audit: unsupported — Needs a mana-tap trigger that duplicates the actual type produced and a top-five creature placement choice.
-pub(in crate::card::sets) static KINNAN_BONDER_PRODIGY_338: CardRecord = CardRecord::new(
+// Audit: unsupported — Needs a mana-tap trigger that duplicates the actual type produced and a
+// top-five creature placement choice.
+pub(in crate::card::sets) static KINNAN_BONDER_PRODIGY: CardRecord = CardRecord::new(
     "Kinnan, Bonder Prodigy",
     "532746e2-f822-4920-ab31-94e0c8baaa84",
     "Jason Rainville",
@@ -459,8 +531,9 @@ pub(in crate::card::sets) static KINNAN_BONDER_PRODIGY_338: CardRecord = CardRec
 );
 
 // IKO 341 — Quartzwood Crasher
-// Audit: unsupported — Needs combat-damage aggregation across one or more controlled trampling creatures for a dynamic token size.
-pub(in crate::card::sets) static QUARTZWOOD_CRASHER_341: CardRecord = CardRecord::new(
+// Audit: unsupported — Needs combat-damage aggregation across one or more controlled trampling
+// creatures for a dynamic token size.
+pub(in crate::card::sets) static QUARTZWOOD_CRASHER: CardRecord = CardRecord::new(
     "Quartzwood Crasher",
     "39e1effa-92a6-4e8c-9cd6-fc57ae7b3cbf",
     "Antonio José Manzanedo",
@@ -480,24 +553,27 @@ pub(in crate::card::sets) static LUTRI_THE_SPELLCHASER: CardRecord = CardRecord:
     "Lutri, the Spellchaser",
     "12c01a00-2128-4b6c-874f-a206eca3a756",
     "Lie Setiawan",
-// Three mana at instant speed for a body and a copy of whatever you were
+    // Three mana at instant speed for a body and a copy of whatever you were
     // already casting -- and in a singleton cube the companion clause costs
     // the deck nothing it was not already paying.
     CardRules::new_creature(mana_cost!("{1}{U/R}{U/R}"), &["Elemental", "Otter"], 3, 2)
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
             AbilityDef::deck_construction(
-                "Companion — Each nonland card in your starting deck has a different name. (If this card \
-                 is your chosen companion, you may put it into your hand from outside the game for {3} \
-                 as a sorcery.)",
+                "Companion — Each nonland card in your starting deck has a \
+                 different name. (If this card is your chosen companion, you \
+                 may put it into your hand from outside the game for {3} as \
+                 a sorcery.)",
                 DeckConstructionDef::Companion(CompanionConditionDef::NonlandNamesAreDistinct),
-                "Both halves are here: the deck-construction condition the deck layer checks, and the \
-                 special action that takes it from outside the game for {3}.",
+                "Both halves are here: the deck-construction condition the \
+                 deck layer checks, and the special action that takes it \
+                 from outside the game for {3}.",
             ),
             abilities::flash(),
             AbilityDef::triggered_if_with_targets(
-                "When Lutri enters, if you cast it, copy target instant or sorcery spell you control. \
-                 You may choose new targets for the copy.",
+                "When Lutri enters, if you cast it, copy target instant or \
+                 sorcery spell you control. You may choose new targets for \
+                 the copy.",
                 TriggerEventDef::zone_changed(
                     ObjectPredicateDef::Source,
                     None,
@@ -535,8 +611,9 @@ pub(in crate::card::sets) static LUTRI_THE_SPELLCHASER: CardRecord = CardRecord:
 );
 
 // IKO 375 — Yidaro, Wandering Monster
-// Audit: unsupported — Needs per-card cycling history and a cycling replacement that moves the card from its graveyard to either library or battlefield before drawing.
-pub(in crate::card::sets) static YIDARO_WANDERING_MONSTER_375: CardRecord = CardRecord::new(
+// Audit: unsupported — Needs per-card cycling history and a cycling replacement that moves the
+// card from its graveyard to either library or battlefield before drawing.
+pub(in crate::card::sets) static YIDARO_WANDERING_MONSTER: CardRecord = CardRecord::new(
     "Yidaro, Wandering Monster",
     "8bb6b4c7-4f18-4bea-b927-916c7bb987ee",
     "Yigit Koroglu",
@@ -544,7 +621,7 @@ pub(in crate::card::sets) static YIDARO_WANDERING_MONSTER_375: CardRecord = Card
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
-    &DRANNITH_MAGISTRATE_11,
+    &DRANNITH_MAGISTRATE,
     &AEGIS_TURTLE,
     &THIEVING_OTTER,
     &VORACIOUS_GREATSHARK,
@@ -552,11 +629,11 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &RUMBLING_ROCKSLIDE,
     &SPELLEATER_WOLVERINE,
     &COLOSSIFICATION,
-    &KOGLA_THE_TITAN_APE_162,
+    &KOGLA_THE_TITAN_APE,
     &RAM_THROUGH,
-    &TITANOTH_REX_174,
-    &WINOTA_JOINER_OF_FORCES_216,
-    &JEGANTHA_THE_WELLSPRING_222,
+    &TITANOTH_REX,
+    &WINOTA_JOINER_OF_FORCES,
+    &JEGANTHA_THE_WELLSPRING,
     &LURRUS_OF_THE_DREAM_DEN,
     &YORION_SKY_NOMAD,
     &ZIRDA_THE_DAWNWAKER,
@@ -565,11 +642,11 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &RAUGRIN_TRIOME,
     &SAVAI_TRIOME,
     &ZAGOTH_TRIOME,
-    &ZILORTHA_STRENGTH_INCARNATE_275,
-    &KINNAN_BONDER_PRODIGY_338,
-    &QUARTZWOOD_CRASHER_341,
+    &ZILORTHA_STRENGTH_INCARNATE,
+    &KINNAN_BONDER_PRODIGY,
+    &QUARTZWOOD_CRASHER,
     &LUTRI_THE_SPELLCHASER,
-    &YIDARO_WANDERING_MONSTER_375,
+    &YIDARO_WANDERING_MONSTER,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] =

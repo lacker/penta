@@ -33,11 +33,14 @@ pub(in crate::card::sets) static NALATHNI_DRAGON: CardRecord = CardRecord::new(
     "Nalathni Dragon",
     "7f9c6be5-ec44-4c66-aad6-cf9eca765b6b",
     "Michael Whelan",
-CardRules::new_creature(mana_cost!("{2}{R}{R}"), &["Dragon"], 1, 1).with_abilities(&[
+    CardRules::new_creature(mana_cost!("{2}{R}{R}"), &["Dragon"], 1, 1).with_abilities(&[
         abilities::flying(),
         abilities::banding(),
         AbilityDef::activated(
-            "{R}: This creature gets +1/+0 until end of turn. If this ability has been activated four or more times this turn, sacrifice this creature at the beginning of the next end step.",
+            "{R}: This creature gets +1/+0 until end of turn. If this \
+             ability has been activated four or more times this turn, \
+             sacrifice this creature at the beginning of the next end \
+             step.",
             &[CostDef::Mana(mana_cost!("{R}"))],
             // The pump is the whole ability: the fourth activation in a turn installs the
             // delayed sacrifice, the way Dragon Whelp's does.
@@ -55,14 +58,16 @@ CardRules::new_creature(mana_cost!("{2}{R}{R}"), &["Dragon"], 1, 1).with_abiliti
                         comparison: ComparisonDef::GreaterOrEqual,
                         amount: 4,
                     },
-                    then: &EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
-                        "At the beginning of the next end step, sacrifice this creature.",
-                        TriggerEventDef::StepBegins {
-                            step: TurnStepDef::End,
-                            player: PlayerRelation::Any,
-                        },
-                        EffectDef::sacrifice(EffectRecipientDef::Source),
-                    ))),
+                    then: &EffectDef::InstallTrigger(InstalledTriggerDef::once(
+                        &AbilityDef::triggered(
+                            "At the beginning of the next end step, sacrifice this creature.",
+                            TriggerEventDef::StepBegins {
+                                step: TurnStepDef::End,
+                                player: PlayerRelation::Any,
+                            },
+                            EffectDef::sacrifice(EffectRecipientDef::Source),
+                        ),
+                    )),
                 },
             ]),
         ),

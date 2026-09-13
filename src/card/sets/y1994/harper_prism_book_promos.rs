@@ -36,12 +36,11 @@ pub(in crate::card::sets) static ARENA: CardRecord = CardRecord::new(
     "Arena",
     "2f989fda-2e54-427c-9154-4820c48abb02",
     "Rob Alexander",
-CardRules::new_land(&[]).with_ability(AbilityDef::activated_with_targets(
-        "{3}, {T}: Tap target creature you control and target creature of an opponent's choice they control. Those creatures fight each other.",
-        &[
-            CostDef::Mana(mana_cost!("{3}")),
-            CostDef::TapSource,
-        ],
+    CardRules::new_land(&[]).with_ability(AbilityDef::activated_with_targets(
+        "{3}, {T}: Tap target creature you control and target \
+         creature of an opponent's choice they control. Those \
+         creatures fight each other.",
+        &[CostDef::Mana(mana_cost!("{3}")), CostDef::TapSource],
         &[
             AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
                 object: ObjectPredicateDef::HasType(CardType::Creature),
@@ -74,7 +73,9 @@ CardRules::new_land(&[]).with_ability(AbilityDef::activated_with_targets(
 );
 
 // PHPR 2 — Sewers of Estark
-// Audit: unsupported — Needs a duration-scoped replacement/prevention effect for “Choose target creature. If it's attacking, it can't be blocked this turn. If it's blocking, prevent all combat damage that would be dealt this combat by it and each creature it's blocking”.
+// Audit: unsupported — Needs a duration-scoped replacement/prevention effect for “Choose target
+// creature. If it's attacking, it can't be blocked this turn. If it's blocking, prevent all
+// combat damage that would be dealt this combat by it and each creature it's blocking”.
 pub(in crate::card::sets) static SEWERS_OF_ESTARK: CardRecord = CardRecord::new(
     "Sewers of Estark",
     "b0da11d4-3603-4f59-8f61-7204bf04e165",
@@ -87,9 +88,10 @@ pub(in crate::card::sets) static MANA_CRYPT: CardRecord = CardRecord::new(
     "Mana Crypt",
     "160cf235-6463-4e16-a426-8b5be76b10d2",
     "Mark Tedin",
-CardRules::new_artifact(mana_cost!("{0}")).with_abilities(&[
+    CardRules::new_artifact(mana_cost!("{0}")).with_abilities(&[
         AbilityDef::triggered(
-            "At the beginning of your upkeep, flip a coin. If you lose the flip, this artifact deals 3 damage to you.",
+            "At the beginning of your upkeep, flip a coin. If you lose \
+             the flip, this artifact deals 3 damage to you.",
             TriggerEventDef::StepBegins {
                 step: TurnStepDef::Upkeep,
                 player: PlayerRelation::You,

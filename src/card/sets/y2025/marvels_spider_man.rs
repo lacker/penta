@@ -156,7 +156,9 @@ const ROBOT_TOKEN: TokenCharacteristics =
         ));
 
 // SPM 1 — Anti-Venom, Horrifying Healer
-// Audit: unsupported — Needs a static damage-prevention replacement with an immediate counter-placement consequence using the amount actually prevented; prevention follow-ups currently support life gain, not counters.
+// Audit: unsupported — Needs a static damage-prevention replacement with an immediate
+// counter-placement consequence using the amount actually prevented; prevention follow-ups
+// currently support life gain, not counters.
 pub(in crate::card::sets) static ANTI_VENOM_HORRIFYING_HEALER: CardRecord = CardRecord::new(
     "Anti-Venom, Horrifying Healer",
     "560384fe-7be0-4b93-a515-2fe687ab2492",
@@ -165,7 +167,9 @@ pub(in crate::card::sets) static ANTI_VENOM_HORRIFYING_HEALER: CardRecord = Card
 );
 
 // SPM 2 — Arachne, Psionic Weaver
-// Audit: unsupported — Needs an as-entry opponent-hand inspection followed by a durable noncreature card-type choice, and a cost modifier keyed to that chosen type; existing scalar entry choices do not include card types.
+// Audit: unsupported — Needs an as-entry opponent-hand inspection followed by a durable
+// noncreature card-type choice, and a cost modifier keyed to that chosen type; existing scalar
+// entry choices do not include card types.
 pub(in crate::card::sets) static ARACHNE_PSIONIC_WEAVER: CardRecord = CardRecord::new(
     "Arachne, Psionic Weaver",
     "7c1f871a-bd85-402e-b474-1deb64c18a52",
@@ -241,7 +245,9 @@ pub(in crate::card::sets) static CITY_PIGEON: CardRecord = CardRecord::new(
 );
 
 // SPM 5 — Costume Closet
-// Audit: unsupported — Needs a complete modified predicate, including Equipment attached to the creature and Auras controlled by its controller; the available counter and enchanted predicates cannot identify all three modifications with their required controller scope.
+// Audit: unsupported — Needs a complete modified predicate, including Equipment attached to the
+// creature and Auras controlled by its controller; the available counter and enchanted
+// predicates cannot identify all three modifications with their required controller scope.
 pub(in crate::card::sets) static COSTUME_CLOSET: CardRecord = CardRecord::new(
     "Costume Closet",
     "cc641f4a-ddbe-4f7d-bb55-eabf11f8b7fb",
@@ -307,7 +313,9 @@ pub(in crate::card::sets) static DAILY_BUGLE_REPORTERS: CardRecord = CardRecord:
 );
 
 // SPM 7 — Flash Thompson, Spider-Fan
-// Audit: unsupported — Needs selecting and executing both modes of one triggered ability, including both target slots; current triggered-mode placement offers a maximum of one mode even though modal spells support larger selections.
+// Audit: unsupported — Needs selecting and executing both modes of one triggered ability,
+// including both target slots; current triggered-mode placement offers a maximum of one mode
+// even though modal spells support larger selections.
 pub(in crate::card::sets) static FLASH_THOMPSON_SPIDER_FAN: CardRecord = CardRecord::new(
     "Flash Thompson, Spider-Fan",
     "44cf372b-f668-45e9-981e-4533295dcc74",
@@ -436,7 +444,9 @@ pub(in crate::card::sets) static ORIGIN_OF_SPIDER_MAN: CardRecord = CardRecord::
 );
 
 // SPM 10 — Peter Parker // Amazing Spider-Man
-// Audit: unsupported — Needs a battlefield static rule granting a complete web-slinging alternative cost to matching colored legendary spells in all castable zones; current alternative-cost grants are restricted to particular graveyard casts.
+// Audit: unsupported — Needs a battlefield static rule granting a complete web-slinging
+// alternative cost to matching colored legendary spells in all castable zones; current
+// alternative-cost grants are restricted to particular graveyard casts.
 pub(in crate::card::sets) static PETER_PARKER: CardRecord = CardRecord::new(
     "Peter Parker // Amazing Spider-Man",
     "3ce33422-5dba-4a42-8375-dd8ccc692a7b",
@@ -561,7 +571,9 @@ pub(in crate::card::sets) static SELFLESS_POLICE_CAPTAIN: CardRecord = CardRecor
 );
 
 // SPM 13 — Silver Sable, Mercenary Leader
-// Audit: unsupported — Needs a complete modified predicate, including Equipment attached to the creature and Auras controlled by its controller; the available counter and enchanted predicates cannot identify all three modifications with their required controller scope.
+// Audit: unsupported — Needs a complete modified predicate, including Equipment attached to the
+// creature and Auras controlled by its controller; the available counter and enchanted
+// predicates cannot identify all three modifications with their required controller scope.
 pub(in crate::card::sets) static SILVER_SABLE_MERCENARY_LEADER: CardRecord = CardRecord::new(
     "Silver Sable, Mercenary Leader",
     "cf0d4116-acee-4d9a-985c-396d10e03838",
@@ -682,7 +694,9 @@ pub(in crate::card::sets) static SPIDER_MAN_WEB_SLINGER: CardRecord = CardRecord
 );
 
 // SPM 17 — Spider-UK
-// Audit: unsupported — Needs a per-controller count of creatures that entered this turn, retaining entries after those creatures leave; counting live EnteredThisTurn permanents loses the required history.
+// Audit: unsupported — Needs a per-controller count of creatures that entered this turn,
+// retaining entries after those creatures leave; counting live EnteredThisTurn permanents loses
+// the required history.
 pub(in crate::card::sets) static SPIDER_UK: CardRecord = CardRecord::new(
     "Spider-UK",
     "6beb4548-1fab-4b9e-bf24-f7b9aadecc87",
@@ -783,7 +797,8 @@ pub(in crate::card::sets) static THWIP: CardRecord = CardRecord::new(
 );
 
 // SPM 21 — Web Up
-// Audit: unsupported — Needs exile-until-source-leaves with an immediate return when the duration ends (CR 610.3), rather than a delayed return through an ordinary leaves trigger.
+// Audit: unsupported — Needs exile-until-source-leaves with an immediate return when the
+// duration ends (CR 610.3), rather than a delayed return through an ordinary leaves trigger.
 pub(in crate::card::sets) static WEB_UP: CardRecord = CardRecord::new(
     "Web Up",
     "1ab7c1e6-54af-4002-8a81-23a1ccafa3ff",
@@ -873,7 +888,9 @@ pub(in crate::card::sets) static WILD_PACK_SQUAD: CardRecord = CardRecord::new(
 );
 
 // SPM 24 — With Great Power . . .
-// Audit: unsupported — Needs static redirection of all damage from this Aura's controller to its enchanted creature; RedirectPlayerDamageToThis only supports predefined source groups, and the general RedirectDamageFromTo rule is a resolving effect rather than a static rule.
+// Audit: unsupported — Needs static redirection of all damage from this Aura's controller to
+// its enchanted creature; RedirectPlayerDamageToThis only supports predefined source groups,
+// and the general RedirectDamageFromTo rule is a resolving effect rather than a static rule.
 pub(in crate::card::sets) static WITH_GREAT_POWER: CardRecord = CardRecord::new(
     "With Great Power . . .",
     "f717c096-e161-426e-a8d7-c93b117e16b9",
@@ -955,7 +972,9 @@ pub(in crate::card::sets) static BEETLE_LEGACY_CRIMINAL: CardRecord = CardRecord
 );
 
 // SPM 27 — Chameleon, Master of Disguise
-// Audit: unsupported — Needs per-card discard provenance for the current turn and a graveyard casting or land-play permission conditional on that exact discard; the current graveyard permissions and turn histories cannot express mayhem.
+// Audit: unsupported — Needs per-card discard provenance for the current turn and a graveyard
+// casting or land-play permission conditional on that exact discard; the current graveyard
+// permissions and turn histories cannot express mayhem.
 pub(in crate::card::sets) static CHAMELEON_MASTER_OF_DISGUISE: CardRecord = CardRecord::new(
     "Chameleon, Master of Disguise",
     "43892ce7-f63a-4294-922b-8f879f684033",
@@ -964,7 +983,9 @@ pub(in crate::card::sets) static CHAMELEON_MASTER_OF_DISGUISE: CardRecord = Card
 );
 
 // SPM 28 — The Clone Saga
-// Audit: unsupported — Needs a delayed trigger combining next-occurrence consumption with end-of-turn expiry, plus a nonlegendary exception on a creature spell copy; installed Once and ThisTurn lifetimes cannot be combined, and stack-copy exceptions only include color.
+// Audit: unsupported — Needs a delayed trigger combining next-occurrence consumption with
+// end-of-turn expiry, plus a nonlegendary exception on a creature spell copy; installed Once
+// and ThisTurn lifetimes cannot be combined, and stack-copy exceptions only include color.
 pub(in crate::card::sets) static THE_CLONE_SAGA: CardRecord = CardRecord::new(
     "The Clone Saga",
     "976432b3-bc17-4edb-86d6-00fd1baf9670",
@@ -1233,7 +1254,9 @@ pub(in crate::card::sets) static IMPOSTOR_SYNDROME: CardRecord = CardRecord::new
 );
 
 // SPM 35 — Lady Octopus, Inspired Inventor
-// Audit: unsupported — Needs an immediate free-cast offer for a selected artifact card in hand; MayPlayWithoutPaying currently offers only exiled cards, and first exiling the hand card would add an unprinted zone change.
+// Audit: unsupported — Needs an immediate free-cast offer for a selected artifact card in hand;
+// MayPlayWithoutPaying currently offers only exiled cards, and first exiling the hand card
+// would add an unprinted zone change.
 pub(in crate::card::sets) static LADY_OCTOPUS_INSPIRED_INVENTOR: CardRecord = CardRecord::new(
     "Lady Octopus, Inspired Inventor",
     "8c5f360b-f9a0-46e0-9e8b-58e5b4b0389e",
@@ -1370,7 +1393,9 @@ pub(in crate::card::sets) static MYSTERIO_S_PHANTASM: CardRecord = CardRecord::n
 );
 
 // SPM 39 — Norman Osborn // Green Goblin
-// Audit: unsupported — Needs per-card discard provenance for the current turn and a graveyard casting or land-play permission conditional on that exact discard; the current graveyard permissions and turn histories cannot express mayhem.
+// Audit: unsupported — Needs per-card discard provenance for the current turn and a graveyard
+// casting or land-play permission conditional on that exact discard; the current graveyard
+// permissions and turn histories cannot express mayhem.
 pub(in crate::card::sets) static NORMAN_OSBORN: CardRecord = CardRecord::new(
     "Norman Osborn // Green Goblin",
     "d5c53af9-7150-4e78-8771-2de7980aa307",
@@ -1748,7 +1773,9 @@ pub(in crate::card::sets) static AGENT_VENOM: CardRecord = CardRecord::new(
 );
 
 // SPM 50 — Alien Symbiosis
-// Audit: unsupported — Needs a graveyard casting permission with a mandatory discard additional cost that composes with other alternative costs; an AlternativeCast clause replaces the mana cost and is not equivalent.
+// Audit: unsupported — Needs a graveyard casting permission with a mandatory discard additional
+// cost that composes with other alternative costs; an AlternativeCast clause replaces the mana
+// cost and is not equivalent.
 pub(in crate::card::sets) static ALIEN_SYMBIOSIS: CardRecord = CardRecord::new(
     "Alien Symbiosis",
     "b898ccb7-758e-4f11-95e0-b412721d8bf9",
@@ -1757,7 +1784,8 @@ pub(in crate::card::sets) static ALIEN_SYMBIOSIS: CardRecord = CardRecord::new(
 );
 
 // SPM 51 — Behold the Sinister Six!
-// Audit: unsupported — Needs a distinct-card-name constraint across the selected graveyard targets; current target distinctness compares object identities, not card names.
+// Audit: unsupported — Needs a distinct-card-name constraint across the selected graveyard
+// targets; current target distinctness compares object identities, not card names.
 pub(in crate::card::sets) static BEHOLD_THE_SINISTER_SIX: CardRecord = CardRecord::new(
     "Behold the Sinister Six!",
     "1919bfec-1906-4178-ad32-d4589842e563",
@@ -1766,7 +1794,9 @@ pub(in crate::card::sets) static BEHOLD_THE_SINISTER_SIX: CardRecord = CardRecor
 );
 
 // SPM 52 — Black Cat, Cunning Thief
-// Audit: unsupported — Needs selected cards from an inspected opponent library to be exiled face down with enduring play permission and unrestricted mana spending; the combined exile-permission operation only takes the top N cards, not a selected subset.
+// Audit: unsupported — Needs selected cards from an inspected opponent library to be exiled
+// face down with enduring play permission and unrestricted mana spending; the combined
+// exile-permission operation only takes the top N cards, not a selected subset.
 pub(in crate::card::sets) static BLACK_CAT_CUNNING_THIEF: CardRecord = CardRecord::new(
     "Black Cat, Cunning Thief",
     "0ed36ada-22c8-4e40-86c5-c116a0bee1c2",
@@ -2037,7 +2067,9 @@ pub(in crate::card::sets) static EDDIE_BROCK: CardRecord = CardRecord::new_dfc(
 );
 
 // SPM 56 — Gwenom, Remorseless
-// Audit: unsupported — Needs a resolving, expiring permission to look at the top library card at any time; top-card play permission already supports life payment, but MayLookAtTopOfLibrary is only implemented as a battlefield static rule.
+// Audit: unsupported — Needs a resolving, expiring permission to look at the top library card
+// at any time; top-card play permission already supports life payment, but
+// MayLookAtTopOfLibrary is only implemented as a battlefield static rule.
 pub(in crate::card::sets) static GWENOM_REMORSELESS: CardRecord = CardRecord::new(
     "Gwenom, Remorseless",
     "46b6cc5d-7a37-4e8b-a1a5-9a573056610c",
@@ -2093,7 +2125,9 @@ pub(in crate::card::sets) static MERCILESS_ENFORCERS: CardRecord = CardRecord::n
 );
 
 // SPM 59 — Morlun, Devourer of Spiders
-// Audit: unsupported — Needs retained cast X for the enters trigger after Morlun leaves the battlefield; SourceCastX currently reads the live permanent, so it loses X when the source departs before resolution.
+// Audit: unsupported — Needs retained cast X for the enters trigger after Morlun leaves the
+// battlefield; SourceCastX currently reads the live permanent, so it loses X when the source
+// departs before resolution.
 pub(in crate::card::sets) static MORLUN_DEVOURER_OF_SPIDERS: CardRecord = CardRecord::new(
     "Morlun, Devourer of Spiders",
     "1beb2eb9-90b5-43ba-8b04-cfce7dcb744b",
@@ -2102,7 +2136,10 @@ pub(in crate::card::sets) static MORLUN_DEVOURER_OF_SPIDERS: CardRecord = CardRe
 );
 
 // SPM 60 — Parker Luck
-// Audit: unsupported — Needs distinctness enforced across separately addressable player-target slots on a triggered ability; current trigger placement ignores another across slots, while a single two-player slot has no indexed-member reference to pair each reveal with the other player.
+// Audit: unsupported — Needs distinctness enforced across separately addressable player-target
+// slots on a triggered ability; current trigger placement ignores another across slots, while a
+// single two-player slot has no indexed-member reference to pair each reveal with the other
+// player.
 pub(in crate::card::sets) static PARKER_LUCK: CardRecord = CardRecord::new(
     "Parker Luck",
     "e375bcf0-7fcb-4fe4-a7e8-a4cbf9b23e3c",
@@ -2111,7 +2148,9 @@ pub(in crate::card::sets) static PARKER_LUCK: CardRecord = CardRecord::new(
 );
 
 // SPM 61 — Prison Break
-// Audit: unsupported — Needs per-card discard provenance for the current turn and a graveyard casting or land-play permission conditional on that exact discard; the current graveyard permissions and turn histories cannot express mayhem.
+// Audit: unsupported — Needs per-card discard provenance for the current turn and a graveyard
+// casting or land-play permission conditional on that exact discard; the current graveyard
+// permissions and turn histories cannot express mayhem.
 pub(in crate::card::sets) static PRISON_BREAK: CardRecord = CardRecord::new(
     "Prison Break",
     "6c45a5df-048e-4b73-89c6-5cdaa330319e",
@@ -2141,7 +2180,9 @@ pub(in crate::card::sets) static RISKY_RESEARCH: CardRecord = CardRecord::new(
 );
 
 // SPM 63 — Sandman's Quicksand
-// Audit: unsupported — Needs per-card discard provenance for the current turn and a graveyard casting or land-play permission conditional on that exact discard; the current graveyard permissions and turn histories cannot express mayhem.
+// Audit: unsupported — Needs per-card discard provenance for the current turn and a graveyard
+// casting or land-play permission conditional on that exact discard; the current graveyard
+// permissions and turn histories cannot express mayhem.
 pub(in crate::card::sets) static SANDMAN_S_QUICKSAND: CardRecord = CardRecord::new(
     "Sandman's Quicksand",
     "b7795e17-6717-464c-9ae3-20da52ba005a",
@@ -2228,7 +2269,9 @@ pub(in crate::card::sets) static SCORPION_S_STING: CardRecord = CardRecord::new(
 );
 
 // SPM 66 — The Soul Stone
-// Audit: unsupported — Needs a durable harnessed designation and the infinity ability enabled by that designation; this is not a removable counter, an activated-ability use limit, or a gained ability.
+// Audit: unsupported — Needs a durable harnessed designation and the infinity ability enabled
+// by that designation; this is not a removable counter, an activated-ability use limit, or a
+// gained ability.
 pub(in crate::card::sets) static THE_SOUL_STONE: CardRecord = CardRecord::new(
     "The Soul Stone",
     "1982f910-a9bd-4e94-a187-84381b22aacc",
@@ -2237,7 +2280,9 @@ pub(in crate::card::sets) static THE_SOUL_STONE: CardRecord = CardRecord::new(
 );
 
 // SPM 67 — Spider-Man Noir
-// Audit: unsupported — Needs a scalar counting every kind of counter on the triggering creature; existing counter projections require one specific CounterKind and cannot total an arbitrary inventory.
+// Audit: unsupported — Needs a scalar counting every kind of counter on the triggering
+// creature; existing counter projections require one specific CounterKind and cannot total an
+// arbitrary inventory.
 pub(in crate::card::sets) static SPIDER_MAN_NOIR: CardRecord = CardRecord::new(
     "Spider-Man Noir",
     "bc64366c-2691-48cd-bb4b-a4b088c6f16b",
@@ -2282,7 +2327,9 @@ pub(in crate::card::sets) static THE_SPOT_S_PORTAL: CardRecord = CardRecord::new
 );
 
 // SPM 69 — Swarm, Being of Bees
-// Audit: unsupported — Needs per-card discard provenance for the current turn and a graveyard casting or land-play permission conditional on that exact discard; the current graveyard permissions and turn histories cannot express mayhem.
+// Audit: unsupported — Needs per-card discard provenance for the current turn and a graveyard
+// casting or land-play permission conditional on that exact discard; the current graveyard
+// permissions and turn histories cannot express mayhem.
 pub(in crate::card::sets) static SWARM_BEING_OF_BEES: CardRecord = CardRecord::new(
     "Swarm, Being of Bees",
     "cb83d54e-6641-4929-99ad-c0ba5b610902",
@@ -2486,7 +2533,9 @@ pub(in crate::card::sets) static ANGRY_RABBLE: CardRecord = CardRecord::new(
 );
 
 // SPM 76 — Electro, Assaulting Battery
-// Audit: unsupported — Needs a resolving optional X-mana payment followed by a reflexive targeted trigger after the source has left; OptionalEffectTaken listeners require a live battlefield source and do not retain a selected resolving X.
+// Audit: unsupported — Needs a resolving optional X-mana payment followed by a reflexive
+// targeted trigger after the source has left; OptionalEffectTaken listeners require a live
+// battlefield source and do not retain a selected resolving X.
 pub(in crate::card::sets) static ELECTRO_ASSAULTING_BATTERY: CardRecord = CardRecord::new(
     "Electro, Assaulting Battery",
     "d672cfad-e656-47f8-bf93-64f262aff33e",
@@ -2495,7 +2544,9 @@ pub(in crate::card::sets) static ELECTRO_ASSAULTING_BATTERY: CardRecord = CardRe
 );
 
 // SPM 77 — Electro's Bolt
-// Audit: unsupported — Needs per-card discard provenance for the current turn and a graveyard casting or land-play permission conditional on that exact discard; the current graveyard permissions and turn histories cannot express mayhem.
+// Audit: unsupported — Needs per-card discard provenance for the current turn and a graveyard
+// casting or land-play permission conditional on that exact discard; the current graveyard
+// permissions and turn histories cannot express mayhem.
 pub(in crate::card::sets) static ELECTRO_S_BOLT: CardRecord = CardRecord::new(
     "Electro's Bolt",
     "25fe063f-35e4-4fca-9889-06834a8ef9b9",
@@ -2504,7 +2555,9 @@ pub(in crate::card::sets) static ELECTRO_S_BOLT: CardRecord = CardRecord::new(
 );
 
 // SPM 78 — Gwen Stacy // Ghost-Spider
-// Audit: unsupported — Needs exile-play permission lasting only while this exact creature remains continuously under your control, including termination on control changes; existing permissions have no source-control lifetime.
+// Audit: unsupported — Needs exile-play permission lasting only while this exact creature
+// remains continuously under your control, including termination on control changes; existing
+// permissions have no source-control lifetime.
 pub(in crate::card::sets) static GWEN_STACY: CardRecord = CardRecord::new(
     "Gwen Stacy // Ghost-Spider",
     "b0f1597f-1dc7-465e-8fcb-0afe61bcca46",
@@ -2513,7 +2566,9 @@ pub(in crate::card::sets) static GWEN_STACY: CardRecord = CardRecord::new(
 );
 
 // SPM 79 — Heroes' Hangout
-// Audit: unsupported — Needs play permission granted to a chosen already-exiled card until the end of your next turn; current duration-bearing exile permissions operate on the top-card exile move itself.
+// Audit: unsupported — Needs play permission granted to a chosen already-exiled card until the
+// end of your next turn; current duration-bearing exile permissions operate on the top-card
+// exile move itself.
 pub(in crate::card::sets) static HEROES_HANGOUT: CardRecord = CardRecord::new(
     "Heroes' Hangout",
     "4148d7e8-6371-468c-858b-35254995409a",
@@ -2548,7 +2603,9 @@ pub(in crate::card::sets) static HOBGOBLIN_MANTLED_MARAUDER: CardRecord = CardRe
 );
 
 // SPM 81 — J. Jonah Jameson
-// Audit: unsupported — Needs durable suspected status, including its inherent menace and cannot-block rules; granting these abilities does not model status independently of ability removal.
+// Audit: unsupported — Needs durable suspected status, including its inherent menace and
+// cannot-block rules; granting these abilities does not model status independently of ability
+// removal.
 pub(in crate::card::sets) static J_JONAH_JAMESON: CardRecord = CardRecord::new(
     "J. Jonah Jameson",
     "9ee905d6-b647-4eb1-a8d9-89add9bafc31",
@@ -2575,7 +2632,9 @@ pub(in crate::card::sets) static MASKED_MEOWER: CardRecord = CardRecord::new(
 );
 
 // SPM 83 — Maximum Carnage
-// Audit: unsupported — Needs an attack requirement preferring a player other than the effect controller when able; existing attack restrictions cannot express this second, independently satisfiable requirement.
+// Audit: unsupported — Needs an attack requirement preferring a player other than the effect
+// controller when able; existing attack restrictions cannot express this second, independently
+// satisfiable requirement.
 pub(in crate::card::sets) static MAXIMUM_CARNAGE: CardRecord = CardRecord::new(
     "Maximum Carnage",
     "7d72d867-6ed2-4900-a8ae-9d86f581ce32",
@@ -2656,7 +2715,9 @@ pub(in crate::card::sets) static MOLTEN_MAN_INFERNO_INCARNATE: CardRecord = Card
 );
 
 // SPM 85 — Raging Goblinoids
-// Audit: unsupported — Needs per-card discard provenance for the current turn and a graveyard casting or land-play permission conditional on that exact discard; the current graveyard permissions and turn histories cannot express mayhem.
+// Audit: unsupported — Needs per-card discard provenance for the current turn and a graveyard
+// casting or land-play permission conditional on that exact discard; the current graveyard
+// permissions and turn histories cannot express mayhem.
 pub(in crate::card::sets) static RAGING_GOBLINOIDS: CardRecord = CardRecord::new(
     "Raging Goblinoids",
     "8519598f-ab7f-49b0-90cc-c0b6422ebdf8",
@@ -2684,7 +2745,9 @@ pub(in crate::card::sets) static ROMANTIC_RENDEZVOUS: CardRecord = CardRecord::n
 );
 
 // SPM 87 — Shadow of the Goblin
-// Audit: unsupported — Needs land-play events that retain the zone from which the land was played; ordinary enters events also include lands put onto the battlefield and cannot substitute for a play event.
+// Audit: unsupported — Needs land-play events that retain the zone from which the land was
+// played; ordinary enters events also include lands put onto the battlefield and cannot
+// substitute for a play event.
 pub(in crate::card::sets) static SHADOW_OF_THE_GOBLIN: CardRecord = CardRecord::new(
     "Shadow of the Goblin",
     "854b6898-c480-435b-8952-a077c7977cec",
@@ -2767,7 +2830,9 @@ pub(in crate::card::sets) static SPIDER_GWEN_FREE_SPIRIT: CardRecord = CardRecor
 );
 
 // SPM 91 — Spider-Islanders
-// Audit: unsupported — Needs per-card discard provenance for the current turn and a graveyard casting or land-play permission conditional on that exact discard; the current graveyard permissions and turn histories cannot express mayhem.
+// Audit: unsupported — Needs per-card discard provenance for the current turn and a graveyard
+// casting or land-play permission conditional on that exact discard; the current graveyard
+// permissions and turn histories cannot express mayhem.
 pub(in crate::card::sets) static SPIDER_ISLANDERS: CardRecord = CardRecord::new(
     "Spider-Islanders",
     "c9132e45-4ddb-4565-ac45-86f1ecc6230d",
@@ -2776,7 +2841,9 @@ pub(in crate::card::sets) static SPIDER_ISLANDERS: CardRecord = CardRecord::new(
 );
 
 // SPM 92 — Spider-Punk
-// Audit: unsupported — Needs a static grant of riot applied during other Spiders' prospective entries, including their counter-or-haste choice; a battlefield ability grant begins after the entry replacement must run.
+// Audit: unsupported — Needs a static grant of riot applied during other Spiders' prospective
+// entries, including their counter-or-haste choice; a battlefield ability grant begins after
+// the entry replacement must run.
 pub(in crate::card::sets) static SPIDER_PUNK: CardRecord = CardRecord::new(
     "Spider-Punk",
     "0bd41879-fcd4-4211-9b98-47e7cdba5399",
@@ -2785,7 +2852,9 @@ pub(in crate::card::sets) static SPIDER_PUNK: CardRecord = CardRecord::new(
 );
 
 // SPM 93 — Spider-Verse
-// Audit: unsupported — Needs copied permanent spells to carry haste into their resulting permanents and an optional once-per-turn limit consumed only on acceptance; stack-copy effects lack this arrival rider, and trigger limits count the trigger itself.
+// Audit: unsupported — Needs copied permanent spells to carry haste into their resulting
+// permanents and an optional once-per-turn limit consumed only on acceptance; stack-copy
+// effects lack this arrival rider, and trigger limits count the trigger itself.
 pub(in crate::card::sets) static SPIDER_VERSE: CardRecord = CardRecord::new(
     "Spider-Verse",
     "f8779eb2-1210-430d-8d42-3077053441ee",
@@ -2794,7 +2863,9 @@ pub(in crate::card::sets) static SPIDER_VERSE: CardRecord = CardRecord::new(
 );
 
 // SPM 94 — Spinneret and Spiderling
-// Audit: unsupported — Needs a source damage-event matcher for a single simultaneous event totaling four or more damage across recipients; current damage triggers are captured per recipient and lose the event-wide total.
+// Audit: unsupported — Needs a source damage-event matcher for a single simultaneous event
+// totaling four or more damage across recipients; current damage triggers are captured per
+// recipient and lose the event-wide total.
 pub(in crate::card::sets) static SPINNERET_AND_SPIDERLING: CardRecord = CardRecord::new(
     "Spinneret and Spiderling",
     "a27834b7-e763-48ac-845e-ed49f2fa6c6d",
@@ -2843,7 +2914,9 @@ pub(in crate::card::sets) static STEGRON_THE_DINOSAUR_MAN: CardRecord = CardReco
 );
 
 // SPM 96 — Superior Foes of Spider-Man
-// Audit: unsupported — Needs a source-bound exile-play permission group that replaces and expires the previous permission only after another card is successfully exiled with that source.
+// Audit: unsupported — Needs a source-bound exile-play permission group that replaces and
+// expires the previous permission only after another card is successfully exiled with that
+// source.
 pub(in crate::card::sets) static SUPERIOR_FOES_OF_SPIDER_MAN: CardRecord = CardRecord::new(
     "Superior Foes of Spider-Man",
     "28e7bf86-5791-4412-8184-fa63fb292be4",
@@ -2995,7 +3068,8 @@ pub(in crate::card::sets) static EZEKIEL_SIMS_SPIDER_TOTEM: CardRecord = CardRec
 );
 
 // SPM 101 — Grow Extra Arms
-// Audit: unsupported — Needs a self casting-cost reduction based on the chosen target's Spider subtype; current self-cost predicates cannot inspect the pending target selection.
+// Audit: unsupported — Needs a self casting-cost reduction based on the chosen target's Spider
+// subtype; current self-cost predicates cannot inspect the pending target selection.
 pub(in crate::card::sets) static GROW_EXTRA_ARMS: CardRecord = CardRecord::new(
     "Grow Extra Arms",
     "63fab399-00db-4398-922e-c3ca3356731a",
@@ -3093,7 +3167,9 @@ pub(in crate::card::sets) static KRAVEN_S_CATS: CardRecord = CardRecord::new(
 );
 
 // SPM 105 — Kraven's Last Hunt
-// Audit: unsupported — Needs a reflexive targeted trigger after milling that survives the Saga leaving in response to its chapter ability; OptionalEffectTaken listeners require a live battlefield source.
+// Audit: unsupported — Needs a reflexive targeted trigger after milling that survives the Saga
+// leaving in response to its chapter ability; OptionalEffectTaken listeners require a live
+// battlefield source.
 pub(in crate::card::sets) static KRAVEN_S_LAST_HUNT: CardRecord = CardRecord::new(
     "Kraven's Last Hunt",
     "d0c18ffe-a2b9-40df-a6b4-a9381e6dc467",
@@ -3170,7 +3246,8 @@ pub(in crate::card::sets) static LURKING_LIZARDS: CardRecord = CardRecord::new(
 );
 
 // SPM 108 — Miles Morales // Ultimate Spider-Man
-// Audit: unsupported — Needs doubling of every counter kind on a dynamically selected permanent group; DoubleCounters and counter projections require an explicitly named kind.
+// Audit: unsupported — Needs doubling of every counter kind on a dynamically selected permanent
+// group; DoubleCounters and counter projections require an explicitly named kind.
 pub(in crate::card::sets) static MILES_MORALES: CardRecord = CardRecord::new(
     "Miles Morales // Ultimate Spider-Man",
     "9f8b4d9b-208a-4673-a617-5e3edd069c33",
@@ -3672,7 +3749,9 @@ pub(in crate::card::sets) static STRENGTH_OF_WILL: CardRecord = CardRecord::new(
 );
 
 // SPM 119 — Supportive Parents
-// Audit: unsupported — Needs a mana-ability payment that selects and taps two untapped controlled creatures; multi-permanent tap costs work for ordinary activations but the immediate mana-ability payment path does not support them.
+// Audit: unsupported — Needs a mana-ability payment that selects and taps two untapped
+// controlled creatures; multi-permanent tap costs work for ordinary activations but the
+// immediate mana-ability payment path does not support them.
 pub(in crate::card::sets) static SUPPORTIVE_PARENTS: CardRecord = CardRecord::new(
     "Supportive Parents",
     "d3fe8a5b-4166-46cc-b910-71cd1a19ae1b",
@@ -3868,7 +3947,9 @@ pub(in crate::card::sets) static WEB_OF_LIFE_AND_DESTINY: CardRecord = CardRecor
 );
 
 // SPM 123 — Araña, Heart of the Spider
-// Audit: unsupported — Needs a complete modified predicate, including Equipment attached to the creature and Auras controlled by its controller; the available counter and enchanted predicates cannot identify all three modifications with their required controller scope.
+// Audit: unsupported — Needs a complete modified predicate, including Equipment attached to the
+// creature and Auras controlled by its controller; the available counter and enchanted
+// predicates cannot identify all three modifications with their required controller scope.
 pub(in crate::card::sets) static ARANA_HEART_OF_THE_SPIDER: CardRecord = CardRecord::new(
     "Araña, Heart of the Spider",
     "b02bfa0e-f761-45e1-b35c-f44ff7c5d0e8",
@@ -3877,7 +3958,9 @@ pub(in crate::card::sets) static ARANA_HEART_OF_THE_SPIDER: CardRecord = CardRec
 );
 
 // SPM 124 — Biorganic Carapace
-// Audit: unsupported — Needs a complete modified predicate, including Equipment attached to the creature and Auras controlled by its controller; the available counter and enchanted predicates cannot identify all three modifications with their required controller scope.
+// Audit: unsupported — Needs a complete modified predicate, including Equipment attached to the
+// creature and Auras controlled by its controller; the available counter and enchanted
+// predicates cannot identify all three modifications with their required controller scope.
 pub(in crate::card::sets) static BIORGANIC_CARAPACE: CardRecord = CardRecord::new(
     "Biorganic Carapace",
     "9658fdab-9702-4e13-bc53-01a25a2ed41a",
@@ -3886,7 +3969,9 @@ pub(in crate::card::sets) static BIORGANIC_CARAPACE: CardRecord = CardRecord::ne
 );
 
 // SPM 125 — Carnage, Crimson Chaos
-// Audit: unsupported — Needs per-card discard provenance for the current turn and a graveyard casting or land-play permission conditional on that exact discard; the current graveyard permissions and turn histories cannot express mayhem.
+// Audit: unsupported — Needs per-card discard provenance for the current turn and a graveyard
+// casting or land-play permission conditional on that exact discard; the current graveyard
+// permissions and turn histories cannot express mayhem.
 pub(in crate::card::sets) static CARNAGE_CRIMSON_CHAOS: CardRecord = CardRecord::new(
     "Carnage, Crimson Chaos",
     "930befba-6068-493e-baa2-e9371cd99e93",
@@ -3895,7 +3980,9 @@ pub(in crate::card::sets) static CARNAGE_CRIMSON_CHAOS: CardRecord = CardRecord:
 );
 
 // SPM 126 — Cheering Crowd
-// Audit: unsupported — Needs resolving mana addition to the active player who accepted the optional counter placement; AddManaEffectDef has a recipient field, but nonmana stack resolution ignores it and always credits the ability controller.
+// Audit: unsupported — Needs resolving mana addition to the active player who accepted the
+// optional counter placement; AddManaEffectDef has a recipient field, but nonmana stack
+// resolution ignores it and always credits the ability controller.
 pub(in crate::card::sets) static CHEERING_CROWD: CardRecord = CardRecord::new(
     "Cheering Crowd",
     "5fbce72f-e9a1-4d9f-b9b3-24dbafeef841",
@@ -3954,7 +4041,9 @@ pub(in crate::card::sets) static COSMIC_SPIDER_MAN: CardRecord = CardRecord::new
 );
 
 // SPM 128 — Doctor Octopus, Master Planner
-// Audit: unsupported — Needs a maximum-hand-size setting operation with timestamp interactions against other settings and modifiers; the current player rules only remove the limit or add a numeric modifier.
+// Audit: unsupported — Needs a maximum-hand-size setting operation with timestamp interactions
+// against other settings and modifiers; the current player rules only remove the limit or add a
+// numeric modifier.
 pub(in crate::card::sets) static DOCTOR_OCTOPUS_MASTER_PLANNER: CardRecord = CardRecord::new(
     "Doctor Octopus, Master Planner",
     "76e1d361-18a1-4dec-a203-f83bf0014e02",
@@ -3976,7 +4065,9 @@ pub(in crate::card::sets) static GALLANT_CITIZEN: CardRecord = CardRecord::new(
 );
 
 // SPM 130 — Green Goblin, Revenant
-// Audit: unsupported — Needs the controller's complete discarded-card count for the current turn, including prior resolving effects and costs; the discard continuation only exposes its own batch.
+// Audit: unsupported — Needs the controller's complete discarded-card count for the current
+// turn, including prior resolving effects and costs; the discard continuation only exposes its
+// own batch.
 pub(in crate::card::sets) static GREEN_GOBLIN_REVENANT: CardRecord = CardRecord::new(
     "Green Goblin, Revenant",
     "218ef931-46f5-4a4d-9f26-898a1ff8f70f",
@@ -3985,7 +4076,9 @@ pub(in crate::card::sets) static GREEN_GOBLIN_REVENANT: CardRecord = CardRecord:
 );
 
 // SPM 131 — Jackal, Genius Geneticist
-// Audit: unsupported — Needs a nonlegendary copy-process exception on the copied creature spell; CopyStackObject currently supports only a color override, while token-copy exceptions do not copy a spell.
+// Audit: unsupported — Needs a nonlegendary copy-process exception on the copied creature
+// spell; CopyStackObject currently supports only a color override, while token-copy exceptions
+// do not copy a spell.
 pub(in crate::card::sets) static JACKAL_GENIUS_GENETICIST: CardRecord = CardRecord::new(
     "Jackal, Genius Geneticist",
     "c0ab07d6-b7c3-4129-9aef-cfdcfabec4b2",
@@ -4035,7 +4128,9 @@ pub(in crate::card::sets) static KRAVEN_PROUD_PREDATOR: CardRecord = CardRecord:
 );
 
 // SPM 133 — Kraven the Hunter
-// Audit: unsupported — Needs a death matcher comparing the dying creature's power with the maximum among its controller's creatures immediately before the event, including simultaneous departures.
+// Audit: unsupported — Needs a death matcher comparing the dying creature's power with the
+// maximum among its controller's creatures immediately before the event, including simultaneous
+// departures.
 pub(in crate::card::sets) static KRAVEN_THE_HUNTER: CardRecord = CardRecord::new(
     "Kraven the Hunter",
     "afdab464-3674-449b-be01-1cbd21fced23",
@@ -4067,7 +4162,9 @@ pub(in crate::card::sets) static MARY_JANE_WATSON: CardRecord = CardRecord::new(
 );
 
 // SPM 135 — Mister Negative
-// Audit: unsupported — Needs an atomic exchange of player life totals and an actual life-loss result for the draw; two SetLifeTotal effects do not enforce the exchange's all-or-nothing rule or retain that result.
+// Audit: unsupported — Needs an atomic exchange of player life totals and an actual life-loss
+// result for the draw; two SetLifeTotal effects do not enforce the exchange's all-or-nothing
+// rule or retain that result.
 pub(in crate::card::sets) static MISTER_NEGATIVE: CardRecord = CardRecord::new(
     "Mister Negative",
     "2c9cb13d-55ff-4e26-aa49-755f8bcebc11",
@@ -4283,7 +4380,9 @@ pub(in crate::card::sets) static RHINO_BARRELING_BRUTE: CardRecord = CardRecord:
 );
 
 // SPM 141 — Rhino's Rampage
-// Audit: unsupported — Needs excess fight damage to open a reflexive targeted trigger whose artifact target is chosen after the fight; the current fight excess continuation resolves directly rather than creating that independent trigger.
+// Audit: unsupported — Needs excess fight damage to open a reflexive targeted trigger whose
+// artifact target is chosen after the fight; the current fight excess continuation resolves
+// directly rather than creating that independent trigger.
 pub(in crate::card::sets) static RHINOS_RAMPAGE: CardRecord = CardRecord::new(
     "Rhino's Rampage",
     "f668817c-1cab-44c5-b6a8-95113e480d5e",
@@ -4292,7 +4391,9 @@ pub(in crate::card::sets) static RHINOS_RAMPAGE: CardRecord = CardRecord::new(
 );
 
 // SPM 142 — Scarlet Spider, Ben Reilly
-// Audit: unsupported — Needs prospective-entry evaluation of the returned web-slinging cost object's mana value; entry value evaluation cannot project a characteristic from the alternative-cost object receipt.
+// Audit: unsupported — Needs prospective-entry evaluation of the returned web-slinging cost
+// object's mana value; entry value evaluation cannot project a characteristic from the
+// alternative-cost object receipt.
 pub(in crate::card::sets) static SCARLET_SPIDER_BEN_REILLY: CardRecord = CardRecord::new(
     "Scarlet Spider, Ben Reilly",
     "ee771581-f867-48d7-9ddb-897a1ffcdf0a",
@@ -4301,7 +4402,9 @@ pub(in crate::card::sets) static SCARLET_SPIDER_BEN_REILLY: CardRecord = CardRec
 );
 
 // SPM 143 — Scarlet Spider, Kaine
-// Audit: unsupported — Needs per-card discard provenance for the current turn and a graveyard casting or land-play permission conditional on that exact discard; the current graveyard permissions and turn histories cannot express mayhem.
+// Audit: unsupported — Needs per-card discard provenance for the current turn and a graveyard
+// casting or land-play permission conditional on that exact discard; the current graveyard
+// permissions and turn histories cannot express mayhem.
 pub(in crate::card::sets) static SCARLET_SPIDER_KAINE: CardRecord = CardRecord::new(
     "Scarlet Spider, Kaine",
     "2cb00060-8cc5-42dc-bcbf-affd9e59f8fd",
@@ -4310,7 +4413,9 @@ pub(in crate::card::sets) static SCARLET_SPIDER_KAINE: CardRecord = CardRecord::
 );
 
 // SPM 144 — Shriek, Treblemaker
-// Audit: unsupported — Needs a reflexive trigger after optional discard that remains valid if Shriek leaves before its first-main-phase trigger resolves; current optional-effect listeners require a live battlefield source.
+// Audit: unsupported — Needs a reflexive trigger after optional discard that remains valid if
+// Shriek leaves before its first-main-phase trigger resolves; current optional-effect listeners
+// require a live battlefield source.
 pub(in crate::card::sets) static SHRIEK_TREBLEMAKER: CardRecord = CardRecord::new(
     "Shriek, Treblemaker",
     "01f1900e-b10f-47dd-8b3d-6913fa661186",
@@ -4376,7 +4481,9 @@ pub(in crate::card::sets) static SILK_WEB_WEAVER: CardRecord = CardRecord::new(
 );
 
 // SPM 146 — Skyward Spider
-// Audit: unsupported — Needs a complete modified predicate, including Equipment attached to the creature and Auras controlled by its controller; the available counter and enchanted predicates cannot identify all three modifications with their required controller scope.
+// Audit: unsupported — Needs a complete modified predicate, including Equipment attached to the
+// creature and Auras controlled by its controller; the available counter and enchanted
+// predicates cannot identify all three modifications with their required controller scope.
 pub(in crate::card::sets) static SKYWARD_SPIDER: CardRecord = CardRecord::new(
     "Skyward Spider",
     "f5cbb580-cd02-4c60-acb7-b7ed1f1fce59",
@@ -4385,7 +4492,9 @@ pub(in crate::card::sets) static SKYWARD_SPIDER: CardRecord = CardRecord::new(
 );
 
 // SPM 147 — SP//dr, Piloted by Peni
-// Audit: unsupported — Needs a complete modified predicate, including Equipment attached to the creature and Auras controlled by its controller; the available counter and enchanted predicates cannot identify all three modifications with their required controller scope.
+// Audit: unsupported — Needs a complete modified predicate, including Equipment attached to the
+// creature and Auras controlled by its controller; the available counter and enchanted
+// predicates cannot identify all three modifications with their required controller scope.
 pub(in crate::card::sets) static SP_DR_PILOTED_BY_PENI: CardRecord = CardRecord::new(
     "SP//dr, Piloted by Peni",
     "c47c1d83-e76d-4939-9ed6-05a9e709dea1",
@@ -4454,7 +4563,9 @@ pub(in crate::card::sets) static SPIDER_GIRL_LEGACY_HERO: CardRecord = CardRecor
 );
 
 // SPM 150 — Spider-Man 2099
-// Audit: unsupported — Needs this-turn history of lands played and spells cast from outside the hand; spell-source history alone misses qualifying land plays, and enters history also counts non-play arrivals.
+// Audit: unsupported — Needs this-turn history of lands played and spells cast from outside the
+// hand; spell-source history alone misses qualifying land plays, and enters history also counts
+// non-play arrivals.
 pub(in crate::card::sets) static SPIDER_MAN_2099: CardRecord = CardRecord::new(
     "Spider-Man 2099",
     "2a72c7e7-34f5-4cb0-9959-35516e398e49",
@@ -4680,7 +4791,9 @@ pub(in crate::card::sets) static SUN_SPIDER_NIMBLE_WEBBER: CardRecord = CardReco
 );
 
 // SPM 155 — Superior Spider-Man
-// Audit: unsupported — Needs a reflexive trigger carrying the graveyard card chosen during copy entry so that exact card is exiled after entry; copy-entry exceptions do not expose that selected card to a later trigger.
+// Audit: unsupported — Needs a reflexive trigger carrying the graveyard card chosen during copy
+// entry so that exact card is exiled after entry; copy-entry exceptions do not expose that
+// selected card to a later trigger.
 pub(in crate::card::sets) static SUPERIOR_SPIDER_MAN: CardRecord = CardRecord::new(
     "Superior Spider-Man",
     "ad4adc3e-ec41-4406-8ff2-59ba8067cf4e",
@@ -4689,7 +4802,10 @@ pub(in crate::card::sets) static SUPERIOR_SPIDER_MAN: CardRecord = CardRecord::n
 );
 
 // SPM 156 — Symbiote Spider-Man
-// Audit: unsupported — Needs a grant of this graveyard card's actual other abilities, excluding the activated Find New Host ability, with current text and granted abilities preserved; the existing grant vocabulary takes explicit ability definitions or activated abilities from linked exile, not this source-card projection.
+// Audit: unsupported — Needs a grant of this graveyard card's actual other abilities, excluding
+// the activated Find New Host ability, with current text and granted abilities preserved; the
+// existing grant vocabulary takes explicit ability definitions or activated abilities from
+// linked exile, not this source-card projection.
 pub(in crate::card::sets) static SYMBIOTE_SPIDER_MAN: CardRecord = CardRecord::new(
     "Symbiote Spider-Man",
     "6a21c0ff-b51a-4946-9737-7872a7eef97b",
@@ -4698,7 +4814,9 @@ pub(in crate::card::sets) static SYMBIOTE_SPIDER_MAN: CardRecord = CardRecord::n
 );
 
 // SPM 157 — Ultimate Green Goblin
-// Audit: unsupported — Needs per-card discard provenance for the current turn and a graveyard casting or land-play permission conditional on that exact discard; the current graveyard permissions and turn histories cannot express mayhem.
+// Audit: unsupported — Needs per-card discard provenance for the current turn and a graveyard
+// casting or land-play permission conditional on that exact discard; the current graveyard
+// permissions and turn histories cannot express mayhem.
 pub(in crate::card::sets) static ULTIMATE_GREEN_GOBLIN: CardRecord = CardRecord::new(
     "Ultimate Green Goblin",
     "e82d3f71-8404-40e7-b7fa-35713d1b384e",
@@ -4969,7 +5087,8 @@ pub(in crate::card::sets) static HOT_DOG_CART: CardRecord = CardRecord::new(
 );
 
 // SPM 165 — Interdimensional Web Watch
-// Audit: unsupported — Needs a mana-spending restriction that tests the zone a spell is cast from; CastSpell accepts characteristic predicates, which cannot inspect cast origin.
+// Audit: unsupported — Needs a mana-spending restriction that tests the zone a spell is cast
+// from; CastSpell accepts characteristic predicates, which cannot inspect cast origin.
 pub(in crate::card::sets) static INTERDIMENSIONAL_WEB_WATCH: CardRecord = CardRecord::new(
     "Interdimensional Web Watch",
     "87a8e112-e72f-413f-88a3-e7ce72c2ec53",
@@ -4978,7 +5097,9 @@ pub(in crate::card::sets) static INTERDIMENSIONAL_WEB_WATCH: CardRecord = CardRe
 );
 
 // SPM 166 — Iron Spider, Stark Upgrade
-// Audit: unsupported — Needs payment by removing a total of two counters distributed among multiple artifacts; existing activation costs remove counters only from a specified source or one chosen object.
+// Audit: unsupported — Needs payment by removing a total of two counters distributed among
+// multiple artifacts; existing activation costs remove counters only from a specified source or
+// one chosen object.
 pub(in crate::card::sets) static IRON_SPIDER_STARK_UPGRADE: CardRecord = CardRecord::new(
     "Iron Spider, Stark Upgrade",
     "8da5f34e-7f40-406a-88d2-bb1e3ed25200",
@@ -5110,7 +5231,9 @@ pub(in crate::card::sets) static NEWS_HELICOPTER: CardRecord = CardRecord::new(
 );
 
 // SPM 170 — Passenger Ferry
-// Audit: unsupported — Needs a reflexive trigger created after the optional mana payment and retained if the Vehicle has left; current optional-effect listeners require the original source on the battlefield.
+// Audit: unsupported — Needs a reflexive trigger created after the optional mana payment and
+// retained if the Vehicle has left; current optional-effect listeners require the original
+// source on the battlefield.
 pub(in crate::card::sets) static PASSENGER_FERRY: CardRecord = CardRecord::new(
     "Passenger Ferry",
     "2495f477-b88c-4938-a86a-f72c3c861188",
@@ -5168,7 +5291,9 @@ pub(in crate::card::sets) static PETER_PARKER_S_CAMERA: CardRecord = CardRecord:
 );
 
 // SPM 172 — Rocket-Powered Goblin Glider
-// Audit: unsupported — Needs per-card discard provenance for the current turn and a graveyard casting or land-play permission conditional on that exact discard; the current graveyard permissions and turn histories cannot express mayhem.
+// Audit: unsupported — Needs per-card discard provenance for the current turn and a graveyard
+// casting or land-play permission conditional on that exact discard; the current graveyard
+// permissions and turn histories cannot express mayhem.
 pub(in crate::card::sets) static ROCKET_POWERED_GOBLIN_GLIDER: CardRecord = CardRecord::new(
     "Rocket-Powered Goblin Glider",
     "c6c39232-72cc-4363-83d0-b5873f14f231",
@@ -5214,7 +5339,9 @@ pub(in crate::card::sets) static SPIDER_BOT: CardRecord = CardRecord::new(
 );
 
 // SPM 174 — Spider-Mobile
-// Audit: unsupported — Needs a blocks trigger that fires once for the blocking declaration even when this Vehicle can block multiple attackers; the current Blocks matcher fires separately for each blocked creature.
+// Audit: unsupported — Needs a blocks trigger that fires once for the blocking declaration even
+// when this Vehicle can block multiple attackers; the current Blocks matcher fires separately
+// for each blocked creature.
 pub(in crate::card::sets) static SPIDER_MOBILE: CardRecord = CardRecord::new(
     "Spider-Mobile",
     "f12664c0-d7cd-4acb-87db-cfa3c85f32a9",
@@ -5467,7 +5594,9 @@ pub(in crate::card::sets) static OMINOUS_ASYLUM: CardRecord = CardRecord::new(
 );
 
 // SPM 182 — Oscorp Industries
-// Audit: unsupported — Needs per-card discard provenance for the current turn and a graveyard casting or land-play permission conditional on that exact discard; the current graveyard permissions and turn histories cannot express mayhem.
+// Audit: unsupported — Needs per-card discard provenance for the current turn and a graveyard
+// casting or land-play permission conditional on that exact discard; the current graveyard
+// permissions and turn histories cannot express mayhem.
 pub(in crate::card::sets) static OSCORP_INDUSTRIES: CardRecord = CardRecord::new(
     "Oscorp Industries",
     "1e609d6e-9e37-45d2-87de-8c76675f7cec",
@@ -5528,7 +5657,9 @@ pub(in crate::card::sets) static UNIVERSITY_CAMPUS: CardRecord = CardRecord::new
 );
 
 // SPM 187 — Urban Retreat
-// Audit: unsupported — Needs a hand-zone activation cost selecting and returning a tapped controlled creature; current hand activation payment support does not implement ReturnToHand object costs.
+// Audit: unsupported — Needs a hand-zone activation cost selecting and returning a tapped
+// controlled creature; current hand activation payment support does not implement ReturnToHand
+// object costs.
 pub(in crate::card::sets) static URBAN_RETREAT: CardRecord = CardRecord::new(
     "Urban Retreat",
     "2581f320-8238-413d-ab04-d5535da55630",

@@ -89,7 +89,9 @@ const FOOD_TOKEN: TokenCharacteristics = crate::card::tokens::food().with_art(Ca
 ));
 
 // BIG 1 — Collector's Cage
-// Audit: unsupported — Needs counting distinct current powers among controlled creatures to gate the hideaway cast; sum/minimum/maximum scalar aggregates do not implement distinct-value cardinality.
+// Audit: unsupported — Needs counting distinct current powers among controlled creatures to
+// gate the hideaway cast; sum/minimum/maximum scalar aggregates do not implement distinct-value
+// cardinality.
 pub(in crate::card::sets) static COLLECTOR_S_CAGE: CardRecord = CardRecord::new(
     "Collector's Cage",
     "a33703bb-51c0-4d57-9d06-1148507ddc4f",
@@ -260,7 +262,9 @@ pub(in crate::card::sets) static SIMULACRUM_SYNTHESIZER: CardRecord = CardRecord
 );
 
 // BIG 7 — Worldwalker Helm
-// Audit: unsupported — Needs a prospective token-creation replacement that appends one token of another kind to the original creation batch; existing token replacements multiply counts or change token characteristics.
+// Audit: unsupported — Needs a prospective token-creation replacement that appends one token of
+// another kind to the original creation batch; existing token replacements multiply counts or
+// change token characteristics.
 pub(in crate::card::sets) static WORLDWALKER_HELM: CardRecord = CardRecord::new(
     "Worldwalker Helm",
     "b74ad496-05bc-4c5a-9027-b14df9c387ab",
@@ -496,7 +500,9 @@ pub(in crate::card::sets) static LEGION_EXTRUDER: CardRecord = CardRecord::new(
 );
 
 // BIG 13 — Memory Vessel
-// Audit: unsupported — Needs per-player exile-play permissions and hand-play prohibitions that expire as the activating player's next turn begins; the exile permission duration vocabulary does not express that boundary.
+// Audit: unsupported — Needs per-player exile-play permissions and hand-play prohibitions that
+// expire as the activating player's next turn begins; the exile permission duration vocabulary
+// does not express that boundary.
 pub(in crate::card::sets) static MEMORY_VESSEL: CardRecord = CardRecord::new(
     "Memory Vessel",
     "2e37a5cd-887d-4b41-97f7-ae0bba85436b",
@@ -600,7 +606,9 @@ pub(in crate::card::sets) static TERRITORY_FORGE: CardRecord = CardRecord::new(
 );
 
 // BIG 16 — Ancient Cornucopia
-// Audit: unsupported — Needs a once-per-turn use limit consumed only when the optional life gain is accepted; trigger limits are consumed when an ability triggers, including triggers whose optional effect is declined.
+// Audit: unsupported — Needs a once-per-turn use limit consumed only when the optional life
+// gain is accepted; trigger limits are consumed when an ability triggers, including triggers
+// whose optional effect is declined.
 pub(in crate::card::sets) static ANCIENT_CORNUCOPIA: CardRecord = CardRecord::new(
     "Ancient Cornucopia",
     "f977975d-0439-4731-b129-270cc4cdbb23",
@@ -674,7 +682,9 @@ pub(in crate::card::sets) static BRISTLEBUD_FARMER: CardRecord = CardRecord::new
 );
 
 // BIG 18 — Omenpath Journey
-// Audit: unsupported — Needs a library search constrained to distinct selected names and a random selection from this source's linked exiles; current bounded searches and random zone selections do not compose those group constraints.
+// Audit: unsupported — Needs a library search constrained to distinct selected names and a
+// random selection from this source's linked exiles; current bounded searches and random zone
+// selections do not compose those group constraints.
 pub(in crate::card::sets) static OMENPATH_JOURNEY: CardRecord = CardRecord::new(
     "Omenpath Journey",
     "c49c9b72-61c0-4e3a-a3a6-994b149398a9",
@@ -977,7 +987,9 @@ pub(in crate::card::sets) static NEXUS_OF_BECOMING: CardRecord = CardRecord::new
 );
 
 // BIG 26 — Sword of Wealth and Power
-// Audit: unsupported — Needs a delayed trigger that is consumed by the next matching cast and also expires at end of turn; installed triggers support Once or ThisTurn separately and discard nested per-turn trigger limits, so the latter copies every matching spell.
+// Audit: unsupported — Needs a delayed trigger that is consumed by the next matching cast and
+// also expires at end of turn; installed triggers support Once or ThisTurn separately and
+// discard nested per-turn trigger limits, so the latter copies every matching spell.
 pub(in crate::card::sets) static SWORD_OF_WEALTH_AND_POWER: CardRecord = CardRecord::new(
     "Sword of Wealth and Power",
     "ed9e5041-3c05-4a8a-9f00-081b01685d0c",
@@ -993,7 +1005,9 @@ const TORPOR_ORB_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // BIG 28 — Transmutation Font
-// Audit: unsupported — Needs an activation cost selecting exactly three artifact tokens with pairwise distinct names; existing sacrifice selections constrain count and individual objects but not names across the chosen group.
+// Audit: unsupported — Needs an activation cost selecting exactly three artifact tokens with
+// pairwise distinct names; existing sacrifice selections constrain count and individual objects
+// but not names across the chosen group.
 pub(in crate::card::sets) static TRANSMUTATION_FONT: CardRecord = CardRecord::new(
     "Transmutation Font",
     "e6cfe673-d688-499a-882b-4fe5418739e3",
@@ -1060,7 +1074,9 @@ pub(in crate::card::sets) static FOMORI_VAULT: CardRecord = CardRecord::new(
 );
 
 // BIG 30 — Tarnation Vista
-// Audit: unsupported — Needs a single mana activation producing one mana of each color represented by monocolored controlled permanents; the mana planner does not execute a sequence of independently conditional mana outputs.
+// Audit: unsupported — Needs a single mana activation producing one mana of each color
+// represented by monocolored controlled permanents; the mana planner does not execute a
+// sequence of independently conditional mana outputs.
 pub(in crate::card::sets) static TARNATION_VISTA: CardRecord = CardRecord::new(
     "Tarnation Vista",
     "962552a1-ec34-49e2-a23d-85dfb405d5e0",
@@ -1149,7 +1165,9 @@ const HOSTILE_INVESTIGATOR_ALTERNATE_1: PrintingRecord = PrintingRecord::alterna
 );
 
 // BIG 41 — Generous Plunderer
-// Audit: unsupported — Needs a reflexive trigger created by accepting this particular upkeep effect and retained after the Plunderer leaves; OptionalEffectTaken currently finds only battlefield listeners, losing the targeted Treasure gift when the source is gone.
+// Audit: unsupported — Needs a reflexive trigger created by accepting this particular upkeep
+// effect and retained after the Plunderer leaves; OptionalEffectTaken currently finds only
+// battlefield listeners, losing the targeted Treasure gift when the source is gone.
 pub(in crate::card::sets) static GENEROUS_PLUNDERER: CardRecord = CardRecord::new(
     "Generous Plunderer",
     "351eea06-f5be-4044-b3b3-cc6bf805abb1",

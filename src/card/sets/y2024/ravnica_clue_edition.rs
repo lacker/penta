@@ -57,14 +57,15 @@ pub(in crate::card::sets) static HEADLINER_SCARLETT: CardRecord = CardRecord::ne
     "Headliner Scarlett",
     "be77b98a-dd79-477c-8ab2-7ebf5637a89e",
     "Heonhwa",
-// Four mana that attacks the turn it lands into a board that cannot
+    // Four mana that attacks the turn it lands into a board that cannot
     // block, and then draws an extra card every turn it survives.
     CardRules::new_creature(mana_cost!("{3}{R}"), &["Human", "Warlock"], 3, 3)
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
             abilities::haste(),
             abilities::enters_trigger_with_targets(
-                "When Headliner Scarlett enters, creatures target player controls can't block this turn.",
+                "When Headliner Scarlett enters, creatures target player \
+                 controls can't block this turn.",
                 // "Creatures target player controls." Read as the trigger resolves, so a
                 // creature that arrives afterwards blocks perfectly well -- which is what
                 // makes this a tempo card rather than an evasion one.
@@ -87,8 +88,9 @@ pub(in crate::card::sets) static HEADLINER_SCARLETT: CardRecord = CardRecord::ne
             // around, and at its own cost: what the upkeep buys is a card a turn,
             // not a free one.
             AbilityDef::triggered(
-                "At the beginning of your upkeep, exile the top card of your library face down. You may \
-                 look at and play that card this turn.",
+                "At the beginning of your upkeep, exile the top card of your \
+                 library face down. You may look at and play that card this \
+                 turn.",
                 TriggerEventDef::StepBegins {
                     step: TurnStepDef::Upkeep,
                     player: PlayerRelation::You,
@@ -112,14 +114,15 @@ pub(in crate::card::sets) static CARNAGE_INTERPRETER: CardRecord = CardRecord::n
     "Carnage Interpreter",
     "f6fb576e-a4a4-496b-b553-3f81cc651210",
     "Justine Cruz",
-// Three mana for a 5/5 with menace and four cards' worth of Clues, paid
+    // Three mana for a 5/5 with menace and four cards' worth of Clues, paid
     // for with whatever was left in hand -- which is nothing, on the turn
     // the deck wants to cast it.
     CardRules::new_creature(mana_cost!("{1}{B/R}{B/R}"), &["Devil", "Detective"], 3, 3)
         .with_abilities(&[
             abilities::enters_trigger(
-                "When this creature enters, discard your hand, then investigate four times. (To \
-                 investigate, create a Clue token. It's an artifact with \"{2}, Sacrifice this token: \
+                "When this creature enters, discard your hand, then \
+                 investigate four times. (To investigate, create a Clue \
+                 token. It's an artifact with \"{2}, Sacrifice this token: \
                  Draw a card.\")",
                 // Four Clues in one instruction. Investigating four times is four events
                 // where the card is played, and nothing in the catalog watches for one, so
@@ -134,12 +137,14 @@ pub(in crate::card::sets) static CARNAGE_INTERPRETER: CardRecord = CardRecord::n
                         then: None,
                     },
                     EffectDef::CreateToken(
-                        CreateTokenDef::new(TokenDef::Literal(CLUE_TOKEN)).with_count(ValueDef::Constant(4)),
+                        CreateTokenDef::new(TokenDef::Literal(CLUE_TOKEN))
+                            .with_count(ValueDef::Constant(4)),
                     ),
                 ]),
             ),
             AbilityDef::static_ability(
-                "As long as you have one or fewer cards in hand, this creature gets +2/+2 and has menace.",
+                "As long as you have one or fewer cards in hand, this \
+                 creature gets +2/+2 and has menace.",
                 EffectDef::IfCondition {
                     // "One or fewer cards in hand", read live off the hand rather than off what
                     // the discard left: a card drawn afterwards turns the bonus off again.
@@ -155,7 +160,10 @@ pub(in crate::card::sets) static CARNAGE_INTERPRETER: CardRecord = CardRecord::n
                     then: &EffectDef::StaticApply {
                         recipient: EffectRecipientDef::Source,
                         effect: AppliedEffectDef::Composite(&[
-                            AppliedEffectDef::modify_power_toughness(ValueDef::Constant(2), ValueDef::Constant(2)),
+                            AppliedEffectDef::modify_power_toughness(
+                                ValueDef::Constant(2),
+                                ValueDef::Constant(2),
+                            ),
                             AppliedEffectDef::add_ability(&abilities::menace()),
                         ]),
                     },
@@ -169,7 +177,7 @@ pub(in crate::card::sets) static UNRULY_KRASIS: CardRecord = CardRecord::new(
     "Unruly Krasis",
     "a3b1b58d-b7f1-404f-aec6-b19cef4bebbd",
     "Billy Christian",
-CardRules::new_creature(
+    CardRules::new_creature(
         mana_cost!("{1}{G}{U}"),
         &["Shark", "Octopus", "Lizard"],
         4,
@@ -178,7 +186,9 @@ CardRules::new_creature(
     .with_abilities(&[
         abilities::trample(),
         AbilityDef::triggered_with_targets(
-            "Whenever this creature attacks, you may have the base power and toughness of another target creature you control become X/X until end of turn, where X is this creature's power.",
+            "Whenever this creature attacks, you may have the base power \
+             and toughness of another target creature you control become \
+             X/X until end of turn, where X is this creature's power.",
             TriggerEventDef::attacks(ObjectPredicateDef::Source),
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Object {
@@ -207,7 +217,8 @@ CardRules::new_creature(
             },
         ),
         AbilityDef::activated(
-            "{3}{G}{U}: Adapt 3. (If this creature has no +1/+1 counters on it, put three +1/+1 counters on it.)",
+            "{3}{G}{U}: Adapt 3. (If this creature has no +1/+1 counters \
+             on it, put three +1/+1 counters on it.)",
             &[CostDef::Mana(mana_cost!("{3}{G}{U}"))],
             // Adapt is a conditional, not a cost: the ability always activates and
             // always resolves, and finding a counter already there is what makes it do

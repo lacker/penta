@@ -62,7 +62,7 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
 // Audit: unsupported — CreateTokenDef rejects tapped/attacking entry modifiers for copy sources;
 // the copy-token path cannot create Satya's token already attacking. The end-step energy payment
 // alone would leave the attack trigger incomplete.
-pub(in crate::card::sets) static SATYA_AETHERFLUX_GENIUS_3: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static SATYA_AETHERFLUX_GENIUS: CardRecord = CardRecord::new(
     "Satya, Aetherflux Genius",
     "3b964bbe-54cc-425c-9cc6-c877f82af7ba",
     "Aaron Miller",
@@ -70,7 +70,8 @@ pub(in crate::card::sets) static SATYA_AETHERFLUX_GENIUS_3: CardRecord = CardRec
 );
 
 // M3C 4 — Ulalek, Fused Atrocity
-// Audit: unsupported — Needs grouped copying of every controlled spell and nonmana stack ability with independent target reselection.
+// Audit: unsupported — Needs grouped copying of every controlled spell and nonmana stack
+// ability with independent target reselection.
 pub(in crate::card::sets) static ULALEK_FUSED_ATROCITY: CardRecord = CardRecord::new(
     "Ulalek, Fused Atrocity",
     "fdad1b0e-d3cc-4d76-ae7e-fee12558cf2c",
@@ -86,24 +87,161 @@ static GOYF_TOUGHNESS_IN_ALL_GRAVEYARDS: SumValueDef = SumValueDef::new(
 );
 
 // M3C 32 — Eldrazi Confluence
-pub(in crate::card::sets) static ELDRAZI_CONFLUENCE_32: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static ELDRAZI_CONFLUENCE: CardRecord = CardRecord::new(
     "Eldrazi Confluence",
     "78ee2013-29dc-4879-9d59-1b492996d297",
     "Hristo D. Chukov",
-    CardRules::new_instant(mana_cost!("{2}{C}{C}")).with_abilities(&[
-AbilityDef::modal_spell("Choose three. You may choose the same mode more than once.", &[AbilityDef::spell_with_targets("Target creature gets +3/-3 until end of turn.", &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Creature))], EffectDef::Apply { recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY), effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(3), ValueDef::Constant(-3)), duration: ResolvedEffectDurationDef::UntilEndOfTurn }), AbilityDef::spell_with_targets("Exile target nonland permanent, then return it to the battlefield tapped under its owner's control.", &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)))], EffectDef::BindObjects(BindObjectsDef { source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::LegalTargets(TargetIndex::PRIMARY)), binding: Binding!("confluence_blink"), then: &EffectDef::Sequence(&[EffectDef::move_to_zone(EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!("confluence_blink"))), ZoneKind::Exile, ZonePlacement::Top), EffectDef::WithBattlefieldArrival { effect: &EffectDef::move_to_zone(EffectRecipientDef::objects(ObjectSetDef::ZoneChangeSuccessorsOfBinding(Binding!("confluence_blink"))), ZoneKind::Battlefield, ZonePlacement::Top), arrival: BattlefieldArrivalDef { controller: None, modifications: &[BattlefieldEntryModificationDef::Tapped], attachment: None, counters: None } }]) })), AbilityDef::spell("Create an Eldrazi Scion token.", EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(crate::card::TokenCharacteristics::creature(&["Eldrazi", "Scion"], &[], 1, 1).with_abilities(&[AbilityDef::activated_mana("Sacrifice this token: Add {C}.", &[CostDef::SacrificeSource], EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless)))])))))]).with_mode_selection(3, 3, true)
-]),
+    CardRules::new_instant(mana_cost!("{2}{C}{C}")).with_abilities(&[AbilityDef::modal_spell(
+        "Choose three. You may choose the same mode more than once.",
+        &[
+            AbilityDef::spell_with_targets(
+                "Target creature gets +3/-3 until end of turn.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(3),
+                        ValueDef::Constant(-3),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+            AbilityDef::spell_with_targets(
+                "Exile target nonland permanent, then return it to the \
+                 battlefield tapped under its owner's control.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                )],
+                EffectDef::BindObjects(BindObjectsDef {
+                    source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::LegalTargets(
+                        TargetIndex::PRIMARY,
+                    )),
+                    binding: Binding!("confluence_blink"),
+                    then: &EffectDef::Sequence(&[
+                        EffectDef::move_to_zone(
+                            EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!(
+                                "confluence_blink"
+                            ))),
+                            ZoneKind::Exile,
+                            ZonePlacement::Top,
+                        ),
+                        EffectDef::WithBattlefieldArrival {
+                            effect: &EffectDef::move_to_zone(
+                                EffectRecipientDef::objects(
+                                    ObjectSetDef::ZoneChangeSuccessorsOfBinding(Binding!(
+                                        "confluence_blink"
+                                    )),
+                                ),
+                                ZoneKind::Battlefield,
+                                ZonePlacement::Top,
+                            ),
+                            arrival: BattlefieldArrivalDef {
+                                controller: None,
+                                modifications: &[BattlefieldEntryModificationDef::Tapped],
+                                attachment: None,
+                                counters: None,
+                            },
+                        },
+                    ]),
+                }),
+            ),
+            AbilityDef::spell(
+                "Create an Eldrazi Scion token.",
+                EffectDef::CreateToken(crate::card::CreateTokenDef::new(
+                    crate::card::TokenDef::Literal(
+                        crate::card::TokenCharacteristics::creature(
+                            &["Eldrazi", "Scion"],
+                            &[],
+                            1,
+                            1,
+                        )
+                        .with_abilities(&[AbilityDef::activated_mana(
+                            "Sacrifice this token: Add {C}.",
+                            &[CostDef::SacrificeSource],
+                            EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless)),
+                        )]),
+                    ),
+                )),
+            ),
+        ],
+    )
+    .with_mode_selection(3, 3, true)]),
 );
 
 // M3C 33 — Eldritch Immunity
-pub(in crate::card::sets) static ELDRITCH_IMMUNITY_33: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static ELDRITCH_IMMUNITY: CardRecord = CardRecord::new(
     "Eldritch Immunity",
     "64a63b90-dbd6-4b66-8031-a3e230ada5b9",
     "Carlos Palma Cruchaga",
-    CardRules::new_instant(mana_cost!("{C}")).with_subtypes(&["Eldrazi"]).with_abilities(&[
-AbilityDef::spell_with_targets("Target creature you control gains protection from each color until end of turn.", &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object { object: ObjectPredicateDef::HasType(CardType::Creature), zones: &[ZoneKind::Battlefield], controller: Some(PlayerRelation::You), owner: None })], EffectDef::Apply { recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY), effect: AppliedEffectDef::Composite(&[AppliedEffectDef::add_ability(&abilities::protection_from_color(ManaColor::White)), AppliedEffectDef::add_ability(&abilities::protection_from_color(ManaColor::Blue)), AppliedEffectDef::add_ability(&abilities::protection_from_color(ManaColor::Black)), AppliedEffectDef::add_ability(&abilities::protection_from_color(ManaColor::Red)), AppliedEffectDef::add_ability(&abilities::protection_from_color(ManaColor::Green))]), duration: ResolvedEffectDurationDef::UntilEndOfTurn }),
-abilities::overload(&[CostDef::Mana(mana_cost!("{4}{C}"))], "Overload {4}{C} (You may cast this spell for its overload cost. If you do, change \"target\" in its text to \"each.\")", EffectDef::Apply { recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::HasType(CardType::Creature), &[ZoneKind::Battlefield], PlayerRelation::You), effect: AppliedEffectDef::Composite(&[AppliedEffectDef::add_ability(&abilities::protection_from_color(ManaColor::White)), AppliedEffectDef::add_ability(&abilities::protection_from_color(ManaColor::Blue)), AppliedEffectDef::add_ability(&abilities::protection_from_color(ManaColor::Black)), AppliedEffectDef::add_ability(&abilities::protection_from_color(ManaColor::Red)), AppliedEffectDef::add_ability(&abilities::protection_from_color(ManaColor::Green))]), duration: ResolvedEffectDurationDef::UntilEndOfTurn })
-]),
+    CardRules::new_instant(mana_cost!("{C}"))
+        .with_subtypes(&["Eldrazi"])
+        .with_abilities(&[
+            AbilityDef::spell_with_targets(
+                "Target creature you control gains protection from each \
+                 color until end of turn.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::You),
+                        owner: None,
+                    },
+                )],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::add_ability(&abilities::protection_from_color(
+                            ManaColor::White,
+                        )),
+                        AppliedEffectDef::add_ability(&abilities::protection_from_color(
+                            ManaColor::Blue,
+                        )),
+                        AppliedEffectDef::add_ability(&abilities::protection_from_color(
+                            ManaColor::Black,
+                        )),
+                        AppliedEffectDef::add_ability(&abilities::protection_from_color(
+                            ManaColor::Red,
+                        )),
+                        AppliedEffectDef::add_ability(&abilities::protection_from_color(
+                            ManaColor::Green,
+                        )),
+                    ]),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+            abilities::overload(
+                &[CostDef::Mana(mana_cost!("{4}{C}"))],
+                "Overload {4}{C} (You may cast this spell for its overload \
+                 cost. If you do, change \"target\" in its text to \"each.\")",
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::add_ability(&abilities::protection_from_color(
+                            ManaColor::White,
+                        )),
+                        AppliedEffectDef::add_ability(&abilities::protection_from_color(
+                            ManaColor::Blue,
+                        )),
+                        AppliedEffectDef::add_ability(&abilities::protection_from_color(
+                            ManaColor::Black,
+                        )),
+                        AppliedEffectDef::add_ability(&abilities::protection_from_color(
+                            ManaColor::Red,
+                        )),
+                        AppliedEffectDef::add_ability(&abilities::protection_from_color(
+                            ManaColor::Green,
+                        )),
+                    ]),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ]),
 );
 
 // M3C 50 — Barrowgoyf
@@ -113,13 +251,15 @@ pub(in crate::card::sets) static BARROWGOYF: CardRecord = CardRecord::new(
     "Barrowgoyf",
     "f979fc86-2c7e-49b3-965e-607a203cbfb1",
     "Igor Kieryluk",
-// Deathtouch and lifelink on a body that grows with every graveyard,
+    // Deathtouch and lifelink on a body that grows with every graveyard,
     // and every hit digs for the next one.
     CardRules::new_creature(mana_cost!("{2}{B}"), &["Lhurgoyf"], 0, 1).with_abilities(&[
         abilities::deathtouch(),
         abilities::lifelink(),
         AbilityDef::static_ability(
-            "Barrowgoyf's power is equal to the number of card types among cards in all graveyards and its toughness is equal to that number plus 1.",
+            "Barrowgoyf's power is equal to the number of card types \
+             among cards in all graveyards and its toughness is equal to \
+             that number plus 1.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Source,
                 // Each half is its own amount: the toughness is the count
@@ -131,7 +271,9 @@ pub(in crate::card::sets) static BARROWGOYF: CardRecord = CardRecord::new(
             },
         ),
         AbilityDef::triggered(
-            "Whenever this creature deals combat damage to a player, you may mill that many cards. If you do, you may put a creature card from among them into your hand.",
+            "Whenever this creature deals combat damage to a player, you \
+             may mill that many cards. If you do, you may put a creature \
+             card from among them into your hand.",
             TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
@@ -178,55 +320,119 @@ pub(in crate::card::sets) static PYROGOYF: CardRecord = CardRecord::new(
     "Pyrogoyf",
     "f60be310-4461-4b84-95f0-b2095108bd79",
     "Xabi Gaztelua",
-// The printed 0/1 is only what the corner says; the ability below is
+    // The printed 0/1 is only what the corner says; the ability below is
     // what it is, wherever it is.
-    CardRules::new_creature(mana_cost!("{3}{R}"), &["Lhurgoyf"], 0, 1)
-        .with_abilities(&[
-            AbilityDef::static_ability(
-                "Pyrogoyf's power is equal to the number of card types among cards in all graveyards and its toughness is equal to that number plus 1.",
-                EffectDef::StaticApply {
-                    recipient: EffectRecipientDef::Source,
-                    // The same shape Barrowgoyf has, counted over the same pile.
-                    effect: AppliedEffectDef::define_power_toughness(
-                        ValueDef::CardTypesAmongGraveyards(PlayerRelation::Any),
-                        ValueDef::Sum(&GOYF_TOUGHNESS_IN_ALL_GRAVEYARDS),
-                    ),
-                },
-            ),
-            AbilityDef::triggered_with_targets(
-                "Whenever this creature or another Lhurgoyf creature you control enters, that creature deals damage equal to its power to any target.",
-                // A Lhurgoyf you control -- this one included, which is what "this creature
-                // or another" comes to.
-                TriggerEventDef::zone_changed(ObjectPredicateDef::All(&[
+    CardRules::new_creature(mana_cost!("{3}{R}"), &["Lhurgoyf"], 0, 1).with_abilities(&[
+        AbilityDef::static_ability(
+            "Pyrogoyf's power is equal to the number of card types among \
+             cards in all graveyards and its toughness is equal to that \
+             number plus 1.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                // The same shape Barrowgoyf has, counted over the same pile.
+                effect: AppliedEffectDef::define_power_toughness(
+                    ValueDef::CardTypesAmongGraveyards(PlayerRelation::Any),
+                    ValueDef::Sum(&GOYF_TOUGHNESS_IN_ALL_GRAVEYARDS),
+                ),
+            },
+        ),
+        AbilityDef::triggered_with_targets(
+            "Whenever this creature or another Lhurgoyf creature you \
+             control enters, that creature deals damage equal to its \
+             power to any target.",
+            // A Lhurgoyf you control -- this one included, which is what "this creature
+            // or another" comes to.
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
                     ObjectPredicateDef::Subtype(SubtypeDef::Literal("Lhurgoyf")),
                     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                ]), None, Some(ZoneKind::Battlefield)),
-                &[AbilityTargetDef::exactly_one(
-                    AbilityTargetPredicate::AnyTarget,
-                )],
-                // "That creature" deals it, not Pyrogoyf: the Lhurgoyf that entered
-                // is both where the amount is read and what the damage is from, so
-                // protection and redirection answer the right object when the one
-                // entering is some other Lhurgoyf.
-                EffectDef::damage_from(
-                    ObjectRefDef::TriggeringObject,
-                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    ValueDef::TriggeringObjectPower,
-                ),
+                ]),
+                None,
+                Some(ZoneKind::Battlefield),
             ),
-        ]),
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
+            // "That creature" deals it, not Pyrogoyf: the Lhurgoyf that entered
+            // is both where the amount is read and what the damage is from, so
+            // protection and redirection answer the right object when the one
+            // entering is some other Lhurgoyf.
+            EffectDef::damage_from(
+                ObjectRefDef::TriggeringObject,
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::TriggeringObjectPower,
+            ),
+        ),
+    ]),
 );
 
 // M3C 61 — Siege-Gang Lieutenant
-pub(in crate::card::sets) static SIEGE_GANG_LIEUTENANT_61: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static SIEGE_GANG_LIEUTENANT: CardRecord = CardRecord::new(
     "Siege-Gang Lieutenant",
     "2567e5a7-e045-48f1-b749-b1920b948b9b",
     "Warren Mahy",
     CardRules::new_creature(mana_cost!("{3}{R}"), &["Goblin"], 2, 2).with_abilities(&[
-AbilityDef::triggered_if("Lieutenant — At the beginning of combat on your turn, if you control your commander, create two 1/1 red Goblin creature tokens. Those tokens gain haste until end of turn.", TriggerEventDef::StepBegins { step: TurnStepDef::BeginningOfCombat, player: PlayerRelation::You }, &TriggerConditionDef::ObjectCount { query: ObjectQueryDef::matching(ObjectPredicateDef::All(&[ObjectPredicateDef::Commander, ObjectPredicateDef::OwnedBy(PlayerRelation::You)]), &[ZoneKind::Battlefield], PlayerRelation::You), comparison: ComparisonDef::GreaterOrEqual, amount: 1 }, EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(crate::card::TokenCharacteristics::creature(&["Goblin"], &[ManaColor::Red], 1, 1))).with_count(ValueDef::Constant(2)).with_created_tokens(CreatedTokensDef { binding: Binding!("lieutenant_goblins"), then: &EffectDef::Apply { recipient: EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!("lieutenant_goblins"))), effect: AppliedEffectDef::add_ability(&abilities::haste()), duration: ResolvedEffectDurationDef::UntilEndOfTurn } }))),
-AbilityDef::activated_with_targets("{2}, Sacrifice a Goblin: This creature deals 1 damage to any target.", &[CostDef::Mana(mana_cost!("{2}")), CostDef::sacrifice_permanent(ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")))], &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)], EffectDef::damage(EffectRecipientDef::Target(TargetIndex::PRIMARY), ValueDef::Constant(1)))
-]),
+        AbilityDef::triggered_if(
+            "Lieutenant — At the beginning of combat on your turn, if \
+             you control your commander, create two 1/1 red Goblin \
+             creature tokens. Those tokens gain haste until end of turn.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::BeginningOfCombat,
+                player: PlayerRelation::You,
+            },
+            &TriggerConditionDef::ObjectCount {
+                query: ObjectQueryDef::matching(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Commander,
+                        ObjectPredicateDef::OwnedBy(PlayerRelation::You),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                comparison: ComparisonDef::GreaterOrEqual,
+                amount: 1,
+            },
+            EffectDef::CreateToken(
+                crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(
+                    crate::card::TokenCharacteristics::creature(
+                        &["Goblin"],
+                        &[ManaColor::Red],
+                        1,
+                        1,
+                    ),
+                ))
+                .with_count(ValueDef::Constant(2))
+                .with_created_tokens(CreatedTokensDef {
+                    binding: Binding!("lieutenant_goblins"),
+                    then: &EffectDef::Apply {
+                        recipient: EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!(
+                            "lieutenant_goblins"
+                        ))),
+                        effect: AppliedEffectDef::add_ability(&abilities::haste()),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                }),
+            ),
+        ),
+        AbilityDef::activated_with_targets(
+            "{2}, Sacrifice a Goblin: This creature deals 1 damage to \
+             any target.",
+            &[
+                CostDef::Mana(mana_cost!("{2}")),
+                CostDef::sacrifice_permanent(ObjectPredicateDef::Subtype(SubtypeDef::Literal(
+                    "Goblin",
+                ))),
+            ],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(1),
+            ),
+        ),
+    ]),
 );
 
 // M3C 70 — Bloodbraid Challenger
@@ -253,7 +459,7 @@ pub(in crate::card::sets) static BLOODBRAID_CHALLENGER: CardRecord = CardRecord:
 );
 
 // M3C 78 — Horizon of Progress
-pub(in crate::card::sets) static HORIZON_OF_PROGRESS_78: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static HORIZON_OF_PROGRESS: CardRecord = CardRecord::new(
     "Horizon of Progress",
     "5ae3a9c8-194e-421b-b77d-9c8784442651",
     "Julian Kok Joon Wen",
@@ -337,8 +543,10 @@ pub(in crate::card::sets) static PLANAR_NEXUS: CardRecord = CardRecord::new(
 );
 
 // M3C 131 — Lazotep Quarry
-// Audit: unsupported — CopyExceptionsDef can add creature types but cannot replace the copied creature types with Zombie. Adding Zombie would incorrectly preserve the exiled card's original creature types.
-pub(in crate::card::sets) static LAZOTEP_QUARRY_131: CardRecord = CardRecord::new(
+// Audit: unsupported — CopyExceptionsDef can add creature types but cannot replace the copied
+// creature types with Zombie. Adding Zombie would incorrectly preserve the exiled card's
+// original creature types.
+pub(in crate::card::sets) static LAZOTEP_QUARRY: CardRecord = CardRecord::new(
     "Lazotep Quarry",
     "656ddd43-c70c-4927-9a02-fef5732708da",
     "Sam Burley",
@@ -402,17 +610,17 @@ const BASILISK_GATE_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
-    &SATYA_AETHERFLUX_GENIUS_3,
+    &SATYA_AETHERFLUX_GENIUS,
     &ULALEK_FUSED_ATROCITY,
-    &ELDRAZI_CONFLUENCE_32,
-    &ELDRITCH_IMMUNITY_33,
+    &ELDRAZI_CONFLUENCE,
+    &ELDRITCH_IMMUNITY,
     &BARROWGOYF,
     &PYROGOYF,
-    &SIEGE_GANG_LIEUTENANT_61,
+    &SIEGE_GANG_LIEUTENANT,
     &BLOODBRAID_CHALLENGER,
-    &HORIZON_OF_PROGRESS_78,
+    &HORIZON_OF_PROGRESS,
     &PLANAR_NEXUS,
-    &LAZOTEP_QUARRY_131,
+    &LAZOTEP_QUARRY,
     &TALON_GATES_OF_MADARA,
 ];
 

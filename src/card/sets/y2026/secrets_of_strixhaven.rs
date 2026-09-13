@@ -218,7 +218,9 @@ pub(in crate::card::sets) static RANCOROUS_ARCHAIC: CardRecord = CardRecord::new
 );
 
 // SOS 3 — Sundering Archaic
-// Audit: unsupported — Needs a targeting value reading colors of mana spent from the source permanent's retained cast facts; ColorsOfManaSpent currently reads stack objects and cannot price this enters-trigger target limit.
+// Audit: unsupported — Needs a targeting value reading colors of mana spent from the source
+// permanent's retained cast facts; ColorsOfManaSpent currently reads stack objects and cannot
+// price this enters-trigger target limit.
 pub(in crate::card::sets) static SUNDERING_ARCHAIC: CardRecord = CardRecord::new(
     "Sundering Archaic",
     "c35b57e4-2358-46c0-8f09-cd27c10eaf2d",
@@ -257,7 +259,9 @@ pub(in crate::card::sets) static TOGETHER_AS_ONE: CardRecord = CardRecord::new(
 );
 
 // SOS 5 — Transcendent Archaic
-// Audit: unsupported — Needs the source permanent's retained cast-color count in the resolving enters trigger, plus a receipt counting cards actually drawn before deciding whether to discard two.
+// Audit: unsupported — Needs the source permanent's retained cast-color count in the resolving
+// enters trigger, plus a receipt counting cards actually drawn before deciding whether to
+// discard two.
 pub(in crate::card::sets) static TRANSCENDENT_ARCHAIC: CardRecord = CardRecord::new(
     "Transcendent Archaic",
     "1624c680-502b-474a-b9b2-888fe3ca008c",
@@ -266,7 +270,9 @@ pub(in crate::card::sets) static TRANSCENDENT_ARCHAIC: CardRecord = CardRecord::
 );
 
 // SOS 6 — Ajani's Response
-// Audit: unsupported — Needs the spell's selected target characteristics in its self-cost-reduction condition; the current self-cost reader cannot condition a discount on a tapped or attacking target.
+// Audit: unsupported — Needs the spell's selected target characteristics in its
+// self-cost-reduction condition; the current self-cost reader cannot condition a discount on a
+// tapped or attacking target.
 pub(in crate::card::sets) static AJANI_S_RESPONSE: CardRecord = CardRecord::new(
     "Ajani's Response",
     "9cd1417a-badc-4abd-a8ca-5b31f85c1072",
@@ -462,7 +468,9 @@ pub(in crate::card::sets) static EAGER_GLYPHMAGE: CardRecord = CardRecord::new(
 );
 
 // SOS 12 — Elite Interceptor
-// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy of the associated prepare spell while consuming that designation; the current face and cast-permission model does not represent prepare spells.
+// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy
+// of the associated prepare spell while consuming that designation; the current face and
+// cast-permission model does not represent prepare spells.
 pub(in crate::card::sets) static ELITE_INTERCEPTOR: CardRecord = CardRecord::new(
     "Elite Interceptor",
     "2970683e-e69c-42cb-a067-34abd56fb42b",
@@ -471,7 +479,9 @@ pub(in crate::card::sets) static ELITE_INTERCEPTOR: CardRecord = CardRecord::new
 );
 
 // SOS 13 — Emeritus of Truce // Swords to Plowshares
-// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy of the associated prepare spell while consuming that designation; the current face and cast-permission model does not represent prepare spells.
+// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy
+// of the associated prepare spell while consuming that designation; the current face and
+// cast-permission model does not represent prepare spells.
 pub(in crate::card::sets) static EMERITUS_OF_TRUCE: CardRecord = CardRecord::new(
     "Emeritus of Truce // Swords to Plowshares",
     "9869a753-5e41-4098-ab41-e75b4396ec50",
@@ -480,7 +490,8 @@ pub(in crate::card::sets) static EMERITUS_OF_TRUCE: CardRecord = CardRecord::new
 );
 
 // SOS 14 — Ennis, Debate Moderator
-// Audit: unsupported — Needs a turn-scoped history flag for cards entering exile that remains true after those cards leave exile.
+// Audit: unsupported — Needs a turn-scoped history flag for cards entering exile that remains
+// true after those cards leave exile.
 pub(in crate::card::sets) static ENNIS_DEBATE_MODERATOR: CardRecord = CardRecord::new(
     "Ennis, Debate Moderator",
     "d2ef31b4-24fa-4443-9f05-c8e99c3522e5",
@@ -615,7 +626,9 @@ pub(in crate::card::sets) static HARSH_ANNOTATION: CardRecord = CardRecord::new(
 );
 
 // SOS 19 — Honorbound Page // Forum's Favor
-// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy of the associated prepare spell while consuming that designation; the current face and cast-permission model does not represent prepare spells.
+// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy
+// of the associated prepare spell while consuming that designation; the current face and
+// cast-permission model does not represent prepare spells.
 pub(in crate::card::sets) static HONORBOUND_PAGE: CardRecord = CardRecord::new(
     "Honorbound Page // Forum's Favor",
     "79a70863-860f-4a7b-9cb2-d3546b689d44",
@@ -715,7 +728,9 @@ pub(in crate::card::sets) static INTERJECTION: CardRecord = CardRecord::new(
 );
 
 // SOS 23 — Joined Researchers // Secret Rendezvous
-// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy of the associated prepare spell while consuming that designation; the current face and cast-permission model does not represent prepare spells.
+// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy
+// of the associated prepare spell while consuming that designation; the current face and
+// cast-permission model does not represent prepare spells.
 pub(in crate::card::sets) static JOINED_RESEARCHERS: CardRecord = CardRecord::new(
     "Joined Researchers // Secret Rendezvous",
     "1ebaafe0-3a9a-424c-8698-d26e7be45343",
@@ -724,7 +739,8 @@ pub(in crate::card::sets) static JOINED_RESEARCHERS: CardRecord = CardRecord::ne
 );
 
 // SOS 24 — Owlin Historian
-// Audit: unsupported — Needs a grouped one-or-more-cards-leave-your-graveyard event; the current per-card zone-change event would trigger separately for cards moved together.
+// Audit: unsupported — Needs a grouped one-or-more-cards-leave-your-graveyard event; the
+// current per-card zone-change event would trigger separately for cards moved together.
 pub(in crate::card::sets) static OWLIN_HISTORIAN: CardRecord = CardRecord::new(
     "Owlin Historian",
     "5fe99be0-e1ec-485e-82f8-02eba7b82441",
@@ -835,7 +851,9 @@ pub(in crate::card::sets) static PRIMARY_RESEARCH: CardRecord = CardRecord::new(
 );
 
 // SOS 27 — Quill-Blade Laureate // Twofold Intent
-// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy of the associated prepare spell while consuming that designation; the current face and cast-permission model does not represent prepare spells.
+// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy
+// of the associated prepare spell while consuming that designation; the current face and
+// cast-permission model does not represent prepare spells.
 pub(in crate::card::sets) static QUILL_BLADE_LAUREATE: CardRecord = CardRecord::new(
     "Quill-Blade Laureate // Twofold Intent",
     "62a47835-5719-48c4-a740-a0c5f00dce11",
@@ -908,7 +926,8 @@ pub(in crate::card::sets) static REHEARSED_DEBATER: CardRecord = CardRecord::new
 );
 
 // SOS 30 — Restoration Seminar
-// Audit: unsupported — Needs per-player first-resolution history keyed by spell name and the persistent paradigm permission offering a free copy from exile at each first main phase.
+// Audit: unsupported — Needs per-player first-resolution history keyed by spell name and the
+// persistent paradigm permission offering a free copy from exile at each first main phase.
 pub(in crate::card::sets) static RESTORATION_SEMINAR: CardRecord = CardRecord::new(
     "Restoration Seminar",
     "9ebc4ecf-2fa2-4ab8-afde-3b91cf5eadb6",
@@ -967,7 +986,9 @@ pub(in crate::card::sets) static SOARING_STONEGLIDER: CardRecord = CardRecord::n
 );
 
 // SOS 33 — Spiritcall Enthusiast // Scrollboost
-// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy of the associated prepare spell while consuming that designation; the current face and cast-permission model does not represent prepare spells.
+// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy
+// of the associated prepare spell while consuming that designation; the current face and
+// cast-permission model does not represent prepare spells.
 pub(in crate::card::sets) static SPIRITCALL_ENTHUSIAST: CardRecord = CardRecord::new(
     "Spiritcall Enthusiast // Scrollboost",
     "c0b85569-2cb3-4b64-b0fe-418195c4dab0",
@@ -1102,7 +1123,9 @@ pub(in crate::card::sets) static BANISHING_BETRAYAL: CardRecord = CardRecord::ne
 );
 
 // SOS 39 — Brush Off
-// Audit: unsupported — Needs a full {1}{U} self-cost reduction gated by the selected spell target being an instant or sorcery; the current self-cost reader lacks selected-target context and colored reductions.
+// Audit: unsupported — Needs a full {1}{U} self-cost reduction gated by the selected spell
+// target being an instant or sorcery; the current self-cost reader lacks selected-target
+// context and colored reductions.
 pub(in crate::card::sets) static BRUSH_OFF: CardRecord = CardRecord::new(
     "Brush Off",
     "151eab82-d20f-433b-b3bb-1d44e2871d5c",
@@ -1111,7 +1134,9 @@ pub(in crate::card::sets) static BRUSH_OFF: CardRecord = CardRecord::new(
 );
 
 // SOS 40 — Campus Composer // Aqueous Aria
-// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy of the associated prepare spell while consuming that designation; the current face and cast-permission model does not represent prepare spells.
+// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy
+// of the associated prepare spell while consuming that designation; the current face and
+// cast-permission model does not represent prepare spells.
 pub(in crate::card::sets) static CAMPUS_COMPOSER: CardRecord = CardRecord::new(
     "Campus Composer // Aqueous Aria",
     "fac8ac39-ecb4-4142-bf37-131c65660a9b",
@@ -1151,7 +1176,9 @@ pub(in crate::card::sets) static CHASE_INSPIRATION: CardRecord = CardRecord::new
 );
 
 // SOS 42 — Deluge Virtuoso
-// Audit: unsupported — Needs a retained triggering-spell payment total to distinguish casts that spent at least five mana, including cost reductions, increases, alternate costs, and free casts.
+// Audit: unsupported — Needs a retained triggering-spell payment total to distinguish casts
+// that spent at least five mana, including cost reductions, increases, alternate costs, and
+// free casts.
 pub(in crate::card::sets) static DELUGE_VIRTUOSO: CardRecord = CardRecord::new(
     "Deluge Virtuoso",
     "2e3b16ed-8727-48fd-8b1f-c0cbd329385e",
@@ -1190,7 +1217,8 @@ pub(in crate::card::sets) static DIVERGENT_EQUATION: CardRecord = CardRecord::ne
 );
 
 // SOS 44 — Echocasting Symposium
-// Audit: unsupported — Needs per-player first-resolution history keyed by spell name and the persistent paradigm permission offering a free copy from exile at each first main phase.
+// Audit: unsupported — Needs per-player first-resolution history keyed by spell name and the
+// persistent paradigm permission offering a free copy from exile at each first main phase.
 pub(in crate::card::sets) static ECHOCASTING_SYMPOSIUM: CardRecord = CardRecord::new(
     "Echocasting Symposium",
     "5d7086a7-dc42-468a-a2cf-a6f89030f947",
@@ -1199,7 +1227,9 @@ pub(in crate::card::sets) static ECHOCASTING_SYMPOSIUM: CardRecord = CardRecord:
 );
 
 // SOS 45 — Emeritus of Ideation // Ancestral Recall
-// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy of the associated prepare spell while consuming that designation; the current face and cast-permission model does not represent prepare spells.
+// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy
+// of the associated prepare spell while consuming that designation; the current face and
+// cast-permission model does not represent prepare spells.
 pub(in crate::card::sets) static EMERITUS_OF_IDEATION: CardRecord = CardRecord::new(
     "Emeritus of Ideation // Ancestral Recall",
     "75961d36-acf6-425f-9698-0bf52af74f31",
@@ -1208,7 +1238,9 @@ pub(in crate::card::sets) static EMERITUS_OF_IDEATION: CardRecord = CardRecord::
 );
 
 // SOS 46 — Encouraging Aviator // Jump
-// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy of the associated prepare spell while consuming that designation; the current face and cast-permission model does not represent prepare spells.
+// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy
+// of the associated prepare spell while consuming that designation; the current face and
+// cast-permission model does not represent prepare spells.
 pub(in crate::card::sets) static ENCOURAGING_AVIATOR: CardRecord = CardRecord::new(
     "Encouraging Aviator // Jump",
     "72654b84-9902-41db-92ab-a3499c31221c",
@@ -1224,7 +1256,9 @@ const ESSENCE_SCATTER_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // SOS 48 — Exhibition Tidecaller
-// Audit: unsupported — Needs a retained triggering-spell payment total to distinguish casts that spent at least five mana, including cost reductions, increases, alternate costs, and free casts.
+// Audit: unsupported — Needs a retained triggering-spell payment total to distinguish casts
+// that spent at least five mana, including cost reductions, increases, alternate costs, and
+// free casts.
 pub(in crate::card::sets) static EXHIBITION_TIDECALLER: CardRecord = CardRecord::new(
     "Exhibition Tidecaller",
     "a58c364e-d0c5-41b9-8c8b-2e5a99468cc7",
@@ -1403,7 +1437,9 @@ pub(in crate::card::sets) static FRACTALIZE: CardRecord = CardRecord::new(
 );
 
 // SOS 52 — Harmonized Trio // Brainstorm
-// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy of the associated prepare spell while consuming that designation; the current face and cast-permission model does not represent prepare spells.
+// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy
+// of the associated prepare spell while consuming that designation; the current face and
+// cast-permission model does not represent prepare spells.
 pub(in crate::card::sets) static HARMONIZED_TRIO: CardRecord = CardRecord::new(
     "Harmonized Trio // Brainstorm",
     "617208ff-dd9b-44fd-a740-d3188081e5cc",
@@ -1484,7 +1520,9 @@ pub(in crate::card::sets) static HYDRO_CHANNELER: CardRecord = CardRecord::new(
 );
 
 // SOS 55 — Jadzi, Steward of Fate // Oracle's Gift
-// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy of the associated prepare spell while consuming that designation; the current face and cast-permission model does not represent prepare spells.
+// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy
+// of the associated prepare spell while consuming that designation; the current face and
+// cast-permission model does not represent prepare spells.
 pub(in crate::card::sets) static JADZI_STEWARD_OF_FATE: CardRecord = CardRecord::new(
     "Jadzi, Steward of Fate // Oracle's Gift",
     "a95b6baf-01e6-49c3-9a26-394b127d53c3",
@@ -1493,7 +1531,9 @@ pub(in crate::card::sets) static JADZI_STEWARD_OF_FATE: CardRecord = CardRecord:
 );
 
 // SOS 56 — Landscape Painter // Vibrant Idea
-// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy of the associated prepare spell while consuming that designation; the current face and cast-permission model does not represent prepare spells.
+// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy
+// of the associated prepare spell while consuming that designation; the current face and
+// cast-permission model does not represent prepare spells.
 pub(in crate::card::sets) static LANDSCAPE_PAINTER: CardRecord = CardRecord::new(
     "Landscape Painter // Vibrant Idea",
     "c0bd30c4-3cdf-4eda-8be5-0fb5e5ddddbf",
@@ -1502,7 +1542,8 @@ pub(in crate::card::sets) static LANDSCAPE_PAINTER: CardRecord = CardRecord::new
 );
 
 // SOS 57 — Mana Sculpt
-// Audit: unsupported — Needs the targeted spell's actual mana payment total, frozen before countering it and retained for the delayed next-main-phase mana trigger.
+// Audit: unsupported — Needs the targeted spell's actual mana payment total, frozen before
+// countering it and retained for the delayed next-main-phase mana trigger.
 pub(in crate::card::sets) static MANA_SCULPT: CardRecord = CardRecord::new(
     "Mana Sculpt",
     "200c8e3d-c53b-40c7-a29a-fccc1281bfc6",
@@ -1511,7 +1552,8 @@ pub(in crate::card::sets) static MANA_SCULPT: CardRecord = CardRecord::new(
 );
 
 // SOS 58 — Mathemagics
-// Audit: unsupported — Needs exponentiation of chosen X to compute the draw amount; existing scalar arithmetic does not express 2 to the power X.
+// Audit: unsupported — Needs exponentiation of chosen X to compute the draw amount; existing
+// scalar arithmetic does not express 2 to the power X.
 pub(in crate::card::sets) static MATHEMAGICS: CardRecord = CardRecord::new(
     "Mathemagics",
     "cd3cc172-5609-4bc8-9d84-50680fed6df9",
@@ -1520,7 +1562,8 @@ pub(in crate::card::sets) static MATHEMAGICS: CardRecord = CardRecord::new(
 );
 
 // SOS 59 — Matterbending Mage
-// Audit: unsupported — Needs a predicate for an X symbol in a card or spell's mana cost, including casts with X equal to zero; chosen X and mana value do not answer that question.
+// Audit: unsupported — Needs a predicate for an X symbol in a card or spell's mana cost,
+// including casts with X equal to zero; chosen X and mana value do not answer that question.
 pub(in crate::card::sets) static MATTERBENDING_MAGE: CardRecord = CardRecord::new(
     "Matterbending Mage",
     "460c6afd-cddf-4fea-925f-b27517ff250a",
@@ -1529,7 +1572,9 @@ pub(in crate::card::sets) static MATTERBENDING_MAGE: CardRecord = CardRecord::ne
 );
 
 // SOS 60 — Muse Seeker
-// Audit: unsupported — Needs a retained triggering-spell payment total to distinguish casts that spent at least five mana, including cost reductions, increases, alternate costs, and free casts.
+// Audit: unsupported — Needs a retained triggering-spell payment total to distinguish casts
+// that spent at least five mana, including cost reductions, increases, alternate costs, and
+// free casts.
 pub(in crate::card::sets) static MUSE_SEEKER: CardRecord = CardRecord::new(
     "Muse Seeker",
     "71cb4a6b-b500-4b28-bcdb-ec4188242f39",
@@ -1555,7 +1600,8 @@ pub(in crate::card::sets) static MUSE_S_ENCOURAGEMENT: CardRecord = CardRecord::
 );
 
 // SOS 62 — Orysa, Tide Choreographer
-// Audit: unsupported — Needs a self-cost condition reading the aggregate toughness of creatures you control; the self-cost evaluator does not evaluate aggregate object statistics.
+// Audit: unsupported — Needs a self-cost condition reading the aggregate toughness of creatures
+// you control; the self-cost evaluator does not evaluate aggregate object statistics.
 pub(in crate::card::sets) static ORYSA_TIDE_CHOREOGRAPHER: CardRecord = CardRecord::new(
     "Orysa, Tide Choreographer",
     "010ed379-63f5-452c-9cd4-00d51647c0e3",
@@ -1564,7 +1610,9 @@ pub(in crate::card::sets) static ORYSA_TIDE_CHOREOGRAPHER: CardRecord = CardReco
 );
 
 // SOS 63 — Pensive Professor
-// Audit: unsupported — Needs a cast-event value for the total mana actually spent, compared with this creature's power and toughness at trigger and resolution time; mana value and chosen X do not measure paid mana. Also needs a grouped one-or-more-counters-added event.
+// Audit: unsupported — Needs a cast-event value for the total mana actually spent, compared
+// with this creature's power and toughness at trigger and resolution time; mana value and
+// chosen X do not measure paid mana. Also needs a grouped one-or-more-counters-added event.
 pub(in crate::card::sets) static PENSIVE_PROFESSOR: CardRecord = CardRecord::new(
     "Pensive Professor",
     "66d47940-84f9-4479-8562-45e5148435d4",
@@ -1608,7 +1656,9 @@ const QUICK_STUDY_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // SOS 66 — Run Behind
-// Audit: unsupported — Needs the spell's selected target characteristics in its self-cost-reduction condition; the current self-cost reader cannot condition a discount on a tapped or attacking target.
+// Audit: unsupported — Needs the spell's selected target characteristics in its
+// self-cost-reduction condition; the current self-cost reader cannot condition a discount on a
+// tapped or attacking target.
 pub(in crate::card::sets) static RUN_BEHIND: CardRecord = CardRecord::new(
     "Run Behind",
     "40ecc34b-4cd0-4998-bbf4-7faa6fd3d7e0",
@@ -1617,7 +1667,9 @@ pub(in crate::card::sets) static RUN_BEHIND: CardRecord = CardRecord::new(
 );
 
 // SOS 67 — Skycoach Conductor // All Aboard
-// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy of the associated prepare spell while consuming that designation; the current face and cast-permission model does not represent prepare spells.
+// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy
+// of the associated prepare spell while consuming that designation; the current face and
+// cast-permission model does not represent prepare spells.
 pub(in crate::card::sets) static SKYCOACH_CONDUCTOR: CardRecord = CardRecord::new(
     "Skycoach Conductor // All Aboard",
     "4ecbca71-9a1d-44c5-b709-d6f565941d5e",
@@ -1626,7 +1678,9 @@ pub(in crate::card::sets) static SKYCOACH_CONDUCTOR: CardRecord = CardRecord::ne
 );
 
 // SOS 68 — Spellbook Seeker
-// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy of the associated prepare spell while consuming that designation; the current face and cast-permission model does not represent prepare spells.
+// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy
+// of the associated prepare spell while consuming that designation; the current face and
+// cast-permission model does not represent prepare spells.
 pub(in crate::card::sets) static SPELLBOOK_SEEKER: CardRecord = CardRecord::new(
     "Spellbook Seeker",
     "cc44eaa4-59a4-419e-b1d1-d92f354ff588",
@@ -1635,7 +1689,10 @@ pub(in crate::card::sets) static SPELLBOOK_SEEKER: CardRecord = CardRecord::new(
 );
 
 // SOS 69 — Tester of the Tangential
-// Audit: unsupported — Needs a cast-event value for the total mana actually spent, compared with this creature's power and toughness at trigger and resolution time; mana value and chosen X do not measure paid mana. Also needs an optional resolving X-mana payment with a retained X and a reflexive targeted counter-transfer trigger.
+// Audit: unsupported — Needs a cast-event value for the total mana actually spent, compared
+// with this creature's power and toughness at trigger and resolution time; mana value and
+// chosen X do not measure paid mana. Also needs an optional resolving X-mana payment with a
+// retained X and a reflexive targeted counter-transfer trigger.
 pub(in crate::card::sets) static TESTER_OF_THE_TANGENTIAL: CardRecord = CardRecord::new(
     "Tester of the Tangential",
     "bbd708ec-eef4-4f45-99dd-60e1cec4b991",
@@ -1644,7 +1701,9 @@ pub(in crate::card::sets) static TESTER_OF_THE_TANGENTIAL: CardRecord = CardReco
 );
 
 // SOS 70 — Textbook Tabulator
-// Audit: unsupported — Needs a cast-event value for the total mana actually spent, compared with this creature's power and toughness at trigger and resolution time; mana value and chosen X do not measure paid mana.
+// Audit: unsupported — Needs a cast-event value for the total mana actually spent, compared
+// with this creature's power and toughness at trigger and resolution time; mana value and
+// chosen X do not measure paid mana.
 pub(in crate::card::sets) static TEXTBOOK_TABULATOR: CardRecord = CardRecord::new(
     "Textbook Tabulator",
     "56f54fee-b48d-4582-8982-ca4c7b8ef553",
@@ -1687,7 +1746,9 @@ pub(in crate::card::sets) static WISDOM_OF_AGES: CardRecord = CardRecord::new(
 );
 
 // SOS 72 — Adventurous Eater // Have a Bite
-// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy of the associated prepare spell while consuming that designation; the current face and cast-permission model does not represent prepare spells.
+// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy
+// of the associated prepare spell while consuming that designation; the current face and
+// cast-permission model does not represent prepare spells.
 pub(in crate::card::sets) static ADVENTUROUS_EATER: CardRecord = CardRecord::new(
     "Adventurous Eater // Have a Bite",
     "d40cc7da-c731-418e-8547-7033d1939450",
@@ -1781,7 +1842,9 @@ pub(in crate::card::sets) static BURROG_BANEMAKER: CardRecord = CardRecord::new(
 );
 
 // SOS 76 — Cheerful Osteomancer // Raise Dead
-// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy of the associated prepare spell while consuming that designation; the current face and cast-permission model does not represent prepare spells.
+// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy
+// of the associated prepare spell while consuming that designation; the current face and
+// cast-permission model does not represent prepare spells.
 pub(in crate::card::sets) static CHEERFUL_OSTEOMANCER: CardRecord = CardRecord::new(
     "Cheerful Osteomancer // Raise Dead",
     "3c34660c-25e3-4ff5-9b2b-5554ded2bcc3",
@@ -1828,7 +1891,8 @@ pub(in crate::card::sets) static COST_OF_BRILLIANCE: CardRecord = CardRecord::ne
 );
 
 // SOS 78 — Decorum Dissertation
-// Audit: unsupported — Needs per-player first-resolution history keyed by spell name and the persistent paradigm permission offering a free copy from exile at each first main phase.
+// Audit: unsupported — Needs per-player first-resolution history keyed by spell name and the
+// persistent paradigm permission offering a free copy from exile at each first main phase.
 pub(in crate::card::sets) static DECORUM_DISSERTATION: CardRecord = CardRecord::new(
     "Decorum Dissertation",
     "f4ab2d9b-c73d-478d-aac7-4d3bb24296d2",
@@ -1896,7 +1960,9 @@ pub(in crate::card::sets) static DISSECTION_PRACTICE: CardRecord = CardRecord::n
 );
 
 // SOS 80 — Emeritus of Woe // Demonic Tutor
-// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy of the associated prepare spell while consuming that designation; the current face and cast-permission model does not represent prepare spells.
+// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy
+// of the associated prepare spell while consuming that designation; the current face and
+// cast-permission model does not represent prepare spells.
 pub(in crate::card::sets) static EMERITUS_OF_WOE: CardRecord = CardRecord::new(
     "Emeritus of Woe // Demonic Tutor",
     "7eb9e83d-515d-4911-a06b-9982200277b2",
@@ -1905,7 +1971,9 @@ pub(in crate::card::sets) static EMERITUS_OF_WOE: CardRecord = CardRecord::new(
 );
 
 // SOS 81 — End of the Hunt
-// Audit: unsupported — Needs a choice candidate set restricted to creatures and planeswalkers with the greatest mana value among those controlled by the targeted opponent; aggregate extrema are not available in choice-target predicate evaluation.
+// Audit: unsupported — Needs a choice candidate set restricted to creatures and planeswalkers
+// with the greatest mana value among those controlled by the targeted opponent; aggregate
+// extrema are not available in choice-target predicate evaluation.
 pub(in crate::card::sets) static END_OF_THE_HUNT: CardRecord = CardRecord::new(
     "End of the Hunt",
     "0809b51a-6a05-4f18-9bf4-1b8382da648f",
@@ -2004,7 +2072,9 @@ pub(in crate::card::sets) static FORUM_NECROSCRIBE: CardRecord = CardRecord::new
 );
 
 // SOS 85 — Grave Researcher // Reanimate
-// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy of the associated prepare spell while consuming that designation; the current face and cast-permission model does not represent prepare spells.
+// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy
+// of the associated prepare spell while consuming that designation; the current face and
+// cast-permission model does not represent prepare spells.
 pub(in crate::card::sets) static GRAVE_RESEARCHER: CardRecord = CardRecord::new(
     "Grave Researcher // Reanimate",
     "8b1e10e8-ea14-4761-910b-4072e2a18456",
@@ -2050,7 +2120,9 @@ pub(in crate::card::sets) static LECTURING_SCORNMAGE: CardRecord = CardRecord::n
 );
 
 // SOS 88 — Leech Collector // Bloodletting
-// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy of the associated prepare spell while consuming that designation; the current face and cast-permission model does not represent prepare spells.
+// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy
+// of the associated prepare spell while consuming that designation; the current face and
+// cast-permission model does not represent prepare spells.
 pub(in crate::card::sets) static LEECH_COLLECTOR: CardRecord = CardRecord::new(
     "Leech Collector // Bloodletting",
     "c715fe4c-c0e7-4342-811f-b74687851097",
@@ -2126,7 +2198,9 @@ pub(in crate::card::sets) static MELANCHOLIC_POET: CardRecord = CardRecord::new(
 );
 
 // SOS 91 — Moseo, Vein's New Dean
-// Audit: unsupported — Needs life gained this turn in graveyard target-predicate evaluation; the turn tally is available to effect and condition evaluation, but value_from_source cannot supply this trigger's mana-value limit.
+// Audit: unsupported — Needs life gained this turn in graveyard target-predicate evaluation;
+// the turn tally is available to effect and condition evaluation, but value_from_source cannot
+// supply this trigger's mana-value limit.
 pub(in crate::card::sets) static MOSEO_VEIN_S_NEW_DEAN: CardRecord = CardRecord::new(
     "Moseo, Vein's New Dean",
     "6877180c-22a1-4c4d-9178-316f4c34661b",
@@ -2172,7 +2246,8 @@ pub(in crate::card::sets) static POISONER_S_APPRENTICE: CardRecord = CardRecord:
 );
 
 // SOS 93 — Postmortem Professor
-// Audit: unsupported — Needs payment of an exile-other-graveyard-card cost on a graveyard activation; MoveToZone costs are currently offered only for battlefield sources.
+// Audit: unsupported — Needs payment of an exile-other-graveyard-card cost on a graveyard
+// activation; MoveToZone costs are currently offered only for battlefield sources.
 pub(in crate::card::sets) static POSTMORTEM_PROFESSOR: CardRecord = CardRecord::new(
     "Postmortem Professor",
     "174f5d7e-5d36-4d13-96bf-9b12cd644716",
@@ -2181,7 +2256,9 @@ pub(in crate::card::sets) static POSTMORTEM_PROFESSOR: CardRecord = CardRecord::
 );
 
 // SOS 94 — Pox Plague
-// Audit: unsupported — Needs per-affected-player quantities for simultaneous life loss and APNAP discard/sacrifice selections; ChooseForEachPlayer currently evaluates its amount in one fixed effect-controller context.
+// Audit: unsupported — Needs per-affected-player quantities for simultaneous life loss and
+// APNAP discard/sacrifice selections; ChooseForEachPlayer currently evaluates its amount in one
+// fixed effect-controller context.
 pub(in crate::card::sets) static POX_PLAGUE: CardRecord = CardRecord::new(
     "Pox Plague",
     "9c99c17b-ad3a-4859-97e8-469718b81cd9",
@@ -2256,7 +2333,8 @@ pub(in crate::card::sets) static RABID_ATTACK: CardRecord = CardRecord::new(
 );
 
 // SOS 97 — Ral Zarek, Guest Lecturer
-// Audit: unsupported — Needs a multi-coin-flip result counting heads and a player skip-next-N-turns effect driven by that result.
+// Audit: unsupported — Needs a multi-coin-flip result counting heads and a player
+// skip-next-N-turns effect driven by that result.
 pub(in crate::card::sets) static RAL_ZAREK_GUEST_LECTURER: CardRecord = CardRecord::new(
     "Ral Zarek, Guest Lecturer",
     "8fbad757-4081-42f7-a460-68ac03e77510",
@@ -2265,7 +2343,9 @@ pub(in crate::card::sets) static RAL_ZAREK_GUEST_LECTURER: CardRecord = CardReco
 );
 
 // SOS 98 — Scathing Shadelock // Venomous Words
-// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy of the associated prepare spell while consuming that designation; the current face and cast-permission model does not represent prepare spells.
+// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy
+// of the associated prepare spell while consuming that designation; the current face and
+// cast-permission model does not represent prepare spells.
 pub(in crate::card::sets) static SCATHING_SHADELOCK: CardRecord = CardRecord::new(
     "Scathing Shadelock // Venomous Words",
     "03e664cd-c3a6-4263-b2d8-dd99058fb8ec",
@@ -2274,7 +2354,9 @@ pub(in crate::card::sets) static SCATHING_SHADELOCK: CardRecord = CardRecord::ne
 );
 
 // SOS 99 — Scheming Silvertongue // Sign in Blood
-// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy of the associated prepare spell while consuming that designation; the current face and cast-permission model does not represent prepare spells.
+// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy
+// of the associated prepare spell while consuming that designation; the current face and
+// cast-permission model does not represent prepare spells.
 pub(in crate::card::sets) static SCHEMING_SILVERTONGUE: CardRecord = CardRecord::new(
     "Scheming Silvertongue // Sign in Blood",
     "fe85a124-0d8b-4a29-8df1-65888a39147f",
@@ -2467,7 +2549,9 @@ const ANCESTRAL_ANGER_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // SOS 107 — Archaic's Agony
-// Audit: unsupported — Needs exile-play permission expiring at the end of the specified player's next turn; the existing next-turn permission expires after the following opponent turn.
+// Audit: unsupported — Needs exile-play permission expiring at the end of the specified
+// player's next turn; the existing next-turn permission expires after the following opponent
+// turn.
 pub(in crate::card::sets) static ARCHAIC_S_AGONY: CardRecord = CardRecord::new(
     "Archaic's Agony",
     "8d99f8b2-5c1c-4059-bf68-c6b2e9e5b275",
@@ -2528,7 +2612,9 @@ pub(in crate::card::sets) static ARTISTIC_PROCESS: CardRecord = CardRecord::new(
 );
 
 // SOS 109 — Blazing Firesinger // Seething Song
-// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy of the associated prepare spell while consuming that designation; the current face and cast-permission model does not represent prepare spells.
+// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy
+// of the associated prepare spell while consuming that designation; the current face and
+// cast-permission model does not represent prepare spells.
 pub(in crate::card::sets) static BLAZING_FIRESINGER: CardRecord = CardRecord::new(
     "Blazing Firesinger // Seething Song",
     "3ba971e7-0b7a-4750-896f-7cf063e66b2a",
@@ -2555,7 +2641,9 @@ pub(in crate::card::sets) static CHARGING_STRIFEKNIGHT: CardRecord = CardRecord:
 );
 
 // SOS 111 — Choreographed Sparks
-// Audit: unsupported — Needs a spell-cannot-be-copied rule and ability grants to a copied creature spell that continue onto its resulting token, including the end-step sacrifice trigger.
+// Audit: unsupported — Needs a spell-cannot-be-copied rule and ability grants to a copied
+// creature spell that continue onto its resulting token, including the end-step sacrifice
+// trigger.
 pub(in crate::card::sets) static CHOREOGRAPHED_SPARKS: CardRecord = CardRecord::new(
     "Choreographed Sparks",
     "0cda4235-4dce-48fe-a8a5-2a952dedbe25",
@@ -2592,7 +2680,9 @@ pub(in crate::card::sets) static DUEL_TACTICS: CardRecord = CardRecord::new(
 );
 
 // SOS 113 — Emeritus of Conflict // Lightning Bolt
-// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy of the associated prepare spell while consuming that designation; the current face and cast-permission model does not represent prepare spells.
+// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy
+// of the associated prepare spell while consuming that designation; the current face and
+// cast-permission model does not represent prepare spells.
 pub(in crate::card::sets) static EMERITUS_OF_CONFLICT: CardRecord = CardRecord::new(
     "Emeritus of Conflict // Lightning Bolt",
     "f58dba4f-1abb-47a3-a684-29c32bab95c0",
@@ -2601,7 +2691,9 @@ pub(in crate::card::sets) static EMERITUS_OF_CONFLICT: CardRecord = CardRecord::
 );
 
 // SOS 114 — Expressive Firedancer
-// Audit: unsupported — Needs a retained triggering-spell payment total to distinguish casts that spent at least five mana, including cost reductions, increases, alternate costs, and free casts.
+// Audit: unsupported — Needs a retained triggering-spell payment total to distinguish casts
+// that spent at least five mana, including cost reductions, increases, alternate costs, and
+// free casts.
 pub(in crate::card::sets) static EXPRESSIVE_FIREDANCER: CardRecord = CardRecord::new(
     "Expressive Firedancer",
     "259b8c45-6241-4206-a34e-34c7f401f47b",
@@ -2639,7 +2731,8 @@ pub(in crate::card::sets) static FLASHBACK: CardRecord = CardRecord::new(
 );
 
 // SOS 116 — Garrison Excavator
-// Audit: unsupported — Needs a grouped one-or-more-cards-leave-your-graveyard event; the current per-card zone-change event would trigger separately for cards moved together.
+// Audit: unsupported — Needs a grouped one-or-more-cards-leave-your-graveyard event; the
+// current per-card zone-change event would trigger separately for cards moved together.
 pub(in crate::card::sets) static GARRISON_EXCAVATOR: CardRecord = CardRecord::new(
     "Garrison Excavator",
     "f11d2846-f181-4751-82ac-1e1ced6f46c7",
@@ -2648,7 +2741,9 @@ pub(in crate::card::sets) static GARRISON_EXCAVATOR: CardRecord = CardRecord::ne
 );
 
 // SOS 117 — Goblin Glasswright // Craft with Pride
-// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy of the associated prepare spell while consuming that designation; the current face and cast-permission model does not represent prepare spells.
+// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy
+// of the associated prepare spell while consuming that designation; the current face and
+// cast-permission model does not represent prepare spells.
 pub(in crate::card::sets) static GOBLIN_GLASSWRIGHT: CardRecord = CardRecord::new(
     "Goblin Glasswright // Craft with Pride",
     "c85c5f06-dd31-4e2c-97be-2f64d65069ea",
@@ -2715,7 +2810,10 @@ pub(in crate::card::sets) static IMPRACTICAL_JOKE: CardRecord = CardRecord::new(
 );
 
 // SOS 120 — Improvisation Capstone
-// Audit: unsupported — Needs per-player first-resolution history keyed by spell name and the persistent paradigm permission offering a free copy from exile at each first main phase. Also needs revealing/exiling until a cumulative mana-value threshold, followed by free casting any subset of the exiled spells.
+// Audit: unsupported — Needs per-player first-resolution history keyed by spell name and the
+// persistent paradigm permission offering a free copy from exile at each first main phase. Also
+// needs revealing/exiling until a cumulative mana-value threshold, followed by free casting any
+// subset of the exiled spells.
 pub(in crate::card::sets) static IMPROVISATION_CAPSTONE: CardRecord = CardRecord::new(
     "Improvisation Capstone",
     "d01fe6e9-49ee-4708-833e-75cd5a9f167c",
@@ -2765,7 +2863,9 @@ pub(in crate::card::sets) static LIVING_HISTORY: CardRecord = CardRecord::new(
 );
 
 // SOS 122 — Maelstrom Artisan // Rocket Volley
-// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy of the associated prepare spell while consuming that designation; the current face and cast-permission model does not represent prepare spells.
+// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy
+// of the associated prepare spell while consuming that designation; the current face and
+// cast-permission model does not represent prepare spells.
 pub(in crate::card::sets) static MAELSTROM_ARTISAN: CardRecord = CardRecord::new(
     "Maelstrom Artisan // Rocket Volley",
     "5c88391d-271f-4021-a5d9-158ebc1e6357",
@@ -2774,7 +2874,9 @@ pub(in crate::card::sets) static MAELSTROM_ARTISAN: CardRecord = CardRecord::new
 );
 
 // SOS 123 — Magmablood Archaic
-// Audit: unsupported — Needs colors of mana spent on the triggering instant or sorcery, retained in the cast-event context; ColorsOfManaSpent on the triggered ability reads that new stack object instead.
+// Audit: unsupported — Needs colors of mana spent on the triggering instant or sorcery,
+// retained in the cast-event context; ColorsOfManaSpent on the triggered ability reads that new
+// stack object instead.
 pub(in crate::card::sets) static MAGMABLOOD_ARCHAIC: CardRecord = CardRecord::new(
     "Magmablood Archaic",
     "4d611278-9948-4345-b4dd-aa6eaf21b233",
@@ -2819,7 +2921,9 @@ pub(in crate::card::sets) static MICA_READER_OF_RUINS: CardRecord = CardRecord::
 );
 
 // SOS 125 — Molten-Core Maestro
-// Audit: unsupported — Needs a retained triggering-spell payment total to distinguish casts that spent at least five mana, including cost reductions, increases, alternate costs, and free casts.
+// Audit: unsupported — Needs a retained triggering-spell payment total to distinguish casts
+// that spent at least five mana, including cost reductions, increases, alternate costs, and
+// free casts.
 pub(in crate::card::sets) static MOLTEN_CORE_MAESTRO: CardRecord = CardRecord::new(
     "Molten-Core Maestro",
     "326dfe32-3674-4a11-acd8-5ba62371235a",
@@ -2828,7 +2932,9 @@ pub(in crate::card::sets) static MOLTEN_CORE_MAESTRO: CardRecord = CardRecord::n
 );
 
 // SOS 126 — Pigment Wrangler // Striking Palette
-// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy of the associated prepare spell while consuming that designation; the current face and cast-permission model does not represent prepare spells.
+// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy
+// of the associated prepare spell while consuming that designation; the current face and
+// cast-permission model does not represent prepare spells.
 pub(in crate::card::sets) static PIGMENT_WRANGLER: CardRecord = CardRecord::new(
     "Pigment Wrangler // Striking Palette",
     "c2faf4cf-c4b6-4721-ac06-0e045dd9704a",
@@ -2846,7 +2952,8 @@ pub(in crate::card::sets) static REARING_EMBERMARE: CardRecord = CardRecord::new
 );
 
 // SOS 128 — Rubble Rouser
-// Audit: unsupported — Needs an immediate mana-ability payment that exiles a selected graveyard card and records completion for the separate reflexive damage trigger.
+// Audit: unsupported — Needs an immediate mana-ability payment that exiles a selected graveyard
+// card and records completion for the separate reflexive damage trigger.
 pub(in crate::card::sets) static RUBBLE_ROUSER: CardRecord = CardRecord::new(
     "Rubble Rouser",
     "afe61957-a9bb-42b0-98e8-b5fa418cbaff",
@@ -2862,7 +2969,9 @@ const SEIZE_THE_SPOILS_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // SOS 130 — Steal the Show
-// Audit: unsupported — Needs a zero-to-all discard selection with a follow-up counting the cards actually discarded after replacements; the current discard operation selects a fixed computed quantity.
+// Audit: unsupported — Needs a zero-to-all discard selection with a follow-up counting the
+// cards actually discarded after replacements; the current discard operation selects a fixed
+// computed quantity.
 pub(in crate::card::sets) static STEAL_THE_SHOW: CardRecord = CardRecord::new(
     "Steal the Show",
     "7ac6649f-980e-4404-9c05-458c30578ecc",
@@ -2871,7 +2980,9 @@ pub(in crate::card::sets) static STEAL_THE_SHOW: CardRecord = CardRecord::new(
 );
 
 // SOS 131 — Strife Scholar // Awaken the Ages
-// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy of the associated prepare spell while consuming that designation; the current face and cast-permission model does not represent prepare spells.
+// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy
+// of the associated prepare spell while consuming that designation; the current face and
+// cast-permission model does not represent prepare spells.
 pub(in crate::card::sets) static STRIFE_SCHOLAR: CardRecord = CardRecord::new(
     "Strife Scholar // Awaken the Ages",
     "8de79312-2046-425e-9919-49afe19be81b",
@@ -2880,7 +2991,8 @@ pub(in crate::card::sets) static STRIFE_SCHOLAR: CardRecord = CardRecord::new(
 );
 
 // SOS 132 — Tablet of Discovery
-// Audit: unsupported — Needs a one-turn play permission for the specific milled card while it remains in the graveyard, including land plays.
+// Audit: unsupported — Needs a one-turn play permission for the specific milled card while it
+// remains in the graveyard, including land plays.
 pub(in crate::card::sets) static TABLET_OF_DISCOVERY: CardRecord = CardRecord::new(
     "Tablet of Discovery",
     "13059664-a940-4a66-8100-0c90b884bab4",
@@ -2889,7 +3001,9 @@ pub(in crate::card::sets) static TABLET_OF_DISCOVERY: CardRecord = CardRecord::n
 );
 
 // SOS 133 — Tackle Artist
-// Audit: unsupported — Needs a retained triggering-spell payment total to distinguish casts that spent at least five mana, including cost reductions, increases, alternate costs, and free casts.
+// Audit: unsupported — Needs a retained triggering-spell payment total to distinguish casts
+// that spent at least five mana, including cost reductions, increases, alternate costs, and
+// free casts.
 pub(in crate::card::sets) static TACKLE_ARTIST: CardRecord = CardRecord::new(
     "Tackle Artist",
     "b87e2474-98c1-4c1a-91ed-340b72d31653",
@@ -2898,7 +3012,9 @@ pub(in crate::card::sets) static TACKLE_ARTIST: CardRecord = CardRecord::new(
 );
 
 // SOS 134 — Thunderdrum Soloist
-// Audit: unsupported — Needs a retained triggering-spell payment total to distinguish casts that spent at least five mana, including cost reductions, increases, alternate costs, and free casts.
+// Audit: unsupported — Needs a retained triggering-spell payment total to distinguish casts
+// that spent at least five mana, including cost reductions, increases, alternate costs, and
+// free casts.
 pub(in crate::card::sets) static THUNDERDRUM_SOLOIST: CardRecord = CardRecord::new(
     "Thunderdrum Soloist",
     "590d1d95-ed13-4121-899f-f5a2d8a6617a",
@@ -2978,7 +3094,8 @@ pub(in crate::card::sets) static ZEALOUS_LORECASTER: CardRecord = CardRecord::ne
 );
 
 // SOS 138 — Aberrant Manawurm
-// Audit: unsupported — Needs the triggering spell's actual mana payment total as a resolving effect value, rather than its mana value or chosen X.
+// Audit: unsupported — Needs the triggering spell's actual mana payment total as a resolving
+// effect value, rather than its mana value or chosen X.
 pub(in crate::card::sets) static ABERRANT_MANAWURM: CardRecord = CardRecord::new(
     "Aberrant Manawurm",
     "797131cf-d80d-4050-bebd-2ce1d7fae5d0",
@@ -3043,7 +3160,10 @@ pub(in crate::card::sets) static ADDITIVE_EVOLUTION: CardRecord = CardRecord::ne
 );
 
 // SOS 140 — Ambitious Augmenter
-// Audit: unsupported — Needs a cast-event value for the total mana actually spent, compared with this creature's power and toughness at trigger and resolution time; mana value and chosen X do not measure paid mana. Also needs copying every counter kind and quantity from the dying source's last-known state.
+// Audit: unsupported — Needs a cast-event value for the total mana actually spent, compared
+// with this creature's power and toughness at trigger and resolution time; mana value and
+// chosen X do not measure paid mana. Also needs copying every counter kind and quantity from
+// the dying source's last-known state.
 pub(in crate::card::sets) static AMBITIOUS_AUGMENTER: CardRecord = CardRecord::new(
     "Ambitious Augmenter",
     "85629088-2007-4db5-9397-bac12a3d7498",
@@ -3234,7 +3354,9 @@ pub(in crate::card::sets) static EFFLORESCENCE: CardRecord = CardRecord::new(
 );
 
 // SOS 145 — Emeritus of Abundance // Regrowth
-// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy of the associated prepare spell while consuming that designation; the current face and cast-permission model does not represent prepare spells.
+// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy
+// of the associated prepare spell while consuming that designation; the current face and
+// cast-permission model does not represent prepare spells.
 pub(in crate::card::sets) static EMERITUS_OF_ABUNDANCE: CardRecord = CardRecord::new(
     "Emeritus of Abundance // Regrowth",
     "ac095763-6f4e-4d4e-9c99-414646368f8d",
@@ -3431,7 +3553,8 @@ pub(in crate::card::sets) static FOLLOW_THE_LUMARETS: CardRecord = CardRecord::n
 );
 
 // SOS 149 — Germination Practicum
-// Audit: unsupported — Needs per-player first-resolution history keyed by spell name and the persistent paradigm permission offering a free copy from exile at each first main phase.
+// Audit: unsupported — Needs per-player first-resolution history keyed by spell name and the
+// persistent paradigm permission offering a free copy from exile at each first main phase.
 pub(in crate::card::sets) static GERMINATION_PRACTICUM: CardRecord = CardRecord::new(
     "Germination Practicum",
     "abe8332f-c76e-44e2-9427-d1228453abec",
@@ -3496,7 +3619,9 @@ pub(in crate::card::sets) static GLORIOUS_DECAY: CardRecord = CardRecord::new(
 );
 
 // SOS 151 — Hungry Graffalon
-// Audit: unsupported — Needs a cast-event value for the total mana actually spent, compared with this creature's power and toughness at trigger and resolution time; mana value and chosen X do not measure paid mana.
+// Audit: unsupported — Needs a cast-event value for the total mana actually spent, compared
+// with this creature's power and toughness at trigger and resolution time; mana value and
+// chosen X do not measure paid mana.
 pub(in crate::card::sets) static HUNGRY_GRAFFALON: CardRecord = CardRecord::new(
     "Hungry Graffalon",
     "030b1272-5990-4bc9-8fc1-82cc05602060",
@@ -3505,7 +3630,9 @@ pub(in crate::card::sets) static HUNGRY_GRAFFALON: CardRecord = CardRecord::new(
 );
 
 // SOS 152 — Infirmary Healer // Stream of Life
-// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy of the associated prepare spell while consuming that designation; the current face and cast-permission model does not represent prepare spells.
+// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy
+// of the associated prepare spell while consuming that designation; the current face and
+// cast-permission model does not represent prepare spells.
 pub(in crate::card::sets) static INFIRMARY_HEALER: CardRecord = CardRecord::new(
     "Infirmary Healer // Stream of Life",
     "911442e3-3003-4683-a766-e791e9553667",
@@ -3718,7 +3845,9 @@ pub(in crate::card::sets) static SHOPKEEPER_S_BANE: CardRecord = CardRecord::new
 );
 
 // SOS 160 — Slumbering Trudge
-// Audit: unsupported — Needs entry-value subtraction for three minus cast X and an entry replacement condition comparing that cast X with two; current entry-value and condition readers support neither composition.
+// Audit: unsupported — Needs entry-value subtraction for three minus cast X and an entry
+// replacement condition comparing that cast X with two; current entry-value and condition
+// readers support neither composition.
 pub(in crate::card::sets) static SLUMBERING_TRUDGE: CardRecord = CardRecord::new(
     "Slumbering Trudge",
     "3a925370-58ac-4181-9acc-db7b0e0abf17",
@@ -3760,7 +3889,9 @@ pub(in crate::card::sets) static SNARL_SONG: CardRecord = CardRecord::new(
 );
 
 // SOS 162 — Studious First-Year // Rampant Growth
-// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy of the associated prepare spell while consuming that designation; the current face and cast-permission model does not represent prepare spells.
+// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy
+// of the associated prepare spell while consuming that designation; the current face and
+// cast-permission model does not represent prepare spells.
 pub(in crate::card::sets) static STUDIOUS_FIRST_YEAR: CardRecord = CardRecord::new(
     "Studious First-Year // Rampant Growth",
     "24f888dd-785c-4089-a89c-03f9080130ed",
@@ -3850,7 +3981,9 @@ pub(in crate::card::sets) static THORNFIST_STRIKER: CardRecord = CardRecord::new
 );
 
 // SOS 165 — Topiary Lecturer
-// Audit: unsupported — Needs a cast-event value for the total mana actually spent, compared with this creature's power and toughness at trigger and resolution time; mana value and chosen X do not measure paid mana.
+// Audit: unsupported — Needs a cast-event value for the total mana actually spent, compared
+// with this creature's power and toughness at trigger and resolution time; mana value and
+// chosen X do not measure paid mana.
 pub(in crate::card::sets) static TOPIARY_LECTURER: CardRecord = CardRecord::new(
     "Topiary Lecturer",
     "4f16a1c2-0a80-45e4-b025-3aa0c0b03812",
@@ -3859,7 +3992,9 @@ pub(in crate::card::sets) static TOPIARY_LECTURER: CardRecord = CardRecord::new(
 );
 
 // SOS 166 — Vastlands Scavenger // Bind to Life
-// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy of the associated prepare spell while consuming that designation; the current face and cast-permission model does not represent prepare spells.
+// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy
+// of the associated prepare spell while consuming that designation; the current face and
+// cast-permission model does not represent prepare spells.
 pub(in crate::card::sets) static VASTLANDS_SCAVENGER: CardRecord = CardRecord::new(
     "Vastlands Scavenger // Bind to Life",
     "476b6a4d-cc05-4e98-8a45-a5c6582ec514",
@@ -3898,7 +4033,8 @@ pub(in crate::card::sets) static WILD_HYPOTHESIS: CardRecord = CardRecord::new(
 );
 
 // SOS 168 — Wildgrowth Archaic
-// Audit: unsupported — Needs a cast-trigger value reading the creature spell's paid colors and an entry modification attached to that particular spell until it resolves.
+// Audit: unsupported — Needs a cast-trigger value reading the creature spell's paid colors and
+// an entry modification attached to that particular spell until it resolves.
 pub(in crate::card::sets) static WILDGROWTH_ARCHAIC: CardRecord = CardRecord::new(
     "Wildgrowth Archaic",
     "0e6e2188-7203-4d10-a838-27233f283cd5",
@@ -3907,7 +4043,9 @@ pub(in crate::card::sets) static WILDGROWTH_ARCHAIC: CardRecord = CardRecord::ne
 );
 
 // SOS 169 — Zimone's Experiment
-// Audit: unsupported — Needs a simultaneous move with per-card battlefield or hand destinations, including a destination choice when a revealed card is both a land and a creature; sequential collection moves do not represent that overlapping instruction.
+// Audit: unsupported — Needs a simultaneous move with per-card battlefield or hand
+// destinations, including a destination choice when a revealed card is both a land and a
+// creature; sequential collection moves do not represent that overlapping instruction.
 pub(in crate::card::sets) static ZIMONE_S_EXPERIMENT: CardRecord = CardRecord::new(
     "Zimone's Experiment",
     "a6597852-4267-4ea6-a391-f927e4833be2",
@@ -3916,7 +4054,9 @@ pub(in crate::card::sets) static ZIMONE_S_EXPERIMENT: CardRecord = CardRecord::n
 );
 
 // SOS 170 — Abigale, Poet Laureate // Heroic Stanza
-// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy of the associated prepare spell while consuming that designation; the current face and cast-permission model does not represent prepare spells.
+// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy
+// of the associated prepare spell while consuming that designation; the current face and
+// cast-permission model does not represent prepare spells.
 pub(in crate::card::sets) static ABIGALE_POET_LAUREATE: CardRecord = CardRecord::new(
     "Abigale, Poet Laureate // Heroic Stanza",
     "77285d12-e658-4eb3-ba13-ff202afab9c8",
@@ -4003,7 +4143,8 @@ pub(in crate::card::sets) static APPLIED_GEOMETRY: CardRecord = CardRecord::new(
 );
 
 // SOS 173 — Ark of Hunger
-// Audit: unsupported — Needs a grouped one-or-more-cards-leave-your-graveyard event and a one-turn play permission for the exact milled card in the graveyard, including lands.
+// Audit: unsupported — Needs a grouped one-or-more-cards-leave-your-graveyard event and a
+// one-turn play permission for the exact milled card in the graveyard, including lands.
 pub(in crate::card::sets) static ARK_OF_HUNGER: CardRecord = CardRecord::new(
     "Ark of Hunger",
     "79d01c19-162b-4a12-9e27-18366d95eaa0",
@@ -4081,7 +4222,9 @@ pub(in crate::card::sets) static AZIZA_MAGE_TOWER_CAPTAIN: CardRecord = CardReco
 );
 
 // SOS 175 — Berta, Wise Extrapolator
-// Audit: unsupported — Needs a cast-event value for the total mana actually spent, compared with this creature's power and toughness at trigger and resolution time; mana value and chosen X do not measure paid mana. Also needs a grouped one-or-more-counters-added event.
+// Audit: unsupported — Needs a cast-event value for the total mana actually spent, compared
+// with this creature's power and toughness at trigger and resolution time; mana value and
+// chosen X do not measure paid mana. Also needs a grouped one-or-more-counters-added event.
 pub(in crate::card::sets) static BERTA_WISE_EXTRAPOLATOR: CardRecord = CardRecord::new(
     "Berta, Wise Extrapolator",
     "75f89c36-c81d-4580-9a5c-218fed0c5c9a",
@@ -4263,7 +4406,9 @@ pub(in crate::card::sets) static CAULDRON_OF_ESSENCE: CardRecord = CardRecord::n
 );
 
 // SOS 180 — Colorstorm Stallion
-// Audit: unsupported — Needs a retained triggering-spell payment total to distinguish casts that spent at least five mana, including cost reductions, increases, alternate costs, and free casts.
+// Audit: unsupported — Needs a retained triggering-spell payment total to distinguish casts
+// that spent at least five mana, including cost reductions, increases, alternate costs, and
+// free casts.
 pub(in crate::card::sets) static COLORSTORM_STALLION: CardRecord = CardRecord::new(
     "Colorstorm Stallion",
     "f5b54d46-2caf-4d1b-8be1-dbd9e9dce058",
@@ -4272,7 +4417,9 @@ pub(in crate::card::sets) static COLORSTORM_STALLION: CardRecord = CardRecord::n
 );
 
 // SOS 181 — Colossus of the Blood Age
-// Audit: unsupported — Needs a zero-to-all discard selection with a follow-up counting the cards actually discarded after replacements; the current discard operation selects a fixed computed quantity.
+// Audit: unsupported — Needs a zero-to-all discard selection with a follow-up counting the
+// cards actually discarded after replacements; the current discard operation selects a fixed
+// computed quantity.
 pub(in crate::card::sets) static COLOSSUS_OF_THE_BLOOD_AGE: CardRecord = CardRecord::new(
     "Colossus of the Blood Age",
     "bfa7f0a4-6b65-4e53-ba00-848df260d8e3",
@@ -4360,7 +4507,9 @@ pub(in crate::card::sets) static CONCILIATOR_S_DUELIST: CardRecord = CardRecord:
 );
 
 // SOS 183 — Cuboid Colony
-// Audit: unsupported — Needs a cast-event value for the total mana actually spent, compared with this creature's power and toughness at trigger and resolution time; mana value and chosen X do not measure paid mana.
+// Audit: unsupported — Needs a cast-event value for the total mana actually spent, compared
+// with this creature's power and toughness at trigger and resolution time; mana value and
+// chosen X do not measure paid mana.
 pub(in crate::card::sets) static CUBOID_COLONY: CardRecord = CardRecord::new(
     "Cuboid Colony",
     "6384d135-7780-4d75-9e95-71bce506948e",
@@ -4434,7 +4583,9 @@ pub(in crate::card::sets) static DINA_S_GUIDANCE: CardRecord = CardRecord::new(
 );
 
 // SOS 185 — Elemental Mascot
-// Audit: unsupported — Needs a retained triggering-spell payment total to distinguish casts that spent at least five mana, including cost reductions, increases, alternate costs, and free casts. Its exile permission also needs to expire at the end of your next turn.
+// Audit: unsupported — Needs a retained triggering-spell payment total to distinguish casts
+// that spent at least five mana, including cost reductions, increases, alternate costs, and
+// free casts. Its exile permission also needs to expire at the end of your next turn.
 pub(in crate::card::sets) static ELEMENTAL_MASCOT: CardRecord = CardRecord::new(
     "Elemental Mascot",
     "c507eb1c-48e9-4d28-bb2d-71f2a9df9ab0",
@@ -4484,7 +4635,8 @@ pub(in crate::card::sets) static EMBRACE_THE_PARADOX: CardRecord = CardRecord::n
 );
 
 // SOS 187 — Essenceknit Scholar
-// Audit: unsupported — Needs per-controller creature-death history for the current turn; the existing creature-died flag records deaths globally.
+// Audit: unsupported — Needs per-controller creature-death history for the current turn; the
+// existing creature-died flag records deaths globally.
 pub(in crate::card::sets) static ESSENCEKNIT_SCHOLAR: CardRecord = CardRecord::new(
     "Essenceknit Scholar",
     "2a3cba55-3fae-4d45-ae03-4d662ec13718",
@@ -4558,7 +4710,10 @@ pub(in crate::card::sets) static FRACTAL_MASCOT: CardRecord = CardRecord::new(
 );
 
 // SOS 190 — Fractal Tender
-// Audit: unsupported — Needs a cast-event value for the total mana actually spent, compared with this creature's power and toughness at trigger and resolution time; mana value and chosen X do not measure paid mana. Also needs a per-object, per-player counter-added-this-turn history.
+// Audit: unsupported — Needs a cast-event value for the total mana actually spent, compared
+// with this creature's power and toughness at trigger and resolution time; mana value and
+// chosen X do not measure paid mana. Also needs a per-object, per-player
+// counter-added-this-turn history.
 pub(in crate::card::sets) static FRACTAL_TENDER: CardRecord = CardRecord::new(
     "Fractal Tender",
     "ea7f5262-4ddb-410a-be72-4bac6af9b4ec",
@@ -4567,7 +4722,9 @@ pub(in crate::card::sets) static FRACTAL_TENDER: CardRecord = CardRecord::new(
 );
 
 // SOS 191 — Geometer's Arthropod
-// Audit: unsupported — Needs a predicate for an X symbol in a card or spell's mana cost, including casts with X equal to zero; chosen X and mana value do not answer that question. Also needs the triggering spell's chosen X, rather than the new triggered ability's X.
+// Audit: unsupported — Needs a predicate for an X symbol in a card or spell's mana cost,
+// including casts with X equal to zero; chosen X and mana value do not answer that question.
+// Also needs the triggering spell's chosen X, rather than the new triggered ability's X.
 pub(in crate::card::sets) static GEOMETER_S_ARTHROPOD: CardRecord = CardRecord::new(
     "Geometer's Arthropod",
     "ec0f3613-1edc-40e8-8f26-2e5ef13be55e",
@@ -4638,7 +4795,8 @@ pub(in crate::card::sets) static GROWTH_CURVE: CardRecord = CardRecord::new(
 );
 
 // SOS 194 — Hardened Academic
-// Audit: unsupported — Needs a grouped one-or-more-cards-leave-your-graveyard event; the current per-card zone-change event would trigger separately for cards moved together.
+// Audit: unsupported — Needs a grouped one-or-more-cards-leave-your-graveyard event; the
+// current per-card zone-change event would trigger separately for cards moved together.
 pub(in crate::card::sets) static HARDENED_ACADEMIC: CardRecord = CardRecord::new(
     "Hardened Academic",
     "06c9e8a7-2840-4cff-90af-c6636e598f78",
@@ -4745,7 +4903,9 @@ pub(in crate::card::sets) static KILLIAN_S_CONFIDENCE: CardRecord = CardRecord::
 );
 
 // SOS 198 — Kirol, History Buff // Pack a Punch
-// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy of the associated prepare spell while consuming that designation; the current face and cast-permission model does not represent prepare spells.
+// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy
+// of the associated prepare spell while consuming that designation; the current face and
+// cast-permission model does not represent prepare spells.
 pub(in crate::card::sets) static KIROL_HISTORY_BUFF: CardRecord = CardRecord::new(
     "Kirol, History Buff // Pack a Punch",
     "676ba521-66e4-42cf-a315-70d03cb7334e",
@@ -4754,7 +4914,9 @@ pub(in crate::card::sets) static KIROL_HISTORY_BUFF: CardRecord = CardRecord::ne
 );
 
 // SOS 199 — Lluwen, Exchange Student // Pest Friend
-// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy of the associated prepare spell while consuming that designation; the current face and cast-permission model does not represent prepare spells.
+// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy
+// of the associated prepare spell while consuming that designation; the current face and
+// cast-permission model does not represent prepare spells.
 pub(in crate::card::sets) static LLUWEN_EXCHANGE_STUDENT: CardRecord = CardRecord::new(
     "Lluwen, Exchange Student // Pest Friend",
     "a0bcb638-c3c8-4973-9537-5c471f43f34f",
@@ -4837,7 +4999,9 @@ pub(in crate::card::sets) static LOREHOLD_CHARM: CardRecord = CardRecord::new(
 );
 
 // SOS 201 — Lorehold, the Historian
-// Audit: unsupported — Needs miracle granted to matching cards in hand and recognized during the first-draw reveal/alternative-cast window; current static grants do not reach that draw procedure.
+// Audit: unsupported — Needs miracle granted to matching cards in hand and recognized during
+// the first-draw reveal/alternative-cast window; current static grants do not reach that draw
+// procedure.
 pub(in crate::card::sets) static LOREHOLD_THE_HISTORIAN: CardRecord = CardRecord::new(
     "Lorehold, the Historian",
     "71a6701f-40f1-43ef-bff5-a5907fd67cd6",
@@ -4946,7 +5110,8 @@ pub(in crate::card::sets) static MIND_ROOTS: CardRecord = CardRecord::new(
 );
 
 // SOS 204 — Molten Note
-// Audit: unsupported — Needs a resolving value for the actual mana spent to cast this spell, including flashback and cost modifications; mana value and chosen X are insufficient.
+// Audit: unsupported — Needs a resolving value for the actual mana spent to cast this spell,
+// including flashback and cost modifications; mana value and chosen X are insufficient.
 pub(in crate::card::sets) static MOLTEN_NOTE: CardRecord = CardRecord::new(
     "Molten Note",
     "506f69aa-7dc4-4dd7-990a-7371fc1762c0",
@@ -5008,7 +5173,8 @@ pub(in crate::card::sets) static MOMENT_OF_RECKONING: CardRecord = CardRecord::n
 );
 
 // SOS 206 — Nita, Forum Conciliator
-// Audit: unsupported — Needs a this-turn permission to cast the bound exiled card with both spend-mana-as-any-type and exile-instead-of-graveyard riders attached to the resulting spell.
+// Audit: unsupported — Needs a this-turn permission to cast the bound exiled card with both
+// spend-mana-as-any-type and exile-instead-of-graveyard riders attached to the resulting spell.
 pub(in crate::card::sets) static NITA_FORUM_CONCILIATOR: CardRecord = CardRecord::new(
     "Nita, Forum Conciliator",
     "fd80a87d-35d3-4ad1-8172-c85e93032d1d",
@@ -5046,7 +5212,8 @@ pub(in crate::card::sets) static OLD_GROWTH_EDUCATOR: CardRecord = CardRecord::n
 );
 
 // SOS 208 — Paradox Surveyor
-// Audit: unsupported — Needs a predicate for an X symbol in a card or spell's mana cost, including casts with X equal to zero; chosen X and mana value do not answer that question.
+// Audit: unsupported — Needs a predicate for an X symbol in a card or spell's mana cost,
+// including casts with X equal to zero; chosen X and mana value do not answer that question.
 pub(in crate::card::sets) static PARADOX_SURVEYOR: CardRecord = CardRecord::new(
     "Paradox Surveyor",
     "d7cb1af2-0302-46ff-8303-ae9d07541a01",
@@ -5074,7 +5241,9 @@ pub(in crate::card::sets) static PEST_MASCOT: CardRecord = CardRecord::new(
 );
 
 // SOS 210 — Practiced Scrollsmith
-// Audit: unsupported — Needs exile-play permission expiring at the end of the specified player's next turn; the existing next-turn permission expires after the following opponent turn.
+// Audit: unsupported — Needs exile-play permission expiring at the end of the specified
+// player's next turn; the existing next-turn permission expires after the following opponent
+// turn.
 pub(in crate::card::sets) static PRACTICED_SCROLLSMITH: CardRecord = CardRecord::new(
     "Practiced Scrollsmith",
     "40075e3f-58b3-47fd-8fbe-4b301e9ce7a1",
@@ -5124,7 +5293,9 @@ pub(in crate::card::sets) static PRISMARI_CHARM: CardRecord = CardRecord::new(
 );
 
 // SOS 212 — Prismari, the Inspiration
-// Audit: unsupported — Needs storm granted to the instant and sorcery spells as they are cast, so the copied trigger belongs to each spell; battlefield ability grants do not apply to prospective cast spells.
+// Audit: unsupported — Needs storm granted to the instant and sorcery spells as they are cast,
+// so the copied trigger belongs to each spell; battlefield ability grants do not apply to
+// prospective cast spells.
 pub(in crate::card::sets) static PRISMARI_THE_INSPIRATION: CardRecord = CardRecord::new(
     "Prismari, the Inspiration",
     "767ff9fa-4e7f-421a-b911-45186b520ae1",
@@ -5350,7 +5521,8 @@ pub(in crate::card::sets) static QUANDRIX_CHARM: CardRecord = CardRecord::new(
 );
 
 // SOS 218 — Quandrix, the Proof
-// Audit: unsupported — Needs cascade granted to matching spells cast from hand and a free-cast filter checking the chosen spell face's mana value as well as the exiled card's mana value.
+// Audit: unsupported — Needs cascade granted to matching spells cast from hand and a free-cast
+// filter checking the chosen spell face's mana value as well as the exiled card's mana value.
 pub(in crate::card::sets) static QUANDRIX_THE_PROOF: CardRecord = CardRecord::new(
     "Quandrix, the Proof",
     "015afe31-af3c-4c9b-9997-d7c33b915a33",
@@ -5509,7 +5681,9 @@ pub(in crate::card::sets) static ROOT_MANIPULATION: CardRecord = CardRecord::new
 );
 
 // SOS 223 — Sanar, Unfinished Genius // Wild Idea
-// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy of the associated prepare spell while consuming that designation; the current face and cast-permission model does not represent prepare spells.
+// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy
+// of the associated prepare spell while consuming that designation; the current face and
+// cast-permission model does not represent prepare spells.
 pub(in crate::card::sets) static SANAR_UNFINISHED_GENIUS: CardRecord = CardRecord::new(
     "Sanar, Unfinished Genius // Wild Idea",
     "173157aa-712d-44f2-89ba-dd2511a07f26",
@@ -5518,7 +5692,8 @@ pub(in crate::card::sets) static SANAR_UNFINISHED_GENIUS: CardRecord = CardRecor
 );
 
 // SOS 224 — Scolding Administrator
-// Audit: unsupported — Needs copying all counter kinds and quantities from a dying source's last-known state onto a chosen recipient.
+// Audit: unsupported — Needs copying all counter kinds and quantities from a dying source's
+// last-known state onto a chosen recipient.
 pub(in crate::card::sets) static SCOLDING_ADMINISTRATOR: CardRecord = CardRecord::new(
     "Scolding Administrator",
     "69757177-aefa-44a6-81db-5ae9b5d2f117",
@@ -5577,7 +5752,9 @@ pub(in crate::card::sets) static SILVERQUILL_CHARM: CardRecord = CardRecord::new
 );
 
 // SOS 226 — Silverquill, the Disputant
-// Audit: unsupported — Needs casualty granted during casting, including an optional power-qualified sacrifice cost and the corresponding cast-time copy trigger tied to its paid receipt.
+// Audit: unsupported — Needs casualty granted during casting, including an optional
+// power-qualified sacrifice cost and the corresponding cast-time copy trigger tied to its paid
+// receipt.
 pub(in crate::card::sets) static SILVERQUILL_THE_DISPUTANT: CardRecord = CardRecord::new(
     "Silverquill, the Disputant",
     "1742c9cd-5ba0-4335-9999-acc7f9d4f73c",
@@ -5690,7 +5867,9 @@ pub(in crate::card::sets) static SOCIAL_SNUB: CardRecord = CardRecord::new(
 );
 
 // SOS 229 — Spectacular Skywhale
-// Audit: unsupported — Needs a retained triggering-spell payment total to distinguish casts that spent at least five mana, including cost reductions, increases, alternate costs, and free casts.
+// Audit: unsupported — Needs a retained triggering-spell payment total to distinguish casts
+// that spent at least five mana, including cost reductions, increases, alternate costs, and
+// free casts.
 pub(in crate::card::sets) static SPECTACULAR_SKYWHALE: CardRecord = CardRecord::new(
     "Spectacular Skywhale",
     "c90366d5-b4ba-4772-a3c5-f138bbe7f305",
@@ -5699,7 +5878,8 @@ pub(in crate::card::sets) static SPECTACULAR_SKYWHALE: CardRecord = CardRecord::
 );
 
 // SOS 230 — Spirit Mascot
-// Audit: unsupported — Needs a grouped one-or-more-cards-leave-your-graveyard event; the current per-card zone-change event would trigger separately for cards moved together.
+// Audit: unsupported — Needs a grouped one-or-more-cards-leave-your-graveyard event; the
+// current per-card zone-change event would trigger separately for cards moved together.
 pub(in crate::card::sets) static SPIRIT_MASCOT: CardRecord = CardRecord::new(
     "Spirit Mascot",
     "123f1fde-d8de-4640-baa1-bb3781713168",
@@ -5916,7 +6096,9 @@ pub(in crate::card::sets) static STRESS_DREAM: CardRecord = CardRecord::new(
 );
 
 // SOS 236 — Suspend Aggression
-// Audit: unsupported — Needs exile-play permission expiring at the end of the specified player's next turn; the existing next-turn permission expires after the following opponent turn.
+// Audit: unsupported — Needs exile-play permission expiring at the end of the specified
+// player's next turn; the existing next-turn permission expires after the following opponent
+// turn.
 pub(in crate::card::sets) static SUSPEND_AGGRESSION: CardRecord = CardRecord::new(
     "Suspend Aggression",
     "135c0696-d86d-4e48-988c-5c218de451fc",
@@ -5925,7 +6107,9 @@ pub(in crate::card::sets) static SUSPEND_AGGRESSION: CardRecord = CardRecord::ne
 );
 
 // SOS 237 — Tam, Observant Sequencer // Deep Sight
-// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy of the associated prepare spell while consuming that designation; the current face and cast-permission model does not represent prepare spells.
+// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy
+// of the associated prepare spell while consuming that designation; the current face and
+// cast-permission model does not represent prepare spells.
 pub(in crate::card::sets) static TAM_OBSERVANT_SEQUENCER: CardRecord = CardRecord::new(
     "Tam, Observant Sequencer // Deep Sight",
     "7120e71b-2976-451b-89a7-a1665dc6fb6b",
@@ -6063,25 +6247,29 @@ pub(in crate::card::sets) static VISIONARY_S_DANCE: CardRecord = CardRecord::new
     "Visionary's Dance",
     "846a0e79-a530-429e-8f7f-4b87f1b0156e",
     "Josiah \"Jo\" Cameron",
-// Seven mana is more than a limited deck usually reaches, which is what
+    // Seven mana is more than a limited deck usually reaches, which is what
     // the discard half is for: the card is never stranded in hand.
     CardRules::new_sorcery(mana_cost!("{5}{U}{R}")).with_abilities(&[
         AbilityDef::spell(
             "Create two 3/3 blue and red Elemental creature tokens with flying.",
             EffectDef::CreateToken(
                 CreateTokenDef::new(TokenDef::Literal(
-                    TokenCharacteristics::creature(&["Elemental"], &[ManaColor::Blue, ManaColor::Red], 3, 3)
-                        .with_abilities(&[abilities::flying()]),
+                    TokenCharacteristics::creature(
+                        &["Elemental"],
+                        &[ManaColor::Blue, ManaColor::Red],
+                        3,
+                        3,
+                    )
+                    .with_abilities(&[abilities::flying()]),
                 ))
                 .with_amount(2),
             ),
         ),
         AbilityDef::activated(
-            "{2}, Discard this card: Look at the top two cards of your library. Put one of them into your hand and the other into your graveyard.",
-            &[
-                CostDef::Mana(mana_cost!("{2}")),
-                CostDef::DiscardSource,
-            ],
+            "{2}, Discard this card: Look at the top two cards of your \
+             library. Put one of them into your hand and the other into \
+             your graveyard.",
+            &[CostDef::Mana(mana_cost!("{2}")), CostDef::DiscardSource],
             abilities::look_at_top_cards_choose_to_hand_rest_graveyard(
                 ValueDef::Constant(2),
                 ObjectPredicateDef::Any,
@@ -6096,7 +6284,9 @@ pub(in crate::card::sets) static VISIONARY_S_DANCE: CardRecord = CardRecord::new
 );
 
 // SOS 243 — Wilt in the Heat
-// Audit: unsupported — Needs self-cost reduction conditioned on the existing card-left-your-graveyard turn history; that history is currently readable by triggers but not by the self-cost evaluator.
+// Audit: unsupported — Needs self-cost reduction conditioned on the existing
+// card-left-your-graveyard turn history; that history is currently readable by triggers but not
+// by the self-cost evaluator.
 pub(in crate::card::sets) static WILT_IN_THE_HEAT: CardRecord = CardRecord::new(
     "Wilt in the Heat",
     "f63f7209-fc0f-400c-8076-125f3131cb32",
@@ -6185,7 +6375,8 @@ pub(in crate::card::sets) static WITHERBLOOM_THE_BALANCER: CardRecord = CardReco
 );
 
 // SOS 246 — Zaffai and the Tempests
-// Audit: unsupported — Needs a once-per-own-turn free-cast permission for matching hand spells, with usage reserved and consumed by the successful cast.
+// Audit: unsupported — Needs a once-per-own-turn free-cast permission for matching hand spells,
+// with usage reserved and consumed by the successful cast.
 pub(in crate::card::sets) static ZAFFAI_AND_THE_TEMPESTS: CardRecord = CardRecord::new(
     "Zaffai and the Tempests",
     "5bdbf507-6fd7-49f6-b437-8f2ce2d0eb0f",
@@ -6194,7 +6385,9 @@ pub(in crate::card::sets) static ZAFFAI_AND_THE_TEMPESTS: CardRecord = CardRecor
 );
 
 // SOS 247 — Biblioplex Tomekeeper
-// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy of the associated prepare spell while consuming that designation; the current face and cast-permission model does not represent prepare spells.
+// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy
+// of the associated prepare spell while consuming that designation; the current face and
+// cast-permission model does not represent prepare spells.
 pub(in crate::card::sets) static BIBLIOPLEX_TOMEKEEPER: CardRecord = CardRecord::new(
     "Biblioplex Tomekeeper",
     "bf2efdd9-d2b4-4bea-a5b9-dbb2eee4dfba",
@@ -6573,7 +6766,7 @@ pub(in crate::card::sets) static PETRIFIED_HAMLET: CardRecord = CardRecord::new(
     "Petrified Hamlet",
     "355dd460-b0e9-41f2-a058-b7f7e39ac387",
     "Richard Wright",
-CardRules::new_land(&[]).with_abilities(&[
+    CardRules::new_land(&[]).with_abilities(&[
         AbilityDef::as_enters(
             "As this land enters, choose a land card name.",
             crate::card::ReplacementEffectDef::BindOutput {
@@ -6584,7 +6777,8 @@ CardRules::new_land(&[]).with_abilities(&[
             },
         ),
         abilities::cannot_activate_nonmana_abilities_with_name(
-            "Activated abilities of sources with the chosen name can't be activated unless they're mana abilities.",
+            "Activated abilities of sources with the chosen name can't \
+             be activated unless they're mana abilities.",
             crate::card::CardNameDef::Binding(Binding!("petrified_hamlet_name")),
         ),
         AbilityDef::static_ability(
@@ -6593,9 +6787,9 @@ CardRules::new_land(&[]).with_abilities(&[
                 recipient: EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Land),
-                        ObjectPredicateDef::NameEquals(
-                            crate::card::CardNameDef::Binding(Binding!("petrified_hamlet_name")),
-                        ),
+                        ObjectPredicateDef::NameEquals(crate::card::CardNameDef::Binding(
+                            Binding!("petrified_hamlet_name"),
+                        )),
                     ]),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Any,
@@ -6615,7 +6809,9 @@ const SHATTERED_SANCTUM_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // SOS 261 — Skycoach Waypoint
-// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy of the associated prepare spell while consuming that designation; the current face and cast-permission model does not represent prepare spells.
+// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy
+// of the associated prepare spell while consuming that designation; the current face and
+// cast-permission model does not represent prepare spells.
 pub(in crate::card::sets) static SKYCOACH_WAYPOINT: CardRecord = CardRecord::new(
     "Skycoach Waypoint",
     "6747657b-5ce4-4dbd-b924-ca1f7119faf7",

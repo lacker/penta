@@ -695,14 +695,15 @@ pub(in crate::card::sets) static STRENGTH_OF_UNITY: CardRecord = CardRecord::new
     "Strength of Unity",
     "1a9d4ff8-af35-413f-9aa2-f4c6e34fade2",
     "Andrew Goldhawk",
-// Domain on an Aura, so its size is the deck's mana base rather than
+    // Domain on an Aura, so its size is the deck's mana base rather than
     // anything on the board.
     CardRules::new_enchantment(mana_cost!("{3}{W}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
             abilities::enchant_creature(),
             AbilityDef::static_ability(
-                "Domain — Enchanted creature gets +1/+1 for each basic land type among lands you control.",
+                "Domain — Enchanted creature gets +1/+1 for each basic land \
+                 type among lands you control.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::AttachedPermanent,
                     effect: AppliedEffectDef::modify_power_toughness(
@@ -852,13 +853,17 @@ pub(in crate::card::sets) static CRYSTAL_SPRAY: CardRecord = CardRecord::new(
     "8798a4f1-34bb-449d-a8cc-faf8bda8e0ab",
     "Jeff Miracola",
     CardRules::new_instant(mana_cost!("{2}{U}")).with_ability(AbilityDef::spell_with_targets(
-        "Change the text of target spell or permanent by replacing all instances of one color word with another or one basic land type with another until end of turn.\nDraw a card.",
-        &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
-            object: ObjectPredicateDef::Any,
-            zones: &[ZoneKind::Battlefield, ZoneKind::Stack],
-            controller: None,
-            owner: None,
-        })],
+        "Change the text of target spell or permanent by replacing \
+         all instances of one color word with another or one basic \
+         land type with another until end of turn.\nDraw a card.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::Any,
+                zones: &[ZoneKind::Battlefield, ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            },
+        )],
         EffectDef::Sequence(&[
             EffectDef::ChangeText {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -976,8 +981,10 @@ pub(in crate::card::sets) static FACT_OR_FICTION: CardRecord = CardRecord::new(
     "Fact or Fiction",
     "7fd4d018-dcf3-4439-8445-02d66e44f7d3",
     "Terese Nielsen",
-CardRules::new_instant(mana_cost!("{3}{U}")).with_ability(AbilityDef::spell(
-        "Reveal the top five cards of your library. An opponent separates those cards into two piles. Put one pile into your hand and the other into your graveyard.",
+    CardRules::new_instant(mana_cost!("{3}{U}")).with_ability(AbilityDef::spell(
+        "Reveal the top five cards of your library. An opponent \
+         separates those cards into two piles. Put one pile into \
+         your hand and the other into your graveyard.",
         abilities::bind_top_cards_then(
             PlayerRefDef::EffectController,
             ValueDef::Constant(5),
@@ -1174,18 +1181,20 @@ pub(in crate::card::sets) static PROHIBIT: CardRecord = CardRecord::new(
     "Prohibit",
     "0daa5458-2a97-40d0-b18d-2381a7a68ee1",
     "Adam Rex",
-CardRules::new_instant(mana_cost!("{1}{U}")).with_abilities(&[
-        abilities::kicker(
-            &[CostDef::Mana(mana_cost!("{2}"))],
-        ),
+    CardRules::new_instant(mana_cost!("{1}{U}")).with_abilities(&[
+        abilities::kicker(&[CostDef::Mana(mana_cost!("{2}"))]),
         AbilityDef::spell_with_targets(
-            "Counter target spell if its mana value is 2 or less. If this spell was kicked, counter that spell if its mana value is 4 or less instead.",
-            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
-                object: ObjectPredicateDef::Spell,
-                zones: &[ZoneKind::Stack],
-                controller: None,
-                owner: None,
-            })],
+            "Counter target spell if its mana value is 2 or less. If \
+             this spell was kicked, counter that spell if its mana value \
+             is 4 or less instead.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Spell,
+                    zones: &[ZoneKind::Stack],
+                    controller: None,
+                    owner: None,
+                },
+            )],
             EffectDef::IfCondition {
                 condition: &TriggerConditionDef::TargetMatches {
                     slot: TargetIndex::PRIMARY,
@@ -1208,7 +1217,9 @@ CardRules::new_instant(mana_cost!("{1}{U}")).with_abilities(&[
 );
 
 // INV 68 — Psychic Battle
-// Audit: unsupported — The final target change is supported, but this still needs an event for choosing spell-or-ability targets, simultaneous top-card reveals by every player, and repeat-until-untied highest-mana-value selection.
+// Audit: unsupported — The final target change is supported, but this still needs an event for
+// choosing spell-or-ability targets, simultaneous top-card reveals by every player, and
+// repeat-until-untied highest-mana-value selection.
 pub(in crate::card::sets) static PSYCHIC_BATTLE: CardRecord = CardRecord::new(
     "Psychic Battle",
     "8758ca24-e613-43bf-be58-4cf557f82d0c",
@@ -1354,10 +1365,12 @@ pub(in crate::card::sets) static TEFERIS_RESPONSE: CardRecord = CardRecord::new(
     "Teferi's Response",
     "f3bb2df8-c559-4a34-83b0-d48fbc694cc8",
     "Scott Bailey",
-// The answer to Wasteland and Dust Bowl: the land lives, the thing that
+    // The answer to Wasteland and Dust Bowl: the land lives, the thing that
     // came for it dies, and two cards make the exchange worth a card.
     CardRules::new_instant(mana_cost!("{1}{U}")).with_ability(AbilityDef::spell_with_targets(
-        "Counter target spell or ability an opponent controls that targets a land you control. If a permanent's ability is countered this way, destroy that permanent.\nDraw two cards.",
+        "Counter target spell or ability an opponent controls that \
+         targets a land you control. If a permanent's ability is \
+         countered this way, destroy that permanent.\nDraw two cards.",
         &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::Object {
                 // A land you control, read off what the spell or ability already targets.
@@ -1642,7 +1655,8 @@ pub(in crate::card::sets) static ANNIHILATE: CardRecord = CardRecord::new(
 );
 
 // INV 95 — Bog Initiate
-// Audit: unsupported — The shared mana planner cannot activate a mana ability whose cost itself requires mana; see Agent of Stromgald.
+// Audit: unsupported — The shared mana planner cannot activate a mana ability whose cost itself
+// requires mana; see Agent of Stromgald.
 pub(in crate::card::sets) static BOG_INITIATE: CardRecord = CardRecord::new(
     "Bog Initiate",
     "8962dc3b-24ca-4c3c-ba1d-933c29cf7b73",
@@ -2001,12 +2015,13 @@ pub(in crate::card::sets) static PHYREXIAN_BATTLEFLIES: CardRecord = CardRecord:
     "Phyrexian Battleflies",
     "da27c489-c541-4b0d-a844-71aa65e55ceb",
     "Dan Frazier",
-// Pit Imp again, reprinted as a Phyrexian for a block that counted
+    // Pit Imp again, reprinted as a Phyrexian for a block that counted
     // them.
     CardRules::new_creature(mana_cost!("{B}"), &["Phyrexian", "Insect"], 0, 1).with_abilities(&[
         abilities::flying(),
         AbilityDef::activated(
-            "{B}: This creature gets +1/+0 until end of turn. Activate no more than twice each turn.",
+            "{B}: This creature gets +1/+0 until end of turn. Activate \
+             no more than twice each turn.",
             &[CostDef::Mana(mana_cost!("{B}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
@@ -2076,7 +2091,7 @@ pub(in crate::card::sets) static PHYREXIAN_SLAYER: CardRecord = CardRecord::new(
             abilities::flying(),
             AbilityDef::triggered(
                 "Whenever this creature becomes blocked by a white creature, destroy that \
-             creature. It can't be regenerated.",
+                 creature. It can't be regenerated.",
                 TriggerEventDef::BecomesBlockedBy {
                     blocker: ObjectPredicateDef::Color(ManaColor::White),
                 },
@@ -2275,7 +2290,7 @@ pub(in crate::card::sets) static URBORG_EMISSARY: CardRecord = CardRecord::new(
     "Urborg Emissary",
     "e6912c71-1836-4e87-9a65-d577d903d03c",
     "Eric Peterson",
-// A 3/1 that bounces anything at all, which in a format of expensive gold
+    // A 3/1 that bounces anything at all, which in a format of expensive gold
     // cards is often better than killing it.
     CardRules::new_creature(mana_cost!("{2}{B}"), &["Human", "Wizard"], 3, 1).with_abilities(&[
         AbilityDef::alternative_cast(
@@ -2285,14 +2300,17 @@ pub(in crate::card::sets) static URBORG_EMISSARY: CardRecord = CardRecord::new(
             EffectDef::None,
         ),
         AbilityDef::triggered_if_with_targets(
-            "When this creature enters, if it was kicked, return target permanent to its owner's hand.",
+            "When this creature enters, if it was kicked, return target \
+             permanent to its owner's hand.",
             TriggerEventDef::zone_changed(
                 ObjectPredicateDef::Source,
                 None,
                 Some(ZoneKind::Battlefield),
             ),
             &TriggerConditionDef::SourceCastWith(AlternativeCastKindDef::Kicked),
-            &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Any)],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::Any,
+            )],
             EffectDef::move_to_zone(
                 EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 ZoneKind::Hand,
@@ -2693,14 +2711,14 @@ pub(in crate::card::sets) static OVERLOAD: CardRecord = CardRecord::new(
     "Overload",
     "c91fca91-7296-422e-b251-d571b710ff71",
     "Gary Ruddell",
-// One mana answers a Lotus Petal or a Cursed Scroll; three answers most
+    // One mana answers a Lotus Petal or a Cursed Scroll; three answers most
     // of what a Premodern deck actually plays.
     CardRules::new_instant(mana_cost!("{R}")).with_abilities(&[
-        abilities::kicker(
-            &[CostDef::Mana(mana_cost!("{2}"))],
-        ),
+        abilities::kicker(&[CostDef::Mana(mana_cost!("{2}"))]),
         AbilityDef::spell_with_targets(
-            "Destroy target artifact if its mana value is 2 or less. If this spell was kicked, destroy that artifact if its mana value is 5 or less instead.",
+            "Destroy target artifact if its mana value is 2 or less. If \
+             this spell was kicked, destroy that artifact if its mana \
+             value is 5 or less instead.",
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Artifact),
             )],
@@ -2909,7 +2927,7 @@ pub(in crate::card::sets) static SHIVAN_EMISSARY: CardRecord = CardRecord::new(
     "Shivan Emissary",
     "945c596e-492e-4cf5-857c-4ddbbdd78485",
     "Paolo Parente",
-// Red's only clean answer to a big creature in this block came stapled to a
+    // Red's only clean answer to a big creature in this block came stapled to a
     // 1/1, and it cost two colours to get it.
     CardRules::new_creature(mana_cost!("{2}{R}"), &["Human", "Wizard"], 1, 1).with_abilities(&[
         AbilityDef::alternative_cast(
@@ -2919,18 +2937,20 @@ pub(in crate::card::sets) static SHIVAN_EMISSARY: CardRecord = CardRecord::new(
             EffectDef::None,
         ),
         AbilityDef::triggered_if_with_targets(
-            "When this creature enters, if it was kicked, destroy target nonblack creature. It can't be \
-             regenerated.",
+            "When this creature enters, if it was kicked, destroy target \
+             nonblack creature. It can't be regenerated.",
             TriggerEventDef::zone_changed(
                 ObjectPredicateDef::Source,
                 None,
                 Some(ZoneKind::Battlefield),
             ),
             &TriggerConditionDef::SourceCastWith(AlternativeCastKindDef::Kicked),
-            &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Not(&ObjectPredicateDef::Color(ManaColor::Black)),
-                    ]))],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Color(ManaColor::Black)),
+                ]),
+            )],
             EffectDef::WithRule {
                 rule: AppliedRuleDef::CannotRegenerate,
                 effect: &EffectDef::Destroy {
@@ -3676,11 +3696,13 @@ pub(in crate::card::sets) static QUIRION_TRAILBLAZER: CardRecord = CardRecord::n
     "Quirion Trailblazer",
     "c2b258c1-5fb4-4072-bb32-ad364df1874a",
     "Rebecca Guay",
-// Four mana for a land and a small body, which is the price a
+    // Four mana for a land and a small body, which is the price a
     // five-colour deck pays for the land being any colour it wants.
     CardRules::new_creature(mana_cost!("{3}{G}"), &["Elf", "Scout"], 1, 2).with_ability(
         abilities::enters_trigger(
-            "When this creature enters, you may search your library for a basic land card, put that card onto the battlefield tapped, then shuffle.",
+            "When this creature enters, you may search your library for \
+             a basic land card, put that card onto the battlefield \
+             tapped, then shuffle.",
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
                 effect: &EffectDef::SearchZone {
@@ -4199,30 +4221,30 @@ pub(in crate::card::sets) static AURA_SHARDS: CardRecord = CardRecord::new(
     "Aura Shards",
     "df4039ef-af72-4267-ade9-fdb7c921279e",
     "Ron Spencer",
-// Every creature becomes a Disenchant, which against a deck built on
+    // Every creature becomes a Disenchant, which against a deck built on
     // permanents is an answer to every one of them.
     CardRules::new_enchantment(mana_cost!("{1}{G}{W}")).with_ability(AbilityDef::triggered_with_targets(
-    "Whenever a creature you control enters, you may destroy target artifact or enchantment.",
-    TriggerEventDef::zone_changed(
-        ObjectPredicateDef::All(&[
-            ObjectPredicateDef::HasType(CardType::Creature),
-            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-        ]),
-        None,
-        Some(ZoneKind::Battlefield),
-    ),
-    &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::AnyOf(&[
-        ObjectPredicateDef::HasType(CardType::Artifact),
-        ObjectPredicateDef::HasType(CardType::Enchantment),
-    ]))],
-    EffectDef::May {
-        player: EffectRecipientDef::Controller,
-        effect: &EffectDef::Destroy {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            then: None,
+        "Whenever a creature you control enters, you may destroy target artifact or enchantment.",
+        TriggerEventDef::zone_changed(
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+            ]),
+            None,
+            Some(ZoneKind::Battlefield),
+        ),
+        &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::AnyOf(&[
+            ObjectPredicateDef::HasType(CardType::Artifact),
+            ObjectPredicateDef::HasType(CardType::Enchantment),
+        ]))],
+        EffectDef::May {
+            player: EffectRecipientDef::Controller,
+            effect: &EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
         },
-    },
-)),
+    )),
 );
 
 // INV 234 — Backlash
@@ -4396,8 +4418,10 @@ pub(in crate::card::sets) static FRENZIED_TILLING: CardRecord = CardRecord::new(
     "Frenzied Tilling",
     "15875876-3341-40fb-866f-5587c3638538",
     "Mike Raabe",
-CardRules::new_sorcery(mana_cost!("{3}{R}{G}")).with_ability(AbilityDef::spell_with_targets(
-        "Destroy target land. Search your library for a basic land card, put that card onto the battlefield tapped, then shuffle.",
+    CardRules::new_sorcery(mana_cost!("{3}{R}{G}")).with_ability(AbilityDef::spell_with_targets(
+        "Destroy target land. Search your library for a basic land \
+         card, put that card onto the battlefield tapped, then \
+         shuffle.",
         &[AbilityTargetDef::exactly_one_permanent(
             ObjectPredicateDef::HasType(CardType::Land),
         )],
@@ -4527,11 +4551,12 @@ pub(in crate::card::sets) static METEOR_STORM: CardRecord = CardRecord::new(
     "Meteor Storm",
     "36489b24-f8a8-46b6-b879-0a5ce400a6dc",
     "John Avon",
-// Four damage for two cards and four mana, which is a rate that only
+    // Four damage for two cards and four mana, which is a rate that only
     // makes sense when the hand is already dead weight.
     CardRules::new_enchantment(mana_cost!("{R}{G}")).with_ability(
         AbilityDef::activated_with_targets(
-            "{2}{R}{G}, Discard two cards at random: This enchantment deals 4 damage to any target.",
+            "{2}{R}{G}, Discard two cards at random: This enchantment \
+             deals 4 damage to any target.",
             &[
                 CostDef::Mana(mana_cost!("{2}{R}{G}")),
                 CostDef::DiscardCardsAtRandom(2),
@@ -5134,7 +5159,8 @@ pub(in crate::card::sets) static CHROMATIC_SPHERE: CardRecord = CardRecord::new(
 );
 
 // INV 300 — Crosis's Attendant
-// Audit: unsupported — The shared mana planner cannot activate a mana ability whose cost itself requires mana; see Agent of Stromgald.
+// Audit: unsupported — The shared mana planner cannot activate a mana ability whose cost itself
+// requires mana; see Agent of Stromgald.
 pub(in crate::card::sets) static CROSIS_S_ATTENDANT: CardRecord = CardRecord::new(
     "Crosis's Attendant",
     "45edc18c-2046-4d0e-92fe-a6cf4aaf1c6f",
@@ -5143,7 +5169,8 @@ pub(in crate::card::sets) static CROSIS_S_ATTENDANT: CardRecord = CardRecord::ne
 );
 
 // INV 301 — Darigaaz's Attendant
-// Audit: unsupported — The shared mana planner cannot activate a mana ability whose cost itself requires mana; see Agent of Stromgald.
+// Audit: unsupported — The shared mana planner cannot activate a mana ability whose cost itself
+// requires mana; see Agent of Stromgald.
 pub(in crate::card::sets) static DARIGAAZ_S_ATTENDANT: CardRecord = CardRecord::new(
     "Darigaaz's Attendant",
     "6f22b575-443a-4c06-8e75-d4140cbd3660",
@@ -5168,7 +5195,8 @@ pub(in crate::card::sets) static DRAKE_SKULL_CAMEO: CardRecord = CardRecord::new
 );
 
 // INV 303 — Dromar's Attendant
-// Audit: unsupported — The shared mana planner cannot activate a mana ability whose cost itself requires mana; see Agent of Stromgald.
+// Audit: unsupported — The shared mana planner cannot activate a mana ability whose cost itself
+// requires mana; see Agent of Stromgald.
 pub(in crate::card::sets) static DROMAR_S_ATTENDANT: CardRecord = CardRecord::new(
     "Dromar's Attendant",
     "24936fa9-41a3-4da5-91cf-c28fa45f47c9",
@@ -5271,7 +5299,8 @@ pub(in crate::card::sets) static POWER_ARMOR: CardRecord = CardRecord::new(
 );
 
 // INV 310 — Rith's Attendant
-// Audit: unsupported — The shared mana planner cannot activate a mana ability whose cost itself requires mana; see Agent of Stromgald.
+// Audit: unsupported — The shared mana planner cannot activate a mana ability whose cost itself
+// requires mana; see Agent of Stromgald.
 pub(in crate::card::sets) static RITH_S_ATTENDANT: CardRecord = CardRecord::new(
     "Rith's Attendant",
     "a26e8130-7fe9-4ef4-98af-928814f5b130",
@@ -5419,7 +5448,8 @@ pub(in crate::card::sets) static TIGEREYE_CAMEO: CardRecord = CardRecord::new(
 );
 
 // INV 315 — Treva's Attendant
-// Audit: unsupported — The shared mana planner cannot activate a mana ability whose cost itself requires mana; see Agent of Stromgald.
+// Audit: unsupported — The shared mana planner cannot activate a mana ability whose cost itself
+// requires mana; see Agent of Stromgald.
 pub(in crate::card::sets) static TREVA_S_ATTENDANT: CardRecord = CardRecord::new(
     "Treva's Attendant",
     "9857af81-fb95-4dc4-b048-9ce4e96d1eca",
@@ -5448,18 +5478,26 @@ pub(in crate::card::sets) static TSABOS_WEB: CardRecord = CardRecord::new(
     "Tsabo's Web",
     "0dee69f8-cceb-41b9-a0ee-6b2ac9f4bad9",
     "Carl Critchlow",
-CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
-        abilities::enters_trigger("When this artifact enters, draw a card.", EffectDef::DrawCards {
+    CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
+        abilities::enters_trigger(
+            "When this artifact enters, draw a card.",
+            EffectDef::DrawCards {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(1),
-            }),
+            },
+        ),
         AbilityDef::static_ability(
-            "Each land with an activated ability that isn't a mana ability doesn't untap during its controller's untap step.",
+            "Each land with an activated ability that isn't a mana \
+             ability doesn't untap during its controller's untap step.",
             EffectDef::StaticApply {
-                recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::All(&[
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Land),
                         ObjectPredicateDef::HasNonManaActivatedAbility,
-                    ]), &[ZoneKind::Battlefield], PlayerRelation::Any),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
                 effect: AppliedEffectDef::Rule(AppliedRuleDef::DoesNotUntapDuringUntapStep),
             },
         ),

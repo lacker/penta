@@ -233,7 +233,9 @@ const INSECT_TOKEN: TokenCharacteristics =
         ));
 
 // DSK 1 — Acrobatic Cheerleader
-// Audit: unsupported — Needs the ordinal number of the current main phase in the turn (CR 505.1b); PostcombatMain also matches third and later main phases, so it cannot restrict survival to the second main phase.
+// Audit: unsupported — Needs the ordinal number of the current main phase in the turn (CR
+// 505.1b); PostcombatMain also matches third and later main phases, so it cannot restrict
+// survival to the second main phase.
 pub(in crate::card::sets) static ACROBATIC_CHEERLEADER: CardRecord = CardRecord::new(
     "Acrobatic Cheerleader",
     "6f1a7590-3eee-4803-b192-d4fb771e6a86",
@@ -242,7 +244,9 @@ pub(in crate::card::sets) static ACROBATIC_CHEERLEADER: CardRecord = CardRecord:
 );
 
 // DSK 2 — Cult Healer
-// Audit: unsupported — Needs a committed event for a Room becoming fully unlocked, observed by other permanents and graveyard abilities. DoorUnlocked only dispatches to the door being opened, so it cannot implement the second eerie trigger.
+// Audit: unsupported — Needs a committed event for a Room becoming fully unlocked, observed by
+// other permanents and graveyard abilities. DoorUnlocked only dispatches to the door being
+// opened, so it cannot implement the second eerie trigger.
 pub(in crate::card::sets) static CULT_HEALER: CardRecord = CardRecord::new(
     "Cult Healer",
     "9c9b8fbe-8a5e-4b62-b53f-9ead8147bbbb",
@@ -251,7 +255,8 @@ pub(in crate::card::sets) static CULT_HEALER: CardRecord = CardRecord::new(
 );
 
 // DSK 3 — Dazzling Theater // Prop Room
-// Audit: unsupported — Needs a continuous grant of convoke to creature spells on the stack; executable spell ability grants are outside the supported static recipient boundary.
+// Audit: unsupported — Needs a continuous grant of convoke to creature spells on the stack;
+// executable spell ability grants are outside the supported static recipient boundary.
 pub(in crate::card::sets) static DAZZLING_THEATER: CardRecord = CardRecord::new(
     "Dazzling Theater // Prop Room",
     "8e2fae80-60af-44cf-95b4-177837435d1a",
@@ -260,7 +265,9 @@ pub(in crate::card::sets) static DAZZLING_THEATER: CardRecord = CardRecord::new(
 );
 
 // DSK 4 — Dollmaker's Shop // Porcelain Gallery
-// Audit: unsupported — Needs a batched attack-declaration matcher restricted to attacks against a player; current batched declarations count creatures attacking planeswalkers too, while the player-only matcher fires separately for each creature.
+// Audit: unsupported — Needs a batched attack-declaration matcher restricted to attacks against
+// a player; current batched declarations count creatures attacking planeswalkers too, while the
+// player-only matcher fires separately for each creature.
 pub(in crate::card::sets) static DOLLMAKER_S_SHOP: CardRecord = CardRecord::new(
     "Dollmaker's Shop // Porcelain Gallery",
     "c5ee6651-9946-4bae-b21e-6cf28fa77b13",
@@ -367,7 +374,9 @@ pub(in crate::card::sets) static EXORCISE: CardRecord = CardRecord::new(
 );
 
 // DSK 9 — Fear of Abduction
-// Audit: unsupported — Needs the exiled battlefield card paid as an additional casting cost to become part of the permanent's linked exile group; casting cost facts do not establish those linked identities for the leaves trigger.
+// Audit: unsupported — Needs the exiled battlefield card paid as an additional casting cost to
+// become part of the permanent's linked exile group; casting cost facts do not establish those
+// linked identities for the leaves trigger.
 pub(in crate::card::sets) static FEAR_OF_ABDUCTION: CardRecord = CardRecord::new(
     "Fear of Abduction",
     "fc9374be-5e4b-4c23-8b6e-94c03d4f5ef1",
@@ -459,7 +468,9 @@ pub(in crate::card::sets) static FRIENDLY_GHOST: CardRecord = CardRecord::new(
 );
 
 // DSK 13 — Ghostly Dancers
-// Audit: unsupported — Needs a resolving effect that selects and unlocks a locked Room door, plus a fully-unlocked event observed by other abilities; only the ordinary unlock special action and local door triggers are available.
+// Audit: unsupported — Needs a resolving effect that selects and unlocks a locked Room door,
+// plus a fully-unlocked event observed by other abilities; only the ordinary unlock special
+// action and local door triggers are available.
 pub(in crate::card::sets) static GHOSTLY_DANCERS: CardRecord = CardRecord::new(
     "Ghostly Dancers",
     "ab38adb5-8f16-4a4a-8dbc-f6ec14ca6c9f",
@@ -468,7 +479,9 @@ pub(in crate::card::sets) static GHOSTLY_DANCERS: CardRecord = CardRecord::new(
 );
 
 // DSK 14 — Glimmer Seeker
-// Audit: unsupported — Needs the ordinal number of the current main phase in the turn (CR 505.1b); PostcombatMain also matches third and later main phases, so it cannot restrict survival to the second main phase.
+// Audit: unsupported — Needs the ordinal number of the current main phase in the turn (CR
+// 505.1b); PostcombatMain also matches third and later main phases, so it cannot restrict
+// survival to the second main phase.
 pub(in crate::card::sets) static GLIMMER_SEEKER: CardRecord = CardRecord::new(
     "Glimmer Seeker",
     "7f06bbb1-0c7d-4803-9b35-8a2206803eed",
@@ -662,7 +675,7 @@ pub(in crate::card::sets) static LEYLINE_OF_HOPE: CardRecord = CardRecord::new(
     "Leyline of Hope",
     "40960e47-3065-485e-aede-29a62411034e",
     "Sergey Glushakov",
-CardRules::new_enchantment(mana_cost!("{2}{W}{W}")).with_abilities(&[
+    CardRules::new_enchantment(mana_cost!("{2}{W}{W}")).with_abilities(&[
         abilities::begin_game_on_battlefield(),
         AbilityDef::replacement_for(
             "If you would gain life, you gain that much life plus 1 instead.",
@@ -670,7 +683,8 @@ CardRules::new_enchantment(mana_cost!("{2}{W}{W}")).with_abilities(&[
             ReplacementEffectDef::AddToEventAmount(1),
         ),
         AbilityDef::static_ability(
-            "As long as you have at least 7 life more than your starting life total, creatures you control get +2/+2.",
+            "As long as you have at least 7 life more than your starting \
+             life total, creatures you control get +2/+2.",
             EffectDef::IfCondition {
                 condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
                     left: ValueDef::LifeTotal(PlayerRelation::You),
@@ -789,7 +803,9 @@ pub(in crate::card::sets) static LIVING_PHONE: CardRecord = CardRecord::new(
 );
 
 // DSK 21 — Optimistic Scavenger
-// Audit: unsupported — Needs a committed event for a Room becoming fully unlocked, observed by other permanents and graveyard abilities. DoorUnlocked only dispatches to the door being opened, so it cannot implement the second eerie trigger.
+// Audit: unsupported — Needs a committed event for a Room becoming fully unlocked, observed by
+// other permanents and graveyard abilities. DoorUnlocked only dispatches to the door being
+// opened, so it cannot implement the second eerie trigger.
 pub(in crate::card::sets) static OPTIMISTIC_SCAVENGER: CardRecord = CardRecord::new(
     "Optimistic Scavenger",
     "9c72fc6f-6a96-420d-812d-b5cf0f57cc7f",
@@ -798,7 +814,9 @@ pub(in crate::card::sets) static OPTIMISTIC_SCAVENGER: CardRecord = CardRecord::
 );
 
 // DSK 22 — Orphans of the Wheat
-// Audit: unsupported — Needs an optional multi-permanent tap effect with a result binding containing only permanents actually tapped, so prevented or replaced taps do not increase the bonus.
+// Audit: unsupported — Needs an optional multi-permanent tap effect with a result binding
+// containing only permanents actually tapped, so prevented or replaced taps do not increase the
+// bonus.
 pub(in crate::card::sets) static ORPHANS_OF_THE_WHEAT: CardRecord = CardRecord::new(
     "Orphans of the Wheat",
     "8ef4aab1-8bc0-4652-91d7-3e8b20b411ad",
@@ -815,7 +833,8 @@ const OVERLORD_OF_THE_MISTMOORS_ALTERNATE_1: PrintingRecord = PrintingRecord::al
 );
 
 // DSK 24 — Patched Plaything
-// Audit: unsupported — Needs a positive cast-from-hand condition for a prospective entry replacement; the exposed entry condition is SourceNotCastFrom and has no composable negation.
+// Audit: unsupported — Needs a positive cast-from-hand condition for a prospective entry
+// replacement; the exposed entry condition is SourceNotCastFrom and has no composable negation.
 pub(in crate::card::sets) static PATCHED_PLAYTHING: CardRecord = CardRecord::new(
     "Patched Plaything",
     "513da431-4f3a-4f4a-8be4-7e162dd93307",
@@ -858,7 +877,9 @@ pub(in crate::card::sets) static POSSESSED_GOAT: CardRecord = CardRecord::new(
 );
 
 // DSK 26 — Reluctant Role Model
-// Audit: unsupported — Needs the ordinal number of the current main phase in the turn (CR 505.1b); PostcombatMain also matches third and later main phases, so it cannot restrict survival to the second main phase.
+// Audit: unsupported — Needs the ordinal number of the current main phase in the turn (CR
+// 505.1b); PostcombatMain also matches third and later main phases, so it cannot restrict
+// survival to the second main phase.
 pub(in crate::card::sets) static RELUCTANT_ROLE_MODEL: CardRecord = CardRecord::new(
     "Reluctant Role Model",
     "4dde86d6-34a0-4b3b-a46a-d9941501d08c",
@@ -867,7 +888,9 @@ pub(in crate::card::sets) static RELUCTANT_ROLE_MODEL: CardRecord = CardRecord::
 );
 
 // DSK 27 — Savior of the Small
-// Audit: unsupported — Needs the ordinal number of the current main phase in the turn (CR 505.1b); PostcombatMain also matches third and later main phases, so it cannot restrict survival to the second main phase.
+// Audit: unsupported — Needs the ordinal number of the current main phase in the turn (CR
+// 505.1b); PostcombatMain also matches third and later main phases, so it cannot restrict
+// survival to the second main phase.
 pub(in crate::card::sets) static SAVIOR_OF_THE_SMALL: CardRecord = CardRecord::new(
     "Savior of the Small",
     "e2ed31ea-c278-4e8c-afa7-6d09af399345",
@@ -876,7 +899,8 @@ pub(in crate::card::sets) static SAVIOR_OF_THE_SMALL: CardRecord = CardRecord::n
 );
 
 // DSK 28 — Seized from Slumber
-// Audit: unsupported — Needs a self spell-cost reduction based on the selected target's tapped state; the self-cost evaluator cannot read casting target choices.
+// Audit: unsupported — Needs a self spell-cost reduction based on the selected target's tapped
+// state; the self-cost evaluator cannot read casting target choices.
 pub(in crate::card::sets) static SEIZED_FROM_SLUMBER: CardRecord = CardRecord::new(
     "Seized from Slumber",
     "24456083-0c76-46c5-9b18-8d468702df69",
@@ -931,7 +955,9 @@ pub(in crate::card::sets) static SHARDMAGE_S_RESCUE: CardRecord = CardRecord::ne
 );
 
 // DSK 30 — Sheltered by Ghosts
-// Audit: unsupported — Needs an exile-until-source-leaves duration with immediate return when that duration ends (CR 610.3); an ordinary leaves trigger returns the card later through the stack.
+// Audit: unsupported — Needs an exile-until-source-leaves duration with immediate return when
+// that duration ends (CR 610.3); an ordinary leaves trigger returns the card later through the
+// stack.
 pub(in crate::card::sets) static SHELTERED_BY_GHOSTS: CardRecord = CardRecord::new(
     "Sheltered by Ghosts",
     "389f3f7b-be40-4a2d-b5cc-28471a577981",
@@ -1231,7 +1257,9 @@ pub(in crate::card::sets) static TOBY_BEASTIE_BEFRIENDER: CardRecord = CardRecor
 );
 
 // DSK 36 — Trapped in the Screen
-// Audit: unsupported — Needs an exile-until-source-leaves duration with immediate return when that duration ends (CR 610.3); an ordinary leaves trigger returns the card later through the stack.
+// Audit: unsupported — Needs an exile-until-source-leaves duration with immediate return when
+// that duration ends (CR 610.3); an ordinary leaves trigger returns the card later through the
+// stack.
 pub(in crate::card::sets) static TRAPPED_IN_THE_SCREEN: CardRecord = CardRecord::new(
     "Trapped in the Screen",
     "1fe95bfb-8ca7-434f-a2e7-a6b2e699584e",
@@ -1420,7 +1448,9 @@ pub(in crate::card::sets) static UNWANTED_REMAKE: CardRecord = CardRecord::new(
 );
 
 // DSK 40 — Veteran Survivor
-// Audit: unsupported — Needs the ordinal number of the current main phase in the turn (CR 505.1b); PostcombatMain also matches third and later main phases, so it cannot restrict survival to the second main phase.
+// Audit: unsupported — Needs the ordinal number of the current main phase in the turn (CR
+// 505.1b); PostcombatMain also matches third and later main phases, so it cannot restrict
+// survival to the second main phase.
 pub(in crate::card::sets) static VETERAN_SURVIVOR: CardRecord = CardRecord::new(
     "Veteran Survivor",
     "39368ea2-f665-40b1-b042-c0182f7c6df0",
@@ -1469,7 +1499,7 @@ pub(in crate::card::sets) static ABHORRENT_OCULUS: CardRecord = CardRecord::new(
     "Abhorrent Oculus",
     "d2705b43-a94a-44c0-8740-82e0b296820c",
     "Bryan Sola",
-// A three-mana 5/5 flier for a deck that filled its own graveyard on
+    // A three-mana 5/5 flier for a deck that filled its own graveyard on
     // purpose, and a body every turn afterwards for nothing.
     CardRules::new_creature(mana_cost!("{2}{U}"), &["Eye"], 5, 5).with_abilities(&[
         AbilityDef::spell_with_additional_cost(
@@ -1486,10 +1516,11 @@ pub(in crate::card::sets) static ABHORRENT_OCULUS: CardRecord = CardRecord::new(
         ),
         abilities::flying(),
         AbilityDef::triggered(
-            "At the beginning of each opponent's upkeep, manifest dread. (Look at the top two cards \
-             of your library. Put one onto the battlefield face down as a 2/2 creature and the other \
-             into your graveyard. Turn it face up any time for its mana cost if it's a creature \
-             card.)",
+            "At the beginning of each opponent's upkeep, manifest dread. \
+             (Look at the top two cards of your library. Put one onto \
+             the battlefield face down as a 2/2 creature and the other \
+             into your graveyard. Turn it face up any time for its mana \
+             cost if it's a creature card.)",
             TriggerEventDef::StepBegins {
                 step: TurnStepDef::Upkeep,
                 player: PlayerRelation::Opponent,
@@ -1608,7 +1639,8 @@ pub(in crate::card::sets) static BOTTOMLESS_POOL: CardRecord = CardRecord::new(
 });
 
 // DSK 44 — Central Elevator // Promising Stairs
-// Audit: unsupported — Needs a value that counts distinct names of unlocked Room doors; ordinary object names do not represent individual unlocked doors.
+// Audit: unsupported — Needs a value that counts distinct names of unlocked Room doors;
+// ordinary object names do not represent individual unlocked doors.
 pub(in crate::card::sets) static CENTRAL_ELEVATOR: CardRecord = CardRecord::new(
     "Central Elevator // Promising Stairs",
     "e548befc-4cd4-46be-951f-045452261cda",
@@ -1643,7 +1675,9 @@ pub(in crate::card::sets) static CLAMMY_PROWLER: CardRecord = CardRecord::new(
 );
 
 // DSK 46 — Creeping Peeper
-// Audit: unsupported — Needs mana-use restrictions that include door-unlock and turn-face-up special actions; current restrictions cannot distinguish those special-action payment purposes.
+// Audit: unsupported — Needs mana-use restrictions that include door-unlock and turn-face-up
+// special actions; current restrictions cannot distinguish those special-action payment
+// purposes.
 pub(in crate::card::sets) static CREEPING_PEEPER: CardRecord = CardRecord::new(
     "Creeping Peeper",
     "7ad59368-1335-4d8e-a254-ccd889933e57",
@@ -1847,7 +1881,9 @@ pub(in crate::card::sets) static ENTER_THE_ENIGMA: CardRecord = CardRecord::new(
 );
 
 // DSK 53 — Entity Tracker
-// Audit: unsupported — Needs a committed event for a Room becoming fully unlocked, observed by other permanents and graveyard abilities. DoorUnlocked only dispatches to the door being opened, so it cannot implement the second eerie trigger.
+// Audit: unsupported — Needs a committed event for a Room becoming fully unlocked, observed by
+// other permanents and graveyard abilities. DoorUnlocked only dispatches to the door being
+// opened, so it cannot implement the second eerie trigger.
 pub(in crate::card::sets) static ENTITY_TRACKER: CardRecord = CardRecord::new(
     "Entity Tracker",
     "ae54d697-6d06-4af1-a617-8a47a6ab9c01",
@@ -1856,7 +1892,9 @@ pub(in crate::card::sets) static ENTITY_TRACKER: CardRecord = CardRecord::new(
 );
 
 // DSK 54 — Erratic Apparition
-// Audit: unsupported — Needs a committed event for a Room becoming fully unlocked, observed by other permanents and graveyard abilities. DoorUnlocked only dispatches to the door being opened, so it cannot implement the second eerie trigger.
+// Audit: unsupported — Needs a committed event for a Room becoming fully unlocked, observed by
+// other permanents and graveyard abilities. DoorUnlocked only dispatches to the door being
+// opened, so it cannot implement the second eerie trigger.
 pub(in crate::card::sets) static ERRATIC_APPARITION: CardRecord = CardRecord::new(
     "Erratic Apparition",
     "a74fd612-2890-4333-a379-5bf7650fbb87",
@@ -2148,7 +2186,8 @@ pub(in crate::card::sets) static GET_OUT: CardRecord = CardRecord::new(
 );
 
 // DSK 61 — Ghostly Keybearer
-// Audit: unsupported — Needs a resolving effect that unlocks a chosen locked door of a targeted Room; the existing unlock path is a player special action, not a shared effect.
+// Audit: unsupported — Needs a resolving effect that unlocks a chosen locked door of a targeted
+// Room; the existing unlock path is a player special action, not a shared effect.
 pub(in crate::card::sets) static GHOSTLY_KEYBEARER: CardRecord = CardRecord::new(
     "Ghostly Keybearer",
     "11d04a98-6997-4653-9719-e6b215567599",
@@ -2190,7 +2229,9 @@ const LEYLINE_OF_TRANSFORMATION_ALTERNATE_1: PrintingRecord = PrintingRecord::al
 );
 
 // DSK 64 — Marina Vendrell's Grimoire
-// Audit: unsupported — Needs a life-loss event carrying the actual amount lost, including payments and life-total changes; damage and life-gain events cannot represent every such loss.
+// Audit: unsupported — Needs a life-loss event carrying the actual amount lost, including
+// payments and life-total changes; damage and life-gain events cannot represent every such
+// loss.
 pub(in crate::card::sets) static MARINA_VENDRELL_S_GRIMOIRE: CardRecord = CardRecord::new(
     "Marina Vendrell's Grimoire",
     "1ab1aef7-4171-4869-8eb5-fe42e3ca9e45",
@@ -2327,7 +2368,9 @@ pub(in crate::card::sets) static MEAT_LOCKER: CardRecord = CardRecord::new(
 });
 
 // DSK 66 — The Mindskinner
-// Audit: unsupported — Needs a damage-prevention replacement that subsequently mills each opponent by the prevented amount; supported prevention modifiers do not carry a general post-prevention effect continuation.
+// Audit: unsupported — Needs a damage-prevention replacement that subsequently mills each
+// opponent by the prevented amount; supported prevention modifiers do not carry a general
+// post-prevention effect continuation.
 pub(in crate::card::sets) static THE_MINDSKINNER: CardRecord = CardRecord::new(
     "The Mindskinner",
     "7f1bb4c5-99be-46cc-ad54-7affb5f0144c",
@@ -2336,7 +2379,9 @@ pub(in crate::card::sets) static THE_MINDSKINNER: CardRecord = CardRecord::new(
 );
 
 // DSK 67 — Mirror Room // Fractured Realm
-// Audit: unsupported — Needs a trigger multiplier for all triggered abilities of controlled permanents; TriggersAnAdditionalTime currently multiplies only triggers caused by matching battlefield entries.
+// Audit: unsupported — Needs a trigger multiplier for all triggered abilities of controlled
+// permanents; TriggersAnAdditionalTime currently multiplies only triggers caused by matching
+// battlefield entries.
 pub(in crate::card::sets) static MIRROR_ROOM: CardRecord = CardRecord::new(
     "Mirror Room // Fractured Realm",
     "c2e085dd-a448-4f5a-9cfa-5c2034234e7c",
@@ -2386,7 +2431,9 @@ pub(in crate::card::sets) static OVERLORD_OF_THE_FLOODPITS: CardRecord = CardRec
 );
 
 // DSK 69 — Paranormal Analyst
-// Audit: unsupported — Needs a completed manifest-dread action event carrying the card actually put into the graveyard; the helper resolves its steps without publishing that action/result event.
+// Audit: unsupported — Needs a completed manifest-dread action event carrying the card actually
+// put into the graveyard; the helper resolves its steps without publishing that action/result
+// event.
 pub(in crate::card::sets) static PARANORMAL_ANALYST: CardRecord = CardRecord::new(
     "Paranormal Analyst",
     "60cf954a-5503-460c-8720-8960842eea47",
@@ -2406,7 +2453,9 @@ pub(in crate::card::sets) static PIRANHA_FLY: CardRecord = CardRecord::new(
 );
 
 // DSK 71 — Scrabbling Skullcrab
-// Audit: unsupported — Needs a committed event for a Room becoming fully unlocked, observed by other permanents and graveyard abilities. DoorUnlocked only dispatches to the door being opened, so it cannot implement the second eerie trigger.
+// Audit: unsupported — Needs a committed event for a Room becoming fully unlocked, observed by
+// other permanents and graveyard abilities. DoorUnlocked only dispatches to the door being
+// opened, so it cannot implement the second eerie trigger.
 pub(in crate::card::sets) static SCRABBLING_SKULLCRAB: CardRecord = CardRecord::new(
     "Scrabbling Skullcrab",
     "c1017b8e-e7fa-41de-8eb2-2e4a59db5117",
@@ -2415,7 +2464,8 @@ pub(in crate::card::sets) static SCRABBLING_SKULLCRAB: CardRecord = CardRecord::
 );
 
 // DSK 72 — Silent Hallcreeper
-// Audit: unsupported — Needs per-incarnation history of previously chosen trigger modes; current modal triggers do not exclude modes already chosen on earlier resolutions.
+// Audit: unsupported — Needs per-incarnation history of previously chosen trigger modes;
+// current modal triggers do not exclude modes already chosen on earlier resolutions.
 pub(in crate::card::sets) static SILENT_HALLCREEPER: CardRecord = CardRecord::new(
     "Silent Hallcreeper",
     "aac4f0cc-63be-4f08-956e-39839c9735ba",
@@ -2424,7 +2474,9 @@ pub(in crate::card::sets) static SILENT_HALLCREEPER: CardRecord = CardRecord::ne
 );
 
 // DSK 73 — Stalked Researcher
-// Audit: unsupported — Needs a committed event for a Room becoming fully unlocked, observed by other permanents and graveyard abilities. DoorUnlocked only dispatches to the door being opened, so it cannot implement the second eerie trigger.
+// Audit: unsupported — Needs a committed event for a Room becoming fully unlocked, observed by
+// other permanents and graveyard abilities. DoorUnlocked only dispatches to the door being
+// opened, so it cannot implement the second eerie trigger.
 pub(in crate::card::sets) static STALKED_RESEARCHER: CardRecord = CardRecord::new(
     "Stalked Researcher",
     "8a26ccad-adfa-43cc-be4c-dc8dd584bca3",
@@ -2480,7 +2532,8 @@ pub(in crate::card::sets) static STAY_HIDDEN_STAY_SILENT: CardRecord = CardRecor
 );
 
 // DSK 75 — The Tale of Tamiyo
-// Audit: unsupported — Needs an unbounded conditional mill-and-repeat procedure, plus a batch of castable copies of selected non-stack cards with their normal costs.
+// Audit: unsupported — Needs an unbounded conditional mill-and-repeat procedure, plus a batch
+// of castable copies of selected non-stack cards with their normal costs.
 pub(in crate::card::sets) static THE_TALE_OF_TAMIYO: CardRecord = CardRecord::new(
     "The Tale of Tamiyo",
     "aaeba193-05d3-4c2d-a304-bbe7114c2eef",
@@ -2544,7 +2597,9 @@ pub(in crate::card::sets) static TWIST_REALITY: CardRecord = CardRecord::new(
 );
 
 // DSK 78 — Unable to Scream
-// Audit: unsupported — Needs a prohibition on turning a face-down permanent face up and static addition of Artifact to an attached creature; neither is accepted by the shared static boundary.
+// Audit: unsupported — Needs a prohibition on turning a face-down permanent face up and static
+// addition of Artifact to an attached creature; neither is accepted by the shared static
+// boundary.
 pub(in crate::card::sets) static UNABLE_TO_SCREAM: CardRecord = CardRecord::new(
     "Unable to Scream",
     "7c59e0cd-10a8-4a32-9c0a-a2c6ef1ed9a6",
@@ -2728,7 +2783,9 @@ pub(in crate::card::sets) static UNNERVING_GRASP: CardRecord = CardRecord::new(
 );
 
 // DSK 81 — Unwilling Vessel
-// Audit: unsupported — Needs a committed event for a Room becoming fully unlocked, observed by other permanents and graveyard abilities. DoorUnlocked only dispatches to the door being opened, so it cannot implement the second eerie trigger.
+// Audit: unsupported — Needs a committed event for a Room becoming fully unlocked, observed by
+// other permanents and graveyard abilities. DoorUnlocked only dispatches to the door being
+// opened, so it cannot implement the second eerie trigger.
 pub(in crate::card::sets) static UNWILLING_VESSEL: CardRecord = CardRecord::new(
     "Unwilling Vessel",
     "5d1758ed-fe33-4ead-8c83-e54fabcb4cfe",
@@ -2795,7 +2852,9 @@ pub(in crate::card::sets) static APPENDAGE_AMALGAM: CardRecord = CardRecord::new
 );
 
 // DSK 84 — Balemurk Leech
-// Audit: unsupported — Needs a committed event for a Room becoming fully unlocked, observed by other permanents and graveyard abilities. DoorUnlocked only dispatches to the door being opened, so it cannot implement the second eerie trigger.
+// Audit: unsupported — Needs a committed event for a Room becoming fully unlocked, observed by
+// other permanents and graveyard abilities. DoorUnlocked only dispatches to the door being
+// opened, so it cannot implement the second eerie trigger.
 pub(in crate::card::sets) static BALEMURK_LEECH: CardRecord = CardRecord::new(
     "Balemurk Leech",
     "f0621b32-95c5-4f70-96cf-d46d20efc85d",
@@ -2985,7 +3044,9 @@ pub(in crate::card::sets) static CRACKED_SKULL: CardRecord = CardRecord::new(
 );
 
 // DSK 89 — Cynical Loner
-// Audit: unsupported — Needs the ordinal number of the current main phase in the turn (CR 505.1b); PostcombatMain also matches third and later main phases, so it cannot restrict survival to the second main phase.
+// Audit: unsupported — Needs the ordinal number of the current main phase in the turn (CR
+// 505.1b); PostcombatMain also matches third and later main phases, so it cannot restrict
+// survival to the second main phase.
 pub(in crate::card::sets) static CYNICAL_LONER: CardRecord = CardRecord::new(
     "Cynical Loner",
     "cc93bcb8-778d-491e-877b-e6ad432764cb",
@@ -2994,7 +3055,9 @@ pub(in crate::card::sets) static CYNICAL_LONER: CardRecord = CardRecord::new(
 );
 
 // DSK 90 — Dashing Bloodsucker
-// Audit: unsupported — Needs a committed event for a Room becoming fully unlocked, observed by other permanents and graveyard abilities. DoorUnlocked only dispatches to the door being opened, so it cannot implement the second eerie trigger.
+// Audit: unsupported — Needs a committed event for a Room becoming fully unlocked, observed by
+// other permanents and graveyard abilities. DoorUnlocked only dispatches to the door being
+// opened, so it cannot implement the second eerie trigger.
 pub(in crate::card::sets) static DASHING_BLOODSUCKER: CardRecord = CardRecord::new(
     "Dashing Bloodsucker",
     "790a90cc-d36f-43b5-8423-89e30bdf7b9f",
@@ -3003,7 +3066,9 @@ pub(in crate::card::sets) static DASHING_BLOODSUCKER: CardRecord = CardRecord::n
 );
 
 // DSK 91 — Defiled Crypt // Cadaver Lab
-// Audit: unsupported — Needs graveyard-departure events with the departing card's owner and a once-per-turn batch trigger; current committed nonbattlefield moves do not supply that complete event.
+// Audit: unsupported — Needs graveyard-departure events with the departing card's owner and a
+// once-per-turn batch trigger; current committed nonbattlefield moves do not supply that
+// complete event.
 pub(in crate::card::sets) static DEFILED_CRYPT: CardRecord = CardRecord::new(
     "Defiled Crypt // Cadaver Lab",
     "d94fb4da-0d3f-4d84-966b-914b84b23289",
@@ -3172,7 +3237,9 @@ pub(in crate::card::sets) static DERELICT_ATTIC: CardRecord = CardRecord::new(
 });
 
 // DSK 94 — Doomsday Excruciator
-// Audit: unsupported — Needs a general move-to-exile instruction that keeps the chosen library cards face down without linking them to the source; the existing face-down exile paths also create source links or cast permissions.
+// Audit: unsupported — Needs a general move-to-exile instruction that keeps the chosen library
+// cards face down without linking them to the source; the existing face-down exile paths also
+// create source links or cast permissions.
 pub(in crate::card::sets) static DOOMSDAY_EXCRUCIATOR: CardRecord = CardRecord::new(
     "Doomsday Excruciator",
     "542c89b6-48c6-4fcb-8a4c-b5ed2fa1d384",
@@ -3593,7 +3660,9 @@ pub(in crate::card::sets) static KILLER_S_MASK: CardRecord = CardRecord::new(
 );
 
 // DSK 105 — Let's Play a Game
-// Audit: unsupported — Needs a conditional modal maximum that can count distinct card types in the graveyard; existing modal conditions can count matching objects but cannot express delirium.
+// Audit: unsupported — Needs a conditional modal maximum that can count distinct card types in
+// the graveyard; existing modal conditions can count matching objects but cannot express
+// delirium.
 pub(in crate::card::sets) static LET_S_PLAY_A_GAME: CardRecord = CardRecord::new(
     "Let's Play a Game",
     "645911b4-7728-4380-9097-e4139b986423",
@@ -3648,7 +3717,9 @@ pub(in crate::card::sets) static LIVE_OR_DIE: CardRecord = CardRecord::new(
 );
 
 // DSK 108 — Meathook Massacre II
-// Audit: unsupported — Needs retained cast X when this enchantment's enters trigger resolves after it has left the battlefield; SourceCastX currently reads the live permanent and loses that value when the source departs.
+// Audit: unsupported — Needs retained cast X when this enchantment's enters trigger resolves
+// after it has left the battlefield; SourceCastX currently reads the live permanent and loses
+// that value when the source departs.
 pub(in crate::card::sets) static MEATHOOK_MASSACRE_II: CardRecord = CardRecord::new(
     "Meathook Massacre II",
     "3db59d06-a226-42b2-8f01-6b63a6eea83f",
@@ -3657,7 +3728,8 @@ pub(in crate::card::sets) static MEATHOOK_MASSACRE_II: CardRecord = CardRecord::
 );
 
 // DSK 109 — Miasma Demon
-// Audit: unsupported — Needs a reflexive trigger after discarding a chosen number of cards, with a target-count maximum derived from the completed discard.
+// Audit: unsupported — Needs a reflexive trigger after discarding a chosen number of cards,
+// with a target-count maximum derived from the completed discard.
 pub(in crate::card::sets) static MIASMA_DEMON: CardRecord = CardRecord::new(
     "Miasma Demon",
     "6d167c00-75ff-4301-855a-8319b89e3689",
@@ -3673,7 +3745,9 @@ const MURDER_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // DSK 111 — Nowhere to Run
-// Audit: unsupported — Needs a controller-filtered targeting permission that ignores opponents' creature hexproof and suppresses those creatures' ward triggers without removing unrelated abilities.
+// Audit: unsupported — Needs a controller-filtered targeting permission that ignores opponents'
+// creature hexproof and suppresses those creatures' ward triggers without removing unrelated
+// abilities.
 pub(in crate::card::sets) static NOWHERE_TO_RUN: CardRecord = CardRecord::new(
     "Nowhere to Run",
     "fee60e9d-9ee7-444a-88f3-c1929e1888fb",
@@ -3682,7 +3756,8 @@ pub(in crate::card::sets) static NOWHERE_TO_RUN: CardRecord = CardRecord::new(
 );
 
 // DSK 112 — Osseous Sticktwister
-// Audit: unsupported — Needs a resolving payment choice between public permanent sacrifice and private discard, retaining which opponents completed either choice for the damage follow-up.
+// Audit: unsupported — Needs a resolving payment choice between public permanent sacrifice and
+// private discard, retaining which opponents completed either choice for the damage follow-up.
 pub(in crate::card::sets) static OSSEOUS_STICKTWISTER: CardRecord = CardRecord::new(
     "Osseous Sticktwister",
     "4f43473e-1302-4543-b331-1a86cfbc3ced",
@@ -3883,7 +3958,8 @@ pub(in crate::card::sets) static SPECTRAL_SNATCHER: CardRecord = CardRecord::new
 );
 
 // DSK 117 — Sporogenic Infection
-// Audit: unsupported — Needs a sacrifice-selection predicate excluding the Aura's attached permanent; current cost selection cannot compare candidate identity with AttachedPermanent.
+// Audit: unsupported — Needs a sacrifice-selection predicate excluding the Aura's attached
+// permanent; current cost selection cannot compare candidate identity with AttachedPermanent.
 pub(in crate::card::sets) static SPOROGENIC_INFECTION: CardRecord = CardRecord::new(
     "Sporogenic Infection",
     "eaae086e-0781-4f4d-bc9c-a98228bc380c",
@@ -4042,7 +4118,9 @@ pub(in crate::card::sets) static UNHOLY_ANNEX: CardRecord = CardRecord::new(
 });
 
 // DSK 119 — Unstoppable Slasher
-// Audit: unsupported — Needs a last-known total-counter count across all counter kinds on the dying creature; the current source counter predicates require one fixed kind and cannot express had no counters of any kind.
+// Audit: unsupported — Needs a last-known total-counter count across all counter kinds on the
+// dying creature; the current source counter predicates require one fixed kind and cannot
+// express had no counters of any kind.
 pub(in crate::card::sets) static UNSTOPPABLE_SLASHER: CardRecord = CardRecord::new(
     "Unstoppable Slasher",
     "c78da035-6b5b-4136-9ab6-f622b64fdc54",
@@ -4051,7 +4129,8 @@ pub(in crate::card::sets) static UNSTOPPABLE_SLASHER: CardRecord = CardRecord::n
 );
 
 // DSK 120 — Valgavoth, Terror Eater
-// Audit: unsupported — Needs linked exile-play permission whose alternative cost is life equal to each selected spell's mana value, with the permission restricted to the controller's turn.
+// Audit: unsupported — Needs linked exile-play permission whose alternative cost is life equal
+// to each selected spell's mana value, with the permission restricted to the controller's turn.
 pub(in crate::card::sets) static VALGAVOTH_TERROR_EATER: CardRecord = CardRecord::new(
     "Valgavoth, Terror Eater",
     "7740ff55-67bb-409e-90f7-2c2c8b8c770a",
@@ -4252,7 +4331,9 @@ pub(in crate::card::sets) static BETRAYER_S_BARGAIN: CardRecord = CardRecord::ne
 );
 
 // DSK 127 — Boilerbilges Ripper
-// Audit: unsupported — Needs a reflexive trigger installed by the resolving sacrifice clause, retaining its source even after it leaves. SacrificePerformed currently only comes from the legacy sacrifice-of-choice path and requires a live source.
+// Audit: unsupported — Needs a reflexive trigger installed by the resolving sacrifice clause,
+// retaining its source even after it leaves. SacrificePerformed currently only comes from the
+// legacy sacrifice-of-choice path and requires a live source.
 pub(in crate::card::sets) static BOILERBILGES_RIPPER: CardRecord = CardRecord::new(
     "Boilerbilges Ripper",
     "1a68009c-83cd-455f-81e9-bdd720d23a43",
@@ -4269,7 +4350,9 @@ const CHAINSAW_ALTERNATE_1: PrintingRecord = PrintingRecord::alternate(
 );
 
 // DSK 129 — Charred Foyer // Warped Space
-// Audit: unsupported — Needs a once-per-turn alternative spell cost applicable specifically to casts from exile; current cast permissions cannot represent that independent limited alternative cost.
+// Audit: unsupported — Needs a once-per-turn alternative spell cost applicable specifically to
+// casts from exile; current cast permissions cannot represent that independent limited
+// alternative cost.
 pub(in crate::card::sets) static CHARRED_FOYER: CardRecord = CardRecord::new(
     "Charred Foyer // Warped Space",
     "a128e6d1-b90f-45a1-b587-f8c29bd0ec8c",
@@ -4286,7 +4369,9 @@ const CLOCKWORK_PERCUSSIONIST_ALTERNATE_1: PrintingRecord = PrintingRecord::alte
 );
 
 // DSK 131 — Cursed Recording
-// Audit: unsupported — Needs a delayed trigger that expires after either one matching spell or the current turn; installed triggers offer separate once and turn lifetimes, not their intersection.
+// Audit: unsupported — Needs a delayed trigger that expires after either one matching spell or
+// the current turn; installed triggers offer separate once and turn lifetimes, not their
+// intersection.
 pub(in crate::card::sets) static CURSED_RECORDING: CardRecord = CardRecord::new(
     "Cursed Recording",
     "d13a247c-c941-488a-b13b-bffb1f1f368a",
@@ -4368,7 +4453,9 @@ pub(in crate::card::sets) static ENDURING_COURAGE: CardRecord = CardRecord::new(
 );
 
 // DSK 134 — Fear of Being Hunted
-// Audit: unsupported — Needs a combat requirement that this attacker be blocked by at least one creature if able; MustBeBlockedBy instead requires every matching creature to block, and minimum-blocker restrictions only constrain blocks that are declared.
+// Audit: unsupported — Needs a combat requirement that this attacker be blocked by at least one
+// creature if able; MustBeBlockedBy instead requires every matching creature to block, and
+// minimum-blocker restrictions only constrain blocks that are declared.
 pub(in crate::card::sets) static FEAR_OF_BEING_HUNTED: CardRecord = CardRecord::new(
     "Fear of Being Hunted",
     "a0a5e716-68c1-4fa0-aa08-5b08114e08d8",
@@ -4377,7 +4464,8 @@ pub(in crate::card::sets) static FEAR_OF_BEING_HUNTED: CardRecord = CardRecord::
 );
 
 // DSK 135 — Fear of Burning Alive
-// Audit: unsupported — Needs a noncombat-only damage matcher; the shared damage-kind vocabulary currently distinguishes combat from any damage, not noncombat.
+// Audit: unsupported — Needs a noncombat-only damage matcher; the shared damage-kind vocabulary
+// currently distinguishes combat from any damage, not noncombat.
 pub(in crate::card::sets) static FEAR_OF_BURNING_ALIVE: CardRecord = CardRecord::new(
     "Fear of Burning Alive",
     "b282f8e3-8b79-47e9-8c18-62284211442b",
@@ -4536,7 +4624,9 @@ pub(in crate::card::sets) static GLASSWORKS: CardRecord = CardRecord::new(
 });
 
 // DSK 138 — Grab the Prize
-// Audit: unsupported — Needs a last-known card-type predicate for the discarded casting-cost object. AdditionalCostObject retains its old identity, but bound-card matching only reads live cards, so a discarded land is incorrectly treated as nonland after it leaves the hand.
+// Audit: unsupported — Needs a last-known card-type predicate for the discarded casting-cost
+// object. AdditionalCostObject retains its old identity, but bound-card matching only reads
+// live cards, so a discarded land is incorrectly treated as nonland after it leaves the hand.
 pub(in crate::card::sets) static GRAB_THE_PRIZE: CardRecord = CardRecord::new(
     "Grab the Prize",
     "50895202-f1a1-4840-a11a-55b78b8b5929",
@@ -4579,7 +4669,9 @@ pub(in crate::card::sets) static HAND_THAT_FEEDS: CardRecord = CardRecord::new(
 );
 
 // DSK 140 — Impossible Inferno
-// Audit: unsupported — Needs exile-play permission that expires at cleanup of the controller's next turn; the current turn-count permission can remain usable during the following opponent turn.
+// Audit: unsupported — Needs exile-play permission that expires at cleanup of the controller's
+// next turn; the current turn-count permission can remain usable during the following opponent
+// turn.
 pub(in crate::card::sets) static IMPOSSIBLE_INFERNO: CardRecord = CardRecord::new(
     "Impossible Inferno",
     "a35248f9-9a4e-4758-a4c1-0e0c83e3fd75",
@@ -4588,7 +4680,9 @@ pub(in crate::card::sets) static IMPOSSIBLE_INFERNO: CardRecord = CardRecord::ne
 );
 
 // DSK 141 — Infernal Phantom
-// Audit: unsupported — Needs a committed event for a Room becoming fully unlocked, observed by other permanents and graveyard abilities. DoorUnlocked only dispatches to the door being opened, so it cannot implement the second eerie trigger.
+// Audit: unsupported — Needs a committed event for a Room becoming fully unlocked, observed by
+// other permanents and graveyard abilities. DoorUnlocked only dispatches to the door being
+// opened, so it cannot implement the second eerie trigger.
 pub(in crate::card::sets) static INFERNAL_PHANTOM: CardRecord = CardRecord::new(
     "Infernal Phantom",
     "f0c5999f-a185-4fc7-86fa-c4e5b091e768",
@@ -4597,7 +4691,8 @@ pub(in crate::card::sets) static INFERNAL_PHANTOM: CardRecord = CardRecord::new(
 );
 
 // DSK 142 — Irreverent Gremlin
-// Audit: unsupported — Needs a once-per-turn limit on accepting and completing the discard choice, rather than on the number of triggers; declining must leave later triggers usable.
+// Audit: unsupported — Needs a once-per-turn limit on accepting and completing the discard
+// choice, rather than on the number of triggers; declining must leave later triggers usable.
 pub(in crate::card::sets) static IRREVERENT_GREMLIN: CardRecord = CardRecord::new(
     "Irreverent Gremlin",
     "8da254f5-53f2-41d2-a4f0-a90b3dd6209c",
@@ -4610,10 +4705,12 @@ pub(in crate::card::sets) static LEYLINE_OF_RESONANCE: CardRecord = CardRecord::
     "Leyline of Resonance",
     "92c5f0e3-345a-40a8-9cda-565a62156692",
     "Sergey Glushakov",
-CardRules::new_enchantment(mana_cost!("{2}{R}{R}")).with_abilities(&[
+    CardRules::new_enchantment(mana_cost!("{2}{R}{R}")).with_abilities(&[
         abilities::begin_game_on_battlefield(),
         AbilityDef::triggered(
-            "Whenever you cast an instant or sorcery spell that targets only a single creature you control, copy that spell. You may choose new targets for the copy.",
+            "Whenever you cast an instant or sorcery spell that targets \
+             only a single creature you control, copy that spell. You \
+             may choose new targets for the copy.",
             TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
                 ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                 ObjectPredicateDef::AnyOf(&[
@@ -4624,12 +4721,10 @@ CardRules::new_enchantment(mana_cost!("{2}{R}{R}")).with_abilities(&[
                     minimum: 1,
                     maximum: 1,
                 },
-                ObjectPredicateDef::TargetsObjectMatching(
-                    &ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                    ]),
-                ),
+                ObjectPredicateDef::TargetsObjectMatching(&ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ])),
             ])),
             EffectDef::CopyStackObject(&CopyStackObjectDef {
                 object: EffectRecipientDef::TriggeringObject,
@@ -4751,7 +4846,9 @@ pub(in crate::card::sets) static OVERLORD_OF_THE_BOILERBILGES: CardRecord = Card
 );
 
 // DSK 147 — Painter's Studio // Defaced Gallery
-// Audit: unsupported — Needs exile-play permission that expires at cleanup of the controller's next turn; the current turn-count permission can remain usable during the following opponent turn.
+// Audit: unsupported — Needs exile-play permission that expires at cleanup of the controller's
+// next turn; the current turn-count permission can remain usable during the following opponent
+// turn.
 pub(in crate::card::sets) static PAINTER_S_STUDIO: CardRecord = CardRecord::new(
     "Painter's Studio // Defaced Gallery",
     "e96901eb-5b57-43f4-a7b1-ae3b809bc36e",
@@ -4810,7 +4907,8 @@ pub(in crate::card::sets) static RAGGED_PLAYMATE: CardRecord = CardRecord::new(
 );
 
 // DSK 151 — Rampaging Soulrager
-// Audit: unsupported — Needs a continuous value or condition counting unlocked doors across controlled Rooms; counting permanents does not count their individual doors.
+// Audit: unsupported — Needs a continuous value or condition counting unlocked doors across
+// controlled Rooms; counting permanents does not count their individual doors.
 pub(in crate::card::sets) static RAMPAGING_SOULRAGER: CardRecord = CardRecord::new(
     "Rampaging Soulrager",
     "569c914b-95af-428f-a142-6f20e418bc59",
@@ -4885,7 +4983,8 @@ pub(in crate::card::sets) static RIPCHAIN_RAZORKIN: CardRecord = CardRecord::new
 );
 
 // DSK 155 — The Rollercrusher Ride
-// Audit: unsupported — Needs a noncombat-only damage replacement matcher and a variable target-count limit tied to cast X for the enters trigger.
+// Audit: unsupported — Needs a noncombat-only damage replacement matcher and a variable
+// target-count limit tied to cast X for the enters trigger.
 pub(in crate::card::sets) static THE_ROLLERCRUSHER_RIDE: CardRecord = CardRecord::new(
     "The Rollercrusher Ride",
     "70019956-fca1-4090-b3b6-6a963528e05b",
@@ -5043,7 +5142,9 @@ pub(in crate::card::sets) static TRIAL_OF_AGONY: CardRecord = CardRecord::new(
 );
 
 // DSK 160 — Turn Inside Out
-// Audit: unsupported — Needs a delayed dies trigger tied to the targeted creature for this turn, retaining the spell controller; granting a dies ability to the creature changes who manifests if that creature changes controller.
+// Audit: unsupported — Needs a delayed dies trigger tied to the targeted creature for this
+// turn, retaining the spell controller; granting a dies ability to the creature changes who
+// manifests if that creature changes controller.
 pub(in crate::card::sets) static TURN_INSIDE_OUT: CardRecord = CardRecord::new(
     "Turn Inside Out",
     "57e2a92c-06d3-4cb5-883d-cba428a7e98e",
@@ -5220,7 +5321,9 @@ pub(in crate::card::sets) static VIOLENT_URGE: CardRecord = CardRecord::new(
 );
 
 // DSK 165 — Waltz of Rage
-// Audit: unsupported — Needs exile-play permission that expires at cleanup of the controller's next turn; the current turn-count permission can remain usable during the following opponent turn.
+// Audit: unsupported — Needs exile-play permission that expires at cleanup of the controller's
+// next turn; the current turn-count permission can remain usable during the following opponent
+// turn.
 pub(in crate::card::sets) static WALTZ_OF_RAGE: CardRecord = CardRecord::new(
     "Waltz of Rage",
     "abf17d8b-12bc-4122-865d-50cf91f04f67",
@@ -5274,7 +5377,9 @@ pub(in crate::card::sets) static ALTANAK_THE_THRICE_CALLED: CardRecord = CardRec
 );
 
 // DSK 167 — Anthropede
-// Audit: unsupported — Needs a resolving payment alternative combining private discard selection with mana payment, then a reflexive trigger that chooses a Room target after payment.
+// Audit: unsupported — Needs a resolving payment alternative combining private discard
+// selection with mana payment, then a reflexive trigger that chooses a Room target after
+// payment.
 pub(in crate::card::sets) static ANTHROPEDE: CardRecord = CardRecord::new(
     "Anthropede",
     "51216ab0-9806-4faa-afbd-143e95dc255b",
@@ -5447,7 +5552,9 @@ pub(in crate::card::sets) static CATHARTIC_PARTING: CardRecord = CardRecord::new
 );
 
 // DSK 172 — Cautious Survivor
-// Audit: unsupported — Needs the ordinal number of the current main phase in the turn (CR 505.1b); PostcombatMain also matches third and later main phases, so it cannot restrict survival to the second main phase.
+// Audit: unsupported — Needs the ordinal number of the current main phase in the turn (CR
+// 505.1b); PostcombatMain also matches third and later main phases, so it cannot restrict
+// survival to the second main phase.
 pub(in crate::card::sets) static CAUTIOUS_SURVIVOR: CardRecord = CardRecord::new(
     "Cautious Survivor",
     "ee2b4c1a-e058-4e06-bc46-e250fd9c9b54",
@@ -5615,7 +5722,8 @@ pub(in crate::card::sets) static COORDINATED_CLOBBERING: CardRecord = CardRecord
 );
 
 // DSK 174 — Cryptid Inspector
-// Audit: unsupported — Needs a committed turned-face-up event in addition to matching face-down entries; existing zone-change events cannot represent turning a permanent face up.
+// Audit: unsupported — Needs a committed turned-face-up event in addition to matching face-down
+// entries; existing zone-change events cannot represent turning a permanent face up.
 pub(in crate::card::sets) static CRYPTID_INSPECTOR: CardRecord = CardRecord::new(
     "Cryptid Inspector",
     "820c2932-2e23-4f67-92d0-a630aec6f1b4",
@@ -5624,7 +5732,9 @@ pub(in crate::card::sets) static CRYPTID_INSPECTOR: CardRecord = CardRecord::new
 );
 
 // DSK 175 — Defiant Survivor
-// Audit: unsupported — Needs the ordinal number of the current main phase in the turn (CR 505.1b); PostcombatMain also matches third and later main phases, so it cannot restrict survival to the second main phase.
+// Audit: unsupported — Needs the ordinal number of the current main phase in the turn (CR
+// 505.1b); PostcombatMain also matches third and later main phases, so it cannot restrict
+// survival to the second main phase.
 pub(in crate::card::sets) static DEFIANT_SURVIVOR: CardRecord = CardRecord::new(
     "Defiant Survivor",
     "327772f3-5a87-47af-9308-c1119ad2711d",
@@ -5691,12 +5801,13 @@ pub(in crate::card::sets) static FLESH_BURROWER: CardRecord = CardRecord::new(
     "Flesh Burrower",
     "60499c90-a512-4abb-98eb-0735a7138421",
     "Maxime Minard",
-// It already has deathtouch, which is why the trigger says "another":
+    // It already has deathtouch, which is why the trigger says "another":
     // the point is to make a second attacker just as unblockable.
     CardRules::new_creature(mana_cost!("{1}{G}"), &["Insect"], 2, 2).with_abilities(&[
         abilities::deathtouch(),
         AbilityDef::triggered_with_targets(
-            "Whenever this creature attacks, another target creature you control gains deathtouch until end of turn.",
+            "Whenever this creature attacks, another target creature you \
+             control gains deathtouch until end of turn.",
             TriggerEventDef::attacks(ObjectPredicateDef::Source),
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::All(&[
@@ -5916,7 +6027,9 @@ pub(in crate::card::sets) static GREENHOUSE: CardRecord = CardRecord::new(
 });
 
 // DSK 182 — Hauntwoods Shrieker
-// Audit: unsupported — Needs an effect that reveals a face-down permanent's underlying card and turns it face up without paying its turn-up cost; only the paid turn-up special action is available.
+// Audit: unsupported — Needs an effect that reveals a face-down permanent's underlying card and
+// turns it face up without paying its turn-up cost; only the paid turn-up special action is
+// available.
 pub(in crate::card::sets) static HAUNTWOODS_SHRIEKER: CardRecord = CardRecord::new(
     "Hauntwoods Shrieker",
     "744ef0bc-9973-450e-a0c4-056d8244f357",
@@ -5925,7 +6038,8 @@ pub(in crate::card::sets) static HAUNTWOODS_SHRIEKER: CardRecord = CardRecord::n
 );
 
 // DSK 183 — Hedge Shredder
-// Audit: unsupported — Needs one trigger carrying the batch of land cards actually moved from the library to the controller's graveyard, retaining each card's resulting identity.
+// Audit: unsupported — Needs one trigger carrying the batch of land cards actually moved from
+// the library to the controller's graveyard, retaining each card's resulting identity.
 pub(in crate::card::sets) static HEDGE_SHREDDER: CardRecord = CardRecord::new(
     "Hedge Shredder",
     "39e83502-2ffd-4169-94e3-116701323ed5",
@@ -5956,7 +6070,9 @@ pub(in crate::card::sets) static HORRID_VIGOR: CardRecord = CardRecord::new(
 );
 
 // DSK 185 — House Cartographer
-// Audit: unsupported — Needs the ordinal number of the current main phase in the turn (CR 505.1b); PostcombatMain also matches third and later main phases, so it cannot restrict survival to the second main phase.
+// Audit: unsupported — Needs the ordinal number of the current main phase in the turn (CR
+// 505.1b); PostcombatMain also matches third and later main phases, so it cannot restrict
+// survival to the second main phase.
 pub(in crate::card::sets) static HOUSE_CARTOGRAPHER: CardRecord = CardRecord::new(
     "House Cartographer",
     "2a534918-a009-4f7d-87c9-5ef600b6e7c2",
@@ -6037,7 +6153,9 @@ pub(in crate::card::sets) static INSIDIOUS_FUNGUS: CardRecord = CardRecord::new(
 );
 
 // DSK 187 — Kona, Rescue Beastie
-// Audit: unsupported — Needs the ordinal number of the current main phase in the turn (CR 505.1b); PostcombatMain also matches third and later main phases, so it cannot restrict survival to the second main phase.
+// Audit: unsupported — Needs the ordinal number of the current main phase in the turn (CR
+// 505.1b); PostcombatMain also matches third and later main phases, so it cannot restrict
+// survival to the second main phase.
 pub(in crate::card::sets) static KONA_RESCUE_BEASTIE: CardRecord = CardRecord::new(
     "Kona, Rescue Beastie",
     "6f035294-2787-4719-8520-227bf03e84e7",
@@ -6276,7 +6394,9 @@ pub(in crate::card::sets) static MOLDERING_GYM: CardRecord = CardRecord::new(
 });
 
 // DSK 191 — Monstrous Emergence
-// Audit: unsupported — Needs a casting-time additional-cost choice between a battlefield creature reference and revealing a creature card, retaining the selected power for resolution.
+// Audit: unsupported — Needs a casting-time additional-cost choice between a battlefield
+// creature reference and revealing a creature card, retaining the selected power for
+// resolution.
 pub(in crate::card::sets) static MONSTROUS_EMERGENCE: CardRecord = CardRecord::new(
     "Monstrous Emergence",
     "b999eb47-b842-47f1-be91-c79fc46e1896",
@@ -6357,7 +6477,8 @@ pub(in crate::card::sets) static OMNIVOROUS_FLYTRAP: CardRecord = CardRecord::ne
 );
 
 // DSK 193 — Overgrown Zealot
-// Audit: unsupported — Needs produced mana restricted specifically to turn-face-up special-action costs; the current restriction vocabulary has no such spending context.
+// Audit: unsupported — Needs produced mana restricted specifically to turn-face-up
+// special-action costs; the current restriction vocabulary has no such spending context.
 pub(in crate::card::sets) static OVERGROWN_ZEALOT: CardRecord = CardRecord::new(
     "Overgrown Zealot",
     "96d68d29-499a-4864-be18-bd98fda0d173",
@@ -6454,7 +6575,9 @@ pub(in crate::card::sets) static PATCHWORK_BEASTIE: CardRecord = CardRecord::new
 );
 
 // DSK 196 — Rootwise Survivor
-// Audit: unsupported — Needs the ordinal number of the current main phase in the turn (CR 505.1b); PostcombatMain also matches third and later main phases, so it cannot restrict survival to the second main phase.
+// Audit: unsupported — Needs the ordinal number of the current main phase in the turn (CR
+// 505.1b); PostcombatMain also matches third and later main phases, so it cannot restrict
+// survival to the second main phase.
 pub(in crate::card::sets) static ROOTWISE_SURVIVOR: CardRecord = CardRecord::new(
     "Rootwise Survivor",
     "d843c242-088f-4131-9e52-7ee2d0db5e20",
@@ -6463,7 +6586,9 @@ pub(in crate::card::sets) static ROOTWISE_SURVIVOR: CardRecord = CardRecord::new
 );
 
 // DSK 197 — Say Its Name
-// Audit: unsupported — Needs optional selection of which of several hidden/public zones to search, with a shuffle only if the library was searched; existing multi-zone card choices do not retain that search-zone decision independently of the card found.
+// Audit: unsupported — Needs optional selection of which of several hidden/public zones to
+// search, with a shuffle only if the library was searched; existing multi-zone card choices do
+// not retain that search-zone decision independently of the card found.
 pub(in crate::card::sets) static SAY_ITS_NAME: CardRecord = CardRecord::new(
     "Say Its Name",
     "94c58683-b5f2-4863-9562-6f6be1ec21fe",
@@ -6540,7 +6665,9 @@ pub(in crate::card::sets) static SPINESEEKER_CENTIPEDE: CardRecord = CardRecord:
 );
 
 // DSK 200 — Threats Around Every Corner
-// Audit: unsupported — Needs an object predicate that identifies face-down permanents for the enters trigger; manifest can create those permanents, but the exposed event predicate vocabulary cannot test that characteristic.
+// Audit: unsupported — Needs an object predicate that identifies face-down permanents for the
+// enters trigger; manifest can create those permanents, but the exposed event predicate
+// vocabulary cannot test that characteristic.
 pub(in crate::card::sets) static THREATS_AROUND_EVERY_CORNER: CardRecord = CardRecord::new(
     "Threats Around Every Corner",
     "7201ee12-9104-48d8-aeec-08a318c8ee10",
@@ -6549,7 +6676,9 @@ pub(in crate::card::sets) static THREATS_AROUND_EVERY_CORNER: CardRecord = CardR
 );
 
 // DSK 201 — Twitching Doll
-// Audit: unsupported — Needs a mana ability that both produces mana and places a counter as part of its immediate resolution; the current mana-ability boundary admits mana production without this additional effect.
+// Audit: unsupported — Needs a mana ability that both produces mana and places a counter as
+// part of its immediate resolution; the current mana-ability boundary admits mana production
+// without this additional effect.
 pub(in crate::card::sets) static TWITCHING_DOLL: CardRecord = CardRecord::new(
     "Twitching Doll",
     "416c025b-e40e-4d95-a774-ba3961f43808",
@@ -6668,7 +6797,9 @@ pub(in crate::card::sets) static UNDER_THE_SKIN: CardRecord = CardRecord::new(
 );
 
 // DSK 204 — Valgavoth's Onslaught
-// Audit: unsupported — Needs a repeated manifest operation that accumulates all resulting permanent identities for a later group counter placement; the existing repeat continuation does not accumulate per-iteration result bindings.
+// Audit: unsupported — Needs a repeated manifest operation that accumulates all resulting
+// permanent identities for a later group counter placement; the existing repeat continuation
+// does not accumulate per-iteration result bindings.
 pub(in crate::card::sets) static VALGAVOTH_S_ONSLAUGHT: CardRecord = CardRecord::new(
     "Valgavoth's Onslaught",
     "7d4ba274-3c6f-4e12-ba2c-a81c3da3f7e2",
@@ -6677,7 +6808,9 @@ pub(in crate::card::sets) static VALGAVOTH_S_ONSLAUGHT: CardRecord = CardRecord:
 );
 
 // DSK 205 — Walk-In Closet // Forgotten Cellar
-// Audit: unsupported — Needs a temporary player-scoped graveyard-move replacement that persists after this Room leaves the battlefield; granting the replacement to the Room makes it end too early.
+// Audit: unsupported — Needs a temporary player-scoped graveyard-move replacement that persists
+// after this Room leaves the battlefield; granting the replacement to the Room makes it end too
+// early.
 pub(in crate::card::sets) static WALK_IN_CLOSET_FORGOTTEN_CELLAR: CardRecord = CardRecord::new(
     "Walk-In Closet // Forgotten Cellar",
     "0adcd4e5-d542-4293-8774-ace2305ef820",
@@ -6983,7 +7116,9 @@ pub(in crate::card::sets) static DISTURBING_MIRTH: CardRecord = CardRecord::new(
 );
 
 // DSK 213 — Drag to the Roots
-// Audit: unsupported — Needs a self spell-cost reduction conditional on the number of card types in the controller's graveyard; the self-cost evaluator rejects IfCardTypesAmongGraveyards even though normal resolving effects can read it.
+// Audit: unsupported — Needs a self spell-cost reduction conditional on the number of card
+// types in the controller's graveyard; the self-cost evaluator rejects
+// IfCardTypesAmongGraveyards even though normal resolving effects can read it.
 pub(in crate::card::sets) static DRAG_TO_THE_ROOTS: CardRecord = CardRecord::new(
     "Drag to the Roots",
     "46f46095-6479-46b0-9e59-194d83f86a46",
@@ -6992,7 +7127,9 @@ pub(in crate::card::sets) static DRAG_TO_THE_ROOTS: CardRecord = CardRecord::new
 );
 
 // DSK 214 — Fear of Infinity
-// Audit: unsupported — Needs a committed event for a Room becoming fully unlocked, observed by other permanents and graveyard abilities. DoorUnlocked only dispatches to the door being opened, so it cannot implement the second eerie trigger.
+// Audit: unsupported — Needs a committed event for a Room becoming fully unlocked, observed by
+// other permanents and graveyard abilities. DoorUnlocked only dispatches to the door being
+// opened, so it cannot implement the second eerie trigger.
 pub(in crate::card::sets) static FEAR_OF_INFINITY: CardRecord = CardRecord::new(
     "Fear of Infinity",
     "81756844-c642-406f-842d-35c1e404fec0",
@@ -7001,7 +7138,9 @@ pub(in crate::card::sets) static FEAR_OF_INFINITY: CardRecord = CardRecord::new(
 );
 
 // DSK 215 — Gremlin Tamer
-// Audit: unsupported — Needs a committed event for a Room becoming fully unlocked, observed by other permanents and graveyard abilities. DoorUnlocked only dispatches to the door being opened, so it cannot implement the second eerie trigger.
+// Audit: unsupported — Needs a committed event for a Room becoming fully unlocked, observed by
+// other permanents and graveyard abilities. DoorUnlocked only dispatches to the door being
+// opened, so it cannot implement the second eerie trigger.
 pub(in crate::card::sets) static GREMLIN_TAMER: CardRecord = CardRecord::new(
     "Gremlin Tamer",
     "3593a222-21c5-4f91-bde1-763ea08071da",
@@ -7010,7 +7149,8 @@ pub(in crate::card::sets) static GREMLIN_TAMER: CardRecord = CardRecord::new(
 );
 
 // DSK 216 — Growing Dread
-// Audit: unsupported — Needs a committed turned-face-up event that carries the affected permanent so its counter can be placed.
+// Audit: unsupported — Needs a committed turned-face-up event that carries the affected
+// permanent so its counter can be placed.
 pub(in crate::card::sets) static GROWING_DREAD: CardRecord = CardRecord::new(
     "Growing Dread",
     "5479ac50-8335-4c6a-be99-750a44e24f25",
@@ -7019,7 +7159,8 @@ pub(in crate::card::sets) static GROWING_DREAD: CardRecord = CardRecord::new(
 );
 
 // DSK 217 — Inquisitive Glimmer
-// Audit: unsupported — Needs a cost modifier for Room door-unlock special actions; current modifiers cover spell and activated-ability costs.
+// Audit: unsupported — Needs a cost modifier for Room door-unlock special actions; current
+// modifiers cover spell and activated-ability costs.
 pub(in crate::card::sets) static INQUISITIVE_GLIMMER: CardRecord = CardRecord::new(
     "Inquisitive Glimmer",
     "f1f66e3e-9f1f-4601-aa30-30b66805a5a8",
@@ -7052,7 +7193,9 @@ pub(in crate::card::sets) static INTRUDING_SOULRAGER: CardRecord = CardRecord::n
 );
 
 // DSK 219 — The Jolly Balloon Man
-// Audit: unsupported — Needs an additive copiable color exception: the Balloon token is red in addition to its original colors. CopyExceptionsDef can replace colors, but applying a later color effect would not make that addition copiable.
+// Audit: unsupported — Needs an additive copiable color exception: the Balloon token is red in
+// addition to its original colors. CopyExceptionsDef can replace colors, but applying a later
+// color effect would not make that addition copiable.
 pub(in crate::card::sets) static THE_JOLLY_BALLOON_MAN: CardRecord = CardRecord::new(
     "The Jolly Balloon Man",
     "a3c4e2e0-1c0e-475d-a0f4-1be4216c2bad",
@@ -7065,20 +7208,21 @@ pub(in crate::card::sets) static KAITO_BANE_OF_NIGHTMARES: CardRecord = CardReco
     "Kaito, Bane of Nightmares",
     "55a14f30-4ff9-4472-90a6-c3139f1c18e5",
     "Joshua Raphael",
-// Four mana, or a ninjutsu out of a connected attacker: he arrives
+    // Four mana, or a ninjutsu out of a connected attacker: he arrives
     // attacking, is a hexproof 3/4 for as long as it is your turn, and is a
     // planeswalker again the moment it is not.
     CardRules::new_planeswalker(mana_cost!("{2}{U}{B}"), &["Kaito"], 4)
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
             abilities::ninjutsu!(
-                "Ninjutsu {1}{U}{B} ({1}{U}{B}, Return an unblocked attacker you control to hand: Put \
-                 this card onto the battlefield from your hand tapped and attacking.)",
+                "Ninjutsu {1}{U}{B} ({1}{U}{B}, Return an unblocked attacker \
+                 you control to hand: Put this card onto the battlefield \
+                 from your hand tapped and attacking.)",
                 &[CostDef::Mana(mana_cost!("{1}{U}{B}"))],
             ),
             AbilityDef::static_ability(
-                "During your turn, as long as Kaito has one or more loyalty counters on him, he's a 3/4 \
-                 Ninja creature and has hexproof.",
+                "During your turn, as long as Kaito has one or more loyalty \
+                 counters on him, he's a 3/4 Ninja creature and has hexproof.",
                 EffectDef::IfCondition {
                     // He is a creature only while it is your turn and only while he still has
                     // loyalty: the pair of conditions is what keeps him from being a creature
@@ -7094,11 +7238,18 @@ pub(in crate::card::sets) static KAITO_BANE_OF_NIGHTMARES: CardRecord = CardReco
                     then: &EffectDef::StaticApply {
                         recipient: EffectRecipientDef::Source,
                         effect: AppliedEffectDef::Composite(&[
-                            AppliedEffectDef::Characteristic(CharacteristicOperationDef::CardTypes(SetOperationDef::Add(
-                                CardTypeSet::single(CardType::Creature),
-                            ))),
-                            AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&["Ninja"])),
-                            AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(3), ValueDef::Constant(4)),
+                            AppliedEffectDef::Characteristic(
+                                CharacteristicOperationDef::CardTypes(SetOperationDef::Add(
+                                    CardTypeSet::single(CardType::Creature),
+                                )),
+                            ),
+                            AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&[
+                                "Ninja",
+                            ])),
+                            AppliedEffectDef::set_base_power_toughness(
+                                ValueDef::Constant(3),
+                                ValueDef::Constant(4),
+                            ),
                             AppliedEffectDef::add_ability(&abilities::hexproof()),
                         ]),
                     },
@@ -7108,20 +7259,25 @@ pub(in crate::card::sets) static KAITO_BANE_OF_NIGHTMARES: CardRecord = CardReco
                 "+1: You get an emblem with \"Ninjas you control get +1/+1.\"",
                 &[CostDef::Loyalty(1)],
                 EffectDef::CreateEmblem {
-                    emblem: EmblemCharacteristics::new("Kaito, Bane of Nightmares emblem", &[AbilityDef::static_ability(
+                    emblem: EmblemCharacteristics::new(
+                        "Kaito, Bane of Nightmares emblem",
+                        &[AbilityDef::static_ability(
                             "Ninjas you control get +1/+1.",
                             EffectDef::StaticApply {
-                                recipient: EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::matching(
-                                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Ninja")),
-                                    &[ZoneKind::Battlefield],
-                                    PlayerRelation::You,
-                                ))),
+                                recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                                    ObjectQueryDef::matching(
+                                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Ninja")),
+                                        &[ZoneKind::Battlefield],
+                                        PlayerRelation::You,
+                                    ),
+                                )),
                                 effect: AppliedEffectDef::modify_power_toughness(
                                     ValueDef::Constant(1),
                                     ValueDef::Constant(1),
                                 ),
                             },
-                        )]),
+                        )],
+                    ),
                 },
             ),
             AbilityDef::activated(
@@ -7158,7 +7314,8 @@ pub(in crate::card::sets) static KAITO_BANE_OF_NIGHTMARES: CardRecord = CardReco
 );
 
 // DSK 221 — Marina Vendrell
-// Audit: unsupported — Needs resolving lock/unlock effects that choose a door of a targeted Room, including removing that door's abilities when it is locked.
+// Audit: unsupported — Needs resolving lock/unlock effects that choose a door of a targeted
+// Room, including removing that door's abilities when it is locked.
 pub(in crate::card::sets) static MARINA_VENDRELL: CardRecord = CardRecord::new(
     "Marina Vendrell",
     "6428cddc-2fb6-41af-a643-e83c81dc04f5",
@@ -7275,7 +7432,8 @@ pub(in crate::card::sets) static NASHI_SEARCHER_IN_THE_DARK: CardRecord = CardRe
 );
 
 // DSK 224 — Niko, Light of Hope
-// Audit: unsupported — Needs a copy effect with an expiry at the beginning of the next end step, distinct from end-of-turn cleanup, while preserving the source card's exiled identity.
+// Audit: unsupported — Needs a copy effect with an expiry at the beginning of the next end
+// step, distinct from end-of-turn cleanup, while preserving the source card's exiled identity.
 pub(in crate::card::sets) static NIKO_LIGHT_OF_HOPE: CardRecord = CardRecord::new(
     "Niko, Light of Hope",
     "91ad013f-de8d-4980-b4b6-c7f91ff495b1",
@@ -7284,7 +7442,8 @@ pub(in crate::card::sets) static NIKO_LIGHT_OF_HOPE: CardRecord = CardRecord::ne
 );
 
 // DSK 225 — Oblivious Bookworm
-// Audit: unsupported — Needs turn history for face-down entries and face-up turns, including objects that have since left the battlefield.
+// Audit: unsupported — Needs turn history for face-down entries and face-up turns, including
+// objects that have since left the battlefield.
 pub(in crate::card::sets) static OBLIVIOUS_BOOKWORM: CardRecord = CardRecord::new(
     "Oblivious Bookworm",
     "c7b4c50b-fe76-430d-8f96-208f15ca4cd7",
@@ -7420,7 +7579,9 @@ pub(in crate::card::sets) static RESTRICTED_OFFICE: CardRecord = CardRecord::new
 });
 
 // DSK 228 — Rip, Spawn Hunter
-// Audit: unsupported — Needs the ordinal number of the current main phase in the turn (CR 505.1b); PostcombatMain also matches third and later main phases, so it cannot restrict survival to the second main phase.
+// Audit: unsupported — Needs the ordinal number of the current main phase in the turn (CR
+// 505.1b); PostcombatMain also matches third and later main phases, so it cannot restrict
+// survival to the second main phase.
 pub(in crate::card::sets) static RIP_SPAWN_HUNTER: CardRecord = CardRecord::new(
     "Rip, Spawn Hunter",
     "5f12e3b3-a260-4913-b13a-7fbb753dd702",
@@ -7595,7 +7756,9 @@ pub(in crate::card::sets) static ROARING_FURNACE: CardRecord = CardRecord::new(
 });
 
 // DSK 231 — Sawblade Skinripper
-// Audit: unsupported — Needs a per-controller turn history count of sacrificed permanents, including those no longer in the graveyard; the global creature-death count is not sacrifice history.
+// Audit: unsupported — Needs a per-controller turn history count of sacrificed permanents,
+// including those no longer in the graveyard; the global creature-death count is not sacrifice
+// history.
 pub(in crate::card::sets) static SAWBLADE_SKINRIPPER: CardRecord = CardRecord::new(
     "Sawblade Skinripper",
     "cbe51964-50d2-49b0-9c3c-81751dcbeade",
@@ -7604,7 +7767,9 @@ pub(in crate::card::sets) static SAWBLADE_SKINRIPPER: CardRecord = CardRecord::n
 );
 
 // DSK 232 — Shrewd Storyteller
-// Audit: unsupported — Needs the ordinal number of the current main phase in the turn (CR 505.1b); PostcombatMain also matches third and later main phases, so it cannot restrict survival to the second main phase.
+// Audit: unsupported — Needs the ordinal number of the current main phase in the turn (CR
+// 505.1b); PostcombatMain also matches third and later main phases, so it cannot restrict
+// survival to the second main phase.
 pub(in crate::card::sets) static SHREWD_STORYTELLER: CardRecord = CardRecord::new(
     "Shrewd Storyteller",
     "f9636877-8fcc-4ad5-8eb2-a5d5ba49583d",
@@ -7646,7 +7811,9 @@ pub(in crate::card::sets) static SHROUDSTOMPER: CardRecord = CardRecord::new(
 );
 
 // DSK 234 — Skullsnap Nuisance
-// Audit: unsupported — Needs a committed event for a Room becoming fully unlocked, observed by other permanents and graveyard abilities. DoorUnlocked only dispatches to the door being opened, so it cannot implement the second eerie trigger.
+// Audit: unsupported — Needs a committed event for a Room becoming fully unlocked, observed by
+// other permanents and graveyard abilities. DoorUnlocked only dispatches to the door being
+// opened, so it cannot implement the second eerie trigger.
 pub(in crate::card::sets) static SKULLSNAP_NUISANCE: CardRecord = CardRecord::new(
     "Skullsnap Nuisance",
     "0fdcdfd0-8c66-4767-a894-58cf0c6d7e07",
@@ -7655,7 +7822,8 @@ pub(in crate::card::sets) static SKULLSNAP_NUISANCE: CardRecord = CardRecord::ne
 );
 
 // DSK 235 — Smoky Lounge // Misty Salon
-// Audit: unsupported — Needs mana restricted to Room casting or door-unlock payments and a value counting unlocked Room doors for the token's size.
+// Audit: unsupported — Needs mana restricted to Room casting or door-unlock payments and a
+// value counting unlocked Room doors for the token's size.
 pub(in crate::card::sets) static SMOKY_LOUNGE: CardRecord = CardRecord::new(
     "Smoky Lounge // Misty Salon",
     "4700987d-fc55-44eb-bc9f-0e0316ca65e2",
@@ -7714,7 +7882,8 @@ pub(in crate::card::sets) static THE_SWARMWEAVER: CardRecord = CardRecord::new(
 );
 
 // DSK 237 — Undead Sprinter
-// Audit: unsupported — Needs turn death history filtered by the dead creature's last-known creature types; the current global death count cannot exclude Zombies.
+// Audit: unsupported — Needs turn death history filtered by the dead creature's last-known
+// creature types; the current global death count cannot exclude Zombies.
 pub(in crate::card::sets) static UNDEAD_SPRINTER: CardRecord = CardRecord::new(
     "Undead Sprinter",
     "c6b96951-4884-4df7-bdf0-94be2bc044f0",
@@ -7723,7 +7892,9 @@ pub(in crate::card::sets) static UNDEAD_SPRINTER: CardRecord = CardRecord::new(
 );
 
 // DSK 238 — Victor, Valgavoth's Seneschal
-// Audit: unsupported — Needs a committed event for a Room becoming fully unlocked, observed by other permanents and graveyard abilities. DoorUnlocked only dispatches to the door being opened, so it cannot implement the second eerie trigger.
+// Audit: unsupported — Needs a committed event for a Room becoming fully unlocked, observed by
+// other permanents and graveyard abilities. DoorUnlocked only dispatches to the door being
+// opened, so it cannot implement the second eerie trigger.
 pub(in crate::card::sets) static VICTOR_VALGAVOTH_S_SENESCHAL: CardRecord = CardRecord::new(
     "Victor, Valgavoth's Seneschal",
     "51392ece-c9f5-46b0-9dce-0a1a0343a536",
@@ -7764,7 +7935,8 @@ pub(in crate::card::sets) static WILDFIRE_WICKERFOLK: CardRecord = CardRecord::n
 );
 
 // DSK 240 — Winter, Misanthropic Guide
-// Audit: unsupported — Needs a dynamically computed maximum hand size; current player rules provide no maximum or a fixed modifier, not a value derived from changing graveyard types.
+// Audit: unsupported — Needs a dynamically computed maximum hand size; current player rules
+// provide no maximum or a fixed modifier, not a value derived from changing graveyard types.
 pub(in crate::card::sets) static WINTER_MISANTHROPIC_GUIDE: CardRecord = CardRecord::new(
     "Winter, Misanthropic Guide",
     "e9b81421-44cb-440f-a6ac-3ddf620f1989",
@@ -7773,7 +7945,8 @@ pub(in crate::card::sets) static WINTER_MISANTHROPIC_GUIDE: CardRecord = CardRec
 );
 
 // DSK 241 — Zimone, All-Questioning
-// Audit: unsupported — Needs turn history for a land entering even if that land later leaves, plus an unbounded primality predicate on the controlled land count.
+// Audit: unsupported — Needs turn history for a land entering even if that land later leaves,
+// plus an unbounded primality predicate on the controlled land count.
 pub(in crate::card::sets) static ZIMONE_ALL_QUESTIONING: CardRecord = CardRecord::new(
     "Zimone, All-Questioning",
     "7722f4f7-fe38-4107-a715-7b27b6a4e341",
@@ -7992,7 +8165,8 @@ pub(in crate::card::sets) static DISSECTION_TOOLS: CardRecord = CardRecord::new(
 );
 
 // DSK 246 — Found Footage
-// Audit: unsupported — Needs a continuous visibility permission for opponents' face-down battlefield creatures, distinct from looking at libraries or one-shot revealing cards.
+// Audit: unsupported — Needs a continuous visibility permission for opponents' face-down
+// battlefield creatures, distinct from looking at libraries or one-shot revealing cards.
 pub(in crate::card::sets) static FOUND_FOOTAGE: CardRecord = CardRecord::new(
     "Found Footage",
     "b12eb087-762e-4e7d-a6e0-f48df603b7c7",
@@ -8020,7 +8194,10 @@ pub(in crate::card::sets) static FRIENDLY_TEDDY: CardRecord = CardRecord::new(
 );
 
 // DSK 248 — Ghost Vacuum
-// Audit: unsupported — Needs the returned creatures' 1/1 base size and additional Spirit type established simultaneously with battlefield entry (CR 611.2e); applying those continuous effects after returning them lets entry replacements and triggers observe the wrong characteristics.
+// Audit: unsupported — Needs the returned creatures' 1/1 base size and additional Spirit type
+// established simultaneously with battlefield entry (CR 611.2e); applying those continuous
+// effects after returning them lets entry replacements and triggers observe the wrong
+// characteristics.
 pub(in crate::card::sets) static GHOST_VACUUM: CardRecord = CardRecord::new(
     "Ghost Vacuum",
     "8ac39c01-127f-4471-bc74-11a90c48e306",
@@ -8033,13 +8210,14 @@ pub(in crate::card::sets) static GLIMMERLIGHT: CardRecord = CardRecord::new(
     "Glimmerlight",
     "1071691c-5c65-42d4-ac96-d302185ca678",
     "Wero Gallo",
-// The Equipment brings its own creature to hold it, so two mana buys a
+    // The Equipment brings its own creature to hold it, so two mana buys a
     // 2/2 across two bodies rather than a dead artifact.
     CardRules::new_artifact(mana_cost!("{2}"))
         .with_subtypes(&["Equipment"])
         .with_abilities(&[
             abilities::enters_trigger(
-                "When this Equipment enters, create a 1/1 white Glimmer enchantment creature token.",
+                "When this Equipment enters, create a 1/1 white Glimmer \
+                 enchantment creature token.",
                 // An enchantment creature, so it needs the general token
                 // constructor rather than the creature-only shorthand.
                 EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
@@ -8123,7 +8301,8 @@ pub(in crate::card::sets) static HAUNTED_SCREEN: CardRecord = CardRecord::new(
 );
 
 // DSK 251 — Keys to the House
-// Audit: unsupported — Needs resolving lock/unlock effects for a chosen door of a targeted Room; the existing special action only pays to unlock a locked door.
+// Audit: unsupported — Needs resolving lock/unlock effects for a chosen door of a targeted
+// Room; the existing special action only pays to unlock a locked door.
 pub(in crate::card::sets) static KEYS_TO_THE_HOUSE: CardRecord = CardRecord::new(
     "Keys to the House",
     "8c11a413-7f33-4b63-bdd9-e143e529f56d",
@@ -8161,7 +8340,9 @@ pub(in crate::card::sets) static MALEVOLENT_CHANDELIER: CardRecord = CardRecord:
 );
 
 // DSK 253 — Marvin, Murderous Mimic
-// Audit: unsupported — Needs continuous copying of activated abilities from dynamically matching other creatures, preserving their mana and nonmana ability semantics and updating as the source set changes.
+// Audit: unsupported — Needs continuous copying of activated abilities from dynamically
+// matching other creatures, preserving their mana and nonmana ability semantics and updating as
+// the source set changes.
 pub(in crate::card::sets) static MARVIN_MURDEROUS_MIMIC: CardRecord = CardRecord::new(
     "Marvin, Murderous Mimic",
     "66898970-b99b-48f2-9240-68c301c95500",
@@ -8170,7 +8351,9 @@ pub(in crate::card::sets) static MARVIN_MURDEROUS_MIMIC: CardRecord = CardRecord
 );
 
 // DSK 254 — Saw
-// Audit: unsupported — Needs a resolving sacrifice predicate excluding both the Equipment and its attached creature; the general cost object predicate can exclude Source but cannot compare a candidate with the attached host identity.
+// Audit: unsupported — Needs a resolving sacrifice predicate excluding both the Equipment and
+// its attached creature; the general cost object predicate can exclude Source but cannot
+// compare a candidate with the attached host identity.
 pub(in crate::card::sets) static SAW: CardRecord = CardRecord::new(
     "Saw",
     "603c3ef4-4ef1-4db8-9ed2-e2b0926269d5",
@@ -8179,7 +8362,9 @@ pub(in crate::card::sets) static SAW: CardRecord = CardRecord::new(
 );
 
 // DSK 255 — Abandoned Campground
-// Audit: unsupported — Needs a prospective entry replacement condition comparing each player's life total with 13; ordinary resolution-time life values are not accepted by the entry-condition evaluator.
+// Audit: unsupported — Needs a prospective entry replacement condition comparing each player's
+// life total with 13; ordinary resolution-time life values are not accepted by the
+// entry-condition evaluator.
 pub(in crate::card::sets) static ABANDONED_CAMPGROUND: CardRecord = CardRecord::new(
     "Abandoned Campground",
     "ee0565f5-ebdb-43f9-bbb4-0485b1968937",
@@ -8223,7 +8408,9 @@ pub(in crate::card::sets) static BLAZEMIRE_VERGE: CardRecord = CardRecord::new(
 );
 
 // DSK 257 — Bleeding Woods
-// Audit: unsupported — Needs a prospective entry replacement condition comparing each player's life total with 13; ordinary resolution-time life values are not accepted by the entry-condition evaluator.
+// Audit: unsupported — Needs a prospective entry replacement condition comparing each player's
+// life total with 13; ordinary resolution-time life values are not accepted by the
+// entry-condition evaluator.
 pub(in crate::card::sets) static BLEEDING_WOODS: CardRecord = CardRecord::new(
     "Bleeding Woods",
     "cb224874-aff5-461f-82ee-89b06663231a",
@@ -8232,7 +8419,9 @@ pub(in crate::card::sets) static BLEEDING_WOODS: CardRecord = CardRecord::new(
 );
 
 // DSK 258 — Etched Cornfield
-// Audit: unsupported — Needs a prospective entry replacement condition comparing each player's life total with 13; ordinary resolution-time life values are not accepted by the entry-condition evaluator.
+// Audit: unsupported — Needs a prospective entry replacement condition comparing each player's
+// life total with 13; ordinary resolution-time life values are not accepted by the
+// entry-condition evaluator.
 pub(in crate::card::sets) static ETCHED_CORNFIELD: CardRecord = CardRecord::new(
     "Etched Cornfield",
     "f8900b89-0e10-4602-bba2-da8d60ea5885",
@@ -8322,7 +8511,9 @@ pub(in crate::card::sets) static HUSHWOOD_VERGE: CardRecord = CardRecord::new(
 );
 
 // DSK 262 — Lakeside Shack
-// Audit: unsupported — Needs a prospective entry replacement condition comparing each player's life total with 13; ordinary resolution-time life values are not accepted by the entry-condition evaluator.
+// Audit: unsupported — Needs a prospective entry replacement condition comparing each player's
+// life total with 13; ordinary resolution-time life values are not accepted by the
+// entry-condition evaluator.
 pub(in crate::card::sets) static LAKESIDE_SHACK: CardRecord = CardRecord::new(
     "Lakeside Shack",
     "a9367acd-393a-4966-ba60-af2ecd4e7596",
@@ -8331,7 +8522,9 @@ pub(in crate::card::sets) static LAKESIDE_SHACK: CardRecord = CardRecord::new(
 );
 
 // DSK 263 — Murky Sewer
-// Audit: unsupported — Needs a prospective entry replacement condition comparing each player's life total with 13; ordinary resolution-time life values are not accepted by the entry-condition evaluator.
+// Audit: unsupported — Needs a prospective entry replacement condition comparing each player's
+// life total with 13; ordinary resolution-time life values are not accepted by the
+// entry-condition evaluator.
 pub(in crate::card::sets) static MURKY_SEWER: CardRecord = CardRecord::new(
     "Murky Sewer",
     "6098d8be-4e3f-455d-8799-91435bf45a1c",
@@ -8340,7 +8533,9 @@ pub(in crate::card::sets) static MURKY_SEWER: CardRecord = CardRecord::new(
 );
 
 // DSK 264 — Neglected Manor
-// Audit: unsupported — Needs a prospective entry replacement condition comparing each player's life total with 13; ordinary resolution-time life values are not accepted by the entry-condition evaluator.
+// Audit: unsupported — Needs a prospective entry replacement condition comparing each player's
+// life total with 13; ordinary resolution-time life values are not accepted by the
+// entry-condition evaluator.
 pub(in crate::card::sets) static NEGLECTED_MANOR: CardRecord = CardRecord::new(
     "Neglected Manor",
     "11cf1531-8a3c-4e28-a114-d3a342b33bb6",
@@ -8349,7 +8544,9 @@ pub(in crate::card::sets) static NEGLECTED_MANOR: CardRecord = CardRecord::new(
 );
 
 // DSK 265 — Peculiar Lighthouse
-// Audit: unsupported — Needs a prospective entry replacement condition comparing each player's life total with 13; ordinary resolution-time life values are not accepted by the entry-condition evaluator.
+// Audit: unsupported — Needs a prospective entry replacement condition comparing each player's
+// life total with 13; ordinary resolution-time life values are not accepted by the
+// entry-condition evaluator.
 pub(in crate::card::sets) static PECULIAR_LIGHTHOUSE: CardRecord = CardRecord::new(
     "Peculiar Lighthouse",
     "3a6e40c0-e70e-4353-a920-9851cfac71dd",
@@ -8358,7 +8555,9 @@ pub(in crate::card::sets) static PECULIAR_LIGHTHOUSE: CardRecord = CardRecord::n
 );
 
 // DSK 266 — Raucous Carnival
-// Audit: unsupported — Needs a prospective entry replacement condition comparing each player's life total with 13; ordinary resolution-time life values are not accepted by the entry-condition evaluator.
+// Audit: unsupported — Needs a prospective entry replacement condition comparing each player's
+// life total with 13; ordinary resolution-time life values are not accepted by the
+// entry-condition evaluator.
 pub(in crate::card::sets) static RAUCOUS_CARNIVAL: CardRecord = CardRecord::new(
     "Raucous Carnival",
     "3604a211-9bf7-474e-bd78-32a862f4259c",
@@ -8367,7 +8566,9 @@ pub(in crate::card::sets) static RAUCOUS_CARNIVAL: CardRecord = CardRecord::new(
 );
 
 // DSK 267 — Razortrap Gorge
-// Audit: unsupported — Needs a prospective entry replacement condition comparing each player's life total with 13; ordinary resolution-time life values are not accepted by the entry-condition evaluator.
+// Audit: unsupported — Needs a prospective entry replacement condition comparing each player's
+// life total with 13; ordinary resolution-time life values are not accepted by the
+// entry-condition evaluator.
 pub(in crate::card::sets) static RAZORTRAP_GORGE: CardRecord = CardRecord::new(
     "Razortrap Gorge",
     "98d0d067-b52d-47ec-ba7b-8cfcd716c0e5",
@@ -8376,7 +8577,9 @@ pub(in crate::card::sets) static RAZORTRAP_GORGE: CardRecord = CardRecord::new(
 );
 
 // DSK 268 — Strangled Cemetery
-// Audit: unsupported — Needs a prospective entry replacement condition comparing each player's life total with 13; ordinary resolution-time life values are not accepted by the entry-condition evaluator.
+// Audit: unsupported — Needs a prospective entry replacement condition comparing each player's
+// life total with 13; ordinary resolution-time life values are not accepted by the
+// entry-condition evaluator.
 pub(in crate::card::sets) static STRANGLED_CEMETERY: CardRecord = CardRecord::new(
     "Strangled Cemetery",
     "c1ce9250-bdbe-4c77-9243-6db9ffffe69b",
@@ -8630,7 +8833,9 @@ const UNSTOPPABLE_SLASHER_ALTERNATE_1: PrintingRecord = PrintingRecord::alternat
 );
 
 // DSK 295 — Clockwork Percussionist
-// Audit: unsupported — Needs exile-play permission that expires at cleanup of the controller's next turn; the current turn-count permission can remain usable during the following opponent turn.
+// Audit: unsupported — Needs exile-play permission that expires at cleanup of the controller's
+// next turn; the current turn-count permission can remain usable during the following opponent
+// turn.
 pub(in crate::card::sets) static CLOCKWORK_PERCUSSIONIST: CardRecord = CardRecord::new(
     "Clockwork Percussionist",
     "e44340c7-d3bb-4cf9-a105-ebbf6ce3ace1",
@@ -8787,7 +8992,7 @@ pub(in crate::card::sets) static CHAINSAW: CardRecord = CardRecord::new(
     "Chainsaw",
     "1c8d0f4e-6b1e-4444-8851-adf857273964",
     "Alexis Ziritt",
-// Two mana that shoots something on the way in and then grows for the
+    // Two mana that shoots something on the way in and then grows for the
     // rest of the game, on a board where creatures keep dying anyway.
     CardRules::new_artifact(mana_cost!("{1}{R}"))
         .with_subtypes(&["Equipment"])
@@ -8824,7 +9029,8 @@ pub(in crate::card::sets) static CHAINSAW: CardRecord = CardRecord::new(
                 },
             ),
             AbilityDef::static_ability(
-                "Equipped creature gets +X/+0, where X is the number of rev counters on this Equipment.",
+                "Equipped creature gets +X/+0, where X is the number of rev \
+                 counters on this Equipment.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::AttachedPermanent,
                     effect: AppliedEffectDef::modify_power_toughness(
@@ -9330,7 +9536,7 @@ pub(in crate::card::sets) static LEYLINE_OF_TRANSFORMATION: CardRecord = CardRec
     "Leyline of Transformation",
     "fd545d86-9a3e-4e4f-b0fe-9363a85b9290",
     "Sergey Glushakov",
-CardRules::new_enchantment(mana_cost!("{2}{U}{U}")).with_abilities(&[
+    CardRules::new_enchantment(mana_cost!("{2}{U}{U}")).with_abilities(&[
         abilities::begin_game_on_battlefield(),
         AbilityDef::replacement(
             "As this enchantment enters, choose a creature type.",
@@ -9339,7 +9545,10 @@ CardRules::new_enchantment(mana_cost!("{2}{U}{U}")).with_abilities(&[
             )),
         ),
         AbilityDef::static_ability(
-            "Creatures you control are the chosen type in addition to their other types. The same is true for creature spells you control and creature cards you own that aren't on the battlefield.",
+            "Creatures you control are the chosen type in addition to \
+             their other types. The same is true for creature spells you \
+             control and creature cards you own that aren't on the \
+             battlefield.",
             EffectDef::StaticApply {
                 // `matching` is deliberately zone-relative: controller on the
                 // battlefield and stack, owner for cards everywhere else.

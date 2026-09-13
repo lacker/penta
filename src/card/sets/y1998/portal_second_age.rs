@@ -115,8 +115,9 @@ pub(in crate::card::sets) static SLEIGHT_OF_HAND: CardRecord = CardRecord::new(
     "Sleight of Hand",
     "f3405184-dcda-4bb6-ade6-c2a87bc3296d",
     "Phil Foglio",
-CardRules::new_sorcery(mana_cost!("{U}")).with_ability(AbilityDef::spell(
-        "Look at the top two cards of your library. Put one of them into your hand and the other on the bottom of your library.",
+    CardRules::new_sorcery(mana_cost!("{U}")).with_ability(AbilityDef::spell(
+        "Look at the top two cards of your library. Put one of them \
+         into your hand and the other on the bottom of your library.",
         abilities::look_at_top_cards_choose_to_hand_rest_bottom(
             ValueDef::Constant(2),
             ObjectPredicateDef::Any,
@@ -127,7 +128,7 @@ CardRules::new_sorcery(mana_cost!("{U}")).with_ability(AbilityDef::spell(
 );
 
 // P02 54 — Temporal Manipulation
-pub(in crate::card::sets) static TEMPORAL_MANIPULATION_54: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static TEMPORAL_MANIPULATION: CardRecord = CardRecord::new(
     "Temporal Manipulation",
     "b3964160-79d6-4cdd-8b43-7a8f5dde9da7",
     "Anson Maddocks",
@@ -189,10 +190,14 @@ pub(in crate::card::sets) static GOBLIN_MATRON: CardRecord = CardRecord::new(
     "Goblin Matron",
     "f99dc21c-8600-49bf-b0a3-c981f7ec7ac3",
     "Daniel Gelon",
-// Any Goblin card, so it fetches the answer rather than the biggest
+    // Any Goblin card, so it fetches the answer rather than the biggest
     // body: Tinkerer against artifacts, Ringleader for more cards.
     CardRules::new_creature(mana_cost!("{2}{R}"), &["Goblin"], 1, 1).with_ability(
-        abilities::enters_trigger("When this creature enters, you may search your library for a Goblin card, reveal that card, put it into your hand, then shuffle.", EffectDef::SearchZone {
+        abilities::enters_trigger(
+            "When this creature enters, you may search your library for \
+             a Goblin card, reveal that card, put it into your hand, \
+             then shuffle.",
+            EffectDef::SearchZone {
                 player: EffectRecipientDef::Controller,
                 source: ZoneKind::Library,
                 object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
@@ -206,7 +211,8 @@ pub(in crate::card::sets) static GOBLIN_MATRON: CardRecord = CardRecord::new(
                 attachment: None,
                 binding: None,
                 then: None,
-            }),
+            },
+        ),
     ),
 );
 
@@ -239,8 +245,9 @@ pub(in crate::card::sets) static GOBLIN_WAR_STRIKE: CardRecord = CardRecord::new
     "Goblin War Strike",
     "738fecfd-1119-4dcb-acd6-ec9715d9c074",
     "Michael Weaver",
-CardRules::new_sorcery(mana_cost!("{R}")).with_ability(AbilityDef::spell_with_targets(
-        "Goblin War Strike deals damage to target player or planeswalker equal to the number of Goblins you control.",
+    CardRules::new_sorcery(mana_cost!("{R}")).with_ability(AbilityDef::spell_with_targets(
+        "Goblin War Strike deals damage to target player or \
+         planeswalker equal to the number of Goblins you control.",
         &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
         )],
@@ -306,8 +313,9 @@ pub(in crate::card::sets) static WILDFIRE: CardRecord = CardRecord::new(
     "Wildfire",
     "b69cfcb0-db68-4494-a3e1-7c2ca279fcf5",
     "Rob Alexander",
-CardRules::new_sorcery(mana_cost!("{4}{R}{R}")).with_ability(AbilityDef::spell(
-        "Each player sacrifices four lands of their choice. Wildfire deals 4 damage to each creature.",
+    CardRules::new_sorcery(mana_cost!("{4}{R}{R}")).with_ability(AbilityDef::spell(
+        "Each player sacrifices four lands of their choice. Wildfire \
+         deals 4 damage to each creature.",
         EffectDef::Sequence(&[
             EffectDef::SacrificeOfChoice {
                 player: EffectRecipientDef::EachPlayer,
@@ -370,7 +378,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ANGELIC_WALL,
     &RIGHTEOUS_CHARGE,
     &SLEIGHT_OF_HAND,
-    &TEMPORAL_MANIPULATION_54,
+    &TEMPORAL_MANIPULATION,
     &RAVENOUS_RATS,
     &GOBLIN_GLIDER,
     &GOBLIN_MATRON,

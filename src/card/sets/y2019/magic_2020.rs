@@ -172,7 +172,7 @@ pub(in crate::card::sets) static DEVOUT_DECREE: CardRecord = CardRecord::new(
 );
 
 // M20 17 — Gauntlets of Light
-pub(in crate::card::sets) static GAUNTLETS_OF_LIGHT_17: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static GAUNTLETS_OF_LIGHT: CardRecord = CardRecord::new(
     "Gauntlets of Light",
     "da0d5436-b881-45ac-b8ec-248d88714021",
     "Ekaterina Burmak",
@@ -181,7 +181,8 @@ pub(in crate::card::sets) static GAUNTLETS_OF_LIGHT_17: CardRecord = CardRecord:
         .with_abilities(&[
             abilities::enchant_creature(),
             AbilityDef::static_ability(
-                "Enchanted creature gets +0/+2 and assigns combat damage equal to its toughness rather than its power.",
+                "Enchanted creature gets +0/+2 and assigns combat damage \
+                 equal to its toughness rather than its power.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::AttachedPermanent,
                     effect: AppliedEffectDef::Composite(&[
@@ -189,9 +190,7 @@ pub(in crate::card::sets) static GAUNTLETS_OF_LIGHT_17: CardRecord = CardRecord:
                             ValueDef::Constant(0),
                             ValueDef::Constant(2),
                         ),
-                        AppliedEffectDef::Rule(
-                            AppliedRuleDef::AssignsCombatDamageEqualToToughness,
-                        ),
+                        AppliedEffectDef::Rule(AppliedRuleDef::AssignsCombatDamageEqualToToughness),
                     ]),
                 },
             ),
@@ -264,13 +263,33 @@ pub(in crate::card::sets) static CLOUDKIN_SEER: CardRecord = CardRecord::new(
 );
 
 // M20 74 — Scholar of the Ages
-pub(in crate::card::sets) static SCHOLAR_OF_THE_AGES_74: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static SCHOLAR_OF_THE_AGES: CardRecord = CardRecord::new(
     "Scholar of the Ages",
     "80137c9a-ea56-4dc7-a503-43fe192c8fce",
     "Micah Epstein",
     CardRules::new_creature(mana_cost!("{5}{U}{U}"), &["Human", "Wizard"], 3, 3).with_abilities(&[
-abilities::enters_trigger_with_targets("When this creature enters, return up to two target instant and/or sorcery cards from your graveyard to your hand.", &[AbilityTargetDef::up_to(AbilityTargetPredicate::Object { object: ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Instant), ObjectPredicateDef::HasType(CardType::Sorcery)]), zones: &[ZoneKind::Graveyard], controller: None, owner: Some(PlayerRelation::You) }, 2)], EffectDef::move_to_zone(EffectRecipientDef::Target(TargetIndex::PRIMARY), ZoneKind::Hand, ZonePlacement::Top))
-]),
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, return up to two target instant \
+             and/or sorcery cards from your graveyard to your hand.",
+            &[AbilityTargetDef::up_to(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Instant),
+                        ObjectPredicateDef::HasType(CardType::Sorcery),
+                    ]),
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: Some(PlayerRelation::You),
+                },
+                2,
+            )],
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
+        ),
+    ]),
 );
 
 // M20 76 — Spectral Sailor
@@ -290,7 +309,7 @@ pub(in crate::card::sets) static SPECTRAL_SAILOR: CardRecord = CardRecord::new(
 );
 
 // M20 77 — Tale's End
-pub(in crate::card::sets) static TALE_S_END_77: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static TALE_S_END: CardRecord = CardRecord::new(
     "Tale's End",
     "1421115b-9a98-4ab2-bcb2-7d8899ce12db",
     "Randy Vargas",
@@ -376,18 +395,39 @@ pub(in crate::card::sets) static LEGION_S_END: CardRecord = CardRecord::new(
 );
 
 // M20 113 — Scheming Symmetry
-pub(in crate::card::sets) static SCHEMING_SYMMETRY_113: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static SCHEMING_SYMMETRY: CardRecord = CardRecord::new(
     "Scheming Symmetry",
     "01acc50b-856d-442d-9880-1a892b40643b",
     "Seb McKinnon",
-    CardRules::new_sorcery(mana_cost!("{B}")).with_abilities(&[
-AbilityDef::spell_with_targets("Choose two target players. Each of them searches their library for a card, then shuffles and puts that card on top.", &[AbilityTargetDef::exactly_value(AbilityTargetPredicate::Player(PlayerRelation::Any), ValueDef::Constant(2))], EffectDef::SearchZone { player: EffectRecipientDef::Target(TargetIndex::PRIMARY), source: ZoneKind::Library, object: ObjectPredicateDef::Any, minimum: 1, maximum: ValueDef::Constant(1), reveal: false, destination: ZoneKind::Library, placement: ZonePlacement::Top, shuffle: true, enters_tapped: false, attachment: None, binding: None, then: None })
-]),
+    CardRules::new_sorcery(mana_cost!("{B}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Choose two target players. Each of them searches their \
+         library for a card, then shuffles and puts that card on top.",
+        &[AbilityTargetDef::exactly_value(
+            AbilityTargetPredicate::Player(PlayerRelation::Any),
+            ValueDef::Constant(2),
+        )],
+        EffectDef::SearchZone {
+            player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            source: ZoneKind::Library,
+            object: ObjectPredicateDef::Any,
+            minimum: 1,
+            maximum: ValueDef::Constant(1),
+            reveal: false,
+            destination: ZoneKind::Library,
+            placement: ZonePlacement::Top,
+            shuffle: true,
+            enters_tapped: false,
+            attachment: None,
+            binding: None,
+            then: None,
+        },
+    )]),
 );
 
 // M20 122 — Vilis, Broker of Blood
-// Audit: unsupported — Needs a life-loss event carrying its amount into a draw effect; existing damage and payment events do not provide a general loss-of-life trigger value.
-pub(in crate::card::sets) static VILIS_BROKER_OF_BLOOD_122: CardRecord = CardRecord::new(
+// Audit: unsupported — Needs a life-loss event carrying its amount into a draw effect; existing
+// damage and payment events do not provide a general loss-of-life trigger value.
+pub(in crate::card::sets) static VILIS_BROKER_OF_BLOOD: CardRecord = CardRecord::new(
     "Vilis, Broker of Blood",
     "ecdf2bd9-87b9-470a-ad2e-0ebf98560f87",
     "Tyler Jacobson",
@@ -431,7 +471,7 @@ pub(in crate::card::sets) static DRAKUSETH_MAW_OF_FLAMES: CardRecord = CardRecor
 );
 
 // M20 141 — Glint-Horn Buccaneer
-pub(in crate::card::sets) static GLINT_HORN_BUCCANEER_141: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static GLINT_HORN_BUCCANEER: CardRecord = CardRecord::new(
     "Glint-Horn Buccaneer",
     "df2df9cb-14f5-470f-b438-20f4ae8d0d59",
     "Zack Stella",
@@ -490,10 +530,12 @@ pub(in crate::card::sets) static LEYLINE_OF_COMBUSTION: CardRecord = CardRecord:
     "Leyline of Combustion",
     "3a93c8e2-fb27-43af-83a7-2bd4d40e0eff",
     "Noah Bradley",
-CardRules::new_enchantment(mana_cost!("{2}{R}{R}")).with_abilities(&[
+    CardRules::new_enchantment(mana_cost!("{2}{R}{R}")).with_abilities(&[
         abilities::begin_game_on_battlefield(),
         AbilityDef::triggered(
-            "Whenever you and/or at least one permanent you control becomes the target of a spell or ability an opponent controls, this enchantment deals 2 damage to that player.",
+            "Whenever you and/or at least one permanent you control \
+             becomes the target of a spell or ability an opponent \
+             controls, this enchantment deals 2 damage to that player.",
             TriggerEventDef::targets_selected(
                 ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
                 StackTargetFilterDef::AnyOf(&[
@@ -624,8 +666,9 @@ pub(in crate::card::sets) static LEYLINE_OF_ABUNDANCE: CardRecord = CardRecord::
 );
 
 // M20 198 — Veil of Summer
-// Audit: unsupported — Hexproof has no color-specific player or permanent rule. Ordinary hexproof would also stop opposing red, green, white, and colorless sources.
-pub(in crate::card::sets) static VEIL_OF_SUMMER_198: CardRecord = CardRecord::new(
+// Audit: unsupported — Hexproof has no color-specific player or permanent rule. Ordinary
+// hexproof would also stop opposing red, green, white, and colorless sources.
+pub(in crate::card::sets) static VEIL_OF_SUMMER: CardRecord = CardRecord::new(
     "Veil of Summer",
     "aa686c34-1c11-469f-93c2-f9891aea521f",
     "Lake Hurwitz",
@@ -663,8 +706,11 @@ pub(in crate::card::sets) static EMPYREAN_EAGLE: CardRecord = CardRecord::new(
 );
 
 // M20 222 — Bag of Holding
-// Audit: unsupported — Discard-trigger snapshots are inconsistent across payment paths: resolving discards identify the new card, while some casting costs retain the retired hand identity without a zone-change result. The linked exile cannot reliably select exactly the discarded graveyard incarnation across those paths.
-pub(in crate::card::sets) static BAG_OF_HOLDING_222: CardRecord = CardRecord::new(
+// Audit: unsupported — Discard-trigger snapshots are inconsistent across payment paths:
+// resolving discards identify the new card, while some casting costs retain the retired hand
+// identity without a zone-change result. The linked exile cannot reliably select exactly the
+// discarded graveyard incarnation across those paths.
+pub(in crate::card::sets) static BAG_OF_HOLDING: CardRecord = CardRecord::new(
     "Bag of Holding",
     "49283832-54f2-4619-b4a9-750493c93292",
     "Dmitry Burmak",
@@ -710,7 +756,7 @@ pub(in crate::card::sets) static MANIFOLD_KEY: CardRecord = CardRecord::new(
 );
 
 // M20 233 — Mystic Forge
-pub(in crate::card::sets) static MYSTIC_FORGE_233: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static MYSTIC_FORGE: CardRecord = CardRecord::new(
     "Mystic Forge",
     "924a24e7-91b8-4ceb-a136-7a765d98c994",
     "Titus Lunter",
@@ -860,7 +906,9 @@ pub(in crate::card::sets) static TWINBLADE_PALADIN: CardRecord = CardRecord::new
 );
 
 // M20 297 — Wildfire Elemental
-// Audit: unsupported — Needs a noncombat damage matcher. DamageKindDef offers only Any and Combat, so "whenever an opponent is dealt noncombat damage" cannot be said; using Any would also fire on every attack, which is the opposite of what the card rewards.
+// Audit: unsupported — Needs a noncombat damage matcher. DamageKindDef offers only Any and
+// Combat, so "whenever an opponent is dealt noncombat damage" cannot be said; using Any would
+// also fire on every attack, which is the opposite of what the card rewards.
 pub(in crate::card::sets) static WILDFIRE_ELEMENTAL: CardRecord = CardRecord::new(
     "Wildfire Elemental",
     "272e317c-55c4-43b2-91aa-3e0009cfd7d5",
@@ -891,27 +939,27 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ANCESTRAL_BLADE,
     &ANGEL_OF_VITALITY,
     &DEVOUT_DECREE,
-    &GAUNTLETS_OF_LIGHT_17,
+    &GAUNTLETS_OF_LIGHT,
     &BRINEBORN_CUTTHROAT,
     &CLOUDKIN_SEER,
-    &SCHOLAR_OF_THE_AGES_74,
+    &SCHOLAR_OF_THE_AGES,
     &SPECTRAL_SAILOR,
-    &TALE_S_END_77,
+    &TALE_S_END,
     &LEGION_S_END,
-    &SCHEMING_SYMMETRY_113,
-    &VILIS_BROKER_OF_BLOOD_122,
+    &SCHEMING_SYMMETRY,
+    &VILIS_BROKER_OF_BLOOD,
     &DRAKUSETH_MAW_OF_FLAMES,
-    &GLINT_HORN_BUCCANEER_141,
+    &GLINT_HORN_BUCCANEER,
     &GOBLIN_SMUGGLER,
     &LEYLINE_OF_COMBUSTION,
     &RAPACIOUS_DRAGON,
     &ELVISH_RECLAIMER,
     &LEYLINE_OF_ABUNDANCE,
-    &VEIL_OF_SUMMER_198,
+    &VEIL_OF_SUMMER,
     &EMPYREAN_EAGLE,
-    &BAG_OF_HOLDING_222,
+    &BAG_OF_HOLDING,
     &MANIFOLD_KEY,
-    &MYSTIC_FORGE_233,
+    &MYSTIC_FORGE,
     &CRYPTIC_CAVES,
     &FIELD_OF_THE_DEAD,
     &TWINBLADE_PALADIN,

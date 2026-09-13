@@ -144,9 +144,10 @@ pub(in crate::card::sets) static AYSEN_CRUSADER: CardRecord = CardRecord::new(
     "Aysen Crusader",
     "7908cfdc-5ed6-48a8-a5b9-351864f8b4fd",
     "NéNé Thomas",
-CardRules::new_creature(mana_cost!("{2}{W}{W}"), &["Human", "Knight"], 2, 2)
-        .with_ability(AbilityDef::static_ability(
-            "Aysen Crusader's power and toughness are each equal to 2 plus the number of Soldiers and Warriors you control.",
+    CardRules::new_creature(mana_cost!("{2}{W}{W}"), &["Human", "Knight"], 2, 2).with_ability(
+        AbilityDef::static_ability(
+            "Aysen Crusader's power and toughness are each equal to 2 \
+             plus the number of Soldiers and Warriors you control.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::modify_power_toughness(
@@ -174,7 +175,8 @@ CardRules::new_creature(mana_cost!("{2}{W}{W}"), &["Human", "Knight"], 2, 2)
                     )),
                 ),
             },
-        )),
+        ),
+    ),
 );
 
 // HML 5 — Aysen Highway
@@ -228,7 +230,9 @@ pub(in crate::card::sets) static DEATH_SPEAKERS: CardRecord = CardRecord::new(
 );
 
 // HML 8 — Hazduhr the Abbot
-// Audit: unsupported — Needs an amount-limited damage-redirection shield from a targeted creature to the source; the existing redirection rule redirects every matching damage event for its duration.
+// Audit: unsupported — Needs an amount-limited damage-redirection shield from a targeted
+// creature to the source; the existing redirection rule redirects every matching damage event
+// for its duration.
 pub(in crate::card::sets) static HAZDUHR_THE_ABBOT: CardRecord = CardRecord::new(
     "Hazduhr the Abbot",
     "adfd416a-dddf-40e4-acf0-84057edb7a58",
@@ -237,7 +241,8 @@ pub(in crate::card::sets) static HAZDUHR_THE_ABBOT: CardRecord = CardRecord::new
 );
 
 // HML 9 — Leeches
-// Audit: unsupported — Needs removing counters from a player and carrying the number actually removed into a damage value.
+// Audit: unsupported — Needs removing counters from a player and carrying the number actually
+// removed into a damage value.
 pub(in crate::card::sets) static LEECHES: CardRecord = CardRecord::new(
     "Leeches",
     "90db206e-b254-476c-b2f3-1cd56bb5297d",
@@ -280,11 +285,13 @@ pub(in crate::card::sets) static PROPHECY: CardRecord = CardRecord::new(
     "Prophecy",
     "f514eb63-3a4e-4410-ba3d-487cf81f7063",
     "Christopher Rush",
-CardRules::new_sorcery(mana_cost!("{W}")).with_ability(AbilityDef::spell_with_targets(
-        "Reveal the top card of target opponent's library. If it's a land, you gain 1 life. Then that player shuffles.\nDraw a card at the beginning of the next turn's upkeep.",
-        &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
-            PlayerRelation::Opponent,
-        ))],
+    CardRules::new_sorcery(mana_cost!("{W}")).with_ability(AbilityDef::spell_with_targets(
+        "Reveal the top card of target opponent's library. If it's a \
+         land, you gain 1 life. Then that player shuffles.\nDraw a \
+         card at the beginning of the next turn's upkeep.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+        )],
         EffectDef::RevealAndClassifyCards(RevealAndClassifyCardsDef {
             source: ObjectCollectionSourceDef::TopCards {
                 player: PlayerRefDef::Target(TargetIndex::PRIMARY),
@@ -295,16 +302,14 @@ CardRules::new_sorcery(mana_cost!("{W}")).with_ability(AbilityDef::spell_with_ta
             remainder: Binding!("prophecy_nonland"),
             then: &EffectDef::Sequence(&[
                 EffectDef::IfCondition {
-                    condition: &TriggerConditionDef::ObjectSetCount(
-                        &ObjectSetCountConditionDef {
-                            objects: &ObjectSetDef::Binding(Binding!("prophecy_land")),
-                            predicate: ObjectSetPredicateDef {
-                                filter: None,
-                                comparison: ComparisonDef::GreaterOrEqual,
-                                amount: 1,
-                            },
+                    condition: &TriggerConditionDef::ObjectSetCount(&ObjectSetCountConditionDef {
+                        objects: &ObjectSetDef::Binding(Binding!("prophecy_land")),
+                        predicate: ObjectSetPredicateDef {
+                            filter: None,
+                            comparison: ComparisonDef::GreaterOrEqual,
+                            amount: 1,
                         },
-                    ),
+                    }),
                     then: &EffectDef::GainLife {
                         recipient: EffectRecipientDef::Controller,
                         amount: ValueDef::Constant(1),
@@ -330,7 +335,9 @@ CardRules::new_sorcery(mana_cost!("{W}")).with_ability(AbilityDef::spell_with_ta
 );
 
 // HML 12 — Rashka the Slayer
-// Audit: unsupported — Needs a batched blocking-declaration event so blocking one or several black creatures creates exactly one trigger; the current block event fires once per blocking relationship.
+// Audit: unsupported — Needs a batched blocking-declaration event so blocking one or several
+// black creatures creates exactly one trigger; the current block event fires once per blocking
+// relationship.
 pub(in crate::card::sets) static RASHKA_THE_SLAYER: CardRecord = CardRecord::new(
     "Rashka the Slayer",
     "ddf30363-9db2-44c5-8c13-dbf1aaa8c86b",
@@ -351,19 +358,20 @@ pub(in crate::card::sets) static SAMITE_ALCHEMIST: CardRecord = CardRecord::new(
     "Samite Alchemist",
     "0545fc43-9c67-4ad4-b1d9-6b57b53321af",
     "Tom Wänerstrand",
-CardRules::new_creature(mana_cost!("{3}{W}"), &["Human", "Cleric"], 0, 2).with_ability(
+    CardRules::new_creature(mana_cost!("{3}{W}"), &["Human", "Cleric"], 0, 2).with_ability(
         AbilityDef::activated_with_targets(
-            "{W}{W}, {T}: Prevent the next 4 damage that would be dealt this turn to target creature you control. Tap that creature. It doesn't untap during your next untap step.",
-            &[
-                CostDef::Mana(mana_cost!("{W}{W}")),
-                CostDef::TapSource,
-            ],
-            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
-                object: ObjectPredicateDef::HasType(CardType::Creature),
-                zones: &[ZoneKind::Battlefield],
-                controller: Some(PlayerRelation::You),
-                owner: None,
-            })],
+            "{W}{W}, {T}: Prevent the next 4 damage that would be dealt \
+             this turn to target creature you control. Tap that \
+             creature. It doesn't untap during your next untap step.",
+            &[CostDef::Mana(mana_cost!("{W}{W}")), CostDef::TapSource],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                },
+            )],
             EffectDef::Sequence(&[
                 EffectDef::PreventDamage {
                     prevention: crate::card::DamagePreventionDef::amount(
@@ -413,7 +421,9 @@ pub(in crate::card::sets) static SERRA_AVIARY: CardRecord = CardRecord::new(
 );
 
 // HML 15 — Serra Bestiary
-// Audit: unsupported — Needs an activation prohibition that selects only abilities with {T} in their costs; the current rule can prohibit all activated abilities but cannot inspect their costs.
+// Audit: unsupported — Needs an activation prohibition that selects only abilities with {T} in
+// their costs; the current rule can prohibit all activated abilities but cannot inspect their
+// costs.
 pub(in crate::card::sets) static SERRA_BESTIARY: CardRecord = CardRecord::new(
     "Serra Bestiary",
     "aab1c8b8-9b3e-444a-a12c-bd09ec899641",
@@ -422,7 +432,8 @@ pub(in crate::card::sets) static SERRA_BESTIARY: CardRecord = CardRecord::new(
 );
 
 // HML 16 — Serra Inquisitors
-// Audit: unsupported — Needs a batched blocking-declaration event so one or several black creatures create exactly one trigger; the current relationship event fires once per creature.
+// Audit: unsupported — Needs a batched blocking-declaration event so one or several black
+// creatures create exactly one trigger; the current relationship event fires once per creature.
 pub(in crate::card::sets) static SERRA_INQUISITORS: CardRecord = CardRecord::new(
     "Serra Inquisitors",
     "f1fbe3c8-92fb-41b9-b778-726d22c63054",
@@ -519,7 +530,8 @@ const TRADE_CARAVAN_ALTERNATE_1: PrintingRecord = PrintingRecord::alternate(
 );
 
 // HML 19b — Trade Caravan
-// Audit: unsupported — Needs an opponent-upkeep-only activation window; activation timing currently distinguishes your upkeep from any upkeep, but not only an opponent's.
+// Audit: unsupported — Needs an opponent-upkeep-only activation window; activation timing
+// currently distinguishes your upkeep from any upkeep, but not only an opponent's.
 pub(in crate::card::sets) static TRADE_CARAVAN: CardRecord = CardRecord::new(
     "Trade Caravan",
     "e60ddb1e-e607-4080-849c-3e1a79052729",
@@ -528,7 +540,9 @@ pub(in crate::card::sets) static TRADE_CARAVAN: CardRecord = CardRecord::new(
 );
 
 // HML 20 — Truce
-// Audit: unsupported — Needs each player to independently choose zero, one, or two draws and gain life from that player's shortfall; resolution choices currently select for only one player.
+// Audit: unsupported — Needs each player to independently choose zero, one, or two draws and
+// gain life from that player's shortfall; resolution choices currently select for only one
+// player.
 pub(in crate::card::sets) static TRUCE: CardRecord = CardRecord::new(
     "Truce",
     "35c5fd74-bd46-4833-ae25-1a11a8c15ed2",
@@ -541,7 +555,7 @@ pub(in crate::card::sets) static AETHER_STORM: CardRecord = CardRecord::new(
     "Aether Storm",
     "ce479e91-7b21-4312-a3c0-950d9f6dc029",
     "Mark Tedin",
-CardRules::new_enchantment(mana_cost!("{3}{U}")).with_abilities(&[
+    CardRules::new_enchantment(mana_cost!("{3}{U}")).with_abilities(&[
         AbilityDef::static_ability(
             "Creature spells can't be cast.",
             EffectDef::StaticApply {
@@ -555,7 +569,8 @@ CardRules::new_enchantment(mana_cost!("{3}{U}")).with_abilities(&[
             },
         ),
         AbilityDef::activated(
-            "Pay 4 life: Destroy this enchantment. It can't be regenerated. Any player may activate this ability.",
+            "Pay 4 life: Destroy this enchantment. It can't be \
+             regenerated. Any player may activate this ability.",
             &[CostDef::PayLife(4)],
             EffectDef::WithRule {
                 rule: AppliedRuleDef::CannotRegenerate,
@@ -570,7 +585,8 @@ CardRules::new_enchantment(mana_cost!("{3}{U}")).with_abilities(&[
 );
 
 // HML 22 — Baki's Curse
-// Audit: unsupported — Needs a per-recipient value counting Auras attached to each creature; attachment counts currently address players, not an arbitrary affected permanent.
+// Audit: unsupported — Needs a per-recipient value counting Auras attached to each creature;
+// attachment counts currently address players, not an arbitrary affected permanent.
 pub(in crate::card::sets) static BAKI_S_CURSE: CardRecord = CardRecord::new(
     "Baki's Curse",
     "e3261b4c-7963-4ca0-875d-77b7c8571b3f",
@@ -579,7 +595,8 @@ pub(in crate::card::sets) static BAKI_S_CURSE: CardRecord = CardRecord::new(
 );
 
 // HML 23 — Chain Stasis
-// Audit: unsupported — Needs a target's controller to pay during resolution to copy the resolving spell and choose a new target, including repeating that process for each copy.
+// Audit: unsupported — Needs a target's controller to pay during resolution to copy the
+// resolving spell and choose a new target, including repeating that process for each copy.
 pub(in crate::card::sets) static CHAIN_STASIS: CardRecord = CardRecord::new(
     "Chain Stasis",
     "f14f0c52-67c2-4302-82bd-fbb4e3c6d4f4",
@@ -592,7 +609,7 @@ pub(in crate::card::sets) static CORAL_REEF: CardRecord = CardRecord::new(
     "Coral Reef",
     "42fe2280-a996-4072-b5bf-f4fd56607a51",
     "Amy Weber",
-CardRules::new_enchantment(mana_cost!("{U}{U}")).with_abilities(&[
+    CardRules::new_enchantment(mana_cost!("{U}{U}")).with_abilities(&[
         AbilityDef::as_enters(
             "This enchantment enters with four polyp counters on it.",
             ReplacementEffectDef::ModifyBattlefieldEntry(
@@ -617,7 +634,9 @@ CardRules::new_enchantment(mana_cost!("{U}{U}")).with_abilities(&[
             },
         ),
         AbilityDef::activated_with_targets(
-            "{U}, Tap an untapped blue creature you control, Remove a polyp counter from this enchantment: Put a +0/+1 counter on target creature.",
+            "{U}, Tap an untapped blue creature you control, Remove a \
+             polyp counter from this enchantment: Put a +0/+1 counter on \
+             target creature.",
             &[
                 CostDef::Mana(mana_cost!("{U}")),
                 CostDef::TapPermanents {
@@ -650,10 +669,12 @@ pub(in crate::card::sets) static DARK_MAZE: CardRecord = CardRecord::new(
     "Dark Maze",
     "c20a8ed9-db1e-4ce8-bfb3-92604a577df7",
     "Rob Alexander",
-CardRules::new_creature(mana_cost!("{4}{U}"), &["Wall"], 4, 5).with_abilities(&[
+    CardRules::new_creature(mana_cost!("{4}{U}"), &["Wall"], 4, 5).with_abilities(&[
         abilities::defender(),
         AbilityDef::activated(
-            "{0}: This creature can attack this turn as though it didn't have defender. Exile it at the beginning of the next end step.",
+            "{0}: This creature can attack this turn as though it didn't \
+             have defender. Exile it at the beginning of the next end \
+             step.",
             &[CostDef::Mana(mana_cost!("{0}"))],
             EffectDef::Sequence(&[
                 EffectDef::Apply {
@@ -713,7 +734,8 @@ pub(in crate::card::sets) static FORGET: CardRecord = CardRecord::new(
 );
 
 // HML 27a — Giant Albatross
-// Audit: unsupported — Needs the exact set of creatures that dealt damage to the source this turn, followed by a separate unless-life-paid choice for each creature's controller.
+// Audit: unsupported — Needs the exact set of creatures that dealt damage to the source this
+// turn, followed by a separate unless-life-paid choice for each creature's controller.
 pub(in crate::card::sets) static GIANT_ALBATROSS: CardRecord = CardRecord::new(
     "Giant Albatross",
     "bce05870-74d3-43f1-92d0-dc1744c0138d",
@@ -730,7 +752,9 @@ const GIANT_ALBATROSS_ALTERNATE_1: PrintingRecord = PrintingRecord::alternate(
 );
 
 // HML 28 — Giant Oyster
-// Audit: unsupported — Needs a target-bound recurring draw-step effect whose untap restriction and counters persist only while the source remains tapped, plus cleanup when that duration ends.
+// Audit: unsupported — Needs a target-bound recurring draw-step effect whose untap restriction
+// and counters persist only while the source remains tapped, plus cleanup when that duration
+// ends.
 pub(in crate::card::sets) static GIANT_OYSTER: CardRecord = CardRecord::new(
     "Giant Oyster",
     "f8045d23-e6e6-474c-a3e7-ddfc6121657a",
@@ -739,7 +763,9 @@ pub(in crate::card::sets) static GIANT_OYSTER: CardRecord = CardRecord::new(
 );
 
 // HML 29 — Jinx
-// Audit: unsupported — Needs a resolution-time choice of one basic land type that feeds a temporary type-setting effect; current land-type choices cover as-enters choices or two-type substitutions.
+// Audit: unsupported — Needs a resolution-time choice of one basic land type that feeds a
+// temporary type-setting effect; current land-type choices cover as-enters choices or two-type
+// substitutions.
 pub(in crate::card::sets) static JINX: CardRecord = CardRecord::new(
     "Jinx",
     "f81fca41-2315-4d12-b05c-d921a4c3c19e",
@@ -760,9 +786,10 @@ pub(in crate::card::sets) static LABYRINTH_MINOTAUR: CardRecord = CardRecord::ne
     "Labyrinth Minotaur",
     "0663c756-9db9-4298-8a6e-a1af935286a0",
     "Anson Maddocks",
-CardRules::new_creature(mana_cost!("{3}{U}"), &["Minotaur"], 1, 4).with_ability(
+    CardRules::new_creature(mana_cost!("{3}{U}"), &["Minotaur"], 1, 4).with_ability(
         AbilityDef::triggered(
-            "Whenever this creature blocks a creature, that creature doesn't untap during its controller's next untap step.",
+            "Whenever this creature blocks a creature, that creature \
+             doesn't untap during its controller's next untap step.",
             TriggerEventDef::Blocks {
                 blocked: ObjectPredicateDef::HasType(CardType::Creature),
             },
@@ -779,7 +806,7 @@ pub(in crate::card::sets) static MARJHAN: CardRecord = CardRecord::new(
     "Marjhan",
     "b6aa3299-3b7a-4ea5-bc1f-beead26d8116",
     "Daniel Gelon",
-CardRules::new_creature(mana_cost!("{5}{U}{U}"), &["Serpent"], 8, 8).with_abilities(&[
+    CardRules::new_creature(mana_cost!("{5}{U}{U}"), &["Serpent"], 8, 8).with_abilities(&[
         AbilityDef::static_ability(
             "This creature doesn't untap during your untap step.",
             EffectDef::StaticApply {
@@ -810,7 +837,8 @@ CardRules::new_creature(mana_cost!("{5}{U}{U}"), &["Serpent"], 8, 8).with_abilit
             )),
         ),
         AbilityDef::activated_with_targets(
-            "{U}{U}: This creature gets -1/-0 until end of turn and deals 1 damage to target attacking creature without flying.",
+            "{U}{U}: This creature gets -1/-0 until end of turn and \
+             deals 1 damage to target attacking creature without flying.",
             &[CostDef::Mana(mana_cost!("{U}{U}"))],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::All(&[
@@ -895,8 +923,9 @@ pub(in crate::card::sets) static MERCHANT_SCROLL: CardRecord = CardRecord::new(
     "Merchant Scroll",
     "d4133ceb-6176-411a-9eb8-51721c1bb435",
     "Liz Danforth",
-CardRules::new_sorcery(mana_cost!("{1}{U}")).with_ability(AbilityDef::spell(
-        "Search your library for a blue instant card, reveal that card, put it into your hand, then shuffle.",
+    CardRules::new_sorcery(mana_cost!("{1}{U}")).with_ability(AbilityDef::spell(
+        "Search your library for a blue instant card, reveal that \
+         card, put it into your hand, then shuffle.",
         EffectDef::SearchZone {
             player: EffectRecipientDef::Controller,
             source: ZoneKind::Library,
@@ -986,12 +1015,15 @@ pub(in crate::card::sets) static REVEKA_WIZARD_SAVANT: CardRecord = CardRecord::
     "Reveka, Wizard Savant",
     "a952236e-3085-4e6e-8639-355976b7c8f5",
     "Susan Van Camp",
-CardRules::new_creature(mana_cost!("{2}{U}{U}"), &["Dwarf", "Wizard"], 0, 1)
+    CardRules::new_creature(mana_cost!("{2}{U}{U}"), &["Dwarf", "Wizard"], 0, 1)
         .with_supertype(CardSupertype::Legendary)
         .with_ability(AbilityDef::activated_with_targets(
-            "{T}: Reveka deals 2 damage to any target and doesn't untap during your next untap step.",
+            "{T}: Reveka deals 2 damage to any target and doesn't untap \
+             during your next untap step.",
             &[CostDef::TapSource],
-            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
             EffectDef::Sequence(&[
                 EffectDef::damage(
                     EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -1017,7 +1049,8 @@ pub(in crate::card::sets) static SEA_SPRITE: CardRecord = CardRecord::new(
 );
 
 // HML 39 — Sea Troll
-// Audit: unsupported — Needs an activation condition that remembers whether the source blocked or was blocked by a blue creature this turn.
+// Audit: unsupported — Needs an activation condition that remembers whether the source blocked
+// or was blocked by a blue creature this turn.
 pub(in crate::card::sets) static SEA_TROLL: CardRecord = CardRecord::new(
     "Sea Troll",
     "b7da23d4-f9fb-40a5-8395-51b47a064600",
@@ -1049,12 +1082,13 @@ pub(in crate::card::sets) static BARON_SENGIR: CardRecord = CardRecord::new(
     "Baron Sengir",
     "51bdddac-02fc-493a-a0ea-689273252d7e",
     "Pete Venters",
-CardRules::new_creature(mana_cost!("{5}{B}{B}{B}"), &["Vampire", "Noble"], 5, 5)
+    CardRules::new_creature(mana_cost!("{5}{B}{B}{B}"), &["Vampire", "Noble"], 5, 5)
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
             abilities::flying(),
             abilities::creature_damaged_by_source_dies_trigger(
-                "Whenever a creature dealt damage by Baron Sengir this turn dies, put a +2/+2 counter on Baron Sengir.",
+                "Whenever a creature dealt damage by Baron Sengir this turn \
+                 dies, put a +2/+2 counter on Baron Sengir.",
                 EffectDef::AddCounters {
                     object: EffectRecipientDef::Source,
                     kind: CounterKind::power_toughness(2, 2),
@@ -1106,7 +1140,9 @@ pub(in crate::card::sets) static BLACK_CARRIAGE: CardRecord = CardRecord::new(
 );
 
 // HML 43 — Broken Visage
-// Audit: unsupported — Needs a created token whose base power and toughness are dynamic values read from a destroyed target's last-known information; token base stats are currently fixed integers.
+// Audit: unsupported — Needs a created token whose base power and toughness are dynamic values
+// read from a destroyed target's last-known information; token base stats are currently fixed
+// integers.
 pub(in crate::card::sets) static BROKEN_VISAGE: CardRecord = CardRecord::new(
     "Broken Visage",
     "9be199e7-feaa-4f23-b93c-3eab54a02e74",
@@ -1138,9 +1174,11 @@ pub(in crate::card::sets) static DRUDGE_SPELL: CardRecord = CardRecord::new(
     "Drudge Spell",
     "52b352de-e989-4ad5-963c-818092fc9f1a",
     "NéNé Thomas",
-CardRules::new_enchantment(mana_cost!("{B}{B}")).with_abilities(&[
+    CardRules::new_enchantment(mana_cost!("{B}{B}")).with_abilities(&[
         AbilityDef::activated(
-            "{B}, Exile two creature cards from your graveyard: Create a 1/1 black Skeleton creature token. It has \"{B}: Regenerate this token.\"",
+            "{B}, Exile two creature cards from your graveyard: Create a \
+             1/1 black Skeleton creature token. It has \"{B}: Regenerate \
+             this token.\"",
             &[
                 CostDef::Mana(mana_cost!("{B}")),
                 CostDef::MoveToZone(MoveToZoneCostDef::new(
@@ -1151,19 +1189,19 @@ CardRules::new_enchantment(mana_cost!("{B}{B}")).with_abilities(&[
                 )),
             ],
             EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
-                TokenCharacteristics::creature(&["Skeleton"], &[ManaColor::Black], 1, 1).with_abilities(&[
-                    AbilityDef::activated(
+                TokenCharacteristics::creature(&["Skeleton"], &[ManaColor::Black], 1, 1)
+                    .with_abilities(&[AbilityDef::activated(
                         "{B}: Regenerate this token.",
                         &[CostDef::Mana(mana_cost!("{B}"))],
                         EffectDef::Regenerate {
                             object: EffectRecipientDef::Source,
                         },
-                    ),
-                ]),
+                    )]),
             ))),
         ),
         AbilityDef::triggered(
-            "When this enchantment leaves the battlefield, destroy all Skeleton tokens. They can't be regenerated.",
+            "When this enchantment leaves the battlefield, destroy all \
+             Skeleton tokens. They can't be regenerated.",
             TriggerEventDef::zone_changed(
                 ObjectPredicateDef::Source,
                 Some(ZoneKind::Battlefield),
@@ -1254,12 +1292,13 @@ pub(in crate::card::sets) static FUNERAL_MARCH: CardRecord = CardRecord::new(
     "Funeral March",
     "054c5678-63d1-45d9-bd51-43100fd10afd",
     "Melissa A. Benson",
-CardRules::new_enchantment(mana_cost!("{1}{B}{B}"))
+    CardRules::new_enchantment(mana_cost!("{1}{B}{B}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
             abilities::enchant_creature(),
             AbilityDef::triggered(
-                "When enchanted creature leaves the battlefield, its controller sacrifices a creature of their choice.",
+                "When enchanted creature leaves the battlefield, its \
+                 controller sacrifices a creature of their choice.",
                 TriggerEventDef::zone_changed(
                     ObjectPredicateDef::AttachedToSource,
                     Some(ZoneKind::Battlefield),
@@ -1285,10 +1324,12 @@ pub(in crate::card::sets) static GHOST_HOUNDS: CardRecord = CardRecord::new(
     "Ghost Hounds",
     "d1298b43-0b10-4b7c-9d33-786d4d7bd80e",
     "Jeff A. Menges",
-CardRules::new_creature(mana_cost!("{1}{B}"), &["Dog", "Spirit"], 1, 1).with_abilities(&[
+    CardRules::new_creature(mana_cost!("{1}{B}"), &["Dog", "Spirit"], 1, 1).with_abilities(&[
         abilities::vigilance(),
         AbilityDef::triggered(
-            "Whenever this creature blocks or becomes blocked by a white creature, this creature gains first strike until end of turn.",
+            "Whenever this creature blocks or becomes blocked by a white \
+             creature, this creature gains first strike until end of \
+             turn.",
             TriggerEventDef::BlocksOrBecomesBlockedBy {
                 creature: ObjectPredicateDef::Source,
                 other: ObjectPredicateDef::Color(ManaColor::White),
@@ -1331,9 +1372,10 @@ pub(in crate::card::sets) static GREATER_WEREWOLF: CardRecord = CardRecord::new(
     "Greater Werewolf",
     "8c29c45f-db1a-43e3-ae42-1a72dabe7880",
     "Dennis Detwiller",
-CardRules::new_creature(mana_cost!("{4}{B}"), &["Werewolf"], 2, 4).with_ability(
+    CardRules::new_creature(mana_cost!("{4}{B}"), &["Werewolf"], 2, 4).with_ability(
         AbilityDef::triggered(
-            "At end of combat, put a -0/-2 counter on each creature blocking or blocked by this creature.",
+            "At end of combat, put a -0/-2 counter on each creature \
+             blocking or blocked by this creature.",
             TriggerEventDef::StepBegins {
                 step: TurnStepDef::EndOfCombat,
                 player: PlayerRelation::Any,
@@ -1359,35 +1401,36 @@ pub(in crate::card::sets) static HEADSTONE: CardRecord = CardRecord::new(
     "Headstone",
     "2fdae7fa-1076-4ff3-b771-fc3f5d9ba89f",
     "David A. Cherry",
-CardRules::new_instant(mana_cost!("{1}{B}")).with_ability(
-        AbilityDef::spell_with_targets(
-            "Exile target card from a graveyard.\nDraw a card at the beginning of the next turn's upkeep.",
-            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+    CardRules::new_instant(mana_cost!("{1}{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Exile target card from a graveyard.\nDraw a card at the \
+         beginning of the next turn's upkeep.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
                 object: ObjectPredicateDef::Any,
                 zones: &[ZoneKind::Graveyard],
                 controller: None,
                 owner: None,
-            })],
-            EffectDef::Sequence(&[
-                EffectDef::move_to_zone(
-                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    ZoneKind::Exile,
-                    ZonePlacement::Top,
-                ),
-                EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
-                    "At the beginning of the next turn's upkeep, draw a card.",
-                    TriggerEventDef::StepBegins {
-                        step: TurnStepDef::Upkeep,
-                        player: PlayerRelation::Any,
-                    },
-                    EffectDef::DrawCards {
-                        recipient: EffectRecipientDef::Controller,
-                        amount: ValueDef::Constant(1),
-                    },
-                ))),
-            ]),
-        ),
-    ),
+            },
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Exile,
+                ZonePlacement::Top,
+            ),
+            EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
+                "At the beginning of the next turn's upkeep, draw a card.",
+                TriggerEventDef::StepBegins {
+                    step: TurnStepDef::Upkeep,
+                    player: PlayerRelation::Any,
+                },
+                EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+            ))),
+        ]),
+    )),
 );
 
 // HML 53 — Ihsan's Shade
@@ -1422,7 +1465,8 @@ pub(in crate::card::sets) static IRINI_SENGIR: CardRecord = CardRecord::new(
 );
 
 // HML 55 — Koskun Falls
-// Audit: unsupported — The attack tax is supported, but the upkeep clause needs tapping a chosen untapped creature as an effect payment, which resolution payments cannot express.
+// Audit: unsupported — The attack tax is supported, but the upkeep clause needs tapping a
+// chosen untapped creature as an effect payment, which resolution payments cannot express.
 pub(in crate::card::sets) static KOSKUN_FALLS: CardRecord = CardRecord::new(
     "Koskun Falls",
     "04292a4e-8910-4911-a76d-4f2c3e15da33",
@@ -1484,10 +1528,11 @@ pub(in crate::card::sets) static SENGIR_BATS: CardRecord = CardRecord::new(
     "Sengir Bats",
     "2ddb981a-d9e3-4efe-a383-5c98ee3b0b84",
     "Dan Frazier",
-CardRules::new_creature(mana_cost!("{1}{B}{B}"), &["Bat"], 1, 2).with_abilities(&[
+    CardRules::new_creature(mana_cost!("{1}{B}{B}"), &["Bat"], 1, 2).with_abilities(&[
         abilities::flying(),
         abilities::creature_damaged_by_source_dies_trigger(
-            "Whenever a creature dealt damage by this creature this turn dies, put a +1/+1 counter on this creature.",
+            "Whenever a creature dealt damage by this creature this turn \
+             dies, put a +1/+1 counter on this creature.",
             EffectDef::AddCounters {
                 object: EffectRecipientDef::Source,
                 kind: CounterKind::PlusOnePlusOne,
@@ -1498,7 +1543,8 @@ CardRules::new_creature(mana_cost!("{1}{B}{B}"), &["Bat"], 1, 2).with_abilities(
 );
 
 // HML 58 — Timmerian Fiends
-// Audit: unsupported — Ante cards require ante-zone ownership exchange and legality rules, which the engine does not model.
+// Audit: unsupported — Ante cards require ante-zone ownership exchange and legality rules,
+// which the engine does not model.
 pub(in crate::card::sets) static TIMMERIAN_FIENDS: CardRecord = CardRecord::new(
     "Timmerian Fiends",
     "90643766-c92f-4a25-bd02-227f3c91f391",
@@ -1797,7 +1843,9 @@ pub(in crate::card::sets) static DWARVEN_PONY: CardRecord = CardRecord::new(
 );
 
 // HML 71 — Dwarven Sea Clan
-// Audit: unsupported — Needs a target predicate relating an attacking or blocking creature's controller to control of an Island, then binding that target into delayed end-of-combat damage.
+// Audit: unsupported — Needs a target predicate relating an attacking or blocking creature's
+// controller to control of an Island, then binding that target into delayed end-of-combat
+// damage.
 pub(in crate::card::sets) static DWARVEN_SEA_CLAN: CardRecord = CardRecord::new(
     "Dwarven Sea Clan",
     "4cb722d9-1998-4912-a6f2-4ffa8d21311a",
@@ -1862,7 +1910,8 @@ pub(in crate::card::sets) static EVAPORATE: CardRecord = CardRecord::new(
 );
 
 // HML 75 — Heart Wolf
-// Audit: unsupported — Needs a turn-scoped delayed zone-change listener restricted to the targeted Dwarf so its departure sacrifices the source.
+// Audit: unsupported — Needs a turn-scoped delayed zone-change listener restricted to the
+// targeted Dwarf so its departure sacrifices the source.
 pub(in crate::card::sets) static HEART_WOLF: CardRecord = CardRecord::new(
     "Heart Wolf",
     "e0427dcd-26da-462b-b936-a382d3d8afce",
@@ -1871,7 +1920,8 @@ pub(in crate::card::sets) static HEART_WOLF: CardRecord = CardRecord::new(
 );
 
 // HML 76 — Ironclaw Curse
-// Audit: unsupported — Needs a block restriction comparing each prospective attacker's power with the enchanted creature's current toughness.
+// Audit: unsupported — Needs a block restriction comparing each prospective attacker's power
+// with the enchanted creature's current toughness.
 pub(in crate::card::sets) static IRONCLAW_CURSE: CardRecord = CardRecord::new(
     "Ironclaw Curse",
     "e796f0ff-4e7b-4849-b463-0aac860c72ea",
@@ -1907,7 +1957,7 @@ pub(in crate::card::sets) static ORCISH_MINE: CardRecord = CardRecord::new(
     "Orcish Mine",
     "3a630875-b43d-4591-992c-117e1212fa34",
     "Kaja Foglio",
-CardRules::new_enchantment(mana_cost!("{1}{R}{R}"))
+    CardRules::new_enchantment(mana_cost!("{1}{R}{R}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
             abilities::enchant_land(),
@@ -1942,7 +1992,9 @@ CardRules::new_enchantment(mana_cost!("{1}{R}{R}"))
                 },
             ),
             AbilityDef::triggered(
-                "When the last ore counter is removed from this Aura, destroy enchanted land and this Aura deals 2 damage to that land's controller.",
+                "When the last ore counter is removed from this Aura, \
+                 destroy enchanted land and this Aura deals 2 damage to that \
+                 land's controller.",
                 TriggerEventDef::LastCounterRemoved {
                     object: ObjectPredicateDef::Source,
                     kind: CounterKind::named("ore"),
@@ -1953,7 +2005,9 @@ CardRules::new_enchantment(mana_cost!("{1}{R}{R}"))
                         then: None,
                     },
                     EffectDef::damage(
-                        EffectRecipientDef::player(PlayerRefDef::ControllerOf(ObjectRefDef::AttachedToSource)),
+                        EffectRecipientDef::player(PlayerRefDef::ControllerOf(
+                            ObjectRefDef::AttachedToSource,
+                        )),
                         ValueDef::Constant(2),
                     ),
                 ]),
@@ -1962,7 +2016,8 @@ CardRules::new_enchantment(mana_cost!("{1}{R}{R}"))
 );
 
 // HML 79 — Retribution
-// Audit: unsupported — Needs two targets constrained to the same opponent's control and a resolution choice by that opponent between those targeted objects.
+// Audit: unsupported — Needs two targets constrained to the same opponent's control and a
+// resolution choice by that opponent between those targeted objects.
 pub(in crate::card::sets) static RETRIBUTION: CardRecord = CardRecord::new(
     "Retribution",
     "b3adf9a6-7137-4995-9a83-2d410cb3cd20",
@@ -1975,8 +2030,10 @@ pub(in crate::card::sets) static WINTER_SKY: CardRecord = CardRecord::new(
     "Winter Sky",
     "af1035f3-3027-4a41-834c-55222b13c2bc",
     "Mike Kimble",
-CardRules::new_sorcery(mana_cost!("{R}")).with_ability(AbilityDef::spell(
-        "Flip a coin. If you win the flip, Winter Sky deals 1 damage to each creature and each player. If you lose the flip, each player draws a card.",
+    CardRules::new_sorcery(mana_cost!("{R}")).with_ability(AbilityDef::spell(
+        "Flip a coin. If you win the flip, Winter Sky deals 1 damage \
+         to each creature and each player. If you lose the flip, \
+         each player draws a card.",
         EffectDef::FlipCoin {
             on_win: &EffectDef::Sequence(&[
                 EffectDef::damage(
@@ -2002,9 +2059,10 @@ pub(in crate::card::sets) static AN_HAVVA_CONSTABLE: CardRecord = CardRecord::ne
     "An-Havva Constable",
     "42c5a793-a777-44f9-a977-d16d26d3f852",
     "Dan Frazier",
-CardRules::new_creature(mana_cost!("{1}{G}{G}"), &["Human"], 2, 1).with_ability(
+    CardRules::new_creature(mana_cost!("{1}{G}{G}"), &["Human"], 2, 1).with_ability(
         AbilityDef::static_ability(
-            "An-Havva Constable's toughness is equal to 1 plus the number of green creatures on the battlefield.",
+            "An-Havva Constable's toughness is equal to 1 plus the \
+             number of green creatures on the battlefield.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::modify_power_toughness(
@@ -2048,7 +2106,8 @@ pub(in crate::card::sets) static AN_HAVVA_INN: CardRecord = CardRecord::new(
 );
 
 // HML 83 — Autumn Willow
-// Audit: unsupported — Needs a player-scoped permission to target one shrouded permanent until end of turn without removing shroud for other players.
+// Audit: unsupported — Needs a player-scoped permission to target one shrouded permanent until
+// end of turn without removing shroud for other players.
 pub(in crate::card::sets) static AUTUMN_WILLOW: CardRecord = CardRecord::new(
     "Autumn Willow",
     "cea60340-bbdb-48e2-94a6-5ac1197e978a",
@@ -2094,7 +2153,8 @@ const CARAPACE_ALTERNATE_1: PrintingRecord = PrintingRecord::alternate(
 );
 
 // HML 85 — Daughter of Autumn
-// Audit: unsupported — Needs a one-point damage-redirection shield from a targeted white creature to the source; the existing redirection rule redirects the entire matching event.
+// Audit: unsupported — Needs a one-point damage-redirection shield from a targeted white
+// creature to the source; the existing redirection rule redirects the entire matching event.
 pub(in crate::card::sets) static DAUGHTER_OF_AUTUMN: CardRecord = CardRecord::new(
     "Daughter of Autumn",
     "972e9c59-f340-414c-b55b-39d46dd97e8e",
@@ -2159,7 +2219,8 @@ const FOLK_OF_AN_HAVVA_ALTERNATE_1: PrintingRecord = PrintingRecord::alternate(
 );
 
 // HML 87b — Folk of An-Havva
-// Audit: unsupported — Needs a blocker-declared event that fires once when the source blocks, independent of how many creatures it blocks; the current event is per blocking relationship.
+// Audit: unsupported — Needs a blocker-declared event that fires once when the source blocks,
+// independent of how many creatures it blocks; the current event is per blocking relationship.
 pub(in crate::card::sets) static FOLK_OF_AN_HAVVA: CardRecord = CardRecord::new(
     "Folk of An-Havva",
     "4118c563-08a7-4654-973e-ab9c454f00f9",
@@ -2196,7 +2257,9 @@ const HUNGRY_MIST_ALTERNATE_1: PrintingRecord = PrintingRecord::alternate(
 );
 
 // HML 89 — Joven's Ferrets
-// Audit: unsupported — Needs the historical set of creatures that blocked the source this turn; the current combat-relation predicate forgets a blocker removed from combat before the end step.
+// Audit: unsupported — Needs the historical set of creatures that blocked the source this turn;
+// the current combat-relation predicate forgets a blocker removed from combat before the end
+// step.
 pub(in crate::card::sets) static JOVEN_S_FERRETS: CardRecord = CardRecord::new(
     "Joven's Ferrets",
     "1f95eda2-f791-46e9-bb82-31422b8c5ce4",
@@ -2229,7 +2292,7 @@ pub(in crate::card::sets) static MAMMOTH_HARNESS: CardRecord = CardRecord::new(
     "Mammoth Harness",
     "5be67121-068c-4770-bc42-c081577a442c",
     "Melissa A. Benson",
-CardRules::new_enchantment(mana_cost!("{3}{G}"))
+    CardRules::new_enchantment(mana_cost!("{3}{G}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
             abilities::enchant_creature(),
@@ -2243,7 +2306,9 @@ CardRules::new_enchantment(mana_cost!("{3}{G}"))
                 },
             ),
             AbilityDef::triggered(
-                "Whenever enchanted creature blocks or becomes blocked by a creature, the other creature gains first strike until end of turn.",
+                "Whenever enchanted creature blocks or becomes blocked by a \
+                 creature, the other creature gains first strike until end \
+                 of turn.",
                 TriggerEventDef::BlocksOrBecomesBlockedBy {
                     creature: ObjectPredicateDef::AttachedToSource,
                     other: ObjectPredicateDef::HasType(CardType::Creature),
@@ -2262,8 +2327,10 @@ pub(in crate::card::sets) static PRIMAL_ORDER: CardRecord = CardRecord::new(
     "Primal Order",
     "21a3b8f7-c794-40ef-9ebd-dec5357260d4",
     "Rob Alexander",
-CardRules::new_enchantment(mana_cost!("{2}{G}{G}")).with_ability(AbilityDef::triggered(
-        "At the beginning of each player's upkeep, this enchantment deals damage to that player equal to the number of nonbasic lands they control.",
+    CardRules::new_enchantment(mana_cost!("{2}{G}{G}")).with_ability(AbilityDef::triggered(
+        "At the beginning of each player's upkeep, this enchantment \
+         deals damage to that player equal to the number of nonbasic \
+         lands they control.",
         TriggerEventDef::StepBegins {
             step: TurnStepDef::Upkeep,
             player: PlayerRelation::Any,
@@ -2287,9 +2354,12 @@ pub(in crate::card::sets) static RENEWAL: CardRecord = CardRecord::new(
     "Renewal",
     "ab998cd1-2f49-42e7-b889-c6717b0ce884",
     "Kaja Foglio",
-CardRules::new_sorcery(mana_cost!("{2}{G}")).with_ability(
+    CardRules::new_sorcery(mana_cost!("{2}{G}")).with_ability(
         AbilityDef::spell_with_additional_cost(
-            "As an additional cost to cast this spell, sacrifice a land.\nSearch your library for a basic land card, put that card onto the battlefield, then shuffle.\nDraw a card at the beginning of the next turn's upkeep.",
+            "As an additional cost to cast this spell, sacrifice a \
+             land.\nSearch your library for a basic land card, put that \
+             card onto the battlefield, then shuffle.\nDraw a card at \
+             the beginning of the next turn's upkeep.",
             &[],
             CostDef::sacrifice(
                 ObjectPredicateDef::HasType(CardType::Land),
@@ -2331,7 +2401,8 @@ CardRules::new_sorcery(mana_cost!("{2}{G}")).with_ability(
 );
 
 // HML 94 — Root Spider
-// Audit: unsupported — Needs a blocker-declared event that fires once when the source blocks, independent of how many creatures it blocks; the current event is per blocking relationship.
+// Audit: unsupported — Needs a blocker-declared event that fires once when the source blocks,
+// independent of how many creatures it blocks; the current event is per blocking relationship.
 pub(in crate::card::sets) static ROOT_SPIDER: CardRecord = CardRecord::new(
     "Root Spider",
     "407d67b0-d496-401b-8844-8e3ea2fd2046",
@@ -2383,9 +2454,13 @@ pub(in crate::card::sets) static RYSORIAN_BADGER: CardRecord = CardRecord::new(
     "Rysorian Badger",
     "ab87a387-678b-4913-a0c7-85f0238cee26",
     "Heather Hudson",
-CardRules::new_creature(mana_cost!("{2}{G}"), &["Badger"], 2, 2).with_ability(
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Badger"], 2, 2).with_ability(
         AbilityDef::triggered_with_targets(
-            "Whenever this creature attacks and isn't blocked, you may exile up to two target creature cards from defending player's graveyard. If you do, you gain 1 life for each card exiled this way and this creature assigns no combat damage this turn.",
+            "Whenever this creature attacks and isn't blocked, you may \
+             exile up to two target creature cards from defending \
+             player's graveyard. If you do, you gain 1 life for each \
+             card exiled this way and this creature assigns no combat \
+             damage this turn.",
             TriggerEventDef::AttacksAndIsNotBlocked {
                 attacker: ObjectPredicateDef::Source,
             },
@@ -2406,18 +2481,14 @@ CardRules::new_creature(mana_cost!("{2}{G}"), &["Badger"], 2, 2).with_ability(
                 ),
                 binding: Binding!("rysorian_badger_exiled"),
                 then: &EffectDef::IfCondition {
-                    condition: &TriggerConditionDef::ObjectSetCount(
-                        &ObjectSetCountConditionDef {
-                            objects: &ObjectSetDef::Binding(Binding!(
-                                "rysorian_badger_exiled"
-                            )),
-                            predicate: ObjectSetPredicateDef {
-                                filter: None,
-                                comparison: ComparisonDef::GreaterOrEqual,
-                                amount: 1,
-                            },
+                    condition: &TriggerConditionDef::ObjectSetCount(&ObjectSetCountConditionDef {
+                        objects: &ObjectSetDef::Binding(Binding!("rysorian_badger_exiled")),
+                        predicate: ObjectSetPredicateDef {
+                            filter: None,
+                            comparison: ComparisonDef::GreaterOrEqual,
+                            amount: 1,
                         },
-                    ),
+                    }),
                     then: &EffectDef::Sequence(&[
                         EffectDef::GainLife {
                             recipient: EffectRecipientDef::Controller,
@@ -2427,9 +2498,7 @@ CardRules::new_creature(mana_cost!("{2}{G}"), &["Badger"], 2, 2).with_ability(
                         },
                         EffectDef::Apply {
                             recipient: EffectRecipientDef::Source,
-                            effect: AppliedEffectDef::Rule(
-                                AppliedRuleDef::AssignsNoCombatDamage,
-                            ),
+                            effect: AppliedEffectDef::Rule(AppliedRuleDef::AssignsNoCombatDamage),
                             duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                         },
                     ]),
@@ -2473,9 +2542,11 @@ pub(in crate::card::sets) static SPECTRAL_BEARS: CardRecord = CardRecord::new(
     "Spectral Bears",
     "7e13875f-f745-4afd-a830-33df9576dce8",
     "Pat Lewis",
-CardRules::new_creature(mana_cost!("{1}{G}"), &["Bear", "Spirit"], 3, 3).with_ability(
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Bear", "Spirit"], 3, 3).with_ability(
         AbilityDef::triggered_if(
-            "Whenever this creature attacks, if defending player controls no black nontoken permanents, it doesn't untap during your next untap step.",
+            "Whenever this creature attacks, if defending player \
+             controls no black nontoken permanents, it doesn't untap \
+             during your next untap step.",
             TriggerEventDef::attacks(ObjectPredicateDef::Source),
             &TriggerConditionDef::ObjectCount {
                 query: ObjectQueryDef::matching(
@@ -2565,8 +2636,10 @@ pub(in crate::card::sets) static APOCALYPSE_CHIME: CardRecord = CardRecord::new(
     "Apocalypse Chime",
     "cef20d8f-6e80-4fca-b6a7-541981f6a112",
     "Mark Poole",
-CardRules::new_artifact(mana_cost!("{2}")).with_ability(AbilityDef::activated(
-        "{2}, {T}, Sacrifice this artifact: Destroy all nontoken permanents with a name originally printed in the Homelands expansion. They can't be regenerated.",
+    CardRules::new_artifact(mana_cost!("{2}")).with_ability(AbilityDef::activated(
+        "{2}, {T}, Sacrifice this artifact: Destroy all nontoken \
+         permanents with a name originally printed in the Homelands \
+         expansion. They can't be regenerated.",
         &[
             CostDef::Mana(mana_cost!("{2}")),
             CostDef::TapSource,
@@ -2612,7 +2685,8 @@ pub(in crate::card::sets) static CLOCKWORK_GNOMES: CardRecord = CardRecord::new(
 );
 
 // HML 103 — Clockwork Steed
-// Audit: unsupported — Needs a resolution choice for up to X counters capped by the source's current counter count so the result never exceeds four.
+// Audit: unsupported — Needs a resolution choice for up to X counters capped by the source's
+// current counter count so the result never exceeds four.
 pub(in crate::card::sets) static CLOCKWORK_STEED: CardRecord = CardRecord::new(
     "Clockwork Steed",
     "9b080587-d062-42ff-abc5-8e04a20faece",
@@ -2621,7 +2695,8 @@ pub(in crate::card::sets) static CLOCKWORK_STEED: CardRecord = CardRecord::new(
 );
 
 // HML 104 — Clockwork Swarm
-// Audit: unsupported — Needs a resolution choice for up to X counters capped by the source's current counter count so the result never exceeds four.
+// Audit: unsupported — Needs a resolution choice for up to X counters capped by the source's
+// current counter count so the result never exceeds four.
 pub(in crate::card::sets) static CLOCKWORK_SWARM: CardRecord = CardRecord::new(
     "Clockwork Swarm",
     "dfd89e5c-79dc-4a57-b5ea-16491443fea1",
@@ -2709,10 +2784,11 @@ pub(in crate::card::sets) static ROTEROTHOPTER: CardRecord = CardRecord::new(
     "Roterothopter",
     "22148a1a-2172-4718-8ee4-08770eafed9f",
     "Amy Weber",
-CardRules::new_artifact_creature(mana_cost!("{1}"), &["Thopter"], 0, 2).with_abilities(&[
+    CardRules::new_artifact_creature(mana_cost!("{1}"), &["Thopter"], 0, 2).with_abilities(&[
         abilities::flying(),
         AbilityDef::activated(
-            "{2}: This creature gets +1/+0 until end of turn. Activate no more than twice each turn.",
+            "{2}: This creature gets +1/+0 until end of turn. Activate \
+             no more than twice each turn.",
             &[CostDef::Mana(mana_cost!("{2}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
@@ -2732,7 +2808,7 @@ pub(in crate::card::sets) static SERRATED_ARROWS: CardRecord = CardRecord::new(
     "Serrated Arrows",
     "849a7d2b-3fdb-4e7f-b0b6-f6559dcb32e2",
     "David A. Cherry",
-CardRules::new_artifact(mana_cost!("{4}")).with_abilities(&[
+    CardRules::new_artifact(mana_cost!("{4}")).with_abilities(&[
         AbilityDef::as_enters(
             "This artifact enters with three arrowhead counters on it.",
             ReplacementEffectDef::ModifyBattlefieldEntry(
@@ -2743,7 +2819,8 @@ CardRules::new_artifact(mana_cost!("{4}")).with_abilities(&[
             ),
         ),
         AbilityDef::triggered_if(
-            "At the beginning of your upkeep, if there are no arrowhead counters on this artifact, sacrifice it.",
+            "At the beginning of your upkeep, if there are no arrowhead \
+             counters on this artifact, sacrifice it.",
             TriggerEventDef::StepBegins {
                 step: TurnStepDef::Upkeep,
                 player: PlayerRelation::You,
@@ -2756,7 +2833,8 @@ CardRules::new_artifact(mana_cost!("{4}")).with_abilities(&[
             EffectDef::sacrifice(EffectRecipientDef::Source),
         ),
         AbilityDef::activated_with_targets(
-            "{T}, Remove an arrowhead counter from this artifact: Put a -1/-1 counter on target creature.",
+            "{T}, Remove an arrowhead counter from this artifact: Put a \
+             -1/-1 counter on target creature.",
             &[
                 CostDef::TapSource,
                 CostDef::RemoveCountersFromSource {

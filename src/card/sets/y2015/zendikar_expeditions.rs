@@ -24,7 +24,7 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // EXP 3 — Smoldering Marsh
-pub(in crate::card::sets) static SMOLDERING_MARSH_3: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static SMOLDERING_MARSH: CardRecord = CardRecord::new(
     "Smoldering Marsh",
     "2c9814b3-d4fe-4823-b310-ab284dc9b9be",
     "Titus Lunter",
@@ -53,7 +53,7 @@ pub(in crate::card::sets) static SMOLDERING_MARSH_3: CardRecord = CardRecord::ne
 );
 
 // EXP 4 — Cinder Glade
-pub(in crate::card::sets) static CINDER_GLADE_4: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static CINDER_GLADE: CardRecord = CardRecord::new(
     "Cinder Glade",
     "1b5d2e9c-dd93-49ae-9a03-77c13c5ec298",
     "Titus Lunter",
@@ -82,7 +82,7 @@ pub(in crate::card::sets) static CINDER_GLADE_4: CardRecord = CardRecord::new(
 );
 
 // EXP 5 — Canopy Vista
-pub(in crate::card::sets) static CANOPY_VISTA_5: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static CANOPY_VISTA: CardRecord = CardRecord::new(
     "Canopy Vista",
     "3125bf61-f1b8-4b97-96bc-2d2a3a32adbd",
     "Titus Lunter",
@@ -111,6 +111,6 @@ pub(in crate::card::sets) static CANOPY_VISTA_5: CardRecord = CardRecord::new(
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[&SMOLDERING_MARSH_3, &CINDER_GLADE_4, &CANOPY_VISTA_5];
+    &[&SMOLDERING_MARSH, &CINDER_GLADE, &CANOPY_VISTA];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

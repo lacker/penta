@@ -58,24 +58,23 @@ pub(in crate::card::sets) static CHANDRAS_OUTRAGE: CardRecord = CardRecord::new(
     "Chandra's Outrage",
     "3282db18-8564-418e-8c26-62e610b160f2",
     "Christopher Moeller",
-CardRules::new_instant(mana_cost!("{2}{R}{R}")).with_ability(
-        AbilityDef::spell_with_targets(
-            "Chandra's Outrage deals 4 damage to target creature and 2 damage to that creature's controller.",
-            &[AbilityTargetDef::exactly_one_permanent(
-                ObjectPredicateDef::HasType(CardType::Creature),
-            )],
-            EffectDef::Sequence(&[
-                EffectDef::damage(
-                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    ValueDef::Constant(4),
-                ),
-                EffectDef::damage(
-                    EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
-                    ValueDef::Constant(2),
-                ),
-            ]),
-        ),
-    ),
+    CardRules::new_instant(mana_cost!("{2}{R}{R}")).with_ability(AbilityDef::spell_with_targets(
+        "Chandra's Outrage deals 4 damage to target creature and 2 \
+         damage to that creature's controller.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(4),
+            ),
+            EffectDef::damage(
+                EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
+                ValueDef::Constant(2),
+            ),
+        ]),
+    )),
 );
 
 // ARC 65 — Plummet

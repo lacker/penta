@@ -64,7 +64,7 @@ pub(in crate::card::sets) static ABUNDANT_COUNTRYSIDE: CardRecord = CardRecord::
 );
 
 // ECC 44 — Sodden Verdure
-pub(in crate::card::sets) static SODDEN_VERDURE_44: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static SODDEN_VERDURE: CardRecord = CardRecord::new(
     "Sodden Verdure",
     "9030440a-a049-4152-afcf-b19648b20ce6",
     "Raymond Bonilla",
@@ -92,7 +92,6 @@ pub(in crate::card::sets) static SODDEN_VERDURE_44: CardRecord = CardRecord::new
     )]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[&ABUNDANT_COUNTRYSIDE, &SODDEN_VERDURE_44];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&ABUNDANT_COUNTRYSIDE, &SODDEN_VERDURE];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

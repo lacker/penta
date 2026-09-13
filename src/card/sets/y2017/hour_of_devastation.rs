@@ -40,8 +40,9 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // HOU 22 — Solemnity
-// Audit: unsupported — There is no continuous prohibition on placing player or permanent counters in the counter mutation pipeline.
-pub(in crate::card::sets) static SOLEMNITY_22: CardRecord = CardRecord::new(
+// Audit: unsupported — There is no continuous prohibition on placing player or permanent
+// counters in the counter mutation pipeline.
+pub(in crate::card::sets) static SOLEMNITY: CardRecord = CardRecord::new(
     "Solemnity",
     "0a71fb62-acbd-49f5-842f-0fc9fa48afea",
     "Greg Opalinski",
@@ -65,20 +66,49 @@ pub(in crate::card::sets) static STRIPED_RIVERWINDER: CardRecord = CardRecord::n
 );
 
 // HOU 73 — Razaketh, the Foulblooded
-pub(in crate::card::sets) static RAZAKETH_THE_FOULBLOODED_73: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static RAZAKETH_THE_FOULBLOODED: CardRecord = CardRecord::new(
     "Razaketh, the Foulblooded",
     "e14adff9-33cc-467e-b782-068854c5e7b7",
     "Chris Rallis",
-    CardRules::new_creature(mana_cost!("{5}{B}{B}{B}"), &["Demon"], 8, 8).with_supertype(CardSupertype::Legendary).with_abilities(&[
-abilities::flying(),
-abilities::trample(),
-AbilityDef::activated("Pay 2 life, Sacrifice another creature: Search your library for a card, put that card into your hand, then shuffle.", &[CostDef::PayLife(2), CostDef::sacrifice_permanent(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::Not(&ObjectPredicateDef::Source)]))], EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Library, object: ObjectPredicateDef::Any, minimum: 0, maximum: ValueDef::Constant(1), reveal: false, destination: ZoneKind::Hand, placement: ZonePlacement::Top, shuffle: true, enters_tapped: false, attachment: None, binding: None, then: None })
-]),
+    CardRules::new_creature(mana_cost!("{5}{B}{B}{B}"), &["Demon"], 8, 8)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::flying(),
+            abilities::trample(),
+            AbilityDef::activated(
+                "Pay 2 life, Sacrifice another creature: Search your library \
+                 for a card, put that card into your hand, then shuffle.",
+                &[
+                    CostDef::PayLife(2),
+                    CostDef::sacrifice_permanent(ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    ])),
+                ],
+                EffectDef::SearchZone {
+                    player: EffectRecipientDef::Controller,
+                    source: ZoneKind::Library,
+                    object: ObjectPredicateDef::Any,
+                    minimum: 0,
+                    maximum: ValueDef::Constant(1),
+                    reveal: false,
+                    destination: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                    shuffle: true,
+                    enters_tapped: false,
+                    attachment: None,
+                    binding: None,
+                    then: None,
+                },
+            ),
+        ]),
 );
 
 // HOU 77 — Torment of Hailfire
-// Audit: unsupported — There is no value-counted effect repetition that offers a fresh sacrifice-or-discard choice on each iteration; repeated payment costs cannot reproduce the optional life-loss branch.
-pub(in crate::card::sets) static TORMENT_OF_HAILFIRE_77: CardRecord = CardRecord::new(
+// Audit: unsupported — There is no value-counted effect repetition that offers a fresh
+// sacrifice-or-discard choice on each iteration; repeated payment costs cannot reproduce the
+// optional life-loss branch.
+pub(in crate::card::sets) static TORMENT_OF_HAILFIRE: CardRecord = CardRecord::new(
     "Torment of Hailfire",
     "f69d77d1-5980-436c-bf48-790939b069aa",
     "Grzegorz Rutkowski",
@@ -171,8 +201,9 @@ pub(in crate::card::sets) static FIREBRAND_ARCHER: CardRecord = CardRecord::new(
 );
 
 // HOU 104 — Neheb, the Eternal
-// Audit: unsupported — Turn state records life gain and opponents who lost life, but not the total amount of life opponents lost this turn for its mana-producing trigger.
-pub(in crate::card::sets) static NEHEB_THE_ETERNAL_104: CardRecord = CardRecord::new(
+// Audit: unsupported — Turn state records life gain and opponents who lost life, but not the
+// total amount of life opponents lost this turn for its mana-producing trigger.
+pub(in crate::card::sets) static NEHEB_THE_ETERNAL: CardRecord = CardRecord::new(
     "Neheb, the Eternal",
     "54231832-d492-4812-b658-4ab9a30fefe2",
     "Chris Rahn",
@@ -214,17 +245,35 @@ pub(in crate::card::sets) static BLOODWATER_ENTITY: CardRecord = CardRecord::new
 );
 
 // HOU 165 — Mirage Mirror
-pub(in crate::card::sets) static MIRAGE_MIRROR_165: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static MIRAGE_MIRROR: CardRecord = CardRecord::new(
     "Mirage Mirror",
     "29148d7e-b398-4e19-a29e-d9a660ad5016",
     "Craig J Spearing",
     CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
-AbilityDef::activated_with_targets("{2}: This artifact becomes a copy of target artifact, creature, enchantment, or land until end of turn.", &[CostDef::Mana(mana_cost!("{2}"))], &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Artifact),ObjectPredicateDef::HasType(CardType::Creature),ObjectPredicateDef::HasType(CardType::Land), ObjectPredicateDef::HasType(CardType::Enchantment)]))], EffectDef::BecomeCopyOf { object: EffectRecipientDef::Target(TargetIndex::PRIMARY), copier: None, exceptions: CopyExceptionsDef::NONE, duration: Some(ResolvedEffectDurationDef::UntilEndOfTurn) })
-]),
+        AbilityDef::activated_with_targets(
+            "{2}: This artifact becomes a copy of target artifact, \
+             creature, enchantment, or land until end of turn.",
+            &[CostDef::Mana(mana_cost!("{2}"))],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    ObjectPredicateDef::HasType(CardType::Enchantment),
+                ]),
+            )],
+            EffectDef::BecomeCopyOf {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                copier: None,
+                exceptions: CopyExceptionsDef::NONE,
+                duration: Some(ResolvedEffectDurationDef::UntilEndOfTurn),
+            },
+        ),
+    ]),
 );
 
 // HOU 170 — Desert of the Fervent
-pub(in crate::card::sets) static DESERT_OF_THE_FERVENT_170: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static DESERT_OF_THE_FERVENT: CardRecord = CardRecord::new(
     "Desert of the Fervent",
     "f547d664-25ce-4a24-b3ae-7bf3cbdf4703",
     "Titus Lunter",
@@ -236,19 +285,41 @@ pub(in crate::card::sets) static DESERT_OF_THE_FERVENT_170: CardRecord = CardRec
 );
 
 // HOU 180 — Ipnu Rivulet
-pub(in crate::card::sets) static IPNU_RIVULET_180: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static IPNU_RIVULET: CardRecord = CardRecord::new(
     "Ipnu Rivulet",
     "203011ef-3737-4fd1-bd23-0e531b5a7c32",
     "James Paick",
     CardRules::new_land(&["Desert"]).with_abilities(&[
-abilities::tap_for(ManaColor::Colorless),
-AbilityDef::activated_mana("{T}, Pay 1 life: Add {U}.", &[CostDef::TapSource, CostDef::PayLife(1)], EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Blue))),
-AbilityDef::activated_with_targets("{1}{U}, {T}, Sacrifice a Desert: Target player mills four cards. (They put the top four cards of their library into their graveyard.)", &[CostDef::Mana(mana_cost!("{1}{U}")), CostDef::TapSource, CostDef::sacrifice_permanent(ObjectPredicateDef::Subtype(SubtypeDef::Literal("Desert")))], &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(PlayerRelation::Any))], EffectDef::Mill { player: EffectRecipientDef::Target(TargetIndex::PRIMARY), amount: ValueDef::Constant(4) })
-]),
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated_mana(
+            "{T}, Pay 1 life: Add {U}.",
+            &[CostDef::TapSource, CostDef::PayLife(1)],
+            EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Blue)),
+        ),
+        AbilityDef::activated_with_targets(
+            "{1}{U}, {T}, Sacrifice a Desert: Target player mills four \
+             cards. (They put the top four cards of their library into \
+             their graveyard.)",
+            &[
+                CostDef::Mana(mana_cost!("{1}{U}")),
+                CostDef::TapSource,
+                CostDef::sacrifice_permanent(ObjectPredicateDef::Subtype(SubtypeDef::Literal(
+                    "Desert",
+                ))),
+            ],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Any),
+            )],
+            EffectDef::Mill {
+                player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(4),
+            },
+        ),
+    ]),
 );
 
 // HOU 181 — Ramunap Ruins
-pub(in crate::card::sets) static RAMUNAP_RUINS_181: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static RAMUNAP_RUINS: CardRecord = CardRecord::new(
     "Ramunap Ruins",
     "af11d41a-0d29-45e9-9d27-a41282b9e292",
     "Florian de Gesincourt",
@@ -274,7 +345,7 @@ pub(in crate::card::sets) static RAMUNAP_RUINS_181: CardRecord = CardRecord::new
 );
 
 // HOU 182 — Scavenger Grounds
-pub(in crate::card::sets) static SCAVENGER_GROUNDS_182: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static SCAVENGER_GROUNDS: CardRecord = CardRecord::new(
     "Scavenger Grounds",
     "6cd91eeb-7abf-4538-91dc-47c736dfc237",
     "Steven Belledin",
@@ -303,8 +374,9 @@ pub(in crate::card::sets) static SCAVENGER_GROUNDS_182: CardRecord = CardRecord:
 );
 
 // HOU 184 — Survivors' Encampment
-// Audit: unsupported — Mana-ability eligibility cannot reserve and pay the additional TapPermanents cost for another creature.
-pub(in crate::card::sets) static SURVIVORS_ENCAMPMENT_184: CardRecord = CardRecord::new(
+// Audit: unsupported — Mana-ability eligibility cannot reserve and pay the additional
+// TapPermanents cost for another creature.
+pub(in crate::card::sets) static SURVIVORS_ENCAMPMENT: CardRecord = CardRecord::new(
     "Survivors' Encampment",
     "c7b0404e-0f42-456b-91ce-f960195c4951",
     "Jonas De Ro",
@@ -312,21 +384,21 @@ pub(in crate::card::sets) static SURVIVORS_ENCAMPMENT_184: CardRecord = CardReco
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
-    &SOLEMNITY_22,
+    &SOLEMNITY,
     &STRIPED_RIVERWINDER,
-    &RAZAKETH_THE_FOULBLOODED_73,
-    &TORMENT_OF_HAILFIRE_77,
+    &RAZAKETH_THE_FOULBLOODED,
+    &TORMENT_OF_HAILFIRE,
     &ABRADE,
     &CRASH_THROUGH,
     &FIREBRAND_ARCHER,
-    &NEHEB_THE_ETERNAL_104,
+    &NEHEB_THE_ETERNAL,
     &BLOODWATER_ENTITY,
-    &MIRAGE_MIRROR_165,
-    &DESERT_OF_THE_FERVENT_170,
-    &IPNU_RIVULET_180,
-    &RAMUNAP_RUINS_181,
-    &SCAVENGER_GROUNDS_182,
-    &SURVIVORS_ENCAMPMENT_184,
+    &MIRAGE_MIRROR,
+    &DESERT_OF_THE_FERVENT,
+    &IPNU_RIVULET,
+    &RAMUNAP_RUINS,
+    &SCAVENGER_GROUNDS,
+    &SURVIVORS_ENCAMPMENT,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

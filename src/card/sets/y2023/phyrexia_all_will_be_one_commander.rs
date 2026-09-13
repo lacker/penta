@@ -68,7 +68,7 @@ pub(in crate::card::sets) static OTHARRI_SUNS_GLORY: CardRecord = CardRecord::ne
     "Otharri, Suns' Glory",
     "348e0927-1d8f-4723-879d-f7e95ac60c27",
     "Marta Nael",
-// Five mana for a hasty lifelinking flier that pays out more every time
+    // Five mana for a hasty lifelinking flier that pays out more every time
     // it connects, and buys itself back out of the graveyard with what it
     // left behind.
     CardRules::new_creature(mana_cost!("{3}{R}{W}"), &["Phoenix"], 3, 3)
@@ -78,8 +78,9 @@ pub(in crate::card::sets) static OTHARRI_SUNS_GLORY: CardRecord = CardRecord::ne
             abilities::lifelink(),
             abilities::haste(),
             AbilityDef::triggered(
-                "Whenever this creature attacks, you get an experience counter. Then create a 2/2 red \
-                 Rebel creature token that\'s tapped and attacking for each experience counter you have.",
+                "Whenever this creature attacks, you get an experience \
+                 counter. Then create a 2/2 red Rebel creature token that\'s \
+                 tapped and attacking for each experience counter you have.",
                 TriggerEventDef::attacks(ObjectPredicateDef::Source),
                 // "Then" is the order that matters: the counter is his first, so the
                 // attack he arrives on already makes one Rebel.
@@ -108,8 +109,8 @@ pub(in crate::card::sets) static OTHARRI_SUNS_GLORY: CardRecord = CardRecord::ne
                 ]),
             ),
             AbilityDef::activated(
-                "{2}{R}{W}, Tap an untapped Rebel you control: Return this card from your graveyard to \
-                 the battlefield tapped.",
+                "{2}{R}{W}, Tap an untapped Rebel you control: Return this \
+                 card from your graveyard to the battlefield tapped.",
                 &[
                     CostDef::Mana(mana_cost!("{2}{R}{W}")),
                     CostDef::TapPermanents {
@@ -139,7 +140,7 @@ pub(in crate::card::sets) static STAFF_OF_THE_STORYTELLER: CardRecord = CardReco
     "Staff of the Storyteller",
     "17be11f2-f2db-40c4-8fc1-2ed7173f9a1a",
     "Dan Murayama Scott",
-// Two mana for a flier, and a card for every turn the deck keeps making
+    // Two mana for a flier, and a card for every turn the deck keeps making
     // tokens afterwards.
     CardRules::new_artifact(mana_cost!("{1}{W}")).with_abilities(&[
         abilities::enters_trigger(
@@ -152,7 +153,8 @@ pub(in crate::card::sets) static STAFF_OF_THE_STORYTELLER: CardRecord = CardReco
             ))),
         ),
         AbilityDef::triggered(
-            "Whenever you create one or more creature tokens, put a story counter on this artifact.",
+            "Whenever you create one or more creature tokens, put a \
+             story counter on this artifact.",
             // One instruction, one counter, however many tokens it made -- which is
             // what "one or more" says and what makes a wide token maker no better here
             // than a narrow one.

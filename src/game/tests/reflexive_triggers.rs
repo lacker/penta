@@ -185,7 +185,7 @@ fn faebloom_token_doubling_creates_one_reflexive_trigger() {
     let (mut game, spell) = faebloom_game();
     game.battlefield.push(creature(
         10_010,
-        cards::MONDRAK_GLORY_DOMINUS_346,
+        cards::MONDRAK_GLORY_DOMINUS,
         PlayerId::One,
     ));
     game.battlefield

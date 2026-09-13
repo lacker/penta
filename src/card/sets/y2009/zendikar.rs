@@ -80,10 +80,11 @@ pub(in crate::card::sets) static BRAVE_THE_ELEMENTS: CardRecord = CardRecord::ne
     "Brave the Elements",
     "c14c492d-3fd7-4b2a-910e-bfcb33752eba",
     "Goran Josic",
-// One mana that makes a white board unblockable, or immune to a sweeper:
+    // One mana that makes a white board unblockable, or immune to a sweeper:
     // the group is settled first and the colour named afterwards.
     CardRules::new_instant(mana_cost!("{W}")).with_ability(AbilityDef::spell(
-        "Choose a color. White creatures you control gain protection from the chosen color until end of turn.",
+        "Choose a color. White creatures you control gain protection \
+         from the chosen color until end of turn.",
         EffectDef::ChooseColor {
             object: EffectRecipientDef::matching_objects(
                 ObjectPredicateDef::All(&[
@@ -123,7 +124,7 @@ pub(in crate::card::sets) static JOURNEY_TO_NOWHERE: CardRecord = CardRecord::ne
     "Journey to Nowhere",
     "09cfe585-8a55-4b27-89e0-dfb6946fe1f3",
     "Warren Mahy",
-// Two printed abilities rather than the modern "until" wording, so the
+    // Two printed abilities rather than the modern "until" wording, so the
     // return is its own leaves-the-battlefield trigger: answering the
     // enchantment in response to the exile leaves the creature where it was.
     CardRules::new_enchantment(mana_cost!("{1}{W}")).with_abilities(&[
@@ -140,7 +141,8 @@ pub(in crate::card::sets) static JOURNEY_TO_NOWHERE: CardRecord = CardRecord::ne
             },
         ),
         AbilityDef::triggered(
-            "When this enchantment leaves the battlefield, return the exiled card to the battlefield under its owner's control.",
+            "When this enchantment leaves the battlefield, return the \
+             exiled card to the battlefield under its owner's control.",
             TriggerEventDef::zone_changed(
                 ObjectPredicateDef::Source,
                 Some(ZoneKind::Battlefield),
@@ -204,7 +206,7 @@ pub(in crate::card::sets) static INTO_THE_ROIL: CardRecord = CardRecord::new(
     "Into the Roil",
     "5dba9972-dd8b-407b-9374-a8f0ed1a96db",
     "Kieran Yanner",
-// Two mana for tempo, or four for tempo that replaces itself, which is
+    // Two mana for tempo, or four for tempo that replaces itself, which is
     // what keeps it playable in a deck that is not otherwise bouncing things.
     CardRules::new_instant(mana_cost!("{1}{U}")).with_abilities(&[
         AbilityDef::alternative_cast(
@@ -214,7 +216,8 @@ pub(in crate::card::sets) static INTO_THE_ROIL: CardRecord = CardRecord::new(
             EffectDef::None,
         ),
         AbilityDef::spell_with_targets(
-            "Return target nonland permanent to its owner's hand. If this spell was kicked, draw a card.",
+            "Return target nonland permanent to its owner's hand. If \
+             this spell was kicked, draw a card.",
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
             )],
@@ -227,9 +230,7 @@ pub(in crate::card::sets) static INTO_THE_ROIL: CardRecord = CardRecord::new(
                 // Asked as this resolves, so a kicked spell still draws even
                 // when its target has already left the battlefield.
                 EffectDef::IfCondition {
-                    condition: &TriggerConditionDef::SourceCastWith(
-                        AlternativeCastKindDef::Kicked,
-                    ),
+                    condition: &TriggerConditionDef::SourceCastWith(AlternativeCastKindDef::Kicked),
                     then: &EffectDef::DrawCards {
                         recipient: EffectRecipientDef::Controller,
                         amount: ValueDef::Constant(1),
@@ -249,14 +250,45 @@ pub(in crate::card::sets) static KRAKEN_HATCHLING: CardRecord = CardRecord::new(
 );
 
 // ZEN 57 — Mindbreak Trap
-pub(in crate::card::sets) static MINDBREAK_TRAP_57: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static MINDBREAK_TRAP: CardRecord = CardRecord::new(
     "Mindbreak Trap",
     "4f51140b-6254-431a-8810-94307bfdfbbe",
     "Christopher Moeller",
-    CardRules::new_instant(mana_cost!("{2}{U}{U}")).with_subtypes(&["Trap"]).with_abilities(&[
-AbilityDef::alternative_cast(&[CostDef::Mana(mana_cost!("{0}"))], AlternativeCastKindDef::AlternativeCost, Some("If an opponent cast three or more spells this turn, you may pay {0} rather than pay this spell’s mana cost."), EffectDef::None).with_alternative_condition(&TriggerConditionDef::SpellsCastThisTurn { quantifier: QuantifierDef::Any, player: PlayerRelation::Opponent, comparison: ComparisonDef::GreaterOrEqual, amount: 3 }),
-AbilityDef::spell_with_targets("Exile any number of target spells.", &[AbilityTargetDef::any_number(AbilityTargetPredicate::Object { object: ObjectPredicateDef::Spell, zones: &[ZoneKind::Stack], controller: None, owner: None })], EffectDef::move_to_zone(EffectRecipientDef::Target(TargetIndex::PRIMARY), ZoneKind::Exile, ZonePlacement::Top))
-]),
+    CardRules::new_instant(mana_cost!("{2}{U}{U}"))
+        .with_subtypes(&["Trap"])
+        .with_abilities(&[
+            AbilityDef::alternative_cast(
+                &[CostDef::Mana(mana_cost!("{0}"))],
+                AlternativeCastKindDef::AlternativeCost,
+                Some(
+                    "If an opponent cast three or more spells this turn, you may \
+                     pay {0} rather than pay this spell’s mana cost.",
+                ),
+                EffectDef::None,
+            )
+            .with_alternative_condition(&TriggerConditionDef::SpellsCastThisTurn {
+                quantifier: QuantifierDef::Any,
+                player: PlayerRelation::Opponent,
+                comparison: ComparisonDef::GreaterOrEqual,
+                amount: 3,
+            }),
+            AbilityDef::spell_with_targets(
+                "Exile any number of target spells.",
+                &[AbilityTargetDef::any_number(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::Spell,
+                        zones: &[ZoneKind::Stack],
+                        controller: None,
+                        owner: None,
+                    },
+                )],
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Exile,
+                    ZonePlacement::Top,
+                ),
+            ),
+        ]),
 );
 
 // ZEN 58 — Paralyzing Grasp
@@ -367,9 +399,10 @@ pub(in crate::card::sets) static BLOOD_SEEKER: CardRecord = CardRecord::new(
     "Blood Seeker",
     "d1abc9e8-9ecf-4665-9ea5-ee18ab83c148",
     "Greg Staples",
-CardRules::new_creature(mana_cost!("{1}{B}"), &["Vampire", "Shaman"], 1, 1).with_ability(
+    CardRules::new_creature(mana_cost!("{1}{B}"), &["Vampire", "Shaman"], 1, 1).with_ability(
         AbilityDef::triggered(
-            "Whenever a creature an opponent controls enters, you may have that player lose 1 life.",
+            "Whenever a creature an opponent controls enters, you may \
+             have that player lose 1 life.",
             TriggerEventDef::zone_changed(
                 ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
@@ -390,8 +423,9 @@ CardRules::new_creature(mana_cost!("{1}{B}"), &["Vampire", "Shaman"], 1, 1).with
 );
 
 // ZEN 82 — Bloodchief Ascension
-// Audit: unsupported — The turn history does not record how much life each opponent lost; current life totals or damage-only history cannot answer the two-life-loss threshold.
-pub(in crate::card::sets) static BLOODCHIEF_ASCENSION_82: CardRecord = CardRecord::new(
+// Audit: unsupported — The turn history does not record how much life each opponent lost;
+// current life totals or damage-only history cannot answer the two-life-loss threshold.
+pub(in crate::card::sets) static BLOODCHIEF_ASCENSION: CardRecord = CardRecord::new(
     "Bloodchief Ascension",
     "aa213dbb-c52a-4084-92aa-d0b5d97a97d9",
     "Adi Granov",
@@ -403,50 +437,50 @@ pub(in crate::card::sets) static BLOODGHAST: CardRecord = CardRecord::new(
     "Bloodghast",
     "63870c81-63bf-4a9a-aeb5-74c6eaded9f1",
     "Daarken",
-CardRules::new_creature(mana_cost!("{B}{B}"), &["Vampire", "Spirit"], 2, 1)
-        .with_abilities(&[
-            AbilityDef::static_ability(
-                "This creature can't block.",
-                EffectDef::StaticApply {
+    CardRules::new_creature(mana_cost!("{B}{B}"), &["Vampire", "Spirit"], 2, 1).with_abilities(&[
+        AbilityDef::static_ability(
+            "This creature can't block.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+            },
+        ),
+        AbilityDef::static_ability(
+            "This creature has haste as long as an opponent has 10 or less life.",
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                    left: ValueDef::LifeTotal(PlayerRelation::Opponent),
+                    comparison: ComparisonDef::LessOrEqual,
+                    right: ValueDef::Constant(10),
+                }),
+                then: &EffectDef::StaticApply {
                     recipient: EffectRecipientDef::Source,
-                    effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+                    effect: AppliedEffectDef::add_ability(&abilities::haste()),
                 },
+            },
+        ),
+        AbilityDef::triggered(
+            "Landfall — Whenever a land you control enters, you may \
+             return this card from your graveyard to the battlefield.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
+                None,
+                Some(ZoneKind::Battlefield),
             ),
-            AbilityDef::static_ability(
-                "This creature has haste as long as an opponent has 10 or less life.",
-                EffectDef::IfCondition {
-                    condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
-                            left: ValueDef::LifeTotal(PlayerRelation::Opponent),
-                            comparison: ComparisonDef::LessOrEqual,
-                            right: ValueDef::Constant(10),
-                        }),
-                    then: &EffectDef::StaticApply {
-                        recipient: EffectRecipientDef::Source,
-                        effect: AppliedEffectDef::add_ability(&abilities::haste()),
-                    },
-                },
-            ),
-            AbilityDef::triggered(
-                "Landfall — Whenever a land you control enters, you may return this card from your graveyard to the battlefield.",
-                TriggerEventDef::zone_changed(
-                    ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::HasType(CardType::Land),
-                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                    ]),
-                    None,
-                    Some(ZoneKind::Battlefield),
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::move_to_zone(
+                    EffectRecipientDef::Source,
+                    ZoneKind::Battlefield,
+                    ZonePlacement::Top,
                 ),
-                EffectDef::May {
-                    player: EffectRecipientDef::Controller,
-                    effect: &EffectDef::move_to_zone(
-                        EffectRecipientDef::Source,
-                        ZoneKind::Battlefield,
-                        ZonePlacement::Top,
-                    ),
-                },
-            )
-            .with_source_zones(&[ZoneKind::Graveyard]),
-        ]),
+            },
+        )
+        .with_source_zones(&[ZoneKind::Graveyard]),
+    ]),
 );
 
 // ZEN 87 — Disfigure
@@ -517,8 +551,9 @@ pub(in crate::card::sets) static GIANT_SCORPION: CardRecord = CardRecord::new(
 );
 
 // ZEN 109 — Ravenous Trap
-// Audit: unsupported — No per-player history counter records how many cards entered that player’s graveyard from anywhere this turn for the alternative-cost condition.
-pub(in crate::card::sets) static RAVENOUS_TRAP_109: CardRecord = CardRecord::new(
+// Audit: unsupported — No per-player history counter records how many cards entered that
+// player’s graveyard from anywhere this turn for the alternative-cost condition.
+pub(in crate::card::sets) static RAVENOUS_TRAP: CardRecord = CardRecord::new(
     "Ravenous Trap",
     "f4540013-11f9-4a8b-ad54-61f467f04756",
     "Cyril Van Der Haegen",
@@ -625,14 +660,13 @@ pub(in crate::card::sets) static BURST_LIGHTNING: CardRecord = CardRecord::new(
     "Burst Lightning",
     "2dc16614-5cf8-444d-a5ae-cac25018af68",
     "Vance Kovacs",
-// One mana to answer what a one-drop deck leads with, and five to point
+    // One mana to answer what a one-drop deck leads with, and five to point
     // the same card at anything later.
     CardRules::new_instant(mana_cost!("{R}")).with_abilities(&[
-        abilities::kicker(
-            &[CostDef::Mana(mana_cost!("{4}"))],
-        ),
+        abilities::kicker(&[CostDef::Mana(mana_cost!("{4}"))]),
         AbilityDef::spell_with_targets(
-            "Burst Lightning deals 2 damage to any target. If this spell was kicked, it deals 4 damage instead.",
+            "Burst Lightning deals 2 damage to any target. If this spell \
+             was kicked, it deals 4 damage instead.",
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
@@ -653,7 +687,7 @@ pub(in crate::card::sets) static GOBLIN_BUSHWHACKER: CardRecord = CardRecord::ne
     "Goblin Bushwhacker",
     "4085a5bf-a71b-4c73-9b39-0dcc328fe11b",
     "Mark Tedin",
-// Unkicked it is a one-mana body; kicked it is the second half of an
+    // Unkicked it is a one-mana body; kicked it is the second half of an
     // Empty the Warrens turn, which is the only reason the card sees play.
     CardRules::new_creature(mana_cost!("{R}"), &["Goblin", "Warrior"], 1, 1).with_abilities(&[
         AbilityDef::alternative_cast(
@@ -663,7 +697,8 @@ pub(in crate::card::sets) static GOBLIN_BUSHWHACKER: CardRecord = CardRecord::ne
             EffectDef::None,
         ),
         AbilityDef::triggered_if(
-            "When this creature enters, if it was kicked, creatures you control get +1/+0 and gain haste until end of turn.",
+            "When this creature enters, if it was kicked, creatures you \
+             control get +1/+0 and gain haste until end of turn.",
             TriggerEventDef::zone_changed(
                 ObjectPredicateDef::Source,
                 None,
@@ -700,7 +735,7 @@ pub(in crate::card::sets) static GOBLIN_BUSHWHACKER: CardRecord = CardRecord::ne
 );
 
 // ZEN 127 — Goblin Ruinblaster
-pub(in crate::card::sets) static GOBLIN_RUINBLASTER_127: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static GOBLIN_RUINBLASTER: CardRecord = CardRecord::new(
     "Goblin Ruinblaster",
     "0d95d1f3-7ec1-4279-ade7-3f339f2f33da",
     "Matt Cavotta",
@@ -781,8 +816,10 @@ pub(in crate::card::sets) static MARK_OF_MUTINY: CardRecord = CardRecord::new(
     "Mark of Mutiny",
     "58a0a019-239d-428e-85a2-e19cae8f4b58",
     "Mike Bierek",
-CardRules::new_sorcery(mana_cost!("{2}{R}")).with_ability(AbilityDef::spell_with_targets(
-        "Gain control of target creature until end of turn. Put a +1/+1 counter on it and untap it. That creature gains haste until end of turn.",
+    CardRules::new_sorcery(mana_cost!("{2}{R}")).with_ability(AbilityDef::spell_with_targets(
+        "Gain control of target creature until end of turn. Put a \
+         +1/+1 counter on it and untap it. That creature gains haste \
+         until end of turn.",
         &[AbilityTargetDef::exactly_one_permanent(
             ObjectPredicateDef::HasType(CardType::Creature),
         )],
@@ -834,14 +871,46 @@ pub(in crate::card::sets) static SLAUGHTER_CRY: CardRecord = CardRecord::new(
 );
 
 // ZEN 154 — Warren Instigator
-pub(in crate::card::sets) static WARREN_INSTIGATOR_154: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static WARREN_INSTIGATOR: CardRecord = CardRecord::new(
     "Warren Instigator",
     "98637219-40d8-414c-939d-e2c90b909725",
     "Andrew Robinson",
-    CardRules::new_creature(mana_cost!("{R}{R}"), &["Goblin", "Berserker"], 1, 1).with_abilities(&[
-abilities::double_strike(),
-AbilityDef::triggered("Whenever this creature deals damage to an opponent, you may put a Goblin creature card from your hand onto the battlefield.", TriggerEventDef::damage_to_player(ObjectPredicateDef::Source, PlayerRelation::Opponent), EffectDef::Choose(ChooseDef { binding: ObjectChoiceBindingDef::Objects(ParentBinding), unchosen: None, chooser: PlayerRefDef::EffectController, candidates: ObjectSetDef::Query(ObjectQueryDef::matching(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature),ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin"))]), &[ZoneKind::Hand], PlayerRelation::You)), exclude: None, minimum: 0, maximum: 1, visibility: ChoiceVisibilityDef::Private, then: &EffectDef::move_to_zone(EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)), ZoneKind::Battlefield, ZonePlacement::Top) }))
-]),
+    CardRules::new_creature(mana_cost!("{R}{R}"), &["Goblin", "Berserker"], 1, 1).with_abilities(
+        &[
+            abilities::double_strike(),
+            AbilityDef::triggered(
+                "Whenever this creature deals damage to an opponent, you may \
+                 put a Goblin creature card from your hand onto the \
+                 battlefield.",
+                TriggerEventDef::damage_to_player(
+                    ObjectPredicateDef::Source,
+                    PlayerRelation::Opponent,
+                ),
+                EffectDef::Choose(ChooseDef {
+                    binding: ObjectChoiceBindingDef::Objects(ParentBinding),
+                    unchosen: None,
+                    chooser: PlayerRefDef::EffectController,
+                    candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
+                        ]),
+                        &[ZoneKind::Hand],
+                        PlayerRelation::You,
+                    )),
+                    exclude: None,
+                    minimum: 0,
+                    maximum: 1,
+                    visibility: ChoiceVisibilityDef::Private,
+                    then: &EffectDef::move_to_zone(
+                        EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
+                        ZoneKind::Battlefield,
+                        ZonePlacement::Top,
+                    ),
+                }),
+            ),
+        ],
+    ),
 );
 
 // ZEN 168 — Lotus Cobra
@@ -992,7 +1061,7 @@ pub(in crate::card::sets) static BLAZING_TORCH: CardRecord = CardRecord::new(
     "Blazing Torch",
     "1e9d1ff2-9ce3-4737-af1d-9fc82e4dffe6",
     "Vance Kovacs",
-CardRules::new_artifact(mana_cost!("{1}"))
+    CardRules::new_artifact(mana_cost!("{1}"))
         .with_subtypes(&["Equipment"])
         .with_abilities(&[
             AbilityDef::static_ability(
@@ -1008,7 +1077,8 @@ CardRules::new_artifact(mana_cost!("{1}"))
                 },
             ),
             AbilityDef::static_ability(
-                "Equipped creature has \"{T}, Sacrifice Blazing Torch: Blazing Torch deals 2 damage to any target.\"",
+                "Equipped creature has \"{T}, Sacrifice Blazing Torch: \
+                 Blazing Torch deals 2 damage to any target.\"",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::AttachedPermanent,
                     effect: AppliedEffectDef::add_ability(&AbilityDef::activated_with_targets(
@@ -1074,7 +1144,9 @@ pub(in crate::card::sets) static ARID_MESA: CardRecord = CardRecord::new(
     "16c8d2fa-54a7-46e8-980c-905258497c90",
     "Raymond Swanland",
     fetch_land(
-        "{T}, Pay 1 life, Sacrifice this land: Search your library for a Mountain or Plains card, put it onto the battlefield, then shuffle.",
+        "{T}, Pay 1 life, Sacrifice this land: Search your library \
+         for a Mountain or Plains card, put it onto the battlefield, \
+         then shuffle.",
         &[BasicLandType::Mountain, BasicLandType::Plains],
     ),
 );
@@ -1085,7 +1157,9 @@ pub(in crate::card::sets) static MARSH_FLATS: CardRecord = CardRecord::new(
     "45026d57-0324-4312-8b86-2e7d4f581ee9",
     "Izzy",
     fetch_land(
-        "{T}, Pay 1 life, Sacrifice this land: Search your library for a Plains or Swamp card, put it onto the battlefield, then shuffle.",
+        "{T}, Pay 1 life, Sacrifice this land: Search your library \
+         for a Plains or Swamp card, put it onto the battlefield, \
+         then shuffle.",
         &[BasicLandType::Plains, BasicLandType::Swamp],
     ),
 );
@@ -1096,7 +1170,9 @@ pub(in crate::card::sets) static MISTY_RAINFOREST: CardRecord = CardRecord::new(
     "24a5cc2c-0fbf-4a5f-b175-6e0ffd0d0787",
     "Shelly Wan",
     fetch_land(
-        "{T}, Pay 1 life, Sacrifice this land: Search your library for a Forest or Island card, put it onto the battlefield, then shuffle.",
+        "{T}, Pay 1 life, Sacrifice this land: Search your library \
+         for a Forest or Island card, put it onto the battlefield, \
+         then shuffle.",
         &[BasicLandType::Forest, BasicLandType::Island],
     ),
 );
@@ -1107,7 +1183,9 @@ pub(in crate::card::sets) static SCALDING_TARN: CardRecord = CardRecord::new(
     "327cf118-cc92-4073-85d0-94d2a0a6989a",
     "Philip Straub",
     fetch_land(
-        "{T}, Pay 1 life, Sacrifice this land: Search your library for an Island or Mountain card, put it onto the battlefield, then shuffle.",
+        "{T}, Pay 1 life, Sacrifice this land: Search your library \
+         for an Island or Mountain card, put it onto the \
+         battlefield, then shuffle.",
         &[BasicLandType::Island, BasicLandType::Mountain],
     ),
 );
@@ -1152,7 +1230,9 @@ pub(in crate::card::sets) static VERDANT_CATACOMBS: CardRecord = CardRecord::new
     "7abd2723-2851-4f1a-b2d0-dfcb526472c3",
     "Vance Kovacs",
     fetch_land(
-        "{T}, Pay 1 life, Sacrifice this land: Search your library for a Swamp or Forest card, put it onto the battlefield, then shuffle.",
+        "{T}, Pay 1 life, Sacrifice this land: Search your library \
+         for a Swamp or Forest card, put it onto the battlefield, \
+         then shuffle.",
         &[BasicLandType::Swamp, BasicLandType::Forest],
     ),
 );
@@ -1165,18 +1245,18 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &PILLARFIELD_OX,
     &INTO_THE_ROIL,
     &KRAKEN_HATCHLING,
-    &MINDBREAK_TRAP_57,
+    &MINDBREAK_TRAP,
     &PARALYZING_GRASP,
     &RITE_OF_REPLICATION,
     &SPELL_PIERCE,
     &WELKIN_TERN,
     &BLOOD_SEEKER,
-    &BLOODCHIEF_ASCENSION_82,
+    &BLOODCHIEF_ASCENSION,
     &BLOODGHAST,
     &DISFIGURE,
     &GATEKEEPER_OF_MALAKIR,
     &GIANT_SCORPION,
-    &RAVENOUS_TRAP_109,
+    &RAVENOUS_TRAP,
     &SORIN_MARKOV,
     &VAMPIRE_HEXMAGE,
     &VAMPIRE_LACERATOR,
@@ -1184,12 +1264,12 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &BLADETUSK_BOAR,
     &BURST_LIGHTNING,
     &GOBLIN_BUSHWHACKER,
-    &GOBLIN_RUINBLASTER_127,
+    &GOBLIN_RUINBLASTER,
     &GOBLIN_SHORTCUTTER,
     &GOBLIN_WAR_PAINT,
     &MARK_OF_MUTINY,
     &SLAUGHTER_CRY,
-    &WARREN_INSTIGATOR_154,
+    &WARREN_INSTIGATOR,
     &LOTUS_COBRA,
     &RAMPAGING_BALOTHS,
     &VASTWOOD_GORGER,

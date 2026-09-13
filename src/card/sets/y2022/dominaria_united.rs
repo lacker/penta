@@ -72,7 +72,7 @@ pub(in crate::card::sets) static ANOINTED_PEACEKEEPER: CardRecord = CardRecord::
     "Anointed Peacekeeper",
     "5b8127b5-3a65-411a-84bc-54e5c1be1477",
     "Tia Masic",
-CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Cleric"], 3, 3).with_abilities(&[
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Cleric"], 3, 3).with_abilities(&[
         abilities::vigilance(),
         AbilityDef::as_enters(
             "As this creature enters, look at an opponent's hand, then choose any card name.",
@@ -93,7 +93,8 @@ CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Cleric"], 3, 3).with_a
             mana_cost!("{2}"),
         ),
         abilities::ability_cost_increase_for_name(
-            "Activated abilities of sources with the chosen name cost {2} more to activate unless they're mana abilities.",
+            "Activated abilities of sources with the chosen name cost \
+             {2} more to activate unless they're mana abilities.",
             crate::card::CardNameDef::Binding(crate::Binding!("anointed_peacekeeper_name")),
             mana_cost!("{2}"),
         ),
@@ -101,8 +102,9 @@ CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Cleric"], 3, 3).with_a
 );
 
 // DMU 19 — Guardian of New Benalia
-// Audit: unsupported — There is no enlist declaration-time tap choice, including the no-summoning-sickness restriction, or enlist event carrying the enlisted creature's power.
-pub(in crate::card::sets) static GUARDIAN_OF_NEW_BENALIA_19: CardRecord = CardRecord::new(
+// Audit: unsupported — There is no enlist declaration-time tap choice, including the
+// no-summoning-sickness restriction, or enlist event carrying the enlisted creature's power.
+pub(in crate::card::sets) static GUARDIAN_OF_NEW_BENALIA: CardRecord = CardRecord::new(
     "Guardian of New Benalia",
     "43da76ee-fec3-4b2e-915d-10cf8d518d2c",
     "Ernanda Souza",
@@ -114,7 +116,7 @@ pub(in crate::card::sets) static LEYLINE_BINDING: CardRecord = CardRecord::new(
     "Leyline Binding",
     "3c3ac3dd-35db-447f-8674-37b4680a1ef7",
     "Cristi Balanescu",
-// Six mana on paper and one in a deck with every basic land type, cast
+    // Six mana on paper and one in a deck with every basic land type, cast
     // at instant speed: the whole card is the mana base it asks for.
     CardRules::new_enchantment(mana_cost!("{5}{W}")).with_abilities(&[
         abilities::flash(),
@@ -145,8 +147,8 @@ pub(in crate::card::sets) static LEYLINE_BINDING: CardRecord = CardRecord::new(
                 // the return rides on a delayed trigger rather than appearing as a second
                 // ability the card does not print.
                 EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
-                    "When this enchantment leaves the battlefield, return the exiled card to the battlefield \
-                     under its owner's control.",
+                    "When this enchantment leaves the battlefield, return the \
+                     exiled card to the battlefield under its owner's control.",
                     TriggerEventDef::zone_changed(
                         ObjectPredicateDef::Source,
                         Some(ZoneKind::Battlefield),
@@ -167,7 +169,9 @@ pub(in crate::card::sets) static LEYLINE_BINDING: CardRecord = CardRecord::new(
 );
 
 // DMU 28 — Prayer of Binding
-// Audit: unsupported — Needs an exile-until-source-leaves duration with immediate return when that duration ends (CR 610.3); an ordinary leaves trigger returns the card later through the stack.
+// Audit: unsupported — Needs an exile-until-source-leaves duration with immediate return when
+// that duration ends (CR 610.3); an ordinary leaves trigger returns the card later through the
+// stack.
 pub(in crate::card::sets) static PRAYER_OF_BINDING: CardRecord = CardRecord::new(
     "Prayer of Binding",
     "322f90b6-6b49-458d-9d5b-b601bfdd0af8",
@@ -322,25 +326,26 @@ pub(in crate::card::sets) static TOLARIAN_TERROR: CardRecord = CardRecord::new(
     "Tolarian Terror",
     "42f01cba-43d4-46ad-b7a5-d7631b0e1347",
     "Vincent Christiaens",
-// Seven mana on paper and two in practice, which is what makes ward the
+    // Seven mana on paper and two in practice, which is what makes ward the
     // relevant half: the deck that casts it cheaply is holding up counters.
     CardRules::new_creature(mana_cost!("{6}{U}"), &["Serpent"], 5, 5).with_abilities(&[
         abilities::this_spell_cost_reduction(
-            "This spell costs {1} less to cast for each instant and sorcery card in your graveyard.",
-            ValueDef::CountMatchingObjects(
-                &ObjectQueryDef::matching(
-                    ObjectPredicateDef::AnyOf(&[
-                        ObjectPredicateDef::HasType(CardType::Instant),
-                        ObjectPredicateDef::HasType(CardType::Sorcery),
-                    ]),
-                    &[ZoneKind::Graveyard],
-                    PlayerRelation::You,
-                ),
-            ),
+            "This spell costs {1} less to cast for each instant and \
+             sorcery card in your graveyard.",
+            ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Instant),
+                    ObjectPredicateDef::HasType(CardType::Sorcery),
+                ]),
+                &[ZoneKind::Graveyard],
+                PlayerRelation::You,
+            )),
         ),
         abilities::ward(
             &[crate::CostDef::Mana(crate::ManaCost::new(2, 0))],
-            "Ward {2} (Whenever this creature becomes the target of a spell or ability an opponent controls, counter it unless that player pays {2}.)",
+            "Ward {2} (Whenever this creature becomes the target of a \
+             spell or ability an opponent controls, counter it unless \
+             that player pays {2}.)",
         ),
     ]),
 );
@@ -440,7 +445,7 @@ pub(in crate::card::sets) static SHEOLDRED_THE_APOCALYPSE: CardRecord = CardReco
 );
 
 // DMU 122 — Electrostatic Infantry
-pub(in crate::card::sets) static ELECTROSTATIC_INFANTRY_122: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static ELECTROSTATIC_INFANTRY: CardRecord = CardRecord::new(
     "Electrostatic Infantry",
     "5ed2d72f-f1cf-45a7-adf7-969f531721ce",
     "Kekai Kotaki",
@@ -514,20 +519,96 @@ pub(in crate::card::sets) static MAGNIGOTH_SENTRY: CardRecord = CardRecord::new(
 );
 
 // DMU 177 — Silverback Elder
-pub(in crate::card::sets) static SILVERBACK_ELDER_177: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static SILVERBACK_ELDER: CardRecord = CardRecord::new(
     "Silverback Elder",
     "b987664f-0b74-4c0a-b306-14767a55559a",
     "Alexander Mokhov",
-    CardRules::new_creature(mana_cost!("{2}{G}{G}{G}"), &["Ape", "Shaman"], 5, 7).with_abilities(&[
-AbilityDef::modal_triggered("Whenever you cast a creature spell, choose one —\n• Destroy target artifact or enchantment.\n• Look at the top five cards of your library. You may put a land card from among them onto the battlefield tapped. Put the rest on the bottom of your library in a random order.\n• You gain 4 life.", TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::ControlledBy(PlayerRelation::You)])), &[AbilityDef::destroy_target("Destroy target artifact or enchantment.", &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Artifact), ObjectPredicateDef::HasType(CardType::Enchantment)]))), AbilityDef::spell("Look at the top five cards of your library. You may put a land card from among them onto the battlefield tapped. Put the rest on the bottom of your library in a random order.", EffectDef::ChooseCardsFromCollection(ChooseCardsFromCollectionDef { source: ObjectCollectionSourceDef::TopCards { player: PlayerRefDef::EffectController, count: ValueDef::Constant(5) }, actor: PlayerRefDef::EffectController, inspection: CollectionInspectionDef::Look, object: ObjectPredicateDef::HasType(CardType::Land), minimum: 0, maximum: 1, chosen: Binding!("elder_land"), remainder: Binding!("elder_rest"), then: &EffectDef::Sequence(&[EffectDef::WithBattlefieldArrival { arrival: BattlefieldArrivalDef { controller: None, counters: None, attachment: None, modifications: &[crate::card::BattlefieldEntryModificationDef::Tapped] }, effect: &EffectDef::move_to_zone(EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!("elder_land"))), ZoneKind::Battlefield, ZonePlacement::Top) }, EffectDef::RandomizeObjectOrder(RandomizeObjectOrderDef { input: ObjectSetDef::Binding(Binding!("elder_rest")), randomized: Binding!("elder_ordered"), then: &EffectDef::MoveObjects(MoveObjectsDef { input: ObjectSetDef::Binding(Binding!("elder_ordered")), from: Some(ZoneKind::Library), zone: ZoneKind::Library, placement: ZonePlacement::Bottom, moved: None, then: &EffectDef::None }) })]) })), AbilityDef::spell("You gain 4 life.", EffectDef::GainLife { recipient: EffectRecipientDef::Controller, amount: ValueDef::Constant(4) })])
-]),
+    CardRules::new_creature(mana_cost!("{2}{G}{G}{G}"), &["Ape", "Shaman"], 5, 7).with_abilities(
+        &[AbilityDef::modal_triggered(
+            "Whenever you cast a creature spell, choose one —\n• Destroy \
+             target artifact or enchantment.\n• Look at the top five \
+             cards of your library. You may put a land card from among \
+             them onto the battlefield tapped. Put the rest on the \
+             bottom of your library in a random order.\n• You gain 4 \
+             life.",
+            TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+            ])),
+            &[
+                AbilityDef::destroy_target(
+                    "Destroy target artifact or enchantment.",
+                    &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        ObjectPredicateDef::HasType(CardType::Enchantment),
+                    ])),
+                ),
+                AbilityDef::spell(
+                    "Look at the top five cards of your library. You may put a \
+                     land card from among them onto the battlefield tapped. Put \
+                     the rest on the bottom of your library in a random order.",
+                    EffectDef::ChooseCardsFromCollection(ChooseCardsFromCollectionDef {
+                        source: ObjectCollectionSourceDef::TopCards {
+                            player: PlayerRefDef::EffectController,
+                            count: ValueDef::Constant(5),
+                        },
+                        actor: PlayerRefDef::EffectController,
+                        inspection: CollectionInspectionDef::Look,
+                        object: ObjectPredicateDef::HasType(CardType::Land),
+                        minimum: 0,
+                        maximum: 1,
+                        chosen: Binding!("elder_land"),
+                        remainder: Binding!("elder_rest"),
+                        then: &EffectDef::Sequence(&[
+                            EffectDef::WithBattlefieldArrival {
+                                arrival: BattlefieldArrivalDef {
+                                    controller: None,
+                                    counters: None,
+                                    attachment: None,
+                                    modifications: &[
+                                        crate::card::BattlefieldEntryModificationDef::Tapped,
+                                    ],
+                                },
+                                effect: &EffectDef::move_to_zone(
+                                    EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!(
+                                        "elder_land"
+                                    ))),
+                                    ZoneKind::Battlefield,
+                                    ZonePlacement::Top,
+                                ),
+                            },
+                            EffectDef::RandomizeObjectOrder(RandomizeObjectOrderDef {
+                                input: ObjectSetDef::Binding(Binding!("elder_rest")),
+                                randomized: Binding!("elder_ordered"),
+                                then: &EffectDef::MoveObjects(MoveObjectsDef {
+                                    input: ObjectSetDef::Binding(Binding!("elder_ordered")),
+                                    from: Some(ZoneKind::Library),
+                                    zone: ZoneKind::Library,
+                                    placement: ZonePlacement::Bottom,
+                                    moved: None,
+                                    then: &EffectDef::None,
+                                }),
+                            }),
+                        ]),
+                    }),
+                ),
+                AbilityDef::spell(
+                    "You gain 4 life.",
+                    EffectDef::GainLife {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(4),
+                    },
+                ),
+            ],
+        )],
+    ),
 );
 
 // DMU 182 — Tail Swipe
 // Audit: unsupported — Fight and the two opposing creature targets are representable, but the
 // conditional pump needs cast-time own-main-phase provenance. SourceCastAtInstantSpeed does not
 // distinguish a main-phase response from a sorcery-speed cast, so it cannot express this condition.
-pub(in crate::card::sets) static TAIL_SWIPE_182: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static TAIL_SWIPE: CardRecord = CardRecord::new(
     "Tail Swipe",
     "95a39b26-8c83-40ea-b492-036251366d73",
     "Ângelo Bortolini",
@@ -539,15 +620,14 @@ pub(in crate::card::sets) static TEAR_ASUNDER: CardRecord = CardRecord::new(
     "Tear Asunder",
     "629aa907-9533-4681-9bf2-9e56450a4cc2",
     "Dave Kendall",
-// Two mana for the artifact or enchantment the deck was worried about,
+    // Two mana for the artifact or enchantment the deck was worried about,
     // or four for anything at all -- and exile rather than destruction,
     // which is what the extra mana is really paying for.
     CardRules::new_instant(mana_cost!("{1}{G}")).with_abilities(&[
-        abilities::kicker(
-            &[crate::CostDef::Mana(mana_cost!("{1}{B}"))],
-        ),
+        abilities::kicker(&[crate::CostDef::Mana(mana_cost!("{1}{B}"))]),
         AbilityDef::spell_with_targets(
-            "Exile target artifact or enchantment. If this spell was kicked, exile target nonland permanent instead.",
+            "Exile target artifact or enchantment. If this spell was \
+             kicked, exile target nonland permanent instead.",
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::IfAdditionalCostPaid {
                     cost: crate::AdditionalCostIndex::PRIMARY,
@@ -664,25 +744,72 @@ pub(in crate::card::sets) static GARNA_BLOODFIST_OF_KELD: CardRecord = CardRecor
 );
 
 // DMU 232 — Inscribed Tablet
-pub(in crate::card::sets) static INSCRIBED_TABLET_232: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static INSCRIBED_TABLET: CardRecord = CardRecord::new(
     "Inscribed Tablet",
     "699d8655-d250-4ab6-92c5-376979bbabc7",
     "Jarel Threat",
     CardRules::new_artifact(mana_cost!("{1}")).with_ability(AbilityDef::activated(
-        "{1}, {T}, Sacrifice this artifact: Reveal the top five cards of your library. Put a land card from among them into your hand and the rest on the bottom of your library in a random order. If you didn't put a card into your hand this way, draw a card.",
-        &[crate::card::CostDef::Mana(mana_cost!("{1}")), crate::card::CostDef::TapSource, crate::card::CostDef::SacrificeSource],
+        "{1}, {T}, Sacrifice this artifact: Reveal the top five \
+         cards of your library. Put a land card from among them into \
+         your hand and the rest on the bottom of your library in a \
+         random order. If you didn't put a card into your hand this \
+         way, draw a card.",
+        &[
+            crate::card::CostDef::Mana(mana_cost!("{1}")),
+            crate::card::CostDef::TapSource,
+            crate::card::CostDef::SacrificeSource,
+        ],
         EffectDef::ChooseCardsFromCollection(ChooseCardsFromCollectionDef {
-            source: ObjectCollectionSourceDef::TopCards { player: PlayerRefDef::EffectController, count: ValueDef::Constant(5) }, actor: PlayerRefDef::EffectController, inspection: CollectionInspectionDef::Reveal,
-            object: ObjectPredicateDef::HasType(CardType::Land), minimum: 1, maximum: 1,
-            chosen: crate::Binding!("inscribed_tablet_chosen"), remainder: crate::Binding!("inscribed_tablet_remainder"),
-            then: &EffectDef::MoveObjects(MoveObjectsDef { input: ObjectSetDef::Binding(crate::Binding!("inscribed_tablet_chosen")), from: Some(ZoneKind::Library), zone: ZoneKind::Hand, placement: ZonePlacement::Top, moved: Some(crate::Binding!("inscribed_tablet_to_hand")), then: &EffectDef::RandomizeObjectOrder(RandomizeObjectOrderDef { input: ObjectSetDef::Binding(crate::Binding!("inscribed_tablet_remainder")), randomized: ParentBinding, then: &EffectDef::Sequence(&[EffectDef::MoveObjects(MoveObjectsDef { input: ObjectSetDef::Binding(ParentBinding), from: Some(ZoneKind::Library), zone: ZoneKind::Library, placement: ZonePlacement::Bottom, moved: None, then: &EffectDef::None }), EffectDef::IfNoObjects(IfNoObjectsDef { input: ObjectSetDef::Binding(crate::Binding!("inscribed_tablet_to_hand")), if_empty: &EffectDef::DrawCards { recipient: EffectRecipientDef::Controller, amount: ValueDef::Constant(1) }, otherwise: &EffectDef::None })]) }) }),
+            source: ObjectCollectionSourceDef::TopCards {
+                player: PlayerRefDef::EffectController,
+                count: ValueDef::Constant(5),
+            },
+            actor: PlayerRefDef::EffectController,
+            inspection: CollectionInspectionDef::Reveal,
+            object: ObjectPredicateDef::HasType(CardType::Land),
+            minimum: 1,
+            maximum: 1,
+            chosen: crate::Binding!("inscribed_tablet_chosen"),
+            remainder: crate::Binding!("inscribed_tablet_remainder"),
+            then: &EffectDef::MoveObjects(MoveObjectsDef {
+                input: ObjectSetDef::Binding(crate::Binding!("inscribed_tablet_chosen")),
+                from: Some(ZoneKind::Library),
+                zone: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+                moved: Some(crate::Binding!("inscribed_tablet_to_hand")),
+                then: &EffectDef::RandomizeObjectOrder(RandomizeObjectOrderDef {
+                    input: ObjectSetDef::Binding(crate::Binding!("inscribed_tablet_remainder")),
+                    randomized: ParentBinding,
+                    then: &EffectDef::Sequence(&[
+                        EffectDef::MoveObjects(MoveObjectsDef {
+                            input: ObjectSetDef::Binding(ParentBinding),
+                            from: Some(ZoneKind::Library),
+                            zone: ZoneKind::Library,
+                            placement: ZonePlacement::Bottom,
+                            moved: None,
+                            then: &EffectDef::None,
+                        }),
+                        EffectDef::IfNoObjects(IfNoObjectsDef {
+                            input: ObjectSetDef::Binding(crate::Binding!(
+                                "inscribed_tablet_to_hand"
+                            )),
+                            if_empty: &EffectDef::DrawCards {
+                                recipient: EffectRecipientDef::Controller,
+                                amount: ValueDef::Constant(1),
+                            },
+                            otherwise: &EffectDef::None,
+                        }),
+                    ]),
+                }),
+            }),
         }),
     )),
 );
 
 // DMU 236 — Relic of Legends
-// Audit: unsupported — The mana-ability planner rejects a selected-creature tap cost. TapSource cannot represent tapping a legendary creature while leaving the Relic untapped.
-pub(in crate::card::sets) static RELIC_OF_LEGENDS_236: CardRecord = CardRecord::new(
+// Audit: unsupported — The mana-ability planner rejects a selected-creature tap cost. TapSource
+// cannot represent tapping a legendary creature while leaving the Relic untapped.
+pub(in crate::card::sets) static RELIC_OF_LEGENDS: CardRecord = CardRecord::new(
     "Relic of Legends",
     "64a2809e-c441-416c-90ff-6fb1e246dff3",
     "Titus Lunter",
@@ -709,8 +836,10 @@ pub(in crate::card::sets) static CRYSTAL_GROTTO: CardRecord = CardRecord::new(
 );
 
 // DMU 252 — Plaza of Heroes
-// Audit: unsupported — ManaTypeSource cannot derive the available colors from legendary permanents. The legendary-spell restriction alone does not implement the separate unrestricted color-producing ability.
-pub(in crate::card::sets) static PLAZA_OF_HEROES_252: CardRecord = CardRecord::new(
+// Audit: unsupported — ManaTypeSource cannot derive the available colors from legendary
+// permanents. The legendary-spell restriction alone does not implement the separate
+// unrestricted color-producing ability.
+pub(in crate::card::sets) static PLAZA_OF_HEROES: CardRecord = CardRecord::new(
     "Plaza of Heroes",
     "a2cfcf67-f83c-43af-9e2d-5513fcdde835",
     "Gabor Szikszai",
@@ -751,8 +880,9 @@ pub(in crate::card::sets) static SERRA_REDEEMER: CardRecord = CardRecord::new(
 );
 
 // DMU 329 — Braids, Arisen Nightmare
-// Audit: unsupported — The sacrifice continuation lacks a predicate comparing a candidate permanent's card types with the sacrificed permanent's last-known type set.
-pub(in crate::card::sets) static BRAIDS_ARISEN_NIGHTMARE_329: CardRecord = CardRecord::new(
+// Audit: unsupported — The sacrifice continuation lacks a predicate comparing a candidate
+// permanent's card types with the sacrificed permanent's last-known type set.
+pub(in crate::card::sets) static BRAIDS_ARISEN_NIGHTMARE: CardRecord = CardRecord::new(
     "Braids, Arisen Nightmare",
     "1e20d56c-20df-4fe9-a329-df5768a180af",
     "Dibujante Nocturno",
@@ -764,7 +894,7 @@ pub(in crate::card::sets) static ERTAI_RESURRECTED: CardRecord = CardRecord::new
     "Ertai Resurrected",
     "2c46a2ca-27fd-44d4-80d0-7c83ed0a564e",
     "Justin Hernandez & Alexis Hernandez",
-// A flash body that answers something on the way in, and pays for the
+    // A flash body that answers something on the way in, and pays for the
     // privilege with the card its victim's controller draws.
     CardRules::new_creature(
         mana_cost!("{2}{U}{B}"),
@@ -789,8 +919,8 @@ pub(in crate::card::sets) static ERTAI_RESURRECTED: CardRecord = CardRecord::new
             // with its controller recorded, which is what "its controller" wants.
             &[
                 AbilityDef::spell_with_targets(
-                    "Counter target spell, activated ability, or triggered ability. Its controller draws a \
-                     card.",
+                    "Counter target spell, activated ability, or triggered \
+                     ability. Its controller draws a card.",
                     // "Spell, activated ability, or triggered ability" is every stack object
                     // there is: mana abilities never use the stack, so the wider slot needs no
                     // clause excluding them.
@@ -861,64 +991,66 @@ pub(in crate::card::sets) static SERRA_PARAGON: CardRecord = CardRecord::new(
     "Serra Paragon",
     "69284b53-f712-418c-94a0-4e5638117256",
     "Heonhwa",
-// Four mana for a 3/4 flier that buys back a land or a cheap permanent
+    // Four mana for a 3/4 flier that buys back a land or a cheap permanent
     // every turn it lives, and pays two life for each one on its way out.
-    CardRules::new_creature(mana_cost!("{2}{W}{W}"), &["Angel"], 3, 4)
-        .with_abilities(&[
-            abilities::flying(),
-            AbilityDef::static_ability(
-                "Once during each of your turns, you may play a land from your graveyard or cast a \
-                 permanent spell with mana value 3 or less from your graveyard. If you do, it gains \
-                 \"When this permanent is put into a graveyard from the battlefield, exile it and you \
-                 gain 2 life.\"",
-                EffectDef::StaticApply {
-                    recipient: EffectRecipientDef::Controller,
-                    effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlayFromGraveyard(
-                        // "A land ... or a permanent spell with mana value 3 or less": one
-                        // permission rather than two, because the once-each-turn bound is on the
-                        // pair. Any play action, since which one it is follows from the card --
-                        // nothing but a land is ever played as a land, and nothing but a spell is
-                        // ever cast.
-                        GraveyardPlayPermissionDef::once_each_of_your_turns(PlayRestrictionDef::new(
-                            PlayActionMatcherDef::Any,
-                            ObjectPredicateDef::AnyOf(&[
-                                ObjectPredicateDef::HasType(CardType::Land),
-                                ObjectPredicateDef::All(&[
-                                    ObjectPredicateDef::Not(&ObjectPredicateDef::AnyOf(&[
-                                        ObjectPredicateDef::HasType(CardType::Instant),
-                                        ObjectPredicateDef::HasType(CardType::Sorcery),
-                                    ])),
-                                    ObjectPredicateDef::ManaValueAtMost(3),
-                                ]),
+    CardRules::new_creature(mana_cost!("{2}{W}{W}"), &["Angel"], 3, 4).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::static_ability(
+            "Once during each of your turns, you may play a land from \
+             your graveyard or cast a permanent spell with mana value 3 \
+             or less from your graveyard. If you do, it gains \"When \
+             this permanent is put into a graveyard from the \
+             battlefield, exile it and you gain 2 life.\"",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Controller,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlayFromGraveyard(
+                    // "A land ... or a permanent spell with mana value 3 or less": one
+                    // permission rather than two, because the once-each-turn bound is on the
+                    // pair. Any play action, since which one it is follows from the card --
+                    // nothing but a land is ever played as a land, and nothing but a spell is
+                    // ever cast.
+                    GraveyardPlayPermissionDef::once_each_of_your_turns(PlayRestrictionDef::new(
+                        PlayActionMatcherDef::Any,
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Land),
+                            ObjectPredicateDef::All(&[
+                                ObjectPredicateDef::Not(&ObjectPredicateDef::AnyOf(&[
+                                    ObjectPredicateDef::HasType(CardType::Instant),
+                                    ObjectPredicateDef::HasType(CardType::Sorcery),
+                                ])),
+                                ObjectPredicateDef::ManaValueAtMost(3),
                             ]),
-                        ))
-                            // What the permanent gains, and what makes the Paragon a value engine
-                            // rather than a recursion loop: the card leaves for good, and the two life
-                            // are the consolation.
-                            .granting(&AppliedEffectDef::add_ability(&abilities::dies_trigger(
-                                "When this permanent is put into a graveyard from the battlefield, exile it and you gain 2 \
-                                 life.",
-                                EffectDef::Sequence(&[
-                                    EffectDef::move_to_zone(
-                                        EffectRecipientDef::TriggeringZoneChangeResult,
-                                        ZoneKind::Exile,
-                                        ZonePlacement::Top,
-                                    ),
-                                    EffectDef::GainLife {
-                                        recipient: EffectRecipientDef::Controller,
-                                        amount: ValueDef::Constant(2),
-                                    },
-                                ]),
-                            ))),
-                    )),
-                },
-            ),
-        ]),
+                        ]),
+                    ))
+                    // What the permanent gains, and what makes the Paragon a value engine
+                    // rather than a recursion loop: the card leaves for good, and the two life
+                    // are the consolation.
+                    .granting(&AppliedEffectDef::add_ability(&abilities::dies_trigger(
+                        "When this permanent is put into a graveyard from the \
+                         battlefield, exile it and you gain 2 life.",
+                        EffectDef::Sequence(&[
+                            EffectDef::move_to_zone(
+                                EffectRecipientDef::TriggeringZoneChangeResult,
+                                ZoneKind::Exile,
+                                ZonePlacement::Top,
+                            ),
+                            EffectDef::GainLife {
+                                recipient: EffectRecipientDef::Controller,
+                                amount: ValueDef::Constant(2),
+                            },
+                        ]),
+                    ))),
+                )),
+            },
+        ),
+    ]),
 );
 
 // DMU 409 — Rundvelt Hordemaster
-// Audit: unsupported — The top-library exile permission has no card-characteristic filter. The arbitrary-card exile permission lasts only this turn, so neither can grant the Goblin-only permission through the end of your next turn.
-pub(in crate::card::sets) static RUNDVELT_HORDEMASTER_409: CardRecord = CardRecord::new(
+// Audit: unsupported — The top-library exile permission has no card-characteristic filter. The
+// arbitrary-card exile permission lasts only this turn, so neither can grant the Goblin-only
+// permission through the end of your next turn.
+pub(in crate::card::sets) static RUNDVELT_HORDEMASTER: CardRecord = CardRecord::new(
     "Rundvelt Hordemaster",
     "060d14a4-e903-4c89-9c3a-baa91f125c4e",
     "Bruno Biazotto",
@@ -926,19 +1058,51 @@ pub(in crate::card::sets) static RUNDVELT_HORDEMASTER_409: CardRecord = CardReco
 );
 
 // DMU 416 — Llanowar Loamspeaker
-pub(in crate::card::sets) static LLANOWAR_LOAMSPEAKER_416: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static LLANOWAR_LOAMSPEAKER: CardRecord = CardRecord::new(
     "Llanowar Loamspeaker",
     "5fdb1dfd-6394-414f-959e-9f129a3ab1a1",
     "Zara Alfonso",
     CardRules::new_creature(mana_cost!("{1}{G}"), &["Elf", "Druid"], 1, 3).with_abilities(&[
-AbilityDef::activated_mana("{T}: Add one mana of any color.", &[CostDef::TapSource], EffectDef::AddMana(AddManaEffectDef::any_color())),
-AbilityDef::activated_with_targets("{T}: Target land you control becomes a 3/3 Elemental creature with haste until end of turn. It's still a land. Activate only as a sorcery.", &[CostDef::TapSource], &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object { object: ObjectPredicateDef::HasType(CardType::Land), zones: &[ZoneKind::Battlefield], controller: Some(PlayerRelation::You), owner: None })], EffectDef::Apply { recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY), effect: AppliedEffectDef::Composite(&[AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)), AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&["Elemental"])), AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(3), ValueDef::Constant(3)), AppliedEffectDef::add_ability(&abilities::haste())]), duration: ResolvedEffectDurationDef::UntilEndOfTurn }).with_activation_timing(ActivationTimingDef::SorcerySpeed)
-]),
+        AbilityDef::activated_mana(
+            "{T}: Add one mana of any color.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::any_color()),
+        ),
+        AbilityDef::activated_with_targets(
+            "{T}: Target land you control becomes a 3/3 Elemental \
+             creature with haste until end of turn. It's still a land. \
+             Activate only as a sorcery.",
+            &[CostDef::TapSource],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Land),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                },
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)),
+                    AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&["Elemental"])),
+                    AppliedEffectDef::set_base_power_toughness(
+                        ValueDef::Constant(3),
+                        ValueDef::Constant(3),
+                    ),
+                    AppliedEffectDef::add_ability(&abilities::haste()),
+                ]),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        )
+        .with_activation_timing(ActivationTimingDef::SorcerySpeed),
+    ]),
 );
 
 // DMU 422 — Thran Portal
-// Audit: unsupported — Chosen basic land types are supported, but there is no activation-cost modifier adding a life payment to every mana ability this land acquires.
-pub(in crate::card::sets) static THRAN_PORTAL_422: CardRecord = CardRecord::new(
+// Audit: unsupported — Chosen basic land types are supported, but there is no activation-cost
+// modifier adding a life payment to every mana ability this land acquires.
+pub(in crate::card::sets) static THRAN_PORTAL: CardRecord = CardRecord::new(
     "Thran Portal",
     "eba2995e-f255-46da-abcf-9a6f3996edb1",
     "Sarah Finnigan",
@@ -947,7 +1111,7 @@ pub(in crate::card::sets) static THRAN_PORTAL_422: CardRecord = CardRecord::new(
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ANOINTED_PEACEKEEPER,
-    &GUARDIAN_OF_NEW_BENALIA_19,
+    &GUARDIAN_OF_NEW_BENALIA,
     &LEYLINE_BINDING,
     &PRAYER_OF_BINDING,
     &RESOLUTE_REINFORCEMENTS,
@@ -959,25 +1123,25 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &CUT_DOWN,
     &PILFER,
     &SHEOLDRED_THE_APOCALYPSE,
-    &ELECTROSTATIC_INFANTRY_122,
+    &ELECTROSTATIC_INFANTRY,
     &BITE_DOWN,
     &MAGNIGOTH_SENTRY,
-    &SILVERBACK_ELDER_177,
-    &TAIL_SWIPE_182,
+    &SILVERBACK_ELDER,
+    &TAIL_SWIPE,
     &TEAR_ASUNDER,
     &BALMOR_BATTLEMAGE_CAPTAIN,
     &GARNA_BLOODFIST_OF_KELD,
-    &INSCRIBED_TABLET_232,
-    &RELIC_OF_LEGENDS_236,
+    &INSCRIBED_TABLET,
+    &RELIC_OF_LEGENDS,
     &CRYSTAL_GROTTO,
-    &PLAZA_OF_HEROES_252,
+    &PLAZA_OF_HEROES,
     &SERRA_REDEEMER,
-    &BRAIDS_ARISEN_NIGHTMARE_329,
+    &BRAIDS_ARISEN_NIGHTMARE,
     &ERTAI_RESURRECTED,
     &SERRA_PARAGON,
-    &RUNDVELT_HORDEMASTER_409,
-    &LLANOWAR_LOAMSPEAKER_416,
-    &THRAN_PORTAL_422,
+    &RUNDVELT_HORDEMASTER,
+    &LLANOWAR_LOAMSPEAKER,
+    &THRAN_PORTAL,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] =

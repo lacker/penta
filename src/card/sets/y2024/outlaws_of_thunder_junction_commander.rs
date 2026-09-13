@@ -49,18 +49,84 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // OTC 3 — Stella Lee, Wild Card
-pub(in crate::card::sets) static STELLA_LEE_WILD_CARD_3: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static STELLA_LEE_WILD_CARD: CardRecord = CardRecord::new(
     "Stella Lee, Wild Card",
     "2a8a7696-b5d9-4378-9d5c-2c9007e4df63",
     "Fajareka Setiawan",
-    CardRules::new_creature(mana_cost!("{1}{U}{R}"), &["Human", "Rogue"], 2, 4).with_supertype(CardSupertype::Legendary).with_abilities(&[
-AbilityDef::triggered("Whenever you cast your second spell each turn, exile the top card of your library. Until the end of your next turn, you may play that card.", TriggerEventDef::While { event: &TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(PlayerRelation::You)), condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef { left: ValueDef::CountSpellsCastThisTurn(&SpellCastQueryDef { spell: ObjectPredicateDef::Any, player: PlayerRelation::You }), comparison: ComparisonDef::Equal, right: ValueDef::Constant(2) }) }, EffectDef::ExileTopOfLibraryToPlay { player: EffectRecipientDef::Controller, amount: ValueDef::Constant(1), free: false, face_down: false, duration: ExilePlayDurationDef::UntilEndOfYourNextTurn, spend_any_color: false, play_condition: None, cast_only: false }),
-AbilityDef::activated_with_targets("{T}: Copy target instant or sorcery spell you control. You may choose new targets for the copy. Activate only if you've cast three or more spells this turn.", &[CostDef::TapSource], &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object { object: ObjectPredicateDef::All(&[ObjectPredicateDef::Spell, ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Instant), ObjectPredicateDef::HasType(CardType::Sorcery)])]), zones: &[ZoneKind::Stack], controller: Some(PlayerRelation::You), owner: None })], EffectDef::CopyStackObject(&CopyStackObjectDef { object: EffectRecipientDef::Target(TargetIndex::PRIMARY), controller: PlayerRefDef::EffectController, count: ValueDef::Constant(1), retarget: true, colors: None })).with_activation_condition(&TriggerConditionDef::ValueComparison(&ValueComparisonDef { left: ValueDef::CountSpellsCastThisTurn(&SpellCastQueryDef { spell: ObjectPredicateDef::Any, player: PlayerRelation::You }), comparison: ComparisonDef::GreaterOrEqual, right: ValueDef::Constant(3) }))
-]),
+    CardRules::new_creature(mana_cost!("{1}{U}{R}"), &["Human", "Rogue"], 2, 4)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::triggered(
+                "Whenever you cast your second spell each turn, exile the \
+                 top card of your library. Until the end of your next turn, \
+                 you may play that card.",
+                TriggerEventDef::While {
+                    event: &TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(
+                        PlayerRelation::You,
+                    )),
+                    condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                        left: ValueDef::CountSpellsCastThisTurn(&SpellCastQueryDef {
+                            spell: ObjectPredicateDef::Any,
+                            player: PlayerRelation::You,
+                        }),
+                        comparison: ComparisonDef::Equal,
+                        right: ValueDef::Constant(2),
+                    }),
+                },
+                EffectDef::ExileTopOfLibraryToPlay {
+                    player: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                    free: false,
+                    face_down: false,
+                    duration: ExilePlayDurationDef::UntilEndOfYourNextTurn,
+                    spend_any_color: false,
+                    play_condition: None,
+                    cast_only: false,
+                },
+            ),
+            AbilityDef::activated_with_targets(
+                "{T}: Copy target instant or sorcery spell you control. You \
+                 may choose new targets for the copy. Activate only if \
+                 you've cast three or more spells this turn.",
+                &[CostDef::TapSource],
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::Spell,
+                            ObjectPredicateDef::AnyOf(&[
+                                ObjectPredicateDef::HasType(CardType::Instant),
+                                ObjectPredicateDef::HasType(CardType::Sorcery),
+                            ]),
+                        ]),
+                        zones: &[ZoneKind::Stack],
+                        controller: Some(PlayerRelation::You),
+                        owner: None,
+                    },
+                )],
+                EffectDef::CopyStackObject(&CopyStackObjectDef {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    controller: PlayerRefDef::EffectController,
+                    count: ValueDef::Constant(1),
+                    retarget: true,
+                    colors: None,
+                }),
+            )
+            .with_activation_condition(&TriggerConditionDef::ValueComparison(
+                &ValueComparisonDef {
+                    left: ValueDef::CountSpellsCastThisTurn(&SpellCastQueryDef {
+                        spell: ObjectPredicateDef::Any,
+                        player: PlayerRelation::You,
+                    }),
+                    comparison: ComparisonDef::GreaterOrEqual,
+                    right: ValueDef::Constant(3),
+                },
+            )),
+        ]),
 );
 
 // OTC 11 — Sand Scout
-// Audit: unsupported — Needs a once-per-turn grouped trigger for land cards entering a graveyard from any zone.
+// Audit: unsupported — Needs a once-per-turn grouped trigger for land cards entering a
+// graveyard from any zone.
 pub(in crate::card::sets) static SAND_SCOUT: CardRecord = CardRecord::new(
     "Sand Scout",
     "e63ba7e6-87a9-49ef-bddc-60543edfd726",
@@ -69,7 +135,7 @@ pub(in crate::card::sets) static SAND_SCOUT: CardRecord = CardRecord::new(
 );
 
 // OTC 40 — Cactus Preserve
-pub(in crate::card::sets) static CACTUS_PRESERVE_40: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static CACTUS_PRESERVE: CardRecord = CardRecord::new(
     "Cactus Preserve",
     "ad9d426f-5870-42bb-a589-9218f7e35d62",
     "Jonas De Ro",
@@ -146,21 +212,37 @@ pub(in crate::card::sets) static CACTUS_PRESERVE_40: CardRecord = CardRecord::ne
 );
 
 // OTC 51 — Lock and Load
-pub(in crate::card::sets) static LOCK_AND_LOAD_51: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static LOCK_AND_LOAD: CardRecord = CardRecord::new(
     "Lock and Load",
     "3a24979d-a090-4153-9461-ac1aa1f69b74",
     "Anastasia Ovchinnikova",
     CardRules::new_sorcery(mana_cost!("{2}{U}")).with_abilities(&[
-AbilityDef::spell("Draw a card, then draw a card for each other instant and sorcery spell you've cast this turn.", EffectDef::Sequence(&[abilities::draw_cards(ValueDef::Constant(1)), abilities::draw_cards(ValueDef::CountSpellsCastThisTurn(&SpellCastQueryDef { spell: ObjectPredicateDef::All(&[ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Instant), ObjectPredicateDef::HasType(CardType::Sorcery)]), ObjectPredicateDef::Not(&ObjectPredicateDef::Source)]), player: PlayerRelation::You }))])),
-abilities::plot(&[CostDef::Mana(mana_cost!("{3}{U}"))])
-]),
+        AbilityDef::spell(
+            "Draw a card, then draw a card for each other instant and \
+             sorcery spell you've cast this turn.",
+            EffectDef::Sequence(&[
+                abilities::draw_cards(ValueDef::Constant(1)),
+                abilities::draw_cards(ValueDef::CountSpellsCastThisTurn(&SpellCastQueryDef {
+                    spell: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Instant),
+                            ObjectPredicateDef::HasType(CardType::Sorcery),
+                        ]),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    ]),
+                    player: PlayerRelation::You,
+                })),
+            ]),
+        ),
+        abilities::plot(&[CostDef::Mana(mana_cost!("{3}{U}"))]),
+    ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
-    &STELLA_LEE_WILD_CARD_3,
+    &STELLA_LEE_WILD_CARD,
     &SAND_SCOUT,
-    &CACTUS_PRESERVE_40,
-    &LOCK_AND_LOAD_51,
+    &CACTUS_PRESERVE,
+    &LOCK_AND_LOAD,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

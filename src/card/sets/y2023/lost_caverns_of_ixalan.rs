@@ -136,7 +136,9 @@ const DINOSAUR_TOKEN: TokenCharacteristics =
     ));
 
 // LCI 1 — Abuelo's Awakening
-// Audit: unsupported — Needs a reanimation arrival that applies additional creature types, flying, and base 1/1 characteristics before entry triggers and replacement choices, alongside X additional counters; current arrival modifications carry only tapped state and counters.
+// Audit: unsupported — Needs a reanimation arrival that applies additional creature types,
+// flying, and base 1/1 characteristics before entry triggers and replacement choices, alongside
+// X additional counters; current arrival modifications carry only tapped state and counters.
 pub(in crate::card::sets) static ABUELO_S_AWAKENING: CardRecord = CardRecord::new(
     "Abuelo's Awakening",
     "f93b725e-2b9c-4830-ac54-b2562afe09bb",
@@ -218,7 +220,8 @@ pub(in crate::card::sets) static ATTENTIVE_SUNSCRIBE: CardRecord = CardRecord::n
 );
 
 // LCI 5 — Bat Colony
-// Audit: unsupported — Needs cast-payment mana provenance that counts mana units produced by sources with the Cave subtype, retained for the enters trigger.
+// Audit: unsupported — Needs cast-payment mana provenance that counts mana units produced by
+// sources with the Cave subtype, retained for the enters trigger.
 pub(in crate::card::sets) static BAT_COLONY: CardRecord = CardRecord::new(
     "Bat Colony",
     "1c02134c-ec9f-4090-820e-8ba7ae4a8c2b",
@@ -227,7 +230,9 @@ pub(in crate::card::sets) static BAT_COLONY: CardRecord = CardRecord::new(
 );
 
 // LCI 6 — Clay-Fired Bricks // Cosmium Kiln
-// Audit: unsupported — Needs atomic craft payment selecting and exiling materials across the battlefield and graveyard, together with exiling the source and returning its exact successor transformed. Current activation exile selections cannot span those zones.
+// Audit: unsupported — Needs atomic craft payment selecting and exiling materials across the
+// battlefield and graveyard, together with exiling the source and returning its exact successor
+// transformed. Current activation exile selections cannot span those zones.
 pub(in crate::card::sets) static CLAY_FIRED_BRICKS: CardRecord = CardRecord::new(
     "Clay-Fired Bricks // Cosmium Kiln",
     "8aece300-656b-4e0d-a45f-aa7feaff0a4e",
@@ -260,7 +265,8 @@ pub(in crate::card::sets) static COSMIUM_BLAST: CardRecord = CardRecord::new(
 );
 
 // LCI 8 — Dauntless Dismantler
-// Audit: unsupported — Needs activated-cost enumeration for a repeated X mana symbol ({X}{X}{W}); the shared activation boundary supports only one X multiplier.
+// Audit: unsupported — Needs activated-cost enumeration for a repeated X mana symbol
+// ({X}{X}{W}); the shared activation boundary supports only one X multiplier.
 pub(in crate::card::sets) static DAUNTLESS_DISMANTLER: CardRecord = CardRecord::new(
     "Dauntless Dismantler",
     "3d771631-0aab-4f09-b9a6-49b6b2d8d2aa",
@@ -311,7 +317,9 @@ pub(in crate::card::sets) static DECONSTRUCTION_HAMMER: CardRecord = CardRecord:
 );
 
 // LCI 10 — Dusk Rose Reliquary
-// Audit: unsupported — Needs an immediate return when the source leaves, without using the stack, for an exile-until duration (CR 610.3). The current linked-exile helper installs a leaves trigger instead, introducing a response window and making the return counterable.
+// Audit: unsupported — Needs an immediate return when the source leaves, without using the
+// stack, for an exile-until duration (CR 610.3). The current linked-exile helper installs a
+// leaves trigger instead, introducing a response window and making the return counterable.
 pub(in crate::card::sets) static DUSK_ROSE_RELIQUARY: CardRecord = CardRecord::new(
     "Dusk Rose Reliquary",
     "a5f231ef-4167-4b0a-b54c-a098b2eb2f6f",
@@ -334,7 +342,9 @@ pub(in crate::card::sets) static ENVOY_OF_OKINEC_AHAU: CardRecord = CardRecord::
 );
 
 // LCI 12 — Fabrication Foundry
-// Audit: unsupported — Needs cast-or-activate restricted mana and an activation payment that exiles a variable artifact group, binds its total mana value as X, and constrains the graveyard target against that paid total.
+// Audit: unsupported — Needs cast-or-activate restricted mana and an activation payment that
+// exiles a variable artifact group, binds its total mana value as X, and constrains the
+// graveyard target against that paid total.
 pub(in crate::card::sets) static FABRICATION_FOUNDRY: CardRecord = CardRecord::new(
     "Fabrication Foundry",
     "323a05ee-8296-41c0-94ab-00913d9d84f1",
@@ -422,7 +432,9 @@ pub(in crate::card::sets) static GET_LOST: CardRecord = CardRecord::new(
 );
 
 // LCI 15 — Glorifier of Suffering
-// Audit: unsupported — Needs a payment-result reflexive trigger that survives the source leaving and selects up to two targets only after the optional sacrifice succeeds. OptionalEffectTaken currently requires the source to remain on the battlefield.
+// Audit: unsupported — Needs a payment-result reflexive trigger that survives the source
+// leaving and selects up to two targets only after the optional sacrifice succeeds.
+// OptionalEffectTaken currently requires the source to remain on the battlefield.
 pub(in crate::card::sets) static GLORIFIER_OF_SUFFERING: CardRecord = CardRecord::new(
     "Glorifier of Suffering",
     "7580ad36-7362-4dee-9511-d119173b70e8",
@@ -528,7 +540,9 @@ pub(in crate::card::sets) static KINJALLI_S_DAWNRUNNER: CardRecord = CardRecord:
 );
 
 // LCI 20 — Kutzil's Flanker
-// Audit: unsupported — Needs a controller-relative count of creatures that left the battlefield this turn, retained across zone changes and control changes; the existing revolt flag records only whether a permanent left.
+// Audit: unsupported — Needs a controller-relative count of creatures that left the battlefield
+// this turn, retained across zone changes and control changes; the existing revolt flag records
+// only whether a permanent left.
 pub(in crate::card::sets) static KUTZIL_S_FLANKER: CardRecord = CardRecord::new(
     "Kutzil's Flanker",
     "d1201811-54ab-4c4e-b6e1-19b0d07e5ede",
@@ -564,7 +578,9 @@ pub(in crate::card::sets) static MALAMET_WAR_SCRIBE: CardRecord = CardRecord::ne
 );
 
 // LCI 22 — Market Gnome
-// Audit: unsupported — Needs battlefield-to-exile event provenance identifying exile paid while activating a craft ability, including exiled material cards rather than only the ability source.
+// Audit: unsupported — Needs battlefield-to-exile event provenance identifying exile paid while
+// activating a craft ability, including exiled material cards rather than only the ability
+// source.
 pub(in crate::card::sets) static MARKET_GNOME: CardRecord = CardRecord::new(
     "Market Gnome",
     "36dafcd6-ce4e-4a27-bd8c-fa1a3bffc99e",
@@ -668,7 +684,9 @@ pub(in crate::card::sets) static MISCHIEVOUS_PUP: CardRecord = CardRecord::new(
 );
 
 // LCI 26 — Ojer Taq, Deepest Foundation // Temple of Civilization
-// Audit: unsupported — Needs a creature-token creation replacement multiplying the entire prospective token batch by three, and persistent controller attack-count history for the back-face activation.
+// Audit: unsupported — Needs a creature-token creation replacement multiplying the entire
+// prospective token batch by three, and persistent controller attack-count history for the
+// back-face activation.
 pub(in crate::card::sets) static OJER_TAQ_DEEPEST_FOUNDATION: CardRecord = CardRecord::new(
     "Ojer Taq, Deepest Foundation // Temple of Civilization",
     "1ca79dd4-67fc-496c-96fc-489b039c4932",
@@ -727,7 +745,9 @@ pub(in crate::card::sets) static OLTEC_CLOUD_GUARD: CardRecord = CardRecord::new
 );
 
 // LCI 29 — Oteclan Landmark // Oteclan Levitator
-// Audit: unsupported — Needs atomic craft payment selecting and exiling materials across the battlefield and graveyard, together with exiling the source and returning its exact successor transformed. Current activation exile selections cannot span those zones.
+// Audit: unsupported — Needs atomic craft payment selecting and exiling materials across the
+// battlefield and graveyard, together with exiling the source and returning its exact successor
+// transformed. Current activation exile selections cannot span those zones.
 pub(in crate::card::sets) static OTECLAN_LANDMARK: CardRecord = CardRecord::new(
     "Oteclan Landmark // Oteclan Levitator",
     "099a1d1c-72ba-468e-9385-8f93e1fce001",
@@ -759,7 +779,8 @@ pub(in crate::card::sets) static PETRIFY: CardRecord = CardRecord::new(
 );
 
 // LCI 31 — Quicksand Whirlpool
-// Audit: unsupported — Needs a self spell-cost reduction evaluated against the chosen target's tapped state; spell-cost values do not inspect selected targets' characteristics.
+// Audit: unsupported — Needs a self spell-cost reduction evaluated against the chosen target's
+// tapped state; spell-cost values do not inspect selected targets' characteristics.
 pub(in crate::card::sets) static QUICKSAND_WHIRLPOOL: CardRecord = CardRecord::new(
     "Quicksand Whirlpool",
     "a74ddccb-ebbd-4fad-a9b6-6b9e9bafae31",
@@ -775,7 +796,9 @@ const RESPLENDENT_ANGEL_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // LCI 33 — Ruin-Lurker Bat
-// Audit: unsupported — Needs turn-scoped history of permanent cards entering this controller's graveyard from any zone (excluding tokens), retained even after those cards leave; current graveyard counts and morbid/revolt history do not represent descending.
+// Audit: unsupported — Needs turn-scoped history of permanent cards entering this controller's
+// graveyard from any zone (excluding tokens), retained even after those cards leave; current
+// graveyard counts and morbid/revolt history do not represent descending.
 pub(in crate::card::sets) static RUIN_LURKER_BAT: CardRecord = CardRecord::new(
     "Ruin-Lurker Bat",
     "d6bedf13-c2bc-4e5d-aba3-3c0d5495a9bb",
@@ -836,7 +859,9 @@ pub(in crate::card::sets) static SOARING_SANDWING: CardRecord = CardRecord::new(
 );
 
 // LCI 36 — Spring-Loaded Sawblades // Bladewheel Chariot
-// Audit: unsupported — Needs atomic craft payment selecting and exiling materials across the battlefield and graveyard, together with exiling the source and returning its exact successor transformed. Current activation exile selections cannot span those zones.
+// Audit: unsupported — Needs atomic craft payment selecting and exiling materials across the
+// battlefield and graveyard, together with exiling the source and returning its exact successor
+// transformed. Current activation exile selections cannot span those zones.
 pub(in crate::card::sets) static SPRING_LOADED_SAWBLADES: CardRecord = CardRecord::new(
     "Spring-Loaded Sawblades // Bladewheel Chariot",
     "24417388-f2bb-4783-bdce-264774531838",
@@ -845,7 +870,8 @@ pub(in crate::card::sets) static SPRING_LOADED_SAWBLADES: CardRecord = CardRecor
 );
 
 // LCI 37 — Thousand Moons Crackshot
-// Audit: unsupported — Needs a payment-result reflexive trigger that survives the source leaving and chooses its creature target only after the optional mana payment succeeds.
+// Audit: unsupported — Needs a payment-result reflexive trigger that survives the source
+// leaving and chooses its creature target only after the optional mana payment succeeds.
 pub(in crate::card::sets) static THOUSAND_MOONS_CRACKSHOT: CardRecord = CardRecord::new(
     "Thousand Moons Crackshot",
     "741a7439-965d-49f2-b43e-053f29196e6b",
@@ -854,7 +880,8 @@ pub(in crate::card::sets) static THOUSAND_MOONS_CRACKSHOT: CardRecord = CardReco
 );
 
 // LCI 38 — Thousand Moons Infantry
-// Audit: unsupported — Needs an untap-step rule untapping this permanent during other players' untap steps, rather than an upkeep trigger or ordinary activated untap.
+// Audit: unsupported — Needs an untap-step rule untapping this permanent during other players'
+// untap steps, rather than an upkeep trigger or ordinary activated untap.
 pub(in crate::card::sets) static THOUSAND_MOONS_INFANTRY: CardRecord = CardRecord::new(
     "Thousand Moons Infantry",
     "c1974a8c-3328-4ff5-9a00-cb79ebb8ccf6",
@@ -863,7 +890,8 @@ pub(in crate::card::sets) static THOUSAND_MOONS_INFANTRY: CardRecord = CardRecor
 );
 
 // LCI 39 — Thousand Moons Smithy // Barracks of the Thousand
-// Audit: unsupported — Needs a cast trigger linked to mana produced by a specific land incarnation, with the mana provenance preserved after the source leaves or transforms.
+// Audit: unsupported — Needs a cast trigger linked to mana produced by a specific land
+// incarnation, with the mana provenance preserved after the source leaves or transforms.
 pub(in crate::card::sets) static THOUSAND_MOONS_SMITHY: CardRecord = CardRecord::new(
     "Thousand Moons Smithy // Barracks of the Thousand",
     "4a6bec46-1acd-4726-b8d9-3045ac6a2ea2",
@@ -897,7 +925,9 @@ pub(in crate::card::sets) static TINKER_S_TOTE: CardRecord = CardRecord::new(
 );
 
 // LCI 41 — Unstable Glyphbridge // Sandswirl Wanderglyph
-// Audit: unsupported — Needs atomic craft payment selecting and exiling materials across the battlefield and graveyard, together with exiling the source and returning its exact successor transformed. Current activation exile selections cannot span those zones.
+// Audit: unsupported — Needs atomic craft payment selecting and exiling materials across the
+// battlefield and graveyard, together with exiling the source and returning its exact successor
+// transformed. Current activation exile selections cannot span those zones.
 pub(in crate::card::sets) static UNSTABLE_GLYPHBRIDGE: CardRecord = CardRecord::new(
     "Unstable Glyphbridge // Sandswirl Wanderglyph",
     "d70f48e7-582c-4dd2-a64e-6fd03fa6b77e",
@@ -939,7 +969,9 @@ pub(in crate::card::sets) static VANGUARD_OF_THE_ROSE: CardRecord = CardRecord::
 );
 
 // LCI 43 — Warden of the Inner Sky
-// Audit: unsupported — Needs a live total of all counters on the source, regardless of counter kind, for the flying/vigilance condition; existing source-counter predicates require one named kind.
+// Audit: unsupported — Needs a live total of all counters on the source, regardless of counter
+// kind, for the flying/vigilance condition; existing source-counter predicates require one
+// named kind.
 pub(in crate::card::sets) static WARDEN_OF_THE_INNER_SKY: CardRecord = CardRecord::new(
     "Warden of the Inner Sky",
     "549fd992-ed37-431d-97cb-9ca017db1d47",
@@ -948,7 +980,8 @@ pub(in crate::card::sets) static WARDEN_OF_THE_INNER_SKY: CardRecord = CardRecor
 );
 
 // LCI 44 — Akal Pakal, First Among Equals
-// Audit: unsupported — Needs controller-relative artifact-entry history for the current turn, retained if the artifact leaves or changes types/control before the end step.
+// Audit: unsupported — Needs controller-relative artifact-entry history for the current turn,
+// retained if the artifact leaves or changes types/control before the end step.
 pub(in crate::card::sets) static AKAL_PAKAL_FIRST_AMONG_EQUALS: CardRecord = CardRecord::new(
     "Akal Pakal, First Among Equals",
     "ab9f6a1b-8467-4584-affd-8c71d3e34d2f",
@@ -1014,7 +1047,9 @@ pub(in crate::card::sets) static BRACKISH_BLUNDER: CardRecord = CardRecord::new(
 );
 
 // LCI 47 — Braided Net // Braided Quipu
-// Audit: unsupported — Needs atomic craft payment selecting and exiling materials across the battlefield and graveyard, together with exiling the source and returning its exact successor transformed. Current activation exile selections cannot span those zones.
+// Audit: unsupported — Needs atomic craft payment selecting and exiling materials across the
+// battlefield and graveyard, together with exiling the source and returning its exact successor
+// transformed. Current activation exile selections cannot span those zones.
 pub(in crate::card::sets) static BRAIDED_NET: CardRecord = CardRecord::new(
     "Braided Net // Braided Quipu",
     "68a6ede0-6d57-4e29-9e3b-3569ab7f0bcd",
@@ -1144,7 +1179,8 @@ pub(in crate::card::sets) static COUNCIL_OF_ECHOES: CardRecord = CardRecord::new
 );
 
 // LCI 52 — Deeproot Pilgrimage
-// Audit: unsupported — Needs one trigger for a simultaneous batch of matching Merfolk becoming tapped; the current tap matcher emits a separate trigger per permanent.
+// Audit: unsupported — Needs one trigger for a simultaneous batch of matching Merfolk becoming
+// tapped; the current tap matcher emits a separate trigger per permanent.
 pub(in crate::card::sets) static DEEPROOT_PILGRIMAGE: CardRecord = CardRecord::new(
     "Deeproot Pilgrimage",
     "e2449311-a705-4a31-a345-a36d436ae561",
@@ -1191,7 +1227,9 @@ pub(in crate::card::sets) static DIDACT_ECHO: CardRecord = CardRecord::new(
 );
 
 // LCI 54 — Eaten by Piranhas
-// Audit: unsupported — Needs a static effect that replaces the attached permanent's complete card-type set, rather than adding types; full card-type replacement is outside the shared static runtime boundary.
+// Audit: unsupported — Needs a static effect that replaces the attached permanent's complete
+// card-type set, rather than adding types; full card-type replacement is outside the shared
+// static runtime boundary.
 pub(in crate::card::sets) static EATEN_BY_PIRANHAS: CardRecord = CardRecord::new(
     "Eaten by Piranhas",
     "b0c504ef-2382-4174-9b1d-5f38e12a28fc",
@@ -1200,7 +1238,9 @@ pub(in crate::card::sets) static EATEN_BY_PIRANHAS: CardRecord = CardRecord::new
 );
 
 // LCI 55 — The Enigma Jewel // Locus of Enlightenment
-// Audit: unsupported — Needs atomic craft payment selecting and exiling materials across the battlefield and graveyard, together with exiling the source and returning its exact successor transformed. Current activation exile selections cannot span those zones.
+// Audit: unsupported — Needs atomic craft payment selecting and exiling materials across the
+// battlefield and graveyard, together with exiling the source and returning its exact successor
+// transformed. Current activation exile selections cannot span those zones.
 pub(in crate::card::sets) static THE_ENIGMA_JEWEL: CardRecord = CardRecord::new(
     "The Enigma Jewel // Locus of Enlightenment",
     "2e98970d-06a8-4c91-ba47-4a02c5b949f2",
@@ -1209,7 +1249,8 @@ pub(in crate::card::sets) static THE_ENIGMA_JEWEL: CardRecord = CardRecord::new(
 );
 
 // LCI 56 — The Everflowing Well // The Myriad Pools
-// Audit: unsupported — Needs a cast trigger linked to mana produced by a specific land incarnation, with the mana provenance preserved after the source leaves or transforms.
+// Audit: unsupported — Needs a cast trigger linked to mana produced by a specific land
+// incarnation, with the mana provenance preserved after the source leaves or transforms.
 pub(in crate::card::sets) static THE_EVERFLOWING_WELL: CardRecord = CardRecord::new(
     "The Everflowing Well // The Myriad Pools",
     "bf573fb7-fa6c-4df7-8e5e-1e071585361e",
@@ -1277,7 +1318,10 @@ pub(in crate::card::sets) static HERMITIC_NAUTILUS: CardRecord = CardRecord::new
 );
 
 // LCI 59 — Hurl into History
-// Audit: unsupported — Needs a discover cast offer that bounds the mana value of the spell actually cast, returns an uncast discovered card to hand, and randomly bottoms the other exiled cards. Cascade is source-mana-value based and generic free-cast permissions cannot enforce the discovered spell limit.
+// Audit: unsupported — Needs a discover cast offer that bounds the mana value of the spell
+// actually cast, returns an uncast discovered card to hand, and randomly bottoms the other
+// exiled cards. Cascade is source-mana-value based and generic free-cast permissions cannot
+// enforce the discovered spell limit.
 pub(in crate::card::sets) static HURL_INTO_HISTORY: CardRecord = CardRecord::new(
     "Hurl into History",
     "5946463a-2240-4376-b6f5-fd6e3a9cc51c",
@@ -1286,7 +1330,9 @@ pub(in crate::card::sets) static HURL_INTO_HISTORY: CardRecord = CardRecord::new
 );
 
 // LCI 60 — Inverted Iceberg // Iceberg Titan
-// Audit: unsupported — Needs atomic craft payment selecting and exiling materials across the battlefield and graveyard, together with exiling the source and returning its exact successor transformed. Current activation exile selections cannot span those zones.
+// Audit: unsupported — Needs atomic craft payment selecting and exiling materials across the
+// battlefield and graveyard, together with exiling the source and returning its exact successor
+// transformed. Current activation exile selections cannot span those zones.
 pub(in crate::card::sets) static INVERTED_ICEBERG: CardRecord = CardRecord::new(
     "Inverted Iceberg // Iceberg Titan",
     "ac5e9a53-cc4f-4ced-8088-5a73d619eae3",
@@ -1365,7 +1411,9 @@ pub(in crate::card::sets) static KITESAIL_LARCENIST: CardRecord = CardRecord::ne
 );
 
 // LCI 62 — Lodestone Needle // Guidestone Compass
-// Audit: unsupported — Needs atomic craft payment selecting and exiling materials across the battlefield and graveyard, together with exiling the source and returning its exact successor transformed. Current activation exile selections cannot span those zones.
+// Audit: unsupported — Needs atomic craft payment selecting and exiling materials across the
+// battlefield and graveyard, together with exiling the source and returning its exact successor
+// transformed. Current activation exile selections cannot span those zones.
 pub(in crate::card::sets) static LODESTONE_NEEDLE: CardRecord = CardRecord::new(
     "Lodestone Needle // Guidestone Compass",
     "dedd7a22-92e2-41fd-aa80-944c69653a5e",
@@ -1453,7 +1501,8 @@ pub(in crate::card::sets) static MARAUDING_BRINEFANG: CardRecord = CardRecord::n
 );
 
 // LCI 65 — Merfolk Cave-Diver
-// Audit: unsupported — Needs a committed explore event reporting the exploring creature and its controller so another permanent can trigger after each exploration.
+// Audit: unsupported — Needs a committed explore event reporting the exploring creature and its
+// controller so another permanent can trigger after each exploration.
 pub(in crate::card::sets) static MERFOLK_CAVE_DIVER: CardRecord = CardRecord::new(
     "Merfolk Cave-Diver",
     "6e0fe81c-b8ef-49ff-8743-f03d0220cb9e",
@@ -1462,7 +1511,9 @@ pub(in crate::card::sets) static MERFOLK_CAVE_DIVER: CardRecord = CardRecord::ne
 );
 
 // LCI 66 — Oaken Siren
-// Audit: unsupported — Needs restricted ability-activation mana and an OR between casting an artifact spell and activating an artifact ability; the shared mana boundary rejects activation restrictions and combines restrictions conjunctively.
+// Audit: unsupported — Needs restricted ability-activation mana and an OR between casting an
+// artifact spell and activating an artifact ability; the shared mana boundary rejects
+// activation restrictions and combines restrictions conjunctively.
 pub(in crate::card::sets) static OAKEN_SIREN: CardRecord = CardRecord::new(
     "Oaken Siren",
     "d7731ef5-da74-4436-8ee7-01c065cbefae",
@@ -1471,7 +1522,9 @@ pub(in crate::card::sets) static OAKEN_SIREN: CardRecord = CardRecord::new(
 );
 
 // LCI 67 — Ojer Pakpatiq, Deepest Epoch // Temple of Cyclical Time
-// Audit: unsupported — Needs a shared mana ability that adds mana and removes a time counter as one immediate non-stack resolution; generic mana clauses do not execute arbitrary sibling effects.
+// Audit: unsupported — Needs a shared mana ability that adds mana and removes a time counter as
+// one immediate non-stack resolution; generic mana clauses do not execute arbitrary sibling
+// effects.
 pub(in crate::card::sets) static OJER_PAKPATIQ_DEEPEST_EPOCH: CardRecord = CardRecord::new(
     "Ojer Pakpatiq, Deepest Epoch // Temple of Cyclical Time",
     "a9d71007-bc04-4dff-ad3f-e2c0b5b4400e",
@@ -1503,7 +1556,8 @@ pub(in crate::card::sets) static ORAZCA_PUZZLE_DOOR: CardRecord = CardRecord::ne
 );
 
 // LCI 69 — Out of Air
-// Audit: unsupported — Needs a self spell-cost reduction evaluated against the chosen target spell's creature type; spell-cost values do not inspect selected targets' characteristics.
+// Audit: unsupported — Needs a self spell-cost reduction evaluated against the chosen target
+// spell's creature type; spell-cost values do not inspect selected targets' characteristics.
 pub(in crate::card::sets) static OUT_OF_AIR: CardRecord = CardRecord::new(
     "Out of Air",
     "c263db55-fcac-4b49-b626-7c8092accfcd",
@@ -1688,7 +1742,8 @@ pub(in crate::card::sets) static SELF_REFLECTION: CardRecord = CardRecord::new(
 );
 
 // LCI 75 — Shipwreck Sentry
-// Audit: unsupported — Needs controller-relative artifact-entry history retained even when the entered artifact leaves the battlefield or changes types/control during the turn.
+// Audit: unsupported — Needs controller-relative artifact-entry history retained even when the
+// entered artifact leaves the battlefield or changes types/control during the turn.
 pub(in crate::card::sets) static SHIPWRECK_SENTRY: CardRecord = CardRecord::new(
     "Shipwreck Sentry",
     "814803bc-72cd-46db-b957-4322f2a7b28a",
@@ -1827,7 +1882,8 @@ pub(in crate::card::sets) static STAUNCH_CREWMATE: CardRecord = CardRecord::new(
 );
 
 // LCI 80 — Subterranean Schooner
-// Audit: unsupported — Needs per-Vehicle crew-payment history identifying the creatures that crewed this incarnation this turn, exposed to target legality.
+// Audit: unsupported — Needs per-Vehicle crew-payment history identifying the creatures that
+// crewed this incarnation this turn, exposed to target legality.
 pub(in crate::card::sets) static SUBTERRANEAN_SCHOONER: CardRecord = CardRecord::new(
     "Subterranean Schooner",
     "94b6881a-b00e-4e90-92e6-602ed8e0e090",
@@ -1884,7 +1940,9 @@ pub(in crate::card::sets) static UNLUCKY_DROP: CardRecord = CardRecord::new(
 );
 
 // LCI 83 — Waterlogged Hulk // Watertight Gondola
-// Audit: unsupported — Needs atomic craft payment selecting and exiling materials across the battlefield and graveyard, together with exiling the source and returning its exact successor transformed. Current activation exile selections cannot span those zones.
+// Audit: unsupported — Needs atomic craft payment selecting and exiling materials across the
+// battlefield and graveyard, together with exiling the source and returning its exact successor
+// transformed. Current activation exile selections cannot span those zones.
 pub(in crate::card::sets) static WATERLOGGED_HULK: CardRecord = CardRecord::new(
     "Waterlogged Hulk // Watertight Gondola",
     "7ea89d3c-8d47-4bbb-9271-8cdfd9296e2f",
@@ -1961,7 +2019,10 @@ pub(in crate::card::sets) static WAYLAYING_PIRATES: CardRecord = CardRecord::new
 );
 
 // LCI 86 — Zoetic Glyph
-// Audit: unsupported — Needs a discover cast offer that bounds the mana value of the spell actually cast, returns an uncast discovered card to hand, and randomly bottoms the other exiled cards. Cascade is source-mana-value based and generic free-cast permissions cannot enforce the discovered spell limit.
+// Audit: unsupported — Needs a discover cast offer that bounds the mana value of the spell
+// actually cast, returns an uncast discovered card to hand, and randomly bottoms the other
+// exiled cards. Cascade is source-mana-value based and generic free-cast permissions cannot
+// enforce the discovered spell limit.
 pub(in crate::card::sets) static ZOETIC_GLYPH: CardRecord = CardRecord::new(
     "Zoetic Glyph",
     "a2f498ac-179e-4055-9b83-97bcc5ab1bb9",
@@ -1995,7 +2056,9 @@ pub(in crate::card::sets) static ABYSSAL_GORESTALKER: CardRecord = CardRecord::n
 );
 
 // LCI 88 — Aclazotz, Deepest Betrayal // Temple of the Dead
-// Audit: unsupported — Needs a graveyard-to-battlefield return of the exact died card arriving tapped on its transformed face. Generic battlefield arrival modifications have no transformed-face option; linked-exile returns require a different zone path.
+// Audit: unsupported — Needs a graveyard-to-battlefield return of the exact died card arriving
+// tapped on its transformed face. Generic battlefield arrival modifications have no
+// transformed-face option; linked-exile returns require a different zone path.
 pub(in crate::card::sets) static ACLAZOTZ_DEEPEST_BETRAYAL: CardRecord = CardRecord::new(
     "Aclazotz, Deepest Betrayal // Temple of the Dead",
     "627c392c-4d18-4eb2-a4e8-c668f61f5487",
@@ -2111,7 +2174,9 @@ pub(in crate::card::sets) static BITTER_TRIUMPH: CardRecord = CardRecord::new(
 );
 
 // LCI 92 — Bloodletter of Aclazotz
-// Audit: unsupported — Needs a prospective life-loss replacement, gated to this controller's turn, that doubles both damage-caused and non-damage life loss; the current replacement vocabulary covers life gain but not life loss.
+// Audit: unsupported — Needs a prospective life-loss replacement, gated to this controller's
+// turn, that doubles both damage-caused and non-damage life loss; the current replacement
+// vocabulary covers life gain but not life loss.
 pub(in crate::card::sets) static BLOODLETTER_OF_ACLAZOTZ: CardRecord = CardRecord::new(
     "Bloodletter of Aclazotz",
     "d4f6027a-003a-4f9d-929a-0b6da1fa42c9",
@@ -2120,7 +2185,8 @@ pub(in crate::card::sets) static BLOODLETTER_OF_ACLAZOTZ: CardRecord = CardRecor
 );
 
 // LCI 93 — Bloodthorn Flail
-// Audit: unsupported — Needs an activated equip cost with a mana-or-discard alternative; CostDef::Choice is supported for casting but not in the shared activated-cost boundary.
+// Audit: unsupported — Needs an activated equip cost with a mana-or-discard alternative;
+// CostDef::Choice is supported for casting but not in the shared activated-cost boundary.
 pub(in crate::card::sets) static BLOODTHORN_FLAIL: CardRecord = CardRecord::new(
     "Bloodthorn Flail",
     "db38babd-57e8-4e59-9701-11a0682baa77",
@@ -2129,7 +2195,10 @@ pub(in crate::card::sets) static BLOODTHORN_FLAIL: CardRecord = CardRecord::new(
 );
 
 // LCI 94 — Bringer of the Last Gift
-// Audit: unsupported — Needs to subtract the actual graveyard successors of the sacrifice batch from each player's post-sacrifice graveyard, including cards moved there during replacement processing. Frozen pre-sacrifice graveyards miss those arrivals; object sets have no collection-difference operation.
+// Audit: unsupported — Needs to subtract the actual graveyard successors of the sacrifice batch
+// from each player's post-sacrifice graveyard, including cards moved there during replacement
+// processing. Frozen pre-sacrifice graveyards miss those arrivals; object sets have no
+// collection-difference operation.
 pub(in crate::card::sets) static BRINGER_OF_THE_LAST_GIFT: CardRecord = CardRecord::new(
     "Bringer of the Last Gift",
     "19775c18-4cc0-49d3-86e4-0841768cbf4d",
@@ -2138,7 +2207,9 @@ pub(in crate::card::sets) static BRINGER_OF_THE_LAST_GIFT: CardRecord = CardReco
 );
 
 // LCI 95 — Broodrage Mycoid
-// Audit: unsupported — Needs turn-scoped history of permanent cards entering this controller's graveyard from any zone (excluding tokens), retained even after those cards leave; current graveyard counts and morbid/revolt history do not represent descending.
+// Audit: unsupported — Needs turn-scoped history of permanent cards entering this controller's
+// graveyard from any zone (excluding tokens), retained even after those cards leave; current
+// graveyard counts and morbid/revolt history do not represent descending.
 pub(in crate::card::sets) static BROODRAGE_MYCOID: CardRecord = CardRecord::new(
     "Broodrage Mycoid",
     "08318a16-a9ed-42c8-9433-876b7a72e368",
@@ -2147,7 +2218,9 @@ pub(in crate::card::sets) static BROODRAGE_MYCOID: CardRecord = CardRecord::new(
 );
 
 // LCI 96 — Canonized in Blood
-// Audit: unsupported — Needs turn-scoped history of permanent cards entering this controller's graveyard from any zone (excluding tokens), retained even after those cards leave; current graveyard counts and morbid/revolt history do not represent descending.
+// Audit: unsupported — Needs turn-scoped history of permanent cards entering this controller's
+// graveyard from any zone (excluding tokens), retained even after those cards leave; current
+// graveyard counts and morbid/revolt history do not represent descending.
 pub(in crate::card::sets) static CANONIZED_IN_BLOOD: CardRecord = CardRecord::new(
     "Canonized in Blood",
     "384b6892-5dfc-4607-b511-cf83544a9357",
@@ -2210,7 +2283,9 @@ pub(in crate::card::sets) static CHUPACABRA_ECHO: CardRecord = CardRecord::new(
 );
 
 // LCI 98 — Corpses of the Lost
-// Audit: unsupported — Needs turn-scoped history of permanent cards entering this controller's graveyard from any zone (excluding tokens), retained even after those cards leave; current graveyard counts and morbid/revolt history do not represent descending.
+// Audit: unsupported — Needs turn-scoped history of permanent cards entering this controller's
+// graveyard from any zone (excluding tokens), retained even after those cards leave; current
+// graveyard counts and morbid/revolt history do not represent descending.
 pub(in crate::card::sets) static CORPSES_OF_THE_LOST: CardRecord = CardRecord::new(
     "Corpses of the Lost",
     "5f661095-3645-4e44-ac39-752e417c2174",
@@ -2247,7 +2322,9 @@ pub(in crate::card::sets) static DEATHCAP_MARIONETTE: CardRecord = CardRecord::n
 );
 
 // LCI 101 — Deep Goblin Skulltaker
-// Audit: unsupported — Needs turn-scoped history of permanent cards entering this controller's graveyard from any zone (excluding tokens), retained even after those cards leave; current graveyard counts and morbid/revolt history do not represent descending.
+// Audit: unsupported — Needs turn-scoped history of permanent cards entering this controller's
+// graveyard from any zone (excluding tokens), retained even after those cards leave; current
+// graveyard counts and morbid/revolt history do not represent descending.
 pub(in crate::card::sets) static DEEP_GOBLIN_SKULLTAKER: CardRecord = CardRecord::new(
     "Deep Goblin Skulltaker",
     "0b24bb7c-6b34-48b6-af94-f312ebdbb759",
@@ -2256,7 +2333,9 @@ pub(in crate::card::sets) static DEEP_GOBLIN_SKULLTAKER: CardRecord = CardRecord
 );
 
 // LCI 102 — Deep-Cavern Bat
-// Audit: unsupported — Needs an immediate return when the source leaves, without using the stack, for an exile-until duration (CR 610.3). The current linked-exile helper installs a leaves trigger instead, introducing a response window and making the return counterable.
+// Audit: unsupported — Needs an immediate return when the source leaves, without using the
+// stack, for an exile-until duration (CR 610.3). The current linked-exile helper installs a
+// leaves trigger instead, introducing a response window and making the return counterable.
 pub(in crate::card::sets) static DEEP_CAVERN_BAT: CardRecord = CardRecord::new(
     "Deep-Cavern Bat",
     "69c68c95-b788-43b1-9f22-1b22c5a00b25",
@@ -2595,7 +2674,10 @@ pub(in crate::card::sets) static JOIN_THE_DEAD: CardRecord = CardRecord::new(
 );
 
 // LCI 111 — Malicious Eclipse
-// Audit: unsupported — Needs a turn-scoped zone-move replacement restricted to creatures moving specifically from the battlefield to a graveyard, including later arrivals. AnyObjectWouldMove has no source-zone filter, and applying ExileInsteadOfDying freezes only currently present creatures.
+// Audit: unsupported — Needs a turn-scoped zone-move replacement restricted to creatures moving
+// specifically from the battlefield to a graveyard, including later arrivals.
+// AnyObjectWouldMove has no source-zone filter, and applying ExileInsteadOfDying freezes only
+// currently present creatures.
 pub(in crate::card::sets) static MALICIOUS_ECLIPSE: CardRecord = CardRecord::new(
     "Malicious Eclipse",
     "2796fffa-8cbf-4ec9-91a8-7b6f39fd50ec",
@@ -2642,7 +2724,10 @@ const PREACHER_OF_THE_SCHISM_ALTERNATE_1: PrintingRecord = PrintingRecord::alter
 );
 
 // LCI 114 — Primordial Gnawer
-// Audit: unsupported — Needs a discover cast offer that bounds the mana value of the spell actually cast, returns an uncast discovered card to hand, and randomly bottoms the other exiled cards. Cascade is source-mana-value based and generic free-cast permissions cannot enforce the discovered spell limit.
+// Audit: unsupported — Needs a discover cast offer that bounds the mana value of the spell
+// actually cast, returns an uncast discovered card to hand, and randomly bottoms the other
+// exiled cards. Cascade is source-mana-value based and generic free-cast permissions cannot
+// enforce the discovered spell limit.
 pub(in crate::card::sets) static PRIMORDIAL_GNAWER: CardRecord = CardRecord::new(
     "Primordial Gnawer",
     "a18f5ad0-e9c1-4e45-b245-2946e29baecb",
@@ -2921,7 +3006,9 @@ pub(in crate::card::sets) static SOULS_OF_THE_LOST: CardRecord = CardRecord::new
 );
 
 // LCI 122 — Stalactite Stalker
-// Audit: unsupported — Needs turn-scoped history of permanent cards entering this controller's graveyard from any zone (excluding tokens), retained even after those cards leave; current graveyard counts and morbid/revolt history do not represent descending.
+// Audit: unsupported — Needs turn-scoped history of permanent cards entering this controller's
+// graveyard from any zone (excluding tokens), retained even after those cards leave; current
+// graveyard counts and morbid/revolt history do not represent descending.
 pub(in crate::card::sets) static STALACTITE_STALKER: CardRecord = CardRecord::new(
     "Stalactite Stalker",
     "5319c0b1-de54-492a-bdea-85a5a75d693e",
@@ -3103,7 +3190,9 @@ pub(in crate::card::sets) static SYNAPSE_NECROMAGE: CardRecord = CardRecord::new
 );
 
 // LCI 126 — Tarrian's Journal // The Tomb of Aclazotz
-// Audit: unsupported — Needs a one-use graveyard casting permission whose resulting permanent enters with a finality counter and an additional Vampire subtype. Existing casting permissions do not carry those prospective arrival modifications.
+// Audit: unsupported — Needs a one-use graveyard casting permission whose resulting permanent
+// enters with a finality counter and an additional Vampire subtype. Existing casting
+// permissions do not carry those prospective arrival modifications.
 pub(in crate::card::sets) static TARRIAN_S_JOURNAL: CardRecord = CardRecord::new(
     "Tarrian's Journal // The Tomb of Aclazotz",
     "99255a66-b868-45fc-a2a9-0c89bd851b69",
@@ -3156,7 +3245,9 @@ pub(in crate::card::sets) static TERROR_TIDE: CardRecord = CardRecord::new(
 );
 
 // LCI 128 — Tithing Blade // Consuming Sepulcher
-// Audit: unsupported — Needs atomic craft payment selecting and exiling materials across the battlefield and graveyard, together with exiling the source and returning its exact successor transformed. Current activation exile selections cannot span those zones.
+// Audit: unsupported — Needs atomic craft payment selecting and exiling materials across the
+// battlefield and graveyard, together with exiling the source and returning its exact successor
+// transformed. Current activation exile selections cannot span those zones.
 pub(in crate::card::sets) static TITHING_BLADE: CardRecord = CardRecord::new(
     "Tithing Blade",
     "dbaa9a2d-e9fd-4746-a26c-f99ae731f024",
@@ -3165,7 +3256,9 @@ pub(in crate::card::sets) static TITHING_BLADE: CardRecord = CardRecord::new(
 );
 
 // LCI 129 — Visage of Dread // Dread Osseosaur
-// Audit: unsupported — Needs atomic craft payment selecting and exiling materials across the battlefield and graveyard, together with exiling the source and returning its exact successor transformed. Current activation exile selections cannot span those zones.
+// Audit: unsupported — Needs atomic craft payment selecting and exiling materials across the
+// battlefield and graveyard, together with exiling the source and returning its exact successor
+// transformed. Current activation exile selections cannot span those zones.
 pub(in crate::card::sets) static VISAGE_OF_DREAD: CardRecord = CardRecord::new(
     "Visage of Dread // Dread Osseosaur",
     "3d4b61c6-3e88-49f5-9e16-aa8a59653327",
@@ -3349,7 +3442,10 @@ pub(in crate::card::sets) static BONEHOARD_DRACOSAUR: CardRecord = CardRecord::n
 );
 
 // LCI 135 — Brass's Tunnel-Grinder // Tecutlan, the Searing Rift
-// Audit: unsupported — Needs a discover cast offer that bounds the mana value of the spell actually cast, returns an uncast discovered card to hand, and randomly bottoms the other exiled cards. Cascade is source-mana-value based and generic free-cast permissions cannot enforce the discovered spell limit.
+// Audit: unsupported — Needs a discover cast offer that bounds the mana value of the spell
+// actually cast, returns an uncast discovered card to hand, and randomly bottoms the other
+// exiled cards. Cascade is source-mana-value based and generic free-cast permissions cannot
+// enforce the discovered spell limit.
 pub(in crate::card::sets) static BRASS_S_TUNNEL_GRINDER: CardRecord = CardRecord::new(
     "Brass's Tunnel-Grinder // Tecutlan, the Searing Rift",
     "d61d8895-7f2e-4c77-951f-4f1a49e96f57",
@@ -3391,7 +3487,9 @@ pub(in crate::card::sets) static BRAZEN_BLADEMASTER: CardRecord = CardRecord::ne
 );
 
 // LCI 137 — Breeches, Eager Pillager
-// Audit: unsupported — Needs per-source, turn-scoped modal-choice history shared across separate attack triggers, excluding previously chosen modes while new triggers are put on the stack.
+// Audit: unsupported — Needs per-source, turn-scoped modal-choice history shared across
+// separate attack triggers, excluding previously chosen modes while new triggers are put on the
+// stack.
 pub(in crate::card::sets) static BREECHES_EAGER_PILLAGER: CardRecord = CardRecord::new(
     "Breeches, Eager Pillager",
     "aadf5028-8dfe-40d3-89b4-22bd7ed0aae6",
@@ -3472,7 +3570,9 @@ pub(in crate::card::sets) static CALAMITOUS_CAVE_IN: CardRecord = CardRecord::ne
 );
 
 // LCI 140 — Child of the Volcano
-// Audit: unsupported — Needs turn-scoped history of permanent cards entering this controller's graveyard from any zone (excluding tokens), retained even after those cards leave; current graveyard counts and morbid/revolt history do not represent descending.
+// Audit: unsupported — Needs turn-scoped history of permanent cards entering this controller's
+// graveyard from any zone (excluding tokens), retained even after those cards leave; current
+// graveyard counts and morbid/revolt history do not represent descending.
 pub(in crate::card::sets) static CHILD_OF_THE_VOLCANO: CardRecord = CardRecord::new(
     "Child of the Volcano",
     "e964f026-9cbf-4fa2-acdc-60d19b88f183",
@@ -3481,7 +3581,10 @@ pub(in crate::card::sets) static CHILD_OF_THE_VOLCANO: CardRecord = CardRecord::
 );
 
 // LCI 141 — Curator of Sun's Creation
-// Audit: unsupported — Needs a discover cast offer that bounds the mana value of the spell actually cast, returns an uncast discovered card to hand, and randomly bottoms the other exiled cards. Cascade is source-mana-value based and generic free-cast permissions cannot enforce the discovered spell limit.
+// Audit: unsupported — Needs a discover cast offer that bounds the mana value of the spell
+// actually cast, returns an uncast discovered card to hand, and randomly bottoms the other
+// exiled cards. Cascade is source-mana-value based and generic free-cast permissions cannot
+// enforce the discovered spell limit.
 pub(in crate::card::sets) static CURATOR_OF_SUN_S_CREATION: CardRecord = CardRecord::new(
     "Curator of Sun's Creation",
     "a144d0b3-678d-4f4c-a9b0-22af19f5cf9f",
@@ -3490,7 +3593,10 @@ pub(in crate::card::sets) static CURATOR_OF_SUN_S_CREATION: CardRecord = CardRec
 );
 
 // LCI 142 — Daring Discovery
-// Audit: unsupported — Needs a discover cast offer that bounds the mana value of the spell actually cast, returns an uncast discovered card to hand, and randomly bottoms the other exiled cards. Cascade is source-mana-value based and generic free-cast permissions cannot enforce the discovered spell limit.
+// Audit: unsupported — Needs a discover cast offer that bounds the mana value of the spell
+// actually cast, returns an uncast discovered card to hand, and randomly bottoms the other
+// exiled cards. Cascade is source-mana-value based and generic free-cast permissions cannot
+// enforce the discovered spell limit.
 pub(in crate::card::sets) static DARING_DISCOVERY: CardRecord = CardRecord::new(
     "Daring Discovery",
     "d95018a4-be10-4c46-b14d-4b1eba838bc0",
@@ -3562,7 +3668,9 @@ pub(in crate::card::sets) static DINOTOMATON: CardRecord = CardRecord::new(
 );
 
 // LCI 145 — Dire Flail // Dire Blunderbuss
-// Audit: unsupported — Needs atomic craft payment selecting and exiling materials across the battlefield and graveyard, together with exiling the source and returning its exact successor transformed. Current activation exile selections cannot span those zones.
+// Audit: unsupported — Needs atomic craft payment selecting and exiling materials across the
+// battlefield and graveyard, together with exiling the source and returning its exact successor
+// transformed. Current activation exile selections cannot span those zones.
 pub(in crate::card::sets) static DIRE_FLAIL: CardRecord = CardRecord::new(
     "Dire Flail // Dire Blunderbuss",
     "0d2d98ae-fe02-4a86-9e80-7b95e08de21c",
@@ -3710,7 +3818,9 @@ pub(in crate::card::sets) static DREADMAW_S_IRE: CardRecord = CardRecord::new(
 );
 
 // LCI 148 — Enterprising Scallywag
-// Audit: unsupported — Needs turn-scoped history of permanent cards entering this controller's graveyard from any zone (excluding tokens), retained even after those cards leave; current graveyard counts and morbid/revolt history do not represent descending.
+// Audit: unsupported — Needs turn-scoped history of permanent cards entering this controller's
+// graveyard from any zone (excluding tokens), retained even after those cards leave; current
+// graveyard counts and morbid/revolt history do not represent descending.
 pub(in crate::card::sets) static ENTERPRISING_SCALLYWAG: CardRecord = CardRecord::new(
     "Enterprising Scallywag",
     "44420f52-2ed8-4f81-93e4-5decc77bed01",
@@ -3719,7 +3829,10 @@ pub(in crate::card::sets) static ENTERPRISING_SCALLYWAG: CardRecord = CardRecord
 );
 
 // LCI 149 — Etali's Favor
-// Audit: unsupported — Needs a discover cast offer that bounds the mana value of the spell actually cast, returns an uncast discovered card to hand, and randomly bottoms the other exiled cards. Cascade is source-mana-value based and generic free-cast permissions cannot enforce the discovered spell limit.
+// Audit: unsupported — Needs a discover cast offer that bounds the mana value of the spell
+// actually cast, returns an uncast discovered card to hand, and randomly bottoms the other
+// exiled cards. Cascade is source-mana-value based and generic free-cast permissions cannot
+// enforce the discovered spell limit.
 pub(in crate::card::sets) static ETALI_S_FAVOR: CardRecord = CardRecord::new(
     "Etali's Favor",
     "6d4075a8-c15d-4078-bf4b-0f85c03fecec",
@@ -3728,7 +3841,10 @@ pub(in crate::card::sets) static ETALI_S_FAVOR: CardRecord = CardRecord::new(
 );
 
 // LCI 150 — Geological Appraiser
-// Audit: unsupported — Needs a discover cast offer that bounds the mana value of the spell actually cast, returns an uncast discovered card to hand, and randomly bottoms the other exiled cards. Cascade is source-mana-value based and generic free-cast permissions cannot enforce the discovered spell limit.
+// Audit: unsupported — Needs a discover cast offer that bounds the mana value of the spell
+// actually cast, returns an uncast discovered card to hand, and randomly bottoms the other
+// exiled cards. Cascade is source-mana-value based and generic free-cast permissions cannot
+// enforce the discovered spell limit.
 pub(in crate::card::sets) static GEOLOGICAL_APPRAISER: CardRecord = CardRecord::new(
     "Geological Appraiser",
     "7f9c1a82-695b-4df2-8e51-2d71a62e7baf",
@@ -3806,7 +3922,10 @@ pub(in crate::card::sets) static GOLDFURY_STRIDER: CardRecord = CardRecord::new(
 );
 
 // LCI 153 — Hit the Mother Lode
-// Audit: unsupported — Needs a discover cast offer that bounds the mana value of the spell actually cast, returns an uncast discovered card to hand, and randomly bottoms the other exiled cards. Cascade is source-mana-value based and generic free-cast permissions cannot enforce the discovered spell limit.
+// Audit: unsupported — Needs a discover cast offer that bounds the mana value of the spell
+// actually cast, returns an uncast discovered card to hand, and randomly bottoms the other
+// exiled cards. Cascade is source-mana-value based and generic free-cast permissions cannot
+// enforce the discovered spell limit.
 pub(in crate::card::sets) static HIT_THE_MOTHER_LODE: CardRecord = CardRecord::new(
     "Hit the Mother Lode",
     "e75f460c-43e2-4353-8b73-71ff8651a79d",
@@ -3840,7 +3959,9 @@ pub(in crate::card::sets) static HOTFOOT_GNOME: CardRecord = CardRecord::new(
 );
 
 // LCI 155 — Idol of the Deep King // Sovereign's Macuahuitl
-// Audit: unsupported — Needs atomic craft payment selecting and exiling materials across the battlefield and graveyard, together with exiling the source and returning its exact successor transformed. Current activation exile selections cannot span those zones.
+// Audit: unsupported — Needs atomic craft payment selecting and exiling materials across the
+// battlefield and graveyard, together with exiling the source and returning its exact successor
+// transformed. Current activation exile selections cannot span those zones.
 pub(in crate::card::sets) static IDOL_OF_THE_DEEP_KING: CardRecord = CardRecord::new(
     "Idol of the Deep King // Sovereign's Macuahuitl",
     "d1d8d8ef-c8b2-4e7c-89e4-b381dff20584",
@@ -3849,7 +3970,9 @@ pub(in crate::card::sets) static IDOL_OF_THE_DEEP_KING: CardRecord = CardRecord:
 );
 
 // LCI 156 — Inti, Seneschal of the Sun
-// Audit: unsupported — Needs a payment-result reflexive trigger that selects the attacking creature only after the optional discard succeeds and survives Inti leaving. The previous declaration chose the target with the attack trigger, changing response and target timing.
+// Audit: unsupported — Needs a payment-result reflexive trigger that selects the attacking
+// creature only after the optional discard succeeds and survives Inti leaving. The previous
+// declaration chose the target with the attack trigger, changing response and target timing.
 pub(in crate::card::sets) static INTI_SENESCHAL_OF_THE_SUN: CardRecord = CardRecord::new(
     "Inti, Seneschal of the Sun",
     "fa7a55aa-ae61-4933-b7a4-dcc55dac6fcd",
@@ -3858,7 +3981,8 @@ pub(in crate::card::sets) static INTI_SENESCHAL_OF_THE_SUN: CardRecord = CardRec
 );
 
 // LCI 157 — Magmatic Galleon
-// Audit: unsupported — Needs a committed noncombat damage batch reporting excess damage to matching creatures and aggregating one trigger for one or more recipients.
+// Audit: unsupported — Needs a committed noncombat damage batch reporting excess damage to
+// matching creatures and aggregating one trigger for one or more recipients.
 pub(in crate::card::sets) static MAGMATIC_GALLEON: CardRecord = CardRecord::new(
     "Magmatic Galleon",
     "4471a833-11b9-4146-a9c0-84a6896c94d8",
@@ -3867,7 +3991,9 @@ pub(in crate::card::sets) static MAGMATIC_GALLEON: CardRecord = CardRecord::new(
 );
 
 // LCI 158 — Ojer Axonil, Deepest Might // Temple of Power
-// Audit: unsupported — Needs a prospective damage replacement raising matching noncombat damage to this source's power, turn history of noncombat damage from red sources controlled at damage time, and tapped transformed return directly from the graveyard.
+// Audit: unsupported — Needs a prospective damage replacement raising matching noncombat damage
+// to this source's power, turn history of noncombat damage from red sources controlled at
+// damage time, and tapped transformed return directly from the graveyard.
 pub(in crate::card::sets) static OJER_AXONIL_DEEPEST_MIGHT: CardRecord = CardRecord::new(
     "Ojer Axonil, Deepest Might // Temple of Power",
     "50f8e2b6-98c7-4f28-bb39-e1fbe841f1ee",
@@ -3909,7 +4035,9 @@ pub(in crate::card::sets) static PLUNDERING_PIRATE: CardRecord = CardRecord::new
 );
 
 // LCI 161 — Poetic Ingenuity
-// Audit: unsupported — Needs the frozen number of matching Dinosaur attackers from a single declaration. AttackDeclared can filter whether a trigger fires, but its captured amount counts all attackers; live battlefield counts change before resolution.
+// Audit: unsupported — Needs the frozen number of matching Dinosaur attackers from a single
+// declaration. AttackDeclared can filter whether a trigger fires, but its captured amount
+// counts all attackers; live battlefield counts change before resolution.
 pub(in crate::card::sets) static POETIC_INGENUITY: CardRecord = CardRecord::new(
     "Poetic Ingenuity",
     "c035250e-6f6e-4d0f-b4fd-2a53d6069aa7",
@@ -3943,7 +4071,9 @@ const RUMBLING_ROCKSLIDE_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // LCI 164 — Saheeli's Lattice // Mastercraft Raptor
-// Audit: unsupported — Needs atomic craft payment selecting and exiling materials across the battlefield and graveyard, together with exiling the source and returning its exact successor transformed. Current activation exile selections cannot span those zones.
+// Audit: unsupported — Needs atomic craft payment selecting and exiling materials across the
+// battlefield and graveyard, together with exiling the source and returning its exact successor
+// transformed. Current activation exile selections cannot span those zones.
 pub(in crate::card::sets) static SAHEELI_S_LATTICE: CardRecord = CardRecord::new(
     "Saheeli's Lattice // Mastercraft Raptor",
     "0bdc79c6-1193-46bd-931d-2c2a0381e420",
@@ -3995,7 +4125,9 @@ pub(in crate::card::sets) static SEISMIC_MONSTROSAUR: CardRecord = CardRecord::n
 );
 
 // LCI 167 — Sunfire Torch
-// Audit: unsupported — Needs a payment-result reflexive damage trigger that selects its target only after sacrificing the granting Equipment and retains the attacking creature as damage source after the grant disappears.
+// Audit: unsupported — Needs a payment-result reflexive damage trigger that selects its target
+// only after sacrificing the granting Equipment and retains the attacking creature as damage
+// source after the grant disappears.
 pub(in crate::card::sets) static SUNFIRE_TORCH: CardRecord = CardRecord::new(
     "Sunfire Torch",
     "bb040fc7-f728-4482-92af-9a320c03bb54",
@@ -4088,7 +4220,10 @@ pub(in crate::card::sets) static TRIUMPHANT_CHOMP: CardRecord = CardRecord::new(
 );
 
 // LCI 171 — Trumpeting Carnosaur
-// Audit: unsupported — Needs a discover cast offer that bounds the mana value of the spell actually cast, returns an uncast discovered card to hand, and randomly bottoms the other exiled cards. Cascade is source-mana-value based and generic free-cast permissions cannot enforce the discovered spell limit.
+// Audit: unsupported — Needs a discover cast offer that bounds the mana value of the spell
+// actually cast, returns an uncast discovered card to hand, and randomly bottoms the other
+// exiled cards. Cascade is source-mana-value based and generic free-cast permissions cannot
+// enforce the discovered spell limit.
 pub(in crate::card::sets) static TRUMPETING_CARNOSAUR: CardRecord = CardRecord::new(
     "Trumpeting Carnosaur",
     "edc035ca-f0a3-4814-9405-d6dc6f048315",
@@ -4115,7 +4250,10 @@ pub(in crate::card::sets) static VOLATILE_WANDERGLYPH: CardRecord = CardRecord::
 );
 
 // LCI 173 — Zoyowa's Justice
-// Audit: unsupported — Needs a discover cast offer that bounds the mana value of the spell actually cast, returns an uncast discovered card to hand, and randomly bottoms the other exiled cards. Cascade is source-mana-value based and generic free-cast permissions cannot enforce the discovered spell limit.
+// Audit: unsupported — Needs a discover cast offer that bounds the mana value of the spell
+// actually cast, returns an uncast discovered card to hand, and randomly bottoms the other
+// exiled cards. Cascade is source-mana-value based and generic free-cast permissions cannot
+// enforce the discovered spell limit.
 pub(in crate::card::sets) static ZOYOWA_S_JUSTICE: CardRecord = CardRecord::new(
     "Zoyowa's Justice",
     "04839717-d2f9-481d-9d13-e4038dbcbb0e",
@@ -4370,7 +4508,9 @@ pub(in crate::card::sets) static COLOSSADACTYL: CardRecord = CardRecord::new(
 );
 
 // LCI 181 — Cosmium Confluence
-// Audit: unsupported — Needs battlefield provenance for a creature-land chosen during resolution, so its persistent haste grant can pass validation. A chosen binding is treated as potentially nonbattlefield, and the catalog rejects permanent ability grants on that binding.
+// Audit: unsupported — Needs battlefield provenance for a creature-land chosen during
+// resolution, so its persistent haste grant can pass validation. A chosen binding is treated as
+// potentially nonbattlefield, and the catalog rejects permanent ability grants on that binding.
 pub(in crate::card::sets) static COSMIUM_CONFLUENCE: CardRecord = CardRecord::new(
     "Cosmium Confluence",
     "490a5054-0607-4e4a-a0a9-0e9eea7adb00",
@@ -4379,7 +4519,8 @@ pub(in crate::card::sets) static COSMIUM_CONFLUENCE: CardRecord = CardRecord::ne
 );
 
 // LCI 182 — Disturbed Slumber
-// Audit: unsupported — Needs an attack requirement satisfied by at least one legal blocker. MustBeBlockedBy requires every matching blocker and would incorrectly impose a Lure effect.
+// Audit: unsupported — Needs an attack requirement satisfied by at least one legal blocker.
+// MustBeBlockedBy requires every matching blocker and would incorrectly impose a Lure effect.
 pub(in crate::card::sets) static DISTURBED_SLUMBER: CardRecord = CardRecord::new(
     "Disturbed Slumber",
     "4404b8d6-3673-4d82-b9ed-d28e9b54e1f6",
@@ -4571,7 +4712,9 @@ pub(in crate::card::sets) static GLIMPSE_THE_CORE: CardRecord = CardRecord::new(
 );
 
 // LCI 187 — Glowcap Lantern
-// Audit: unsupported — Needs granting an executable static ability to the equipped creature, so the library-looking permission follows that creature and can be removed with its abilities. Granted executable statics are outside the catalog boundary.
+// Audit: unsupported — Needs granting an executable static ability to the equipped creature, so
+// the library-looking permission follows that creature and can be removed with its abilities.
+// Granted executable statics are outside the catalog boundary.
 pub(in crate::card::sets) static GLOWCAP_LANTERN: CardRecord = CardRecord::new(
     "Glowcap Lantern",
     "bafde87c-743d-4307-93e0-fbd30f5d92f6",
@@ -4587,7 +4730,9 @@ const GROWING_RITES_OF_ITLIMOC_REPRINT: PrintingRecord = PrintingRecord::reprint
 );
 
 // LCI 189 — Huatli, Poet of Unity // Roar of the Fifth People
-// Audit: unsupported — Needs resolution to grant a permanent a static ability that itself grants mana abilities to a changing set of creatures; this nested static-ability grant is outside the shared resolving-ability boundary.
+// Audit: unsupported — Needs resolution to grant a permanent a static ability that itself
+// grants mana abilities to a changing set of creatures; this nested static-ability grant is
+// outside the shared resolving-ability boundary.
 pub(in crate::card::sets) static HUATLI_POET_OF_UNITY: CardRecord = CardRecord::new(
     "Huatli, Poet of Unity // Roar of the Fifth People",
     "57df2563-18d4-4526-a8bc-0c114e6fd4d9",
@@ -4710,7 +4855,8 @@ pub(in crate::card::sets) static IN_THE_PRESENCE_OF_AGES: CardRecord = CardRecor
 );
 
 // LCI 193 — Intrepid Paleontologist
-// Audit: unsupported — Needs linked-exile casting permission that installs a finality counter as a prospective battlefield-entry modification on the resulting creature.
+// Audit: unsupported — Needs linked-exile casting permission that installs a finality counter
+// as a prospective battlefield-entry modification on the resulting creature.
 pub(in crate::card::sets) static INTREPID_PALEONTOLOGIST: CardRecord = CardRecord::new(
     "Intrepid Paleontologist",
     "871a164a-0fe6-480e-a1be-cbffce884bd3",
@@ -4719,7 +4865,9 @@ pub(in crate::card::sets) static INTREPID_PALEONTOLOGIST: CardRecord = CardRecor
 );
 
 // LCI 194 — Ixalli's Lorekeeper
-// Audit: unsupported — Needs restricted ability-activation mana and an OR between casting a Dinosaur spell and activating a Dinosaur ability; the shared mana boundary rejects activation restrictions and combines restrictions conjunctively.
+// Audit: unsupported — Needs restricted ability-activation mana and an OR between casting a
+// Dinosaur spell and activating a Dinosaur ability; the shared mana boundary rejects activation
+// restrictions and combines restrictions conjunctively.
 pub(in crate::card::sets) static IXALLI_S_LOREKEEPER: CardRecord = CardRecord::new(
     "Ixalli's Lorekeeper",
     "4bc94ded-458d-4458-9c0b-136d825b885d",
@@ -4728,7 +4876,9 @@ pub(in crate::card::sets) static IXALLI_S_LOREKEEPER: CardRecord = CardRecord::n
 );
 
 // LCI 195 — Jade Seedstones // Jadeheart Attendant
-// Audit: unsupported — Needs atomic craft payment selecting and exiling materials across the battlefield and graveyard, together with exiling the source and returning its exact successor transformed. Current activation exile selections cannot span those zones.
+// Audit: unsupported — Needs atomic craft payment selecting and exiling materials across the
+// battlefield and graveyard, together with exiling the source and returning its exact successor
+// transformed. Current activation exile selections cannot span those zones.
 pub(in crate::card::sets) static JADE_SEEDSTONES: CardRecord = CardRecord::new(
     "Jade Seedstones // Jadeheart Attendant",
     "bb95ffc2-ef35-49bf-8211-c5354d176051",
@@ -4737,7 +4887,9 @@ pub(in crate::card::sets) static JADE_SEEDSTONES: CardRecord = CardRecord::new(
 );
 
 // LCI 196 — Jadelight Spelunker
-// Audit: unsupported — Needs a resumable effect loop that executes explore exactly the source spell's chosen X times; fixed sequences and object-collection iteration cannot represent an unbounded scalar repetition.
+// Audit: unsupported — Needs a resumable effect loop that executes explore exactly the source
+// spell's chosen X times; fixed sequences and object-collection iteration cannot represent an
+// unbounded scalar repetition.
 pub(in crate::card::sets) static JADELIGHT_SPELUNKER: CardRecord = CardRecord::new(
     "Jadelight Spelunker",
     "68e633d3-47e2-48c5-9be3-574ce5023bf7",
@@ -4746,7 +4898,9 @@ pub(in crate::card::sets) static JADELIGHT_SPELUNKER: CardRecord = CardRecord::n
 );
 
 // LCI 197 — Kaslem's Stonetree // Kaslem's Strider
-// Audit: unsupported — Needs atomic craft payment selecting and exiling materials across the battlefield and graveyard, together with exiling the source and returning its exact successor transformed. Current activation exile selections cannot span those zones.
+// Audit: unsupported — Needs atomic craft payment selecting and exiling materials across the
+// battlefield and graveyard, together with exiling the source and returning its exact successor
+// transformed. Current activation exile selections cannot span those zones.
 pub(in crate::card::sets) static KASLEM_S_STONETREE: CardRecord = CardRecord::new(
     "Kaslem's Stonetree // Kaslem's Strider",
     "78b1b412-228a-4e05-a4b3-8159ebf54dc6",
@@ -4944,7 +5098,9 @@ pub(in crate::card::sets) static NURTURING_BRISTLEBACK: CardRecord = CardRecord:
 );
 
 // LCI 204 — Ojer Kaslem, Deepest Growth // Temple of Cultivation
-// Audit: unsupported — Needs a graveyard-to-battlefield return of the exact died card arriving tapped on its transformed face. Generic battlefield arrival modifications have no transformed-face option; linked-exile returns require a different zone path.
+// Audit: unsupported — Needs a graveyard-to-battlefield return of the exact died card arriving
+// tapped on its transformed face. Generic battlefield arrival modifications have no
+// transformed-face option; linked-exile returns require a different zone path.
 pub(in crate::card::sets) static OJER_KASLEM_DEEPEST_GROWTH: CardRecord = CardRecord::new(
     "Ojer Kaslem, Deepest Growth // Temple of Cultivation",
     "0cbc43a3-8cba-4988-9de1-c89aedd79ada",
@@ -5135,7 +5291,9 @@ pub(in crate::card::sets) static SENTINEL_OF_THE_NAMELESS_CITY: CardRecord = Car
 );
 
 // LCI 212 — The Skullspore Nexus
-// Audit: unsupported — Needs a frozen simultaneous-death batch with last-known powers for every matching nontoken creature, so the created token uses their total power, plus greatest-power evaluation in self-cost reduction.
+// Audit: unsupported — Needs a frozen simultaneous-death batch with last-known powers for every
+// matching nontoken creature, so the created token uses their total power, plus greatest-power
+// evaluation in self-cost reduction.
 pub(in crate::card::sets) static THE_SKULLSPORE_NEXUS: CardRecord = CardRecord::new(
     "The Skullspore Nexus",
     "b56a7631-5f94-468d-aab7-7e9e129c5f49",
@@ -5144,7 +5302,9 @@ pub(in crate::card::sets) static THE_SKULLSPORE_NEXUS: CardRecord = CardRecord::
 );
 
 // LCI 213 — Spelunking
-// Audit: unsupported — Needs an enters-untapped replacement that can override another tapped-entry effect. The battlefield-entry modification vocabulary has tapped state and counters but no untapped operation.
+// Audit: unsupported — Needs an enters-untapped replacement that can override another
+// tapped-entry effect. The battlefield-entry modification vocabulary has tapped state and
+// counters but no untapped operation.
 pub(in crate::card::sets) static SPELUNKING: CardRecord = CardRecord::new(
     "Spelunking",
     "d3be4257-2316-4a2e-b347-f71c0368a947",
@@ -5232,7 +5392,8 @@ const THRASHING_BRONTODON_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // LCI 217 — Twists and Turns // Mycoid Maze
-// Audit: unsupported — Needs a prospective explore replacement that scries before the original exploration without recursively replacing that same exploration again.
+// Audit: unsupported — Needs a prospective explore replacement that scries before the original
+// exploration without recursively replacing that same exploration again.
 pub(in crate::card::sets) static TWISTS_AND_TURNS: CardRecord = CardRecord::new(
     "Twists and Turns // Mycoid Maze",
     "3cdf691e-96a5-45c7-9b94-6f04af81c8e4",
@@ -5241,7 +5402,10 @@ pub(in crate::card::sets) static TWISTS_AND_TURNS: CardRecord = CardRecord::new(
 );
 
 // LCI 218 — Walk with the Ancestors
-// Audit: unsupported — Needs a discover cast offer that bounds the mana value of the spell actually cast, returns an uncast discovered card to hand, and randomly bottoms the other exiled cards. Cascade is source-mana-value based and generic free-cast permissions cannot enforce the discovered spell limit.
+// Audit: unsupported — Needs a discover cast offer that bounds the mana value of the spell
+// actually cast, returns an uncast discovered card to hand, and randomly bottoms the other
+// exiled cards. Cascade is source-mana-value based and generic free-cast permissions cannot
+// enforce the discovered spell limit.
 pub(in crate::card::sets) static WALK_WITH_THE_ANCESTORS: CardRecord = CardRecord::new(
     "Walk with the Ancestors",
     "71a6f85b-5ef8-4526-9c86-7cb71508b4c0",
@@ -5406,7 +5570,9 @@ pub(in crate::card::sets) static AMALIA_BENAVIDES_AGUIRRE: CardRecord = CardReco
 );
 
 // LCI 222 — The Ancient One
-// Audit: unsupported — Needs a discard-result reflexive trigger carrying the discarded card's mana value and choosing a player only after the discard, retained even if the ability source leaves.
+// Audit: unsupported — Needs a discard-result reflexive trigger carrying the discarded card's
+// mana value and choosing a player only after the discard, retained even if the ability source
+// leaves.
 pub(in crate::card::sets) static THE_ANCIENT_ONE: CardRecord = CardRecord::new(
     "The Ancient One",
     "66dd43d7-76a7-46ea-b431-097fcea417af",
@@ -5481,7 +5647,9 @@ pub(in crate::card::sets) static BARTOLOME_DEL_PRESIDIO: CardRecord = CardRecord
 );
 
 // LCI 225 — The Belligerent
-// Audit: unsupported — Needs a resolved, turn-scoped permission to look at and play the top card of its controller's library. Those rules are supported as permanent static abilities but not as temporary player-applied effects.
+// Audit: unsupported — Needs a resolved, turn-scoped permission to look at and play the top
+// card of its controller's library. Those rules are supported as permanent static abilities but
+// not as temporary player-applied effects.
 pub(in crate::card::sets) static THE_BELLIGERENT: CardRecord = CardRecord::new(
     "The Belligerent",
     "1454af8c-bce9-47d3-890f-283e2fea2cf2",
@@ -5490,7 +5658,10 @@ pub(in crate::card::sets) static THE_BELLIGERENT: CardRecord = CardRecord::new(
 );
 
 // LCI 226 — Caparocti Sunborn
-// Audit: unsupported — Needs a discover cast offer that bounds the mana value of the spell actually cast, returns an uncast discovered card to hand, and randomly bottoms the other exiled cards. Cascade is source-mana-value based and generic free-cast permissions cannot enforce the discovered spell limit.
+// Audit: unsupported — Needs a discover cast offer that bounds the mana value of the spell
+// actually cast, returns an uncast discovered card to hand, and randomly bottoms the other
+// exiled cards. Cascade is source-mana-value based and generic free-cast permissions cannot
+// enforce the discovered spell limit.
 pub(in crate::card::sets) static CAPAROCTI_SUNBORN: CardRecord = CardRecord::new(
     "Caparocti Sunborn",
     "8ea82964-fd9c-48e3-962f-94954476b31f",
@@ -5592,7 +5763,9 @@ const GISHATH_SUN_S_AVATAR_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // LCI 230 — Itzquinth, Firstborn of Gishath
-// Audit: unsupported — Needs a payment-result reflexive trigger that selects both creatures only after the optional mana payment, retained if Itzquinth leaves before payment. OptionalEffectTaken currently requires a battlefield source.
+// Audit: unsupported — Needs a payment-result reflexive trigger that selects both creatures
+// only after the optional mana payment, retained if Itzquinth leaves before payment.
+// OptionalEffectTaken currently requires a battlefield source.
 pub(in crate::card::sets) static ITZQUINTH_FIRSTBORN_OF_GISHATH: CardRecord = CardRecord::new(
     "Itzquinth, Firstborn of Gishath",
     "7112c366-b36a-4bc8-aa64-6bad16bebc39",
@@ -5716,7 +5889,8 @@ pub(in crate::card::sets) static KELLAN_DARING_TRAVELER: CardRecord = CardRecord
 .with_composition(kellan_composition);
 
 // LCI 232 — Kutzil, Malamet Exemplar
-// Audit: unsupported — Needs an object predicate comparing effective power with that object's base power before aggregating a combat-damage event.
+// Audit: unsupported — Needs an object predicate comparing effective power with that object's
+// base power before aggregating a combat-damage event.
 pub(in crate::card::sets) static KUTZIL_MALAMET_EXEMPLAR: CardRecord = CardRecord::new(
     "Kutzil, Malamet Exemplar",
     "c9f88a40-a6ed-4c1f-a309-011aca1acddd",
@@ -5725,7 +5899,9 @@ pub(in crate::card::sets) static KUTZIL_MALAMET_EXEMPLAR: CardRecord = CardRecor
 );
 
 // LCI 233 — Master's Guide-Mural // Master's Manufactory
-// Audit: unsupported — Needs atomic craft payment selecting and exiling materials across the battlefield and graveyard, together with exiling the source and returning its exact successor transformed. Current activation exile selections cannot span those zones.
+// Audit: unsupported — Needs atomic craft payment selecting and exiling materials across the
+// battlefield and graveyard, together with exiling the source and returning its exact successor
+// transformed. Current activation exile selections cannot span those zones.
 pub(in crate::card::sets) static MASTER_S_GUIDE_MURAL: CardRecord = CardRecord::new(
     "Master's Guide-Mural // Master's Manufactory",
     "f7a41343-7cdb-49aa-a9d1-7460195355d8",
@@ -5734,7 +5910,9 @@ pub(in crate::card::sets) static MASTER_S_GUIDE_MURAL: CardRecord = CardRecord::
 );
 
 // LCI 234 — Molten Collapse
-// Audit: unsupported — Needs turn-scoped history of permanent cards entering this controller's graveyard from any zone (excluding tokens), retained even after those cards leave; current graveyard counts and morbid/revolt history do not represent descending.
+// Audit: unsupported — Needs turn-scoped history of permanent cards entering this controller's
+// graveyard from any zone (excluding tokens), retained even after those cards leave; current
+// graveyard counts and morbid/revolt history do not represent descending.
 pub(in crate::card::sets) static MOLTEN_COLLAPSE: CardRecord = CardRecord::new(
     "Molten Collapse",
     "2487d124-210b-4808-888c-cd0a78aebd90",
@@ -5743,7 +5921,8 @@ pub(in crate::card::sets) static MOLTEN_COLLAPSE: CardRecord = CardRecord::new(
 );
 
 // LCI 235 — The Mycotyrant
-// Audit: unsupported — Needs a per-turn count of permanent cards put into the controller's graveyard from anywhere, excluding tokens and retained after those cards leave the graveyard.
+// Audit: unsupported — Needs a per-turn count of permanent cards put into the controller's
+// graveyard from anywhere, excluding tokens and retained after those cards leave the graveyard.
 pub(in crate::card::sets) static THE_MYCOTYRANT: CardRecord = CardRecord::new(
     "The Mycotyrant",
     "caef93cc-70d0-4cce-9aaa-13c0931b2ef7",
@@ -5752,7 +5931,8 @@ pub(in crate::card::sets) static THE_MYCOTYRANT: CardRecord = CardRecord::new(
 );
 
 // LCI 236 — Nicanzil, Current Conductor
-// Audit: unsupported — Needs committed explore events distinguishing land and nonland results and naming the exploring creature's controller.
+// Audit: unsupported — Needs committed explore events distinguishing land and nonland results
+// and naming the exploring creature's controller.
 pub(in crate::card::sets) static NICANZIL_CURRENT_CONDUCTOR: CardRecord = CardRecord::new(
     "Nicanzil, Current Conductor",
     "5e6f4aba-3500-4fb7-ab78-02f63c03778a",
@@ -5837,7 +6017,10 @@ pub(in crate::card::sets) static PALANI_S_HATCHER: CardRecord = CardRecord::new(
 );
 
 // LCI 238 — Quintorius Kand
-// Audit: unsupported — Needs a discover cast offer that bounds the mana value of the spell actually cast, returns an uncast discovered card to hand, and randomly bottoms the other exiled cards. Cascade is source-mana-value based and generic free-cast permissions cannot enforce the discovered spell limit.
+// Audit: unsupported — Needs a discover cast offer that bounds the mana value of the spell
+// actually cast, returns an uncast discovered card to hand, and randomly bottoms the other
+// exiled cards. Cascade is source-mana-value based and generic free-cast permissions cannot
+// enforce the discovered spell limit.
 pub(in crate::card::sets) static QUINTORIUS_KAND: CardRecord = CardRecord::new(
     "Quintorius Kand",
     "4382fa49-9e34-45b3-8495-4916dcd995ec",
@@ -5909,7 +6092,8 @@ pub(in crate::card::sets) static SAHEELI_THE_SUN_S_BRILLIANCE: CardRecord = Card
 );
 
 // LCI 240 — Sovereign Okinec Ahau
-// Audit: unsupported — Needs base-power values distinct from effective power, with per-creature subtraction and counter allocation across the creatures controlled on resolution.
+// Audit: unsupported — Needs base-power values distinct from effective power, with per-creature
+// subtraction and counter allocation across the creatures controlled on resolution.
 pub(in crate::card::sets) static SOVEREIGN_OKINEC_AHAU: CardRecord = CardRecord::new(
     "Sovereign Okinec Ahau",
     "70c75aa7-e2f9-4a69-8086-c982019ca714",
@@ -6019,7 +6203,9 @@ pub(in crate::card::sets) static UCHBENBAK_THE_GREAT_MISTAKE: CardRecord = CardR
 );
 
 // LCI 243 — Vito, Fanatic of Aclazotz
-// Audit: unsupported — Needs per-incarnation ability-resolution history that persists after Vito leaves the battlefield. SourceResolutionsThisTurn only reads a live permanent, so queued triggers would produce no reward after its departure.
+// Audit: unsupported — Needs per-incarnation ability-resolution history that persists after
+// Vito leaves the battlefield. SourceResolutionsThisTurn only reads a live permanent, so queued
+// triggers would produce no reward after its departure.
 pub(in crate::card::sets) static VITO_FANATIC_OF_ACLAZOTZ: CardRecord = CardRecord::new(
     "Vito, Fanatic of Aclazotz",
     "c4fd9047-df91-4d82-be00-c623acae0f01",
@@ -6093,7 +6279,9 @@ pub(in crate::card::sets) static WAIL_OF_THE_FORGOTTEN: CardRecord = CardRecord:
 );
 
 // LCI 245 — Zoyowa Lava-Tongue
-// Audit: unsupported — Needs turn-scoped history of permanent cards entering this controller's graveyard from any zone (excluding tokens), retained even after those cards leave; current graveyard counts and morbid/revolt history do not represent descending.
+// Audit: unsupported — Needs turn-scoped history of permanent cards entering this controller's
+// graveyard from any zone (excluding tokens), retained even after those cards leave; current
+// graveyard counts and morbid/revolt history do not represent descending.
 pub(in crate::card::sets) static ZOYOWA_LAVA_TONGUE: CardRecord = CardRecord::new(
     "Zoyowa Lava-Tongue",
     "c06f0ff2-d42f-4854-bbe5-4b022fb26d7d",
@@ -6102,7 +6290,10 @@ pub(in crate::card::sets) static ZOYOWA_LAVA_TONGUE: CardRecord = CardRecord::ne
 );
 
 // LCI 246 — Buried Treasure
-// Audit: unsupported — Needs a discover cast offer that bounds the mana value of the spell actually cast, returns an uncast discovered card to hand, and randomly bottoms the other exiled cards. Cascade is source-mana-value based and generic free-cast permissions cannot enforce the discovered spell limit.
+// Audit: unsupported — Needs a discover cast offer that bounds the mana value of the spell
+// actually cast, returns an uncast discovered card to hand, and randomly bottoms the other
+// exiled cards. Cascade is source-mana-value based and generic free-cast permissions cannot
+// enforce the discovered spell limit.
 pub(in crate::card::sets) static BURIED_TREASURE: CardRecord = CardRecord::new(
     "Buried Treasure",
     "4c9c45b6-dedd-4481-a06a-c83ace2f18fa",
@@ -6254,7 +6445,10 @@ pub(in crate::card::sets) static CONTESTED_GAME_BALL: CardRecord = CardRecord::n
 );
 
 // LCI 252 — Digsite Conservator
-// Audit: unsupported — Needs a discover cast offer that bounds the mana value of the spell actually cast, returns an uncast discovered card to hand, and randomly bottoms the other exiled cards. Cascade is source-mana-value based and generic free-cast permissions cannot enforce the discovered spell limit.
+// Audit: unsupported — Needs a discover cast offer that bounds the mana value of the spell
+// actually cast, returns an uncast discovered card to hand, and randomly bottoms the other
+// exiled cards. Cascade is source-mana-value based and generic free-cast permissions cannot
+// enforce the discovered spell limit.
 pub(in crate::card::sets) static DIGSITE_CONSERVATOR: CardRecord = CardRecord::new(
     "Digsite Conservator",
     "dfa3cd5e-b727-479d-9a77-9f320b92f3f2",
@@ -6609,7 +6803,8 @@ pub(in crate::card::sets) static MATZALANTLI_THE_GREAT_DOOR: CardRecord = CardRe
 );
 
 // LCI 257 — The Millennium Calendar
-// Audit: unsupported — Needs an untap-step batch event with the count of permanents actually untapped during that step; ordinary per-permanent untap events do not carry that batch.
+// Audit: unsupported — Needs an untap-step batch event with the count of permanents actually
+// untapped during that step; ordinary per-permanent untap events do not carry that batch.
 pub(in crate::card::sets) static THE_MILLENNIUM_CALENDAR: CardRecord = CardRecord::new(
     "The Millennium Calendar",
     "deabba7f-05ef-41cf-ae3a-d950d051cf1e",
@@ -6618,7 +6813,9 @@ pub(in crate::card::sets) static THE_MILLENNIUM_CALENDAR: CardRecord = CardRecor
 );
 
 // LCI 258 — Roaming Throne
-// Audit: unsupported — Needs duplication of all matching creatures' triggered abilities, not only enters-the-battlefield triggers; the existing trigger modifiers are limited to zone-change causes.
+// Audit: unsupported — Needs duplication of all matching creatures' triggered abilities, not
+// only enters-the-battlefield triggers; the existing trigger modifiers are limited to
+// zone-change causes.
 pub(in crate::card::sets) static ROAMING_THRONE: CardRecord = CardRecord::new(
     "Roaming Throne",
     "32fd8b7c-baf3-4d3d-be6f-044a917b11a0",
@@ -6693,7 +6890,9 @@ const SORCEROUS_SPYGLASS_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // LCI 262 — Sunbird Standard // Sunbird Effigy
-// Audit: unsupported — Needs atomic craft payment selecting and exiling materials across the battlefield and graveyard, together with exiling the source and returning its exact successor transformed. Current activation exile selections cannot span those zones.
+// Audit: unsupported — Needs atomic craft payment selecting and exiling materials across the
+// battlefield and graveyard, together with exiling the source and returning its exact successor
+// transformed. Current activation exile selections cannot span those zones.
 pub(in crate::card::sets) static SUNBIRD_STANDARD: CardRecord = CardRecord::new(
     "Sunbird Standard // Sunbird Effigy",
     "e0b6d40a-fded-4625-b03c-765c88d75766",
@@ -6702,7 +6901,10 @@ pub(in crate::card::sets) static SUNBIRD_STANDARD: CardRecord = CardRecord::new(
 );
 
 // LCI 263 — Swashbuckler's Whip
-// Audit: unsupported — Needs a discover cast offer that bounds the mana value of the spell actually cast, returns an uncast discovered card to hand, and randomly bottoms the other exiled cards. Cascade is source-mana-value based and generic free-cast permissions cannot enforce the discovered spell limit.
+// Audit: unsupported — Needs a discover cast offer that bounds the mana value of the spell
+// actually cast, returns an uncast discovered card to hand, and randomly bottoms the other
+// exiled cards. Cascade is source-mana-value based and generic free-cast permissions cannot
+// enforce the discovered spell limit.
 pub(in crate::card::sets) static SWASHBUCKLER_S_WHIP: CardRecord = CardRecord::new(
     "Swashbuckler's Whip",
     "24a85c52-e5b5-4d65-931c-eacc0cf0fb31",
@@ -6799,7 +7001,9 @@ pub(in crate::card::sets) static THREEFOLD_THUNDERHULK: CardRecord = CardRecord:
 );
 
 // LCI 266 — Throne of the Grim Captain // The Grim Captain
-// Audit: unsupported — Needs atomic craft payment selecting and exiling materials across the battlefield and graveyard, together with exiling the source and returning its exact successor transformed. Current activation exile selections cannot span those zones.
+// Audit: unsupported — Needs atomic craft payment selecting and exiling materials across the
+// battlefield and graveyard, together with exiling the source and returning its exact successor
+// transformed. Current activation exile selections cannot span those zones.
 pub(in crate::card::sets) static THRONE_OF_THE_GRIM_CAPTAIN: CardRecord = CardRecord::new(
     "Throne of the Grim Captain // The Grim Captain",
     "c13e8e3d-2a6b-4782-a3c9-71af7336a881",
@@ -6905,7 +7109,9 @@ pub(in crate::card::sets) static CAVERNOUS_MAW: CardRecord = CardRecord::new(
 );
 
 // LCI 271 — Echoing Deeps
-// Audit: unsupported — Needs an as-enters copy choice over land cards in graveyards with an added Cave land subtype as a copiable exception; current copy exceptions only add creature subtypes.
+// Audit: unsupported — Needs an as-enters copy choice over land cards in graveyards with an
+// added Cave land subtype as a copiable exception; current copy exceptions only add creature
+// subtypes.
 pub(in crate::card::sets) static ECHOING_DEEPS: CardRecord = CardRecord::new(
     "Echoing Deeps",
     "244c06b3-532d-426e-8bee-ee9461d092a6",
@@ -6945,7 +7151,10 @@ pub(in crate::card::sets) static FORGOTTEN_MONUMENT: CardRecord = CardRecord::ne
 );
 
 // LCI 273 — Hidden Cataract
-// Audit: unsupported — Needs a discover cast offer that bounds the mana value of the spell actually cast, returns an uncast discovered card to hand, and randomly bottoms the other exiled cards. Cascade is source-mana-value based and generic free-cast permissions cannot enforce the discovered spell limit.
+// Audit: unsupported — Needs a discover cast offer that bounds the mana value of the spell
+// actually cast, returns an uncast discovered card to hand, and randomly bottoms the other
+// exiled cards. Cascade is source-mana-value based and generic free-cast permissions cannot
+// enforce the discovered spell limit.
 pub(in crate::card::sets) static HIDDEN_CATARACT: CardRecord = CardRecord::new(
     "Hidden Cataract",
     "69f317fc-f603-45b5-9208-545be4dcbf36",
@@ -6954,7 +7163,10 @@ pub(in crate::card::sets) static HIDDEN_CATARACT: CardRecord = CardRecord::new(
 );
 
 // LCI 274 — Hidden Courtyard
-// Audit: unsupported — Needs a discover cast offer that bounds the mana value of the spell actually cast, returns an uncast discovered card to hand, and randomly bottoms the other exiled cards. Cascade is source-mana-value based and generic free-cast permissions cannot enforce the discovered spell limit.
+// Audit: unsupported — Needs a discover cast offer that bounds the mana value of the spell
+// actually cast, returns an uncast discovered card to hand, and randomly bottoms the other
+// exiled cards. Cascade is source-mana-value based and generic free-cast permissions cannot
+// enforce the discovered spell limit.
 pub(in crate::card::sets) static HIDDEN_COURTYARD: CardRecord = CardRecord::new(
     "Hidden Courtyard",
     "b8685d46-99fc-44b3-be95-707a4b7b8327",
@@ -6963,7 +7175,10 @@ pub(in crate::card::sets) static HIDDEN_COURTYARD: CardRecord = CardRecord::new(
 );
 
 // LCI 275 — Hidden Necropolis
-// Audit: unsupported — Needs a discover cast offer that bounds the mana value of the spell actually cast, returns an uncast discovered card to hand, and randomly bottoms the other exiled cards. Cascade is source-mana-value based and generic free-cast permissions cannot enforce the discovered spell limit.
+// Audit: unsupported — Needs a discover cast offer that bounds the mana value of the spell
+// actually cast, returns an uncast discovered card to hand, and randomly bottoms the other
+// exiled cards. Cascade is source-mana-value based and generic free-cast permissions cannot
+// enforce the discovered spell limit.
 pub(in crate::card::sets) static HIDDEN_NECROPOLIS: CardRecord = CardRecord::new(
     "Hidden Necropolis",
     "f67fd04f-05da-4418-97de-abeb7346cc69",
@@ -6972,7 +7187,10 @@ pub(in crate::card::sets) static HIDDEN_NECROPOLIS: CardRecord = CardRecord::new
 );
 
 // LCI 276 — Hidden Nursery
-// Audit: unsupported — Needs a discover cast offer that bounds the mana value of the spell actually cast, returns an uncast discovered card to hand, and randomly bottoms the other exiled cards. Cascade is source-mana-value based and generic free-cast permissions cannot enforce the discovered spell limit.
+// Audit: unsupported — Needs a discover cast offer that bounds the mana value of the spell
+// actually cast, returns an uncast discovered card to hand, and randomly bottoms the other
+// exiled cards. Cascade is source-mana-value based and generic free-cast permissions cannot
+// enforce the discovered spell limit.
 pub(in crate::card::sets) static HIDDEN_NURSERY: CardRecord = CardRecord::new(
     "Hidden Nursery",
     "a942939a-c06e-4b90-a404-ae5acfffcff9",
@@ -6981,7 +7199,10 @@ pub(in crate::card::sets) static HIDDEN_NURSERY: CardRecord = CardRecord::new(
 );
 
 // LCI 277 — Hidden Volcano
-// Audit: unsupported — Needs a discover cast offer that bounds the mana value of the spell actually cast, returns an uncast discovered card to hand, and randomly bottoms the other exiled cards. Cascade is source-mana-value based and generic free-cast permissions cannot enforce the discovered spell limit.
+// Audit: unsupported — Needs a discover cast offer that bounds the mana value of the spell
+// actually cast, returns an uncast discovered card to hand, and randomly bottoms the other
+// exiled cards. Cascade is source-mana-value based and generic free-cast permissions cannot
+// enforce the discovered spell limit.
 pub(in crate::card::sets) static HIDDEN_VOLCANO: CardRecord = CardRecord::new(
     "Hidden Volcano",
     "9fa06aed-52c1-48f1-9906-362db12a3cf7",
@@ -7317,7 +7538,8 @@ pub(in crate::card::sets) static RESTLESS_VENTS: CardRecord = CardRecord::new(
 );
 
 // LCI 285 — Sunken Citadel
-// Audit: unsupported — Needs mana restricted to activating abilities of land sources; ActivateAbility restrictions remain outside the shared mana execution boundary.
+// Audit: unsupported — Needs mana restricted to activating abilities of land sources;
+// ActivateAbility restrictions remain outside the shared mana execution boundary.
 pub(in crate::card::sets) static SUNKEN_CITADEL: CardRecord = CardRecord::new(
     "Sunken Citadel",
     "3e1c9b1a-e306-47bb-9f68-2083660319c0",
@@ -7775,61 +7997,62 @@ pub(in crate::card::sets) static TISHANA_S_TIDEBINDER: CardRecord = CardRecord::
     "Tishana's Tidebinder",
     "604e2bfc-655d-4d3e-98aa-374780ca4016",
     "LeDania",
-// Three mana at instant speed for a body, an answer, and a permanent
+    // Three mana at instant speed for a body, an answer, and a permanent
     // that never does anything again.
-    CardRules::new_creature(mana_cost!("{2}{U}"), &["Merfolk", "Wizard"], 3, 2)
-        .with_abilities(&[
-            abilities::flash(),
-            abilities::enters_trigger_with_targets(
-                "When this creature enters, counter up to one target activated or triggered ability. If \
-                 an ability of an artifact, creature, or planeswalker is countered this way, that \
-                 permanent loses all abilities for as long as this creature remains on the battlefield.",
-                // An ability and not a spell, and up to one of them: a Tidebinder flashed
-                // in with nothing on the stack is still a 3/2. Mana abilities never use the
-                // stack, so nothing has to exclude them.
-                &[AbilityTargetDef::up_to(
-                    AbilityTargetPredicate::Object {
-                        object: ObjectPredicateDef::Ability,
-                        zones: &[ZoneKind::Stack],
-                        controller: None,
-                        owner: None,
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Merfolk", "Wizard"], 3, 2).with_abilities(&[
+        abilities::flash(),
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, counter up to one target \
+             activated or triggered ability. If an ability of an \
+             artifact, creature, or planeswalker is countered this way, \
+             that permanent loses all abilities for as long as this \
+             creature remains on the battlefield.",
+            // An ability and not a spell, and up to one of them: a Tidebinder flashed
+            // in with nothing on the stack is still a 3/2. Mana abilities never use the
+            // stack, so nothing has to exclude them.
+            &[AbilityTargetDef::up_to(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Ability,
+                    zones: &[ZoneKind::Stack],
+                    controller: None,
+                    owner: None,
+                },
+                1,
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::Counter {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    zone: ZoneKind::Graveyard,
+                    placement: ZonePlacement::Top,
+                },
+                // The permanent the countered ability came from, read after the counter has
+                // retired it, then narrowed to the types the rider names. A countered
+                // ability whose source was an enchantment binds nothing here, which is the
+                // "if" doing its work.
+                abilities::bind_objects_then(
+                    crate::card::ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::One(
+                        ObjectRefDef::SourceOfTargetedStackObject(TargetIndex::PRIMARY),
+                    )),
+                    &EffectDef::Apply {
+                        recipient: EffectRecipientDef::objects(ObjectSetDef::MatchingBinding {
+                            binding: ParentBinding,
+                            // The rider names three permanent types and not the other two: an
+                            // enchantment or a land whose ability is countered keeps everything it has.
+                            object: ObjectPredicateDef::AnyOf(&[
+                                ObjectPredicateDef::HasType(CardType::Artifact),
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                ObjectPredicateDef::HasType(CardType::Planeswalker),
+                            ]),
+                        }),
+                        effect: AppliedEffectDef::remove_abilities(AbilityPredicateDef::Any),
+                        // Not a turn and not forever: the silence lasts exactly as long as
+                        // the Tidebinder is standing there.
+                        duration: ResolvedEffectDurationDef::WhileSourceRemains,
                     },
-                    1,
-                )],
-                EffectDef::Sequence(&[
-                    EffectDef::Counter {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        zone: ZoneKind::Graveyard,
-                        placement: ZonePlacement::Top,
-                    },
-                    // The permanent the countered ability came from, read after the counter has
-                    // retired it, then narrowed to the types the rider names. A countered
-                    // ability whose source was an enchantment binds nothing here, which is the
-                    // "if" doing its work.
-                    abilities::bind_objects_then(
-                        crate::card::ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::One(
-                            ObjectRefDef::SourceOfTargetedStackObject(TargetIndex::PRIMARY),
-                        )),
-                        &EffectDef::Apply {
-                            recipient: EffectRecipientDef::objects(ObjectSetDef::MatchingBinding {
-                                binding: ParentBinding,
-                                // The rider names three permanent types and not the other two: an
-                                // enchantment or a land whose ability is countered keeps everything it has.
-                                object: ObjectPredicateDef::AnyOf(&[
-                                    ObjectPredicateDef::HasType(CardType::Artifact),
-                                    ObjectPredicateDef::HasType(CardType::Creature),
-                                    ObjectPredicateDef::HasType(CardType::Planeswalker),
-                                ]),
-                            }),
-                            effect: AppliedEffectDef::remove_abilities(AbilityPredicateDef::Any),
-                            // Not a turn and not forever: the silence lasts exactly as long as
-                            // the Tidebinder is standing there.
-                            duration: ResolvedEffectDurationDef::WhileSourceRemains,
-                        },
-                    ),
-                ]),
-            ),
-        ]),
+                ),
+            ]),
+        ),
+    ]),
 );
 
 // LCI 336 — Bloodletter of Aclazotz (alternate printing)

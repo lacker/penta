@@ -67,14 +67,42 @@ pub(in crate::card::sets) static ANGEL_OF_FINALITY: CardRecord = CardRecord::new
 );
 
 // C13 9 — Darksteel Mutation
-pub(in crate::card::sets) static DARKSTEEL_MUTATION_9: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static DARKSTEEL_MUTATION: CardRecord = CardRecord::new(
     "Darksteel Mutation",
     "df7d800b-0120-4036-81d7-dec60ccc8057",
     "Daniel Ljunggren",
-    CardRules::new_enchantment(mana_cost!("{1}{W}")).with_subtypes(&["Aura"]).with_abilities(&[
-abilities::aura_spell("Enchant creature", &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Creature))]),
-AbilityDef::static_ability("Enchanted creature is an Insect artifact creature with base power and toughness 0/1 and has indestructible, and it loses all other abilities, card types, and creature types.", EffectDef::StaticApply { recipient: EffectRecipientDef::AttachedPermanent, effect: AppliedEffectDef::Composite(&[AppliedEffectDef::set_card_types(CardTypeSet::single(CardType::Artifact).with(CardType::Creature)), AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&["Insect"])), AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(0), ValueDef::Constant(1)), AppliedEffectDef::remove_abilities(AbilityPredicateDef::Any), AppliedEffectDef::add_ability(&abilities::indestructible())]) })
-]),
+    CardRules::new_enchantment(mana_cost!("{1}{W}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::aura_spell(
+                "Enchant creature",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )],
+            ),
+            AbilityDef::static_ability(
+                "Enchanted creature is an Insect artifact creature with base \
+                 power and toughness 0/1 and has indestructible, and it \
+                 loses all other abilities, card types, and creature types.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::set_card_types(
+                            CardTypeSet::single(CardType::Artifact).with(CardType::Creature),
+                        ),
+                        AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&[
+                            "Insect",
+                        ])),
+                        AppliedEffectDef::set_base_power_toughness(
+                            ValueDef::Constant(0),
+                            ValueDef::Constant(1),
+                        ),
+                        AppliedEffectDef::remove_abilities(AbilityPredicateDef::Any),
+                        AppliedEffectDef::add_ability(&abilities::indestructible()),
+                    ]),
+                },
+            ),
+        ]),
 );
 
 // C13 25 — Unexpectedly Absent
@@ -82,11 +110,12 @@ pub(in crate::card::sets) static UNEXPECTEDLY_ABSENT: CardRecord = CardRecord::n
     "Unexpectedly Absent",
     "6dff437b-ef68-48f7-afd3-3b72d3c56187",
     "Min Yum",
-// X=0 is the mode that matters: two mana puts anything on top of its
+    // X=0 is the mode that matters: two mana puts anything on top of its
     // owner's library, which answers a permanent nothing else can touch and
     // costs its controller their draw step.
     CardRules::new_instant(mana_cost!("{X}{W}{W}")).with_ability(AbilityDef::spell_with_targets(
-        "Put target nonland permanent into its owner's library just beneath the top X cards of that library.",
+        "Put target nonland permanent into its owner's library just \
+         beneath the top X cards of that library.",
         &[AbilityTargetDef::exactly_one_permanent(
             ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
         )],
@@ -130,9 +159,10 @@ pub(in crate::card::sets) static TOXIC_DELUGE: CardRecord = CardRecord::new(
     "Toxic Deluge",
     "564caf57-4ba5-4993-a35e-945699c94eb7",
     "Svetlin Velinov",
-CardRules::new_sorcery(mana_cost!("{2}{B}")).with_ability(
+    CardRules::new_sorcery(mana_cost!("{2}{B}")).with_ability(
         AbilityDef::spell(
-            "As an additional cost to cast this spell, pay X life.\nAll creatures get -X/-X until end of turn.",
+            "As an additional cost to cast this spell, pay X life.\nAll \
+             creatures get -X/-X until end of turn.",
             EffectDef::Apply {
                 recipient: EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::HasType(CardType::Creature),
@@ -146,15 +176,15 @@ CardRules::new_sorcery(mana_cost!("{2}{B}")).with_ability(
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         )
-        .with_spell_additional_cost(&CostDef::pay_life(
-            CostQuantityDef::ChosenX,
-        )),
+        .with_spell_additional_cost(&CostDef::pay_life(CostQuantityDef::ChosenX)),
     ),
 );
 
 // C13 186 — Derevi, Empyrial Tactician
-// Audit: unsupported — Physical commander cards do not offer ordinary mana-cost activated abilities from the command zone. Existing command-zone ongoing effects are separate rules objects and cannot move the commander onto the battlefield.
-pub(in crate::card::sets) static DEREVI_EMPYRIAL_TACTICIAN_186: CardRecord = CardRecord::new(
+// Audit: unsupported — Physical commander cards do not offer ordinary mana-cost activated
+// abilities from the command zone. Existing command-zone ongoing effects are separate rules
+// objects and cannot move the commander onto the battlefield.
+pub(in crate::card::sets) static DEREVI_EMPYRIAL_TACTICIAN: CardRecord = CardRecord::new(
     "Derevi, Empyrial Tactician",
     "3d61a4d4-f0d5-4bc4-8977-57bbb3d97776",
     "Michael Komarck",
@@ -170,11 +200,11 @@ const BOROS_GARRISON_REPRINT: PrintingRecord = PrintingRecord::reprint(
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ANGEL_OF_FINALITY,
-    &DARKSTEEL_MUTATION_9,
+    &DARKSTEEL_MUTATION,
     &UNEXPECTEDLY_ABSENT,
     &TRUE_NAME_NEMESIS,
     &TOXIC_DELUGE,
-    &DEREVI_EMPYRIAL_TACTICIAN_186,
+    &DEREVI_EMPYRIAL_TACTICIAN,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] =

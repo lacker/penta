@@ -53,8 +53,9 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // FRF 1 — Ugin, the Spirit Dragon
-// Audit: unsupported — Loyalty activation costs are fixed signed integers; the activated-cost planner cannot choose and pay a variable −X loyalty cost.
-pub(in crate::card::sets) static UGIN_THE_SPIRIT_DRAGON_1: CardRecord = CardRecord::new(
+// Audit: unsupported — Loyalty activation costs are fixed signed integers; the activated-cost
+// planner cannot choose and pay a variable −X loyalty cost.
+pub(in crate::card::sets) static UGIN_THE_SPIRIT_DRAGON: CardRecord = CardRecord::new(
     "Ugin, the Spirit Dragon",
     "58c1e824-c8a9-4312-8e4c-a29a26d189a4",
     "Raymond Swanland",
@@ -99,17 +100,50 @@ pub(in crate::card::sets) static VALOROUS_STANCE: CardRecord = CardRecord::new(
 );
 
 // FRF 46 — Reality Shift
-pub(in crate::card::sets) static REALITY_SHIFT_46: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static REALITY_SHIFT: CardRecord = CardRecord::new(
     "Reality Shift",
     "e01367cb-79f4-4ed9-b12c-66f3c30264a0",
     "Howard Lyon",
-    CardRules::new_instant(mana_cost!("{1}{U}")).with_abilities(&[
-AbilityDef::spell_with_targets("Exile target creature. Its controller manifests the top card of their library. (That player puts the top card of their library onto the battlefield face down as a 2/2 creature. If it's a creature card, it can be turned face up any time for its mana cost.)", &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Creature))], EffectDef::Sequence(&[EffectDef::move_to_zone(EffectRecipientDef::Target(TargetIndex::PRIMARY), ZoneKind::Exile, ZonePlacement::Top), EffectDef::BindObjects(BindObjectsDef { source: ObjectCollectionSourceDef::TopCards { player: PlayerRefDef::ControllerOf(ObjectRefDef::Target(TargetIndex::PRIMARY)), count: ValueDef::Constant(1) }, binding: Binding!("shift_manifest"), then: &EffectDef::PutObjectsOntoBattlefieldFaceDown(PutObjectsOntoBattlefieldFaceDownDef { input: ObjectSetDef::Binding(Binding!("shift_manifest")), controller: PlayerRefDef::ControllerOf(ObjectRefDef::Target(TargetIndex::PRIMARY)), characteristics: crate::card::face_down::manifest(), turn_up_for_mana_cost: true, moved: None, then: &EffectDef::None }) })]))
-]),
+    CardRules::new_instant(mana_cost!("{1}{U}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Exile target creature. Its controller manifests the top \
+         card of their library. (That player puts the top card of \
+         their library onto the battlefield face down as a 2/2 \
+         creature. If it's a creature card, it can be turned face up \
+         any time for its mana cost.)",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Exile,
+                ZonePlacement::Top,
+            ),
+            EffectDef::BindObjects(BindObjectsDef {
+                source: ObjectCollectionSourceDef::TopCards {
+                    player: PlayerRefDef::ControllerOf(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+                    count: ValueDef::Constant(1),
+                },
+                binding: Binding!("shift_manifest"),
+                then: &EffectDef::PutObjectsOntoBattlefieldFaceDown(
+                    PutObjectsOntoBattlefieldFaceDownDef {
+                        input: ObjectSetDef::Binding(Binding!("shift_manifest")),
+                        controller: PlayerRefDef::ControllerOf(ObjectRefDef::Target(
+                            TargetIndex::PRIMARY,
+                        )),
+                        characteristics: crate::card::face_down::manifest(),
+                        turn_up_for_mana_cost: true,
+                        moved: None,
+                        then: &EffectDef::None,
+                    },
+                ),
+            }),
+        ]),
+    )]),
 );
 
 // FRF 47 — Refocus
-pub(in crate::card::sets) static REFOCUS_47: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static REFOCUS: CardRecord = CardRecord::new(
     "Refocus",
     "35c78973-f2ae-4c76-802f-793d1022fcbd",
     "Kev Walker",
@@ -168,10 +202,14 @@ pub(in crate::card::sets) static SOULFLAYER: CardRecord = CardRecord::new(
     "Soulflayer",
     "5084c8ff-1296-4d8e-bd06-93b1a3401661",
     "Seb McKinnon",
-CardRules::new_creature(mana_cost!("{4}{B}{B}"), &["Demon"], 4, 4).with_abilities(&[
+    CardRules::new_creature(mana_cost!("{4}{B}{B}"), &["Demon"], 4, 4).with_abilities(&[
         abilities::delve(),
         AbilityDef::static_ability(
-            "If a creature card with flying was exiled with delve to cast this creature, this creature has flying. The same is true for first strike, double strike, deathtouch, haste, hexproof, indestructible, lifelink, reach, trample, and vigilance.",
+            "If a creature card with flying was exiled with delve to \
+             cast this creature, this creature has flying. The same is \
+             true for first strike, double strike, deathtouch, haste, \
+             hexproof, indestructible, lifelink, reach, trample, and \
+             vigilance.",
             EffectDef::Sequence(&[
                 soulflayer_ability(KeywordAbility::Flying, &abilities::flying()),
                 soulflayer_ability(KeywordAbility::FirstStrike, &abilities::first_strike()),
@@ -190,7 +228,7 @@ CardRules::new_creature(mana_cost!("{4}{B}{B}"), &["Demon"], 4, 4).with_abilitie
 );
 
 // FRF 87 — Tasigur, the Golden Fang
-pub(in crate::card::sets) static TASIGUR_THE_GOLDEN_FANG_87: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static TASIGUR_THE_GOLDEN_FANG: CardRecord = CardRecord::new(
     "Tasigur, the Golden Fang",
     "81f93ac5-d149-4ccf-8b99-13ecf3190c29",
     "Chris Rahn",
@@ -275,25 +313,44 @@ pub(in crate::card::sets) static FLAMEWAKE_PHOENIX: CardRecord = CardRecord::new
 );
 
 // FRF 141 — Temur Sabertooth
-pub(in crate::card::sets) static TEMUR_SABERTOOTH_141: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static TEMUR_SABERTOOTH: CardRecord = CardRecord::new(
     "Temur Sabertooth",
     "5d54da7c-8828-4d34-bfd0-a654692d3f5a",
     "Mike Sass",
     CardRules::new_creature(mana_cost!("{2}{G}{G}"), &["Cat"], 4, 3).with_abilities(&[
-AbilityDef::activated("{1}{G}: You may return another creature you control to its owner's hand. If you do, this creature gains indestructible until end of turn.", &[CostDef::Mana(mana_cost!("{1}{G}"))], EffectDef::PayOr(PayOrDef::optional(&[CostDef::MovePermanentMatching { object: ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::Not(&ObjectPredicateDef::Source)]), zone: ZoneKind::Hand }], &EffectDef::Apply { recipient: EffectRecipientDef::Source, effect: AppliedEffectDef::add_ability(&abilities::indestructible()), duration: ResolvedEffectDurationDef::UntilEndOfTurn })))
-]),
+        AbilityDef::activated(
+            "{1}{G}: You may return another creature you control to its \
+             owner's hand. If you do, this creature gains indestructible \
+             until end of turn.",
+            &[CostDef::Mana(mana_cost!("{1}{G}"))],
+            EffectDef::PayOr(PayOrDef::optional(
+                &[CostDef::MovePermanentMatching {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    ]),
+                    zone: ZoneKind::Hand,
+                }],
+                &EffectDef::Apply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::add_ability(&abilities::indestructible()),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            )),
+        ),
+    ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
-    &UGIN_THE_SPIRIT_DRAGON_1,
+    &UGIN_THE_SPIRIT_DRAGON,
     &VALOROUS_STANCE,
-    &REALITY_SHIFT_46,
-    &REFOCUS_47,
+    &REALITY_SHIFT,
+    &REFOCUS,
     &GURMAG_ANGLER,
     &SOULFLAYER,
-    &TASIGUR_THE_GOLDEN_FANG_87,
+    &TASIGUR_THE_GOLDEN_FANG,
     &FLAMEWAKE_PHOENIX,
-    &TEMUR_SABERTOOTH_141,
+    &TEMUR_SABERTOOTH,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

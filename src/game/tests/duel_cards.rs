@@ -119,7 +119,7 @@ fn duel_cards_oven_reads_sacrificed_toughness_before_zone_change() {
             game.set_prepared_engine_enabled(prepared);
             game.battlefield.clear();
             let oven = game
-                .put_onto_battlefield(PlayerId::One, cards::WITCH_S_OVEN_237)
+                .put_onto_battlefield(PlayerId::One, cards::WITCH_S_OVEN)
                 .unwrap();
             let mut bear = creature(882_001, cards::GRIZZLY_BEARS, PlayerId::One);
             bear.counters.set(CounterKind::PlusOnePlusOne, counters);
@@ -156,7 +156,7 @@ fn duel_cards_pre_war_formalwear_attaches_to_returned_incarnation() {
         game.players[0]
             .graveyard
             .push(card(883_001, cards::GRIZZLY_BEARS, PlayerId::One));
-        game.put_onto_battlefield(PlayerId::One, cards::PRE_WAR_FORMALWEAR_21)
+        game.put_onto_battlefield(PlayerId::One, cards::PRE_WAR_FORMALWEAR)
             .unwrap();
         drain_pending(&mut game);
         let bear = game
@@ -167,7 +167,7 @@ fn duel_cards_pre_war_formalwear_attaches_to_returned_incarnation() {
         let equipment = game
             .battlefield
             .iter()
-            .find(|p| p.card.definition == cards::PRE_WAR_FORMALWEAR_21)
+            .find(|p| p.card.definition == cards::PRE_WAR_FORMALWEAR)
             .unwrap();
         assert_ne!(bear.card.id, GameObjectId(883_001));
         assert_eq!(equipment.attached_to, Some(bear.card.id));
@@ -194,7 +194,7 @@ fn duel_cards_cactus_preserve_uses_owned_commanders_in_every_zone() {
         game.pregame = None;
         game.step = Step::PrecombatMain;
         let preserve = game
-            .put_onto_battlefield(PlayerId::One, cards::CACTUS_PRESERVE_40)
+            .put_onto_battlefield(PlayerId::One, cards::CACTUS_PRESERVE)
             .unwrap();
         game.add_unrestricted_mana(PlayerId::One, ManaColor::Colorless, 3);
         // The larger commander is hidden in hand, but remains a designation.

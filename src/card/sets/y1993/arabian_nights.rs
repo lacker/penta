@@ -148,7 +148,10 @@ const ARMY_OF_ALLAH_ALTERNATE_1: PrintingRecord = PrintingRecord::alternate(
 );
 
 // ARN 3 — Camel
-// Audit: unsupported — Needs a prevention that lives on the permanent and reads its combat state, for “As long as this creature is attacking, prevent all damage Deserts would deal to this creature and to creatures banded with this creature”. Deserts and band membership are both readable now.
+// Audit: unsupported — Needs a prevention that lives on the permanent and reads its combat
+// state, for “As long as this creature is attacking, prevent all damage Deserts would deal to
+// this creature and to creatures banded with this creature”. Deserts and band membership are
+// both readable now.
 pub(in crate::card::sets) static CAMEL: CardRecord = CardRecord::new(
     "Camel",
     "e0078aa8-bfb8-43b0-a6b7-1991596c21e1",
@@ -157,7 +160,11 @@ pub(in crate::card::sets) static CAMEL: CardRecord = CardRecord::new(
 );
 
 // ARN 4 — Eye for an Eye
-// Audit: unsupported — Needs a shield keyed to a source chosen as the ability resolves; prevention shields attach to a recipient and spend on the next damage from any source, not from one named source for “The next time a source of your choice would deal damage to you this turn, instead that source deals that much damage to you and Eye for an Eye deals that much damage to that source's…”.
+// Audit: unsupported — Needs a shield keyed to a source chosen as the ability resolves;
+// prevention shields attach to a recipient and spend on the next damage from any source, not
+// from one named source for “The next time a source of your choice would deal damage to you
+// this turn, instead that source deals that much damage to you and Eye for an Eye deals that
+// much damage to that source's…”.
 pub(in crate::card::sets) static EYE_FOR_AN_EYE: CardRecord = CardRecord::new(
     "Eye for an Eye",
     "2933ca2a-097b-44f4-ae56-ad524d26fd06",
@@ -166,7 +173,9 @@ pub(in crate::card::sets) static EYE_FOR_AN_EYE: CardRecord = CardRecord::new(
 );
 
 // ARN 5 — Jihad
-// Audit: unsupported — Needs a persistent dynamic characteristic choice and predicates that consume it for “White creatures get +2/+1 as long as the chosen player controls a nontoken permanent of the chosen color”.
+// Audit: unsupported — Needs a persistent dynamic characteristic choice and predicates that
+// consume it for “White creatures get +2/+1 as long as the chosen player controls a nontoken
+// permanent of the chosen color”.
 pub(in crate::card::sets) static JIHAD: CardRecord = CardRecord::new(
     "Jihad",
     "b6c7705a-2987-4ef1-92b1-2c55d989ec6f",
@@ -258,7 +267,8 @@ pub(in crate::card::sets) static REPENTANT_BLACKSMITH: CardRecord = CardRecord::
 );
 
 // ARN 10 — Shahrazad
-// Audit: unsupported — Needs nested-game setup, execution, and result propagation for Shahrazad's library-backed subgame.
+// Audit: unsupported — Needs nested-game setup, execution, and result propagation for
+// Shahrazad's library-backed subgame.
 pub(in crate::card::sets) static SHAHRAZAD: CardRecord = CardRecord::new(
     "Shahrazad",
     "0014def3-4063-4929-ac51-76aef1bb2a68",
@@ -381,7 +391,7 @@ pub(in crate::card::sets) static ISLAND_FISH_JASCONIUS: CardRecord = CardRecord:
     "Island Fish Jasconius",
     "8537cb0f-4821-417b-80cc-ea57d51ee9b8",
     "Jesper Myrfors",
-CardRules::new_creature(mana_cost!("{4}{U}{U}{U}"), &["Fish"], 6, 8).with_abilities(&[
+    CardRules::new_creature(mana_cost!("{4}{U}{U}{U}"), &["Fish"], 6, 8).with_abilities(&[
         AbilityDef::static_ability(
             "This creature doesn't untap during your untap step.",
             EffectDef::StaticApply {
@@ -390,7 +400,8 @@ CardRules::new_creature(mana_cost!("{4}{U}{U}{U}"), &["Fish"], 6, 8).with_abilit
             },
         ),
         AbilityDef::triggered(
-            "At the beginning of your upkeep, you may pay {U}{U}{U}. If you do, untap this creature.",
+            "At the beginning of your upkeep, you may pay {U}{U}{U}. If \
+             you do, untap this creature.",
             TriggerEventDef::StepBegins {
                 step: TurnStepDef::Upkeep,
                 player: PlayerRelation::You,
@@ -445,7 +456,9 @@ pub(in crate::card::sets) static MERCHANT_SHIP: CardRecord = CardRecord::new(
 );
 
 // ARN 18 — Old Man of the Sea
-// Audit: unsupported — Needs duration-aware control-changing continuous effects for “{T}: Gain control of target creature with power less than or equal to this creature's power for as long as this creature remains tapped and that creature's power remains less than or…”.
+// Audit: unsupported — Needs duration-aware control-changing continuous effects for “{T}: Gain
+// control of target creature with power less than or equal to this creature's power for as long
+// as this creature remains tapped and that creature's power remains less than or…”.
 pub(in crate::card::sets) static OLD_MAN_OF_THE_SEA: CardRecord = CardRecord::new(
     "Old Man of the Sea",
     "d10f8a05-78b0-42a7-adcd-83f6bafe5417",
@@ -454,7 +467,8 @@ pub(in crate::card::sets) static OLD_MAN_OF_THE_SEA: CardRecord = CardRecord::ne
 );
 
 // ARN 19 — Serendib Djinn
-// Audit: unsupported — Needs a chosen-land sacrifice whose sacrificed land subtype controls the follow-up damage branch.
+// Audit: unsupported — Needs a chosen-land sacrifice whose sacrificed land subtype controls the
+// follow-up damage branch.
 pub(in crate::card::sets) static SERENDIB_DJINN: CardRecord = CardRecord::new(
     "Serendib Djinn",
     "0458b733-d689-4cb5-8970-3b675c67fc4d",
@@ -481,7 +495,8 @@ pub(in crate::card::sets) static SERENDIB_EFREET: CardRecord = CardRecord::new(
 );
 
 // ARN 21 — Sindbad
-// Audit: unsupported — Needs ordered-library inspection, selection, and visibility handling for “{T}: Draw a card and reveal it. If it isn't a land card, discard it”.
+// Audit: unsupported — Needs ordered-library inspection, selection, and visibility handling for
+// “{T}: Draw a card and reveal it. If it isn't a land card, discard it”.
 pub(in crate::card::sets) static SINDBAD: CardRecord = CardRecord::new(
     "Sindbad",
     "7b112a10-ac40-4353-bbdd-e5efd4546330",
@@ -521,7 +536,8 @@ pub(in crate::card::sets) static UNSTABLE_MUTATION: CardRecord = CardRecord::new
 );
 
 // ARN 23 — Cuombajj Witches
-// Audit: unsupported — Needs resolution to pause for an opponent-controlled second target choice after the controller's target is fixed.
+// Audit: unsupported — Needs resolution to pause for an opponent-controlled second target
+// choice after the controller's target is fixed.
 pub(in crate::card::sets) static CUOMBAJJ_WITCHES: CardRecord = CardRecord::new(
     "Cuombajj Witches",
     "7995c3f9-a147-43c9-9f82-470924818a4c",
@@ -587,16 +603,21 @@ pub(in crate::card::sets) static GUARDIAN_BEAST: CardRecord = CardRecord::new(
     "Guardian Beast",
     "9941f83b-2903-4eab-ac6d-5313e3978fa3",
     "Ken Meyer, Jr.",
-CardRules::new_creature(mana_cost!("{3}{B}"), &["Beast"], 2, 4).with_abilities(&[
+    CardRules::new_creature(mana_cost!("{3}{B}"), &["Beast"], 2, 4).with_abilities(&[
         AbilityDef::static_ability(
-            "As long as this creature is untapped, noncreature artifacts you control can't be enchanted, they have indestructible, and other players can't gain control of them. This effect doesn't remove Auras already attached to those artifacts.",
+            "As long as this creature is untapped, noncreature artifacts \
+             you control can't be enchanted, they have indestructible, \
+             and other players can't gain control of them. This effect \
+             doesn't remove Auras already attached to those artifacts.",
             EffectDef::IfCondition {
                 condition: &TriggerConditionDef::SourceUntapped,
                 then: &EffectDef::StaticApply {
                     recipient: EffectRecipientDef::matching_objects(
                         ObjectPredicateDef::All(&[
                             ObjectPredicateDef::HasType(CardType::Artifact),
-                            ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(
+                                CardType::Creature,
+                            )),
                         ]),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::You,
@@ -701,7 +722,9 @@ pub(in crate::card::sets) static KHABAL_GHOUL: CardRecord = CardRecord::new(
 );
 
 // ARN 31 — Oubliette
-// Audit: unsupported — Needs a persistent tap/untap restriction or event relation for “When this enchantment enters, target creature phases out until this enchantment leaves the battlefield. Tap that creature as it phases in this way”.
+// Audit: unsupported — Needs a persistent tap/untap restriction or event relation for “When
+// this enchantment enters, target creature phases out until this enchantment leaves the
+// battlefield. Tap that creature as it phases in this way”.
 pub(in crate::card::sets) static OUBLIETTE: CardRecord = CardRecord::new(
     "Oubliette",
     "30d1450f-2909-410e-9920-731278fa74de",
@@ -722,14 +745,15 @@ pub(in crate::card::sets) static SORCERESS_QUEEN: CardRecord = CardRecord::new(
     "Sorceress Queen",
     "94742003-f0f1-4483-b1a0-e7163995db1b",
     "Kaja Foglio",
-CardRules::new_creature(
+    CardRules::new_creature(
         mana_cost!("{1}{B}{B}"),
         &["Human", "Wizard", "Sorcerer"],
         1,
         1,
     )
     .with_abilities(&[AbilityDef::activated_with_targets(
-        "{T}: Target creature other than this creature has base power and toughness 0/2 until end of turn.",
+        "{T}: Target creature other than this creature has base \
+         power and toughness 0/2 until end of turn.",
         &[CostDef::TapSource],
         &[AbilityTargetDef::exactly_one_permanent(
             ObjectPredicateDef::All(&[
@@ -850,7 +874,10 @@ const BIRD_MAIDEN_ALTERNATE_1: PrintingRecord = PrintingRecord::alternate(
 );
 
 // ARN 38 — Desert Nomads
-// Audit: unsupported — Needs a landwalk naming a land subtype, and a prevention that lives on the permanent rather than being created by a resolving effect, for “Prevent all damage that would be dealt to this creature by Deserts”. Desert itself is now cataloged, so the land type the walk reads exists.
+// Audit: unsupported — Needs a landwalk naming a land subtype, and a prevention that lives on
+// the permanent rather than being created by a resolving effect, for “Prevent all damage that
+// would be dealt to this creature by Deserts”. Desert itself is now cataloged, so the land type
+// the walk reads exists.
 pub(in crate::card::sets) static DESERT_NOMADS: CardRecord = CardRecord::new(
     "Desert Nomads",
     "e46d0c10-ec09-48ba-9e93-1392dca8111a",
@@ -905,7 +932,9 @@ pub(in crate::card::sets) static KIRD_APE: CardRecord = CardRecord::new(
 );
 
 // ARN 41 — Magnetic Mountain
-// Audit: unsupported — Needs a persistent tap/untap restriction or event relation for “At the beginning of each player's upkeep, that player may choose any number of tapped blue creatures they control and pay {4} for each creature chosen this way. If the player does, untap…”.
+// Audit: unsupported — Needs a persistent tap/untap restriction or event relation for “At the
+// beginning of each player's upkeep, that player may choose any number of tapped blue creatures
+// they control and pay {4} for each creature chosen this way. If the player does, untap…”.
 pub(in crate::card::sets) static MAGNETIC_MOUNTAIN: CardRecord = CardRecord::new(
     "Magnetic Mountain",
     "95fde48b-e40a-4183-b324-1ec276dde015",
@@ -944,9 +973,13 @@ pub(in crate::card::sets) static RUKH_EGG: CardRecord = CardRecord::new(
     "Rukh Egg",
     "b28f9e63-e5e4-44b5-a17e-8301ff17c623",
     "Christopher Rush",
-CardRules::new_creature(mana_cost!("{3}{R}"), &["Bird", "Egg"], 0, 3).with_abilities(&[
-        abilities::dies_trigger("When this creature dies, create a 4/4 red Bird creature token with flying at the beginning of the next end step.", EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
-                "At the beginning of the next end step, create a 4/4 red Bird creature token with flying.",
+    CardRules::new_creature(mana_cost!("{3}{R}"), &["Bird", "Egg"], 0, 3).with_abilities(&[
+        abilities::dies_trigger(
+            "When this creature dies, create a 4/4 red Bird creature \
+             token with flying at the beginning of the next end step.",
+            EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
+                "At the beginning of the next end step, create a 4/4 red \
+                 Bird creature token with flying.",
                 TriggerEventDef::StepBegins {
                     step: TurnStepDef::End,
                     player: PlayerRelation::Any,
@@ -959,7 +992,8 @@ CardRules::new_creature(mana_cost!("{3}{R}"), &["Bird", "Egg"], 0, 3).with_abili
                             "Edward P. Beard, Jr.",
                         )),
                 ))),
-            )))),
+            ))),
+        ),
     ]),
 );
 
@@ -972,7 +1006,9 @@ const RUKH_EGG_ALTERNATE_1: PrintingRecord = PrintingRecord::alternate(
 );
 
 // ARN 44 — Ydwen Efreet
-// Audit: unsupported — Needs attackers this creature had blocked alone to become unblocked, which reverses the ordinary rule that removing a blocker leaves them blocked. The flip and the combat removal are available.
+// Audit: unsupported — Needs attackers this creature had blocked alone to become unblocked,
+// which reverses the ordinary rule that removing a blocker leaves them blocked. The flip and
+// the combat removal are available.
 pub(in crate::card::sets) static YDWEN_EFREET: CardRecord = CardRecord::new(
     "Ydwen Efreet",
     "efdba2a9-d171-45ed-8dd4-9d0046128f68",
@@ -1044,7 +1080,9 @@ pub(in crate::card::sets) static DESERT_TWISTER: CardRecord = CardRecord::new(
 );
 
 // ARN 47 — Drop of Honey
-// Audit: unsupported — Needs least-power selection. AppliedRuleDef::CannotRegenerate covers the regeneration clause; picking "the creature with the least power" is the aggregate-in-a-predicate gap Desecrator Hag names.
+// Audit: unsupported — Needs least-power selection. AppliedRuleDef::CannotRegenerate covers the
+// regeneration clause; picking "the creature with the least power" is the
+// aggregate-in-a-predicate gap Desecrator Hag names.
 pub(in crate::card::sets) static DROP_OF_HONEY: CardRecord = CardRecord::new(
     "Drop of Honey",
     "26e090d4-e7fe-403c-9aca-05c1b45ed238",
@@ -1057,36 +1095,44 @@ pub(in crate::card::sets) static ERHNAM_DJINN: CardRecord = CardRecord::new(
     "Erhnam Djinn",
     "42bc0c3f-0a52-4bdc-83da-6484bf3102f3",
     "Ken Meyer, Jr.",
-CardRules::new_creature(mana_cost!("{3}{G}"), &["Djinn"], 4, 5)
-    .with_abilities(&[AbilityDef::triggered_with_targets(
-        "At the beginning of your upkeep, target non-Wall creature an opponent controls gains forestwalk until your next upkeep. (It can't be blocked as long as defending player controls a Forest.)",
-        TriggerEventDef::StepBegins {
-            step: TurnStepDef::Upkeep,
-            player: PlayerRelation::You,
-        },
-        // The gift is compulsory and goes to an opponent's creature, which is the
-        // drawback the Djinn is priced around.
-        &[AbilityTargetDef::exactly_one(
-            AbilityTargetPredicate::Object {
-                object: ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::Literal("Wall"))),
-                ]),
-                zones: &[ZoneKind::Battlefield],
-                controller: Some(PlayerRelation::Opponent),
-                owner: None,
+    CardRules::new_creature(mana_cost!("{3}{G}"), &["Djinn"], 4, 5).with_abilities(&[
+        AbilityDef::triggered_with_targets(
+            "At the beginning of your upkeep, target non-Wall creature \
+             an opponent controls gains forestwalk until your next \
+             upkeep. (It can't be blocked as long as defending player \
+             controls a Forest.)",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
             },
-        )],
-        EffectDef::Apply {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            effect: AppliedEffectDef::add_ability(&abilities::forestwalk()),
-            duration: ResolvedEffectDurationDef::UntilYourNextUpkeep,
-        },
-    )]),
+            // The gift is compulsory and goes to an opponent's creature, which is the
+            // drawback the Djinn is priced around.
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::Literal(
+                            "Wall",
+                        ))),
+                    ]),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::Opponent),
+                    owner: None,
+                },
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::add_ability(&abilities::forestwalk()),
+                duration: ResolvedEffectDurationDef::UntilYourNextUpkeep,
+            },
+        ),
+    ]),
 );
 
 // ARN 49 — Ghazbán Ogre
-// Audit: unsupported — Needs duration-aware control-changing continuous effects for “At the beginning of your upkeep, if a player has more life than each other player, the player with the most life gains control of this creature”.
+// Audit: unsupported — Needs duration-aware control-changing continuous effects for “At the
+// beginning of your upkeep, if a player has more life than each other player, the player with
+// the most life gains control of this creature”.
 pub(in crate::card::sets) static GHAZBAN_OGRE: CardRecord = CardRecord::new(
     "Ghazbán Ogre",
     "f9d613d5-36a2-4633-b5af-64511bb29cc2",
@@ -1127,7 +1173,9 @@ pub(in crate::card::sets) static IFH_BIFF_EFREET: CardRecord = CardRecord::new(
 );
 
 // ARN 51 — Metamorphosis
-// Audit: unsupported — Needs cost/mana provenance or dynamic payment support for “Add X mana of any one color, where X is 1 plus the sacrificed creature's mana value. Spend this mana only to cast creature spells”.
+// Audit: unsupported — Needs cost/mana provenance or dynamic payment support for “Add X mana of
+// any one color, where X is 1 plus the sacrificed creature's mana value. Spend this mana only
+// to cast creature spells”.
 pub(in crate::card::sets) static METAMORPHOSIS: CardRecord = CardRecord::new(
     "Metamorphosis",
     "fbc6cfc3-b232-40bf-bc0c-4618f6f5c9a5",
@@ -1230,7 +1278,9 @@ const WYLULI_WOLF_ALTERNATE_1: PrintingRecord = PrintingRecord::alternate(
 );
 
 // ARN 56 — Aladdin's Lamp
-// Audit: unsupported — Needs seeded random selection with replay-visible provenance for “{X}, {T}: The next time you would draw a card this turn, instead look at the top X cards of your library, put all but one of them on the bottom of your library in a random order, then…”.
+// Audit: unsupported — Needs seeded random selection with replay-visible provenance for “{X},
+// {T}: The next time you would draw a card this turn, instead look at the top X cards of your
+// library, put all but one of them on the bottom of your library in a random order, then…”.
 pub(in crate::card::sets) static ALADDIN_S_LAMP: CardRecord = CardRecord::new(
     "Aladdin's Lamp",
     "8fecc5d2-5298-4d47-b085-f160603f220e",
@@ -1319,12 +1369,18 @@ pub(in crate::card::sets) static CITY_IN_A_BOTTLE: CardRecord = CardRecord::new(
     "City in a Bottle",
     "9598b346-a47d-4c4c-9571-156824e86b9c",
     "Drew Tucker",
-CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
+    CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
         AbilityDef::triggered_if(
-            "Whenever one or more other nontoken permanents with a name originally printed in the Arabian Nights expansion are on the battlefield, their controllers sacrifice them.",
+            "Whenever one or more other nontoken permanents with a name \
+             originally printed in the Arabian Nights expansion are on \
+             the battlefield, their controllers sacrifice them.",
             TriggerEventDef::StateCondition,
             &TriggerConditionDef::ObjectCount {
-                query: ObjectQueryDef::matching(BOTTLED, &[ZoneKind::Battlefield], PlayerRelation::Any),
+                query: ObjectQueryDef::matching(
+                    BOTTLED,
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
                 comparison: ComparisonDef::GreaterOrEqual,
                 amount: 1,
             },
@@ -1335,13 +1391,17 @@ CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
             )),
         ),
         AbilityDef::static_ability(
-            "Players can't cast spells or play lands with a name originally printed in the Arabian Nights expansion.",
+            "Players can't cast spells or play lands with a name \
+             originally printed in the Arabian Nights expansion.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::EachPlayer,
                 effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotPlay(
                     // The casting prohibition has no "other": City in a Bottle was itself
                     // printed in Arabian Nights, so a second copy cannot be cast either.
-                    PlayRestrictionDef::new(PlayActionMatcherDef::Any, ObjectPredicateDef::DebutSet(SET)),
+                    PlayRestrictionDef::new(
+                        PlayActionMatcherDef::Any,
+                        ObjectPredicateDef::DebutSet(SET),
+                    ),
                 )),
             },
         ),
@@ -1362,13 +1422,12 @@ pub(in crate::card::sets) static EBONY_HORSE: CardRecord = CardRecord::new(
     "Ebony Horse",
     "9ae81ec7-2b7d-4301-8114-032be5e6b663",
     "Dameon Willich",
-CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
+    CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
         AbilityDef::activated_with_targets(
-            "{2}, {T}: Untap target attacking creature you control. Prevent all combat damage that would be dealt to and dealt by that creature this turn.",
-            &[
-                CostDef::Mana(mana_cost!("{2}")),
-                CostDef::TapSource,
-            ],
+            "{2}, {T}: Untap target attacking creature you control. \
+             Prevent all combat damage that would be dealt to and dealt \
+             by that creature this turn.",
+            &[CostDef::Mana(mana_cost!("{2}")), CostDef::TapSource],
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Object {
                     object: ObjectPredicateDef::All(&[
@@ -1429,7 +1488,8 @@ pub(in crate::card::sets) static FLYING_CARPET: CardRecord = CardRecord::new(
 );
 
 // ARN 64 — Jandor's Ring
-// Audit: unsupported — Needs a hidden-zone decision and continuation for “{2}, {T}, Discard the last card you drew this turn: Draw a card”.
+// Audit: unsupported — Needs a hidden-zone decision and continuation for “{2}, {T}, Discard the
+// last card you drew this turn: Draw a card”.
 pub(in crate::card::sets) static JANDOR_S_RING: CardRecord = CardRecord::new(
     "Jandor's Ring",
     "71504078-a16f-4dc4-9626-0ecc42b1e93b",
@@ -1457,7 +1517,9 @@ pub(in crate::card::sets) static JANDORS_SADDLEBAGS: CardRecord = CardRecord::ne
 );
 
 // ARN 66 — Jeweled Bird
-// Audit: unsupported — Needs an ante zone, ante ownership queries, and the source-moving ante procedure for “Ante this artifact. If you do, put all other cards you own from the ante into your graveyard, then draw a card”.
+// Audit: unsupported — Needs an ante zone, ante ownership queries, and the source-moving ante
+// procedure for “Ante this artifact. If you do, put all other cards you own from the ante into
+// your graveyard, then draw a card”.
 pub(in crate::card::sets) static JEWELED_BIRD: CardRecord = CardRecord::new(
     "Jeweled Bird",
     "bfffb65d-851d-4dc9-9233-d53abf955dcd",
@@ -1470,30 +1532,38 @@ pub(in crate::card::sets) static PYRAMIDS: CardRecord = CardRecord::new(
     "Pyramids",
     "d2e9decf-47b7-44e0-b380-8055b6011021",
     "Amy Weber",
-CardRules::new_artifact(mana_cost!("{6}")).with_ability(AbilityDef::modal_activated(
-        "{2}: Choose one — Destroy target Aura attached to a land; The next time target land would be destroyed this turn, remove all damage marked on it instead.",
+    CardRules::new_artifact(mana_cost!("{6}")).with_ability(AbilityDef::modal_activated(
+        "{2}: Choose one — Destroy target Aura attached to a land; \
+         The next time target land would be destroyed this turn, \
+         remove all damage marked on it instead.",
         &[CostDef::Mana(mana_cost!("{2}"))],
         &[
             AbilityDef::spell_with_targets(
                 "Destroy target Aura attached to a land",
-                &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Aura")),
-                    ObjectPredicateDef::AttachedTo(&ObjectPredicateDef::HasType(CardType::Land)),
-                ]))],
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Aura")),
+                        ObjectPredicateDef::AttachedTo(&ObjectPredicateDef::HasType(
+                            CardType::Land,
+                        )),
+                    ]),
+                )],
                 EffectDef::Destroy {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     then: None,
                 },
             ),
             AbilityDef::spell_with_targets(
-                "The next time target land would be destroyed this turn, remove all damage marked on it instead",
-                &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
-                    CardType::Land,
-                ))],
+                "The next time target land would be destroyed this turn, \
+                 remove all damage marked on it instead",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Land),
+                )],
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     effect: AppliedEffectDef::add_ability(&AbilityDef::defined_replacement(
-                        "The next time this land would be destroyed this turn, remove all damage marked on it instead.",
+                        "The next time this land would be destroyed this turn, \
+                         remove all damage marked on it instead.",
                         ReplacementAbilityDef::new()
                             .with_event(ReplacementEventDef::WouldBeDestroyed {
                                 object: ObjectPredicateDef::Source,
@@ -1519,8 +1589,10 @@ pub(in crate::card::sets) static RING_OF_MARUF: CardRecord = CardRecord::new(
     "Ring of Ma'rûf",
     "fcc1004f-7cee-420a-9f0e-2986ed3ab852",
     "Dan Frazier",
-CardRules::new_artifact(mana_cost!("{5}")).with_ability(AbilityDef::activated(
-        "{5}, {T}, Exile this artifact: The next time you would draw a card this turn, instead put a card you own from outside the game into your hand.",
+    CardRules::new_artifact(mana_cost!("{5}")).with_ability(AbilityDef::activated(
+        "{5}, {T}, Exile this artifact: The next time you would draw \
+         a card this turn, instead put a card you own from outside \
+         the game into your hand.",
         &[
             CostDef::Mana(mana_cost!("{5}")),
             CostDef::TapSource,
@@ -1531,35 +1603,36 @@ CardRules::new_artifact(mana_cost!("{5}")).with_ability(AbilityDef::activated(
             effect: &EffectDef::IfFormat {
                 format: Format::OldSchool9394,
                 then: &EffectDef::ChooseCards {
-                        player: EffectRecipientDef::Controller,
-                        sources: &[
-                                CardChoiceSourceDef::Zone(ZoneKind::Exile),
-                                CardChoiceSourceDef::OutsideGame,
-                            ],
-                        object: ObjectPredicateDef::Any,
-                        minimum: 1,
-                        maximum: 1,
-                        reveal: false,
-                        destination: ZoneKind::Hand,
-                        placement: ZonePlacement::Top,
-                    },
+                    player: EffectRecipientDef::Controller,
+                    sources: &[
+                        CardChoiceSourceDef::Zone(ZoneKind::Exile),
+                        CardChoiceSourceDef::OutsideGame,
+                    ],
+                    object: ObjectPredicateDef::Any,
+                    minimum: 1,
+                    maximum: 1,
+                    reveal: false,
+                    destination: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                },
                 otherwise: &EffectDef::ChooseCards {
-                        player: EffectRecipientDef::Controller,
-                        sources: &[CardChoiceSourceDef::OutsideGame],
-                        object: ObjectPredicateDef::Any,
-                        minimum: 1,
-                        maximum: 1,
-                        reveal: false,
-                        destination: ZoneKind::Hand,
-                        placement: ZonePlacement::Top,
-                    },
+                    player: EffectRecipientDef::Controller,
+                    sources: &[CardChoiceSourceDef::OutsideGame],
+                    object: ObjectPredicateDef::Any,
+                    minimum: 1,
+                    maximum: 1,
+                    reveal: false,
+                    destination: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                },
             },
         },
     )),
 );
 
 // ARN 69 — Sandals of Abdallah
-// Audit: unsupported — Needs a delayed trigger armed on the granted creature dying later this turn; granting islandwalk itself is available.
+// Audit: unsupported — Needs a delayed trigger armed on the granted creature dying later this
+// turn; granting islandwalk itself is available.
 pub(in crate::card::sets) static SANDALS_OF_ABDALLAH: CardRecord = CardRecord::new(
     "Sandals of Abdallah",
     "8f99a520-b8a9-40b0-9854-48aac297c5ee",

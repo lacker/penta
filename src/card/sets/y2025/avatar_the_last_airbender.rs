@@ -312,7 +312,8 @@ pub(in crate::card::sets) static ZUKO_S_EXILE: CardRecord = CardRecord::new(
 );
 
 // TLA 4 — Aang, the Last Airbender
-// Audit: unsupported — Needs airbend exile with an owner-specific {2} alternative cast permission lasting while that card remains exiled.
+// Audit: unsupported — Needs airbend exile with an owner-specific {2} alternative cast
+// permission lasting while that card remains exiled.
 pub(in crate::card::sets) static AANG_THE_LAST_AIRBENDER: CardRecord = CardRecord::new(
     "Aang, the Last Airbender",
     "245e008c-e073-443f-9592-6f628c0026ec",
@@ -321,7 +322,9 @@ pub(in crate::card::sets) static AANG_THE_LAST_AIRBENDER: CardRecord = CardRecor
 );
 
 // TLA 5 — Aang's Iceberg
-// Audit: unsupported — Needs waterbend payment combining generic mana with tapping untapped artifacts and creatures, including creatures unable to pay their own tap costs. Also needs immediate exile-until-source-leaves duration semantics instead of a separate return trigger.
+// Audit: unsupported — Needs waterbend payment combining generic mana with tapping untapped
+// artifacts and creatures, including creatures unable to pay their own tap costs. Also needs
+// immediate exile-until-source-leaves duration semantics instead of a separate return trigger.
 pub(in crate::card::sets) static AANG_S_ICEBERG: CardRecord = CardRecord::new(
     "Aang's Iceberg",
     "720fbd87-b1c1-4b3b-97a1-46b943b115e3",
@@ -330,7 +333,8 @@ pub(in crate::card::sets) static AANG_S_ICEBERG: CardRecord = CardRecord::new(
 );
 
 // TLA 6 — Airbender Ascension
-// Audit: unsupported — Needs airbend exile with an owner-specific {2} alternative cast permission lasting while that card remains exiled.
+// Audit: unsupported — Needs airbend exile with an owner-specific {2} alternative cast
+// permission lasting while that card remains exiled.
 pub(in crate::card::sets) static AIRBENDER_ASCENSION: CardRecord = CardRecord::new(
     "Airbender Ascension",
     "99a90d13-891c-45cc-b1d5-6080ebae5862",
@@ -339,7 +343,8 @@ pub(in crate::card::sets) static AIRBENDER_ASCENSION: CardRecord = CardRecord::n
 );
 
 // TLA 7 — Airbender's Reversal
-// Audit: unsupported — Needs airbend exile with an owner-specific {2} alternative cast permission lasting while that card remains exiled.
+// Audit: unsupported — Needs airbend exile with an owner-specific {2} alternative cast
+// permission lasting while that card remains exiled.
 pub(in crate::card::sets) static AIRBENDER_S_REVERSAL: CardRecord = CardRecord::new(
     "Airbender's Reversal",
     "6b7078e4-2892-4b5f-83ab-90369e0d6dba",
@@ -348,7 +353,8 @@ pub(in crate::card::sets) static AIRBENDER_S_REVERSAL: CardRecord = CardRecord::
 );
 
 // TLA 8 — Airbending Lesson
-// Audit: unsupported — Needs airbend exile with an owner-specific {2} alternative cast permission lasting while that card remains exiled.
+// Audit: unsupported — Needs airbend exile with an owner-specific {2} alternative cast
+// permission lasting while that card remains exiled.
 pub(in crate::card::sets) static AIRBENDING_LESSON: CardRecord = CardRecord::new(
     "Airbending Lesson",
     "e2bcd0a6-e94d-4a21-a334-a57459c1b8cc",
@@ -357,7 +363,8 @@ pub(in crate::card::sets) static AIRBENDING_LESSON: CardRecord = CardRecord::new
 );
 
 // TLA 9 — Appa, Loyal Sky Bison
-// Audit: unsupported — Needs airbend exile with an owner-specific {2} alternative cast permission lasting while that card remains exiled.
+// Audit: unsupported — Needs airbend exile with an owner-specific {2} alternative cast
+// permission lasting while that card remains exiled.
 pub(in crate::card::sets) static APPA_LOYAL_SKY_BISON: CardRecord = CardRecord::new(
     "Appa, Loyal Sky Bison",
     "a9b2a843-c6fe-4d19-801e-1538e4381ab0",
@@ -366,7 +373,8 @@ pub(in crate::card::sets) static APPA_LOYAL_SKY_BISON: CardRecord = CardRecord::
 );
 
 // TLA 10 — Appa, Steadfast Guardian
-// Audit: unsupported — Needs airbend exile with an owner-specific {2} alternative cast permission lasting while that card remains exiled.
+// Audit: unsupported — Needs airbend exile with an owner-specific {2} alternative cast
+// permission lasting while that card remains exiled.
 pub(in crate::card::sets) static APPA_STEADFAST_GUARDIAN: CardRecord = CardRecord::new(
     "Appa, Steadfast Guardian",
     "829d91e9-4878-4e55-a262-ac0d55b65d4e",
@@ -403,7 +411,8 @@ pub(in crate::card::sets) static AVATAR_ENTHUSIASTS: CardRecord = CardRecord::ne
 );
 
 // TLA 12 — Avatar's Wrath
-// Audit: unsupported — Needs airbend exile with an owner-specific {2} alternative cast permission lasting while that card remains exiled.
+// Audit: unsupported — Needs airbend exile with an owner-specific {2} alternative cast
+// permission lasting while that card remains exiled.
 pub(in crate::card::sets) static AVATAR_S_WRATH: CardRecord = CardRecord::new(
     "Avatar's Wrath",
     "4811072d-fac0-40dd-a5cf-9694d51b12cf",
@@ -476,7 +485,9 @@ pub(in crate::card::sets) static CURIOUS_FARM_ANIMALS: CardRecord = CardRecord::
 );
 
 // TLA 15 — Destined Confrontation
-// Audit: unsupported — Needs simultaneous per-player creature-group choices constrained by a summed power budget; the existing per-player partition supports fixed counts or one object per predicate, not aggregate power.
+// Audit: unsupported — Needs simultaneous per-player creature-group choices constrained by a
+// summed power budget; the existing per-player partition supports fixed counts or one object
+// per predicate, not aggregate power.
 pub(in crate::card::sets) static DESTINED_CONFRONTATION: CardRecord = CardRecord::new(
     "Destined Confrontation",
     "d4605cf7-03bc-4a7f-b50a-49b83b09b54d",
@@ -485,7 +496,9 @@ pub(in crate::card::sets) static DESTINED_CONFRONTATION: CardRecord = CardRecord
 );
 
 // TLA 16 — Earth Kingdom Jailer
-// Audit: unsupported — Needs immediate exile-until-this-source-leaves duration semantics (CR 610.3), including the no-exile case when the source has already left; separate leave triggers cannot implement the return timing.
+// Audit: unsupported — Needs immediate exile-until-this-source-leaves duration semantics (CR
+// 610.3), including the no-exile case when the source has already left; separate leave triggers
+// cannot implement the return timing.
 pub(in crate::card::sets) static EARTH_KINGDOM_JAILER: CardRecord = CardRecord::new(
     "Earth Kingdom Jailer",
     "9207362c-3605-4794-803f-ad1d0175fcca",
@@ -644,7 +657,8 @@ pub(in crate::card::sets) static GLIDER_KIDS: CardRecord = CardRecord::new(
 );
 
 // TLA 22 — Glider Staff
-// Audit: unsupported — Needs airbend exile with an owner-specific {2} alternative cast permission lasting while that card remains exiled.
+// Audit: unsupported — Needs airbend exile with an owner-specific {2} alternative cast
+// permission lasting while that card remains exiled.
 pub(in crate::card::sets) static GLIDER_STAFF: CardRecord = CardRecord::new(
     "Glider Staff",
     "7517f2eb-a24d-49f6-82bf-08de55d3789a",
@@ -758,7 +772,8 @@ pub(in crate::card::sets) static KYOSHI_WARRIORS: CardRecord = CardRecord::new(
 );
 
 // TLA 27 — The Legend of Yangchen // Avatar Yangchen
-// Audit: unsupported — Needs airbend exile with an owner-specific {2} alternative cast permission lasting while that card remains exiled.
+// Audit: unsupported — Needs airbend exile with an owner-specific {2} alternative cast
+// permission lasting while that card remains exiled.
 pub(in crate::card::sets) static THE_LEGEND_OF_YANGCHEN: CardRecord = CardRecord::new(
     "The Legend of Yangchen // Avatar Yangchen",
     "a60e8f23-90b2-4bc6-bd54-a95055556389",
@@ -827,7 +842,9 @@ pub(in crate::card::sets) static MASTER_PIANDAO: CardRecord = CardRecord::new(
 );
 
 // TLA 29 — Momo, Friendly Flier
-// Audit: unsupported — Needs filtered per-turn cast history for the first non-Lemur flying creature spell on each of your turns; current spell-cost conditions do not count prior matching casts.
+// Audit: unsupported — Needs filtered per-turn cast history for the first non-Lemur flying
+// creature spell on each of your turns; current spell-cost conditions do not count prior
+// matching casts.
 pub(in crate::card::sets) static MOMO_FRIENDLY_FLIER: CardRecord = CardRecord::new(
     "Momo, Friendly Flier",
     "c472ef84-a632-4ad7-853c-60588a7a4b12",
@@ -960,7 +977,9 @@ pub(in crate::card::sets) static RABAROO_TROOP: CardRecord = CardRecord::new(
 );
 
 // TLA 33 — Razor Rings
-// Audit: unsupported — Needs excess-damage output from an ordinary damage instruction, including prevention and lethal deathtouch semantics; current excess-damage continuations are limited to fight.
+// Audit: unsupported — Needs excess-damage output from an ordinary damage instruction,
+// including prevention and lethal deathtouch semantics; current excess-damage continuations are
+// limited to fight.
 pub(in crate::card::sets) static RAZOR_RINGS: CardRecord = CardRecord::new(
     "Razor Rings",
     "b05cfee5-ee59-4df6-a5f6-d9ef0fa7f98a",
@@ -969,7 +988,9 @@ pub(in crate::card::sets) static RAZOR_RINGS: CardRecord = CardRecord::new(
 );
 
 // TLA 34 — Sandbenders' Storm
-// Audit: unsupported — Needs earthbend land animation and its independent delayed death-or-exile return trigger, preserving the affected object identity through ability removal and its subsequent zone change.
+// Audit: unsupported — Needs earthbend land animation and its independent delayed
+// death-or-exile return trigger, preserving the affected object identity through ability
+// removal and its subsequent zone change.
 pub(in crate::card::sets) static SANDBENDERS_STORM: CardRecord = CardRecord::new(
     "Sandbenders' Storm",
     "b3bf4a25-4329-4318-870a-2b06aa620dc4",
@@ -978,7 +999,9 @@ pub(in crate::card::sets) static SANDBENDERS_STORM: CardRecord = CardRecord::new
 );
 
 // TLA 35 — South Pole Voyager
-// Audit: unsupported — Needs per-ability resolution history retained after its source leaves the battlefield; SourceResolutionsThisTurn reads only a live permanent, so the second-resolution draw is lost for a departed Voyager.
+// Audit: unsupported — Needs per-ability resolution history retained after its source leaves
+// the battlefield; SourceResolutionsThisTurn reads only a live permanent, so the
+// second-resolution draw is lost for a departed Voyager.
 pub(in crate::card::sets) static SOUTH_POLE_VOYAGER: CardRecord = CardRecord::new(
     "South Pole Voyager",
     "4b5ad895-be8d-476b-91ca-22fad7a3cc58",
@@ -1240,7 +1263,8 @@ pub(in crate::card::sets) static WATER_TRIBE_CAPTAIN: CardRecord = CardRecord::n
 );
 
 // TLA 42 — Water Tribe Rallier
-// Audit: unsupported — Needs waterbend payment combining generic mana with tapping untapped artifacts and creatures, including creatures unable to pay their own tap costs.
+// Audit: unsupported — Needs waterbend payment combining generic mana with tapping untapped
+// artifacts and creatures, including creatures unable to pay their own tap costs.
 pub(in crate::card::sets) static WATER_TRIBE_RALLIER: CardRecord = CardRecord::new(
     "Water Tribe Rallier",
     "4e744b6c-1c2f-451a-818a-5ee7785b5213",
@@ -1375,7 +1399,8 @@ pub(in crate::card::sets) static ACCUMULATE_WISDOM: CardRecord = CardRecord::new
 );
 
 // TLA 45 — Benevolent River Spirit
-// Audit: unsupported — Needs waterbend payment combining generic mana with tapping untapped artifacts and creatures, including creatures unable to pay their own tap costs.
+// Audit: unsupported — Needs waterbend payment combining generic mana with tapping untapped
+// artifacts and creatures, including creatures unable to pay their own tap costs.
 pub(in crate::card::sets) static BENEVOLENT_RIVER_SPIRIT: CardRecord = CardRecord::new(
     "Benevolent River Spirit",
     "7ffb79cd-d170-4047-89c8-6e85188f30da",
@@ -1437,7 +1462,8 @@ pub(in crate::card::sets) static BOOMERANG_BASICS: CardRecord = CardRecord::new(
 );
 
 // TLA 47 — Crashing Wave
-// Audit: unsupported — Needs waterbend payment combining generic mana with tapping untapped artifacts and creatures, including creatures unable to pay their own tap costs.
+// Audit: unsupported — Needs waterbend payment combining generic mana with tapping untapped
+// artifacts and creatures, including creatures unable to pay their own tap costs.
 pub(in crate::card::sets) static CRASHING_WAVE: CardRecord = CardRecord::new(
     "Crashing Wave",
     "9fd02eb4-1ef5-4a14-89a8-b25e720e8016",
@@ -1535,7 +1561,8 @@ pub(in crate::card::sets) static FIRST_TIME_FLYER: CardRecord = CardRecord::new(
 );
 
 // TLA 50 — Flexible Waterbender
-// Audit: unsupported — Needs waterbend payment combining generic mana with tapping untapped artifacts and creatures, including creatures unable to pay their own tap costs.
+// Audit: unsupported — Needs waterbend payment combining generic mana with tapping untapped
+// artifacts and creatures, including creatures unable to pay their own tap costs.
 pub(in crate::card::sets) static FLEXIBLE_WATERBENDER: CardRecord = CardRecord::new(
     "Flexible Waterbender",
     "1447ebce-7e48-4b21-a39c-740920538bdd",
@@ -1560,7 +1587,8 @@ pub(in crate::card::sets) static FORECASTING_FORTUNE_TELLER: CardRecord = CardRe
 );
 
 // TLA 52 — Geyser Leaper
-// Audit: unsupported — Needs waterbend payment combining generic mana with tapping untapped artifacts and creatures, including creatures unable to pay their own tap costs.
+// Audit: unsupported — Needs waterbend payment combining generic mana with tapping untapped
+// artifacts and creatures, including creatures unable to pay their own tap costs.
 pub(in crate::card::sets) static GEYSER_LEAPER: CardRecord = CardRecord::new(
     "Geyser Leaper",
     "4d25428d-e5a5-43c4-8544-43120ed1c4d5",
@@ -1569,7 +1597,8 @@ pub(in crate::card::sets) static GEYSER_LEAPER: CardRecord = CardRecord::new(
 );
 
 // TLA 53 — Giant Koi
-// Audit: unsupported — Needs waterbend payment combining generic mana with tapping untapped artifacts and creatures, including creatures unable to pay their own tap costs.
+// Audit: unsupported — Needs waterbend payment combining generic mana with tapping untapped
+// artifacts and creatures, including creatures unable to pay their own tap costs.
 pub(in crate::card::sets) static GIANT_KOI: CardRecord = CardRecord::new(
     "Giant Koi",
     "3938ec1f-979c-48e5-bb13-bebace006a8f",
@@ -1627,7 +1656,8 @@ pub(in crate::card::sets) static GRAN_GRAN: CardRecord = CardRecord::new(
 );
 
 // TLA 55 — Honest Work
-// Audit: unsupported — Needs a layer-3 name-setting effect that changes the enchanted permanent to Humble Merchant; creature-type and ability changes do not change its name.
+// Audit: unsupported — Needs a layer-3 name-setting effect that changes the enchanted permanent
+// to Humble Merchant; creature-type and ability changes do not change its name.
 pub(in crate::card::sets) static HONEST_WORK: CardRecord = CardRecord::new(
     "Honest Work",
     "57e0ccb0-22f0-4e4d-9a47-c4fec2c7f251",
@@ -1663,7 +1693,8 @@ pub(in crate::card::sets) static IGUANA_PARROT: CardRecord = CardRecord::new(
 );
 
 // TLA 57 — Invasion Submersible
-// Audit: unsupported — Needs waterbend payment combining generic mana with tapping untapped artifacts and creatures, including creatures unable to pay their own tap costs.
+// Audit: unsupported — Needs waterbend payment combining generic mana with tapping untapped
+// artifacts and creatures, including creatures unable to pay their own tap costs.
 pub(in crate::card::sets) static INVASION_SUBMERSIBLE: CardRecord = CardRecord::new(
     "Invasion Submersible",
     "af5299f5-1633-4c07-ade5-fd47e29ea4aa",
@@ -1693,7 +1724,8 @@ pub(in crate::card::sets) static IT_LL_QUENCH_YA: CardRecord = CardRecord::new(
 );
 
 // TLA 59 — Katara, Bending Prodigy
-// Audit: unsupported — Needs waterbend payment combining generic mana with tapping untapped artifacts and creatures, including creatures unable to pay their own tap costs.
+// Audit: unsupported — Needs waterbend payment combining generic mana with tapping untapped
+// artifacts and creatures, including creatures unable to pay their own tap costs.
 pub(in crate::card::sets) static KATARA_BENDING_PRODIGY: CardRecord = CardRecord::new(
     "Katara, Bending Prodigy",
     "e8372167-383f-4302-a8ea-b6bf495c870c",
@@ -1735,7 +1767,8 @@ pub(in crate::card::sets) static KNOWLEDGE_SEEKER: CardRecord = CardRecord::new(
 );
 
 // TLA 61 — The Legend of Kuruk // Avatar Kuruk
-// Audit: unsupported — Needs waterbend payment combining generic mana with tapping untapped artifacts and creatures, including creatures unable to pay their own tap costs.
+// Audit: unsupported — Needs waterbend payment combining generic mana with tapping untapped
+// artifacts and creatures, including creatures unable to pay their own tap costs.
 pub(in crate::card::sets) static THE_LEGEND_OF_KURUK: CardRecord = CardRecord::new(
     "The Legend of Kuruk // Avatar Kuruk",
     "5e9a53d3-7f2f-4a9c-9516-0713da740478",
@@ -1744,7 +1777,8 @@ pub(in crate::card::sets) static THE_LEGEND_OF_KURUK: CardRecord = CardRecord::n
 );
 
 // TLA 62 — Lost Days
-// Audit: unsupported — Needs a library placement second from the top, selected by the targeted permanent's owner; current placements expose only top and bottom.
+// Audit: unsupported — Needs a library placement second from the top, selected by the targeted
+// permanent's owner; current placements expose only top and bottom.
 pub(in crate::card::sets) static LOST_DAYS: CardRecord = CardRecord::new(
     "Lost Days",
     "db8e88e3-0931-403f-90e7-3c22c0b61dac",
@@ -1855,7 +1889,8 @@ pub(in crate::card::sets) static THE_MECHANIST_AERIAL_ARTISAN: CardRecord = Card
 );
 
 // TLA 65 — North Pole Patrol
-// Audit: unsupported — Needs waterbend payment combining generic mana with tapping untapped artifacts and creatures, including creatures unable to pay their own tap costs.
+// Audit: unsupported — Needs waterbend payment combining generic mana with tapping untapped
+// artifacts and creatures, including creatures unable to pay their own tap costs.
 pub(in crate::card::sets) static NORTH_POLE_PATROL: CardRecord = CardRecord::new(
     "North Pole Patrol",
     "c2c0c138-5b61-4949-8431-4a6d458ead6a",
@@ -1963,7 +1998,10 @@ pub(in crate::card::sets) static ROWDY_SNOWBALLERS: CardRecord = CardRecord::new
 );
 
 // TLA 69 — Secret of Bloodbending
-// Audit: unsupported — Needs waterbend payment combining generic mana with tapping untapped artifacts and creatures, including creatures unable to pay their own tap costs. Also needs control of another player for a combat phase or turn, including hidden information and all choices.
+// Audit: unsupported — Needs waterbend payment combining generic mana with tapping untapped
+// artifacts and creatures, including creatures unable to pay their own tap costs. Also needs
+// control of another player for a combat phase or turn, including hidden information and all
+// choices.
 pub(in crate::card::sets) static SECRET_OF_BLOODBENDING: CardRecord = CardRecord::new(
     "Secret of Bloodbending",
     "9bb928ae-f636-4aee-9146-a7885e6a8976",
@@ -1972,7 +2010,9 @@ pub(in crate::card::sets) static SECRET_OF_BLOODBENDING: CardRecord = CardRecord
 );
 
 // TLA 70 — Serpent of the Pass
-// Audit: unsupported — Needs conditional flash evaluated on a card outside the battlefield; the casting path reads intrinsic flash and permissions from battlefield or resolving sources, not conditional abilities on the card being cast.
+// Audit: unsupported — Needs conditional flash evaluated on a card outside the battlefield; the
+// casting path reads intrinsic flash and permissions from battlefield or resolving sources, not
+// conditional abilities on the card being cast.
 pub(in crate::card::sets) static SERPENT_OF_THE_PASS: CardRecord = CardRecord::new(
     "Serpent of the Pass",
     "87595843-15bc-48bb-8a81-3e6ad924ed44",
@@ -2052,7 +2092,8 @@ pub(in crate::card::sets) static THE_SPIRIT_OASIS: CardRecord = CardRecord::new(
 );
 
 // TLA 73 — Spirit Water Revival
-// Audit: unsupported — Needs waterbend payment combining generic mana with tapping untapped artifacts and creatures, including creatures unable to pay their own tap costs.
+// Audit: unsupported — Needs waterbend payment combining generic mana with tapping untapped
+// artifacts and creatures, including creatures unable to pay their own tap costs.
 pub(in crate::card::sets) static SPIRIT_WATER_REVIVAL: CardRecord = CardRecord::new(
     "Spirit Water Revival",
     "0c019e76-c88e-4d1b-a546-0f4e462ef44a",
@@ -2061,7 +2102,9 @@ pub(in crate::card::sets) static SPIRIT_WATER_REVIVAL: CardRecord = CardRecord::
 );
 
 // TLA 74 — Teo, Spirited Glider
-// Audit: unsupported — Needs a reflexive discard trigger that preserves the discarded card's characteristics and chooses its counter target only after the nonland discard; preselecting the target changes legality.
+// Audit: unsupported — Needs a reflexive discard trigger that preserves the discarded card's
+// characteristics and chooses its counter target only after the nonland discard; preselecting
+// the target changes legality.
 pub(in crate::card::sets) static TEO_SPIRITED_GLIDER: CardRecord = CardRecord::new(
     "Teo, Spirited Glider",
     "66906ed4-baac-4be0-9359-34f453d1a04a",
@@ -2098,7 +2141,9 @@ pub(in crate::card::sets) static TIGER_SEAL: CardRecord = CardRecord::new(
 );
 
 // TLA 76 — Ty Lee, Chi Blocker
-// Audit: unsupported — Needs an untap restriction lasting only while the same player continuously controls the original Ty Lee object; existing source-presence durations do not end on a control change.
+// Audit: unsupported — Needs an untap restriction lasting only while the same player
+// continuously controls the original Ty Lee object; existing source-presence durations do not
+// end on a control change.
 pub(in crate::card::sets) static TY_LEE_CHI_BLOCKER: CardRecord = CardRecord::new(
     "Ty Lee, Chi Blocker",
     "308cc687-9cb2-4e3a-98db-c5ba2a7da115",
@@ -2107,7 +2152,8 @@ pub(in crate::card::sets) static TY_LEE_CHI_BLOCKER: CardRecord = CardRecord::ne
 );
 
 // TLA 77 — The Unagi of Kyoshi Island
-// Audit: unsupported — Needs waterbend payment combining generic mana with tapping untapped artifacts and creatures, including creatures unable to pay their own tap costs.
+// Audit: unsupported — Needs waterbend payment combining generic mana with tapping untapped
+// artifacts and creatures, including creatures unable to pay their own tap costs.
 pub(in crate::card::sets) static THE_UNAGI_OF_KYOSHI_ISLAND: CardRecord = CardRecord::new(
     "The Unagi of Kyoshi Island",
     "0ecd8b38-9ee5-41a5-9b93-21c33fc1a6ff",
@@ -2116,7 +2162,10 @@ pub(in crate::card::sets) static THE_UNAGI_OF_KYOSHI_ISLAND: CardRecord = CardRe
 );
 
 // TLA 78 — Wan Shi Tong, Librarian
-// Audit: unsupported — Needs the entering spell's X retained in the resolving trigger after its source leaves; SourceCastX in effect values reads only a current battlefield permanent. Also needs a trigger for an opponent searching their library; no library-search event is published to card triggers.
+// Audit: unsupported — Needs the entering spell's X retained in the resolving trigger after its
+// source leaves; SourceCastX in effect values reads only a current battlefield permanent. Also
+// needs a trigger for an opponent searching their library; no library-search event is published
+// to card triggers.
 pub(in crate::card::sets) static WAN_SHI_TONG_LIBRARIAN: CardRecord = CardRecord::new(
     "Wan Shi Tong, Librarian",
     "e20da6b5-1057-4a28-9e85-07de714e262f",
@@ -2125,7 +2174,8 @@ pub(in crate::card::sets) static WAN_SHI_TONG_LIBRARIAN: CardRecord = CardRecord
 );
 
 // TLA 79 — Waterbender Ascension
-// Audit: unsupported — Needs waterbend payment combining generic mana with tapping untapped artifacts and creatures, including creatures unable to pay their own tap costs.
+// Audit: unsupported — Needs waterbend payment combining generic mana with tapping untapped
+// artifacts and creatures, including creatures unable to pay their own tap costs.
 pub(in crate::card::sets) static WATERBENDER_ASCENSION: CardRecord = CardRecord::new(
     "Waterbender Ascension",
     "3f57e0f9-e232-489c-b991-d0d23f75d8dd",
@@ -2134,7 +2184,8 @@ pub(in crate::card::sets) static WATERBENDER_ASCENSION: CardRecord = CardRecord:
 );
 
 // TLA 80 — Waterbending Lesson
-// Audit: unsupported — Needs waterbend payment combining generic mana with tapping untapped artifacts and creatures, including creatures unable to pay their own tap costs.
+// Audit: unsupported — Needs waterbend payment combining generic mana with tapping untapped
+// artifacts and creatures, including creatures unable to pay their own tap costs.
 pub(in crate::card::sets) static WATERBENDING_LESSON: CardRecord = CardRecord::new(
     "Waterbending Lesson",
     "4f81e3b5-a0a9-4764-8c2d-b499ce1740b4",
@@ -2164,7 +2215,8 @@ pub(in crate::card::sets) static WATERBENDING_SCROLL: CardRecord = CardRecord::n
 );
 
 // TLA 82 — Watery Grasp
-// Audit: unsupported — Needs waterbend payment combining generic mana with tapping untapped artifacts and creatures, including creatures unable to pay their own tap costs.
+// Audit: unsupported — Needs waterbend payment combining generic mana with tapping untapped
+// artifacts and creatures, including creatures unable to pay their own tap costs.
 pub(in crate::card::sets) static WATERY_GRASP: CardRecord = CardRecord::new(
     "Watery Grasp",
     "26bcff57-428e-4f30-a153-a778fbfc437d",
@@ -2173,7 +2225,8 @@ pub(in crate::card::sets) static WATERY_GRASP: CardRecord = CardRecord::new(
 );
 
 // TLA 83 — Yue, the Moon Spirit
-// Audit: unsupported — Needs waterbend payment combining generic mana with tapping untapped artifacts and creatures, including creatures unable to pay their own tap costs.
+// Audit: unsupported — Needs waterbend payment combining generic mana with tapping untapped
+// artifacts and creatures, including creatures unable to pay their own tap costs.
 pub(in crate::card::sets) static YUE_THE_MOON_SPIRIT: CardRecord = CardRecord::new(
     "Yue, the Moon Spirit",
     "ecdac50f-c639-43fc-a03e-d488fac96ae2",
@@ -2222,7 +2275,8 @@ pub(in crate::card::sets) static AZULA_ALWAYS_LIES: CardRecord = CardRecord::new
 );
 
 // TLA 85 — Azula, On the Hunt
-// Audit: unsupported — Needs firebending mana whose individual units survive combat step boundaries and expire at the end of that combat.
+// Audit: unsupported — Needs firebending mana whose individual units survive combat step
+// boundaries and expire at the end of that combat.
 pub(in crate::card::sets) static AZULA_ON_THE_HUNT: CardRecord = CardRecord::new(
     "Azula, On the Hunt",
     "1335a145-248a-4f1e-8760-9a5d531e14e3",
@@ -2263,7 +2317,8 @@ pub(in crate::card::sets) static BEETLE_HEADED_MERCHANTS: CardRecord = CardRecor
 );
 
 // TLA 87 — Boiling Rock Rioter
-// Audit: unsupported — Needs firebending mana whose individual units survive combat step boundaries and expire at the end of that combat.
+// Audit: unsupported — Needs firebending mana whose individual units survive combat step
+// boundaries and expire at the end of that combat.
 pub(in crate::card::sets) static BOILING_ROCK_RIOTER: CardRecord = CardRecord::new(
     "Boiling Rock Rioter",
     "739653cc-35c8-4a66-95d8-3e80fa6114f0",
@@ -2272,7 +2327,8 @@ pub(in crate::card::sets) static BOILING_ROCK_RIOTER: CardRecord = CardRecord::n
 );
 
 // TLA 88 — Buzzard-Wasp Colony
-// Audit: unsupported — Needs one effect copying every counter kind and count from a dying creature's last-known counter inventory, including arbitrary named counters.
+// Audit: unsupported — Needs one effect copying every counter kind and count from a dying
+// creature's last-known counter inventory, including arbitrary named counters.
 pub(in crate::card::sets) static BUZZARD_WASP_COLONY: CardRecord = CardRecord::new(
     "Buzzard-Wasp Colony",
     "42d83229-0555-4361-8964-4b525c825843",
@@ -2364,7 +2420,9 @@ const CORRUPT_COURT_OFFICIAL_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // TLA 93 — Dai Li Indoctrination
-// Audit: unsupported — Needs earthbend land animation and its independent delayed death-or-exile return trigger, preserving the affected object identity through ability removal and its subsequent zone change.
+// Audit: unsupported — Needs earthbend land animation and its independent delayed
+// death-or-exile return trigger, preserving the affected object identity through ability
+// removal and its subsequent zone change.
 pub(in crate::card::sets) static DAI_LI_INDOCTRINATION: CardRecord = CardRecord::new(
     "Dai Li Indoctrination",
     "eca652b8-44f1-4bd9-b4bf-036eeead13aa",
@@ -2443,7 +2501,9 @@ const EPIC_DOWNFALL_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // TLA 97 — Fatal Fissure
-// Audit: unsupported — Needs earthbend land animation and its independent delayed death-or-exile return trigger, preserving the affected object identity through ability removal and its subsequent zone change.
+// Audit: unsupported — Needs earthbend land animation and its independent delayed
+// death-or-exile return trigger, preserving the affected object identity through ability
+// removal and its subsequent zone change.
 pub(in crate::card::sets) static FATAL_FISSURE: CardRecord = CardRecord::new(
     "Fatal Fissure",
     "3343933d-4425-4ede-8d92-876bd0c6df60",
@@ -2452,7 +2512,9 @@ pub(in crate::card::sets) static FATAL_FISSURE: CardRecord = CardRecord::new(
 );
 
 // TLA 98 — The Fire Nation Drill
-// Audit: unsupported — Needs a reflexive tap-payment trigger independent of a surviving source, choosing the destroy target after the optional tap; current optional-effect listeners only capture battlefield sources.
+// Audit: unsupported — Needs a reflexive tap-payment trigger independent of a surviving source,
+// choosing the destroy target after the optional tap; current optional-effect listeners only
+// capture battlefield sources.
 pub(in crate::card::sets) static THE_FIRE_NATION_DRILL: CardRecord = CardRecord::new(
     "The Fire Nation Drill",
     "54d762f6-e131-480f-b294-10f5a63d9c98",
@@ -2461,7 +2523,9 @@ pub(in crate::card::sets) static THE_FIRE_NATION_DRILL: CardRecord = CardRecord:
 );
 
 // TLA 99 — Fire Nation Engineer
-// Audit: unsupported — Needs player attack history for raid that remains true after the attacking creatures leave or change controllers; current predicates only inspect individual battlefield creatures.
+// Audit: unsupported — Needs player attack history for raid that remains true after the
+// attacking creatures leave or change controllers; current predicates only inspect individual
+// battlefield creatures.
 pub(in crate::card::sets) static FIRE_NATION_ENGINEER: CardRecord = CardRecord::new(
     "Fire Nation Engineer",
     "5daba108-277d-46c8-ac35-7610f4786813",
@@ -2546,7 +2610,8 @@ pub(in crate::card::sets) static FOGGY_SWAMP_HUNTERS: CardRecord = CardRecord::n
 );
 
 // TLA 102 — Foggy Swamp Visions
-// Audit: unsupported — Needs waterbend payment combining generic mana with tapping untapped artifacts and creatures, including creatures unable to pay their own tap costs.
+// Audit: unsupported — Needs waterbend payment combining generic mana with tapping untapped
+// artifacts and creatures, including creatures unable to pay their own tap costs.
 pub(in crate::card::sets) static FOGGY_SWAMP_VISIONS: CardRecord = CardRecord::new(
     "Foggy Swamp Visions",
     "3a46deaa-88f7-4eec-aa99-b85073847918",
@@ -2692,7 +2757,9 @@ pub(in crate::card::sets) static JUNE_BOUNTY_HUNTER: CardRecord = CardRecord::ne
 );
 
 // TLA 107 — Koh, the Face Stealer
-// Audit: unsupported — Needs persistent selection of one linked exiled card and continuous inheritance of both its activated and triggered abilities; the current inheritance operation grants only activated abilities from the entire linked collection.
+// Audit: unsupported — Needs persistent selection of one linked exiled card and continuous
+// inheritance of both its activated and triggered abilities; the current inheritance operation
+// grants only activated abilities from the entire linked collection.
 pub(in crate::card::sets) static KOH_THE_FACE_STEALER: CardRecord = CardRecord::new(
     "Koh, the Face Stealer",
     "28f6fa32-5058-4c29-9ba8-9d8f2057eb6d",
@@ -2701,7 +2768,8 @@ pub(in crate::card::sets) static KOH_THE_FACE_STEALER: CardRecord = CardRecord::
 );
 
 // TLA 108 — Lo and Li, Twin Tutors
-// Audit: unsupported — Needs a continuous lifelink grant to Lesson spells on the stack; current nonpermanent ability-layer support does not grant executable keywords to those spell objects.
+// Audit: unsupported — Needs a continuous lifelink grant to Lesson spells on the stack; current
+// nonpermanent ability-layer support does not grant executable keywords to those spell objects.
 pub(in crate::card::sets) static LO_AND_LI_TWIN_TUTORS: CardRecord = CardRecord::new(
     "Lo and Li, Twin Tutors",
     "cba9260d-ef07-4429-99f9-6004cc1fea0f",
@@ -2811,7 +2879,8 @@ pub(in crate::card::sets) static NORTHERN_AIR_TEMPLE: CardRecord = CardRecord::n
 );
 
 // TLA 112 — Obsessive Pursuit
-// Audit: unsupported — Needs a per-player count of all permanents sacrificed this turn, retained across zone changes and independent of whether this enchantment was present.
+// Audit: unsupported — Needs a per-player count of all permanents sacrificed this turn,
+// retained across zone changes and independent of whether this enchantment was present.
 pub(in crate::card::sets) static OBSESSIVE_PURSUIT: CardRecord = CardRecord::new(
     "Obsessive Pursuit",
     "e837e29c-d241-43c8-8f45-05056e082b60",
@@ -2848,7 +2917,9 @@ pub(in crate::card::sets) static OZAI_S_CRUELTY: CardRecord = CardRecord::new(
 );
 
 // TLA 114 — Phoenix Fleet Airship
-// Audit: unsupported — Needs player sacrifice history for its end-step intervening-if condition, including sacrifices before this Vehicle entered and objects no longer on the battlefield.
+// Audit: unsupported — Needs player sacrifice history for its end-step intervening-if
+// condition, including sacrifices before this Vehicle entered and objects no longer on the
+// battlefield.
 pub(in crate::card::sets) static PHOENIX_FLEET_AIRSHIP: CardRecord = CardRecord::new(
     "Phoenix Fleet Airship",
     "b51d3259-c41c-4f64-9666-0a9e676c812f",
@@ -2954,7 +3025,10 @@ pub(in crate::card::sets) static RAVEN_EAGLE: CardRecord = CardRecord::new(
 );
 
 // TLA 117 — The Rise of Sozin // Fire Lord Sozin
-// Audit: unsupported — Needs firebending mana whose individual units survive combat step boundaries and expire at the end of that combat. Also needs a single four-card search limit across graveyard, hand, and library, and target-group bounds based on the later optional X payment.
+// Audit: unsupported — Needs firebending mana whose individual units survive combat step
+// boundaries and expire at the end of that combat. Also needs a single four-card search limit
+// across graveyard, hand, and library, and target-group bounds based on the later optional X
+// payment.
 pub(in crate::card::sets) static THE_RISE_OF_SOZIN: CardRecord = CardRecord::new(
     "The Rise of Sozin // Fire Lord Sozin",
     "14eadf46-90c2-4376-8183-6a922a60174d",
@@ -2963,7 +3037,8 @@ pub(in crate::card::sets) static THE_RISE_OF_SOZIN: CardRecord = CardRecord::new
 );
 
 // TLA 118 — Ruinous Waterbending
-// Audit: unsupported — Needs waterbend payment combining generic mana with tapping untapped artifacts and creatures, including creatures unable to pay their own tap costs.
+// Audit: unsupported — Needs waterbend payment combining generic mana with tapping untapped
+// artifacts and creatures, including creatures unable to pay their own tap costs.
 pub(in crate::card::sets) static RUINOUS_WATERBENDING: CardRecord = CardRecord::new(
     "Ruinous Waterbending",
     "53161747-c82b-41e8-90ea-7791ea262a85",
@@ -3009,7 +3084,9 @@ pub(in crate::card::sets) static SOLD_OUT: CardRecord = CardRecord::new(
 );
 
 // TLA 120 — Swampsnare Trap
-// Audit: unsupported — Needs a self spell-cost reduction that reads the declared target's flying ability; the current target-sensitive cost condition applies to other spells targeting the cost-modifying source.
+// Audit: unsupported — Needs a self spell-cost reduction that reads the declared target's
+// flying ability; the current target-sensitive cost condition applies to other spells targeting
+// the cost-modifying source.
 pub(in crate::card::sets) static SWAMPSNARE_TRAP: CardRecord = CardRecord::new(
     "Swampsnare Trap",
     "6348b6bf-08a7-45f0-8b2d-2827ab89f21c",
@@ -3018,7 +3095,8 @@ pub(in crate::card::sets) static SWAMPSNARE_TRAP: CardRecord = CardRecord::new(
 );
 
 // TLA 121 — Tundra Tank
-// Audit: unsupported — Needs firebending mana whose individual units survive combat step boundaries and expire at the end of that combat.
+// Audit: unsupported — Needs firebending mana whose individual units survive combat step
+// boundaries and expire at the end of that combat.
 pub(in crate::card::sets) static TUNDRA_TANK: CardRecord = CardRecord::new(
     "Tundra Tank",
     "13c66fce-8f8e-4a98-8413-9f05aebf6e13",
@@ -3173,7 +3251,9 @@ pub(in crate::card::sets) static BUMI_BASH: CardRecord = CardRecord::new(
 );
 
 // TLA 126 — The Cave of Two Lovers
-// Audit: unsupported — Needs earthbend land animation and its independent delayed death-or-exile return trigger, preserving the affected object identity through ability removal and its subsequent zone change.
+// Audit: unsupported — Needs earthbend land animation and its independent delayed
+// death-or-exile return trigger, preserving the affected object identity through ability
+// removal and its subsequent zone change.
 pub(in crate::card::sets) static THE_CAVE_OF_TWO_LOVERS: CardRecord = CardRecord::new(
     "The Cave of Two Lovers",
     "50bf5c8b-f218-46b7-843c-8d8083f02fd2",
@@ -3366,7 +3446,9 @@ pub(in crate::card::sets) static DESERTER_S_DISCIPLE: CardRecord = CardRecord::n
 );
 
 // TLA 132 — Fated Firepower
-// Audit: unsupported — Needs a damage replacement adding the current source counter count to each matching damage event; damage multiplication and prevention do not implement additive modification.
+// Audit: unsupported — Needs a damage replacement adding the current source counter count to
+// each matching damage event; damage multiplication and prevention do not implement additive
+// modification.
 pub(in crate::card::sets) static FATED_FIREPOWER: CardRecord = CardRecord::new(
     "Fated Firepower",
     "51352127-1f86-42e9-b4ca-2fd58b14e86b",
@@ -3375,7 +3457,8 @@ pub(in crate::card::sets) static FATED_FIREPOWER: CardRecord = CardRecord::new(
 );
 
 // TLA 133 — Fire Nation Attacks
-// Audit: unsupported — Needs firebending mana whose individual units survive combat step boundaries and expire at the end of that combat.
+// Audit: unsupported — Needs firebending mana whose individual units survive combat step
+// boundaries and expire at the end of that combat.
 pub(in crate::card::sets) static FIRE_NATION_ATTACKS: CardRecord = CardRecord::new(
     "Fire Nation Attacks",
     "9cc10845-8989-46ca-a57a-fd728fca0729",
@@ -3384,7 +3467,8 @@ pub(in crate::card::sets) static FIRE_NATION_ATTACKS: CardRecord = CardRecord::n
 );
 
 // TLA 134 — Fire Nation Cadets
-// Audit: unsupported — Needs firebending mana whose individual units survive combat step boundaries and expire at the end of that combat.
+// Audit: unsupported — Needs firebending mana whose individual units survive combat step
+// boundaries and expire at the end of that combat.
 pub(in crate::card::sets) static FIRE_NATION_CADETS: CardRecord = CardRecord::new(
     "Fire Nation Cadets",
     "1a3a862c-9c9a-41cd-94d1-2d0cff22a6cd",
@@ -3393,7 +3477,9 @@ pub(in crate::card::sets) static FIRE_NATION_CADETS: CardRecord = CardRecord::ne
 );
 
 // TLA 135 — Fire Nation Raider
-// Audit: unsupported — Needs player attack history for raid that remains true after the attacking creatures leave or change controllers; current predicates only inspect individual battlefield creatures.
+// Audit: unsupported — Needs player attack history for raid that remains true after the
+// attacking creatures leave or change controllers; current predicates only inspect individual
+// battlefield creatures.
 pub(in crate::card::sets) static FIRE_NATION_RAIDER: CardRecord = CardRecord::new(
     "Fire Nation Raider",
     "ede1bbdb-c726-46e3-aaf1-b8cf2be2c341",
@@ -3402,7 +3488,8 @@ pub(in crate::card::sets) static FIRE_NATION_RAIDER: CardRecord = CardRecord::ne
 );
 
 // TLA 136 — Fire Sages
-// Audit: unsupported — Needs firebending mana whose individual units survive combat step boundaries and expire at the end of that combat.
+// Audit: unsupported — Needs firebending mana whose individual units survive combat step
+// boundaries and expire at the end of that combat.
 pub(in crate::card::sets) static FIRE_SAGES: CardRecord = CardRecord::new(
     "Fire Sages",
     "71a9fa44-306f-417a-a9d9-991aff95025c",
@@ -3411,7 +3498,9 @@ pub(in crate::card::sets) static FIRE_SAGES: CardRecord = CardRecord::new(
 );
 
 // TLA 137 — Firebender Ascension
-// Audit: unsupported — Needs firebending mana whose individual units survive combat step boundaries and expire at the end of that combat. Also needs a trigger caused by an attacking creature triggering its own ability, with that ability retained as the copy target.
+// Audit: unsupported — Needs firebending mana whose individual units survive combat step
+// boundaries and expire at the end of that combat. Also needs a trigger caused by an attacking
+// creature triggering its own ability, with that ability retained as the copy target.
 pub(in crate::card::sets) static FIREBENDER_ASCENSION: CardRecord = CardRecord::new(
     "Firebender Ascension",
     "2929b702-03c6-4cf0-a3f7-61b27f4803be",
@@ -3452,7 +3541,8 @@ pub(in crate::card::sets) static FIREBENDING_LESSON: CardRecord = CardRecord::ne
 );
 
 // TLA 139 — Firebending Student
-// Audit: unsupported — Needs firebending mana whose individual units survive combat step boundaries and expire at the end of that combat.
+// Audit: unsupported — Needs firebending mana whose individual units survive combat step
+// boundaries and expire at the end of that combat.
 pub(in crate::card::sets) static FIREBENDING_STUDENT: CardRecord = CardRecord::new(
     "Firebending Student",
     "3b366f59-16fe-43cb-888d-1f93ef8fd332",
@@ -3538,7 +3628,9 @@ pub(in crate::card::sets) static IROH_S_DEMONSTRATION: CardRecord = CardRecord::
 );
 
 // TLA 142 — Jeong Jeong, the Deserter
-// Audit: unsupported — Needs firebending mana whose individual units survive combat step boundaries and expire at the end of that combat. Also needs a delayed trigger combining next-matching-cast consumption with expiration at end of turn.
+// Audit: unsupported — Needs firebending mana whose individual units survive combat step
+// boundaries and expire at the end of that combat. Also needs a delayed trigger combining
+// next-matching-cast consumption with expiration at end of turn.
 pub(in crate::card::sets) static JEONG_JEONG_THE_DESERTER: CardRecord = CardRecord::new(
     "Jeong Jeong, the Deserter",
     "a9f63d3b-bee5-48bc-8b04-d8b24b0bda6e",
@@ -3598,7 +3690,8 @@ pub(in crate::card::sets) static JET_S_BRAINWASHING: CardRecord = CardRecord::ne
 );
 
 // TLA 144 — The Last Agni Kai
-// Audit: unsupported — Needs retention of unspent red mana across step and phase boundaries until end of turn; current mana units have no such retention effect.
+// Audit: unsupported — Needs retention of unspent red mana across step and phase boundaries
+// until end of turn; current mana units have no such retention effect.
 pub(in crate::card::sets) static THE_LAST_AGNI_KAI: CardRecord = CardRecord::new(
     "The Last Agni Kai",
     "61eaebc6-7575-48ed-b212-ff8b0c7ae694",
@@ -3607,7 +3700,8 @@ pub(in crate::card::sets) static THE_LAST_AGNI_KAI: CardRecord = CardRecord::new
 );
 
 // TLA 145 — The Legend of Roku // Avatar Roku
-// Audit: unsupported — Needs firebending mana whose individual units survive combat step boundaries and expire at the end of that combat.
+// Audit: unsupported — Needs firebending mana whose individual units survive combat step
+// boundaries and expire at the end of that combat.
 pub(in crate::card::sets) static THE_LEGEND_OF_ROKU: CardRecord = CardRecord::new(
     "The Legend of Roku // Avatar Roku",
     "95f2f5af-d405-4534-8683-5a9001f997b4",
@@ -3744,7 +3838,8 @@ pub(in crate::card::sets) static PRICE_OF_FREEDOM: CardRecord = CardRecord::new(
 );
 
 // TLA 150 — Ran and Shaw
-// Audit: unsupported — Needs firebending mana whose individual units survive combat step boundaries and expire at the end of that combat.
+// Audit: unsupported — Needs firebending mana whose individual units survive combat step
+// boundaries and expire at the end of that combat.
 pub(in crate::card::sets) static RAN_AND_SHAW: CardRecord = CardRecord::new(
     "Ran and Shaw",
     "6436e2d0-989f-47e3-90bc-9cde82a2ddb4",
@@ -3753,7 +3848,9 @@ pub(in crate::card::sets) static RAN_AND_SHAW: CardRecord = CardRecord::new(
 );
 
 // TLA 151 — Redirect Lightning
-// Audit: unsupported — Needs a replayable choice between two objectless additional costs, paying life or paying mana; current cast actions identify cost branches through chosen objects, so these two alternatives serialize identically.
+// Audit: unsupported — Needs a replayable choice between two objectless additional costs,
+// paying life or paying mana; current cast actions identify cost branches through chosen
+// objects, so these two alternatives serialize identically.
 pub(in crate::card::sets) static REDIRECT_LIGHTNING: CardRecord = CardRecord::new(
     "Redirect Lightning",
     "2b5b14a7-1fdd-4efc-b197-cadfa7f7c860",
@@ -3762,7 +3859,8 @@ pub(in crate::card::sets) static REDIRECT_LIGHTNING: CardRecord = CardRecord::ne
 );
 
 // TLA 152 — Rough Rhino Cavalry
-// Audit: unsupported — Needs firebending mana whose individual units survive combat step boundaries and expire at the end of that combat.
+// Audit: unsupported — Needs firebending mana whose individual units survive combat step
+// boundaries and expire at the end of that combat.
 pub(in crate::card::sets) static ROUGH_RHINO_CAVALRY: CardRecord = CardRecord::new(
     "Rough Rhino Cavalry",
     "a8bc29cf-f6f8-4bb8-b722-f016b58b6d2d",
@@ -3771,7 +3869,9 @@ pub(in crate::card::sets) static ROUGH_RHINO_CAVALRY: CardRecord = CardRecord::n
 );
 
 // TLA 153 — Solstice Revelations
-// Audit: unsupported — Needs conditional free casting based on the mana value of the actual proposed spell (including alternate faces) versus the current Mountain count, with an uncast selected card moved to hand.
+// Audit: unsupported — Needs conditional free casting based on the mana value of the actual
+// proposed spell (including alternate faces) versus the current Mountain count, with an uncast
+// selected card moved to hand.
 pub(in crate::card::sets) static SOLSTICE_REVELATIONS: CardRecord = CardRecord::new(
     "Solstice Revelations",
     "f22ac19f-66fb-4d54-9f09-495a20a29577",
@@ -3780,7 +3880,8 @@ pub(in crate::card::sets) static SOLSTICE_REVELATIONS: CardRecord = CardRecord::
 );
 
 // TLA 154 — Sozin's Comet
-// Audit: unsupported — Needs firebending mana whose individual units survive combat step boundaries and expire at the end of that combat.
+// Audit: unsupported — Needs firebending mana whose individual units survive combat step
+// boundaries and expire at the end of that combat.
 pub(in crate::card::sets) static SOZIN_S_COMET: CardRecord = CardRecord::new(
     "Sozin's Comet",
     "649e50e5-299b-4191-87a8-36e9378795be",
@@ -3885,7 +3986,9 @@ pub(in crate::card::sets) static TWIN_BLADES: CardRecord = CardRecord::new(
 );
 
 // TLA 158 — Ty Lee, Artful Acrobat
-// Audit: unsupported — Needs a reflexive optional-payment trigger that survives the attacking source leaving and selects the target only after payment; current battlefield optional-effect listeners lose the trigger when that source is gone.
+// Audit: unsupported — Needs a reflexive optional-payment trigger that survives the attacking
+// source leaving and selects the target only after payment; current battlefield optional-effect
+// listeners lose the trigger when that source is gone.
 pub(in crate::card::sets) static TY_LEE_ARTFUL_ACROBAT: CardRecord = CardRecord::new(
     "Ty Lee, Artful Acrobat",
     "dcd9df24-272b-4aa1-b05f-6ee6b3d3dfe7",
@@ -4056,7 +4159,8 @@ pub(in crate::card::sets) static ZHAO_THE_MOON_SLAYER: CardRecord = CardRecord::
 );
 
 // TLA 163 — Zuko, Exiled Prince
-// Audit: unsupported — Needs firebending mana whose individual units survive combat step boundaries and expire at the end of that combat.
+// Audit: unsupported — Needs firebending mana whose individual units survive combat step
+// boundaries and expire at the end of that combat.
 pub(in crate::card::sets) static ZUKO_EXILED_PRINCE: CardRecord = CardRecord::new(
     "Zuko, Exiled Prince",
     "6a73b372-9c0e-4a85-89d2-440163330687",
@@ -4233,7 +4337,9 @@ pub(in crate::card::sets) static AVATAR_DESTINY: CardRecord = CardRecord::new(
 );
 
 // TLA 166 — Badgermole
-// Audit: unsupported — Needs earthbend land animation and its independent delayed death-or-exile return trigger, preserving the affected object identity through ability removal and its subsequent zone change.
+// Audit: unsupported — Needs earthbend land animation and its independent delayed
+// death-or-exile return trigger, preserving the affected object identity through ability
+// removal and its subsequent zone change.
 pub(in crate::card::sets) static BADGERMOLE: CardRecord = CardRecord::new(
     "Badgermole",
     "aabbd420-b7fc-496f-9168-bad823d51d9e",
@@ -4242,7 +4348,9 @@ pub(in crate::card::sets) static BADGERMOLE: CardRecord = CardRecord::new(
 );
 
 // TLA 167 — Badgermole Cub
-// Audit: unsupported — Needs earthbend land animation and its independent delayed death-or-exile return trigger, preserving the affected object identity through ability removal and its subsequent zone change.
+// Audit: unsupported — Needs earthbend land animation and its independent delayed
+// death-or-exile return trigger, preserving the affected object identity through ability
+// removal and its subsequent zone change.
 pub(in crate::card::sets) static BADGERMOLE_CUB: CardRecord = CardRecord::new(
     "Badgermole Cub",
     "340c5799-4964-44dd-8c48-8f3f3aba5211",
@@ -4251,7 +4359,9 @@ pub(in crate::card::sets) static BADGERMOLE_CUB: CardRecord = CardRecord::new(
 );
 
 // TLA 168 — The Boulder, Ready to Rumble
-// Audit: unsupported — Needs earthbend land animation and its independent delayed death-or-exile return trigger, preserving the affected object identity through ability removal and its subsequent zone change.
+// Audit: unsupported — Needs earthbend land animation and its independent delayed
+// death-or-exile return trigger, preserving the affected object identity through ability
+// removal and its subsequent zone change.
 pub(in crate::card::sets) static THE_BOULDER_READY_TO_RUMBLE: CardRecord = CardRecord::new(
     "The Boulder, Ready to Rumble",
     "ec27a466-5457-44c6-a842-1de7d3788d66",
@@ -4260,7 +4370,9 @@ pub(in crate::card::sets) static THE_BOULDER_READY_TO_RUMBLE: CardRecord = CardR
 );
 
 // TLA 169 — Bumi, King of Three Trials
-// Audit: unsupported — Needs earthbend land animation and its independent delayed death-or-exile return trigger, preserving the affected object identity through ability removal and its subsequent zone change.
+// Audit: unsupported — Needs earthbend land animation and its independent delayed
+// death-or-exile return trigger, preserving the affected object identity through ability
+// removal and its subsequent zone change.
 pub(in crate::card::sets) static BUMI_KING_OF_THREE_TRIALS: CardRecord = CardRecord::new(
     "Bumi, King of Three Trials",
     "a268697b-22b0-4e1b-a5b6-d9be95025e57",
@@ -4315,7 +4427,8 @@ pub(in crate::card::sets) static CYCLE_OF_RENEWAL: CardRecord = CardRecord::new(
 );
 
 // TLA 171 — Diligent Zookeeper
-// Audit: unsupported — Needs a continuous per-recipient count of its creature types, capped at ten; current values do not expose creature-type cardinality.
+// Audit: unsupported — Needs a continuous per-recipient count of its creature types, capped at
+// ten; current values do not expose creature-type cardinality.
 pub(in crate::card::sets) static DILIGENT_ZOOKEEPER: CardRecord = CardRecord::new(
     "Diligent Zookeeper",
     "21f52564-9820-42dc-a08d-459d51afc397",
@@ -4324,7 +4437,9 @@ pub(in crate::card::sets) static DILIGENT_ZOOKEEPER: CardRecord = CardRecord::ne
 );
 
 // TLA 172 — The Earth King
-// Audit: unsupported — Needs the frozen number of matching power-four attackers from the declaration; the attack matcher filters its trigger but TriggerEventAmount contains the total number of attackers, and a resolution-time battlefield count is not equivalent.
+// Audit: unsupported — Needs the frozen number of matching power-four attackers from the
+// declaration; the attack matcher filters its trigger but TriggerEventAmount contains the total
+// number of attackers, and a resolution-time battlefield count is not equivalent.
 pub(in crate::card::sets) static THE_EARTH_KING: CardRecord = CardRecord::new(
     "The Earth King",
     "a8d5dca6-381a-4361-b265-27de8d04335c",
@@ -4333,7 +4448,10 @@ pub(in crate::card::sets) static THE_EARTH_KING: CardRecord = CardRecord::new(
 );
 
 // TLA 173 — Earth Kingdom General
-// Audit: unsupported — Needs earthbend land animation and its independent delayed death-or-exile return trigger, preserving the affected object identity through ability removal and its subsequent zone change. Also needs counter-placement events identifying the placing player and a use limit consumed only when life gain is accepted.
+// Audit: unsupported — Needs earthbend land animation and its independent delayed
+// death-or-exile return trigger, preserving the affected object identity through ability
+// removal and its subsequent zone change. Also needs counter-placement events identifying the
+// placing player and a use limit consumed only when life gain is accepted.
 pub(in crate::card::sets) static EARTH_KINGDOM_GENERAL: CardRecord = CardRecord::new(
     "Earth Kingdom General",
     "8688fce5-74b1-41e1-a59a-05a3878a75cb",
@@ -4342,7 +4460,9 @@ pub(in crate::card::sets) static EARTH_KINGDOM_GENERAL: CardRecord = CardRecord:
 );
 
 // TLA 174 — Earth Rumble
-// Audit: unsupported — Needs earthbend land animation and its independent delayed death-or-exile return trigger, preserving the affected object identity through ability removal and its subsequent zone change.
+// Audit: unsupported — Needs earthbend land animation and its independent delayed
+// death-or-exile return trigger, preserving the affected object identity through ability
+// removal and its subsequent zone change.
 pub(in crate::card::sets) static EARTH_RUMBLE: CardRecord = CardRecord::new(
     "Earth Rumble",
     "62730505-56f1-4043-a8b9-4fb7bc508b47",
@@ -4351,7 +4471,10 @@ pub(in crate::card::sets) static EARTH_RUMBLE: CardRecord = CardRecord::new(
 );
 
 // TLA 175 — Earthbender Ascension
-// Audit: unsupported — Needs earthbend land animation and its independent delayed death-or-exile return trigger, preserving the affected object identity through ability removal and its subsequent zone change. Also needs a reflexive trigger tied to the quest counter placed by the landfall ability, with the later counter target chosen at that point.
+// Audit: unsupported — Needs earthbend land animation and its independent delayed
+// death-or-exile return trigger, preserving the affected object identity through ability
+// removal and its subsequent zone change. Also needs a reflexive trigger tied to the quest
+// counter placed by the landfall ability, with the later counter target chosen at that point.
 pub(in crate::card::sets) static EARTHBENDER_ASCENSION: CardRecord = CardRecord::new(
     "Earthbender Ascension",
     "590a58ab-5e98-4031-8aa6-ce396dc1429f",
@@ -4360,7 +4483,9 @@ pub(in crate::card::sets) static EARTHBENDER_ASCENSION: CardRecord = CardRecord:
 );
 
 // TLA 176 — Earthbending Lesson
-// Audit: unsupported — Needs earthbend land animation and its independent delayed death-or-exile return trigger, preserving the affected object identity through ability removal and its subsequent zone change.
+// Audit: unsupported — Needs earthbend land animation and its independent delayed
+// death-or-exile return trigger, preserving the affected object identity through ability
+// removal and its subsequent zone change.
 pub(in crate::card::sets) static EARTHBENDING_LESSON: CardRecord = CardRecord::new(
     "Earthbending Lesson",
     "eccd63b3-3a3a-4661-9d6e-fb8152429bdb",
@@ -4369,7 +4494,9 @@ pub(in crate::card::sets) static EARTHBENDING_LESSON: CardRecord = CardRecord::n
 );
 
 // TLA 177 — Earthen Ally
-// Audit: unsupported — Needs earthbend land animation and its independent delayed death-or-exile return trigger, preserving the affected object identity through ability removal and its subsequent zone change.
+// Audit: unsupported — Needs earthbend land animation and its independent delayed
+// death-or-exile return trigger, preserving the affected object identity through ability
+// removal and its subsequent zone change.
 pub(in crate::card::sets) static EARTHEN_ALLY: CardRecord = CardRecord::new(
     "Earthen Ally",
     "d7a0f2d9-efa4-4a53-a24b-36694457bd1c",
@@ -4378,7 +4505,8 @@ pub(in crate::card::sets) static EARTHEN_ALLY: CardRecord = CardRecord::new(
 );
 
 // TLA 178 — Elemental Teachings
-// Audit: unsupported — Needs a search selection requiring pairwise different card names; individual-card predicates do not constrain relationships within a chosen search group.
+// Audit: unsupported — Needs a search selection requiring pairwise different card names;
+// individual-card predicates do not constrain relationships within a chosen search group.
 pub(in crate::card::sets) static ELEMENTAL_TEACHINGS: CardRecord = CardRecord::new(
     "Elemental Teachings",
     "cac8ac35-6860-4839-ab85-93d409206c08",
@@ -4432,7 +4560,8 @@ pub(in crate::card::sets) static FLOPSIE_BUMI_S_BUDDY: CardRecord = CardRecord::
 );
 
 // TLA 180 — Foggy Swamp Vinebender
-// Audit: unsupported — Needs waterbend payment combining generic mana with tapping untapped artifacts and creatures, including creatures unable to pay their own tap costs.
+// Audit: unsupported — Needs waterbend payment combining generic mana with tapping untapped
+// artifacts and creatures, including creatures unable to pay their own tap costs.
 pub(in crate::card::sets) static FOGGY_SWAMP_VINEBENDER: CardRecord = CardRecord::new(
     "Foggy Swamp Vinebender",
     "78a75317-94f7-47a4-b4da-5a027fa73248",
@@ -4469,7 +4598,9 @@ pub(in crate::card::sets) static GREAT_DIVIDE_GUIDE: CardRecord = CardRecord::ne
 );
 
 // TLA 182 — Haru, Hidden Talent
-// Audit: unsupported — Needs earthbend land animation and its independent delayed death-or-exile return trigger, preserving the affected object identity through ability removal and its subsequent zone change.
+// Audit: unsupported — Needs earthbend land animation and its independent delayed
+// death-or-exile return trigger, preserving the affected object identity through ability
+// removal and its subsequent zone change.
 pub(in crate::card::sets) static HARU_HIDDEN_TALENT: CardRecord = CardRecord::new(
     "Haru, Hidden Talent",
     "9657a0c0-2c26-4331-8e62-f032265a01af",
@@ -4478,7 +4609,9 @@ pub(in crate::card::sets) static HARU_HIDDEN_TALENT: CardRecord = CardRecord::ne
 );
 
 // TLA 183 — Invasion Tactics
-// Audit: unsupported — Needs combat damage triggers grouped once per damaged player for a filtered set of controlled Allies; current damage batching groups only unrestricted damage-source matchers.
+// Audit: unsupported — Needs combat damage triggers grouped once per damaged player for a
+// filtered set of controlled Allies; current damage batching groups only unrestricted
+// damage-source matchers.
 pub(in crate::card::sets) static INVASION_TACTICS: CardRecord = CardRecord::new(
     "Invasion Tactics",
     "27c6330d-49f6-4707-b4d4-d1411fa422eb",
@@ -4627,7 +4760,9 @@ pub(in crate::card::sets) static LEAVES_FROM_THE_VINE: CardRecord = CardRecord::
 );
 
 // TLA 186 — The Legend of Kyoshi // Avatar Kyoshi
-// Audit: unsupported — Needs earthbend land animation and its independent delayed death-or-exile return trigger, preserving the affected object identity through ability removal and its subsequent zone change.
+// Audit: unsupported — Needs earthbend land animation and its independent delayed
+// death-or-exile return trigger, preserving the affected object identity through ability
+// removal and its subsequent zone change.
 pub(in crate::card::sets) static THE_LEGEND_OF_KYOSHI: CardRecord = CardRecord::new(
     "The Legend of Kyoshi // Avatar Kyoshi",
     "4887ce64-7c98-4bd7-95db-0c43ab71cc6e",
@@ -4831,7 +4966,9 @@ pub(in crate::card::sets) static RAUCOUS_AUDIENCE: CardRecord = CardRecord::new(
 );
 
 // TLA 191 — Rebellious Captives
-// Audit: unsupported — Needs earthbend land animation and its independent delayed death-or-exile return trigger, preserving the affected object identity through ability removal and its subsequent zone change.
+// Audit: unsupported — Needs earthbend land animation and its independent delayed
+// death-or-exile return trigger, preserving the affected object identity through ability
+// removal and its subsequent zone change.
 pub(in crate::card::sets) static REBELLIOUS_CAPTIVES: CardRecord = CardRecord::new(
     "Rebellious Captives",
     "e64a4a8b-323c-4c8b-92af-1a3295799e65",
@@ -4840,7 +4977,9 @@ pub(in crate::card::sets) static REBELLIOUS_CAPTIVES: CardRecord = CardRecord::n
 );
 
 // TLA 192 — Rockalanche
-// Audit: unsupported — Needs earthbend land animation and its independent delayed death-or-exile return trigger, preserving the affected object identity through ability removal and its subsequent zone change.
+// Audit: unsupported — Needs earthbend land animation and its independent delayed
+// death-or-exile return trigger, preserving the affected object identity through ability
+// removal and its subsequent zone change.
 pub(in crate::card::sets) static ROCKALANCHE: CardRecord = CardRecord::new(
     "Rockalanche",
     "52b213d3-6f68-43e6-91e9-435d8fe1f34c",
@@ -5048,7 +5187,9 @@ pub(in crate::card::sets) static SPARRING_DUMMY: CardRecord = CardRecord::new(
 );
 
 // TLA 198 — Toph, the Blind Bandit
-// Audit: unsupported — Needs earthbend land animation and its independent delayed death-or-exile return trigger, preserving the affected object identity through ability removal and its subsequent zone change.
+// Audit: unsupported — Needs earthbend land animation and its independent delayed
+// death-or-exile return trigger, preserving the affected object identity through ability
+// removal and its subsequent zone change.
 pub(in crate::card::sets) static TOPH_THE_BLIND_BANDIT: CardRecord = CardRecord::new(
     "Toph, the Blind Bandit",
     "ff68fa7b-8065-407b-a8b4-bfbb14f1c99c",
@@ -5214,7 +5355,9 @@ pub(in crate::card::sets) static WALLTOP_SENTRIES: CardRecord = CardRecord::new(
 );
 
 // TLA 203 — Aang, at the Crossroads // Aang, Destined Savior
-// Audit: unsupported — Needs earthbend land animation and its independent delayed death-or-exile return trigger, preserving the affected object identity through ability removal and its subsequent zone change.
+// Audit: unsupported — Needs earthbend land animation and its independent delayed
+// death-or-exile return trigger, preserving the affected object identity through ability
+// removal and its subsequent zone change.
 pub(in crate::card::sets) static AANG_AT_THE_CROSSROADS: CardRecord = CardRecord::new(
     "Aang, at the Crossroads // Aang, Destined Savior",
     "fea89ca0-8070-4f28-9851-994314f9d248",
@@ -5223,7 +5366,10 @@ pub(in crate::card::sets) static AANG_AT_THE_CROSSROADS: CardRecord = CardRecord
 );
 
 // TLA 204 — Aang, Swift Savior // Aang and La, Ocean's Fury
-// Audit: unsupported — Needs waterbend payment combining generic mana with tapping untapped artifacts and creatures, including creatures unable to pay their own tap costs; airbend exile with an owner-specific {2} alternative cast permission lasting while that card remains exiled.
+// Audit: unsupported — Needs waterbend payment combining generic mana with tapping untapped
+// artifacts and creatures, including creatures unable to pay their own tap costs; airbend exile
+// with an owner-specific {2} alternative cast permission lasting while that card remains
+// exiled.
 pub(in crate::card::sets) static AANG_SWIFT_SAVIOR: CardRecord = CardRecord::new(
     "Aang, Swift Savior // Aang and La, Ocean's Fury",
     "82866a0e-485a-4f7e-8c49-f7d9ff3f4ad4",
@@ -5284,7 +5430,14 @@ pub(in crate::card::sets) static AIR_NOMAD_LEGACY: CardRecord = CardRecord::new(
 );
 
 // TLA 207 — Avatar Aang // Aang, Master of Elements
-// Audit: unsupported — Needs waterbend payment combining generic mana with tapping untapped artifacts and creatures, including creatures unable to pay their own tap costs; earthbend land animation and its independent delayed death-or-exile return trigger, preserving the affected object identity through ability removal and its subsequent zone change; airbend exile with an owner-specific {2} alternative cast permission lasting while that card remains exiled; firebending mana whose individual units survive combat step boundaries and expire at the end of that combat. Also needs per-turn history of the four named actions and a colored cost reduction that can consume generic costs.
+// Audit: unsupported — Needs waterbend payment combining generic mana with tapping untapped
+// artifacts and creatures, including creatures unable to pay their own tap costs; earthbend
+// land animation and its independent delayed death-or-exile return trigger, preserving the
+// affected object identity through ability removal and its subsequent zone change; airbend
+// exile with an owner-specific {2} alternative cast permission lasting while that card remains
+// exiled; firebending mana whose individual units survive combat step boundaries and expire at
+// the end of that combat. Also needs per-turn history of the four named actions and a colored
+// cost reduction that can consume generic costs.
 pub(in crate::card::sets) static AVATAR_AANG: CardRecord = CardRecord::new(
     "Avatar Aang // Aang, Master of Elements",
     "fe29e909-50e9-4f04-b1a3-2cc5d7e3efe8",
@@ -5293,7 +5446,8 @@ pub(in crate::card::sets) static AVATAR_AANG: CardRecord = CardRecord::new(
 );
 
 // TLA 208 — Azula, Cunning Usurper
-// Audit: unsupported — Needs firebending mana whose individual units survive combat step boundaries and expire at the end of that combat.
+// Audit: unsupported — Needs firebending mana whose individual units survive combat step
+// boundaries and expire at the end of that combat.
 pub(in crate::card::sets) static AZULA_CUNNING_USURPER: CardRecord = CardRecord::new(
     "Azula, Cunning Usurper",
     "daf30e1c-436d-4f23-b1d2-570619a4b7f5",
@@ -5302,7 +5456,9 @@ pub(in crate::card::sets) static AZULA_CUNNING_USURPER: CardRecord = CardRecord:
 );
 
 // TLA 209 — Beifong's Bounty Hunters
-// Audit: unsupported — Needs earthbend land animation and its independent delayed death-or-exile return trigger, preserving the affected object identity through ability removal and its subsequent zone change.
+// Audit: unsupported — Needs earthbend land animation and its independent delayed
+// death-or-exile return trigger, preserving the affected object identity through ability
+// removal and its subsequent zone change.
 pub(in crate::card::sets) static BEIFONG_S_BOUNTY_HUNTERS: CardRecord = CardRecord::new(
     "Beifong's Bounty Hunters",
     "4f88ec3a-44a7-4ae5-a68c-24294dabaeed",
@@ -5311,7 +5467,9 @@ pub(in crate::card::sets) static BEIFONG_S_BOUNTY_HUNTERS: CardRecord = CardReco
 );
 
 // TLA 210 — Bitter Work
-// Audit: unsupported — Needs earthbend land animation and its independent delayed death-or-exile return trigger, preserving the affected object identity through ability removal and its subsequent zone change.
+// Audit: unsupported — Needs earthbend land animation and its independent delayed
+// death-or-exile return trigger, preserving the affected object identity through ability
+// removal and its subsequent zone change.
 pub(in crate::card::sets) static BITTER_WORK: CardRecord = CardRecord::new(
     "Bitter Work",
     "3e8de6a9-9859-4ed2-8ece-ef80a7209be9",
@@ -5320,7 +5478,10 @@ pub(in crate::card::sets) static BITTER_WORK: CardRecord = CardRecord::new(
 );
 
 // TLA 211 — Bumi, Unleashed
-// Audit: unsupported — Needs earthbend land animation and its independent delayed death-or-exile return trigger, preserving the affected object identity through ability removal and its subsequent zone change. Also needs an additional combat with an attack restriction specific to that inserted combat.
+// Audit: unsupported — Needs earthbend land animation and its independent delayed
+// death-or-exile return trigger, preserving the affected object identity through ability
+// removal and its subsequent zone change. Also needs an additional combat with an attack
+// restriction specific to that inserted combat.
 pub(in crate::card::sets) static BUMI_UNLEASHED: CardRecord = CardRecord::new(
     "Bumi, Unleashed",
     "b20a5185-7e31-4fc9-be11-9423bfc389bf",
@@ -5353,7 +5514,8 @@ pub(in crate::card::sets) static CAT_OWL: CardRecord = CardRecord::new(
 );
 
 // TLA 213 — Cruel Administrator
-// Audit: unsupported — Needs firebending mana whose individual units survive combat step boundaries and expire at the end of that combat.
+// Audit: unsupported — Needs firebending mana whose individual units survive combat step
+// boundaries and expire at the end of that combat.
 pub(in crate::card::sets) static CRUEL_ADMINISTRATOR: CardRecord = CardRecord::new(
     "Cruel Administrator",
     "9d70707b-2e25-40b1-80a8-9a5492bca7e2",
@@ -5362,7 +5524,9 @@ pub(in crate::card::sets) static CRUEL_ADMINISTRATOR: CardRecord = CardRecord::n
 );
 
 // TLA 214 — Dai Li Agents
-// Audit: unsupported — Needs earthbend land animation and its independent delayed death-or-exile return trigger, preserving the affected object identity through ability removal and its subsequent zone change.
+// Audit: unsupported — Needs earthbend land animation and its independent delayed
+// death-or-exile return trigger, preserving the affected object identity through ability
+// removal and its subsequent zone change.
 pub(in crate::card::sets) static DAI_LI_AGENTS: CardRecord = CardRecord::new(
     "Dai Li Agents",
     "9ddb8715-341b-400a-b6eb-f3f90518157c",
@@ -5502,7 +5666,8 @@ pub(in crate::card::sets) static EARTH_KING_S_LIEUTENANT: CardRecord = CardRecor
 );
 
 // TLA 218 — Earth Rumble Wrestlers
-// Audit: unsupported — Needs player land-entry history covering entries by effects and lands that subsequently leave or change controllers; LandsPlayedThisTurn counts only land plays.
+// Audit: unsupported — Needs player land-entry history covering entries by effects and lands
+// that subsequently leave or change controllers; LandsPlayedThisTurn counts only land plays.
 pub(in crate::card::sets) static EARTH_RUMBLE_WRESTLERS: CardRecord = CardRecord::new(
     "Earth Rumble Wrestlers",
     "74fca0b8-12e1-405f-b999-160d65fe0ade",
@@ -5511,7 +5676,9 @@ pub(in crate::card::sets) static EARTH_RUMBLE_WRESTLERS: CardRecord = CardRecord
 );
 
 // TLA 219 — Earth Village Ruffians
-// Audit: unsupported — Needs earthbend land animation and its independent delayed death-or-exile return trigger, preserving the affected object identity through ability removal and its subsequent zone change.
+// Audit: unsupported — Needs earthbend land animation and its independent delayed
+// death-or-exile return trigger, preserving the affected object identity through ability
+// removal and its subsequent zone change.
 pub(in crate::card::sets) static EARTH_VILLAGE_RUFFIANS: CardRecord = CardRecord::new(
     "Earth Village Ruffians",
     "56d4e0b7-232f-4953-84a3-e6f17781aa45",
@@ -5520,7 +5687,8 @@ pub(in crate::card::sets) static EARTH_VILLAGE_RUFFIANS: CardRecord = CardRecord
 );
 
 // TLA 220 — Fire Lord Azula
-// Audit: unsupported — Needs firebending mana whose individual units survive combat step boundaries and expire at the end of that combat.
+// Audit: unsupported — Needs firebending mana whose individual units survive combat step
+// boundaries and expire at the end of that combat.
 pub(in crate::card::sets) static FIRE_LORD_AZULA: CardRecord = CardRecord::new(
     "Fire Lord Azula",
     "bc6146bf-f0c6-4557-af6a-74c643d5fc01",
@@ -5529,7 +5697,8 @@ pub(in crate::card::sets) static FIRE_LORD_AZULA: CardRecord = CardRecord::new(
 );
 
 // TLA 221 — Fire Lord Zuko
-// Audit: unsupported — Needs firebending mana whose individual units survive combat step boundaries and expire at the end of that combat.
+// Audit: unsupported — Needs firebending mana whose individual units survive combat step
+// boundaries and expire at the end of that combat.
 pub(in crate::card::sets) static FIRE_LORD_ZUKO: CardRecord = CardRecord::new(
     "Fire Lord Zuko",
     "e62d3bcc-7bb4-42be-90a9-caf3c1caa29d",
@@ -5664,7 +5833,8 @@ pub(in crate::card::sets) static GURU_PATHIK: CardRecord = CardRecord::new(
 );
 
 // TLA 224 — Hama, the Bloodbender
-// Audit: unsupported — Needs waterbend payment combining generic mana with tapping untapped artifacts and creatures, including creatures unable to pay their own tap costs.
+// Audit: unsupported — Needs waterbend payment combining generic mana with tapping untapped
+// artifacts and creatures, including creatures unable to pay their own tap costs.
 pub(in crate::card::sets) static HAMA_THE_BLOODBENDER: CardRecord = CardRecord::new(
     "Hama, the Bloodbender",
     "6fa1197d-7b19-4d86-81e2-5c87de87757b",
@@ -5673,7 +5843,8 @@ pub(in crate::card::sets) static HAMA_THE_BLOODBENDER: CardRecord = CardRecord::
 );
 
 // TLA 225 — Hei Bai, Spirit of Balance
-// Audit: unsupported — Needs one effect transferring the departing source's complete last-known counter inventory to another creature, including every arbitrary named counter.
+// Audit: unsupported — Needs one effect transferring the departing source's complete last-known
+// counter inventory to another creature, including every arbitrary named counter.
 pub(in crate::card::sets) static HEI_BAI_SPIRIT_OF_BALANCE: CardRecord = CardRecord::new(
     "Hei Bai, Spirit of Balance",
     "060d24e0-1567-41f1-ae8c-2d3b1834df3c",
@@ -5713,7 +5884,8 @@ pub(in crate::card::sets) static HERMITIC_HERBALIST: CardRecord = CardRecord::ne
 );
 
 // TLA 227 — Iroh, Grand Lotus
-// Audit: unsupported — Needs firebending mana whose individual units survive combat step boundaries and expire at the end of that combat.
+// Audit: unsupported — Needs firebending mana whose individual units survive combat step
+// boundaries and expire at the end of that combat.
 pub(in crate::card::sets) static IROH_GRAND_LOTUS: CardRecord = CardRecord::new(
     "Iroh, Grand Lotus",
     "879b73d3-4552-4fdc-baee-c4d097ae9a4f",
@@ -5722,7 +5894,9 @@ pub(in crate::card::sets) static IROH_GRAND_LOTUS: CardRecord = CardRecord::new(
 );
 
 // TLA 228 — Iroh, Tea Master
-// Audit: unsupported — Needs a reflexive optional-control-change trigger after the gift succeeds, retaining the gifted object and acting even when Iroh leaves; current optional-effect listeners require a battlefield source.
+// Audit: unsupported — Needs a reflexive optional-control-change trigger after the gift
+// succeeds, retaining the gifted object and acting even when Iroh leaves; current
+// optional-effect listeners require a battlefield source.
 pub(in crate::card::sets) static IROH_TEA_MASTER: CardRecord = CardRecord::new(
     "Iroh, Tea Master",
     "d1f5e10d-0a89-4129-9717-a921f20d3616",
@@ -5791,7 +5965,9 @@ pub(in crate::card::sets) static JET_FREEDOM_FIGHTER: CardRecord = CardRecord::n
 );
 
 // TLA 230 — Katara, the Fearless
-// Audit: unsupported — Needs general trigger duplication filtered by the triggering ability's Ally source, across all trigger event kinds; current doubling is limited to specific entry events.
+// Audit: unsupported — Needs general trigger duplication filtered by the triggering ability's
+// Ally source, across all trigger event kinds; current doubling is limited to specific entry
+// events.
 pub(in crate::card::sets) static KATARA_THE_FEARLESS: CardRecord = CardRecord::new(
     "Katara, the Fearless",
     "b0a18f8b-7364-4375-b2e1-e2f15978517f",
@@ -5800,7 +5976,8 @@ pub(in crate::card::sets) static KATARA_THE_FEARLESS: CardRecord = CardRecord::n
 );
 
 // TLA 231 — Katara, Water Tribe's Hope
-// Audit: unsupported — Needs waterbend payment combining generic mana with tapping untapped artifacts and creatures, including creatures unable to pay their own tap costs.
+// Audit: unsupported — Needs waterbend payment combining generic mana with tapping untapped
+// artifacts and creatures, including creatures unable to pay their own tap costs.
 pub(in crate::card::sets) static KATARA_WATER_TRIBE_S_HOPE: CardRecord = CardRecord::new(
     "Katara, Water Tribe's Hope",
     "9ec03308-59a2-417a-938f-bdda75080e43",
@@ -5934,7 +6111,9 @@ pub(in crate::card::sets) static MESSENGER_HAWK: CardRecord = CardRecord::new(
 );
 
 // TLA 235 — Ozai, the Phoenix King
-// Audit: unsupported — Needs firebending mana whose individual units survive combat step boundaries and expire at the end of that combat. Also needs converting expiring mana to red and a continuous unspent-mana count predicate.
+// Audit: unsupported — Needs firebending mana whose individual units survive combat step
+// boundaries and expire at the end of that combat. Also needs converting expiring mana to red
+// and a continuous unspent-mana count predicate.
 pub(in crate::card::sets) static OZAI_THE_PHOENIX_KING: CardRecord = CardRecord::new(
     "Ozai, the Phoenix King",
     "a98b1550-4609-4a2f-9371-4afe1cdc613e",
@@ -6048,7 +6227,8 @@ pub(in crate::card::sets) static PROFESSOR_ZEI_ANTHROPOLOGIST: CardRecord = Card
 );
 
 // TLA 239 — Sandbender Scavengers
-// Audit: unsupported — Needs a reflexive trigger after optional self-exile from the graveyard, retaining its last-known power and selecting the reanimation target at that later time.
+// Audit: unsupported — Needs a reflexive trigger after optional self-exile from the graveyard,
+// retaining its last-known power and selecting the reanimation target at that later time.
 pub(in crate::card::sets) static SANDBENDER_SCAVENGERS: CardRecord = CardRecord::new(
     "Sandbender Scavengers",
     "9bfe0f7c-6dac-41d4-a013-109445158a5e",
@@ -6248,7 +6428,8 @@ pub(in crate::card::sets) static SUKI_KYOSHI_WARRIOR: CardRecord = CardRecord::n
 );
 
 // TLA 244 — Sun Warriors
-// Audit: unsupported — Needs firebending mana whose individual units survive combat step boundaries and expire at the end of that combat.
+// Audit: unsupported — Needs firebending mana whose individual units survive combat step
+// boundaries and expire at the end of that combat.
 pub(in crate::card::sets) static SUN_WARRIORS: CardRecord = CardRecord::new(
     "Sun Warriors",
     "e477d750-42d2-48c8-bc1f-8148d15d5f53",
@@ -6288,7 +6469,9 @@ pub(in crate::card::sets) static TOLLS_OF_WAR: CardRecord = CardRecord::new(
 );
 
 // TLA 246 — Toph, Hardheaded Teacher
-// Audit: unsupported — Needs earthbend land animation and its independent delayed death-or-exile return trigger, preserving the affected object identity through ability removal and its subsequent zone change.
+// Audit: unsupported — Needs earthbend land animation and its independent delayed
+// death-or-exile return trigger, preserving the affected object identity through ability
+// removal and its subsequent zone change.
 pub(in crate::card::sets) static TOPH_HARDHEADED_TEACHER: CardRecord = CardRecord::new(
     "Toph, Hardheaded Teacher",
     "e3ba3395-39db-4330-9801-53def924f253",
@@ -6297,7 +6480,9 @@ pub(in crate::card::sets) static TOPH_HARDHEADED_TEACHER: CardRecord = CardRecor
 );
 
 // TLA 247 — Toph, the First Metalbender
-// Audit: unsupported — Needs earthbend land animation and its independent delayed death-or-exile return trigger, preserving the affected object identity through ability removal and its subsequent zone change.
+// Audit: unsupported — Needs earthbend land animation and its independent delayed
+// death-or-exile return trigger, preserving the affected object identity through ability
+// removal and its subsequent zone change.
 pub(in crate::card::sets) static TOPH_THE_FIRST_METALBENDER: CardRecord = CardRecord::new(
     "Toph, the First Metalbender",
     "70b6670f-a9fa-4d75-b0a7-c01b5071a514",
@@ -6306,7 +6491,8 @@ pub(in crate::card::sets) static TOPH_THE_FIRST_METALBENDER: CardRecord = CardRe
 );
 
 // TLA 248 — Uncle Iroh
-// Audit: unsupported — Needs firebending mana whose individual units survive combat step boundaries and expire at the end of that combat.
+// Audit: unsupported — Needs firebending mana whose individual units survive combat step
+// boundaries and expire at the end of that combat.
 pub(in crate::card::sets) static UNCLE_IROH: CardRecord = CardRecord::new(
     "Uncle Iroh",
     "5c88672c-0eba-4e93-a0ec-30bbb1bb7661",
@@ -6315,7 +6501,8 @@ pub(in crate::card::sets) static UNCLE_IROH: CardRecord = CardRecord::new(
 );
 
 // TLA 249 — Vindictive Warden
-// Audit: unsupported — Needs firebending mana whose individual units survive combat step boundaries and expire at the end of that combat.
+// Audit: unsupported — Needs firebending mana whose individual units survive combat step
+// boundaries and expire at the end of that combat.
 pub(in crate::card::sets) static VINDICTIVE_WARDEN: CardRecord = CardRecord::new(
     "Vindictive Warden",
     "0f34de05-39a9-425f-a3b4-3a9d46c917ac",
@@ -6381,7 +6568,8 @@ pub(in crate::card::sets) static WHITE_LOTUS_REINFORCEMENTS: CardRecord = CardRe
 );
 
 // TLA 252 — Zhao, Ruthless Admiral
-// Audit: unsupported — Needs firebending mana whose individual units survive combat step boundaries and expire at the end of that combat.
+// Audit: unsupported — Needs firebending mana whose individual units survive combat step
+// boundaries and expire at the end of that combat.
 pub(in crate::card::sets) static ZHAO_RUTHLESS_ADMIRAL: CardRecord = CardRecord::new(
     "Zhao, Ruthless Admiral",
     "3fd48a57-b0bb-4177-a0f3-bd317a179cbe",
@@ -6390,7 +6578,9 @@ pub(in crate::card::sets) static ZHAO_RUTHLESS_ADMIRAL: CardRecord = CardRecord:
 );
 
 // TLA 253 — Zuko, Conflicted
-// Audit: unsupported — Needs persistent per-object history of chosen modes and a first-main-phase trigger; ordinary modal effects do not exclude modes chosen on earlier turns.
+// Audit: unsupported — Needs persistent per-object history of chosen modes and a
+// first-main-phase trigger; ordinary modal effects do not exclude modes chosen on earlier
+// turns.
 pub(in crate::card::sets) static ZUKO_CONFLICTED: CardRecord = CardRecord::new(
     "Zuko, Conflicted",
     "9d555cab-ec86-4f27-bca2-7d01f79c3f46",
@@ -6430,7 +6620,8 @@ pub(in crate::card::sets) static BARRELS_OF_BLASTING_JELLY: CardRecord = CardRec
 );
 
 // TLA 255 — Bender's Waterskin
-// Audit: unsupported — Needs untapping during each other player's untap step as part of the turn-based action; an upkeep trigger would create an incorrect priority and timing window.
+// Audit: unsupported — Needs untapping during each other player's untap step as part of the
+// turn-based action; an upkeep trigger would create an incorrect priority and timing window.
 pub(in crate::card::sets) static BENDER_S_WATERSKIN: CardRecord = CardRecord::new(
     "Bender's Waterskin",
     "6d4a1712-d19e-4475-9614-a0b1af4da610",
@@ -6540,7 +6731,8 @@ pub(in crate::card::sets) static METEOR_SWORD: CardRecord = CardRecord::new(
 );
 
 // TLA 259 — Planetarium of Wan Shi Tong
-// Audit: unsupported — Needs a shared trigger for scry or surveil completion and an optional-resolution use limit spent only when the look/cast action is taken.
+// Audit: unsupported — Needs a shared trigger for scry or surveil completion and an
+// optional-resolution use limit spent only when the look/cast action is taken.
 pub(in crate::card::sets) static PLANETARIUM_OF_WAN_SHI_TONG: CardRecord = CardRecord::new(
     "Planetarium of Wan Shi Tong",
     "0ebaf0bf-7aa2-469d-bdbb-0fbf6741eede",
@@ -6620,7 +6812,9 @@ pub(in crate::card::sets) static THE_WALLS_OF_BA_SING_SE: CardRecord = CardRecor
 );
 
 // TLA 262 — White Lotus Tile
-// Audit: unsupported — Needs the maximum size of a controlled creature group sharing any one creature type, including multi-type creatures; current counts cannot maximize over creature types.
+// Audit: unsupported — Needs the maximum size of a controlled creature group sharing any one
+// creature type, including multi-type creatures; current counts cannot maximize over creature
+// types.
 pub(in crate::card::sets) static WHITE_LOTUS_TILE: CardRecord = CardRecord::new(
     "White Lotus Tile",
     "1d70f9ec-fdc1-4219-b89b-c030d712c1fc",
@@ -6717,7 +6911,9 @@ pub(in crate::card::sets) static AIRSHIP_ENGINE_ROOM: CardRecord = CardRecord::n
 );
 
 // TLA 266 — Ba Sing Se
-// Audit: unsupported — Needs earthbend land animation and its independent delayed death-or-exile return trigger, preserving the affected object identity through ability removal and its subsequent zone change.
+// Audit: unsupported — Needs earthbend land animation and its independent delayed
+// death-or-exile return trigger, preserving the affected object identity through ability
+// removal and its subsequent zone change.
 pub(in crate::card::sets) static BA_SING_SE: CardRecord = CardRecord::new(
     "Ba Sing Se",
     "bdf3b2be-d0cd-4a3c-a10e-82d32c12d3bd",
@@ -6736,7 +6932,8 @@ pub(in crate::card::sets) static BOILING_ROCK_PRISON: CardRecord = CardRecord::n
 );
 
 // TLA 268 — Fire Nation Palace
-// Audit: unsupported — Needs firebending mana whose individual units survive combat step boundaries and expire at the end of that combat.
+// Audit: unsupported — Needs firebending mana whose individual units survive combat step
+// boundaries and expire at the end of that combat.
 pub(in crate::card::sets) static FIRE_NATION_PALACE: CardRecord = CardRecord::new(
     "Fire Nation Palace",
     "c91ac3f2-9fcd-4b41-a168-ae7f70b67d3c",
@@ -6756,7 +6953,9 @@ pub(in crate::card::sets) static FOGGY_BOTTOM_SWAMP: CardRecord = CardRecord::ne
 );
 
 // TLA 270 — Jasmine Dragon Tea Shop
-// Audit: unsupported — Needs a disjunctive mana spend restriction allowing either an Ally spell or an activated ability of an Ally source; multiple current restrictions combine conjunctively.
+// Audit: unsupported — Needs a disjunctive mana spend restriction allowing either an Ally spell
+// or an activated ability of an Ally source; multiple current restrictions combine
+// conjunctively.
 pub(in crate::card::sets) static JASMINE_DRAGON_TEA_SHOP: CardRecord = CardRecord::new(
     "Jasmine Dragon Tea Shop",
     "da2c83d4-a95f-47ff-a08f-694eb78d6b9b",
@@ -6885,7 +7084,9 @@ pub(in crate::card::sets) static RUMBLE_ARENA: CardRecord = CardRecord::new(
 );
 
 // TLA 278 — Secret Tunnel
-// Audit: unsupported — Needs a relational target constraint requiring the two targeted creatures to share a creature type; independent target predicates cannot express that pairwise relationship.
+// Audit: unsupported — Needs a relational target constraint requiring the two targeted
+// creatures to share a creature type; independent target predicates cannot express that
+// pairwise relationship.
 pub(in crate::card::sets) static SECRET_TUNNEL: CardRecord = CardRecord::new(
     "Secret Tunnel",
     "2d39a0e1-6484-409c-ab05-5b276925a949",

@@ -297,8 +297,11 @@ pub(in crate::card::sets) static CHAIN_OF_SILENCE: CardRecord = CardRecord::new(
     "Chain of Silence",
     "9a60ac8e-11eb-433f-86f9-8e593b38c617",
     "Randy Gallegos",
-CardRules::new_instant(mana_cost!("{1}{W}")).with_ability(AbilityDef::spell_with_targets(
-        "Prevent all damage target creature would deal this turn. That creature's controller may sacrifice a land of their choice. If the player does, they may copy this spell and may choose a new target for that copy.",
+    CardRules::new_instant(mana_cost!("{1}{W}")).with_ability(AbilityDef::spell_with_targets(
+        "Prevent all damage target creature would deal this turn. \
+         That creature's controller may sacrifice a land of their \
+         choice. If the player does, they may copy this spell and \
+         may choose a new target for that copy.",
         &[AbilityTargetDef::exactly_one_permanent(
             ObjectPredicateDef::HasType(CardType::Creature),
         )],
@@ -311,14 +314,16 @@ CardRules::new_instant(mana_cost!("{1}{W}")).with_ability(AbilityDef::spell_with
             },
             EffectDef::PayOr(
                 PayOrDef::optional(
-                    &[CostDef::sacrifice_permanent(
-                        ObjectPredicateDef::HasType(CardType::Land),
-                    )],
+                    &[CostDef::sacrifice_permanent(ObjectPredicateDef::HasType(
+                        CardType::Land,
+                    ))],
                     &EffectDef::May {
                         player: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
                         effect: &EffectDef::CopyStackObject(&crate::card::CopyStackObjectDef {
                             object: EffectRecipientDef::object(ObjectRefDef::ResolvingObject),
-                            controller: PlayerRefDef::ControllerOf(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+                            controller: PlayerRefDef::ControllerOf(ObjectRefDef::Target(
+                                TargetIndex::PRIMARY,
+                            )),
                             count: ValueDef::Constant(1),
                             retarget: true,
                             colors: None,
@@ -415,7 +420,7 @@ pub(in crate::card::sets) static DARU_LANCER: CardRecord = CardRecord::new(
     "Daru Lancer",
     "cd888ca8-0ebe-46f0-9317-3b193ccc43fb",
     "Brian Snõddy",
-// Six mana for a 3/4 first striker nobody casts, or three for a 2/2 that
+    // Six mana for a 3/4 first striker nobody casts, or three for a 2/2 that
     // wins a fight later. Morph is the whole reason the card sees play.
     CardRules::new_creature(mana_cost!("{4}{W}{W}"), &["Human", "Soldier"], 3, 4).with_abilities(
         &[
@@ -424,7 +429,9 @@ pub(in crate::card::sets) static DARU_LANCER: CardRecord = CardRecord::new(
                 &[CostDef::Mana(mana_cost!("{3}"))],
                 crate::card::face_down::morph_cast(),
                 Some(
-                    "Morph {2}{W}{W} (You may cast this card face down as a 2/2 creature for {3}. Turn it face up any time for its morph cost.)",
+                    "Morph {2}{W}{W} (You may cast this card face down as a 2/2 \
+                     creature for {3}. Turn it face up any time for its morph \
+                     cost.)",
                 ),
                 EffectDef::None,
             ),
@@ -446,7 +453,7 @@ pub(in crate::card::sets) static DAWNING_PURIST: CardRecord = CardRecord::new(
     "Dawning Purist",
     "b8cb25b0-e4c3-4a4e-b722-ea30e695f917",
     "Brian Snõddy",
-// Enchantment removal that has to earn the right to fire, which is the
+    // Enchantment removal that has to earn the right to fire, which is the
     // trade a sideboard card makes to be worth a maindeck slot.
     CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Cleric"], 2, 2)
         .with_morph(&[CostDef::Mana(mana_cost!("{1}{W}"))])
@@ -460,26 +467,27 @@ pub(in crate::card::sets) static DAWNING_PURIST: CardRecord = CardRecord::new(
                 ),
                 EffectDef::None,
             ),
-AbilityDef::triggered_with_targets(
-            "Whenever this creature deals combat damage to a player, you may destroy target enchantment that player controls.",
-            TriggerEventDef::CombatDamageDealtToPlayers {
-                sources: ObjectPredicateDef::Source,
-                players: PlayerRelation::Opponent,
-            },
-            &[AbilityTargetDef::exactly_one_permanent(
-                ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::HasType(CardType::Enchantment),
-                    ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
-                ]),
-            )],
-            EffectDef::May {
-                player: EffectRecipientDef::Controller,
-                effect: &EffectDef::Destroy {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    then: None,
+            AbilityDef::triggered_with_targets(
+                "Whenever this creature deals combat damage to a player, you \
+                 may destroy target enchantment that player controls.",
+                TriggerEventDef::CombatDamageDealtToPlayers {
+                    sources: ObjectPredicateDef::Source,
+                    players: PlayerRelation::Opponent,
                 },
-            },
-        ),
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Enchantment),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
+                    ]),
+                )],
+                EffectDef::May {
+                    player: EffectRecipientDef::Controller,
+                    effect: &EffectDef::Destroy {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        then: None,
+                    },
+                },
+            ),
         ]),
 );
 
@@ -521,17 +529,20 @@ pub(in crate::card::sets) static DIVE_BOMBER: CardRecord = CardRecord::new(
     "Dive Bomber",
     "65162b24-8a3b-4b92-a831-6f23f809c76f",
     "Randy Gallegos",
-// A flier that trades itself for whatever is already in combat, which is
+    // A flier that trades itself for whatever is already in combat, which is
     // two cards' worth of work in a format of small creatures.
     CardRules::new_creature(mana_cost!("{3}{W}"), &["Bird", "Soldier"], 2, 2).with_abilities(&[
         abilities::flying(),
         AbilityDef::activated_with_targets(
-            "{T}, Sacrifice this creature: It deals 2 damage to target attacking or blocking creature.",
+            "{T}, Sacrifice this creature: It deals 2 damage to target \
+             attacking or blocking creature.",
             &[CostDef::TapSource, CostDef::SacrificeSource],
-            &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
-                ObjectPredicateDef::HasType(CardType::Creature),
-                ObjectPredicateDef::AttackingOrBlocking,
-            ]))],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::AttackingOrBlocking,
+                ]),
+            )],
             EffectDef::damage(
                 EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 ValueDef::Constant(2),
@@ -554,7 +565,7 @@ pub(in crate::card::sets) static EXALTED_ANGEL: CardRecord = CardRecord::new(
     "Exalted Angel",
     "c2213eac-cea4-4dfd-90c4-c1f466967e2e",
     "Michael Sutfin",
-// Six mana is more than a control deck wants to pay on turn four, so it
+    // Six mana is more than a control deck wants to pay on turn four, so it
     // comes down face down on three and stands up on the next turn instead.
     CardRules::new_creature(mana_cost!("{4}{W}{W}"), &["Angel"], 4, 5)
         .with_morph(&[CostDef::Mana(mana_cost!("{2}{W}{W}"))])
@@ -572,7 +583,9 @@ pub(in crate::card::sets) static EXALTED_ANGEL: CardRecord = CardRecord::new(
                 &[CostDef::Mana(mana_cost!("{3}"))],
                 crate::card::face_down::morph_cast(),
                 Some(
-                    "Morph {2}{W}{W} (You may cast this card face down as a 2/2 creature for {3}. Turn it face up any time for its morph cost.)",
+                    "Morph {2}{W}{W} (You may cast this card face down as a 2/2 \
+                     creature for {3}. Turn it face up any time for its morph \
+                     cost.)",
                 ),
                 EffectDef::None,
             ),
@@ -1298,10 +1311,13 @@ pub(in crate::card::sets) static CHAIN_OF_VAPOR: CardRecord = CardRecord::new(
     "Chain of Vapor",
     "30f6b4a2-5780-46e9-b239-459d2cf37743",
     "Carl Critchlow",
-// One mana to undo anything, and the chain is the opponent's to continue
+    // One mana to undo anything, and the chain is the opponent's to continue
     // or stop.
     CardRules::new_instant(mana_cost!("{U}")).with_ability(AbilityDef::spell_with_targets(
-        "Return target nonland permanent to its owner's hand. Then that permanent's controller may sacrifice a land of their choice. If the player does, they may copy this spell and may choose a new target for that copy.",
+        "Return target nonland permanent to its owner's hand. Then \
+         that permanent's controller may sacrifice a land of their \
+         choice. If the player does, they may copy this spell and \
+         may choose a new target for that copy.",
         &[AbilityTargetDef::exactly_one_permanent(
             ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
         )],
@@ -1310,20 +1326,22 @@ pub(in crate::card::sets) static CHAIN_OF_VAPOR: CardRecord = CardRecord::new(
                 EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 ZoneKind::Hand,
                 ZonePlacement::Top,
-),
+            ),
             // A land of their choice, sacrificed by whoever just had a permanent
             // bounced. Paying buys the copy, which is what turns one Chain of Vapor into
             // a board sweep in a deck holding the lands to spend.
             EffectDef::PayOr(
                 PayOrDef::optional(
-                    &[CostDef::sacrifice_permanent(
-                        ObjectPredicateDef::HasType(CardType::Land),
-                    )],
+                    &[CostDef::sacrifice_permanent(ObjectPredicateDef::HasType(
+                        CardType::Land,
+                    ))],
                     &EffectDef::May {
                         player: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
                         effect: &EffectDef::CopyStackObject(&crate::card::CopyStackObjectDef {
                             object: EffectRecipientDef::object(ObjectRefDef::ResolvingObject),
-                            controller: PlayerRefDef::ControllerOf(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+                            controller: PlayerRefDef::ControllerOf(ObjectRefDef::Target(
+                                TargetIndex::PRIMARY,
+                            )),
                             count: ValueDef::Constant(1),
                             retarget: true,
                             colors: None,
@@ -1956,7 +1974,7 @@ pub(in crate::card::sets) static BONEKNITTER: CardRecord = CardRecord::new(
                 crate::card::face_down::morph_cast(),
                 Some(
                     "Morph {2}{B} (You may cast this card face down as a 2/2 creature for {3}. \
-                 Turn it face up any time for its morph cost.)",
+                     Turn it face up any time for its morph cost.)",
                 ),
                 EffectDef::None,
             ),
@@ -1987,7 +2005,7 @@ pub(in crate::card::sets) static CABAL_EXECUTIONER: CardRecord = CardRecord::new
     "Cabal Executioner",
     "cd7727a7-0cdf-4fd5-82b4-e6587c10ca80",
     "Rebecca Guay",
-// Edict on a stick, which asks the defender to keep a blocker back and
+    // Edict on a stick, which asks the defender to keep a blocker back and
     // punishes them for it in the same swing.
     CardRules::new_creature(mana_cost!("{2}{B}{B}"), &["Human", "Cleric"], 2, 2)
         .with_morph(&[CostDef::Mana(mana_cost!("{3}{B}{B}"))])
@@ -2001,22 +2019,23 @@ pub(in crate::card::sets) static CABAL_EXECUTIONER: CardRecord = CardRecord::new
                 ),
                 EffectDef::None,
             ),
-AbilityDef::triggered(
-            "Whenever this creature deals combat damage to a player, that player sacrifices a creature of their choice.",
-            TriggerEventDef::CombatDamageDealtToPlayers {
-                sources: ObjectPredicateDef::Source,
-                players: PlayerRelation::Opponent,
-            },
-            EffectDef::SacrificeOfChoice {
-                player: EffectRecipientDef::Opponent,
-                object: ObjectPredicateDef::HasType(CardType::Creature),
-                count: ValueDef::Constant(1),
-                then: None,
-                amount: SacrificedAmountDef::Power,
-                otherwise: None,
-                optional: false,
-            },
-        ),
+            AbilityDef::triggered(
+                "Whenever this creature deals combat damage to a player, \
+                 that player sacrifices a creature of their choice.",
+                TriggerEventDef::CombatDamageDealtToPlayers {
+                    sources: ObjectPredicateDef::Source,
+                    players: PlayerRelation::Opponent,
+                },
+                EffectDef::SacrificeOfChoice {
+                    player: EffectRecipientDef::Opponent,
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    count: ValueDef::Constant(1),
+                    then: None,
+                    amount: SacrificedAmountDef::Power,
+                    otherwise: None,
+                    optional: false,
+                },
+            ),
         ]),
 );
 
@@ -2049,8 +2068,9 @@ pub(in crate::card::sets) static CHAIN_OF_SMOG: CardRecord = CardRecord::new(
     "Chain of Smog",
     "6bfe64f9-8b03-41f6-a47b-fade397ad9d1",
     "Greg Staples",
-CardRules::new_sorcery(mana_cost!("{1}{B}")).with_ability(AbilityDef::spell_with_targets(
-        "Target player discards two cards. That player may copy this spell and may choose a new target for that copy.",
+    CardRules::new_sorcery(mana_cost!("{1}{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Target player discards two cards. That player may copy this \
+         spell and may choose a new target for that copy.",
         &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::Player(PlayerRelation::Any),
         )],
@@ -2187,7 +2207,7 @@ pub(in crate::card::sets) static DOOMED_NECROMANCER: CardRecord = CardRecord::ne
     )
     .with_ability(AbilityDef::activated_with_targets(
         "{B}, {T}, Sacrifice this creature: Return target creature card from your graveyard \
-             to the battlefield.",
+         to the battlefield.",
         &[
             CostDef::Mana(mana_cost!("{B}")),
             CostDef::TapSource,
@@ -2413,7 +2433,7 @@ pub(in crate::card::sets) static HEADHUNTER: CardRecord = CardRecord::new(
     "Headhunter",
     "3cbd82d5-d64f-4833-b1a9-9652fcfa1578",
     "Matt Cavotta",
-// A body this small connecting is not the threat; the card it takes
+    // A body this small connecting is not the threat; the card it takes
     // every time it does is, and a deck with no blockers pays over and over.
     CardRules::new_creature(mana_cost!("{1}{B}"), &["Human", "Cleric"], 1, 1)
         .with_morph(&[CostDef::Mana(mana_cost!("{B}"))])
@@ -2427,19 +2447,19 @@ pub(in crate::card::sets) static HEADHUNTER: CardRecord = CardRecord::new(
                 ),
                 EffectDef::None,
             ),
-AbilityDef::triggered(
-            "Whenever this creature deals combat damage to a player, that player discards a card.",
-            TriggerEventDef::CombatDamageDealtToPlayers {
-                sources: ObjectPredicateDef::Source,
-                players: PlayerRelation::Opponent,
-            },
-            EffectDef::Discard {
-                recipient: EffectRecipientDef::Opponent,
-                amount: ValueDef::Constant(1),
-                selection: DiscardSelectionDef::RecipientChooses,
-                then: None,
-            },
-        ),
+            AbilityDef::triggered(
+                "Whenever this creature deals combat damage to a player, that player discards a card.",
+                TriggerEventDef::CombatDamageDealtToPlayers {
+                    sources: ObjectPredicateDef::Source,
+                    players: PlayerRelation::Opponent,
+                },
+                EffectDef::Discard {
+                    recipient: EffectRecipientDef::Opponent,
+                    amount: ValueDef::Constant(1),
+                    selection: DiscardSelectionDef::RecipientChooses,
+                    then: None,
+                },
+            ),
         ]),
 );
 
@@ -3119,12 +3139,13 @@ pub(in crate::card::sets) static GOBLIN_PILEDRIVER: CardRecord = CardRecord::new
     "Goblin Piledriver",
     "f6c4df1f-f148-42ec-8e22-e7114216927d",
     "Matt Cavotta",
-// Protection from blue is half the card: it walks past the format's
+    // Protection from blue is half the card: it walks past the format's
     // blue blockers while the rest of the team makes it enormous.
     CardRules::new_creature(mana_cost!("{1}{R}"), &["Goblin", "Warrior"], 1, 2).with_abilities(&[
         abilities::protection_from_color(ManaColor::Blue),
         AbilityDef::triggered(
-            "Whenever this creature attacks, it gets +2/+0 until end of turn for each other attacking Goblin.",
+            "Whenever this creature attacks, it gets +2/+0 until end of \
+             turn for each other attacking Goblin.",
             TriggerEventDef::attacks(ObjectPredicateDef::Source),
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
@@ -3323,7 +3344,9 @@ pub(in crate::card::sets) static GRAND_MELEE: CardRecord = CardRecord::new(
 );
 
 // ONS 212 — Gratuitous Violence
-// Audit: unsupported — Needs a prospective damage amount multiplier filtered by source controller and damage recipient; current damage rules support prevention and limits, but no multiplication replacement.
+// Audit: unsupported — Needs a prospective damage amount multiplier filtered by source
+// controller and damage recipient; current damage rules support prevention and limits, but no
+// multiplication replacement.
 pub(in crate::card::sets) static GRATUITOUS_VIOLENCE: CardRecord = CardRecord::new(
     "Gratuitous Violence",
     "4b0c5d14-4fab-4034-a2d3-0d851ef67cbd",
@@ -3415,30 +3438,30 @@ pub(in crate::card::sets) static RECKLESS_ONE: CardRecord = CardRecord::new(
     "Reckless One",
     "37775f40-10de-4f5d-abb2-c49e682039de",
     "Ron Spencer",
-// Haste on a body the size of the Goblin deck that cast it, which is
+    // Haste on a body the size of the Goblin deck that cast it, which is
     // the whole tribal payoff in one card.
-    CardRules::new_creature(mana_cost!("{3}{R}"), &["Goblin", "Avatar"], 0, 0)
-        .with_abilities(&[
-            abilities::haste(),
-            AbilityDef::static_ability(
-                "Reckless One's power and toughness are each equal to the number of Goblins on the battlefield.",
-                EffectDef::StaticApply {
-                    recipient: EffectRecipientDef::Source,
-                    effect: AppliedEffectDef::define_power_toughness(
-                        ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+    CardRules::new_creature(mana_cost!("{3}{R}"), &["Goblin", "Avatar"], 0, 0).with_abilities(&[
+        abilities::haste(),
+        AbilityDef::static_ability(
+            "Reckless One's power and toughness are each equal to the \
+             number of Goblins on the battlefield.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::define_power_toughness(
+                    ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
                         ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::Any,
                     )),
-                        ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                    ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
                         ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::Any,
                     )),
-                    ),
-                },
-            ),
-        ]),
+                ),
+            },
+        ),
+    ]),
 );
 
 // ONS 223 — Risky Move
@@ -3502,7 +3525,7 @@ pub(in crate::card::sets) static SKIRK_COMMANDO: CardRecord = CardRecord::new(
     "Skirk Commando",
     "8c870a66-4cd5-4a8d-9948-feffa7d4ff11",
     "Dave Dorman",
-// Unblocked once and the blocker that would have stopped it next turn
+    // Unblocked once and the blocker that would have stopped it next turn
     // is gone, which is what the morph cost is really buying.
     CardRules::new_creature(mana_cost!("{1}{R}{R}"), &["Goblin"], 2, 1)
         .with_morph(&[CostDef::Mana(mana_cost!("{2}{R}"))])
@@ -3516,26 +3539,28 @@ pub(in crate::card::sets) static SKIRK_COMMANDO: CardRecord = CardRecord::new(
                 ),
                 EffectDef::None,
             ),
-AbilityDef::triggered_with_targets(
-            "Whenever this creature deals combat damage to a player, you may have it deal 2 damage to target creature that player controls.",
-            TriggerEventDef::CombatDamageDealtToPlayers {
-                sources: ObjectPredicateDef::Source,
-                players: PlayerRelation::Opponent,
-            },
-            &[AbilityTargetDef::exactly_one_permanent(
-                ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
-                ]),
-            )],
-            EffectDef::May {
-                player: EffectRecipientDef::Controller,
-                effect: &EffectDef::damage(
-                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    ValueDef::Constant(2),
-                ),
-            },
-        ),
+            AbilityDef::triggered_with_targets(
+                "Whenever this creature deals combat damage to a player, you \
+                 may have it deal 2 damage to target creature that player \
+                 controls.",
+                TriggerEventDef::CombatDamageDealtToPlayers {
+                    sources: ObjectPredicateDef::Source,
+                    players: PlayerRelation::Opponent,
+                },
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
+                    ]),
+                )],
+                EffectDef::May {
+                    player: EffectRecipientDef::Controller,
+                    effect: &EffectDef::damage(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ValueDef::Constant(2),
+                    ),
+                },
+            ),
         ]),
 );
 
@@ -3590,7 +3615,7 @@ pub(in crate::card::sets) static SNAPPING_THRAGG: CardRecord = CardRecord::new(
     "Snapping Thragg",
     "c8a47d41-b893-46b9-90c9-ccd8f9f78855",
     "Iain McCaig",
-// The same deal as the Commando one size up, on a body that gets there
+    // The same deal as the Commando one size up, on a body that gets there
     // without help.
     CardRules::new_creature(mana_cost!("{4}{R}"), &["Beast"], 3, 3)
         .with_morph(&[CostDef::Mana(mana_cost!("{4}{R}{R}"))])
@@ -3604,26 +3629,28 @@ pub(in crate::card::sets) static SNAPPING_THRAGG: CardRecord = CardRecord::new(
                 ),
                 EffectDef::None,
             ),
-AbilityDef::triggered_with_targets(
-            "Whenever this creature deals combat damage to a player, you may have it deal 3 damage to target creature that player controls.",
-            TriggerEventDef::CombatDamageDealtToPlayers {
-                sources: ObjectPredicateDef::Source,
-                players: PlayerRelation::Opponent,
-            },
-            &[AbilityTargetDef::exactly_one_permanent(
-                ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
-                ]),
-            )],
-            EffectDef::May {
-                player: EffectRecipientDef::Controller,
-                effect: &EffectDef::damage(
-                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    ValueDef::Constant(3),
-                ),
-            },
-        ),
+            AbilityDef::triggered_with_targets(
+                "Whenever this creature deals combat damage to a player, you \
+                 may have it deal 3 damage to target creature that player \
+                 controls.",
+                TriggerEventDef::CombatDamageDealtToPlayers {
+                    sources: ObjectPredicateDef::Source,
+                    players: PlayerRelation::Opponent,
+                },
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
+                    ]),
+                )],
+                EffectDef::May {
+                    player: EffectRecipientDef::Controller,
+                    effect: &EffectDef::damage(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ValueDef::Constant(3),
+                    ),
+                },
+            ),
         ]),
 );
 
@@ -3830,8 +3857,10 @@ pub(in crate::card::sets) static CHAIN_OF_ACID: CardRecord = CardRecord::new(
     "Chain of Acid",
     "1d47ddca-a363-4ab7-b7f2-d0e0043c9916",
     "Ron Spencer",
-CardRules::new_sorcery(mana_cost!("{3}{G}")).with_ability(AbilityDef::spell_with_targets(
-        "Destroy target noncreature permanent. Then that permanent's controller may copy this spell and may choose a new target for that copy.",
+    CardRules::new_sorcery(mana_cost!("{3}{G}")).with_ability(AbilityDef::spell_with_targets(
+        "Destroy target noncreature permanent. Then that permanent's \
+         controller may copy this spell and may choose a new target \
+         for that copy.",
         &[AbilityTargetDef::exactly_one_permanent(
             ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
         )],
@@ -3844,7 +3873,9 @@ CardRules::new_sorcery(mana_cost!("{3}{G}")).with_ability(AbilityDef::spell_with
                 player: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
                 effect: &EffectDef::CopyStackObject(&crate::card::CopyStackObjectDef {
                     object: EffectRecipientDef::object(ObjectRefDef::ResolvingObject),
-                    controller: PlayerRefDef::ControllerOf(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+                    controller: PlayerRefDef::ControllerOf(ObjectRefDef::Target(
+                        TargetIndex::PRIMARY,
+                    )),
                     count: ValueDef::Constant(1),
                     retarget: true,
                     colors: None,
@@ -4011,30 +4042,30 @@ pub(in crate::card::sets) static HEEDLESS_ONE: CardRecord = CardRecord::new(
     "Heedless One",
     "ea338499-26a0-44e5-8999-f264644184d1",
     "Mark Zug",
-// The Elf version, and trample means the size is never wasted against
+    // The Elf version, and trample means the size is never wasted against
     // a chump block.
-    CardRules::new_creature(mana_cost!("{3}{G}"), &["Elf", "Avatar"], 0, 0)
-        .with_abilities(&[
-            abilities::trample(),
-            AbilityDef::static_ability(
-                "Heedless One's power and toughness are each equal to the number of Elves on the battlefield.",
-                EffectDef::StaticApply {
-                    recipient: EffectRecipientDef::Source,
-                    effect: AppliedEffectDef::define_power_toughness(
-                        ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+    CardRules::new_creature(mana_cost!("{3}{G}"), &["Elf", "Avatar"], 0, 0).with_abilities(&[
+        abilities::trample(),
+        AbilityDef::static_ability(
+            "Heedless One's power and toughness are each equal to the \
+             number of Elves on the battlefield.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::define_power_toughness(
+                    ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
                         ObjectPredicateDef::Subtype(SubtypeDef::Literal("Elf")),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::Any,
                     )),
-                        ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                    ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
                         ObjectPredicateDef::Subtype(SubtypeDef::Literal("Elf")),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::Any,
                     )),
-                    ),
-                },
-            ),
-        ]),
+                ),
+            },
+        ),
+    ]),
 );
 
 // ONS 266 — Hystrodon
@@ -4381,11 +4412,12 @@ pub(in crate::card::sets) static STAG_BEETLE: CardRecord = CardRecord::new(
     "Stag Beetle",
     "72cc64b9-f5b9-42d3-9921-564c4c9f2c77",
     "Anthony S. Waters",
-// It counts the opponent's board too, so the worse the game is going the
+    // It counts the opponent's board too, so the worse the game is going the
     // bigger it arrives -- which is the only five-drop that reads that way.
     CardRules::new_creature(mana_cost!("{3}{G}{G}"), &["Insect"], 0, 0).with_ability(
         AbilityDef::as_enters(
-            "This creature enters with X +1/+1 counters on it, where X is the number of other creatures on the battlefield.",
+            "This creature enters with X +1/+1 counters on it, where X \
+             is the number of other creatures on the battlefield.",
             ReplacementEffectDef::ModifyBattlefieldEntry(
                 BattlefieldEntryModificationDef::AddCountersValue {
                     kind: CounterKind::PlusOnePlusOne,
@@ -4780,7 +4812,9 @@ pub(in crate::card::sets) static BLOODSTAINED_MIRE: CardRecord = CardRecord::new
     "68c72226-6f52-4322-8b14-18737293dfa0",
     "Rob Alexander",
     fetch_land(
-        "{T}, Pay 1 life, Sacrifice this land: Search your library for a Swamp or Mountain card, put it onto the battlefield, then shuffle.",
+        "{T}, Pay 1 life, Sacrifice this land: Search your library \
+         for a Swamp or Mountain card, put it onto the battlefield, \
+         then shuffle.",
         &[BasicLandType::Swamp, BasicLandType::Mountain],
     ),
 );
@@ -4790,30 +4824,31 @@ pub(in crate::card::sets) static CONTESTED_CLIFFS: CardRecord = CardRecord::new(
     "Contested Cliffs",
     "8d6363ea-3814-4014-ad9e-1066c72d907c",
     "Anthony S. Waters",
-// A repeatable fight out of a land, which is why a Beast deck could
+    // A repeatable fight out of a land, which is why a Beast deck could
     // afford to play removal that costs no cards at all.
     CardRules::new_land(&[]).with_abilities(&[
         abilities::tap_for(ManaColor::Colorless),
         AbilityDef::activated_with_targets(
-        "{R}{G}, {T}: Target Beast creature you control fights target creature an opponent controls.",
-        &[CostDef::Mana(mana_cost!("{R}{G}")), CostDef::TapSource],
-        &[
-            AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
-                ObjectPredicateDef::HasType(CardType::Creature),
-                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Beast")),
-                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-            ])),
-            AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
-                ObjectPredicateDef::HasType(CardType::Creature),
-                ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
-            ])),
-        ],
-        EffectDef::Fight {
-            first: ObjectRefDef::Target(TargetIndex::PRIMARY),
-            second: ObjectRefDef::Target(TargetIndex(1)),
-            excess: None,
-        },
-    ),
+            "{R}{G}, {T}: Target Beast creature you control fights \
+             target creature an opponent controls.",
+            &[CostDef::Mana(mana_cost!("{R}{G}")), CostDef::TapSource],
+            &[
+                AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Beast")),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ])),
+                AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
+                ])),
+            ],
+            EffectDef::Fight {
+                first: ObjectRefDef::Target(TargetIndex::PRIMARY),
+                second: ObjectRefDef::Target(TargetIndex(1)),
+                excess: None,
+            },
+        ),
     ]),
 );
 
@@ -4853,7 +4888,9 @@ pub(in crate::card::sets) static FLOODED_STRAND: CardRecord = CardRecord::new(
     "b4e3d844-d3b4-41d8-921d-c1cb3af343f8",
     "Rob Alexander",
     fetch_land(
-        "{T}, Pay 1 life, Sacrifice this land: Search your library for a Plains or Island card, put it onto the battlefield, then shuffle.",
+        "{T}, Pay 1 life, Sacrifice this land: Search your library \
+         for a Plains or Island card, put it onto the battlefield, \
+         then shuffle.",
         &[BasicLandType::Plains, BasicLandType::Island],
     ),
 );
@@ -4946,7 +4983,9 @@ pub(in crate::card::sets) static POLLUTED_DELTA: CardRecord = CardRecord::new(
     "0f7585c8-9e21-4eef-afc1-2852de23db2f",
     "Rob Alexander",
     fetch_land(
-        "{T}, Pay 1 life, Sacrifice this land: Search your library for an Island or Swamp card, put it onto the battlefield, then shuffle.",
+        "{T}, Pay 1 life, Sacrifice this land: Search your library \
+         for an Island or Swamp card, put it onto the battlefield, \
+         then shuffle.",
         &[BasicLandType::Island, BasicLandType::Swamp],
     ),
 );
@@ -5087,7 +5126,9 @@ pub(in crate::card::sets) static WINDSWEPT_HEATH: CardRecord = CardRecord::new(
     "7a7c5941-9c8a-4a40-9efb-a84f05c58e53",
     "Anthony S. Waters",
     fetch_land(
-        "{T}, Pay 1 life, Sacrifice this land: Search your library for a Forest or Plains card, put it onto the battlefield, then shuffle.",
+        "{T}, Pay 1 life, Sacrifice this land: Search your library \
+         for a Forest or Plains card, put it onto the battlefield, \
+         then shuffle.",
         &[BasicLandType::Forest, BasicLandType::Plains],
     ),
 );
@@ -5120,7 +5161,9 @@ pub(in crate::card::sets) static WOODED_FOOTHILLS: CardRecord = CardRecord::new(
     "cdad38f7-9dfa-4f1b-9fac-41ab2b253f53",
     "Rob Alexander",
     fetch_land(
-        "{T}, Pay 1 life, Sacrifice this land: Search your library for a Mountain or Forest card, put it onto the battlefield, then shuffle.",
+        "{T}, Pay 1 life, Sacrifice this land: Search your library \
+         for a Mountain or Forest card, put it onto the battlefield, \
+         then shuffle.",
         &[BasicLandType::Mountain, BasicLandType::Forest],
     ),
 );

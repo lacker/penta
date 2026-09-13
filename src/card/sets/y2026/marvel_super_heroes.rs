@@ -160,7 +160,8 @@ pub(in crate::card::sets) static AGENT_13_SHARON_CARTER: CardRecord = CardRecord
 );
 
 // MSH 2 — Agent Maria Hill
-// Audit: unsupported — Needs a tap event tagged with payment of a teamwork casting cost and the identities of the creatures that paid it; existing taps do not carry that cost provenance.
+// Audit: unsupported — Needs a tap event tagged with payment of a teamwork casting cost and the
+// identities of the creatures that paid it; existing taps do not carry that cost provenance.
 pub(in crate::card::sets) static AGENT_MARIA_HILL: CardRecord = CardRecord::new(
     "Agent Maria Hill",
     "9e327c67-1cf1-4d82-903c-b41c8e7cf747",
@@ -237,7 +238,9 @@ pub(in crate::card::sets) static AGENTS_OF_S_H_I_E_L_D: CardRecord = CardRecord:
 );
 
 // MSH 6 — Avengers Assemble!
-// Audit: unsupported — Needs per-player attack and battlefield-entry history filtered to Heroes, including objects that subsequently left or changed control; current per-permanent facts cannot reconstruct that turn history.
+// Audit: unsupported — Needs per-player attack and battlefield-entry history filtered to
+// Heroes, including objects that subsequently left or changed control; current per-permanent
+// facts cannot reconstruct that turn history.
 pub(in crate::card::sets) static AVENGERS_ASSEMBLE: CardRecord = CardRecord::new(
     "Avengers Assemble!",
     "bf736399-af74-4f52-9159-67ea67d0cf83",
@@ -275,7 +278,9 @@ pub(in crate::card::sets) static BOROUGH_BACKUP: CardRecord = CardRecord::new(
 );
 
 // MSH 8 — Brave Brawler
-// Audit: unsupported — Needs a power-up ability category and a source-entry-turn discount that subtracts the source mana cost, including colored and flexible symbols; existing once-per-object activation limits do not supply that cost rule.
+// Audit: unsupported — Needs a power-up ability category and a source-entry-turn discount that
+// subtracts the source mana cost, including colored and flexible symbols; existing
+// once-per-object activation limits do not supply that cost rule.
 pub(in crate::card::sets) static BRAVE_BRAWLER: CardRecord = CardRecord::new(
     "Brave Brawler",
     "2242b5c3-42ef-4be0-a61f-65c93e56fcab",
@@ -284,7 +289,9 @@ pub(in crate::card::sets) static BRAVE_BRAWLER: CardRecord = CardRecord::new(
 );
 
 // MSH 9 — Captain America, Super-Soldier
-// Audit: unsupported — Needs intrinsic shield-counter damage prevention and destruction replacement, including removing a counter for each replacement; ordinary named counters do not provide those rules.
+// Audit: unsupported — Needs intrinsic shield-counter damage prevention and destruction
+// replacement, including removing a counter for each replacement; ordinary named counters do
+// not provide those rules.
 pub(in crate::card::sets) static CAPTAIN_AMERICA_SUPER_SOLDIER: CardRecord = CardRecord::new(
     "Captain America, Super-Soldier",
     "33631d6c-c584-42ff-afe5-2647b5fb321f",
@@ -330,7 +337,9 @@ pub(in crate::card::sets) static CAPTAIN_AMERICA_WINGS_OF_FREEDOM: CardRecord = 
 );
 
 // MSH 11 — Captain Marvel, Earth's Protector
-// Audit: unsupported — Needs a power-up ability category and a source-entry-turn discount that subtracts the source mana cost, including colored and flexible symbols; existing once-per-object activation limits do not supply that cost rule.
+// Audit: unsupported — Needs a power-up ability category and a source-entry-turn discount that
+// subtracts the source mana cost, including colored and flexible symbols; existing
+// once-per-object activation limits do not supply that cost rule.
 pub(in crate::card::sets) static CAPTAIN_MARVEL_EARTH_S_PROTECTOR: CardRecord = CardRecord::new(
     "Captain Marvel, Earth's Protector",
     "eb098550-22e6-4079-8c59-ed9ec2f764e3",
@@ -400,7 +409,9 @@ pub(in crate::card::sets) static COLLEEN_WING_STREET_SAMURAI: CardRecord = CardR
 );
 
 // MSH 14 — Crowd of True Believers
-// Audit: unsupported — Needs a target predicate for a currently attacking creature whose controller has exactly one attacker; attack-declaration trigger matchers do not provide that target-selection predicate.
+// Audit: unsupported — Needs a target predicate for a currently attacking creature whose
+// controller has exactly one attacker; attack-declaration trigger matchers do not provide that
+// target-selection predicate.
 pub(in crate::card::sets) static CROWD_OF_TRUE_BELIEVERS: CardRecord = CardRecord::new(
     "Crowd of True Believers",
     "4b2fffb8-d538-4772-8fbc-9bec3b9c4d9c",
@@ -409,7 +420,9 @@ pub(in crate::card::sets) static CROWD_OF_TRUE_BELIEVERS: CardRecord = CardRecor
 );
 
 // MSH 15 — Helicarrier Strike
-// Audit: unsupported — Needs an optional casting cost paid by a jointly selected group of creatures with sufficient total power, retaining a teamwork payment receipt for the spell; total-power tap costs currently belong to battlefield activations.
+// Audit: unsupported — Needs an optional casting cost paid by a jointly selected group of
+// creatures with sufficient total power, retaining a teamwork payment receipt for the spell;
+// total-power tap costs currently belong to battlefield activations.
 pub(in crate::card::sets) static HELICARRIER_STRIKE: CardRecord = CardRecord::new(
     "Helicarrier Strike",
     "6e518842-ce44-4af2-8f38-89869828294a",
@@ -452,7 +465,9 @@ pub(in crate::card::sets) static HERO_IN_TRAINING: CardRecord = CardRecord::new(
 );
 
 // MSH 17 — Invisible Woman, Sue Storm
-// Audit: unsupported — Needs an atomic counter-placement event over one or more recipients, filtered by the player placing the counters; current CountersPlaced observes recipients individually without that actor.
+// Audit: unsupported — Needs an atomic counter-placement event over one or more recipients,
+// filtered by the player placing the counters; current CountersPlaced observes recipients
+// individually without that actor.
 pub(in crate::card::sets) static INVISIBLE_WOMAN_SUE_STORM: CardRecord = CardRecord::new(
     "Invisible Woman, Sue Storm",
     "2f80394b-2f7e-40a7-8203-720bcf39d71b",
@@ -461,7 +476,9 @@ pub(in crate::card::sets) static INVISIBLE_WOMAN_SUE_STORM: CardRecord = CardRec
 );
 
 // MSH 18 — Jennifer Walters // The Sensational She-Hulk
-// Audit: unsupported — Needs modal double-faced permanents to transform while retaining the ability to cast either face; physical_other_face currently rejects modal cards, so an ordinary transforming-card declaration would incorrectly remove the back-face casting option.
+// Audit: unsupported — Needs modal double-faced permanents to transform while retaining the
+// ability to cast either face; physical_other_face currently rejects modal cards, so an
+// ordinary transforming-card declaration would incorrectly remove the back-face casting option.
 pub(in crate::card::sets) static JENNIFER_WALTERS: CardRecord = CardRecord::new(
     "Jennifer Walters // The Sensational She-Hulk",
     "61237530-ad49-469c-a952-67c92315708e",
@@ -509,7 +526,9 @@ pub(in crate::card::sets) static LUKE_CAGE_POWER_MAN: CardRecord = CardRecord::n
 );
 
 // MSH 21 — The Mind Stone
-// Audit: unsupported — Needs a persistent harnessed designation for an Infinity Stone and conditional activation of its infinity ability; ordinary counters cannot substitute for that designation.
+// Audit: unsupported — Needs a persistent harnessed designation for an Infinity Stone and
+// conditional activation of its infinity ability; ordinary counters cannot substitute for that
+// designation.
 pub(in crate::card::sets) static THE_MIND_STONE: CardRecord = CardRecord::new(
     "The Mind Stone",
     "87f1e69a-6d74-4982-afda-82613637799a",
@@ -546,7 +565,9 @@ pub(in crate::card::sets) static MOCKINGBIRD_ACE_AGENT: CardRecord = CardRecord:
 );
 
 // MSH 23 — Monica Rambeau // Photon, Living Light
-// Audit: unsupported — Needs modal double-faced permanents to transform while retaining the ability to cast either face; physical_other_face currently rejects modal cards, so an ordinary transforming-card declaration would incorrectly remove the back-face casting option.
+// Audit: unsupported — Needs modal double-faced permanents to transform while retaining the
+// ability to cast either face; physical_other_face currently rejects modal cards, so an
+// ordinary transforming-card declaration would incorrectly remove the back-face casting option.
 pub(in crate::card::sets) static MONICA_RAMBEAU: CardRecord = CardRecord::new(
     "Monica Rambeau // Photon, Living Light",
     "3f995518-b12a-4623-9ab3-b79a5cef3cba",
@@ -555,7 +576,9 @@ pub(in crate::card::sets) static MONICA_RAMBEAU: CardRecord = CardRecord::new(
 );
 
 // MSH 24 — Murdock's Crusade
-// Audit: unsupported — Needs an optional casting cost paid by a jointly selected group of creatures with sufficient total power, retaining a teamwork payment receipt for the spell; total-power tap costs currently belong to battlefield activations.
+// Audit: unsupported — Needs an optional casting cost paid by a jointly selected group of
+// creatures with sufficient total power, retaining a teamwork payment receipt for the spell;
+// total-power tap costs currently belong to battlefield activations.
 pub(in crate::card::sets) static MURDOCK_S_CRUSADE: CardRecord = CardRecord::new(
     "Murdock's Crusade",
     "98df64ca-39c3-47e6-8143-4106c8e9cf59",
@@ -564,7 +587,9 @@ pub(in crate::card::sets) static MURDOCK_S_CRUSADE: CardRecord = CardRecord::new
 );
 
 // MSH 25 — Nick Fury, Agent of S.H.I.E.L.D.
-// Audit: unsupported — Needs a power-up ability category and a source-entry-turn discount that subtracts the source mana cost, including colored and flexible symbols; existing once-per-object activation limits do not supply that cost rule.
+// Audit: unsupported — Needs a power-up ability category and a source-entry-turn discount that
+// subtracts the source mana cost, including colored and flexible symbols; existing
+// once-per-object activation limits do not supply that cost rule.
 pub(in crate::card::sets) static NICK_FURY_AGENT_OF_S_H_I_E_L_D: CardRecord = CardRecord::new(
     "Nick Fury, Agent of S.H.I.E.L.D.",
     "3aa6fc02-ef76-426b-accd-6c0ef88b2a5e",
@@ -573,7 +598,8 @@ pub(in crate::card::sets) static NICK_FURY_AGENT_OF_S_H_I_E_L_D: CardRecord = Ca
 );
 
 // MSH 26 — Night Nurse, Healer of Heroes
-// Audit: unsupported — Needs a graveyard target predicate for a card entering that graveyard from anywhere during the current turn, with zone-change identity and turn provenance.
+// Audit: unsupported — Needs a graveyard target predicate for a card entering that graveyard
+// from anywhere during the current turn, with zone-change identity and turn provenance.
 pub(in crate::card::sets) static NIGHT_NURSE_HEALER_OF_HEROES: CardRecord = CardRecord::new(
     "Night Nurse, Healer of Heroes",
     "3199907b-9f24-4554-942a-8ab5a7701717",
@@ -765,7 +791,9 @@ pub(in crate::card::sets) static PATRIOT_SHIELD_WIELDER: CardRecord = CardRecord
 );
 
 // MSH 31 — Political Triumph
-// Audit: unsupported — Needs a counter-placement event detecting the specified ordinal counter, including a batch that crosses that count; an equality test of the final count misses that event, and a persistent threshold can retrigger incorrectly.
+// Audit: unsupported — Needs a counter-placement event detecting the specified ordinal counter,
+// including a batch that crosses that count; an equality test of the final count misses that
+// event, and a persistent threshold can retrigger incorrectly.
 pub(in crate::card::sets) static POLITICAL_TRIUMPH: CardRecord = CardRecord::new(
     "Political Triumph",
     "dec3dd36-b8ca-432b-8973-d37c6efc4c1a",
@@ -800,7 +828,9 @@ pub(in crate::card::sets) static QUAKE_AGENT_OF_S_H_I_E_L_D: CardRecord = CardRe
 );
 
 // MSH 33 — Raft Security Officer
-// Audit: unsupported — Needs an activation discount evaluated against the chosen target's power; the current activation-cost value reader has no chosen-target context for IfTargetMatches.
+// Audit: unsupported — Needs an activation discount evaluated against the chosen target's
+// power; the current activation-cost value reader has no chosen-target context for
+// IfTargetMatches.
 pub(in crate::card::sets) static RAFT_SECURITY_OFFICER: CardRecord = CardRecord::new(
     "Raft Security Officer",
     "f9b9f9d6-b50c-4b29-80be-284ba773c70b",
@@ -919,7 +949,8 @@ pub(in crate::card::sets) static S_H_I_E_L_D_SPY_KIT: CardRecord = CardRecord::n
 );
 
 // MSH 37 — Super Villain Lockup
-// Audit: unsupported — Needs exile-until-source-leaves with an immediate return when the duration ends (CR 610.3), rather than a delayed return through an ordinary leaves trigger.
+// Audit: unsupported — Needs exile-until-source-leaves with an immediate return when the
+// duration ends (CR 610.3), rather than a delayed return through an ordinary leaves trigger.
 pub(in crate::card::sets) static SUPER_VILLAIN_LOCKUP: CardRecord = CardRecord::new(
     "Super Villain Lockup",
     "1af5a1ca-3d11-45e3-ba12-c455c5a7fea1",
@@ -928,7 +959,9 @@ pub(in crate::card::sets) static SUPER_VILLAIN_LOCKUP: CardRecord = CardRecord::
 );
 
 // MSH 38 — Super-Soldier Serum
-// Audit: unsupported — Needs a blocking event for the enchanted creature independent of the Aura source, plus attachment between selected Equipment and that event creature; existing Attach and AttachToSource each anchor one endpoint to the source.
+// Audit: unsupported — Needs a blocking event for the enchanted creature independent of the
+// Aura source, plus attachment between selected Equipment and that event creature; existing
+// Attach and AttachToSource each anchor one endpoint to the source.
 pub(in crate::card::sets) static SUPER_SOLDIER_SERUM: CardRecord = CardRecord::new(
     "Super-Soldier Serum",
     "845b0be1-4f85-4a8c-8205-dc85c8cf9a61",
@@ -1023,7 +1056,9 @@ pub(in crate::card::sets) static WHITE_WIDOW_FREE_AGENT: CardRecord = CardRecord
 );
 
 // MSH 43 — Aerial Doombot
-// Audit: unsupported — Needs a power-up ability category and a source-entry-turn discount that subtracts the source mana cost, including colored and flexible symbols; existing once-per-object activation limits do not supply that cost rule.
+// Audit: unsupported — Needs a power-up ability category and a source-entry-turn discount that
+// subtracts the source mana cost, including colored and flexible symbols; existing
+// once-per-object activation limits do not supply that cost rule.
 pub(in crate::card::sets) static AERIAL_DOOMBOT: CardRecord = CardRecord::new(
     "Aerial Doombot",
     "e727ec1c-dc3b-4f1a-8a62-18549f118b89",
@@ -1106,7 +1141,9 @@ pub(in crate::card::sets) static ATLANTEAN_CAVALRY: CardRecord = CardRecord::new
 );
 
 // MSH 46 — Atlantis Attacks
-// Audit: unsupported — Needs an optional casting cost paid by a jointly selected group of creatures with sufficient total power, retaining a teamwork payment receipt for the spell; total-power tap costs currently belong to battlefield activations.
+// Audit: unsupported — Needs an optional casting cost paid by a jointly selected group of
+// creatures with sufficient total power, retaining a teamwork payment receipt for the spell;
+// total-power tap costs currently belong to battlefield activations.
 pub(in crate::card::sets) static ATLANTIS_ATTACKS: CardRecord = CardRecord::new(
     "Atlantis Attacks",
     "40bc4380-055d-4913-93cb-280c9c1d1a87",
@@ -1115,7 +1152,9 @@ pub(in crate::card::sets) static ATLANTIS_ATTACKS: CardRecord = CardRecord::new(
 );
 
 // MSH 47 — Attuma, Atlantean Warlord
-// Audit: unsupported — Needs one attack trigger per player attacked by a group of Merfolk, excluding attacks on planeswalkers; the current group declaration matcher does not group by attack defender.
+// Audit: unsupported — Needs one attack trigger per player attacked by a group of Merfolk,
+// excluding attacks on planeswalkers; the current group declaration matcher does not group by
+// attack defender.
 pub(in crate::card::sets) static ATTUMA_ATLANTEAN_WARLORD: CardRecord = CardRecord::new(
     "Attuma, Atlantean Warlord",
     "c3d5add1-0d0e-414b-a964-8da326472d35",
@@ -1124,7 +1163,9 @@ pub(in crate::card::sets) static ATTUMA_ATLANTEAN_WARLORD: CardRecord = CardReco
 );
 
 // MSH 48 — Bold Biochemist
-// Audit: unsupported — Needs a power-up ability category and a source-entry-turn discount that subtracts the source mana cost, including colored and flexible symbols; existing once-per-object activation limits do not supply that cost rule.
+// Audit: unsupported — Needs a power-up ability category and a source-entry-turn discount that
+// subtracts the source mana cost, including colored and flexible symbols; existing
+// once-per-object activation limits do not supply that cost rule.
 pub(in crate::card::sets) static BOLD_BIOCHEMIST: CardRecord = CardRecord::new(
     "Bold Biochemist",
     "10644127-3da0-484e-9afc-de26d9c34390",
@@ -1133,7 +1174,9 @@ pub(in crate::card::sets) static BOLD_BIOCHEMIST: CardRecord = CardRecord::new(
 );
 
 // MSH 49 — Bruce Banner // The Incredible Hulk
-// Audit: unsupported — Needs modal double-faced permanents to transform while retaining the ability to cast either face; physical_other_face currently rejects modal cards, so an ordinary transforming-card declaration would incorrectly remove the back-face casting option.
+// Audit: unsupported — Needs modal double-faced permanents to transform while retaining the
+// ability to cast either face; physical_other_face currently rejects modal cards, so an
+// ordinary transforming-card declaration would incorrectly remove the back-face casting option.
 pub(in crate::card::sets) static BRUCE_BANNER: CardRecord = CardRecord::new(
     "Bruce Banner // The Incredible Hulk",
     "e0dbbdcf-84e1-494f-8b8c-0a094f603fa9",
@@ -1142,7 +1185,8 @@ pub(in crate::card::sets) static BRUCE_BANNER: CardRecord = CardRecord::new(
 );
 
 // MSH 50 — Depower
-// Audit: unsupported — Needs a self spell-cost discount evaluated against the selected target's attacking status; the source-cost evaluator has no target context.
+// Audit: unsupported — Needs a self spell-cost discount evaluated against the selected target's
+// attacking status; the source-cost evaluator has no target context.
 pub(in crate::card::sets) static DEPOWER: CardRecord = CardRecord::new(
     "Depower",
     "36e9a6e9-1f9d-4860-97ee-f01e66f8eb4d",
@@ -1151,7 +1195,9 @@ pub(in crate::card::sets) static DEPOWER: CardRecord = CardRecord::new(
 );
 
 // MSH 51 — Echo, Perceptive Prodigy
-// Audit: unsupported — Needs stack-ability target matching against the source's creature characteristics, with last-known information after that source leaves; existing stack predicates identify ability kinds but not their source types.
+// Audit: unsupported — Needs stack-ability target matching against the source's creature
+// characteristics, with last-known information after that source leaves; existing stack
+// predicates identify ability kinds but not their source types.
 pub(in crate::card::sets) static ECHO_PERCEPTIVE_PRODIGY: CardRecord = CardRecord::new(
     "Echo, Perceptive Prodigy",
     "cd9b9be6-0143-467c-8a2a-937ecafe0473",
@@ -1238,7 +1284,8 @@ pub(in crate::card::sets) static FALCON_S_WING_HARNESS: CardRecord = CardRecord:
 );
 
 // MSH 54 — Frozen in Ice
-// Audit: unsupported — Needs a prohibition on becoming untapped by any effect or turn action; DoesNotUntap only skips the untap step and is weaker than the printed rule.
+// Audit: unsupported — Needs a prohibition on becoming untapped by any effect or turn action;
+// DoesNotUntap only skips the untap step and is weaker than the printed rule.
 pub(in crate::card::sets) static FROZEN_IN_ICE: CardRecord = CardRecord::new(
     "Frozen in Ice",
     "a990260b-39b7-4799-930a-bf9ac208d9ed",
@@ -1411,7 +1458,9 @@ pub(in crate::card::sets) static IRON_LAD_DIVERGING_DESTINY: CardRecord = CardRe
 );
 
 // MSH 60 — Ironheart, Clever Champion
-// Audit: unsupported — Needs a static grant of improvise to prospective noncreature spells across casting origins, including the resulting artifact-tap payment; the current casting payment recognizer reads the spell's own declaration.
+// Audit: unsupported — Needs a static grant of improvise to prospective noncreature spells
+// across casting origins, including the resulting artifact-tap payment; the current casting
+// payment recognizer reads the spell's own declaration.
 pub(in crate::card::sets) static IRONHEART_CLEVER_CHAMPION: CardRecord = CardRecord::new(
     "Ironheart, Clever Champion",
     "395e477a-861f-4661-b329-6c1ad5343ed5",
@@ -1473,7 +1522,9 @@ pub(in crate::card::sets) static JUSTICE_VANCE_ASTROVIK: CardRecord = CardRecord
 );
 
 // MSH 62 — Kang the Conqueror
-// Audit: unsupported — Needs a power-up ability category and a source-entry-turn discount that subtracts the source mana cost, including colored and flexible symbols; existing once-per-object activation limits do not supply that cost rule.
+// Audit: unsupported — Needs a power-up ability category and a source-entry-turn discount that
+// subtracts the source mana cost, including colored and flexible symbols; existing
+// once-per-object activation limits do not supply that cost rule.
 pub(in crate::card::sets) static KANG_THE_CONQUEROR: CardRecord = CardRecord::new(
     "Kang the Conqueror",
     "79747b45-fd7b-4023-9a9c-4d9dab2429fe",
@@ -1482,7 +1533,9 @@ pub(in crate::card::sets) static KANG_THE_CONQUEROR: CardRecord = CardRecord::ne
 );
 
 // MSH 63 — Kid Loki
-// Audit: unsupported — Needs per-permanent, per-turn +1/+1-counter placement history attributed to the player who placed them; current counters and counter events do not retain that history.
+// Audit: unsupported — Needs per-permanent, per-turn +1/+1-counter placement history attributed
+// to the player who placed them; current counters and counter events do not retain that
+// history.
 pub(in crate::card::sets) static KID_LOKI: CardRecord = CardRecord::new(
     "Kid Loki",
     "5c9ff69e-6489-49f3-b401-64856f0b7c11",
@@ -1491,7 +1544,8 @@ pub(in crate::card::sets) static KID_LOKI: CardRecord = CardRecord::new(
 );
 
 // MSH 64 — Leader, Super-Genius
-// Audit: unsupported — Needs replacement of the semantic connive action before its draw/discard sequence begins; ordinary draws and discards do not expose a replaceable connive operation.
+// Audit: unsupported — Needs replacement of the semantic connive action before its draw/discard
+// sequence begins; ordinary draws and discards do not expose a replaceable connive operation.
 pub(in crate::card::sets) static LEADER_SUPER_GENIUS: CardRecord = CardRecord::new(
     "Leader, Super-Genius",
     "2c8aab8d-2dfe-49c8-9aa8-536b0587b467",
@@ -1527,7 +1581,8 @@ pub(in crate::card::sets) static LOKI_GOD_OF_MISCHIEF: CardRecord = CardRecord::
 );
 
 // MSH 66 — Mister Fantastic, Reed Richards
-// Audit: unsupported — Needs an atomic one-or-more token battlefield-entry event; per-object ZoneChanged triggers would draw separately for each simultaneously entering token.
+// Audit: unsupported — Needs an atomic one-or-more token battlefield-entry event; per-object
+// ZoneChanged triggers would draw separately for each simultaneously entering token.
 pub(in crate::card::sets) static MISTER_FANTASTIC_REED_RICHARDS: CardRecord = CardRecord::new(
     "Mister Fantastic, Reed Richards",
     "17ef068b-61fc-443d-97b0-1e41f2622425",
@@ -1536,7 +1591,9 @@ pub(in crate::card::sets) static MISTER_FANTASTIC_REED_RICHARDS: CardRecord = Ca
 );
 
 // MSH 67 — Ms. Marvel, Kamala Khan
-// Audit: unsupported — Needs a resolving effect to grant a temporary executable static base-power ability that continues to track hand size; granted static programs are rejected and a fixed power snapshot would not update.
+// Audit: unsupported — Needs a resolving effect to grant a temporary executable static
+// base-power ability that continues to track hand size; granted static programs are rejected
+// and a fixed power snapshot would not update.
 pub(in crate::card::sets) static MS_MARVEL_KAMALA_KHAN: CardRecord = CardRecord::new(
     "Ms. Marvel, Kamala Khan",
     "9dd2d627-10fc-4045-8545-03bcf75e60ca",
@@ -1567,7 +1624,9 @@ pub(in crate::card::sets) static MULTIVERSAL_INCURSION: CardRecord = CardRecord:
 );
 
 // MSH 69 — Namor the Sub-Mariner
-// Audit: unsupported — Needs a value counting blue mana symbols in the particular noncreature spell's mana cost, including hybrid symbols; devotion counts permanents and is not a spell-cost symbol query.
+// Audit: unsupported — Needs a value counting blue mana symbols in the particular noncreature
+// spell's mana cost, including hybrid symbols; devotion counts permanents and is not a
+// spell-cost symbol query.
 pub(in crate::card::sets) static NAMOR_THE_SUB_MARINER: CardRecord = CardRecord::new(
     "Namor the Sub-Mariner",
     "7aaefcf9-fbe1-4767-92a5-09825761d116",
@@ -1603,7 +1662,9 @@ pub(in crate::card::sets) static PYM_PARTICLES: CardRecord = CardRecord::new(
 );
 
 // MSH 71 — Rewrite History
-// Audit: unsupported — Needs a counter-placement event detecting the specified ordinal counter, including a batch that crosses that count; an equality test of the final count misses that event, and a persistent threshold can retrigger incorrectly.
+// Audit: unsupported — Needs a counter-placement event detecting the specified ordinal counter,
+// including a batch that crosses that count; an equality test of the final count misses that
+// event, and a persistent threshold can retrigger incorrectly.
 pub(in crate::card::sets) static REWRITE_HISTORY: CardRecord = CardRecord::new(
     "Rewrite History",
     "91fdf444-3f41-4b8b-b9f5-f3ae3d903649",
@@ -1612,7 +1673,8 @@ pub(in crate::card::sets) static REWRITE_HISTORY: CardRecord = CardRecord::new(
 );
 
 // MSH 72 — Secret Invasion
-// Audit: unsupported — Needs exile-until-source-leaves with an immediate return when the duration ends (CR 610.3), rather than a delayed return through an ordinary leaves trigger.
+// Audit: unsupported — Needs exile-until-source-leaves with an immediate return when the
+// duration ends (CR 610.3), rather than a delayed return through an ordinary leaves trigger.
 pub(in crate::card::sets) static SECRET_INVASION: CardRecord = CardRecord::new(
     "Secret Invasion",
     "e361b2f4-cd2f-44e9-a56d-c1d6b5ae742d",
@@ -1739,7 +1801,9 @@ pub(in crate::card::sets) static SHURI_WAKANDAN_INVENTOR: CardRecord = CardRecor
 );
 
 // MSH 76 — Stature, Size Shifter
-// Audit: unsupported — Needs a power-up ability category and a source-entry-turn discount that subtracts the source mana cost, including colored and flexible symbols; existing once-per-object activation limits do not supply that cost rule.
+// Audit: unsupported — Needs a power-up ability category and a source-entry-turn discount that
+// subtracts the source mana cost, including colored and flexible symbols; existing
+// once-per-object activation limits do not supply that cost rule.
 pub(in crate::card::sets) static STATURE_SIZE_SHIFTER: CardRecord = CardRecord::new(
     "Stature, Size Shifter",
     "fe692959-64ca-4065-9f9e-1abe590e3d0f",
@@ -1822,7 +1886,9 @@ const THIRST_FOR_KNOWLEDGE_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // MSH 80 — Tony Stark // The Invincible Iron Man
-// Audit: unsupported — Needs modal double-faced permanents to transform while retaining the ability to cast either face; physical_other_face currently rejects modal cards, so an ordinary transforming-card declaration would incorrectly remove the back-face casting option.
+// Audit: unsupported — Needs modal double-faced permanents to transform while retaining the
+// ability to cast either face; physical_other_face currently rejects modal cards, so an
+// ordinary transforming-card declaration would incorrectly remove the back-face casting option.
 pub(in crate::card::sets) static TONY_STARK: CardRecord = CardRecord::new(
     "Tony Stark // The Invincible Iron Man",
     "4cea42fd-035e-4b8f-8b1d-ff363b694f14",
@@ -1831,7 +1897,8 @@ pub(in crate::card::sets) static TONY_STARK: CardRecord = CardRecord::new(
 );
 
 // MSH 81 — Trickster's Stratagem
-// Audit: unsupported — Needs owner choice between placing a card second from the top of the library and on the bottom; current library placements do not represent second from top.
+// Audit: unsupported — Needs owner choice between placing a card second from the top of the
+// library and on the bottom; current library placements do not represent second from top.
 pub(in crate::card::sets) static TRICKSTER_S_STRATAGEM: CardRecord = CardRecord::new(
     "Trickster's Stratagem",
     "620376d0-dc0c-405f-8121-eb36d9b4f4c2",
@@ -1840,7 +1907,9 @@ pub(in crate::card::sets) static TRICKSTER_S_STRATAGEM: CardRecord = CardRecord:
 );
 
 // MSH 82 — We Say Thee Nay!
-// Audit: unsupported — Needs an optional casting cost paid by a jointly selected group of creatures with sufficient total power, retaining a teamwork payment receipt for the spell; total-power tap costs currently belong to battlefield activations.
+// Audit: unsupported — Needs an optional casting cost paid by a jointly selected group of
+// creatures with sufficient total power, retaining a teamwork payment receipt for the spell;
+// total-power tap costs currently belong to battlefield activations.
 pub(in crate::card::sets) static WE_SAY_THEE_NAY: CardRecord = CardRecord::new(
     "We Say Thee Nay!",
     "13b70321-75bd-4d44-b9f6-5f062a5dda0f",
@@ -1988,7 +2057,9 @@ pub(in crate::card::sets) static ARNIM_ZOLA_BIO_FANATIC: CardRecord = CardRecord
 );
 
 // MSH 87 — Baron Helmut Zemo
-// Audit: unsupported — Needs a graveyard exile cost bounded by the total black mana symbols of selected cards, followed by non-stack card copies and a bounded free-cast offer for up to three copies.
+// Audit: unsupported — Needs a graveyard exile cost bounded by the total black mana symbols of
+// selected cards, followed by non-stack card copies and a bounded free-cast offer for up to
+// three copies.
 pub(in crate::card::sets) static BARON_HELMUT_ZEMO: CardRecord = CardRecord::new(
     "Baron Helmut Zemo",
     "c2aadc25-7755-4bc8-a8af-b01d27eec364",
@@ -1997,7 +2068,9 @@ pub(in crate::card::sets) static BARON_HELMUT_ZEMO: CardRecord = CardRecord::new
 );
 
 // MSH 88 — Baron Strucker, HYDRA Overlord
-// Audit: unsupported — Needs a once-per-turn limit consumed when the optional connive effect is accepted, rather than on its trigger firing; current trigger limits consume an occurrence even when that player declines.
+// Audit: unsupported — Needs a once-per-turn limit consumed when the optional connive effect is
+// accepted, rather than on its trigger firing; current trigger limits consume an occurrence
+// even when that player declines.
 pub(in crate::card::sets) static BARON_STRUCKER_HYDRA_OVERLORD: CardRecord = CardRecord::new(
     "Baron Strucker, HYDRA Overlord",
     "eaf2251a-ffaf-4055-9474-7e3d08d89609",
@@ -2006,7 +2079,9 @@ pub(in crate::card::sets) static BARON_STRUCKER_HYDRA_OVERLORD: CardRecord = Car
 );
 
 // MSH 89 — Black Widow, Super Spy
-// Audit: unsupported — Needs an optional cast permission granted to an already-exiled nonland card after the counter choice, with spend-as-any-type payment; current exile-and-play operations combine moving and permission creation.
+// Audit: unsupported — Needs an optional cast permission granted to an already-exiled nonland
+// card after the counter choice, with spend-as-any-type payment; current exile-and-play
+// operations combine moving and permission creation.
 pub(in crate::card::sets) static BLACK_WIDOW_SUPER_SPY: CardRecord = CardRecord::new(
     "Black Widow, Super Spy",
     "63ce0909-7d7d-410d-ab6c-c87fa3e23877",
@@ -2015,7 +2090,9 @@ pub(in crate::card::sets) static BLACK_WIDOW_SUPER_SPY: CardRecord = CardRecord:
 );
 
 // MSH 90 — Construct a Cosmic Cube
-// Audit: unsupported — Needs a counter-placement event detecting the specified ordinal counter, including a batch that crosses that count; an equality test of the final count misses that event, and a persistent threshold can retrigger incorrectly.
+// Audit: unsupported — Needs a counter-placement event detecting the specified ordinal counter,
+// including a batch that crosses that count; an equality test of the final count misses that
+// event, and a persistent threshold can retrigger incorrectly.
 pub(in crate::card::sets) static CONSTRUCT_A_COSMIC_CUBE: CardRecord = CardRecord::new(
     "Construct a Cosmic Cube",
     "448de757-ac16-4529-b851-1a1331b821a5",
@@ -2066,7 +2143,9 @@ pub(in crate::card::sets) static CROSSBONES_MALICIOUS_MERCENARY: CardRecord = Ca
 );
 
 // MSH 92 — Cruel Alliance
-// Audit: unsupported — Needs an optional casting cost paid by a jointly selected group of creatures with sufficient total power, retaining a teamwork payment receipt for the spell; total-power tap costs currently belong to battlefield activations.
+// Audit: unsupported — Needs an optional casting cost paid by a jointly selected group of
+// creatures with sufficient total power, retaining a teamwork payment receipt for the spell;
+// total-power tap costs currently belong to battlefield activations.
 pub(in crate::card::sets) static CRUEL_ALLIANCE: CardRecord = CardRecord::new(
     "Cruel Alliance",
     "d895d5a1-d382-438b-8551-e142bb5142af",
@@ -2205,7 +2284,9 @@ pub(in crate::card::sets) static DOCTOR_DOOM: CardRecord = CardRecord::new(
 );
 
 // MSH 96 — Doom Reigns Supreme
-// Audit: unsupported — Needs a counter-placement event detecting the specified ordinal counter, including a batch that crosses that count; an equality test of the final count misses that event, and a persistent threshold can retrigger incorrectly.
+// Audit: unsupported — Needs a counter-placement event detecting the specified ordinal counter,
+// including a batch that crosses that count; an equality test of the final count misses that
+// event, and a persistent threshold can retrigger incorrectly.
 pub(in crate::card::sets) static DOOM_REIGNS_SUPREME: CardRecord = CardRecord::new(
     "Doom Reigns Supreme",
     "9b99894b-c774-45c2-9ee9-4d6a8e7522f5",
@@ -2214,7 +2295,9 @@ pub(in crate::card::sets) static DOOM_REIGNS_SUPREME: CardRecord = CardRecord::n
 );
 
 // MSH 97 — Elektra, Daughter of the Hand
-// Audit: unsupported — Needs sneak as an alternative spell cast during the declare-blockers step, with an unblocked-attacker return cost and entry tapped and attacking; existing ninjutsu is an activated ability and cannot substitute.
+// Audit: unsupported — Needs sneak as an alternative spell cast during the declare-blockers
+// step, with an unblocked-attacker return cost and entry tapped and attacking; existing
+// ninjutsu is an activated ability and cannot substitute.
 pub(in crate::card::sets) static ELEKTRA_DAUGHTER_OF_THE_HAND: CardRecord = CardRecord::new(
     "Elektra, Daughter of the Hand",
     "ac3e586c-d654-4631-beda-a5e29cf04717",
@@ -2223,7 +2306,9 @@ pub(in crate::card::sets) static ELEKTRA_DAUGHTER_OF_THE_HAND: CardRecord = Card
 );
 
 // MSH 98 — Grim Reaper, Lethal Legionnaire
-// Audit: unsupported — Needs a resolving-payment reflexive trigger retained after its original source leaves and a nontoken reanimation entry tapped and attacking; existing attacking entry supports token creation.
+// Audit: unsupported — Needs a resolving-payment reflexive trigger retained after its original
+// source leaves and a nontoken reanimation entry tapped and attacking; existing attacking entry
+// supports token creation.
 pub(in crate::card::sets) static GRIM_REAPER_LETHAL_LEGIONNAIRE: CardRecord = CardRecord::new(
     "Grim Reaper, Lethal Legionnaire",
     "4b1cedfe-4712-4602-a8a8-112bd54c9938",
@@ -2352,7 +2437,8 @@ pub(in crate::card::sets) static KINGPIN_S_ENFORCERS: CardRecord = CardRecord::n
 );
 
 // MSH 103 — Klaw, Sonic Subjugator
-// Audit: unsupported — Needs a hand owner to reveal a dynamically sized subset before a different player chooses the discard; RevealHand exposes the entire hand.
+// Audit: unsupported — Needs a hand owner to reveal a dynamically sized subset before a
+// different player chooses the discard; RevealHand exposes the entire hand.
 pub(in crate::card::sets) static KLAW_SONIC_SUBJUGATOR: CardRecord = CardRecord::new(
     "Klaw, Sonic Subjugator",
     "c79a86f8-24e9-49a2-8b1c-72a72fed1985",
@@ -2509,7 +2595,9 @@ pub(in crate::card::sets) static M_O_D_O_K: CardRecord = CardRecord::new(
 );
 
 // MSH 107 — Moonstone, Harsh Mistress
-// Audit: unsupported — Needs an exile-play permission expiring at cleanup of its controller's next turn; the current turn-count duration also permits plays during the following opponent turn.
+// Audit: unsupported — Needs an exile-play permission expiring at cleanup of its controller's
+// next turn; the current turn-count duration also permits plays during the following opponent
+// turn.
 pub(in crate::card::sets) static MOONSTONE_HARSH_MISTRESS: CardRecord = CardRecord::new(
     "Moonstone, Harsh Mistress",
     "1a1b2bd0-e17d-4b34-a8ee-7c913a6bc945",
@@ -2518,7 +2606,9 @@ pub(in crate::card::sets) static MOONSTONE_HARSH_MISTRESS: CardRecord = CardReco
 );
 
 // MSH 108 — Ninja of the Hand
-// Audit: unsupported — Needs a power-up ability category and a source-entry-turn discount that subtracts the source mana cost, including colored and flexible symbols; existing once-per-object activation limits do not supply that cost rule.
+// Audit: unsupported — Needs a power-up ability category and a source-entry-turn discount that
+// subtracts the source mana cost, including colored and flexible symbols; existing
+// once-per-object activation limits do not supply that cost rule.
 pub(in crate::card::sets) static NINJA_OF_THE_HAND: CardRecord = CardRecord::new(
     "Ninja of the Hand",
     "6b8116d8-2cc6-449b-a8b4-8a5166553497",
@@ -2582,7 +2672,9 @@ pub(in crate::card::sets) static RED_ROOM_RECRUIT: CardRecord = CardRecord::new(
 );
 
 // MSH 111 — Robot Domination
-// Audit: unsupported — Needs a counter-placement event detecting the specified ordinal counter, including a batch that crosses that count; an equality test of the final count misses that event, and a persistent threshold can retrigger incorrectly.
+// Audit: unsupported — Needs a counter-placement event detecting the specified ordinal counter,
+// including a batch that crosses that count; an equality test of the final count misses that
+// event, and a persistent threshold can retrigger incorrectly.
 pub(in crate::card::sets) static ROBOT_DOMINATION: CardRecord = CardRecord::new(
     "Robot Domination",
     "b26bb968-6612-43fe-9147-a3d4786cbc20",
@@ -2591,7 +2683,9 @@ pub(in crate::card::sets) static ROBOT_DOMINATION: CardRecord = CardRecord::new(
 );
 
 // MSH 112 — Ronin, Shadow Stalker
-// Audit: unsupported — Needs a disjunction between casting Equipment and activating equip abilities in a mana restriction; current restriction lists are conjunctions and cannot express either spending route.
+// Audit: unsupported — Needs a disjunction between casting Equipment and activating equip
+// abilities in a mana restriction; current restriction lists are conjunctions and cannot
+// express either spending route.
 pub(in crate::card::sets) static RONIN_SHADOW_STALKER: CardRecord = CardRecord::new(
     "Ronin, Shadow Stalker",
     "f74b9794-946e-4ddc-93b2-5a321fc51fd0",
@@ -2745,7 +2839,8 @@ pub(in crate::card::sets) static SUPER_SKRULL: CardRecord = CardRecord::new(
 );
 
 // MSH 116 — Swordsman, Sharp Scoundrel
-// Audit: unsupported — Needs attachment between two independently targeted permanents; Attach and AttachToSource require one endpoint to be the resolving ability's source.
+// Audit: unsupported — Needs attachment between two independently targeted permanents; Attach
+// and AttachToSource require one endpoint to be the resolving ability's source.
 pub(in crate::card::sets) static SWORDSMAN_SHARP_SCOUNDREL: CardRecord = CardRecord::new(
     "Swordsman, Sharp Scoundrel",
     "6572aafe-18ed-4182-92e9-25f003f5fe3d",
@@ -2754,7 +2849,8 @@ pub(in crate::card::sets) static SWORDSMAN_SHARP_SCOUNDREL: CardRecord = CardRec
 );
 
 // MSH 117 — Thunderbolts Conspiracy
-// Audit: unsupported — Needs the returning creature's added Hero type established before entry replacements and enters triggers inspect it, together with its finality counter (CR 611.2e).
+// Audit: unsupported — Needs the returning creature's added Hero type established before entry
+// replacements and enters triggers inspect it, together with its finality counter (CR 611.2e).
 pub(in crate::card::sets) static THUNDERBOLTS_CONSPIRACY: CardRecord = CardRecord::new(
     "Thunderbolts Conspiracy",
     "f498c1a4-54d2-4e87-952f-8cf7e408930c",
@@ -2763,7 +2859,9 @@ pub(in crate::card::sets) static THUNDERBOLTS_CONSPIRACY: CardRecord = CardRecor
 );
 
 // MSH 118 — Too Evil to Stay Dead
-// Audit: unsupported — Needs an optional casting cost paid by a jointly selected group of creatures with sufficient total power, retaining a teamwork payment receipt for the spell; total-power tap costs currently belong to battlefield activations.
+// Audit: unsupported — Needs an optional casting cost paid by a jointly selected group of
+// creatures with sufficient total power, retaining a teamwork payment receipt for the spell;
+// total-power tap costs currently belong to battlefield activations.
 pub(in crate::card::sets) static TOO_EVIL_TO_STAY_DEAD: CardRecord = CardRecord::new(
     "Too Evil to Stay Dead",
     "f471e9ce-73bb-4090-98f2-f591c7cf4efe",
@@ -2772,7 +2870,9 @@ pub(in crate::card::sets) static TOO_EVIL_TO_STAY_DEAD: CardRecord = CardRecord:
 );
 
 // MSH 119 — Unliving Legionnaire
-// Audit: unsupported — Needs a power-up ability category and a source-entry-turn discount that subtracts the source mana cost, including colored and flexible symbols; existing once-per-object activation limits do not supply that cost rule.
+// Audit: unsupported — Needs a power-up ability category and a source-entry-turn discount that
+// subtracts the source mana cost, including colored and flexible symbols; existing
+// once-per-object activation limits do not supply that cost rule.
 pub(in crate::card::sets) static UNLIVING_LEGIONNAIRE: CardRecord = CardRecord::new(
     "Unliving Legionnaire",
     "ce08f4bb-7da3-4199-8b90-fcdb29e84e98",
@@ -2868,7 +2968,9 @@ pub(in crate::card::sets) static WHIPLASH_VENGEFUL_ENGINEER: CardRecord = CardRe
 );
 
 // MSH 122 — Widow's Bite
-// Audit: unsupported — Needs an optional casting cost paid by a jointly selected group of creatures with sufficient total power, retaining a teamwork payment receipt for the spell; total-power tap costs currently belong to battlefield activations.
+// Audit: unsupported — Needs an optional casting cost paid by a jointly selected group of
+// creatures with sufficient total power, retaining a teamwork payment receipt for the spell;
+// total-power tap costs currently belong to battlefield activations.
 pub(in crate::card::sets) static WIDOW_S_BITE: CardRecord = CardRecord::new(
     "Widow's Bite",
     "dbee18af-9ade-4251-81a1-f6e7ffbf480f",
@@ -2980,7 +3082,9 @@ const BLAZING_CRESCENDO_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // MSH 126 — Crimson Operative
-// Audit: unsupported — Needs an exile-play permission expiring at cleanup of its controller's next turn; the current turn-count duration also permits plays during the following opponent turn.
+// Audit: unsupported — Needs an exile-play permission expiring at cleanup of its controller's
+// next turn; the current turn-count duration also permits plays during the following opponent
+// turn.
 pub(in crate::card::sets) static CRIMSON_OPERATIVE: CardRecord = CardRecord::new(
     "Crimson Operative",
     "c4bc077c-f220-47a5-aaf4-5324ca23d0c5",
@@ -2989,7 +3093,9 @@ pub(in crate::card::sets) static CRIMSON_OPERATIVE: CardRecord = CardRecord::new
 );
 
 // MSH 127 — Death to Our Enemies
-// Audit: unsupported — Needs a counter-placement event detecting the specified ordinal counter, including a batch that crosses that count; an equality test of the final count misses that event, and a persistent threshold can retrigger incorrectly.
+// Audit: unsupported — Needs a counter-placement event detecting the specified ordinal counter,
+// including a batch that crosses that count; an equality test of the final count misses that
+// event, and a persistent threshold can retrigger incorrectly.
 pub(in crate::card::sets) static DEATH_TO_OUR_ENEMIES: CardRecord = CardRecord::new(
     "Death to Our Enemies",
     "f2a8f518-c0b5-4e15-aab2-49b5ef29fb41",
@@ -2998,7 +3104,8 @@ pub(in crate::card::sets) static DEATH_TO_OUR_ENEMIES: CardRecord = CardRecord::
 );
 
 // MSH 128 — Evil's Thrall
-// Audit: unsupported — Needs a control-change duration ending at cleanup of the effect controller's next turn; existing control durations do not name that boundary.
+// Audit: unsupported — Needs a control-change duration ending at cleanup of the effect
+// controller's next turn; existing control durations do not name that boundary.
 pub(in crate::card::sets) static EVIL_S_THRALL: CardRecord = CardRecord::new(
     "Evil's Thrall",
     "310e30cd-b8c3-40ea-9d61-57c5c5fc2a0b",
@@ -3056,7 +3163,9 @@ pub(in crate::card::sets) static FIN_FANG_FOOM: CardRecord = CardRecord::new(
 );
 
 // MSH 130 — Hawkeye, Master Marksman
-// Audit: unsupported — Needs a reflexive trigger after a bounded repeated mana payment, with its modal maximum bound to the paid repetition count; triggered modal selection currently supports one mode.
+// Audit: unsupported — Needs a reflexive trigger after a bounded repeated mana payment, with
+// its modal maximum bound to the paid repetition count; triggered modal selection currently
+// supports one mode.
 pub(in crate::card::sets) static HAWKEYE_MASTER_MARKSMAN: CardRecord = CardRecord::new(
     "Hawkeye, Master Marksman",
     "9991b684-0ae0-4aa4-8f22-a9c473f5d69c",
@@ -3065,7 +3174,9 @@ pub(in crate::card::sets) static HAWKEYE_MASTER_MARKSMAN: CardRecord = CardRecor
 );
 
 // MSH 131 — Hawkeye, Young Avenger
-// Audit: unsupported — Needs a damage replacement that adds the source's current power to each matching damage assignment; current multiplier and redirection operations do not implement an additive damage modifier.
+// Audit: unsupported — Needs a damage replacement that adds the source's current power to each
+// matching damage assignment; current multiplier and redirection operations do not implement an
+// additive damage modifier.
 pub(in crate::card::sets) static HAWKEYE_YOUNG_AVENGER: CardRecord = CardRecord::new(
     "Hawkeye, Young Avenger",
     "3cebccbb-dde2-41fe-bfdc-0a46ee185749",
@@ -3109,7 +3220,9 @@ pub(in crate::card::sets) static HAWKEYE_S_BOW: CardRecord = CardRecord::new(
 );
 
 // MSH 133 — Hex Magic
-// Audit: unsupported — Needs an exile-play permission expiring at cleanup of its controller's next turn; the current turn-count duration also permits plays during the following opponent turn.
+// Audit: unsupported — Needs an exile-play permission expiring at cleanup of its controller's
+// next turn; the current turn-count duration also permits plays during the following opponent
+// turn.
 pub(in crate::card::sets) static HEX_MAGIC: CardRecord = CardRecord::new(
     "Hex Magic",
     "259bed47-1950-43ae-8efd-3009537529a8",
@@ -3148,7 +3261,9 @@ pub(in crate::card::sets) static HIRE_A_CREW: CardRecord = CardRecord::new(
 );
 
 // MSH 135 — HULK SMASH!
-// Audit: unsupported — Needs an optional casting cost paid by a jointly selected group of creatures with sufficient total power, retaining a teamwork payment receipt for the spell; total-power tap costs currently belong to battlefield activations.
+// Audit: unsupported — Needs an optional casting cost paid by a jointly selected group of
+// creatures with sufficient total power, retaining a teamwork payment receipt for the spell;
+// total-power tap costs currently belong to battlefield activations.
 pub(in crate::card::sets) static HULK_SMASH: CardRecord = CardRecord::new(
     "HULK SMASH!",
     "374ffb3e-0753-4682-936a-ae6921ace475",
@@ -3157,7 +3272,9 @@ pub(in crate::card::sets) static HULK_SMASH: CardRecord = CardRecord::new(
 );
 
 // MSH 136 — Human Torch, Johnny Storm
-// Audit: unsupported — Needs a power-up ability category and a source-entry-turn discount that subtracts the source mana cost, including colored and flexible symbols; existing once-per-object activation limits do not supply that cost rule.
+// Audit: unsupported — Needs a power-up ability category and a source-entry-turn discount that
+// subtracts the source mana cost, including colored and flexible symbols; existing
+// once-per-object activation limits do not supply that cost rule.
 pub(in crate::card::sets) static HUMAN_TORCH_JOHNNY_STORM: CardRecord = CardRecord::new(
     "Human Torch, Johnny Storm",
     "8f8659f6-a793-4edc-8401-d9126840c1c2",
@@ -3237,7 +3354,9 @@ pub(in crate::card::sets) static IRON_FIST_LIVING_WEAPON: CardRecord = CardRecor
 );
 
 // MSH 139 — Jessica Jones, Private Eye
-// Audit: unsupported — Needs putting a stun counter on the source as an ordinary activated-ability cost, alongside tapping it; source-counter placement is currently supported only by resolving payments, not the activation payment planner.
+// Audit: unsupported — Needs putting a stun counter on the source as an ordinary
+// activated-ability cost, alongside tapping it; source-counter placement is currently supported
+// only by resolving payments, not the activation payment planner.
 pub(in crate::card::sets) static JESSICA_JONES_PRIVATE_EYE: CardRecord = CardRecord::new(
     "Jessica Jones, Private Eye",
     "b48278fd-1d95-4ad6-9a51-f1c5a2ab9f4b",
@@ -3307,7 +3426,9 @@ const LIGHTNING_STRIKE_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // MSH 143 — Loki Laufeyson
-// Audit: unsupported — Needs a power-up ability category and a source-entry-turn discount that subtracts the source mana cost, including colored and flexible symbols; existing once-per-object activation limits do not supply that cost rule.
+// Audit: unsupported — Needs a power-up ability category and a source-entry-turn discount that
+// subtracts the source mana cost, including colored and flexible symbols; existing
+// once-per-object activation limits do not supply that cost rule.
 pub(in crate::card::sets) static LOKI_LAUFEYSON: CardRecord = CardRecord::new(
     "Loki Laufeyson",
     "53b795a7-11f8-423a-b021-f811007fc82f",
@@ -3347,7 +3468,9 @@ pub(in crate::card::sets) static MACHINESMITH_AUTOMATON: CardRecord = CardRecord
 );
 
 // MSH 145 — Misty Knight, Hero for Hire
-// Audit: unsupported — Needs a per-player count of cards discarded this turn, including the activation's just-paid discard; the current resolver only exposes the count from an individual discard operation.
+// Audit: unsupported — Needs a per-player count of cards discarded this turn, including the
+// activation's just-paid discard; the current resolver only exposes the count from an
+// individual discard operation.
 pub(in crate::card::sets) static MISTY_KNIGHT_HERO_FOR_HIRE: CardRecord = CardRecord::new(
     "Misty Knight, Hero for Hire",
     "6b963642-a103-44a0-9eb7-9c3fdde181b7",
@@ -3356,7 +3479,9 @@ pub(in crate::card::sets) static MISTY_KNIGHT_HERO_FOR_HIRE: CardRecord = CardRe
 );
 
 // MSH 146 — Mjölnir, Hammer of Thor
-// Audit: unsupported — Needs source-specific doubling of damage from the equipped creature and an equip activation restricted to worthy creatures; generic damage doubling and ordinary equip do not express both filters.
+// Audit: unsupported — Needs source-specific doubling of damage from the equipped creature and
+// an equip activation restricted to worthy creatures; generic damage doubling and ordinary
+// equip do not express both filters.
 pub(in crate::card::sets) static MJOLNIR_HAMMER_OF_THOR: CardRecord = CardRecord::new(
     "Mjölnir, Hammer of Thor",
     "e0c7f566-5351-44e3-a346-b84b0eb10209",
@@ -3365,7 +3490,9 @@ pub(in crate::card::sets) static MJOLNIR_HAMMER_OF_THOR: CardRecord = CardRecord
 );
 
 // MSH 147 — Photon Blast Barrage
-// Audit: unsupported — Needs the triggering spell's chosen X retained by its cast trigger; ChosenX reads the new trigger's zero X and SourceCastX reads battlefield permanents, neither the triggering spell.
+// Audit: unsupported — Needs the triggering spell's chosen X retained by its cast trigger;
+// ChosenX reads the new trigger's zero X and SourceCastX reads battlefield permanents, neither
+// the triggering spell.
 pub(in crate::card::sets) static PHOTON_BLAST_BARRAGE: CardRecord = CardRecord::new(
     "Photon Blast Barrage",
     "f85a77d2-e11e-44bc-a1e7-d783cd49d714",
@@ -3374,7 +3501,9 @@ pub(in crate::card::sets) static PHOTON_BLAST_BARRAGE: CardRecord = CardRecord::
 );
 
 // MSH 148 — Quicksilver, Brash Blur
-// Audit: unsupported — Needs a power-up ability category and a source-entry-turn discount that subtracts the source mana cost, including colored and flexible symbols; existing once-per-object activation limits do not supply that cost rule.
+// Audit: unsupported — Needs a power-up ability category and a source-entry-turn discount that
+// subtracts the source mana cost, including colored and flexible symbols; existing
+// once-per-object activation limits do not supply that cost rule.
 pub(in crate::card::sets) static QUICKSILVER_BRASH_BLUR: CardRecord = CardRecord::new(
     "Quicksilver, Brash Blur",
     "2d5819ca-165d-4f4c-9500-3ac206994880",
@@ -3383,7 +3512,9 @@ pub(in crate::card::sets) static QUICKSILVER_BRASH_BLUR: CardRecord = CardRecord
 );
 
 // MSH 149 — Red Hulk
-// Audit: unsupported — Needs a reflexive trigger created by the accepted resolving action and retained after the original source leaves, with targets selected at that later trigger; OptionalEffectTaken currently discovers only battlefield listeners.
+// Audit: unsupported — Needs a reflexive trigger created by the accepted resolving action and
+// retained after the original source leaves, with targets selected at that later trigger;
+// OptionalEffectTaken currently discovers only battlefield listeners.
 pub(in crate::card::sets) static RED_HULK: CardRecord = CardRecord::new(
     "Red Hulk",
     "e25468e2-17c6-47b2-8eb6-fcb8ae6f4c17",
@@ -3392,7 +3523,9 @@ pub(in crate::card::sets) static RED_HULK: CardRecord = CardRecord::new(
 );
 
 // MSH 150 — Repulsor Blast
-// Audit: unsupported — Needs an optional casting cost paid by a jointly selected group of creatures with sufficient total power, retaining a teamwork payment receipt for the spell; total-power tap costs currently belong to battlefield activations.
+// Audit: unsupported — Needs an optional casting cost paid by a jointly selected group of
+// creatures with sufficient total power, retaining a teamwork payment receipt for the spell;
+// total-power tap costs currently belong to battlefield activations.
 pub(in crate::card::sets) static REPULSOR_BLAST: CardRecord = CardRecord::new(
     "Repulsor Blast",
     "837265b0-fc15-4d96-9d6b-fd1c78534262",
@@ -3401,7 +3534,9 @@ pub(in crate::card::sets) static REPULSOR_BLAST: CardRecord = CardRecord::new(
 );
 
 // MSH 151 — The Scarlet Witch
-// Audit: unsupported — Needs the spell-cost value evaluator to read the modifier source's power; SourcePower is implemented for mana production and resolving effects but not for spell-cost reductions.
+// Audit: unsupported — Needs the spell-cost value evaluator to read the modifier source's
+// power; SourcePower is implemented for mana production and resolving effects but not for
+// spell-cost reductions.
 pub(in crate::card::sets) static THE_SCARLET_WITCH: CardRecord = CardRecord::new(
     "The Scarlet Witch",
     "407e8993-e56d-477d-ab85-d10a2522eab3",
@@ -3410,7 +3545,9 @@ pub(in crate::card::sets) static THE_SCARLET_WITCH: CardRecord = CardRecord::new
 );
 
 // MSH 152 — Speed, Young Avenger
-// Audit: unsupported — Needs a reflexive trigger created by the accepted resolving action and retained after the original source leaves, with targets selected at that later trigger; OptionalEffectTaken currently discovers only battlefield listeners.
+// Audit: unsupported — Needs a reflexive trigger created by the accepted resolving action and
+// retained after the original source leaves, with targets selected at that later trigger;
+// OptionalEffectTaken currently discovers only battlefield listeners.
 pub(in crate::card::sets) static SPEED_YOUNG_AVENGER: CardRecord = CardRecord::new(
     "Speed, Young Avenger",
     "d15d187b-dc5d-482d-a79a-b9b98193ad7a",
@@ -3472,7 +3609,9 @@ pub(in crate::card::sets) static SUPER_SPEED: CardRecord = CardRecord::new(
 );
 
 // MSH 155 — Team Tactics
-// Audit: unsupported — Needs an optional casting cost paid by a jointly selected group of creatures with sufficient total power, retaining a teamwork payment receipt for the spell; total-power tap costs currently belong to battlefield activations.
+// Audit: unsupported — Needs an optional casting cost paid by a jointly selected group of
+// creatures with sufficient total power, retaining a teamwork payment receipt for the spell;
+// total-power tap costs currently belong to battlefield activations.
 pub(in crate::card::sets) static TEAM_TACTICS: CardRecord = CardRecord::new(
     "Team Tactics",
     "db1c7a71-3d01-4f2a-9b25-2a19bb0d1a56",
@@ -3481,7 +3620,9 @@ pub(in crate::card::sets) static TEAM_TACTICS: CardRecord = CardRecord::new(
 );
 
 // MSH 156 — Thor, God of Thunder
-// Audit: unsupported — Needs an exile-play permission expiring at cleanup of its controller's next turn; the current turn-count duration also permits plays during the following opponent turn.
+// Audit: unsupported — Needs an exile-play permission expiring at cleanup of its controller's
+// next turn; the current turn-count duration also permits plays during the following opponent
+// turn.
 pub(in crate::card::sets) static THOR_GOD_OF_THUNDER: CardRecord = CardRecord::new(
     "Thor, God of Thunder",
     "cddd314c-c271-475a-b076-01a8599c8015",
@@ -3555,7 +3696,9 @@ pub(in crate::card::sets) static VISION_OF_LOVE: CardRecord = CardRecord::new(
 );
 
 // MSH 159 — Volcanic Villain
-// Audit: unsupported — Needs a power-up ability category and a source-entry-turn discount that subtracts the source mana cost, including colored and flexible symbols; existing once-per-object activation limits do not supply that cost rule.
+// Audit: unsupported — Needs a power-up ability category and a source-entry-turn discount that
+// subtracts the source mana cost, including colored and flexible symbols; existing
+// once-per-object activation limits do not supply that cost rule.
 pub(in crate::card::sets) static VOLCANIC_VILLAIN: CardRecord = CardRecord::new(
     "Volcanic Villain",
     "4f48ba40-9934-40fd-a251-e15a68e772d2",
@@ -3564,7 +3707,9 @@ pub(in crate::card::sets) static VOLCANIC_VILLAIN: CardRecord = CardRecord::new(
 );
 
 // MSH 160 — Wonder Man, Hollywood Hero
-// Audit: unsupported — Needs a power-up ability category and a source-entry-turn discount that subtracts the source mana cost, including colored and flexible symbols; existing once-per-object activation limits do not supply that cost rule.
+// Audit: unsupported — Needs a power-up ability category and a source-entry-turn discount that
+// subtracts the source mana cost, including colored and flexible symbols; existing
+// once-per-object activation limits do not supply that cost rule.
 pub(in crate::card::sets) static WONDER_MAN_HOLLYWOOD_HERO: CardRecord = CardRecord::new(
     "Wonder Man, Hollywood Hero",
     "1ee52395-9523-4da1-9108-8ab79229fc7a",
@@ -3685,7 +3830,9 @@ pub(in crate::card::sets) static CALL_DAMAGE_CONTROL: CardRecord = CardRecord::n
 );
 
 // MSH 163 — Claim the Kingdom
-// Audit: unsupported — Needs a counter-placement event detecting the specified ordinal counter, including a batch that crosses that count; an equality test of the final count misses that event, and a persistent threshold can retrigger incorrectly.
+// Audit: unsupported — Needs a counter-placement event detecting the specified ordinal counter,
+// including a batch that crosses that count; an equality test of the final count misses that
+// event, and a persistent threshold can retrigger incorrectly.
 pub(in crate::card::sets) static CLAIM_THE_KINGDOM: CardRecord = CardRecord::new(
     "Claim the Kingdom",
     "cf13bfb1-5b44-4363-8de9-ece234233870",
@@ -3694,7 +3841,9 @@ pub(in crate::card::sets) static CLAIM_THE_KINGDOM: CardRecord = CardRecord::new
 );
 
 // MSH 164 — Doc Samson, Super Psychiatrist
-// Audit: unsupported — Needs a counter-placement replacement filtered to counters placed by the controller, adding one of every affected kind in that event; fixed counter additions are not that replacement.
+// Audit: unsupported — Needs a counter-placement replacement filtered to counters placed by the
+// controller, adding one of every affected kind in that event; fixed counter additions are not
+// that replacement.
 pub(in crate::card::sets) static DOC_SAMSON_SUPER_PSYCHIATRIST: CardRecord = CardRecord::new(
     "Doc Samson, Super Psychiatrist",
     "19dc5fcc-d05d-41a0-84c5-2dec996f3e4f",
@@ -3703,7 +3852,9 @@ pub(in crate::card::sets) static DOC_SAMSON_SUPER_PSYCHIATRIST: CardRecord = Car
 );
 
 // MSH 165 — Earth's Mightiest Heroes
-// Audit: unsupported — Needs an optional casting cost paid by a jointly selected group of creatures with sufficient total power, retaining a teamwork payment receipt for the spell; total-power tap costs currently belong to battlefield activations.
+// Audit: unsupported — Needs an optional casting cost paid by a jointly selected group of
+// creatures with sufficient total power, retaining a teamwork payment receipt for the spell;
+// total-power tap costs currently belong to battlefield activations.
 pub(in crate::card::sets) static EARTH_S_MIGHTIEST_HEROES: CardRecord = CardRecord::new(
     "Earth's Mightiest Heroes",
     "b38b9bd6-1dd7-4bbc-8a82-ce391c1172e1",
@@ -3769,7 +3920,9 @@ const GIANT_GROWTH_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // MSH 168 — Go Nuts!
-// Audit: unsupported — Needs an optional casting cost paid by a jointly selected group of creatures with sufficient total power, retaining a teamwork payment receipt for the spell; total-power tap costs currently belong to battlefield activations.
+// Audit: unsupported — Needs an optional casting cost paid by a jointly selected group of
+// creatures with sufficient total power, retaining a teamwork payment receipt for the spell;
+// total-power tap costs currently belong to battlefield activations.
 pub(in crate::card::sets) static GO_NUTS: CardRecord = CardRecord::new(
     "Go Nuts!",
     "152a7b5b-2d95-45d3-8fd9-0ca1d5a79f8b",
@@ -3808,7 +3961,8 @@ pub(in crate::card::sets) static GUERRILLA_GORILLA: CardRecord = CardRecord::new
 );
 
 // MSH 170 — Hellcat, Undying Vigilante
-// Audit: unsupported — Needs ability loss and haste established as part of the reanimation before entry replacements and enters triggers inspect the returning creature (CR 611.2e).
+// Audit: unsupported — Needs ability loss and haste established as part of the reanimation
+// before entry replacements and enters triggers inspect the returning creature (CR 611.2e).
 pub(in crate::card::sets) static HELLCAT_UNDYING_VIGILANTE: CardRecord = CardRecord::new(
     "Hellcat, Undying Vigilante",
     "d7922c5f-d6ee-4b62-a537-3be5aa280e10",
@@ -3817,7 +3971,9 @@ pub(in crate::card::sets) static HELLCAT_UNDYING_VIGILANTE: CardRecord = CardRec
 );
 
 // MSH 171 — Hercules, Prince of Power
-// Audit: unsupported — Needs a power-up ability category and a source-entry-turn discount that subtracts the source mana cost, including colored and flexible symbols; existing once-per-object activation limits do not supply that cost rule.
+// Audit: unsupported — Needs a power-up ability category and a source-entry-turn discount that
+// subtracts the source mana cost, including colored and flexible symbols; existing
+// once-per-object activation limits do not supply that cost rule.
 pub(in crate::card::sets) static HERCULES_PRINCE_OF_POWER: CardRecord = CardRecord::new(
     "Hercules, Prince of Power",
     "d610d9fe-f8ae-473f-9325-e2f28f7e8a69",
@@ -3826,7 +3982,8 @@ pub(in crate::card::sets) static HERCULES_PRINCE_OF_POWER: CardRecord = CardReco
 );
 
 // MSH 172 — Heroic Feast
-// Audit: unsupported — Needs a triggered target maximum computed from the life-gain event amount; AbilityTargetDef bounds are fixed integers.
+// Audit: unsupported — Needs a triggered target maximum computed from the life-gain event
+// amount; AbilityTargetDef bounds are fixed integers.
 pub(in crate::card::sets) static HEROIC_FEAST: CardRecord = CardRecord::new(
     "Heroic Feast",
     "32d05c3d-cf03-492e-a956-2e77c36e36c4",
@@ -3944,7 +4101,9 @@ pub(in crate::card::sets) static KA_ZAR_OF_THE_SAVAGE_LAND: CardRecord = CardRec
 );
 
 // MSH 175 — Knight of Wundagore
-// Audit: unsupported — Needs the identity of the player placing a +1/+1 counter in the counter event; filtering the recipient's controller would incorrectly treat opponent-placed counters as yours.
+// Audit: unsupported — Needs the identity of the player placing a +1/+1 counter in the counter
+// event; filtering the recipient's controller would incorrectly treat opponent-placed counters
+// as yours.
 pub(in crate::card::sets) static KNIGHT_OF_WUNDAGORE: CardRecord = CardRecord::new(
     "Knight of Wundagore",
     "f3003766-9383-44e0-8b51-35ccbed137ed",
@@ -3953,7 +4112,9 @@ pub(in crate::card::sets) static KNIGHT_OF_WUNDAGORE: CardRecord = CardRecord::n
 );
 
 // MSH 176 — Mister Hyde, Monster Within
-// Audit: unsupported — Needs a resolving choice of any counter kind on a chosen creature and an actual counter-removal receipt for the draw; current removal operations fix one kind or remove all counters.
+// Audit: unsupported — Needs a resolving choice of any counter kind on a chosen creature and an
+// actual counter-removal receipt for the draw; current removal operations fix one kind or
+// remove all counters.
 pub(in crate::card::sets) static MISTER_HYDE_MONSTER_WITHIN: CardRecord = CardRecord::new(
     "Mister Hyde, Monster Within",
     "3cf30476-ed92-4dc2-86b7-2b5fd60a2de7",
@@ -4013,7 +4174,9 @@ pub(in crate::card::sets) static MOLE_MAN_MOLOID_MASTER: CardRecord = CardRecord
 );
 
 // MSH 178 — Pet Avengers
-// Audit: unsupported — Needs a power-up ability category and a source-entry-turn discount that subtracts the source mana cost, including colored and flexible symbols; existing once-per-object activation limits do not supply that cost rule.
+// Audit: unsupported — Needs a power-up ability category and a source-entry-turn discount that
+// subtracts the source mana cost, including colored and flexible symbols; existing
+// once-per-object activation limits do not supply that cost rule.
 pub(in crate::card::sets) static PET_AVENGERS: CardRecord = CardRecord::new(
     "Pet Avengers",
     "108a0b92-2134-4776-a2f7-da92050f1b21",
@@ -4022,7 +4185,9 @@ pub(in crate::card::sets) static PET_AVENGERS: CardRecord = CardRecord::new(
 );
 
 // MSH 179 — Powerful Broker
-// Audit: unsupported — Needs a targeted operation duplicating every counter kind currently on a permanent or player; proliferate allows choosing other recipients and cannot substitute for this targeted instruction.
+// Audit: unsupported — Needs a targeted operation duplicating every counter kind currently on a
+// permanent or player; proliferate allows choosing other recipients and cannot substitute for
+// this targeted instruction.
 pub(in crate::card::sets) static POWERFUL_BROKER: CardRecord = CardRecord::new(
     "Powerful Broker",
     "801f0417-b663-4e28-9a61-9570061654d7",
@@ -4308,7 +4473,9 @@ pub(in crate::card::sets) static SAVAGE_LAND_DINOSAUR: CardRecord = CardRecord::
 );
 
 // MSH 186 — Serpent Specialist
-// Audit: unsupported — Needs a power-up ability category and a source-entry-turn discount that subtracts the source mana cost, including colored and flexible symbols; existing once-per-object activation limits do not supply that cost rule.
+// Audit: unsupported — Needs a power-up ability category and a source-entry-turn discount that
+// subtracts the source mana cost, including colored and flexible symbols; existing
+// once-per-object activation limits do not supply that cost rule.
 pub(in crate::card::sets) static SERPENT_SPECIALIST: CardRecord = CardRecord::new(
     "Serpent Specialist",
     "72727c2a-08a9-47bc-a5eb-cda52e21684b",
@@ -4317,7 +4484,8 @@ pub(in crate::card::sets) static SERPENT_SPECIALIST: CardRecord = CardRecord::ne
 );
 
 // MSH 187 — Shang-Chi, Master of Kung Fu
-// Audit: unsupported — Needs activation-only summoning-sickness permission for creatures, preserving the ordinary attack restriction; granting haste would incorrectly let them attack.
+// Audit: unsupported — Needs activation-only summoning-sickness permission for creatures,
+// preserving the ordinary attack restriction; granting haste would incorrectly let them attack.
 pub(in crate::card::sets) static SHANG_CHI_MASTER_OF_KUNG_FU: CardRecord = CardRecord::new(
     "Shang-Chi, Master of Kung Fu",
     "2edbb62f-ad45-4422-850b-68dcc18b4c73",
@@ -4326,7 +4494,9 @@ pub(in crate::card::sets) static SHANG_CHI_MASTER_OF_KUNG_FU: CardRecord = CardR
 );
 
 // MSH 188 — She-Hulk, Jade Defender
-// Audit: unsupported — Needs a power-up ability category and a source-entry-turn discount that subtracts the source mana cost, including colored and flexible symbols; existing once-per-object activation limits do not supply that cost rule.
+// Audit: unsupported — Needs a power-up ability category and a source-entry-turn discount that
+// subtracts the source mana cost, including colored and flexible symbols; existing
+// once-per-object activation limits do not supply that cost rule.
 pub(in crate::card::sets) static SHE_HULK_JADE_DEFENDER: CardRecord = CardRecord::new(
     "She-Hulk, Jade Defender",
     "d22a8d02-023c-4f71-a771-16b5aa2a05d7",
@@ -4367,7 +4537,8 @@ pub(in crate::card::sets) static SUPER_STRENGTH: CardRecord = CardRecord::new(
 );
 
 // MSH 190 — The Thing, Ben Grimm
-// Audit: unsupported — Needs atomic one-or-more damage-to-player grouping for both combat and noncombat damage; the existing grouped event covers only combat damage.
+// Audit: unsupported — Needs atomic one-or-more damage-to-player grouping for both combat and
+// noncombat damage; the existing grouped event covers only combat damage.
 pub(in crate::card::sets) static THE_THING_BEN_GRIMM: CardRecord = CardRecord::new(
     "The Thing, Ben Grimm",
     "3f1933a8-046f-471a-afcf-cfb08ca0d239",
@@ -4573,7 +4744,9 @@ pub(in crate::card::sets) static WAKANDAN_ROYAL_GUARD: CardRecord = CardRecord::
 );
 
 // MSH 196 — White Tiger, Ava Ayala
-// Audit: unsupported — Needs a power-up ability category and a source-entry-turn discount that subtracts the source mana cost, including colored and flexible symbols; existing once-per-object activation limits do not supply that cost rule.
+// Audit: unsupported — Needs a power-up ability category and a source-entry-turn discount that
+// subtracts the source mana cost, including colored and flexible symbols; existing
+// once-per-object activation limits do not supply that cost rule.
 pub(in crate::card::sets) static WHITE_TIGER_AVA_AYALA: CardRecord = CardRecord::new(
     "White Tiger, Ava Ayala",
     "c1589e2e-32a8-48b8-93eb-a9af344e7084",
@@ -4582,7 +4755,9 @@ pub(in crate::card::sets) static WHITE_TIGER_AVA_AYALA: CardRecord = CardRecord:
 );
 
 // MSH 197 — World War Hulk
-// Audit: unsupported — Needs a resolving permission to cast the next matching creature spell this turn without paying its mana cost; existing next-cast durations do not grant that alternative payment.
+// Audit: unsupported — Needs a resolving permission to cast the next matching creature spell
+// this turn without paying its mana cost; existing next-cast durations do not grant that
+// alternative payment.
 pub(in crate::card::sets) static WORLD_WAR_HULK: CardRecord = CardRecord::new(
     "World War Hulk",
     "9032f05b-5c21-4996-90c1-268dc6dffbaa",
@@ -4591,7 +4766,9 @@ pub(in crate::card::sets) static WORLD_WAR_HULK: CardRecord = CardRecord::new(
 );
 
 // MSH 198 — Abomination, Terrifying Titan
-// Audit: unsupported — Needs a power-up ability category and a source-entry-turn discount that subtracts the source mana cost, including colored and flexible symbols; existing once-per-object activation limits do not supply that cost rule.
+// Audit: unsupported — Needs a power-up ability category and a source-entry-turn discount that
+// subtracts the source mana cost, including colored and flexible symbols; existing
+// once-per-object activation limits do not supply that cost rule.
 pub(in crate::card::sets) static ABOMINATION_TERRIFYING_TITAN: CardRecord = CardRecord::new(
     "Abomination, Terrifying Titan",
     "2c6ab9bb-dba2-4b5b-a4d9-54735f65ac21",
@@ -4702,7 +4879,9 @@ pub(in crate::card::sets) static ALIEN_INVASION: CardRecord = CardRecord::new(
 );
 
 // MSH 201 — Ant-Man, Colony Commander
-// Audit: unsupported — Needs a reflexive trigger created by the accepted resolving action and retained after the original source leaves, with targets selected at that later trigger; OptionalEffectTaken currently discovers only battlefield listeners.
+// Audit: unsupported — Needs a reflexive trigger created by the accepted resolving action and
+// retained after the original source leaves, with targets selected at that later trigger;
+// OptionalEffectTaken currently discovers only battlefield listeners.
 pub(in crate::card::sets) static ANT_MAN_COLONY_COMMANDER: CardRecord = CardRecord::new(
     "Ant-Man, Colony Commander",
     "26faf2db-ad86-462f-b61f-c1893c9aebbf",
@@ -4748,7 +4927,9 @@ pub(in crate::card::sets) static ARES_GOD_OF_WAR: CardRecord = CardRecord::new(
 );
 
 // MSH 203 — Armor Wars
-// Audit: unsupported — Needs a resolving grant of a spell-cost reduction for the remainder of the turn; current ModifyCost readers inspect battlefield ability declarations rather than a duration-bound reduction.
+// Audit: unsupported — Needs a resolving grant of a spell-cost reduction for the remainder of
+// the turn; current ModifyCost readers inspect battlefield ability declarations rather than a
+// duration-bound reduction.
 pub(in crate::card::sets) static ARMOR_WARS: CardRecord = CardRecord::new(
     "Armor Wars",
     "11a13397-1d31-4257-87c2-a757a751c601",
@@ -4757,7 +4938,9 @@ pub(in crate::card::sets) static ARMOR_WARS: CardRecord = CardRecord::new(
 );
 
 // MSH 204 — The Astonishing Ant-Man
-// Audit: unsupported — Needs an arbitrary-size counter-removal payment for an ordinary activation and its paid counter count as an effect value; open-ended source-counter removal is currently an immediate mana-ability path.
+// Audit: unsupported — Needs an arbitrary-size counter-removal payment for an ordinary
+// activation and its paid counter count as an effect value; open-ended source-counter removal
+// is currently an immediate mana-ability path.
 pub(in crate::card::sets) static THE_ASTONISHING_ANT_MAN: CardRecord = CardRecord::new(
     "The Astonishing Ant-Man",
     "5d98073e-2828-4365-a8d6-f631aac0cca9",
@@ -4822,7 +5005,9 @@ pub(in crate::card::sets) static AVENGERS_UNDER_SIEGE: CardRecord = CardRecord::
 );
 
 // MSH 206 — Beast, Erudite Aerialist
-// Audit: unsupported — Needs a per-turn record that this player placed +1/+1 counters on this permanent; the present counter total cannot distinguish old counters or counters placed by another player.
+// Audit: unsupported — Needs a per-turn record that this player placed +1/+1 counters on this
+// permanent; the present counter total cannot distinguish old counters or counters placed by
+// another player.
 pub(in crate::card::sets) static BEAST_ERUDITE_AERIALIST: CardRecord = CardRecord::new(
     "Beast, Erudite Aerialist",
     "a92a95d2-9529-417a-b7d5-b4244d7fdca7",
@@ -4911,7 +5096,9 @@ pub(in crate::card::sets) static BLACK_WIDOW_DOUBLE_AGENT: CardRecord = CardReco
 );
 
 // MSH 209 — Bullseye, Death Dealer
-// Audit: unsupported — Needs a reflexive trigger created by the accepted resolving action and retained after the original source leaves, with targets selected at that later trigger; OptionalEffectTaken currently discovers only battlefield listeners.
+// Audit: unsupported — Needs a reflexive trigger created by the accepted resolving action and
+// retained after the original source leaves, with targets selected at that later trigger;
+// OptionalEffectTaken currently discovers only battlefield listeners.
 pub(in crate::card::sets) static BULLSEYE_DEATH_DEALER: CardRecord = CardRecord::new(
     "Bullseye, Death Dealer",
     "fd1f0b5f-5e0e-4da1-ab54-a62db5af3591",
@@ -4920,7 +5107,8 @@ pub(in crate::card::sets) static BULLSEYE_DEATH_DEALER: CardRecord = CardRecord:
 );
 
 // MSH 210 — Captain America, Living Legend
-// Audit: unsupported — Needs a tap ordinal for each creature during the current turn, retained through untaps; the existing tap event carries no per-creature turn ordinal.
+// Audit: unsupported — Needs a tap ordinal for each creature during the current turn, retained
+// through untaps; the existing tap event carries no per-creature turn ordinal.
 pub(in crate::card::sets) static CAPTAIN_AMERICA_LIVING_LEGEND: CardRecord = CardRecord::new(
     "Captain America, Living Legend",
     "6516f292-469d-4092-b099-97c698f373cd",
@@ -4929,7 +5117,9 @@ pub(in crate::card::sets) static CAPTAIN_AMERICA_LIVING_LEGEND: CardRecord = Car
 );
 
 // MSH 211 — Cloak and Dagger, Entwined
-// Audit: unsupported — Needs exile-until-source-leaves with immediate return at the end of that duration (CR 610.3), preserving the choice between a hand card and the separately targeted creature.
+// Audit: unsupported — Needs exile-until-source-leaves with immediate return at the end of that
+// duration (CR 610.3), preserving the choice between a hand card and the separately targeted
+// creature.
 pub(in crate::card::sets) static CLOAK_AND_DAGGER_ENTWINED: CardRecord = CardRecord::new(
     "Cloak and Dagger, Entwined",
     "fa01d35f-1064-4a7c-9475-4504566df850",
@@ -5107,7 +5297,9 @@ pub(in crate::card::sets) static GHOST_SPECTRAL_SABOTEUR: CardRecord = CardRecor
 );
 
 // MSH 215 — Hulk, Gamma Goliath
-// Audit: unsupported — Needs a power-up ability category and a source-entry-turn discount that subtracts the source mana cost, including colored and flexible symbols; existing once-per-object activation limits do not supply that cost rule.
+// Audit: unsupported — Needs a power-up ability category and a source-entry-turn discount that
+// subtracts the source mana cost, including colored and flexible symbols; existing
+// once-per-object activation limits do not supply that cost rule.
 pub(in crate::card::sets) static HULK_GAMMA_GOLIATH: CardRecord = CardRecord::new(
     "Hulk, Gamma Goliath",
     "682b9f91-18bb-4113-9d5c-a381c191def9",
@@ -5116,7 +5308,9 @@ pub(in crate::card::sets) static HULK_GAMMA_GOLIATH: CardRecord = CardRecord::ne
 );
 
 // MSH 216 — Iron Man, Master of Machines
-// Audit: unsupported — Needs per-player artifact-entry history for the turn, retained after the artifact leaves or changes control; querying current permanents with EnteredThisTurn loses those entries.
+// Audit: unsupported — Needs per-player artifact-entry history for the turn, retained after the
+// artifact leaves or changes control; querying current permanents with EnteredThisTurn loses
+// those entries.
 pub(in crate::card::sets) static IRON_MAN_MASTER_OF_MACHINES: CardRecord = CardRecord::new(
     "Iron Man, Master of Machines",
     "8f84ab0a-bf6e-4f28-9da8-998512a224ed",
@@ -5184,7 +5378,9 @@ pub(in crate::card::sets) static KANG_TEMPORAL_TYRANT: CardRecord = CardRecord::
 );
 
 // MSH 218 — Killmonger, Scourge of Wakanda
-// Audit: unsupported — Needs a reflexive trigger created by the accepted resolving action and retained after the original source leaves, with targets selected at that later trigger; OptionalEffectTaken currently discovers only battlefield listeners.
+// Audit: unsupported — Needs a reflexive trigger created by the accepted resolving action and
+// retained after the original source leaves, with targets selected at that later trigger;
+// OptionalEffectTaken currently discovers only battlefield listeners.
 pub(in crate::card::sets) static KILLMONGER_SCOURGE_OF_WAKANDA: CardRecord = CardRecord::new(
     "Killmonger, Scourge of Wakanda",
     "5060aa13-4b33-4b3a-8bdb-dd81308fa3e3",
@@ -5193,7 +5389,9 @@ pub(in crate::card::sets) static KILLMONGER_SCOURGE_OF_WAKANDA: CardRecord = Car
 );
 
 // MSH 219 — King T'Challa // Black Panther, Hope Enduring
-// Audit: unsupported — Needs modal double-faced permanents to transform while retaining the ability to cast either face; physical_other_face currently rejects modal cards, so an ordinary transforming-card declaration would incorrectly remove the back-face casting option.
+// Audit: unsupported — Needs modal double-faced permanents to transform while retaining the
+// ability to cast either face; physical_other_face currently rejects modal cards, so an
+// ordinary transforming-card declaration would incorrectly remove the back-face casting option.
 pub(in crate::card::sets) static KING_T_CHALLA: CardRecord = CardRecord::new(
     "King T'Challa // Black Panther, Hope Enduring",
     "add7d3ce-aa58-4da0-8c2a-cfd01c3a8975",
@@ -5381,7 +5579,8 @@ pub(in crate::card::sets) static MOON_GIRL_AND_DEVIL_DINOSAUR: CardRecord = Card
 );
 
 // MSH 224 — The Ruinous Wrecking Crew
-// Audit: unsupported — Needs a triggered modal maximum bound to retained cast X, including zero and multiple modes; triggered modal selection currently supports at most one mode.
+// Audit: unsupported — Needs a triggered modal maximum bound to retained cast X, including zero
+// and multiple modes; triggered modal selection currently supports at most one mode.
 pub(in crate::card::sets) static THE_RUINOUS_WRECKING_CREW: CardRecord = CardRecord::new(
     "The Ruinous Wrecking Crew",
     "4d8c8ceb-84cd-46d2-9230-ab6ca4569334",
@@ -5390,7 +5589,9 @@ pub(in crate::card::sets) static THE_RUINOUS_WRECKING_CREW: CardRecord = CardRec
 );
 
 // MSH 225 — Scientist Supreme of A.I.M.
-// Audit: unsupported — Needs stack-ability target matching against its source's artifact characteristics with last-known information; current stack predicates identify ability kinds but not their source types.
+// Audit: unsupported — Needs stack-ability target matching against its source's artifact
+// characteristics with last-known information; current stack predicates identify ability kinds
+// but not their source types.
 pub(in crate::card::sets) static SCIENTIST_SUPREME_OF_A_I_M: CardRecord = CardRecord::new(
     "Scientist Supreme of A.I.M.",
     "0473a990-88c4-4921-a492-377d9171318a",
@@ -5399,7 +5600,8 @@ pub(in crate::card::sets) static SCIENTIST_SUPREME_OF_A_I_M: CardRecord = CardRe
 );
 
 // MSH 226 — The Serpent Society
-// Audit: unsupported — Needs a ward payment that gives poison counters to the targeted player as a cost; PayLife and ordinary counter effects cannot substitute for poison-counter payment.
+// Audit: unsupported — Needs a ward payment that gives poison counters to the targeted player
+// as a cost; PayLife and ordinary counter effects cannot substitute for poison-counter payment.
 pub(in crate::card::sets) static THE_SERPENT_SOCIETY: CardRecord = CardRecord::new(
     "The Serpent Society",
     "209855ee-d531-4b58-926b-8da171d46619",
@@ -5444,7 +5646,9 @@ pub(in crate::card::sets) static SPEEDBALL_NEW_WARRIOR: CardRecord = CardRecord:
 );
 
 // MSH 228 — Spider-Man, To the Rescue
-// Audit: unsupported — Needs a reflexive trigger created by the accepted resolving action and retained after the original source leaves, with targets selected at that later trigger; OptionalEffectTaken currently discovers only battlefield listeners.
+// Audit: unsupported — Needs a reflexive trigger created by the accepted resolving action and
+// retained after the original source leaves, with targets selected at that later trigger;
+// OptionalEffectTaken currently discovers only battlefield listeners.
 pub(in crate::card::sets) static SPIDER_MAN_TO_THE_RESCUE: CardRecord = CardRecord::new(
     "Spider-Man, To the Rescue",
     "e5db6968-1ca3-46bd-8cf9-e2c411ab29c1",
@@ -5453,7 +5657,9 @@ pub(in crate::card::sets) static SPIDER_MAN_TO_THE_RESCUE: CardRecord = CardReco
 );
 
 // MSH 229 — Spider-Woman, Secret Agent
-// Audit: unsupported — Needs an all-effects untap prohibition lasting only while the original controller controls this source; WhileSourceRemains neither stops on control change nor implements that prohibition.
+// Audit: unsupported — Needs an all-effects untap prohibition lasting only while the original
+// controller controls this source; WhileSourceRemains neither stops on control change nor
+// implements that prohibition.
 pub(in crate::card::sets) static SPIDER_WOMAN_SECRET_AGENT: CardRecord = CardRecord::new(
     "Spider-Woman, Secret Agent",
     "a0325cb5-4c43-418a-8f1b-cf5bf29e74d7",
@@ -5462,7 +5668,9 @@ pub(in crate::card::sets) static SPIDER_WOMAN_SECRET_AGENT: CardRecord = CardRec
 );
 
 // MSH 230 — Storm, Windrider
-// Audit: unsupported — Needs creature targets frozen from the spell-cast event, surviving the spell being countered or retargeted before the trigger resolves; PermanentsTargetedBy reads only the current targets of a live stack object.
+// Audit: unsupported — Needs creature targets frozen from the spell-cast event, surviving the
+// spell being countered or retargeted before the trigger resolves; PermanentsTargetedBy reads
+// only the current targets of a live stack object.
 pub(in crate::card::sets) static STORM_WINDRIDER: CardRecord = CardRecord::new(
     "Storm, Windrider",
     "e90196a9-5a76-42f8-9b40-097d02b47f33",
@@ -5471,7 +5679,8 @@ pub(in crate::card::sets) static STORM_WINDRIDER: CardRecord = CardRecord::new(
 );
 
 // MSH 231 — The Super Hero Civil War
-// Audit: unsupported — Needs a total-mana-value constraint across a chosen group of targets; per-target mana-value predicates cannot enforce a shared sum of six.
+// Audit: unsupported — Needs a total-mana-value constraint across a chosen group of targets;
+// per-target mana-value predicates cannot enforce a shared sum of six.
 pub(in crate::card::sets) static THE_SUPER_HERO_CIVIL_WAR: CardRecord = CardRecord::new(
     "The Super Hero Civil War",
     "fbd1f333-5640-41f8-b9dd-1c322ac7724a",
@@ -5480,7 +5689,9 @@ pub(in crate::card::sets) static THE_SUPER_HERO_CIVIL_WAR: CardRecord = CardReco
 );
 
 // MSH 232 — Taskmaster, Mercenary Mimic
-// Audit: unsupported — Needs copy exceptions that replace the copied creature subtypes with Human Mercenary Villain; existing copy exceptions only add subtypes, which would leave unwanted copied creature types.
+// Audit: unsupported — Needs copy exceptions that replace the copied creature subtypes with
+// Human Mercenary Villain; existing copy exceptions only add subtypes, which would leave
+// unwanted copied creature types.
 pub(in crate::card::sets) static TASKMASTER_MERCENARY_MIMIC: CardRecord = CardRecord::new(
     "Taskmaster, Mercenary Mimic",
     "0d4265fd-cbfa-4e57-89fd-a1d757acfe81",
@@ -5489,7 +5700,9 @@ pub(in crate::card::sets) static TASKMASTER_MERCENARY_MIMIC: CardRecord = CardRe
 );
 
 // MSH 233 — Thanos, the Mad Titan
-// Audit: unsupported — Needs a power-up ability category and a source-entry-turn discount that subtracts the source mana cost, including colored and flexible symbols; existing once-per-object activation limits do not supply that cost rule.
+// Audit: unsupported — Needs a power-up ability category and a source-entry-turn discount that
+// subtracts the source mana cost, including colored and flexible symbols; existing
+// once-per-object activation limits do not supply that cost rule.
 pub(in crate::card::sets) static THANOS_THE_MAD_TITAN: CardRecord = CardRecord::new(
     "Thanos, the Mad Titan",
     "e669c0b2-0011-4feb-9263-f1ecc0a98f18",
@@ -5513,7 +5726,9 @@ pub(in crate::card::sets) static THOR_ODINSON: CardRecord = CardRecord::new(
 );
 
 // MSH 235 — Titania, Rugged Rumbler
-// Audit: unsupported — Needs a resolving ward payment offering discard-or-mana alternatives. CostDef::Choice supports the casting additional cost, but resolving payment choices currently accept only scalar mana and life costs.
+// Audit: unsupported — Needs a resolving ward payment offering discard-or-mana alternatives.
+// CostDef::Choice supports the casting additional cost, but resolving payment choices currently
+// accept only scalar mana and life costs.
 pub(in crate::card::sets) static TITANIA_RUGGED_RUMBLER: CardRecord = CardRecord::new(
     "Titania, Rugged Rumbler",
     "c281e0ee-155b-4022-b921-ebc391535aad",
@@ -5554,7 +5769,9 @@ pub(in crate::card::sets) static U_S_AGENT_JOHN_WALKER: CardRecord = CardRecord:
 );
 
 // MSH 237 — Vision Quest
-// Audit: unsupported — Needs a search across optionally selected library and graveyard zones with one shared result limit and library-only shuffle, plus arrival counters bound to spell X.
+// Audit: unsupported — Needs a search across optionally selected library and graveyard zones
+// with one shared result limit and library-only shuffle, plus arrival counters bound to spell
+// X.
 pub(in crate::card::sets) static VISION_QUEST: CardRecord = CardRecord::new(
     "Vision Quest",
     "c01afea6-645d-4d4f-bdaa-90794a628bcd",
@@ -5603,7 +5820,9 @@ pub(in crate::card::sets) static WAR_MACHINE_LEGACY_OF_IRON: CardRecord = CardRe
 );
 
 // MSH 239 — Winter Soldier, Icy Assassin
-// Audit: unsupported — Needs attachment to the returning source's new battlefield identity after graveyard activation; AttachToSource still names the old graveyard object, and general binding-to-binding attachment is unavailable.
+// Audit: unsupported — Needs attachment to the returning source's new battlefield identity
+// after graveyard activation; AttachToSource still names the old graveyard object, and general
+// binding-to-binding attachment is unavailable.
 pub(in crate::card::sets) static WINTER_SOLDIER_ICY_ASSASSIN: CardRecord = CardRecord::new(
     "Winter Soldier, Icy Assassin",
     "ebf71ffc-6e3e-4ca0-a84a-3c1ebd2b64b1",
@@ -5612,7 +5831,9 @@ pub(in crate::card::sets) static WINTER_SOLDIER_ICY_ASSASSIN: CardRecord = CardR
 );
 
 // MSH 240 — Wolverine, Fierce Fighter
-// Audit: unsupported — Needs a damage replacement that clears all previously marked damage while allowing the new event's damage to be dealt; regeneration prevents or replaces the new event and is not equivalent.
+// Audit: unsupported — Needs a damage replacement that clears all previously marked damage
+// while allowing the new event's damage to be dealt; regeneration prevents or replaces the new
+// event and is not equivalent.
 pub(in crate::card::sets) static WOLVERINE_FIERCE_FIGHTER: CardRecord = CardRecord::new(
     "Wolverine, Fierce Fighter",
     "c1c7aa22-51b0-45ee-9a8e-5493a1820d8c",
@@ -5621,7 +5842,9 @@ pub(in crate::card::sets) static WOLVERINE_FIERCE_FIGHTER: CardRecord = CardReco
 );
 
 // MSH 241 — Worlds Within Worlds
-// Audit: unsupported — Needs an optional, unbounded hand-subset selection for each player before a joint battlefield-entry batch; ChooseForEachPlayer currently supports exact counts or one of each predicate, not any number.
+// Audit: unsupported — Needs an optional, unbounded hand-subset selection for each player
+// before a joint battlefield-entry batch; ChooseForEachPlayer currently supports exact counts
+// or one of each predicate, not any number.
 pub(in crate::card::sets) static WORLDS_WITHIN_WORLDS: CardRecord = CardRecord::new(
     "Worlds Within Worlds",
     "4765e39c-cbf2-4605-9bf1-3baad7d92cfb",
@@ -5663,7 +5886,8 @@ pub(in crate::card::sets) static ARC_REACTOR: CardRecord = CardRecord::new(
 );
 
 // MSH 244 — Captain America's Shield
-// Audit: unsupported — Needs the attached attacking creature's defending player as target context; DefendingPlayer is resolved from the Equipment source, which is not the attacker.
+// Audit: unsupported — Needs the attached attacking creature's defending player as target
+// context; DefendingPlayer is resolved from the Equipment source, which is not the attacker.
 pub(in crate::card::sets) static CAPTAIN_AMERICA_S_SHIELD: CardRecord = CardRecord::new(
     "Captain America's Shield",
     "4b5433ac-0d36-4472-bf8b-d22f0ffd367b",
@@ -5672,7 +5896,9 @@ pub(in crate::card::sets) static CAPTAIN_AMERICA_S_SHIELD: CardRecord = CardReco
 );
 
 // MSH 245 — Cosmic Cube
-// Audit: unsupported — Needs a resolving cast offer from a bound library subset filtered by the chosen spell form's mana value; current free-play offers use exile and cannot enforce that prospective spell-form constraint.
+// Audit: unsupported — Needs a resolving cast offer from a bound library subset filtered by the
+// chosen spell form's mana value; current free-play offers use exile and cannot enforce that
+// prospective spell-form constraint.
 pub(in crate::card::sets) static COSMIC_CUBE: CardRecord = CardRecord::new(
     "Cosmic Cube",
     "d1cf1ead-fe91-4328-89ab-6d0bc9ff6cbe",
@@ -5743,7 +5969,9 @@ pub(in crate::card::sets) static H_E_R_B_I_E_SCOUT_UNIT: CardRecord = CardRecord
 );
 
 // MSH 248 — Iron Man Armor
-// Audit: unsupported — Needs a resolving effect to grant an executable static ability whose artifact count updates continuously; granted static programs are rejected, and a fixed bonus would not update with later artifacts.
+// Audit: unsupported — Needs a resolving effect to grant an executable static ability whose
+// artifact count updates continuously; granted static programs are rejected, and a fixed bonus
+// would not update with later artifacts.
 pub(in crate::card::sets) static IRON_MAN_ARMOR: CardRecord = CardRecord::new(
     "Iron Man Armor",
     "361c2f3b-f04e-446b-a683-9195e238daf0",
@@ -6043,7 +6271,9 @@ pub(in crate::card::sets) static SUPER_ADAPTOID: CardRecord = CardRecord::new(
 );
 
 // MSH 251 — The Ten Rings
-// Audit: unsupported — Needs a timestamped setting of maximum hand size to ten; the existing rule only removes the maximum or adds a modifier, which is not equivalent when other effects change the maximum.
+// Audit: unsupported — Needs a timestamped setting of maximum hand size to ten; the existing
+// rule only removes the maximum or adds a modifier, which is not equivalent when other effects
+// change the maximum.
 pub(in crate::card::sets) static THE_TEN_RINGS: CardRecord = CardRecord::new(
     "The Ten Rings",
     "2332bc91-b0f2-4911-844d-d1cc915cd6c8",
@@ -6052,7 +6282,9 @@ pub(in crate::card::sets) static THE_TEN_RINGS: CardRecord = CardRecord::new(
 );
 
 // MSH 252 — Ultron, Artificial Malevolence
-// Audit: unsupported — Needs conditional noncopiable animation of the created copy established before its entry replacements and triggers inspect it (CR 611.2e); a later Apply is too late, while copy exceptions incorrectly make the animation copiable.
+// Audit: unsupported — Needs conditional noncopiable animation of the created copy established
+// before its entry replacements and triggers inspect it (CR 611.2e); a later Apply is too late,
+// while copy exceptions incorrectly make the animation copiable.
 pub(in crate::card::sets) static ULTRON_ARTIFICIAL_MALEVOLENCE: CardRecord = CardRecord::new(
     "Ultron, Artificial Malevolence",
     "32ddd5ac-57ed-4e78-8932-a65980191f6e",
@@ -6061,7 +6293,9 @@ pub(in crate::card::sets) static ULTRON_ARTIFICIAL_MALEVOLENCE: CardRecord = Car
 );
 
 // MSH 253 — Ultron Drone
-// Audit: unsupported — Needs a power-up ability category and a source-entry-turn discount that subtracts the source mana cost, including colored and flexible symbols; existing once-per-object activation limits do not supply that cost rule.
+// Audit: unsupported — Needs a power-up ability category and a source-entry-turn discount that
+// subtracts the source mana cost, including colored and flexible symbols; existing
+// once-per-object activation limits do not supply that cost rule.
 pub(in crate::card::sets) static ULTRON_DRONE: CardRecord = CardRecord::new(
     "Ultron Drone",
     "149a0a3b-c470-414c-a7de-d773b8b4cc82",
@@ -6093,7 +6327,8 @@ pub(in crate::card::sets) static VIBRANIUM_ENERGY_DAGGERS: CardRecord = CardReco
 );
 
 // MSH 255 — The Vision
-// Audit: unsupported — Needs per-ability modal-choice history for the current turn, excluding modes already selected; ordinary modal choices have no turn-scoped used-mode set.
+// Audit: unsupported — Needs per-ability modal-choice history for the current turn, excluding
+// modes already selected; ordinary modal choices have no turn-scoped used-mode set.
 pub(in crate::card::sets) static THE_VISION: CardRecord = CardRecord::new(
     "The Vision",
     "2961cf20-33c8-4e66-9d0f-6daca8ea7880",
@@ -6102,7 +6337,9 @@ pub(in crate::card::sets) static THE_VISION: CardRecord = CardRecord::new(
 );
 
 // MSH 256 — Viv Vision, Teen Synthezoid
-// Audit: unsupported — Needs a power-up ability category and a source-entry-turn discount that subtracts the source mana cost, including colored and flexible symbols; existing once-per-object activation limits do not supply that cost rule.
+// Audit: unsupported — Needs a power-up ability category and a source-entry-turn discount that
+// subtracts the source mana cost, including colored and flexible symbols; existing
+// once-per-object activation limits do not supply that cost rule.
 pub(in crate::card::sets) static VIV_VISION_TEEN_SYNTHEZOID: CardRecord = CardRecord::new(
     "Viv Vision, Teen Synthezoid",
     "85cc170a-ecd2-4870-b675-7ece88813995",
@@ -6186,7 +6423,9 @@ pub(in crate::card::sets) static AVENGERS_HANGAR: CardRecord = CardRecord::new(
 );
 
 // MSH 260 — Avengers Tower
-// Audit: unsupported — Needs a mana-spending restriction allowing either a Hero spell cast or activation of a Hero source; current restriction lists combine clauses with AND rather than OR.
+// Audit: unsupported — Needs a mana-spending restriction allowing either a Hero spell cast or
+// activation of a Hero source; current restriction lists combine clauses with AND rather than
+// OR.
 pub(in crate::card::sets) static AVENGERS_TOWER: CardRecord = CardRecord::new(
     "Avengers Tower",
     "88f0d9c9-8a1f-4b5a-b6f9-821ddd658d27",
@@ -6674,7 +6913,9 @@ pub(in crate::card::sets) static TRAINING_COMPOUND: CardRecord = CardRecord::new
 );
 
 // MSH 276 — Villainous Hideout
-// Audit: unsupported — Needs a mana-spending restriction allowing either a Villain spell cast or activation of a Villain source; current restriction lists combine clauses with AND rather than OR.
+// Audit: unsupported — Needs a mana-spending restriction allowing either a Villain spell cast
+// or activation of a Villain source; current restriction lists combine clauses with AND rather
+// than OR.
 pub(in crate::card::sets) static VILLAINOUS_HIDEOUT: CardRecord = CardRecord::new(
     "Villainous Hideout",
     "822b0249-e1df-453d-8b60-75a5196ed818",

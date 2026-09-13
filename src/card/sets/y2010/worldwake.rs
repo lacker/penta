@@ -67,49 +67,50 @@ pub(in crate::card::sets) static STONEFORGE_MYSTIC: CardRecord = CardRecord::new
     "Stoneforge Mystic",
     "19557351-b65f-4b04-b971-66abdc07000a",
     "Mike Bierek",
-CardRules::new_creature(mana_cost!("{1}{W}"), &["Kor", "Artificer"], 1, 2)
-        .with_abilities(&[
-            abilities::enters_trigger("When this creature enters, you may search your library for an Equipment card, reveal it, put it into your hand, then shuffle.", EffectDef::May {
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Kor", "Artificer"], 1, 2).with_abilities(&[
+        abilities::enters_trigger(
+            "When this creature enters, you may search your library for \
+             an Equipment card, reveal it, put it into your hand, then \
+             shuffle.",
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::SearchZone {
                     player: EffectRecipientDef::Controller,
-                    effect: &EffectDef::SearchZone {
-                        player: EffectRecipientDef::Controller,
-                        source: ZoneKind::Library,
-                        object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Equipment")),
-                        minimum: 0,
-                        maximum: ValueDef::Constant(1),
-                        reveal: true,
-                        destination: ZoneKind::Hand,
-                        placement: ZonePlacement::Top,
-                        shuffle: true,
-                        enters_tapped: false,
-                        attachment: None,
-                        binding: None,
-                        then: None,
-                    },
-                }),
-            AbilityDef::activated(
-                "{1}{W}, {T}: You may put an Equipment card from your hand onto the battlefield.",
-                &[
-                    CostDef::Mana(mana_cost!("{1}{W}")),
-                    CostDef::TapSource,
-                ],
-                // The second half of the card, and the reason the first half is worth
-                // finding: a minimum of zero is the printed "you may", and with no
-                // Equipment in hand the choice is never offered at all.
-                EffectDef::ChooseCards {
-                    player: EffectRecipientDef::Controller,
-                    sources: &[CardChoiceSourceDef::Zone(ZoneKind::Hand)],
+                    source: ZoneKind::Library,
                     object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Equipment")),
                     minimum: 0,
-                    maximum: 1,
-                    reveal: false,
-                    destination: ZoneKind::Battlefield,
+                    maximum: ValueDef::Constant(1),
+                    reveal: true,
+                    destination: ZoneKind::Hand,
                     placement: ZonePlacement::Top,
-                    // It arrives as itself: nothing about the Equipment changes on the way
-                    // down, and it is not attached to anything.
+                    shuffle: true,
+                    enters_tapped: false,
+                    attachment: None,
+                    binding: None,
+                    then: None,
                 },
-            ),
-        ]),
+            },
+        ),
+        AbilityDef::activated(
+            "{1}{W}, {T}: You may put an Equipment card from your hand onto the battlefield.",
+            &[CostDef::Mana(mana_cost!("{1}{W}")), CostDef::TapSource],
+            // The second half of the card, and the reason the first half is worth
+            // finding: a minimum of zero is the printed "you may", and with no
+            // Equipment in hand the choice is never offered at all.
+            EffectDef::ChooseCards {
+                player: EffectRecipientDef::Controller,
+                sources: &[CardChoiceSourceDef::Zone(ZoneKind::Hand)],
+                object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Equipment")),
+                minimum: 0,
+                maximum: 1,
+                reveal: false,
+                destination: ZoneKind::Battlefield,
+                placement: ZonePlacement::Top,
+                // It arrives as itself: nothing about the Equipment changes on the way
+                // down, and it is not attached to anything.
+            },
+        ),
+    ]),
 );
 
 // WWK 26 — Dispel
@@ -136,83 +137,82 @@ static A_PLAYER: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
     AbilityTargetPredicate::Player(PlayerRelation::Any),
 )];
 
-pub(in crate::card::sets) static JACE_THE_MIND_SCULPTOR: CardRecord =
-    CardRecord::new(
+pub(in crate::card::sets) static JACE_THE_MIND_SCULPTOR: CardRecord = CardRecord::new(
     "Jace, the Mind Sculptor",
     "0e606072-a3aa-4300-ba90-ec92a721fa76",
     "Jason Chan",
-// Four abilities and three of them matter: the bounce buys the turn, the
-        // zero rebuilds the hand, and the fateseal is what a Jace that is not
-        // under pressure does forever.
-        CardRules::new_planeswalker(mana_cost!("{2}{U}{U}"), &["Jace"], 3)
-            .with_supertype(CardSupertype::Legendary)
-            .with_abilities(&[
-                AbilityDef::activated_with_targets(
-                    "+2: Look at the top card of target player's library. You may put that card on the \
-                     bottom of that player's library.",
-                    &[CostDef::Loyalty(2)],
-                    &A_PLAYER,
-                    abilities::fateseal(
-                        PlayerRefDef::Target(TargetIndex::PRIMARY),
-                        ValueDef::Constant(1),
-                    ),
+    // Four abilities and three of them matter: the bounce buys the turn, the
+    // zero rebuilds the hand, and the fateseal is what a Jace that is not
+    // under pressure does forever.
+    CardRules::new_planeswalker(mana_cost!("{2}{U}{U}"), &["Jace"], 3)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::activated_with_targets(
+                "+2: Look at the top card of target player's library. You \
+                 may put that card on the bottom of that player's library.",
+                &[CostDef::Loyalty(2)],
+                &A_PLAYER,
+                abilities::fateseal(
+                    PlayerRefDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(1),
                 ),
-                AbilityDef::activated(
-                    "0: Draw three cards, then put two cards from your hand on top of your library in any \
-                     order.",
-                    &[CostDef::Loyalty(0)],
-                    abilities::brainstorm(),
+            ),
+            AbilityDef::activated(
+                "0: Draw three cards, then put two cards from your hand on \
+                 top of your library in any order.",
+                &[CostDef::Loyalty(0)],
+                abilities::brainstorm(),
+            ),
+            AbilityDef::activated_with_targets(
+                "−1: Return target creature to its owner's hand.",
+                &[CostDef::Loyalty(-1)],
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )],
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
                 ),
-                AbilityDef::activated_with_targets(
-                    "−1: Return target creature to its owner's hand.",
-                    &[CostDef::Loyalty(-1)],
-                    &[AbilityTargetDef::exactly_one_permanent(
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                    )],
+            ),
+            AbilityDef::activated_with_targets(
+                "−12: Exile all cards from target player's library, then \
+                 that player shuffles their hand into their library.",
+                &[CostDef::Loyalty(-12)],
+                &A_PLAYER,
+                EffectDef::Sequence(&[
                     EffectDef::move_to_zone(
-                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        ZoneKind::Hand,
+                        EffectRecipientDef::objects(crate::card::ObjectSetDef::Query(
+                            // Their whole library, named by owner rather than by relation: the ultimate
+                            // points at a player and empties that one.
+                            ObjectQueryDef::owned_by(
+                                ObjectPredicateDef::Any,
+                                &[ZoneKind::Library],
+                                PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                            ),
+                        )),
+                        ZoneKind::Exile,
                         ZonePlacement::Top,
                     ),
-                ),
-                AbilityDef::activated_with_targets(
-                    "−12: Exile all cards from target player's library, then that player shuffles their hand \
-                     into their library.",
-                    &[CostDef::Loyalty(-12)],
-                    &A_PLAYER,
-                    EffectDef::Sequence(&[
-                        EffectDef::move_to_zone(
-                            EffectRecipientDef::objects(crate::card::ObjectSetDef::Query(
-                                // Their whole library, named by owner rather than by relation: the ultimate
-                                // points at a player and empties that one.
-                                ObjectQueryDef::owned_by(
-                                    ObjectPredicateDef::Any,
-                                    &[ZoneKind::Library],
-                                    PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
-                                ),
-                            )),
-                            ZoneKind::Exile,
-                            ZonePlacement::Top,
-                        ),
-                        EffectDef::move_to_zone(
-                            EffectRecipientDef::objects(crate::card::ObjectSetDef::Query(
-                                ObjectQueryDef::owned_by(
-                                    ObjectPredicateDef::Any,
-                                    &[ZoneKind::Hand],
-                                    PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
-                                ),
-                            )),
-                            ZoneKind::Library,
-                            ZonePlacement::Top,
-                        ),
-                        // The shuffle is what leaves them a library at all, so it is the whole
-                        // difference between this and drawing from nothing next upkeep.
-                        EffectDef::ShuffleLibrary {
-                            player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        },
-                    ]),
-                ),
-            ]),
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::objects(crate::card::ObjectSetDef::Query(
+                            ObjectQueryDef::owned_by(
+                                ObjectPredicateDef::Any,
+                                &[ZoneKind::Hand],
+                                PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                            ),
+                        )),
+                        ZoneKind::Library,
+                        ZonePlacement::Top,
+                    ),
+                    // The shuffle is what leaves them a library at all, so it is the whole
+                    // difference between this and drawing from nothing next upkeep.
+                    EffectDef::ShuffleLibrary {
+                        player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    },
+                ]),
+            ),
+        ]),
 );
 
 // WWK 52 — Brink of Disaster
@@ -338,49 +338,54 @@ pub(in crate::card::sets) static RICOCHET_TRAP: CardRecord = CardRecord::new(
     "Ricochet Trap",
     "5d782375-9192-4ed0-bd79-f3404e5a1b01",
     "Jaime Jones",
-CardRules::new_instant(mana_cost!("{3}{R}")).with_subtypes(&["Trap"]).with_abilities(&[
-        AbilityDef::alternative_cast(
-            &[CostDef::Mana(mana_cost!("{R}"))],
-            AlternativeCastKindDef::AlternativeCost,
-            Some(
-                "If an opponent cast a blue spell this turn, you may pay {R} rather than pay this spell's mana cost.",
+    CardRules::new_instant(mana_cost!("{3}{R}"))
+        .with_subtypes(&["Trap"])
+        .with_abilities(&[
+            AbilityDef::alternative_cast(
+                &[CostDef::Mana(mana_cost!("{R}"))],
+                AlternativeCastKindDef::AlternativeCost,
+                Some(
+                    "If an opponent cast a blue spell this turn, you may pay {R} \
+                     rather than pay this spell's mana cost.",
+                ),
+                EffectDef::None,
+            )
+            .with_alternative_condition(&TriggerConditionDef::ValueComparison(
+                &ValueComparisonDef {
+                    left: ValueDef::CountSpellsCastThisTurn(&SpellCastQueryDef {
+                        player: PlayerRelation::Opponent,
+                        spell: ObjectPredicateDef::Color(ManaColor::Blue),
+                    }),
+                    comparison: ComparisonDef::GreaterOrEqual,
+                    right: ValueDef::Constant(1),
+                },
+            )),
+            AbilityDef::spell_with_targets(
+                "Change the target of target spell with a single target.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::Spell,
+                            ObjectPredicateDef::DeclaredTargetCount {
+                                minimum: 1,
+                                maximum: 1,
+                            },
+                        ]),
+                        zones: &[ZoneKind::Stack],
+                        controller: None,
+                        owner: None,
+                    },
+                )],
+                EffectDef::ChangeStackTargets(&crate::card::ChangeStackTargetsDef {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    chooser: PlayerRefDef::EffectController,
+                    change: crate::card::StackTargetChangeDef::ChooseNew {
+                        optional: false,
+                        restriction: None,
+                    },
+                }),
             ),
-            EffectDef::None,
-        )
-        .with_alternative_condition(&TriggerConditionDef::ValueComparison(&ValueComparisonDef {
-            left: ValueDef::CountSpellsCastThisTurn(&SpellCastQueryDef {
-                player: PlayerRelation::Opponent,
-                spell: ObjectPredicateDef::Color(ManaColor::Blue),
-            }),
-            comparison: ComparisonDef::GreaterOrEqual,
-            right: ValueDef::Constant(1),
-        })),
-        AbilityDef::spell_with_targets(
-            "Change the target of target spell with a single target.",
-            &[AbilityTargetDef::exactly_one(
-                AbilityTargetPredicate::Object {
-                    object: ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::Spell,
-                        ObjectPredicateDef::DeclaredTargetCount {
-                            minimum: 1,
-                            maximum: 1,
-                        },
-                    ]),
-                    zones: &[ZoneKind::Stack],
-                    controller: None,
-                    owner: None,
-                },
-            )],
-            EffectDef::ChangeStackTargets(&crate::card::ChangeStackTargetsDef {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                chooser: PlayerRefDef::EffectController,
-                change: crate::card::StackTargetChangeDef::ChooseNew {
-                    optional: false,
-                    restriction: None,
-                },
-            }),
-        ),
-    ]),
+        ]),
 );
 
 // WWK 95 — Arbor Elf
@@ -408,7 +413,7 @@ pub(in crate::card::sets) static ARBOR_ELF: CardRecord = CardRecord::new(
 );
 
 // WWK 108 — Nature's Claim
-pub(in crate::card::sets) static NATURE_S_CLAIM_108: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static NATURE_S_CLAIM: CardRecord = CardRecord::new(
     "Nature's Claim",
     "64ae5a91-ac54-4222-832e-d7a740a3f7cb",
     "Daarken",
@@ -431,13 +436,62 @@ pub(in crate::card::sets) static NATURE_S_CLAIM_108: CardRecord = CardRecord::ne
 );
 
 // WWK 115 — Terastodon
-pub(in crate::card::sets) static TERASTODON_115: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static TERASTODON: CardRecord = CardRecord::new(
     "Terastodon",
     "e66d2f62-8a4a-4e8d-93e1-5dc802684106",
     "Lars Grant-West",
     CardRules::new_creature(mana_cost!("{6}{G}{G}"), &["Elephant"], 9, 9).with_abilities(&[
-AbilityDef::triggered_with_targets("When this creature enters, you may destroy up to three target noncreature permanents. For each permanent put into a graveyard this way, its controller creates a 3/3 green Elephant creature token.", TriggerEventDef::zone_changed(ObjectPredicateDef::Source, None, Some(ZoneKind::Battlefield)), &[AbilityTargetDef::up_to(AbilityTargetPredicate::Object { object: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)), zones: &[ZoneKind::Battlefield], controller: None, owner: None }, 3)], EffectDef::May { player: EffectRecipientDef::Controller, effect: &EffectDef::Destroy { object: EffectRecipientDef::Target(TargetIndex::PRIMARY), then: Some(DestroyFollowUpDef { binding: Binding!("terastodon_destroyed"), effect: &EffectDef::ForEachInBinding { objects: Binding!("terastodon_destroyed"), binding: Binding!("terastodon_permanent"), effect: &EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(crate::card::TokenCharacteristics::creature(&["Elephant"], &[ManaColor::Green], 3, 3))).with_controller(PlayerRefDef::ControllerOf(ObjectRefDef::Binding(Binding!("terastodon_permanent"))))) } }) } })
-]),
+        AbilityDef::triggered_with_targets(
+            "When this creature enters, you may destroy up to three \
+             target noncreature permanents. For each permanent put into \
+             a graveyard this way, its controller creates a 3/3 green \
+             Elephant creature token.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            &[AbilityTargetDef::up_to(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(
+                        CardType::Creature,
+                    )),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+                3,
+            )],
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    then: Some(DestroyFollowUpDef {
+                        binding: Binding!("terastodon_destroyed"),
+                        effect: &EffectDef::ForEachInBinding {
+                            objects: Binding!("terastodon_destroyed"),
+                            binding: Binding!("terastodon_permanent"),
+                            effect: &EffectDef::CreateToken(
+                                crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(
+                                    crate::card::TokenCharacteristics::creature(
+                                        &["Elephant"],
+                                        &[ManaColor::Green],
+                                        3,
+                                        3,
+                                    ),
+                                ))
+                                .with_controller(
+                                    PlayerRefDef::ControllerOf(ObjectRefDef::Binding(Binding!(
+                                        "terastodon_permanent"
+                                    ))),
+                                ),
+                            ),
+                        },
+                    }),
+                },
+            },
+        ),
+    ]),
 );
 
 // WWK 118 — Wolfbriar Elemental
@@ -445,12 +499,11 @@ pub(in crate::card::sets) static WOLFBRIAR_ELEMENTAL: CardRecord = CardRecord::n
     "Wolfbriar Elemental",
     "35ffbd5e-113a-4f24-baa1-b65a5082d893",
     "Chippy",
-CardRules::new_creature(mana_cost!("{2}{G}{G}"), &["Elemental"], 4, 4).with_abilities(&[
-        abilities::multikicker(
-            &[CostDef::Mana(mana_cost!("{G}"))],
-        ),
+    CardRules::new_creature(mana_cost!("{2}{G}{G}"), &["Elemental"], 4, 4).with_abilities(&[
+        abilities::multikicker(&[CostDef::Mana(mana_cost!("{G}"))]),
         abilities::enters_trigger(
-            "When this creature enters, create a 2/2 green Wolf creature token for each time it was kicked.",
+            "When this creature enters, create a 2/2 green Wolf creature \
+             token for each time it was kicked.",
             EffectDef::CreateToken(
                 CreateTokenDef::new(TokenDef::Literal(TokenCharacteristics::creature(
                     &["Wolf"],
@@ -553,7 +606,7 @@ pub(in crate::card::sets) static KITESAIL: CardRecord = CardRecord::new(
 );
 
 // WWK 127 — Lodestone Golem
-pub(in crate::card::sets) static LODESTONE_GOLEM_127: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static LODESTONE_GOLEM: CardRecord = CardRecord::new(
     "Lodestone Golem",
     "9bb0ee6a-852a-4f1e-8f03-40b6d505bc82",
     "Chris Rahn",
@@ -570,7 +623,7 @@ pub(in crate::card::sets) static LODESTONE_GOLEM_127: CardRecord = CardRecord::n
 );
 
 // WWK 132 — Bojuka Bog
-pub(in crate::card::sets) static BOJUKA_BOG_132: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static BOJUKA_BOG: CardRecord = CardRecord::new(
     "Bojuka Bog",
     "529c38b3-7397-4dac-9859-acd9cd451c32",
     "Howard Lyon",
@@ -654,23 +707,34 @@ pub(in crate::card::sets) static CREEPING_TAR_PIT: CardRecord = CardRecord::new(
     "Creeping Tar Pit",
     "0f427f0b-034c-4821-8758-e395c0042d8a",
     "Jason Felix",
-CardRules::new_land(&[]).with_abilities(&[
+    CardRules::new_land(&[]).with_abilities(&[
         abilities::enters_tapped(CardType::Land),
         AbilityDef::activated_mana(
             "{T}: Add {U} or {B}.",
             &[CostDef::TapSource],
-            EffectDef::AddMana(AddManaEffectDef::choice(&[ManaColor::Blue, ManaColor::Black])),
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::Blue,
+                ManaColor::Black,
+            ])),
         ),
         AbilityDef::activated(
-            "{1}{U}{B}: Until end of turn, this land becomes a 3/2 blue and black Elemental creature. It's still a land. It can't be blocked this turn.",
+            "{1}{U}{B}: Until end of turn, this land becomes a 3/2 blue \
+             and black Elemental creature. It's still a land. It can't \
+             be blocked this turn.",
             &[CostDef::Mana(mana_cost!("{1}{U}{B}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::Composite(&[
                     AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)),
                     AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&["Elemental"])),
-                    AppliedEffectDef::set_colors(ColorSet::from_colors(&[ManaColor::Blue, ManaColor::Black])),
-                    AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(3), ValueDef::Constant(2)),
+                    AppliedEffectDef::set_colors(ColorSet::from_colors(&[
+                        ManaColor::Blue,
+                        ManaColor::Black,
+                    ])),
+                    AppliedEffectDef::set_base_power_toughness(
+                        ValueDef::Constant(3),
+                        ValueDef::Constant(2),
+                    ),
                     AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
                         ObjectPredicateDef::Any,
                     )),
@@ -734,7 +798,7 @@ const QUICKSAND_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // WWK 145 — Tectonic Edge
-pub(in crate::card::sets) static TECTONIC_EDGE_145: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static TECTONIC_EDGE: CardRecord = CardRecord::new(
     "Tectonic Edge",
     "fdcf5c0f-9d18-406d-a930-c179a781264f",
     "Vincent Proce",
@@ -789,18 +853,18 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &DRAGONMASTER_OUTCAST,
     &RICOCHET_TRAP,
     &ARBOR_ELF,
-    &NATURE_S_CLAIM_108,
-    &TERASTODON_115,
+    &NATURE_S_CLAIM,
+    &TERASTODON,
     &WOLFBRIAR_ELEMENTAL,
     &BASILISK_COLLAR,
     &EVERFLOWING_CHALICE,
     &KITESAIL,
-    &LODESTONE_GOLEM_127,
-    &BOJUKA_BOG_132,
+    &LODESTONE_GOLEM,
+    &BOJUKA_BOG,
     &CELESTIAL_COLONNADE,
     &CREEPING_TAR_PIT,
     &EYE_OF_UGIN,
-    &TECTONIC_EDGE_145,
+    &TECTONIC_EDGE,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[QUICKSAND_REPRINT];

@@ -69,7 +69,7 @@ pub(in crate::card::sets) static BISHOP_S_SOLDIER: CardRecord = CardRecord::new(
 );
 
 // XLN 19 — Kinjalli's Sunwing
-pub(in crate::card::sets) static KINJALLI_S_SUNWING_19: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static KINJALLI_S_SUNWING: CardRecord = CardRecord::new(
     "Kinjalli's Sunwing",
     "2b9e0b0f-651a-44e6-8fb0-e46bfda0ada9",
     "Simon Dominic",
@@ -94,8 +94,8 @@ pub(in crate::card::sets) static SETTLE_THE_WRECKAGE: CardRecord = CardRecord::n
     "Dimitar Marinski",
     CardRules::new_instant(mana_cost!("{2}{W}{W}")).with_ability(AbilityDef::spell_with_targets(
         "Exile all attacking creatures target player controls. That player may search their \
-             library for that many basic land cards, put those cards onto the battlefield tapped, \
-             then shuffle.",
+         library for that many basic land cards, put those cards onto the battlefield tapped, \
+         then shuffle.",
         &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::Player(PlayerRelation::Any),
         )],
@@ -165,18 +165,58 @@ pub(in crate::card::sets) static TERRITORIAL_HAMMERSKULL: CardRecord = CardRecor
 );
 
 // XLN 46 — Arcane Adaptation
-pub(in crate::card::sets) static ARCANE_ADAPTATION_46: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static ARCANE_ADAPTATION: CardRecord = CardRecord::new(
     "Arcane Adaptation",
     "bf3edaaf-cf63-4e17-94ae-9d9991d9fb5f",
     "Mark Behm",
     CardRules::new_enchantment(mana_cost!("{2}{U}")).with_abilities(&[
-AbilityDef::as_enters("As this permanent enters, choose a creature type.", ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(BattlefieldEntryScalarChoiceDef::CREATURE_TYPE))),
-AbilityDef::static_ability("Creatures you control are the chosen type in addition to their other types. The same is true for creature spells you control and creature cards you own that aren't on the battlefield.", EffectDef::Sequence(&[EffectDef::StaticApply { recipient: EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::matching(ObjectPredicateDef::HasType(CardType::Creature), &[ZoneKind::Battlefield, ZoneKind::Stack], PlayerRelation::You))), effect: AppliedEffectDef::add_chosen_creature_type() }, EffectDef::StaticApply { recipient: EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::owned_by(ObjectPredicateDef::HasType(CardType::Creature), &[ZoneKind::Library, ZoneKind::Hand, ZoneKind::Graveyard, ZoneKind::Exile, ZoneKind::Command], PlayerSetDef::Related(PlayerRelation::You)))), effect: AppliedEffectDef::add_chosen_creature_type() }]))
-]),
+        AbilityDef::as_enters(
+            "As this permanent enters, choose a creature type.",
+            ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(
+                BattlefieldEntryScalarChoiceDef::CREATURE_TYPE,
+            )),
+        ),
+        AbilityDef::static_ability(
+            "Creatures you control are the chosen type in addition to \
+             their other types. The same is true for creature spells you \
+             control and creature cards you own that aren't on the \
+             battlefield.",
+            EffectDef::Sequence(&[
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                        ObjectQueryDef::matching(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            &[ZoneKind::Battlefield, ZoneKind::Stack],
+                            PlayerRelation::You,
+                        ),
+                    )),
+                    effect: AppliedEffectDef::add_chosen_creature_type(),
+                },
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                        ObjectQueryDef::owned_by(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            &[
+                                ZoneKind::Library,
+                                ZoneKind::Hand,
+                                ZoneKind::Graveyard,
+                                ZoneKind::Exile,
+                                ZoneKind::Command,
+                            ],
+                            PlayerSetDef::Related(PlayerRelation::You),
+                        ),
+                    )),
+                    effect: AppliedEffectDef::add_chosen_creature_type(),
+                },
+            ]),
+        ),
+    ]),
 );
 
 // XLN 48 — Chart a Course
-// Audit: unsupported — Needs per-player attack history retained after attacking creatures leave or change controllers; current object predicates only identify individual permanents that attacked.
+// Audit: unsupported — Needs per-player attack history retained after attacking creatures leave
+// or change controllers; current object predicates only identify individual permanents that
+// attacked.
 pub(in crate::card::sets) static CHART_A_COURSE: CardRecord = CardRecord::new(
     "Chart a Course",
     "98291778-2ec2-47e2-ac99-5f8cfbb3cf24",
@@ -241,7 +281,9 @@ pub(in crate::card::sets) static RIVER_S_REBUKE: CardRecord = CardRecord::new(
 );
 
 // XLN 84 — Storm Fleet Spy
-// Audit: unsupported — Needs per-player attack history retained after attacking creatures leave or change controllers; current object predicates only identify individual permanents that attacked.
+// Audit: unsupported — Needs per-player attack history retained after attacking creatures leave
+// or change controllers; current object predicates only identify individual permanents that
+// attacked.
 pub(in crate::card::sets) static STORM_FLEET_SPY: CardRecord = CardRecord::new(
     "Storm Fleet Spy",
     "f7c33ef4-60bb-4f95-92a5-7abedaac6767",
@@ -254,52 +296,54 @@ pub(in crate::card::sets) static KITESAIL_FREEBOOTER: CardRecord = CardRecord::n
     "Kitesail Freebooter",
     "f62fd592-4910-417d-a500-e7029f3d119f",
     "Dan Murayama Scott",
-CardRules::new_creature(mana_cost!("{1}{B}"), &["Human", "Pirate"], 1, 2)
-        .with_abilities(&[
-            abilities::flying(),
-            abilities::enters_trigger_with_targets(
-                "When this creature enters, target opponent reveals their hand. You choose a noncreature, nonland card from it. Exile that card until this creature leaves the battlefield.",
-                &[AbilityTargetDef::exactly_one(
-                    AbilityTargetPredicate::Player(PlayerRelation::Opponent),
-                )],
-                EffectDef::Sequence(&abilities::reveal_hand_and_choose_card(
-                    PlayerRefDef::Target(TargetIndex::PRIMARY),
-                    // Neither a creature nor a land: the Freebooter takes the answer, not the
-                    // threat, which is what separates it from the Sculler.
-                    ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
-                        ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
-                    ]),
-                    &EffectDef::Sequence(&[
-                        EffectDef::ExileLinkedToSource {
-                            until_source_leaves: true,
-                            object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
-                            face_down: false,
-                            then: None,
+    CardRules::new_creature(mana_cost!("{1}{B}"), &["Human", "Pirate"], 1, 2).with_abilities(&[
+        abilities::flying(),
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, target opponent reveals their \
+             hand. You choose a noncreature, nonland card from it. Exile \
+             that card until this creature leaves the battlefield.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+            )],
+            EffectDef::Sequence(&abilities::reveal_hand_and_choose_card(
+                PlayerRefDef::Target(TargetIndex::PRIMARY),
+                // Neither a creature nor a land: the Freebooter takes the answer, not the
+                // threat, which is what separates it from the Sculler.
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                ]),
+                &EffectDef::Sequence(&[
+                    EffectDef::ExileLinkedToSource {
+                        until_source_leaves: true,
+                        object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
+                        face_down: false,
+                        then: None,
+                    },
+                    // "Until this creature leaves the battlefield" is one printed ability, so
+                    // the return is a delayed trigger installed by the same resolution rather
+                    // than a second clause the card does not print.
+                    EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
+                        "When this creature leaves the battlefield, return the \
+                         exiled card to its owner's hand.",
+                        TriggerEventDef::zone_changed(
+                            ObjectPredicateDef::Source,
+                            Some(ZoneKind::Battlefield),
+                            None,
+                        ),
+                        EffectDef::ReturnLinkedExiles {
+                            object: ObjectPredicateDef::Any,
+                            counters: None,
+                            zone: ZoneKind::Hand,
+                            grant: None,
+                            controller: None,
+                            transformed: false,
                         },
-                        // "Until this creature leaves the battlefield" is one printed ability, so
-                        // the return is a delayed trigger installed by the same resolution rather
-                        // than a second clause the card does not print.
-                        EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
-                            "When this creature leaves the battlefield, return the exiled card to its owner's hand.",
-                            TriggerEventDef::zone_changed(
-                                ObjectPredicateDef::Source,
-                                Some(ZoneKind::Battlefield),
-                                None,
-                            ),
-                            EffectDef::ReturnLinkedExiles {
-                                object: ObjectPredicateDef::Any,
-                                counters: None,
-                                zone: ZoneKind::Hand,
-                                grant: None,
-                                controller: None,
-                                transformed: false,
-                            },
-                        ))),
-                    ]),
-                )),
-            ),
-        ]),
+                    ))),
+                ]),
+            )),
+        ),
+    ]),
 );
 
 // XLN 123 — Skulduggery
@@ -346,8 +390,9 @@ pub(in crate::card::sets) static SKULDUGGERY: CardRecord = CardRecord::new(
 );
 
 // XLN 132 — Angrath's Marauders
-// Audit: unsupported — The replacement-event vocabulary has no prospective damage event on which to double damage; MultiplyEventAmount currently handles other replacement event types.
-pub(in crate::card::sets) static ANGRATH_S_MARAUDERS_132: CardRecord = CardRecord::new(
+// Audit: unsupported — The replacement-event vocabulary has no prospective damage event on
+// which to double damage; MultiplyEventAmount currently handles other replacement event types.
+pub(in crate::card::sets) static ANGRATH_S_MARAUDERS: CardRecord = CardRecord::new(
     "Angrath's Marauders",
     "f0bfc9e0-14e8-43ce-8fca-773b7f2387dc",
     "Victor Adame Minguez",
@@ -355,25 +400,69 @@ pub(in crate::card::sets) static ANGRATH_S_MARAUDERS_132: CardRecord = CardRecor
 );
 
 // XLN 154 — Rampaging Ferocidon
-pub(in crate::card::sets) static RAMPAGING_FEROCIDON_154: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static RAMPAGING_FEROCIDON: CardRecord = CardRecord::new(
     "Rampaging Ferocidon",
     "39d3c658-1927-4af3-9077-88c4a669c730",
     "Jonathan Kuo",
     CardRules::new_creature(mana_cost!("{2}{R}"), &["Dinosaur"], 3, 3).with_abilities(&[
-abilities::menace(),
-AbilityDef::static_ability("Players can't gain life.", EffectDef::StaticApply { recipient: EffectRecipientDef::EachPlayer, effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotGainLife) }),
-AbilityDef::triggered("Whenever another creature enters, this creature deals 1 damage to that creature’s controller.", TriggerEventDef::zone_changed(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::Not(&ObjectPredicateDef::Source)]), None, Some(ZoneKind::Battlefield)), EffectDef::damage(EffectRecipientDef::player(PlayerRefDef::ControllerOf(ObjectRefDef::TriggeringObject)), ValueDef::Constant(1)))
-]),
+        abilities::menace(),
+        AbilityDef::static_ability(
+            "Players can't gain life.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::EachPlayer,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotGainLife),
+            },
+        ),
+        AbilityDef::triggered(
+            "Whenever another creature enters, this creature deals 1 \
+             damage to that creature’s controller.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                ]),
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            EffectDef::damage(
+                EffectRecipientDef::player(PlayerRefDef::ControllerOf(
+                    ObjectRefDef::TriggeringObject,
+                )),
+                ValueDef::Constant(1),
+            ),
+        ),
+    ]),
 );
 
 // XLN 158 — Rile
-pub(in crate::card::sets) static RILE_158: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static RILE: CardRecord = CardRecord::new(
     "Rile",
     "80925750-6c90-42d1-9525-27f1f0313398",
     "Igor Kieryluk",
-    CardRules::new_sorcery(mana_cost!("{R}")).with_abilities(&[
-AbilityDef::spell_with_targets("Rile deals 1 damage to target creature you control. That creature gains trample until end of turn.\nDraw a card.", &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object { object: ObjectPredicateDef::HasType(CardType::Creature), zones: &[ZoneKind::Battlefield], controller: Some(PlayerRelation::You), owner: None })], EffectDef::Sequence(&[EffectDef::damage(EffectRecipientDef::Target(TargetIndex::PRIMARY), ValueDef::Constant(1)), EffectDef::Apply { recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY), effect: AppliedEffectDef::add_ability(&abilities::trample()), duration: ResolvedEffectDurationDef::UntilEndOfTurn }, abilities::draw_cards(ValueDef::Constant(1))]))
-]),
+    CardRules::new_sorcery(mana_cost!("{R}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Rile deals 1 damage to target creature you control. That \
+         creature gains trample until end of turn.\nDraw a card.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                zones: &[ZoneKind::Battlefield],
+                controller: Some(PlayerRelation::You),
+                owner: None,
+            },
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(1),
+            ),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::add_ability(&abilities::trample()),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+            abilities::draw_cards(ValueDef::Constant(1)),
+        ]),
+    )]),
 );
 
 // XLN 191 — Growing Rites of Itlimoc // Itlimoc, Cradle of the Sun
@@ -514,13 +603,28 @@ pub(in crate::card::sets) static NEW_HORIZONS: CardRecord = CardRecord::new(
 );
 
 // XLN 213 — Verdant Sun's Avatar
-pub(in crate::card::sets) static VERDANT_SUN_S_AVATAR_213: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static VERDANT_SUN_S_AVATAR: CardRecord = CardRecord::new(
     "Verdant Sun's Avatar",
     "9dbb5b6a-dc74-4e3e-9de1-5b379abdf2b4",
     "Izzy",
-    CardRules::new_creature(mana_cost!("{5}{G}{G}"), &["Dinosaur", "Avatar"], 5, 5).with_abilities(&[
-AbilityDef::triggered("Whenever this creature or another creature you control enters, you gain life equal to that creature's toughness.", TriggerEventDef::zone_changed(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::ControlledBy(PlayerRelation::You)]), None, Some(ZoneKind::Battlefield)), EffectDef::GainLife { recipient: EffectRecipientDef::Controller, amount: ValueDef::TriggeringObjectToughness })
-]),
+    CardRules::new_creature(mana_cost!("{5}{G}{G}"), &["Dinosaur", "Avatar"], 5, 5).with_abilities(
+        &[AbilityDef::triggered(
+            "Whenever this creature or another creature you control \
+             enters, you gain life equal to that creature's toughness.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::TriggeringObjectToughness,
+            },
+        )],
+    ),
 );
 
 // XLN 222 — Gishath, Sun's Avatar
@@ -584,7 +688,7 @@ pub(in crate::card::sets) static GISHATH_SUN_S_AVATAR: CardRecord = CardRecord::
 );
 
 // XLN 227 — Regisaur Alpha
-pub(in crate::card::sets) static REGISAUR_ALPHA_227: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static REGISAUR_ALPHA: CardRecord = CardRecord::new(
     "Regisaur Alpha",
     "d6a322c5-aa4c-4a99-a3ca-48c1353104f0",
     "Jonathan Kuo",
@@ -658,14 +762,30 @@ pub(in crate::card::sets) static PIRATE_S_CUTLASS: CardRecord = CardRecord::new(
 );
 
 // XLN 245 — Sentinel Totem
-pub(in crate::card::sets) static SENTINEL_TOTEM_245: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static SENTINEL_TOTEM: CardRecord = CardRecord::new(
     "Sentinel Totem",
     "0d8097eb-518a-4b8e-8d6a-a139d4ddcc8f",
     "Anthony Palumbo",
     CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
-abilities::enters_trigger("When this artifact enters, scry 1. (Look at the top card of your library. You may put that card on the bottom.)", abilities::scry(ValueDef::Constant(1))),
-AbilityDef::activated("{T}, Exile this artifact: Exile all graveyards.", &[CostDef::TapSource, CostDef::ExileSource], EffectDef::move_to_zone(EffectRecipientDef::matching_objects(ObjectPredicateDef::Any, &[ZoneKind::Graveyard], PlayerRelation::Any), ZoneKind::Exile, ZonePlacement::Top))
-]),
+        abilities::enters_trigger(
+            "When this artifact enters, scry 1. (Look at the top card of \
+             your library. You may put that card on the bottom.)",
+            abilities::scry(ValueDef::Constant(1)),
+        ),
+        AbilityDef::activated(
+            "{T}, Exile this artifact: Exile all graveyards.",
+            &[CostDef::TapSource, CostDef::ExileSource],
+            EffectDef::move_to_zone(
+                EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::Any,
+                    &[ZoneKind::Graveyard],
+                    PlayerRelation::Any,
+                ),
+                ZoneKind::Exile,
+                ZonePlacement::Top,
+            ),
+        ),
+    ]),
 );
 
 // XLN 248 — Sorcerous Spyglass
@@ -673,7 +793,7 @@ pub(in crate::card::sets) static SORCEROUS_SPYGLASS: CardRecord = CardRecord::ne
     "Sorcerous Spyglass",
     "85506a24-8d60-475c-9f43-65994caca7d4",
     "Kieran Yanner",
-CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
+    CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
         AbilityDef::as_enters(
             "As this artifact enters, look at an opponent's hand, then choose any card name.",
             crate::card::ReplacementEffectDef::Sequence(&[
@@ -687,7 +807,8 @@ CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
             ]),
         ),
         abilities::cannot_activate_nonmana_abilities_with_name(
-            "Activated abilities of sources with the chosen name can't be activated unless they're mana abilities.",
+            "Activated abilities of sources with the chosen name can't \
+             be activated unless they're mana abilities.",
             crate::card::CardNameDef::Binding(crate::Binding!("sorcerous_spyglass_name")),
         ),
     ]),
@@ -762,42 +883,89 @@ pub(in crate::card::sets) static TREASURE_MAP: CardRecord = CardRecord::new_dfc(
 );
 
 // XLN 254 — Field of Ruin
-pub(in crate::card::sets) static FIELD_OF_RUIN_254: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static FIELD_OF_RUIN: CardRecord = CardRecord::new(
     "Field of Ruin",
     "d72afb21-7bb0-4fd8-a529-ada92a654f61",
     "Dimitar Marinski",
     CardRules::new_land(&[]).with_abilities(&[
-abilities::tap_for(ManaColor::Colorless),
-AbilityDef::activated_with_targets("{2}, {T}, Sacrifice this land: Destroy target nonbasic land an opponent controls. Each player searches their library for a basic land card, puts it onto the battlefield, then shuffles.", &[CostDef::Mana(mana_cost!("{2}")), CostDef::TapSource, CostDef::SacrificeSource], &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object { object: ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Land), ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(CardSupertype::Basic))]), zones: &[ZoneKind::Battlefield], controller: Some(PlayerRelation::Opponent), owner: None })], EffectDef::Sequence(&[EffectDef::Destroy { object: EffectRecipientDef::Target(TargetIndex::PRIMARY), then: None }, EffectDef::SearchZone { player: EffectRecipientDef::EachPlayer, source: ZoneKind::Library, object: ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Land), ObjectPredicateDef::Supertype(CardSupertype::Basic)]), minimum: 0, maximum: ValueDef::Constant(1), reveal: false, destination: ZoneKind::Battlefield, placement: ZonePlacement::Top, shuffle: true, enters_tapped: false, attachment: None, binding: None, then: None }]))
-]),
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated_with_targets(
+            "{2}, {T}, Sacrifice this land: Destroy target nonbasic land \
+             an opponent controls. Each player searches their library \
+             for a basic land card, puts it onto the battlefield, then \
+             shuffles.",
+            &[
+                CostDef::Mana(mana_cost!("{2}")),
+                CostDef::TapSource,
+                CostDef::SacrificeSource,
+            ],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(
+                            CardSupertype::Basic,
+                        )),
+                    ]),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::Opponent),
+                    owner: None,
+                },
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    then: None,
+                },
+                EffectDef::SearchZone {
+                    player: EffectRecipientDef::EachPlayer,
+                    source: ZoneKind::Library,
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                    ]),
+                    minimum: 0,
+                    maximum: ValueDef::Constant(1),
+                    reveal: false,
+                    destination: ZoneKind::Battlefield,
+                    placement: ZonePlacement::Top,
+                    shuffle: true,
+                    enters_tapped: false,
+                    attachment: None,
+                    binding: None,
+                    then: None,
+                },
+            ]),
+        ),
+    ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &BISHOP_S_SOLDIER,
-    &KINJALLI_S_SUNWING_19,
+    &KINJALLI_S_SUNWING,
     &SETTLE_THE_WRECKAGE,
     &TERRITORIAL_HAMMERSKULL,
-    &ARCANE_ADAPTATION_46,
+    &ARCANE_ADAPTATION,
     &CHART_A_COURSE,
     &DIVE_DOWN,
     &RIVER_S_REBUKE,
     &STORM_FLEET_SPY,
     &KITESAIL_FREEBOOTER,
     &SKULDUGGERY,
-    &ANGRATH_S_MARAUDERS_132,
-    &RAMPAGING_FEROCIDON_154,
-    &RILE_158,
+    &ANGRATH_S_MARAUDERS,
+    &RAMPAGING_FEROCIDON,
+    &RILE,
     &GROWING_RITES_OF_ITLIMOC,
     &JADE_GUARDIAN,
     &NEW_HORIZONS,
-    &VERDANT_SUN_S_AVATAR_213,
+    &VERDANT_SUN_S_AVATAR,
     &GISHATH_SUN_S_AVATAR,
-    &REGISAUR_ALPHA_227,
+    &REGISAUR_ALPHA,
     &PIRATE_S_CUTLASS,
-    &SENTINEL_TOTEM_245,
+    &SENTINEL_TOTEM,
     &SORCEROUS_SPYGLASS,
     &TREASURE_MAP,
-    &FIELD_OF_RUIN_254,
+    &FIELD_OF_RUIN,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

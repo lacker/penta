@@ -89,7 +89,7 @@ pub(in crate::card::sets) static FLICKERWISP: CardRecord = CardRecord::new(
 );
 
 // EVE 22 — Glen Elendra Archmage
-pub(in crate::card::sets) static GLEN_ELENDRA_ARCHMAGE_22: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static GLEN_ELENDRA_ARCHMAGE: CardRecord = CardRecord::new(
     "Glen Elendra Archmage",
     "09516d3d-e6c2-4359-af2a-a4aa244ca033",
     "Warren Mahy",
@@ -113,7 +113,7 @@ pub(in crate::card::sets) static GLEN_ELENDRA_ARCHMAGE_22: CardRecord = CardReco
 );
 
 // EVE 37 — Merrow Bonegnawer
-pub(in crate::card::sets) static MERROW_BONEGNAWER_37: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static MERROW_BONEGNAWER: CardRecord = CardRecord::new(
     "Merrow Bonegnawer",
     "09e49aa4-ac23-49b1-b9b7-49d45b56b21d",
     "Jim Nelson",
@@ -198,7 +198,9 @@ pub(in crate::card::sets) static RAVEN_S_CRIME: CardRecord = CardRecord::new(
 );
 
 // EVE 66 — Bloom Tender
-// Audit: unsupported — Needs conditional immediate mana production once per represented color in a single mana ability; nonmana IfCondition composition cannot resolve inside an immediate mana activation.
+// Audit: unsupported — Needs conditional immediate mana production once per represented color
+// in a single mana ability; nonmana IfCondition composition cannot resolve inside an immediate
+// mana activation.
 pub(in crate::card::sets) static BLOOM_TENDER: CardRecord = CardRecord::new(
     "Bloom Tender",
     "d7cc2828-dfe7-410b-9735-10bb7211f0f5",
@@ -220,36 +222,42 @@ pub(in crate::card::sets) static BECKON_APPARITION: CardRecord = CardRecord::new
     "Beckon Apparition",
     "3bae1a3b-881b-4b10-ac5f-822c809edc36",
     "Larry MacDougall",
-CardRules::new_instant(mana_cost!("{W/B}")).with_ability(
-        AbilityDef::spell_with_targets(
-            "Exile target card from a graveyard. Create a 1/1 white and black Spirit creature token with flying.",
-            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+    CardRules::new_instant(mana_cost!("{W/B}")).with_ability(AbilityDef::spell_with_targets(
+        "Exile target card from a graveyard. Create a 1/1 white and \
+         black Spirit creature token with flying.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
                 object: ObjectPredicateDef::Any,
                 zones: &[ZoneKind::Graveyard],
                 controller: None,
                 owner: None,
-            })],
-            EffectDef::Sequence(&[
-                EffectDef::move_to_zone(
-                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    ZoneKind::Exile,
-                    ZonePlacement::Top,
-                ),
-                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
-                    TokenCharacteristics::creature(&["Spirit"], &[ManaColor::White, ManaColor::Black], 1, 1)
-                        .with_abilities(&[abilities::flying()])
-                        .with_art(CardArt::new(
-                            "91f3a4b0-0992-4245-b245-033ad1083a93",
-                            "Cliff Childs",
-                        )),
-                ))),
-            ]),
-        ),
-    ),
+            },
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Exile,
+                ZonePlacement::Top,
+            ),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                TokenCharacteristics::creature(
+                    &["Spirit"],
+                    &[ManaColor::White, ManaColor::Black],
+                    1,
+                    1,
+                )
+                .with_abilities(&[abilities::flying()])
+                .with_art(CardArt::new(
+                    "91f3a4b0-0992-4245-b245-033ad1083a93",
+                    "Cliff Childs",
+                )),
+            ))),
+        ]),
+    )),
 );
 
 // EVE 94 — Restless Apparition
-pub(in crate::card::sets) static RESTLESS_APPARITION_94: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static RESTLESS_APPARITION: CardRecord = CardRecord::new(
     "Restless Apparition",
     "dc6480d0-17c5-4ac2-afb2-4d44f089de22",
     "Jeff Easley",
@@ -271,7 +279,11 @@ pub(in crate::card::sets) static RESTLESS_APPARITION_94: CardRecord = CardRecord
 );
 
 // EVE 119 — Desecrator Hag
-// Audit: unsupported — Needs a value that aggregates over a query to be readable inside a query filter. "The creature card with the greatest power" is expressible as a choice among the cards nothing beats, but the maximum is an AggregateObjectValues over the graveyard and a predicate cannot evaluate one, so the comparison silently fails and its negation admits every creature card.
+// Audit: unsupported — Needs a value that aggregates over a query to be readable inside a query
+// filter. "The creature card with the greatest power" is expressible as a choice among the
+// cards nothing beats, but the maximum is an AggregateObjectValues over the graveyard and a
+// predicate cannot evaluate one, so the comparison silently fails and its negation admits every
+// creature card.
 pub(in crate::card::sets) static DESECRATOR_HAG: CardRecord = CardRecord::new(
     "Desecrator Hag",
     "74d2e092-c805-447c-b784-1896b69524e0",
@@ -284,79 +296,89 @@ pub(in crate::card::sets) static FIGURE_OF_DESTINY: CardRecord = CardRecord::new
     "Figure of Destiny",
     "0da69523-cece-425a-b08a-fb27fac29374",
     "Scott M. Fischer",
-// A one-drop that is never a dead draw: it is a 1/1 on turn one and an
+    // A one-drop that is never a dead draw: it is a 1/1 on turn one and an
     // 8/8 flier on turn six, and every point of mana in between goes into it.
-    CardRules::new_creature(mana_cost!("{R/W}"), &["Kithkin"], 1, 1)
-        .with_abilities(&[
-            AbilityDef::activated(
-                "{R/W}: This creature becomes a Kithkin Spirit with base power and toughness 2/2.",
-                &[CostDef::Mana(mana_cost!("{R/W}"))],
-                EffectDef::Apply {
+    CardRules::new_creature(mana_cost!("{R/W}"), &["Kithkin"], 1, 1).with_abilities(&[
+        AbilityDef::activated(
+            "{R/W}: This creature becomes a Kithkin Spirit with base power and toughness 2/2.",
+            &[CostDef::Mana(mana_cost!("{R/W}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                // Each step repaints the whole creature-type line rather than adding to it,
+                // which is what "becomes a Kithkin Spirit Warrior" says: the types it lists
+                // are the types it has. None of them ends, so every one is permanent and
+                // the next step reads the one before it off the board.
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&[
+                        "Kithkin", "Spirit",
+                    ])),
+                    AppliedEffectDef::set_base_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(2),
+                    ),
+                ]),
+                duration: ResolvedEffectDurationDef::Permanent,
+            },
+        ),
+        AbilityDef::activated(
+            "{R/W}{R/W}{R/W}: If this creature is a Spirit, it becomes a \
+             Kithkin Spirit Warrior with base power and toughness 4/4.",
+            &[CostDef::Mana(mana_cost!("{R/W}{R/W}{R/W}"))],
+            EffectDef::IfCondition {
+                // "If this creature is a Spirit" is read as the ability resolves, so a
+                // Figure that was answered in response is a 1/1 again and the second
+                // activation does nothing.
+                condition: &TriggerConditionDef::SourceMatches {
+                    object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Spirit")),
+                },
+                then: &EffectDef::Apply {
                     recipient: EffectRecipientDef::Source,
-                    // Each step repaints the whole creature-type line rather than adding to it,
-                    // which is what "becomes a Kithkin Spirit Warrior" says: the types it lists
-                    // are the types it has. None of them ends, so every one is permanent and
-                    // the next step reads the one before it off the board.
                     effect: AppliedEffectDef::Composite(&[
-                        AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&["Kithkin", "Spirit"])),
-                        AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(2), ValueDef::Constant(2)),
+                        AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&[
+                            "Kithkin", "Spirit", "Warrior",
+                        ])),
+                        AppliedEffectDef::set_base_power_toughness(
+                            ValueDef::Constant(4),
+                            ValueDef::Constant(4),
+                        ),
                     ]),
                     duration: ResolvedEffectDurationDef::Permanent,
                 },
-            ),
-            AbilityDef::activated(
-                "{R/W}{R/W}{R/W}: If this creature is a Spirit, it becomes a Kithkin Spirit Warrior with \
-                 base power and toughness 4/4.",
-                &[CostDef::Mana(mana_cost!("{R/W}{R/W}{R/W}"))],
-                EffectDef::IfCondition {
-                    // "If this creature is a Spirit" is read as the ability resolves, so a
-                    // Figure that was answered in response is a 1/1 again and the second
-                    // activation does nothing.
-                    condition: &TriggerConditionDef::SourceMatches {
-                        object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Spirit")),
-                    },
-                    then: &EffectDef::Apply {
-                        recipient: EffectRecipientDef::Source,
-                        effect: AppliedEffectDef::Composite(&[
-                            AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&[
-                                "Kithkin", "Spirit", "Warrior",
-                            ])),
-                            AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(4), ValueDef::Constant(4)),
-                        ]),
-                        duration: ResolvedEffectDurationDef::Permanent,
-                    },
+            },
+        ),
+        AbilityDef::activated(
+            "{R/W}{R/W}{R/W}{R/W}{R/W}{R/W}: If this creature is a \
+             Warrior, it becomes a Kithkin Spirit Warrior Avatar with \
+             base power and toughness 8/8, flying, and first strike.",
+            &[CostDef::Mana(mana_cost!("{R/W}{R/W}{R/W}{R/W}{R/W}{R/W}"))],
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::SourceMatches {
+                    object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Warrior")),
                 },
-            ),
-            AbilityDef::activated(
-                "{R/W}{R/W}{R/W}{R/W}{R/W}{R/W}: If this creature is a Warrior, it becomes a Kithkin \
-                 Spirit Warrior Avatar with base power and toughness 8/8, flying, and first strike.",
-                &[CostDef::Mana(mana_cost!(
-                    "{R/W}{R/W}{R/W}{R/W}{R/W}{R/W}"
-                ))],
-                EffectDef::IfCondition {
-                    condition: &TriggerConditionDef::SourceMatches {
-                        object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Warrior")),
-                    },
-                    then: &EffectDef::Apply {
-                        recipient: EffectRecipientDef::Source,
-                        effect: AppliedEffectDef::Composite(&[
-                            AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&[
-                                "Kithkin", "Spirit", "Warrior", "Avatar",
-                            ])),
-                            AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(8), ValueDef::Constant(8)),
-                            AppliedEffectDef::add_ability(&abilities::flying()),
-                            AppliedEffectDef::add_ability(&abilities::first_strike()),
-                        ]),
-                        duration: ResolvedEffectDurationDef::Permanent,
-                    },
+                then: &EffectDef::Apply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&[
+                            "Kithkin", "Spirit", "Warrior", "Avatar",
+                        ])),
+                        AppliedEffectDef::set_base_power_toughness(
+                            ValueDef::Constant(8),
+                            ValueDef::Constant(8),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::flying()),
+                        AppliedEffectDef::add_ability(&abilities::first_strike()),
+                    ]),
+                    duration: ResolvedEffectDurationDef::Permanent,
                 },
-            ),
-        ]),
+            },
+        ),
+    ]),
 );
 
 // EVE 156 — Murkfiend Liege
-// Audit: unsupported — The untap-step rule cannot continuously add only matching green/blue controlled creatures to another player’s normal untap turn-based action.
-pub(in crate::card::sets) static MURKFIEND_LIEGE_156: CardRecord = CardRecord::new(
+// Audit: unsupported — The untap-step rule cannot continuously add only matching green/blue
+// controlled creatures to another player’s normal untap turn-based action.
+pub(in crate::card::sets) static MURKFIEND_LIEGE: CardRecord = CardRecord::new(
     "Murkfiend Liege",
     "8d8250af-696f-4e28-86ba-29e316d01e56",
     "Carl Critchlow",
@@ -364,8 +386,9 @@ pub(in crate::card::sets) static MURKFIEND_LIEGE_156: CardRecord = CardRecord::n
 );
 
 // EVE 175 — Cascade Bluffs
-// Audit: unsupported — Mana-ability payment rejects hybrid symbols in activation costs; it cannot choose which half of the filter cost to pay.
-pub(in crate::card::sets) static CASCADE_BLUFFS_175: CardRecord = CardRecord::new(
+// Audit: unsupported — Mana-ability payment rejects hybrid symbols in activation costs; it
+// cannot choose which half of the filter cost to pay.
+pub(in crate::card::sets) static CASCADE_BLUFFS: CardRecord = CardRecord::new(
     "Cascade Bluffs",
     "c3eede44-270a-481d-850b-b4862b9685ea",
     "Brandon Kitkouski",
@@ -373,8 +396,9 @@ pub(in crate::card::sets) static CASCADE_BLUFFS_175: CardRecord = CardRecord::ne
 );
 
 // EVE 176 — Fetid Heath
-// Audit: unsupported — Mana-ability payment rejects hybrid symbols in activation costs; it cannot choose which half of the filter cost to pay.
-pub(in crate::card::sets) static FETID_HEATH_176: CardRecord = CardRecord::new(
+// Audit: unsupported — Mana-ability payment rejects hybrid symbols in activation costs; it
+// cannot choose which half of the filter cost to pay.
+pub(in crate::card::sets) static FETID_HEATH: CardRecord = CardRecord::new(
     "Fetid Heath",
     "0fbb9790-3744-4dcb-881a-452573298822",
     "Daarken",
@@ -382,8 +406,9 @@ pub(in crate::card::sets) static FETID_HEATH_176: CardRecord = CardRecord::new(
 );
 
 // EVE 178 — Rugged Prairie
-// Audit: unsupported — Mana-ability payment rejects hybrid symbols in activation costs; it cannot choose which half of the filter cost to pay.
-pub(in crate::card::sets) static RUGGED_PRAIRIE_178: CardRecord = CardRecord::new(
+// Audit: unsupported — Mana-ability payment rejects hybrid symbols in activation costs; it
+// cannot choose which half of the filter cost to pay.
+pub(in crate::card::sets) static RUGGED_PRAIRIE: CardRecord = CardRecord::new(
     "Rugged Prairie",
     "e31f8b2a-acf4-423c-bc99-8cf44f3c018a",
     "Fred Fields",
@@ -393,19 +418,19 @@ pub(in crate::card::sets) static RUGGED_PRAIRIE_178: CardRecord = CardRecord::ne
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ARCHON_OF_JUSTICE,
     &FLICKERWISP,
-    &GLEN_ELENDRA_ARCHMAGE_22,
-    &MERROW_BONEGNAWER_37,
+    &GLEN_ELENDRA_ARCHMAGE,
+    &MERROW_BONEGNAWER,
     &RAVEN_S_CRIME,
     &BLOOM_TENDER,
     &DUSKDALE_WURM,
     &BECKON_APPARITION,
-    &RESTLESS_APPARITION_94,
+    &RESTLESS_APPARITION,
     &DESECRATOR_HAG,
     &FIGURE_OF_DESTINY,
-    &MURKFIEND_LIEGE_156,
-    &CASCADE_BLUFFS_175,
-    &FETID_HEATH_176,
-    &RUGGED_PRAIRIE_178,
+    &MURKFIEND_LIEGE,
+    &CASCADE_BLUFFS,
+    &FETID_HEATH,
+    &RUGGED_PRAIRIE,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

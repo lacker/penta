@@ -119,7 +119,7 @@ fn each_new_artifact_lock_is_global_and_live() {
 
 #[test]
 fn karn_the_great_creator_locks_only_opposing_artifacts_including_mana() {
-    let (mut game, _, sources) = activation_board(cards::KARN_THE_GREAT_CREATOR_1);
+    let (mut game, _, sources) = activation_board(cards::KARN_THE_GREAT_CREATOR);
     for source in sources {
         game.priority = source.player;
         let actions = game.legal_actions(source.player);

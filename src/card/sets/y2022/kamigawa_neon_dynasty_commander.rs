@@ -43,8 +43,10 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // NEC 13 — Imposter Mech
-// Audit: unsupported — CopyExceptionsDef can add card types but cannot replace the copied creature's card-type set with artifact while retaining its copied rules and applying the Vehicle exception.
-pub(in crate::card::sets) static IMPOSTER_MECH_13: CardRecord = CardRecord::new(
+// Audit: unsupported — CopyExceptionsDef can add card types but cannot replace the copied
+// creature's card-type set with artifact while retaining its copied rules and applying the
+// Vehicle exception.
+pub(in crate::card::sets) static IMPOSTER_MECH: CardRecord = CardRecord::new(
     "Imposter Mech",
     "59b7450c-3163-4f12-9af1-2e998a6c36cf",
     "Andrew Mar",
@@ -101,31 +103,79 @@ pub(in crate::card::sets) static KAPPA_CANNONEER: CardRecord = CardRecord::new(
 );
 
 // NEC 45 — Swift Reconfiguration
-pub(in crate::card::sets) static SWIFT_RECONFIGURATION_45: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static SWIFT_RECONFIGURATION: CardRecord = CardRecord::new(
     "Swift Reconfiguration",
     "0bd0b431-534d-4ab7-93ed-b9a25259e88e",
     "Nicholas Gregory",
-    CardRules::new_enchantment(mana_cost!("{W}")).with_subtypes(&["Aura"]).with_abilities(&[
-abilities::flash(),
-abilities::aura_spell("Enchant creature or Vehicle", &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle"))]))]),
-AbilityDef::static_ability("Enchanted permanent is a Vehicle artifact with crew 5 and it loses all other card types. (It's not a creature unless it's crewed.)", EffectDef::StaticApply { recipient: EffectRecipientDef::AttachedPermanent, effect: AppliedEffectDef::Composite(&[AppliedEffectDef::set_card_types(CardTypeSet::single(CardType::Artifact)), AppliedEffectDef::Characteristic(CharacteristicOperationDef::Subtypes(SetOperationDef::Add(&["Vehicle"]))), AppliedEffectDef::add_ability(&abilities::crew("Crew 5", 5))]) })
-]),
+    CardRules::new_enchantment(mana_cost!("{W}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::flash(),
+            abilities::aura_spell(
+                "Enchant creature or Vehicle",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                    ]),
+                )],
+            ),
+            AbilityDef::static_ability(
+                "Enchanted permanent is a Vehicle artifact with crew 5 and \
+                 it loses all other card types. (It's not a creature unless \
+                 it's crewed.)",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::set_card_types(CardTypeSet::single(CardType::Artifact)),
+                        AppliedEffectDef::Characteristic(CharacteristicOperationDef::Subtypes(
+                            SetOperationDef::Add(&["Vehicle"]),
+                        )),
+                        AppliedEffectDef::add_ability(&abilities::crew("Crew 5", 5)),
+                    ]),
+                },
+            ),
+        ]),
 );
 
 // NEC 46 — Yoshimaru, Ever Faithful
-pub(in crate::card::sets) static YOSHIMARU_EVER_FAITHFUL_46: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static YOSHIMARU_EVER_FAITHFUL: CardRecord = CardRecord::new(
     "Yoshimaru, Ever Faithful",
     "84dcd364-38c1-4987-a066-1c4d4533912e",
     "Ilse Gort",
-    CardRules::new_creature(mana_cost!("{W}"), &["Dog"], 1, 1).with_supertype(CardSupertype::Legendary).with_abilities(&[
-AbilityDef::triggered("Whenever another legendary permanent you control enters, put a +1/+1 counter on Yoshimaru.", TriggerEventDef::zone_changed(ObjectPredicateDef::All(&[ObjectPredicateDef::Supertype(CardSupertype::Legendary), ObjectPredicateDef::ControlledBy(PlayerRelation::You), ObjectPredicateDef::Not(&ObjectPredicateDef::Source)]), None, Some(ZoneKind::Battlefield)), EffectDef::AddCounters { object: EffectRecipientDef::Source, kind: CounterKind::PlusOnePlusOne, amount: ValueDef::Constant(1) }),
-AbilityDef::deck_construction("Partner (You can have two commanders if both have partner.)", DeckConstructionDef::Partner, "Both commanders are designated before the game.")
-]),
+    CardRules::new_creature(mana_cost!("{W}"), &["Dog"], 1, 1)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::triggered(
+                "Whenever another legendary permanent you control enters, \
+                 put a +1/+1 counter on Yoshimaru.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Supertype(CardSupertype::Legendary),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    ]),
+                    None,
+                    Some(ZoneKind::Battlefield),
+                ),
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::Source,
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+            AbilityDef::deck_construction(
+                "Partner (You can have two commanders if both have partner.)",
+                DeckConstructionDef::Partner,
+                "Both commanders are designated before the game.",
+            ),
+        ]),
 );
 
 // NEC 56 — Ruthless Technomancer
-// Audit: unsupported — The activated-cost planner cannot select a positive variable number of artifacts to sacrifice and preserve that X as the target's power limit.
-pub(in crate::card::sets) static RUTHLESS_TECHNOMANCER_56: CardRecord = CardRecord::new(
+// Audit: unsupported — The activated-cost planner cannot select a positive variable number of
+// artifacts to sacrifice and preserve that X as the target's power limit.
+pub(in crate::card::sets) static RUTHLESS_TECHNOMANCER: CardRecord = CardRecord::new(
     "Ruthless Technomancer",
     "b6f8e7b9-d90b-40a5-88f4-4edfae0d01f7",
     "PINDURSKI",
@@ -137,18 +187,16 @@ pub(in crate::card::sets) static SHORIKAI_GENESIS_ENGINE: CardRecord = CardRecor
     "Shorikai, Genesis Engine",
     "0347cf84-42f5-4674-99de-619b0ae51d62",
     "Wisnu Tan",
-// Four mana that loots every turn and pays for its own crew while it
+    // Four mana that loots every turn and pays for its own crew while it
     // does it -- the 8/8 is what the Pilots are for rather than the plan.
     CardRules::new_vehicle(mana_cost!("{2}{W}{U}"), 8, 8)
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
             AbilityDef::activated(
-                "{1}, {T}: Draw two cards, then discard a card. Create a 1/1 colorless Pilot creature \
-                 token with \"This token crews Vehicles as though its power were 2 greater.\"",
-                &[
-                    CostDef::Mana(mana_cost!("{1}")),
-                    CostDef::TapSource,
-                ],
+                "{1}, {T}: Draw two cards, then discard a card. Create a 1/1 \
+                 colorless Pilot creature token with \"This token crews \
+                 Vehicles as though its power were 2 greater.\"",
+                &[CostDef::Mana(mana_cost!("{1}")), CostDef::TapSource],
                 EffectDef::Sequence(&[
                     EffectDef::DrawCards {
                         recipient: EffectRecipientDef::Controller,
@@ -169,7 +217,9 @@ pub(in crate::card::sets) static SHORIKAI_GENESIS_ENGINE: CardRecord = CardRecor
                                 "This token crews Vehicles as though its power were 2 greater.",
                                 EffectDef::StaticApply {
                                     recipient: EffectRecipientDef::Source,
-                                    effect: AppliedEffectDef::Rule(AppliedRuleDef::CrewsAsThoughPowerGreater(2)),
+                                    effect: AppliedEffectDef::Rule(
+                                        AppliedRuleDef::CrewsAsThoughPowerGreater(2),
+                                    ),
                                 },
                             )])
                             .with_art(CardArt::new(
@@ -188,11 +238,11 @@ pub(in crate::card::sets) static SHORIKAI_GENESIS_ENGINE: CardRecord = CardRecor
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
-    &IMPOSTER_MECH_13,
+    &IMPOSTER_MECH,
     &KAPPA_CANNONEER,
-    &SWIFT_RECONFIGURATION_45,
-    &YOSHIMARU_EVER_FAITHFUL_46,
-    &RUTHLESS_TECHNOMANCER_56,
+    &SWIFT_RECONFIGURATION,
+    &YOSHIMARU_EVER_FAITHFUL,
+    &RUTHLESS_TECHNOMANCER,
     &SHORIKAI_GENESIS_ENGINE,
 ];
 

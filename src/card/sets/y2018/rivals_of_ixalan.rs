@@ -119,8 +119,10 @@ pub(in crate::card::sets) static KITESAIL_CORSAIR: CardRecord = CardRecord::new(
 );
 
 // RIX 45 — Nezahal, Primal Tide
-// Audit: unsupported — Ordinary activated-ability payment cannot discard three selected cards; the discard activation path supports one. Its delayed return also needs a tapped battlefield arrival.
-pub(in crate::card::sets) static NEZAHAL_PRIMAL_TIDE_45: CardRecord = CardRecord::new(
+// Audit: unsupported — Ordinary activated-ability payment cannot discard three selected cards;
+// the discard activation path supports one. Its delayed return also needs a tapped battlefield
+// arrival.
+pub(in crate::card::sets) static NEZAHAL_PRIMAL_TIDE: CardRecord = CardRecord::new(
     "Nezahal, Primal Tide",
     "48eba418-94ab-46a3-958c-4d5058fc2bcd",
     "Sam Burley",
@@ -128,8 +130,10 @@ pub(in crate::card::sets) static NEZAHAL_PRIMAL_TIDE_45: CardRecord = CardRecord
 );
 
 // RIX 59 — Timestream Navigator
-// Audit: unsupported — Ascend and the city's blessing condition exist, but activation costs cannot put the source on the bottom of its owner's library; MoveToZone costs also carry no library placement.
-pub(in crate::card::sets) static TIMESTREAM_NAVIGATOR_59: CardRecord = CardRecord::new(
+// Audit: unsupported — Ascend and the city's blessing condition exist, but activation costs
+// cannot put the source on the bottom of its owner's library; MoveToZone costs also carry no
+// library placement.
+pub(in crate::card::sets) static TIMESTREAM_NAVIGATOR: CardRecord = CardRecord::new(
     "Timestream Navigator",
     "14770537-209a-4260-88a4-30f4e2b5ede0",
     "Zezhou Chen",
@@ -203,12 +207,68 @@ pub(in crate::card::sets) static BRASS_S_BOUNTY: CardRecord = CardRecord::new(
 
 // RIX 100 — Etali, Primal Storm
 pub(in crate::card::sets) static ETALI_PRIMAL_STORM: CardRecord = CardRecord::new(
-"Etali, Primal Storm",
-"1d3d8bb4-0430-45bb-930d-5d6db6521945",
-"Raymond Swanland",
-CardRules::new_creature(mana_cost!("{4}{R}{R}"), &["Elder", "Dinosaur"], 6, 6).with_supertype(CardSupertype::Legendary).with_abilities(&[
-AbilityDef::triggered("Whenever Etali attacks, exile the top card of each player's library, then you may cast any number of spells from among those cards without paying their mana costs.", TriggerEventDef::attacks(ObjectPredicateDef::Source), EffectDef::BindObjects(BindObjectsDef { source: ObjectCollectionSourceDef::TopCards { player: PlayerRefDef::EffectController, count: ValueDef::Constant(1) }, binding: Binding!("etali_yours"), then: &EffectDef::BindObjects(BindObjectsDef { source: ObjectCollectionSourceDef::TopCards { player: PlayerRefDef::Opponent, count: ValueDef::Constant(1) }, binding: Binding!("etali_theirs"), then: &EffectDef::MoveObjects(MoveObjectsDef { input: ObjectSetDef::Union(&[ObjectSetDef::Binding(Binding!("etali_yours")), ObjectSetDef::Binding(Binding!("etali_theirs"))]), from: Some(ZoneKind::Library), zone: ZoneKind::Exile, placement: ZonePlacement::Top, moved: Some(Binding!("etali_exiled")), then: &EffectDef::Choose(ChooseDef { chooser: PlayerRefDef::EffectController, candidates: ObjectSetDef::Binding(Binding!("etali_exiled")), exclude: None, minimum: 0, maximum: 2, binding: ObjectChoiceBindingDef::OrderedObjects(Binding!("etali_order")), unchosen: None, visibility: ChoiceVisibilityDef::Public, then: &EffectDef::ForEachInBinding { objects: Binding!("etali_order"), binding: Binding!("etali_card"), effect: &EffectDef::MayCastTargetWithoutPaying { object: EffectRecipientDef::object(ObjectRefDef::Binding(Binding!("etali_card"))), ability: &AbilityDef::alternative_cast(crate::NO_COSTS, AlternativeCastKindDef::Granted, Some("Cast without paying its mana cost."), EffectDef::None) } } }) }) }) }))
-]),
+    "Etali, Primal Storm",
+    "1d3d8bb4-0430-45bb-930d-5d6db6521945",
+    "Raymond Swanland",
+    CardRules::new_creature(mana_cost!("{4}{R}{R}"), &["Elder", "Dinosaur"], 6, 6)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[AbilityDef::triggered(
+            "Whenever Etali attacks, exile the top card of each player's \
+             library, then you may cast any number of spells from among \
+             those cards without paying their mana costs.",
+            TriggerEventDef::attacks(ObjectPredicateDef::Source),
+            EffectDef::BindObjects(BindObjectsDef {
+                source: ObjectCollectionSourceDef::TopCards {
+                    player: PlayerRefDef::EffectController,
+                    count: ValueDef::Constant(1),
+                },
+                binding: Binding!("etali_yours"),
+                then: &EffectDef::BindObjects(BindObjectsDef {
+                    source: ObjectCollectionSourceDef::TopCards {
+                        player: PlayerRefDef::Opponent,
+                        count: ValueDef::Constant(1),
+                    },
+                    binding: Binding!("etali_theirs"),
+                    then: &EffectDef::MoveObjects(MoveObjectsDef {
+                        input: ObjectSetDef::Union(&[
+                            ObjectSetDef::Binding(Binding!("etali_yours")),
+                            ObjectSetDef::Binding(Binding!("etali_theirs")),
+                        ]),
+                        from: Some(ZoneKind::Library),
+                        zone: ZoneKind::Exile,
+                        placement: ZonePlacement::Top,
+                        moved: Some(Binding!("etali_exiled")),
+                        then: &EffectDef::Choose(ChooseDef {
+                            chooser: PlayerRefDef::EffectController,
+                            candidates: ObjectSetDef::Binding(Binding!("etali_exiled")),
+                            exclude: None,
+                            minimum: 0,
+                            maximum: 2,
+                            binding: ObjectChoiceBindingDef::OrderedObjects(Binding!(
+                                "etali_order"
+                            )),
+                            unchosen: None,
+                            visibility: ChoiceVisibilityDef::Public,
+                            then: &EffectDef::ForEachInBinding {
+                                objects: Binding!("etali_order"),
+                                binding: Binding!("etali_card"),
+                                effect: &EffectDef::MayCastTargetWithoutPaying {
+                                    object: EffectRecipientDef::object(ObjectRefDef::Binding(
+                                        Binding!("etali_card"),
+                                    )),
+                                    ability: &AbilityDef::alternative_cast(
+                                        crate::NO_COSTS,
+                                        AlternativeCastKindDef::Granted,
+                                        Some("Cast without paying its mana cost."),
+                                        EffectDef::None,
+                                    ),
+                                },
+                            },
+                        }),
+                    }),
+                }),
+            }),
+        )]),
 );
 
 // RIX 101 — Fanatical Firebrand
@@ -235,7 +295,8 @@ pub(in crate::card::sets) static FANATICAL_FIREBRAND: CardRecord = CardRecord::n
 );
 
 // RIX 130 — Ghalta, Primal Hunger
-// Audit: unsupported — Needs self spell-cost reduction from the summed power of controlled creatures; the self-cost evaluator accepts object counts but not power aggregates.
+// Audit: unsupported — Needs self spell-cost reduction from the summed power of controlled
+// creatures; the self-cost evaluator accepts object counts but not power aggregates.
 pub(in crate::card::sets) static GHALTA_PRIMAL_HUNGER: CardRecord = CardRecord::new(
     "Ghalta, Primal Hunger",
     "0104b5b3-9376-4ad7-9a77-3e564e9c42e6",
@@ -265,8 +326,10 @@ pub(in crate::card::sets) static THRASHING_BRONTODON: CardRecord = CardRecord::n
 );
 
 // RIX 149 — Thunderherd Migration
-// Audit: unsupported — RevealCardFromHand is only executed by the activated-ability payment path. The casting planner cannot choose and reveal a Dinosaur card as an alternative to the extra mana additional cost.
-pub(in crate::card::sets) static THUNDERHERD_MIGRATION_149: CardRecord = CardRecord::new(
+// Audit: unsupported — RevealCardFromHand is only executed by the activated-ability payment
+// path. The casting planner cannot choose and reveal a Dinosaur card as an alternative to the
+// extra mana additional cost.
+pub(in crate::card::sets) static THUNDERHERD_MIGRATION: CardRecord = CardRecord::new(
     "Thunderherd Migration",
     "c56de4a3-f5ab-469e-ab66-b8187c8c04a0",
     "Lars Grant-West",
@@ -274,7 +337,7 @@ pub(in crate::card::sets) static THUNDERHERD_MIGRATION_149: CardRecord = CardRec
 );
 
 // RIX 174 — Zacama, Primal Calamity
-pub(in crate::card::sets) static ZACAMA_PRIMAL_CALAMITY_174: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static ZACAMA_PRIMAL_CALAMITY: CardRecord = CardRecord::new(
     "Zacama, Primal Calamity",
     "5aa75f2b-53c5-47c5-96d2-ab796358a96f",
     "Jaime Jones",
@@ -367,8 +430,8 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &MOMENT_OF_TRIUMPH,
     &ZETALPA_PRIMAL_DAWN,
     &KITESAIL_CORSAIR,
-    &NEZAHAL_PRIMAL_TIDE_45,
-    &TIMESTREAM_NAVIGATOR_59,
+    &NEZAHAL_PRIMAL_TIDE,
+    &TIMESTREAM_NAVIGATOR,
     &MOMENT_OF_CRAVING,
     &BOMBARD,
     &BRASS_S_BOUNTY,
@@ -376,8 +439,8 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &FANATICAL_FIREBRAND,
     &GHALTA_PRIMAL_HUNGER,
     &THRASHING_BRONTODON,
-    &THUNDERHERD_MIGRATION_149,
-    &ZACAMA_PRIMAL_CALAMITY_174,
+    &THUNDERHERD_MIGRATION,
+    &ZACAMA_PRIMAL_CALAMITY,
     &GLEAMING_BARRIER,
     &SWAB_GOBLIN,
 ];

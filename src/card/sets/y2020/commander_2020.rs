@@ -43,7 +43,7 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // C20 26 — Flawless Maneuver
-pub(in crate::card::sets) static FLAWLESS_MANEUVER_26: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static FLAWLESS_MANEUVER: CardRecord = CardRecord::new(
     "Flawless Maneuver",
     "c972abe6-c732-4745-bde4-8b51698f05be",
     "Zoltan Boros",
@@ -87,12 +87,13 @@ pub(in crate::card::sets) static ETHEREAL_FORAGER: CardRecord = CardRecord::new(
     "Ethereal Forager",
     "97543d69-547e-41f8-9a4f-908e5eb0ee4a",
     "Nicholas Gregory",
-CardRules::new_creature(mana_cost!("{4}{U}{U}"), &["Elemental", "Whale"], 3, 3)
-        .with_abilities(&[
+    CardRules::new_creature(mana_cost!("{4}{U}{U}"), &["Elemental", "Whale"], 3, 3).with_abilities(
+        &[
             abilities::delve(),
             abilities::flying(),
             AbilityDef::triggered(
-                "Whenever this creature attacks, you may return an instant or sorcery card exiled with it to its owner's hand.",
+                "Whenever this creature attacks, you may return an instant \
+                 or sorcery card exiled with it to its owner's hand.",
                 TriggerEventDef::attacks(ObjectPredicateDef::Source),
                 EffectDef::May {
                     player: EffectRecipientDef::Controller,
@@ -112,20 +113,19 @@ CardRules::new_creature(mana_cost!("{4}{U}{U}"), &["Elemental", "Whale"], 3, 3)
                         maximum: 1,
                         visibility: ChoiceVisibilityDef::Public,
                         then: &EffectDef::move_to_zone(
-                            EffectRecipientDef::object(ObjectRefDef::Binding(
-                                ParentBinding,
-                            )),
+                            EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
                             ZoneKind::Hand,
                             ZonePlacement::Top,
                         ),
                     }),
                 },
             ),
-        ]),
+        ],
+    ),
 );
 
 // C20 35 — Fierce Guardianship
-pub(in crate::card::sets) static FIERCE_GUARDIANSHIP_35: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static FIERCE_GUARDIANSHIP: CardRecord = CardRecord::new(
     "Fierce Guardianship",
     "4c5ffa83-c88d-4f5d-851e-a642b229d596",
     "Randy Vargas",
@@ -165,7 +165,7 @@ pub(in crate::card::sets) static FIERCE_GUARDIANSHIP_35: CardRecord = CardRecord
 );
 
 // C20 42 — Deadly Rollick
-pub(in crate::card::sets) static DEADLY_ROLLICK_42: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static DEADLY_ROLLICK: CardRecord = CardRecord::new(
     "Deadly Rollick",
     "c61fa2c0-63c0-4dc2-9f17-5a00530e3348",
     "Izzy",
@@ -204,7 +204,7 @@ pub(in crate::card::sets) static DEADLY_ROLLICK_42: CardRecord = CardRecord::new
 );
 
 // C20 50 — Deflecting Swat
-pub(in crate::card::sets) static DEFLECTING_SWAT_50: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static DEFLECTING_SWAT: CardRecord = CardRecord::new(
     "Deflecting Swat",
     "84f035e1-6c89-457b-b05f-85680a50ed91",
     "Izzy",
@@ -254,8 +254,9 @@ pub(in crate::card::sets) static DEFLECTING_SWAT_50: CardRecord = CardRecord::ne
 );
 
 // C20 66 — Slippery Bogbonder
-// Audit: unsupported — Needs a kind-agnostic counter move from an arbitrary number of controlled creatures onto one target creature.
-pub(in crate::card::sets) static SLIPPERY_BOGBONDER_66: CardRecord = CardRecord::new(
+// Audit: unsupported — Needs a kind-agnostic counter move from an arbitrary number of
+// controlled creatures onto one target creature.
+pub(in crate::card::sets) static SLIPPERY_BOGBONDER: CardRecord = CardRecord::new(
     "Slippery Bogbonder",
     "c2f9c4a7-ea53-4da0-9746-2195579f98f6",
     "Mila Pesic",
@@ -263,7 +264,10 @@ pub(in crate::card::sets) static SLIPPERY_BOGBONDER_66: CardRecord = CardRecord:
 );
 
 // C20 67 — Bonder's Ornament
-// Audit: unsupported — Needs a player set filtered by what its members control. PlayerSetDef offers All, One, Related and LegalTargets, none of which can say "each player who controls a permanent named Bonder's Ornament"; drawing for every player instead would hand cards to opponents who control none.
+// Audit: unsupported — Needs a player set filtered by what its members control. PlayerSetDef
+// offers All, One, Related and LegalTargets, none of which can say "each player who controls a
+// permanent named Bonder's Ornament"; drawing for every player instead would hand cards to
+// opponents who control none.
 pub(in crate::card::sets) static BONDER_S_ORNAMENT: CardRecord = CardRecord::new(
     "Bonder's Ornament",
     "5afe425c-50a7-4d29-ac14-0edb094fc770",
@@ -279,12 +283,12 @@ const MURMURING_MYSTIC_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
-    &FLAWLESS_MANEUVER_26,
+    &FLAWLESS_MANEUVER,
     &ETHEREAL_FORAGER,
-    &FIERCE_GUARDIANSHIP_35,
-    &DEADLY_ROLLICK_42,
-    &DEFLECTING_SWAT_50,
-    &SLIPPERY_BOGBONDER_66,
+    &FIERCE_GUARDIANSHIP,
+    &DEADLY_ROLLICK,
+    &DEFLECTING_SWAT,
+    &SLIPPERY_BOGBONDER,
     &BONDER_S_ORNAMENT,
 ];
 

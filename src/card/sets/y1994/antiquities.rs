@@ -120,28 +120,29 @@ pub(in crate::card::sets) static ARGIVIAN_BLACKSMITH: CardRecord = CardRecord::n
     "Argivian Blacksmith",
     "5f604338-5ee4-4c47-ad5a-5c805c96c8de",
     "Kerstin Kaman",
-CardRules::new_creature(mana_cost!("{1}{W}{W}"), &["Human", "Artificer"], 2, 2)
-        .with_ability(AbilityDef::activated_with_targets(
-        "{T}: Prevent the next 2 damage that would be dealt to target artifact creature this turn.",
-        &[CostDef::TapSource],
-        &[AbilityTargetDef::exactly_one_permanent(
-            ObjectPredicateDef::All(&[
+    CardRules::new_creature(mana_cost!("{1}{W}{W}"), &["Human", "Artificer"], 2, 2).with_ability(
+        AbilityDef::activated_with_targets(
+            "{T}: Prevent the next 2 damage that would be dealt to target artifact creature this turn.",
+            &[CostDef::TapSource],
+            &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
                 ObjectPredicateDef::HasType(CardType::Artifact),
                 ObjectPredicateDef::HasType(CardType::Creature),
-            ]),
-        )],
-        EffectDef::PreventDamage {
-            prevention: DamagePreventionDef::amount(
-                DamageEventMatcherDef::to(EffectRecipientDef::Target(TargetIndex::PRIMARY)),
-                ValueDef::Constant(2),
-            ),
-            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-        },
-    )),
+            ]))],
+            EffectDef::PreventDamage {
+                prevention: DamagePreventionDef::amount(
+                    DamageEventMatcherDef::to(EffectRecipientDef::Target(TargetIndex::PRIMARY)),
+                    ValueDef::Constant(2),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // ATQ 3 — Artifact Ward
-// Audit: unsupported — Needs a targeting restriction keyed to the source's card type for “Enchanted creature can't be the target of abilities from artifact sources”; the artifact-source damage prevention and the artifact-creature blocking restriction both exist.
+// Audit: unsupported — Needs a targeting restriction keyed to the source's card type for
+// “Enchanted creature can't be the target of abilities from artifact sources”; the
+// artifact-source damage prevention and the artifact-creature blocking restriction both exist.
 pub(in crate::card::sets) static ARTIFACT_WARD: CardRecord = CardRecord::new(
     "Artifact Ward",
     "b3a5101a-ec66-4658-950c-9ad49c29b836",
@@ -154,13 +155,12 @@ pub(in crate::card::sets) static CIRCLE_OF_PROTECTION_ARTIFACTS: CardRecord = Ca
     "Circle of Protection: Artifacts",
     "22ebd5a3-fef8-4097-b038-89a6cb38227d",
     "Pete Venters",
-CardRules::new_enchantment(mana_cost!("{1}{W}")).with_ability(
-        abilities::circle_of_protection(
-            "{2}: The next time an artifact source of your choice would deal damage to you this turn, prevent that damage.",
-            &[CostDef::Mana(mana_cost!("{2}"))],
-            ObjectPredicateDef::HasType(CardType::Artifact),
-        ),
-    ),
+    CardRules::new_enchantment(mana_cost!("{1}{W}")).with_ability(abilities::circle_of_protection(
+        "{2}: The next time an artifact source of your choice would \
+         deal damage to you this turn, prevent that damage.",
+        &[CostDef::Mana(mana_cost!("{2}"))],
+        ObjectPredicateDef::HasType(CardType::Artifact),
+    )),
 );
 
 // ATQ 5 — Damping Field
@@ -231,7 +231,9 @@ pub(in crate::card::sets) static REVERSE_POLARITY: CardRecord = CardRecord::new(
 );
 
 // ATQ 8 — Drafna's Restoration
-// Audit: unsupported — Needs ordered-library inspection, selection, and visibility handling for “Put any number of target artifact cards from target player's graveyard on top of their library in any order”.
+// Audit: unsupported — Needs ordered-library inspection, selection, and visibility handling for
+// “Put any number of target artifact cards from target player's graveyard on top of their
+// library in any order”.
 pub(in crate::card::sets) static DRAFNA_S_RESTORATION: CardRecord = CardRecord::new(
     "Drafna's Restoration",
     "4be2aa3b-207b-4d21-abfb-6788520c7676",
@@ -244,11 +246,15 @@ pub(in crate::card::sets) static ENERGY_FLUX: CardRecord = CardRecord::new(
     "Energy Flux",
     "bd1f624b-e8f2-462f-838a-7cb9e8fda988",
     "Kaja Foglio",
-CardRules::new_enchantment(mana_cost!("{2}{U}"))
-    .with_abilities(&[AbilityDef::static_ability(
-        "All artifacts have \"At the beginning of your upkeep, sacrifice this artifact unless you pay {2}.\"",
+    CardRules::new_enchantment(mana_cost!("{2}{U}")).with_abilities(&[AbilityDef::static_ability(
+        "All artifacts have \"At the beginning of your upkeep, \
+         sacrifice this artifact unless you pay {2}.\"",
         EffectDef::StaticApply {
-            recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::HasType(CardType::Artifact), &[ZoneKind::Battlefield], PlayerRelation::Any),
+            recipient: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::HasType(CardType::Artifact),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
+            ),
             effect: AppliedEffectDef::add_ability(&AbilityDef::triggered(
                 "At the beginning of your upkeep, sacrifice this artifact unless you pay {2}.",
                 TriggerEventDef::StepBegins {
@@ -286,7 +292,9 @@ pub(in crate::card::sets) static HURKYLS_RECALL: CardRecord = CardRecord::new(
 );
 
 // ATQ 11 — Power Artifact
-// Audit: unsupported — Needs cost/mana provenance or dynamic payment support for “Enchanted artifact's activated abilities cost {2} less to activate. This effect can't reduce the mana in that cost to less than one mana”.
+// Audit: unsupported — Needs cost/mana provenance or dynamic payment support for “Enchanted
+// artifact's activated abilities cost {2} less to activate. This effect can't reduce the mana
+// in that cost to less than one mana”.
 pub(in crate::card::sets) static POWER_ARTIFACT: CardRecord = CardRecord::new(
     "Power Artifact",
     "e48bc89e-6da5-43da-b4e0-60d5f850199c",
@@ -352,7 +360,8 @@ pub(in crate::card::sets) static TRANSMUTE_ARTIFACT: CardRecord = CardRecord::ne
 );
 
 // ATQ 15 — Artifact Possession
-// Audit: unsupported — Needs a trigger event for a player activating an ability of a named permanent, including inspection of whether {T} is among its costs. The tap half is available.
+// Audit: unsupported — Needs a trigger event for a player activating an ability of a named
+// permanent, including inspection of whether {T} is among its costs. The tap half is available.
 pub(in crate::card::sets) static ARTIFACT_POSSESSION: CardRecord = CardRecord::new(
     "Artifact Possession",
     "587d6ac8-fad8-49e0-862e-636e06628ff9",
@@ -387,7 +396,8 @@ pub(in crate::card::sets) static GATE_TO_PHYREXIA: CardRecord = CardRecord::new(
 );
 
 // ATQ 17 — Haunting Wind
-// Audit: unsupported — Needs artifact tap and non-tap activated-ability events, including inspection of the triggering activation's costs.
+// Audit: unsupported — Needs artifact tap and non-tap activated-ability events, including
+// inspection of the triggering activation's costs.
 pub(in crate::card::sets) static HAUNTING_WIND: CardRecord = CardRecord::new(
     "Haunting Wind",
     "a2f6ef2f-a3a2-4e1f-b7eb-59abc8414114",
@@ -432,7 +442,8 @@ pub(in crate::card::sets) static PHYREXIAN_GREMLINS: CardRecord = CardRecord::ne
 );
 
 // ATQ 19 — Priest of Yawgmoth
-// Audit: unsupported — Needs cost/mana provenance or dynamic payment support for “{T}, Sacrifice an artifact: Add an amount of {B} equal to the sacrificed artifact's mana value”.
+// Audit: unsupported — Needs cost/mana provenance or dynamic payment support for “{T},
+// Sacrifice an artifact: Add an amount of {B} equal to the sacrificed artifact's mana value”.
 pub(in crate::card::sets) static PRIEST_OF_YAWGMOTH: CardRecord = CardRecord::new(
     "Priest of Yawgmoth",
     "c9fd4054-42fc-4f95-a6f7-369a5da43dd5",
@@ -475,7 +486,8 @@ pub(in crate::card::sets) static XENIC_POLTERGEIST: CardRecord = CardRecord::new
 );
 
 // ATQ 21 — Yawgmoth Demon
-// Audit: unsupported — Needs an optional artifact-sacrifice choice whose declined or impossible branch taps the source and deals damage.
+// Audit: unsupported — Needs an optional artifact-sacrifice choice whose declined or impossible
+// branch taps the source and deals damage.
 pub(in crate::card::sets) static YAWGMOTH_DEMON: CardRecord = CardRecord::new(
     "Yawgmoth Demon",
     "04bbd231-0d5f-4cbf-92a7-10d2c5c4b82c",
@@ -539,34 +551,34 @@ pub(in crate::card::sets) static DETONATE: CardRecord = CardRecord::new(
     "Detonate",
     "ffd7eb90-ae95-49df-898a-9510187bce1c",
     "Randy Asplund-Faith",
-CardRules::new_sorcery(mana_cost!("{X}{R}")).with_abilities(&[
-        AbilityDef::spell_with_targets(
-            "Destroy target artifact with mana value X. It can't be regenerated. Detonate deals X damage to that artifact's controller.",
-            // The mana value is read off the spell's own X, so what Detonate can hit
-            // depends on what was paid for it.
-            &[AbilityTargetDef::exactly_one_permanent(
-                ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::HasType(CardType::Artifact),
-                    ObjectPredicateDef::ManaValueEqualTo(ValueDef::ChosenX),
-                ]),
-            )],
-            // The damage reads the controller as the spell resolves, so it still lands
-            // even though the artifact has just been destroyed.
-            EffectDef::Sequence(&[
-                EffectDef::WithRule {
-                    rule: AppliedRuleDef::CannotRegenerate,
-                    effect: &EffectDef::Destroy {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        then: None,
-                    },
-                },
-                EffectDef::damage(
-                    EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
-                    ValueDef::ChosenX,
-                ),
+    CardRules::new_sorcery(mana_cost!("{X}{R}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Destroy target artifact with mana value X. It can't be \
+         regenerated. Detonate deals X damage to that artifact's \
+         controller.",
+        // The mana value is read off the spell's own X, so what Detonate can hit
+        // depends on what was paid for it.
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Artifact),
+                ObjectPredicateDef::ManaValueEqualTo(ValueDef::ChosenX),
             ]),
-        ),
-    ]),
+        )],
+        // The damage reads the controller as the spell resolves, so it still lands
+        // even though the artifact has just been destroyed.
+        EffectDef::Sequence(&[
+            EffectDef::WithRule {
+                rule: AppliedRuleDef::CannotRegenerate,
+                effect: &EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    then: None,
+                },
+            },
+            EffectDef::damage(
+                EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
+                ValueDef::ChosenX,
+            ),
+        ]),
+    )]),
 );
 
 // ATQ 25 — Dwarven Weaponsmith
@@ -599,7 +611,10 @@ pub(in crate::card::sets) static DWARVEN_WEAPONSMITH: CardRecord = CardRecord::n
 );
 
 // ATQ 26 — Goblin Artisans
-// Audit: unsupported — Needs a deterministic recorded coin-flip choice and both result branches for “{T}: Flip a coin. If you win the flip, draw a card. If you lose the flip, counter target artifact spell you control that isn't the target of an ability from another creature named Goblin…”.
+// Audit: unsupported — Needs a deterministic recorded coin-flip choice and both result branches
+// for “{T}: Flip a coin. If you win the flip, draw a card. If you lose the flip, counter target
+// artifact spell you control that isn't the target of an ability from another creature named
+// Goblin…”.
 pub(in crate::card::sets) static GOBLIN_ARTISANS: CardRecord = CardRecord::new(
     "Goblin Artisans",
     "6669d96e-9a7b-4427-a477-f4e76831f593",
@@ -730,27 +745,26 @@ pub(in crate::card::sets) static CRUMBLE: CardRecord = CardRecord::new(
     "Crumble",
     "d2101f86-8d3c-4ba8-ac42-bd3df0644280",
     "Jesper Myrfors",
-CardRules::new_instant(mana_cost!("{G}")).with_abilities(&[
-        AbilityDef::spell_with_targets(
-            "Destroy target artifact. It can't be regenerated. That artifact's controller gains life equal to its mana value.",
-            &[AbilityTargetDef::exactly_one_permanent(
-                ObjectPredicateDef::HasType(CardType::Artifact),
-            )],
-            EffectDef::Sequence(&[
-                EffectDef::WithRule {
-                    rule: AppliedRuleDef::CannotRegenerate,
-                    effect: &EffectDef::Destroy {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        then: None,
-                    },
+    CardRules::new_instant(mana_cost!("{G}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Destroy target artifact. It can't be regenerated. That \
+         artifact's controller gains life equal to its mana value.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Artifact),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::WithRule {
+                rule: AppliedRuleDef::CannotRegenerate,
+                effect: &EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    then: None,
                 },
-                EffectDef::GainLife {
-                    recipient: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
-                    amount: ValueDef::TargetManaValue(TargetIndex::PRIMARY),
-                },
-            ]),
-        ),
-    ]),
+            },
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
+                amount: ValueDef::TargetManaValue(TargetIndex::PRIMARY),
+            },
+        ]),
+    )]),
 );
 
 // ATQ 33 — Gaea's Avenger
@@ -787,7 +801,8 @@ pub(in crate::card::sets) static GAEAS_AVENGER: CardRecord = CardRecord::new(
 );
 
 // ATQ 34 — Powerleech
-// Audit: unsupported — Needs opponent-artifact tap and non-tap activated-ability events, including inspection of activation costs.
+// Audit: unsupported — Needs opponent-artifact tap and non-tap activated-ability events,
+// including inspection of activation costs.
 pub(in crate::card::sets) static POWERLEECH: CardRecord = CardRecord::new(
     "Powerleech",
     "ae1d7b09-3a1f-410f-b330-04ae768b0455",
@@ -796,7 +811,8 @@ pub(in crate::card::sets) static POWERLEECH: CardRecord = CardRecord::new(
 );
 
 // ATQ 35 — Titania's Song
-// Audit: unsupported — Needs static animation of every noncreature artifact with dynamic mana-value power/toughness and ability removal.
+// Audit: unsupported — Needs static animation of every noncreature artifact with dynamic
+// mana-value power/toughness and ability removal.
 pub(in crate::card::sets) static TITANIA_S_SONG: CardRecord = CardRecord::new(
     "Titania's Song",
     "583a53af-2e2a-4f3f-8eab-bd874c6ed80a",
@@ -875,7 +891,8 @@ pub(in crate::card::sets) static ARMAGEDDON_CLOCK: CardRecord = CardRecord::new(
 );
 
 // ATQ 38 — Ashnod's Altar
-// Audit: unsupported — Needs mana-ability activation to select and sacrifice a different creature; the mana runtime can currently sacrifice only the source.
+// Audit: unsupported — Needs mana-ability activation to select and sacrifice a different
+// creature; the mana runtime can currently sacrifice only the source.
 pub(in crate::card::sets) static ASHNOD_S_ALTAR: CardRecord = CardRecord::new(
     "Ashnod's Altar",
     "cdcccb0f-ce96-453b-9e82-41d87f52e58b",
@@ -978,7 +995,8 @@ pub(in crate::card::sets) static BATTERING_RAM: CardRecord = CardRecord::new(
 );
 
 // ATQ 42 — Bronze Tablet
-// Audit: unsupported — Needs permanent card-ownership changes plus the opponent's life-payment choice after the linked cards are exiled.
+// Audit: unsupported — Needs permanent card-ownership changes plus the opponent's life-payment
+// choice after the linked cards are exiled.
 pub(in crate::card::sets) static BRONZE_TABLET: CardRecord = CardRecord::new(
     "Bronze Tablet",
     "6fb10552-dd47-4f8a-ac7c-8c2b61e56736",
@@ -1027,7 +1045,10 @@ pub(in crate::card::sets) static CLAY_STATUE: CardRecord = CardRecord::new(
 );
 
 // ATQ 45 — Clockwork Avian
-// Audit: unsupported — Needs card-specific counter state and counter-consuming effects for “{X}, {T}: Put up to X +1/+0 counters on this creature. This ability can't cause the total number of +1/+0 counters on this creature to be greater than four. Activate only during your upkeep”.
+// Audit: unsupported — Needs card-specific counter state and counter-consuming effects for
+// “{X}, {T}: Put up to X +1/+0 counters on this creature. This ability can't cause the total
+// number of +1/+0 counters on this creature to be greater than four. Activate only during your
+// upkeep”.
 pub(in crate::card::sets) static CLOCKWORK_AVIAN: CardRecord = CardRecord::new(
     "Clockwork Avian",
     "1dea8c2f-4aea-478d-aee7-cba1f74edd6c",
@@ -1086,7 +1107,8 @@ pub(in crate::card::sets) static CORAL_HELM: CardRecord = CardRecord::new(
 );
 
 // ATQ 48 — Cursed Rack
-// Audit: unsupported — Needs a hidden-zone decision and continuation for “The chosen player's maximum hand size is four”.
+// Audit: unsupported — Needs a hidden-zone decision and continuation for “The chosen player's
+// maximum hand size is four”.
 pub(in crate::card::sets) static CURSED_RACK: CardRecord = CardRecord::new(
     "Cursed Rack",
     "720d871d-1e7b-482e-bd1e-8ec79519fb86",
@@ -1147,12 +1169,11 @@ pub(in crate::card::sets) static GOLGOTHIAN_SYLEX: CardRecord = CardRecord::new(
     "Golgothian Sylex",
     "856be1dd-a20b-49c2-be9d-7db76c7efd8b",
     "Kerstin Kaman",
-CardRules::new_artifact(mana_cost!("{4}")).with_abilities(&[AbilityDef::activated(
-        "{1}, {T}: Each nontoken permanent with a name originally printed in the Antiquities expansion is sacrificed by its controller.",
-        &[
-            CostDef::Mana(mana_cost!("{1}")),
-            CostDef::TapSource,
-        ],
+    CardRules::new_artifact(mana_cost!("{4}")).with_abilities(&[AbilityDef::activated(
+        "{1}, {T}: Each nontoken permanent with a name originally \
+         printed in the Antiquities expansion is sacrificed by its \
+         controller.",
+        &[CostDef::Mana(mana_cost!("{1}")), CostDef::TapSource],
         EffectDef::sacrifice(EffectRecipientDef::matching_objects(
             ObjectPredicateDef::All(&[
                 ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
@@ -1192,22 +1213,21 @@ pub(in crate::card::sets) static IVORY_TOWER: CardRecord = CardRecord::new(
     "Ivory Tower",
     "a5f23039-45ca-4c15-af50-bfd40ea26453",
     "Margaret Organ-Kean",
-CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
-        AbilityDef::triggered(
-            "At the beginning of your upkeep, you gain X life, where X is the number of cards in your hand minus 4.",
-            TriggerEventDef::StepBegins {
-                step: TurnStepDef::Upkeep,
+    CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[AbilityDef::triggered(
+        "At the beginning of your upkeep, you gain X life, where X \
+         is the number of cards in your hand minus 4.",
+        TriggerEventDef::StepBegins {
+            step: TurnStepDef::Upkeep,
+            player: PlayerRelation::You,
+        },
+        EffectDef::GainLife {
+            recipient: EffectRecipientDef::Controller,
+            amount: ValueDef::CardsInHandAbove {
                 player: PlayerRelation::You,
+                threshold: 4,
             },
-            EffectDef::GainLife {
-                recipient: EffectRecipientDef::Controller,
-                amount: ValueDef::CardsInHandAbove {
-                    player: PlayerRelation::You,
-                    threshold: 4,
-                },
-            },
-        ),
-    ]),
+        },
+    )]),
 );
 
 // ATQ 54 — Jalum Tome
@@ -1366,7 +1386,9 @@ pub(in crate::card::sets) static ORNITHOPTER: CardRecord = CardRecord::new(
 );
 
 // ATQ 61 — Primal Clay
-// Audit: unsupported — Needs a characteristic-layer effect or dynamic value for “As this creature enters, it becomes your choice of a 3/3 artifact creature, a 2/2 artifact creature with flying, or a 1/6 Wall artifact creature with defender in addition to its other types”.
+// Audit: unsupported — Needs a characteristic-layer effect or dynamic value for “As this
+// creature enters, it becomes your choice of a 3/3 artifact creature, a 2/2 artifact creature
+// with flying, or a 1/6 Wall artifact creature with defender in addition to its other types”.
 pub(in crate::card::sets) static PRIMAL_CLAY: CardRecord = CardRecord::new(
     "Primal Clay",
     "ab9d0e3f-cf7c-41f8-bcd7-bb08ea8cc2f8",
@@ -1411,7 +1433,8 @@ pub(in crate::card::sets) static RAKALITE: CardRecord = CardRecord::new(
 );
 
 // ATQ 63 — Rocket Launcher
-// Audit: unsupported — Needs continuous-control activation timing and a delayed self-destruction trigger created by activation.
+// Audit: unsupported — Needs continuous-control activation timing and a delayed
+// self-destruction trigger created by activation.
 pub(in crate::card::sets) static ROCKET_LAUNCHER: CardRecord = CardRecord::new(
     "Rocket Launcher",
     "d5bb2093-78a8-4a6c-abe7-9a5afc181ec5",
@@ -1420,7 +1443,8 @@ pub(in crate::card::sets) static ROCKET_LAUNCHER: CardRecord = CardRecord::new(
 );
 
 // ATQ 64 — Shapeshifter
-// Audit: unsupported — Needs a characteristic-layer effect or dynamic value for “Shapeshifter's power is equal to the last chosen number and its toughness is equal to 7 minus that number”.
+// Audit: unsupported — Needs a characteristic-layer effect or dynamic value for “Shapeshifter's
+// power is equal to the last chosen number and its toughness is equal to 7 minus that number”.
 pub(in crate::card::sets) static SHAPESHIFTER: CardRecord = CardRecord::new(
     "Shapeshifter",
     "cc278af4-b60d-41b7-b9d7-36c8aefca1a7",
@@ -1470,12 +1494,18 @@ pub(in crate::card::sets) static TABLET_OF_EPITYR: CardRecord = CardRecord::new(
     "Tablet of Epityr",
     "6d7a2718-301f-4191-b348-0c44c7c07d43",
     "Christopher Rush",
-CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[AbilityDef::triggered(
-        "Whenever an artifact you control is put into a graveyard from the battlefield, you may pay {1}. If you do, you gain 1 life.",
-        TriggerEventDef::zone_changed(ObjectPredicateDef::All(&[
+    CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[AbilityDef::triggered(
+        "Whenever an artifact you control is put into a graveyard \
+         from the battlefield, you may pay {1}. If you do, you gain \
+         1 life.",
+        TriggerEventDef::zone_changed(
+            ObjectPredicateDef::All(&[
                 ObjectPredicateDef::HasType(CardType::Artifact),
                 ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-            ]), Some(ZoneKind::Battlefield), Some(ZoneKind::Graveyard)),
+            ]),
+            Some(ZoneKind::Battlefield),
+            Some(ZoneKind::Graveyard),
+        ),
         EffectDef::PayOr(PayOrDef::optional(
             &[CostDef::Mana(mana_cost!("{1}"))],
             &EffectDef::GainLife {
@@ -1487,7 +1517,9 @@ CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[AbilityDef::triggere
 );
 
 // ATQ 68 — Tawnos's Coffin
-// Audit: unsupported — Needs card-specific counter state and counter-consuming effects for “{3}, {T}: Exile target creature and all Auras attached to it. Note the number and kind of counters that were on that creature. When this artifact leaves the battlefield or becomes…”.
+// Audit: unsupported — Needs card-specific counter state and counter-consuming effects for
+// “{3}, {T}: Exile target creature and all Auras attached to it. Note the number and kind of
+// counters that were on that creature. When this artifact leaves the battlefield or becomes…”.
 pub(in crate::card::sets) static TAWNOS_S_COFFIN: CardRecord = CardRecord::new(
     "Tawnos's Coffin",
     "c27bc1de-8246-4dc8-af51-ec21def9e226",
@@ -1585,8 +1617,7 @@ pub(in crate::card::sets) static TETRAVUS: CardRecord = CardRecord::new(
     "Tetravus",
     "23eb19f9-2e8f-4bf0-9bf8-868e6da70e2d",
     "Mark Tedin",
-CardRules::new_artifact_creature(mana_cost!("{6}"), &["Construct"], 1, 1)
-    .with_abilities(&[
+    CardRules::new_artifact_creature(mana_cost!("{6}"), &["Construct"], 1, 1).with_abilities(&[
         abilities::flying(),
         AbilityDef::as_enters(
             "This creature enters with three +1/+1 counters on it.",
@@ -1598,20 +1629,29 @@ CardRules::new_artifact_creature(mana_cost!("{6}"), &["Construct"], 1, 1)
             ),
         ),
         AbilityDef::triggered(
-            "At the beginning of your upkeep, you may remove any number of +1/+1 counters from this creature. If you do, create that many 1/1 colorless Tetravite artifact creature tokens. They each have flying and \"This token can't be enchanted.\"",
+            "At the beginning of your upkeep, you may remove any number \
+             of +1/+1 counters from this creature. If you do, create \
+             that many 1/1 colorless Tetravite artifact creature tokens. \
+             They each have flying and \"This token can't be enchanted.\"",
             UPKEEP,
-            EffectDef::PayOr(PayOrDef::optional(
+            EffectDef::PayOr(
+                PayOrDef::optional(
                     &[CostDef::RemoveAnyNumberOfCounters {
                         object: &EffectRecipientDef::Source,
                         kind: CounterKind::PlusOnePlusOne,
                     }],
                     &EffectDef::CreateToken(
-                        CreateTokenDef::new(TokenDef::Literal(TETRAVITE)).with_count(ValueDef::PaidAmount),
+                        CreateTokenDef::new(TokenDef::Literal(TETRAVITE))
+                            .with_count(ValueDef::PaidAmount),
                     ),
-                ).with_visibility(ChoiceVisibilityDef::Public)),
+                )
+                .with_visibility(ChoiceVisibilityDef::Public),
+            ),
         ),
         AbilityDef::triggered(
-            "At the beginning of your upkeep, you may exile any number of tokens created with this creature. If you do, put that many +1/+1 counters on this creature.",
+            "At the beginning of your upkeep, you may exile any number \
+             of tokens created with this creature. If you do, put that \
+             many +1/+1 counters on this creature.",
             UPKEEP,
             EffectDef::Choose(crate::card::ChooseDef {
                 binding: ObjectChoiceBindingDef::Objects(ParentBinding),
@@ -1624,9 +1664,7 @@ CardRules::new_artifact_creature(mana_cost!("{6}"), &["Construct"], 1, 1)
                 visibility: ChoiceVisibilityDef::Public,
                 then: &EffectDef::Sequence(&[
                     EffectDef::move_to_zone(
-                        EffectRecipientDef::objects(ObjectSetDef::Binding(
-                            ParentBinding,
-                        )),
+                        EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
                         ZoneKind::Exile,
                         ZonePlacement::Top,
                     ),
@@ -1642,7 +1680,8 @@ CardRules::new_artifact_creature(mana_cost!("{6}"), &["Construct"], 1, 1)
 );
 
 // ATQ 72 — The Rack
-// Audit: unsupported — Needs an enter-time player choice stored on the permanent and used by its later upkeep trigger.
+// Audit: unsupported — Needs an enter-time player choice stored on the permanent and used by
+// its later upkeep trigger.
 pub(in crate::card::sets) static THE_RACK: CardRecord = CardRecord::new(
     "The Rack",
     "ec0686ba-1277-4412-a397-7a6227808311",
@@ -1683,7 +1722,9 @@ pub(in crate::card::sets) static TRISKELION: CardRecord = CardRecord::new(
 );
 
 // ATQ 74 — Urza's Avenger
-// Audit: unsupported — Needs a modal activated ability for “gains your choice of banding, flying, first strike, or trample”; modes are currently a spell-only shape. Each of the four grants is implemented on its own.
+// Audit: unsupported — Needs a modal activated ability for “gains your choice of banding,
+// flying, first strike, or trample”; modes are currently a spell-only shape. Each of the four
+// grants is implemented on its own.
 pub(in crate::card::sets) static URZA_S_AVENGER: CardRecord = CardRecord::new(
     "Urza's Avenger",
     "448e1811-fb16-4390-ac22-b7066a4a019c",
@@ -1710,7 +1751,9 @@ pub(in crate::card::sets) static URZAS_CHALICE: CardRecord = CardRecord::new(
 );
 
 // ATQ 76 — Urza's Miter
-// Audit: unsupported — Needs a zone-object query and identity-preserving continuation for “Whenever an artifact you control is put into a graveyard from the battlefield, if it wasn't sacrificed, you may pay {3}. If you do, draw a card”.
+// Audit: unsupported — Needs a zone-object query and identity-preserving continuation for
+// “Whenever an artifact you control is put into a graveyard from the battlefield, if it wasn't
+// sacrificed, you may pay {3}. If you do, draw a card”.
 pub(in crate::card::sets) static URZA_S_MITER: CardRecord = CardRecord::new(
     "Urza's Miter",
     "438f0c61-a61d-4a9e-b21f-4e86420c7913",
@@ -1765,10 +1808,11 @@ pub(in crate::card::sets) static MISHRA_S_FACTORY: CardRecord = CardRecord::new(
     "Mishra's Factory",
     "a696c5b6-f216-454d-8029-74e84bbd1428",
     "Kaja Foglio & Phil Foglio",
-CardRules::new_land(&[]).with_abilities(&[
+    CardRules::new_land(&[]).with_abilities(&[
         abilities::tap_for(ManaColor::Colorless),
         AbilityDef::activated(
-            "{1}: This land becomes a 2/2 Assembly-Worker artifact creature until end of turn. It's still a land.",
+            "{1}: This land becomes a 2/2 Assembly-Worker artifact \
+             creature until end of turn. It's still a land.",
             &[CostDef::Mana(mana_cost!("{1}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
@@ -1778,8 +1822,13 @@ CardRules::new_land(&[]).with_abilities(&[
                     AppliedEffectDef::add_card_types(
                         CardTypeSet::single(CardType::Creature).with(CardType::Artifact),
                     ),
-                    AppliedEffectDef::add_creature_types(CreatureTypeSetDef::named(&["Assembly-Worker"])),
-                    AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(2), ValueDef::Constant(2)),
+                    AppliedEffectDef::add_creature_types(CreatureTypeSetDef::named(&[
+                        "Assembly-Worker",
+                    ])),
+                    AppliedEffectDef::set_base_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(2),
+                    ),
                 ]),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
@@ -1802,7 +1851,10 @@ CardRules::new_land(&[]).with_abilities(&[
             )],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(1)),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(1),
+                ),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
@@ -2155,7 +2207,8 @@ mod tests {
         assert_eq!(clauses.len(), 1);
         assert_eq!(
             clauses[0].text,
-            "All artifacts have \"At the beginning of your upkeep, sacrifice this artifact unless you pay {2}.\""
+            "All artifacts have \"At the beginning of your upkeep, \
+             sacrifice this artifact unless you pay {2}.\""
         );
         assert!(matches!(
             clauses[0].definition,

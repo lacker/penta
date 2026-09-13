@@ -82,7 +82,7 @@ pub(in crate::card::sets) static HELIOD_S_PILGRIM: CardRecord = CardRecord::new(
 );
 
 // M15 15 — Hushwing Gryff
-pub(in crate::card::sets) static HUSHWING_GRYFF_15: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static HUSHWING_GRYFF: CardRecord = CardRecord::new(
     "Hushwing Gryff",
     "7b44eb0d-5a3a-4624-aee4-11d6978fb4b0",
     "John Severin Brassell",
@@ -132,7 +132,7 @@ pub(in crate::card::sets) static TRIPLICATE_SPIRITS: CardRecord = CardRecord::ne
 );
 
 // M15 119 — Ulcerate
-pub(in crate::card::sets) static ULCERATE_119: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static ULCERATE: CardRecord = CardRecord::new(
     "Ulcerate",
     "2e06e6c8-05c0-4d87-9961-605b888bc794",
     "Johann Bodin",
@@ -159,8 +159,10 @@ pub(in crate::card::sets) static ULCERATE_119: CardRecord = CardRecord::new(
 );
 
 // M15 122 — Waste Not
-// Audit: unsupported — Discarded has no card predicate. Object-set conditions inspect a live zone object rather than the discarded card snapshot, so they cannot classify discard-cost events whose hand object was replaced or already moved.
-pub(in crate::card::sets) static WASTE_NOT_122: CardRecord = CardRecord::new(
+// Audit: unsupported — Discarded has no card predicate. Object-set conditions inspect a live
+// zone object rather than the discarded card snapshot, so they cannot classify discard-cost
+// events whose hand object was replaced or already moved.
+pub(in crate::card::sets) static WASTE_NOT: CardRecord = CardRecord::new(
     "Waste Not",
     "241d8f7d-3981-47c1-b7b8-748277fa452f",
     "Matt Stewart",
@@ -168,14 +170,32 @@ pub(in crate::card::sets) static WASTE_NOT_122: CardRecord = CardRecord::new(
 );
 
 // M15 138 — Crowd's Favor
-pub(in crate::card::sets) static CROWD_S_FAVOR_138: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static CROWD_S_FAVOR: CardRecord = CardRecord::new(
     "Crowd's Favor",
     "536b8104-9d8d-444b-8535-62bcbe279de2",
     "Slawomir Maniak",
     CardRules::new_instant(mana_cost!("{R}")).with_abilities(&[
-abilities::convoke(),
-AbilityDef::spell_with_targets("Target creature gets +1/+0 and gains first strike until end of turn. (It deals combat damage before creatures without first strike.)", &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Creature))], EffectDef::Apply { recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY), effect: AppliedEffectDef::Composite(&[AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(0)), AppliedEffectDef::add_ability(&abilities::first_strike())]), duration: ResolvedEffectDurationDef::UntilEndOfTurn })
-]),
+        abilities::convoke(),
+        AbilityDef::spell_with_targets(
+            "Target creature gets +1/+0 and gains first strike until end \
+             of turn. (It deals combat damage before creatures without \
+             first strike.)",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(0),
+                    ),
+                    AppliedEffectDef::add_ability(&abilities::first_strike()),
+                ]),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // M15 142 — Frenzied Goblin (reprint)
@@ -186,8 +206,9 @@ const FRENZIED_GOBLIN_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // M15 143 — Generator Servant
-// Audit: unsupported — Mana-spend grants have no duration field; they can grant haste to a paid creature spell, but cannot expire that grant at end of turn.
-pub(in crate::card::sets) static GENERATOR_SERVANT_143: CardRecord = CardRecord::new(
+// Audit: unsupported — Mana-spend grants have no duration field; they can grant haste to a paid
+// creature spell, but cannot expire that grant at end of turn.
+pub(in crate::card::sets) static GENERATOR_SERVANT: CardRecord = CardRecord::new(
     "Generator Servant",
     "74d0c422-4201-4d6f-9df7-659e8b78b541",
     "Mathias Kollros",
@@ -199,16 +220,16 @@ pub(in crate::card::sets) static GOBLIN_RABBLEMASTER: CardRecord = CardRecord::n
     "Goblin Rabblemaster",
     "ee9c697e-d2c0-413b-9142-ecf5d7cf5322",
     "Svetlin Velinov",
-// Three mana that makes a Goblin every turn and then sends the whole
+    // Three mana that makes a Goblin every turn and then sends the whole
     // pile in whether or not that was the plan.
-    CardRules::new_creature(mana_cost!("{2}{R}"), &["Goblin", "Warrior"], 2, 2)
-        .with_abilities(&[
-            AbilityDef::static_ability(
-                "Other Goblin creatures you control attack each combat if able.",
-                EffectDef::StaticApply {
-                    // "Other Goblin creatures you control": the Rabblemaster is a Goblin too
-                    // and is not made to attack by its own clause.
-                    recipient: EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::matching(
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Goblin", "Warrior"], 2, 2).with_abilities(&[
+        AbilityDef::static_ability(
+            "Other Goblin creatures you control attack each combat if able.",
+            EffectDef::StaticApply {
+                // "Other Goblin creatures you control": the Rabblemaster is a Goblin too
+                // and is not made to attack by its own clause.
+                recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                    ObjectQueryDef::matching(
                         ObjectPredicateDef::All(&[
                             ObjectPredicateDef::HasType(CardType::Creature),
                             ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
@@ -216,54 +237,55 @@ pub(in crate::card::sets) static GOBLIN_RABBLEMASTER: CardRecord = CardRecord::n
                         ]),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::You,
-                    ))),
-                    effect: AppliedEffectDef::add_ability(&abilities::attacks_each_combat_if_able()),
-                },
-            ),
-            AbilityDef::triggered(
-                "At the beginning of combat on your turn, create a 1/1 red Goblin creature token with \
-                 haste.",
-                TriggerEventDef::StepBegins {
-                    step: TurnStepDef::BeginningOfCombat,
-                    player: PlayerRelation::You,
-                },
-                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
-                    TokenCharacteristics::creature(&["Goblin"], &[ManaColor::Red], 1, 1)
-                        .with_abilities(&[abilities::haste()])
-                        .with_art(CardArt::new(
-                            "98993a45-4aff-4f9b-a030-7d72fbb4ec6c",
-                            "Karl Kopinski",
-                        )),
-                ))),
-            ),
-            AbilityDef::triggered(
-                "Whenever this creature attacks, it gets +1/+0 until end of turn for each other attacking \
-                 Goblin.",
-                TriggerEventDef::attacks(ObjectPredicateDef::Source),
-                EffectDef::Apply {
-                    recipient: EffectRecipientDef::Source,
-                    effect: AppliedEffectDef::modify_power_toughness(
-                        // Every other Goblin in the attack, whoever controls it. The count is read
-                        // as the trigger resolves, so a Goblin that was removed in response is not
-                        // among them.
-                        ValueDef::CountMatchingObjects(&ObjectQueryDef::new(
-                            ObjectPredicateDef::All(&[
-                                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
-                                ObjectPredicateDef::Attacking,
-                                ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-                            ]),
-                            &[ZoneKind::Battlefield],
-                        )),
-                        ValueDef::Constant(0),
                     ),
-                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                },
-            ),
-        ]),
+                )),
+                effect: AppliedEffectDef::add_ability(&abilities::attacks_each_combat_if_able()),
+            },
+        ),
+        AbilityDef::triggered(
+            "At the beginning of combat on your turn, create a 1/1 red \
+             Goblin creature token with haste.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::BeginningOfCombat,
+                player: PlayerRelation::You,
+            },
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                TokenCharacteristics::creature(&["Goblin"], &[ManaColor::Red], 1, 1)
+                    .with_abilities(&[abilities::haste()])
+                    .with_art(CardArt::new(
+                        "98993a45-4aff-4f9b-a030-7d72fbb4ec6c",
+                        "Karl Kopinski",
+                    )),
+            ))),
+        ),
+        AbilityDef::triggered(
+            "Whenever this creature attacks, it gets +1/+0 until end of \
+             turn for each other attacking Goblin.",
+            TriggerEventDef::attacks(ObjectPredicateDef::Source),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    // Every other Goblin in the attack, whoever controls it. The count is read
+                    // as the trigger resolves, so a Goblin that was removed in response is not
+                    // among them.
+                    ValueDef::CountMatchingObjects(&ObjectQueryDef::new(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
+                            ObjectPredicateDef::Attacking,
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                    )),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // M15 164 — Stoke the Flames
-pub(in crate::card::sets) static STOKE_THE_FLAMES_164: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static STOKE_THE_FLAMES: CardRecord = CardRecord::new(
     "Stoke the Flames",
     "1d94c000-52e0-4215-83af-6351dc43e636",
     "Ryan Barger",
@@ -309,8 +331,10 @@ pub(in crate::card::sets) static RECLAMATION_SAGE: CardRecord = CardRecord::new(
 );
 
 // M15 209 — Yisan, the Wanderer Bard
-// Audit: unsupported — PutCountersOnSource is supported in resolving payments but not activation-cost enumeration or payment; the counter must be paid before this ability goes on the stack.
-pub(in crate::card::sets) static YISAN_THE_WANDERER_BARD_209: CardRecord = CardRecord::new(
+// Audit: unsupported — PutCountersOnSource is supported in resolving payments but not
+// activation-cost enumeration or payment; the counter must be paid before this ability goes on
+// the stack.
+pub(in crate::card::sets) static YISAN_THE_WANDERER_BARD: CardRecord = CardRecord::new(
     "Yisan, the Wanderer Bard",
     "65cd97cd-6d6e-4512-a050-6851b7527567",
     "Chase Stone",
@@ -318,8 +342,10 @@ pub(in crate::card::sets) static YISAN_THE_WANDERER_BARD_209: CardRecord = CardR
 );
 
 // M15 215 — The Chain Veil
-// Audit: unsupported — MayActivateLoyaltyAnyTime changes timing only; the engine has no additional loyalty activation allowance that composes with prior activations and repeated resolutions.
-pub(in crate::card::sets) static THE_CHAIN_VEIL_215: CardRecord = CardRecord::new(
+// Audit: unsupported — MayActivateLoyaltyAnyTime changes timing only; the engine has no
+// additional loyalty activation allowance that composes with prior activations and repeated
+// resolutions.
+pub(in crate::card::sets) static THE_CHAIN_VEIL: CardRecord = CardRecord::new(
     "The Chain Veil",
     "0415cc0e-979e-42cc-a56d-88d13153a7de",
     "Volkan Baǵa",
@@ -367,17 +393,17 @@ pub(in crate::card::sets) static SLIVER_HIVE: CardRecord = CardRecord::new(
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &HELIOD_S_PILGRIM,
-    &HUSHWING_GRYFF_15,
+    &HUSHWING_GRYFF,
     &TRIPLICATE_SPIRITS,
-    &ULCERATE_119,
-    &WASTE_NOT_122,
-    &CROWD_S_FAVOR_138,
-    &GENERATOR_SERVANT_143,
+    &ULCERATE,
+    &WASTE_NOT,
+    &CROWD_S_FAVOR,
+    &GENERATOR_SERVANT,
     &GOBLIN_RABBLEMASTER,
-    &STOKE_THE_FLAMES_164,
+    &STOKE_THE_FLAMES,
     &RECLAMATION_SAGE,
-    &YISAN_THE_WANDERER_BARD_209,
-    &THE_CHAIN_VEIL_215,
+    &YISAN_THE_WANDERER_BARD,
+    &THE_CHAIN_VEIL,
     &SLIVER_HIVE,
 ];
 

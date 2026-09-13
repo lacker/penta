@@ -44,6 +44,7 @@ use crate::card::InstalledTriggerDef;
 use crate::card::KeywordAbility;
 use crate::card::ManaColor;
 use crate::card::ManaTypeSetDef;
+use crate::card::MoveObjectsDef;
 use crate::card::ObjectChoiceBindingDef;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
@@ -2539,12 +2540,40 @@ pub(in crate::card::sets) static LEECHING_LICID: CardRecord = CardRecord::new(
 );
 
 // TMP 142 — Living Death
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LIVING_DEATH: CardRecord = CardRecord::new(
     "Living Death",
     "6c820476-fbda-4073-baf6-51e71f45ed58",
     "Charles Gillespie",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{3}{B}{B}")).with_abilities(&[AbilityDef::spell(
+        "Each player exiles all creature cards from their graveyard, then sacrifices \
+         all creatures they control, then puts all cards they exiled this way onto \
+         the battlefield.",
+        EffectDef::MoveObjects(MoveObjectsDef {
+            input: ObjectSetDef::Query(ObjectQueryDef::matching(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                &[ZoneKind::Graveyard],
+                PlayerRelation::Any,
+            )),
+            from: Some(ZoneKind::Graveyard),
+            zone: ZoneKind::Exile,
+            placement: ZonePlacement::Top,
+            moved: Some(Binding!("living_death_exiled")),
+            then: &EffectDef::Sequence(&[
+                EffectDef::sacrifice(EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                )),
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!(
+                        "living_death_exiled"
+                    ))),
+                    ZoneKind::Battlefield,
+                    ZonePlacement::Top,
+                ),
+            ]),
+        }),
+    )]),
 );
 
 // TMP 143 — Maddening Imp
@@ -5404,12 +5433,13 @@ pub(in crate::card::sets) static FOOL_S_TOME: CardRecord = CardRecord::new(
 );
 
 // TMP 290 — Grindstone
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The repeating mill primitive operates one card at a time and cannot test
+// shared color across the pair of cards actually milled before deciding whether to repeat.
 pub(in crate::card::sets) static GRINDSTONE: CardRecord = CardRecord::new(
     "Grindstone",
     "f4459187-de64-456f-bb66-56dea40d5c3e",
     "Greg Simanson",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // TMP 291 — Helm of Possession

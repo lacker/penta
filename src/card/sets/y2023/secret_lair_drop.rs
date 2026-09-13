@@ -76,6 +76,18 @@ AbilityDef::triggered_if("Treasure Hunter — At the beginning of your upkeep, i
 ]),
 );
 
+// SLD 2197 — Ellie, Brick Master
+// Audit: unsupported — Partner—Survivors requires a pairing permission restricted to commanders
+// with that same ability. The construction vocabulary has ordinary Partner and named Partner-
+// with, but no shared Survivors pairing group; implementing only the attack trigger would omit a
+// printed ability.
+pub(in crate::card::sets) static ELLIE_BRICK_MASTER_2197: CardRecord = CardRecord::new(
+    "Ellie, Brick Master",
+    "e973462f-589d-4c53-81d7-075ec1d5a9b4",
+    "Irvin Rodriguez",
+    CardRules::unsupported(),
+);
+
 // SLD 2226 — Jin Sakai, Ghost of Tsushima
 // Audit: unsupported — The attack matcher's declaration count includes all attackers, including those attacking planeswalkers. It cannot test that exactly one creature attacks the particular defending player while permitting other creatures to attack planeswalkers.
 pub(in crate::card::sets) static JIN_SAKAI_GHOST_OF_TSUSHIMA_2226: CardRecord = CardRecord::new(
@@ -90,6 +102,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &IRON_MAN_TITAN_OF_INNOVATION_1731,
     &DEADPOOL_TRADING_CARD_1753,
     &KNUCKLES_THE_ECHIDNA_2082,
+    &ELLIE_BRICK_MASTER_2197,
     &JIN_SAKAI_GHOST_OF_TSUSHIMA_2226,
 ];
 

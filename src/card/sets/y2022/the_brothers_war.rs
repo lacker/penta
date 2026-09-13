@@ -166,6 +166,17 @@ AbilityDef::spell_with_targets("Exile target nonland permanent. For as long as t
 ]),
 );
 
+// BRO 38 — Steel Seraph
+// Audit: unsupported — Prototype needs alternate cost, color, power, and toughness retained as
+// copiable characteristics on the stack and battlefield; ordinary alternative payment does not
+// replace that characteristic set.
+pub(in crate::card::sets) static STEEL_SERAPH_38: CardRecord = CardRecord::new(
+    "Steel Seraph",
+    "1b6ef5f5-4058-4f89-a573-9e2da87a9f2e",
+    "Denys Tsiperko",
+    CardRules::unsupported(),
+);
+
 // BRO 72 — Weakstone's Subjugation
 static AN_ARTIFACT_OR_CREATURE: ObjectPredicateDef = ObjectPredicateDef::AnyOf(&[
     ObjectPredicateDef::HasType(CardType::Artifact),
@@ -287,6 +298,16 @@ pub(in crate::card::sets) static DWARVEN_FORGE_CHANTER_131: CardRecord = CardRec
         abilities::ward(&[CostDef::PayLife(2)], "Ward—Pay 2 life. (Whenever this creature becomes the target of a spell or ability an opponent controls, counter it unless that player pays 2 life.)"),
         abilities::prowess(),
     ]),
+);
+
+// BRO 135 — Feldon, Ronom Excavator
+// Audit: unsupported — Exile-play permission until the end of your next turn currently expires at
+// a later turn boundary; the chosen exiled card needs that exact permission duration.
+pub(in crate::card::sets) static FELDON_RONOM_EXCAVATOR_135: CardRecord = CardRecord::new(
+    "Feldon, Ronom Excavator",
+    "5ca4cb0e-63ad-4275-a27f-da476260b467",
+    "Howard Lyon",
+    CardRules::unsupported(),
 );
 
 // BRO 136 — Giant Cindermaw
@@ -861,11 +882,13 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &RECOMMISSION_22,
     &RECRUITMENT_OFFICER_23,
     &SOUL_PARTITION_26,
+    &STEEL_SERAPH_38,
     &WEAKSTONE_S_SUBJUGATION,
     &COMBAT_COURIER_77,
     &GIXIAN_INFILTRATOR,
     &BITTER_REUNION_127,
     &DWARVEN_FORGE_CHANTER_131,
+    &FELDON_RONOM_EXCAVATOR_135,
     &GIANT_CINDERMAW,
     &OBLITERATING_BOLT,
     &SCRAPWORK_MUTT,

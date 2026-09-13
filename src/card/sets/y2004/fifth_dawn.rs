@@ -53,6 +53,39 @@ AbilityDef::activated_with_targets("{1}{W}: Return target artifact card with man
 ]),
 );
 
+// 5DN 23 — Artificer's Intuition
+pub(in crate::card::sets) static ARTIFICER_S_INTUITION_23: CardRecord = CardRecord::new(
+    "Artificer's Intuition",
+    "abe37c88-afd7-45ac-9f84-f4bd881a1462",
+    "Wayne England",
+    CardRules::new_enchantment(mana_cost!("{1}{U}")).with_abilities(&[AbilityDef::activated(
+        "{U}, Discard an artifact card: Search your library for an artifact card with \
+         mana value 1 or less, reveal it, put it into your hand, then shuffle.",
+        &[
+            CostDef::Mana(mana_cost!("{U}")),
+            CostDef::discard(ObjectPredicateDef::HasType(CardType::Artifact)),
+        ],
+        EffectDef::SearchZone {
+            player: EffectRecipientDef::Controller,
+            source: ZoneKind::Library,
+            object: ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Artifact),
+                ObjectPredicateDef::ManaValueAtMost(1),
+            ]),
+            minimum: 0,
+            maximum: ValueDef::Constant(1),
+            reveal: true,
+            destination: ZoneKind::Hand,
+            placement: ZonePlacement::Top,
+            shuffle: true,
+            enters_tapped: false,
+            attachment: None,
+            binding: None,
+            then: None,
+        },
+    )]),
+);
+
 // 5DN 27 — Condescend
 pub(in crate::card::sets) static CONDESCEND: CardRecord = CardRecord::new(
     "Condescend",
@@ -685,6 +718,7 @@ pub(in crate::card::sets) static STAFF_OF_DOMINATION_156: CardRecord = CardRecor
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &AURIOK_SALVAGERS_4,
+    &ARTIFICER_S_INTUITION_23,
     &CONDESCEND,
     &SERUM_VISIONS,
     &TRINKET_MAGE,

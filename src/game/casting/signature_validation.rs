@@ -157,7 +157,9 @@ impl Game {
                 state
                     .command
                     .iter()
-                    .find(|card| card.id == card_id && self.is_commander(card.id))
+                    .find(|card| {
+                        card.id == card_id && self.can_cast_commander_from_command_zone(card.id)
+                    })
                     .map(|card| (card, CastSourceZone::Command))
             })
             .or_else(|| {

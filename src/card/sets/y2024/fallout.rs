@@ -3,8 +3,13 @@
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::AdditionalCostIndex;
+use crate::ParentBinding;
+use crate::TargetIndex;
 use crate::card::AbilityDef;
+use crate::card::AbilityTargetDef;
+use crate::card::AbilityTargetPredicate;
 use crate::card::AddManaEffectDef;
+use crate::card::AppliedEffectDef;
 use crate::card::CardRules;
 use crate::card::CardType;
 use crate::card::CopyExceptionsDef;
@@ -14,12 +19,15 @@ use crate::card::CreateTokenDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::ManaColor;
+use crate::card::MoveObjectsDef;
 use crate::card::ObjectPredicateDef;
+use crate::card::ObjectSetDef;
 use crate::card::PlayerRelation;
 use crate::card::TokenDef;
 use crate::card::TriggerEventDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
+use crate::card::ZonePlacement;
 use crate::card::abilities;
 use crate::mana_cost;
 
@@ -31,6 +39,61 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
+// PIP 21 — Pre-War Formalwear
+pub(in crate::card::sets) static PRE_WAR_FORMALWEAR_21: CardRecord = CardRecord::new(
+    "Pre-War Formalwear",
+    "19018f23-b63b-45af-8419-8959f41472d4",
+    "Josu Hernaiz",
+    CardRules::new_artifact(mana_cost!("{2}{W}"))
+        .with_subtypes(&["Equipment"])
+        .with_abilities(&[
+            AbilityDef::triggered_with_targets(
+                "When this Equipment enters, return target creature card with mana value 3 or \
+                 less from your graveyard to the battlefield and attach this Equipment to it.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::Source,
+                    None,
+                    Some(ZoneKind::Battlefield),
+                ),
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::ManaValueAtMost(3),
+                        ]),
+                        zones: &[ZoneKind::Graveyard],
+                        controller: None,
+                        owner: Some(PlayerRelation::You),
+                    },
+                )],
+                EffectDef::MoveObjects(MoveObjectsDef {
+                    input: ObjectSetDef::LegalTargets(TargetIndex::PRIMARY),
+                    from: Some(ZoneKind::Graveyard),
+                    zone: ZoneKind::Battlefield,
+                    placement: ZonePlacement::Top,
+                    moved: Some(ParentBinding),
+                    then: &EffectDef::Attach {
+                        object: EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
+                    },
+                }),
+            ),
+            AbilityDef::static_ability(
+                "Equipped creature gets +2/+2 and has vigilance.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(2),
+                            ValueDef::Constant(2),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::vigilance()),
+                    ]),
+                },
+            ),
+            abilities::equip(&[CostDef::Mana(mana_cost!("{3}"))], "Equip {3}"),
+        ]),
+);
 
 // PIP 23 — Securitron Squadron
 pub(in crate::card::sets) static SECURITRON_SQUADRON: CardRecord = CardRecord::new(
@@ -138,6 +201,7 @@ pub(in crate::card::sets) static SUNSCORCHED_DIVIDE_973: CardRecord = CardRecord
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &PRE_WAR_FORMALWEAR_21,
     &SECURITRON_SQUADRON,
     &GRIM_REAPER_S_SPRINT_58,
     &MEGATON_S_FATE_388,

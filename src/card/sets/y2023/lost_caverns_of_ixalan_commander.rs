@@ -51,6 +51,17 @@ pub(in crate::card::sets) static ALTAR_OF_THE_WRETCHED_WRETCHED_BONEMASS_22: Car
         crate::card::CardRules::unsupported(),
     );
 
+// LCC 60 — Dinosaur Egg
+// Audit: unsupported — Discover needs a cast offer bounded by the actual spell mana value, a
+// declined-card hand destination, and random bottoming of the other exiled cards; cascade does
+// not implement those semantics.
+pub(in crate::card::sets) static DINOSAUR_EGG_60: CardRecord = CardRecord::new(
+    "Dinosaur Egg",
+    "debf96ef-1bb3-4a5c-9778-90d20e3ab8b6",
+    "Alessandra Pisano",
+    CardRules::unsupported(),
+);
+
 // LCC 70 — Charismatic Conqueror
 pub(in crate::card::sets) static CHARISMATIC_CONQUEROR_70: CardRecord = CardRecord::new(
     "Charismatic Conqueror",
@@ -134,6 +145,7 @@ pub(in crate::card::sets) static PANTLAZA_SUN_FAVORED_124: CardRecord = CardReco
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ALTAR_OF_THE_WRETCHED_WRETCHED_BONEMASS_22,
+    &DINOSAUR_EGG_60,
     &CHARISMATIC_CONQUEROR_70,
     &BROADSIDE_BOMBARDIERS,
     &WRATHFUL_RAPTORS_88,

@@ -2771,12 +2771,13 @@ pub(in crate::card::sets) static QUIRION_DRUID: CardRecord = CardRecord::new(
 );
 
 // VIS 117 — Quirion Ranger
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Activated-cost enumeration cannot return a chosen Forest to hand as a
+// cost; ReturnToHand currently supports casting costs only.
 pub(in crate::card::sets) static QUIRION_RANGER: CardRecord = CardRecord::new(
     "Quirion Ranger",
     "56efe72c-6d7f-44f6-ac74-01af9305c4b6",
     "Tom Kyffin",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // VIS 118 — River Boa

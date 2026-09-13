@@ -14,6 +14,7 @@ pub fn parse_format_slug(slug: &str) -> Result<Format, String> {
         "vintage-cube" | "vintage_cube" => Ok(Format::VintageCube),
         "pauper-cube" | "pauper_cube" => Ok(Format::PauperCube),
         "cedh" => Ok(Format::Cedh),
+        "duel-commander" => Ok(Format::DuelCommander),
         _ => Err(format!("unknown format: {slug}")),
     }
 }

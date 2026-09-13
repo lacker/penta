@@ -360,6 +360,17 @@ pub(in crate::card::sets) static JASPERA_SENTINEL_178: CardRecord = CardRecord::
     crate::card::CardRules::unsupported(),
 );
 
+// KHM 184 — Masked Vandal
+// Audit: unsupported — The intrinsic all-zone changeling declaration is not applied by the
+// battlefield/copy characteristic walk; implementing only the exile trigger would omit a printed
+// ability.
+pub(in crate::card::sets) static MASKED_VANDAL_184: CardRecord = CardRecord::new(
+    "Masked Vandal",
+    "f0a9c72a-e450-41e3-80e5-06f2f1171245",
+    "Jason A. Engle",
+    CardRules::unsupported(),
+);
+
 // KHM 192 — Sarulf's Packmate
 pub(in crate::card::sets) static SARULF_S_PACKMATE: CardRecord = CardRecord::new(
     "Sarulf's Packmate",
@@ -549,6 +560,32 @@ pub(in crate::card::sets) static BLIGHTSTEP_PATHWAY_SEARSTEP_PATHWAY_252: CardRe
         ],
     );
 
+// KHM 254 — Darkbore Pathway // Slitherbore Pathway
+pub(in crate::card::sets) static DARKBORE_PATHWAY_SLITHERBORE_PATHWAY_254: CardRecord =
+    CardRecord::new_mdfc(
+        "Darkbore Pathway // Slitherbore Pathway",
+        "87a4e5fe-161f-42da-9ca2-67c8e8970e94",
+        "Johannes Voss",
+        &[
+            (
+                "Darkbore Pathway",
+                CardRules::new_land(&[]).with_abilities(&[AbilityDef::activated_mana(
+                    "{T}: Add {B}.",
+                    &[CostDef::TapSource],
+                    EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Black)),
+                )]),
+            ),
+            (
+                "Slitherbore Pathway",
+                CardRules::new_land(&[]).with_abilities(&[AbilityDef::activated_mana(
+                    "{T}: Add {G}.",
+                    &[CostDef::TapSource],
+                    EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Green)),
+                )]),
+            ),
+        ],
+    );
+
 // KHM 290 — Barkchannel Pathway // Tidechannel Pathway
 pub(in crate::card::sets) static BARKCHANNEL_PATHWAY_TIDECHANNEL_PATHWAY_290: CardRecord =
     CardRecord::new_mdfc(
@@ -702,6 +739,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &VAULT_ROBBER_158,
     &FYNN_THE_FANGBEARER,
     &JASPERA_SENTINEL_178,
+    &MASKED_VANDAL_184,
     &SARULF_S_PACKMATE,
     &SNAKESKIN_VEIL,
     &IMMERSTURM_PREDATOR,
@@ -710,6 +748,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &PYRE_OF_HEROES_241,
     &WEATHERED_RUNESTONE_247,
     &BLIGHTSTEP_PATHWAY_SEARSTEP_PATHWAY_252,
+    &DARKBORE_PATHWAY_SLITHERBORE_PATHWAY_254,
     &BARKCHANNEL_PATHWAY_TIDECHANNEL_PATHWAY_290,
     &ESIKA_GOD_OF_THE_TREE_THE_PRISMATIC_BRIDGE_314,
     &ESIKA_S_CHARIOT,

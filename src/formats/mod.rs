@@ -6,6 +6,7 @@ use crate::card::{CardDefinition, CardSet, CardStructure};
 
 mod commander;
 pub mod cubes;
+mod duel_commander;
 mod old_school_9394;
 mod premodern;
 pub mod standards;
@@ -38,6 +39,7 @@ pub enum Format {
     VintageCube,
     PauperCube,
     Cedh,
+    DuelCommander,
 }
 
 /// The family used to group formats in reports and presentation.
@@ -77,7 +79,7 @@ impl FormatCategory {
             Self::Premodern => &[Format::Premodern],
             Self::Standard => &[Format::IsdM14Standard, Format::SomM13Standard],
             Self::Cube => &[Format::VintageCube, Format::PauperCube],
-            Self::Commander => &[Format::Cedh],
+            Self::Commander => &[Format::Cedh, Format::DuelCommander],
         }
     }
 }
@@ -145,6 +147,13 @@ pub struct CommanderFormatDefinition {
     /// Includes the designated commanders: one gives 99 library cards, two give 98.
     pub total_deck_size: usize,
     pub banned_cards: &'static [&'static str],
+    pub commander_only_banned_cards: &'static [&'static str],
+    /// None disables the commander combat-damage loss condition.
+    pub commander_damage_limit: Option<u16>,
+    /// Only the first commander cast from this zone may be cast there this game.
+    pub one_command_zone_commander: bool,
+    pub commander_swapping: bool,
+    pub outside_game_effects: bool,
     pub companion_only_banned_cards: &'static [&'static str],
 }
 
@@ -167,6 +176,7 @@ impl Format {
         Self::VintageCube,
         Self::PauperCube,
         Self::Cedh,
+        Self::DuelCommander,
     ];
 
     #[must_use]
@@ -176,7 +186,7 @@ impl Format {
             Self::Premodern => FormatCategory::Premodern,
             Self::IsdM14Standard | Self::SomM13Standard => FormatCategory::Standard,
             Self::VintageCube | Self::PauperCube => FormatCategory::Cube,
-            Self::Cedh => FormatCategory::Commander,
+            Self::Cedh | Self::DuelCommander => FormatCategory::Commander,
         }
     }
 
@@ -190,6 +200,7 @@ impl Format {
             Self::VintageCube => FormatDefinition::Cube(&cubes::vintage::DEFINITION),
             Self::PauperCube => FormatDefinition::Cube(&cubes::pauper::DEFINITION),
             Self::Cedh => FormatDefinition::Commander(&commander::DEFINITION),
+            Self::DuelCommander => FormatDefinition::Commander(&duel_commander::DEFINITION),
         }
     }
 
@@ -242,6 +253,7 @@ impl Format {
             Self::VintageCube => "vintage-cube",
             Self::PauperCube => "pauper-cube",
             Self::Cedh => "cedh",
+            Self::DuelCommander => "duel-commander",
         }
     }
 
@@ -255,6 +267,7 @@ impl Format {
             Self::VintageCube => "Cube: Vintage",
             Self::PauperCube => "Cube: The Pauper Cube",
             Self::Cedh => "cEDH",
+            Self::DuelCommander => "Duel Commander",
         }
     }
 

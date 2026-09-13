@@ -3,6 +3,7 @@
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::card::AbilityDef;
+use crate::card::AbilityPredicateDef;
 use crate::card::AbilityTargetDef;
 use crate::card::AbilityTargetPredicate;
 use crate::card::AddManaEffectDef;
@@ -29,6 +30,7 @@ use crate::card::CreatureTypeSetDef;
 use crate::card::DrawEventMatcherDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
+use crate::card::KeywordAbility;
 use crate::card::ManaColor;
 use crate::card::MoveObjectsDef;
 use crate::card::ObjectChoiceBindingDef;
@@ -534,6 +536,54 @@ pub(in crate::card::sets) static URO_TITAN_OF_NATURE_S_WRATH: CardRecord = CardR
         ]),
 );
 
+// THB 236 — Shadowspear
+pub(in crate::card::sets) static SHADOWSPEAR_236: CardRecord = CardRecord::new(
+    "Shadowspear",
+    "939c6e19-4b27-4023-bb9c-ae440f91e21c",
+    "Yeong-Hao Han",
+    CardRules::new_artifact(mana_cost!("{1}"))
+        .with_supertype(CardSupertype::Legendary)
+        .with_subtypes(&["Equipment"])
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Equipped creature gets +1/+1 and has trample and lifelink.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(1),
+                            ValueDef::Constant(1),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::trample()),
+                        AppliedEffectDef::add_ability(&abilities::lifelink()),
+                    ]),
+                },
+            ),
+            AbilityDef::activated(
+                "{1}: Permanents your opponents control lose hexproof and indestructible \
+                 until end of turn.",
+                &[CostDef::Mana(mana_cost!("{1}"))],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::Any,
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Opponent,
+                    ),
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::remove_abilities(AbilityPredicateDef::Keyword(
+                            KeywordAbility::Hexproof,
+                        )),
+                        AppliedEffectDef::remove_abilities(AbilityPredicateDef::Keyword(
+                            KeywordAbility::Indestructible,
+                        )),
+                    ]),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+            abilities::equip(&[CostDef::Mana(mana_cost!("{2}"))], "Equip {2}"),
+        ]),
+);
+
 // THB 237 — Soul-Guide Lantern
 pub(in crate::card::sets) static SOUL_GUIDE_LANTERN: CardRecord = CardRecord::new(
     "Soul-Guide Lantern",
@@ -678,6 +728,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &NESSIAN_HORNBEETLE,
     &NYXBLOOM_ANCIENT_190,
     &URO_TITAN_OF_NATURE_S_WRATH,
+    &SHADOWSPEAR_236,
     &SOUL_GUIDE_LANTERN,
     &TERROR_OF_MOUNT_VELUS,
     &ARASTA_OF_THE_ENDLESS_WEB_325,

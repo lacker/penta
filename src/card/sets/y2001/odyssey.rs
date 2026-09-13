@@ -2880,12 +2880,14 @@ pub(in crate::card::sets) static STALKING_BLOODSUCKER: CardRecord = CardRecord::
 );
 
 // ODY 164 — Tainted Pact
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a resumable exile loop retaining the names of all previously exiled
+// cards and stopping on the first duplicate or accepted card; the current mill loop cannot retain
+// this history.
 pub(in crate::card::sets) static TAINTED_PACT: CardRecord = CardRecord::new(
     "Tainted Pact",
     "c513f51b-a0db-4c08-8acc-1e91060b93b7",
     "Adam Rex",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // ODY 165 — Tombfire

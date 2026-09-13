@@ -6,18 +6,32 @@ use crate::TargetIndex;
 use crate::card::AbilityDef;
 use crate::card::AbilityTargetDef;
 use crate::card::AbilityTargetPredicate;
+use crate::card::AddManaEffectDef;
+use crate::card::AggregateOperationDef;
+use crate::card::AppliedEffectDef;
 use crate::card::CardRules;
 use crate::card::CardSupertype;
 use crate::card::CardType;
+use crate::card::CardTypeSet;
+use crate::card::ColorSet;
 use crate::card::ComparisonDef;
 use crate::card::CopyStackObjectDef;
 use crate::card::CostDef;
+use crate::card::CreatureTypeSetDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::ExilePlayDurationDef;
+use crate::card::ManaColor;
+use crate::card::ManaTypeSetDef;
 use crate::card::ObjectPredicateDef;
+use crate::card::ObjectQueryDef;
+use crate::card::ObjectSetDef;
+use crate::card::ObjectValueAggregateDef;
+use crate::card::ObjectValueDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
+use crate::card::PlayerSetDef;
+use crate::card::ResolvedEffectDurationDef;
 use crate::card::SpellCastQueryDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
@@ -45,6 +59,83 @@ AbilityDef::activated_with_targets("{T}: Copy target instant or sorcery spell yo
 ]),
 );
 
+// OTC 40 — Cactus Preserve
+pub(in crate::card::sets) static CACTUS_PRESERVE_40: CardRecord = CardRecord::new(
+    "Cactus Preserve",
+    "ad9d426f-5870-42bb-a589-9218f7e35d62",
+    "Jonas De Ro",
+    CardRules::new_land(&[])
+        .with_subtypes(&["Desert"])
+        .with_abilities(&[
+            abilities::enters_tapped(CardType::Land),
+            AbilityDef::activated_mana(
+                "{T}: Add one mana of any type that a land you control could produce.",
+                &[CostDef::TapSource],
+                EffectDef::AddMana(AddManaEffectDef::choice_from(
+                    ManaTypeSetDef::could_be_produced_by(&ObjectSetDef::Query(
+                        ObjectQueryDef::matching(
+                            ObjectPredicateDef::HasType(CardType::Land),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        ),
+                    )),
+                )),
+            ),
+            AbilityDef::activated(
+                "{3}: Until end of turn, this land becomes an X/X green Plant creature with \
+                 reach, where X is the greatest mana value among your commanders. It's still \
+                 a land.",
+                &[CostDef::Mana(mana_cost!("{3}"))],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)),
+                        AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&["Plant"])),
+                        AppliedEffectDef::set_colors(ColorSet::from_colors(&[ManaColor::Green])),
+                        AppliedEffectDef::set_base_power_toughness(
+                            ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
+                                objects: ObjectSetDef::Query(ObjectQueryDef::owned_by(
+                                    ObjectPredicateDef::Commander,
+                                    &[
+                                        ZoneKind::Battlefield,
+                                        ZoneKind::Stack,
+                                        ZoneKind::Hand,
+                                        ZoneKind::Library,
+                                        ZoneKind::Graveyard,
+                                        ZoneKind::Exile,
+                                        ZoneKind::Command,
+                                    ],
+                                    PlayerSetDef::One(PlayerRefDef::EffectController),
+                                )),
+                                select: ObjectValueDef::ManaValue,
+                                operation: AggregateOperationDef::Maximum,
+                            }),
+                            ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
+                                objects: ObjectSetDef::Query(ObjectQueryDef::owned_by(
+                                    ObjectPredicateDef::Commander,
+                                    &[
+                                        ZoneKind::Battlefield,
+                                        ZoneKind::Stack,
+                                        ZoneKind::Hand,
+                                        ZoneKind::Library,
+                                        ZoneKind::Graveyard,
+                                        ZoneKind::Exile,
+                                        ZoneKind::Command,
+                                    ],
+                                    PlayerSetDef::One(PlayerRefDef::EffectController),
+                                )),
+                                select: ObjectValueDef::ManaValue,
+                                operation: AggregateOperationDef::Maximum,
+                            }),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::reach()),
+                    ]),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ]),
+);
+
 // OTC 51 — Lock and Load
 pub(in crate::card::sets) static LOCK_AND_LOAD_51: CardRecord = CardRecord::new(
     "Lock and Load",
@@ -56,7 +147,10 @@ abilities::plot(&[CostDef::Mana(mana_cost!("{3}{U}"))])
 ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[&STELLA_LEE_WILD_CARD_3, &LOCK_AND_LOAD_51];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &STELLA_LEE_WILD_CARD_3,
+    &CACTUS_PRESERVE_40,
+    &LOCK_AND_LOAD_51,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

@@ -91,6 +91,28 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
+// AER 39 — Metallic Rebuke
+pub(in crate::card::sets) static METALLIC_REBUKE_39: CardRecord = CardRecord::new(
+    "Metallic Rebuke",
+    "f712ac26-dca4-459b-84c1-010597007f60",
+    "Eric Deschamps",
+    CardRules::new_instant(mana_cost!("{2}{U}")).with_abilities(&[
+        abilities::improvise(),
+        AbilityDef::spell_with_targets(
+            "Counter target spell unless its controller pays {3}.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Spell,
+                    zones: &[ZoneKind::Stack],
+                    controller: None,
+                    owner: None,
+                },
+            )],
+            abilities::counter_target_unless_paid(&[CostDef::Mana(mana_cost!("{3}"))]),
+        ),
+    ]),
+);
+
 // AER 48 — Trophy Mage
 pub(in crate::card::sets) static TROPHY_MAGE_48: CardRecord = CardRecord::new(
     "Trophy Mage",
@@ -344,6 +366,26 @@ AbilityDef::replacement_for("Each other creature you control of the chosen type 
 ]),
 );
 
+// AER 169 — Paradox Engine
+pub(in crate::card::sets) static PARADOX_ENGINE_169: CardRecord = CardRecord::new(
+    "Paradox Engine",
+    "fd8ccd81-9e11-47fa-8e16-064c52c24506",
+    "Christine Choi",
+    CardRules::new_artifact(mana_cost!("{5}"))
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[AbilityDef::triggered(
+            "Whenever you cast a spell, untap all nonland permanents you control.",
+            TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(PlayerRelation::You)),
+            EffectDef::Untap {
+                object: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+            },
+        )]),
+);
+
 // AER 181 — Walking Ballista
 pub(in crate::card::sets) static WALKING_BALLISTA: CardRecord = CardRecord::new(
     "Walking Ballista",
@@ -413,6 +455,7 @@ pub(in crate::card::sets) static SPIRE_OF_INDUSTRY_184: CardRecord = CardRecord:
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &METALLIC_REBUKE_39,
     &TROPHY_MAGE_48,
     &WHIR_OF_INVENTION_49,
     &AETHER_POISONER,
@@ -426,6 +469,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &FOUNDRY_ASSEMBLER,
     &HOPE_OF_GHIRAPUR_154,
     &METALLIC_MIMIC_164,
+    &PARADOX_ENGINE_169,
     &WALKING_BALLISTA,
     &SPIRE_OF_INDUSTRY_184,
 ];

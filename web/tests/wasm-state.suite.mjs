@@ -4,6 +4,22 @@ import test from "node:test";
 import { HostedGame } from "../app/wasm/penta_wasm.js";
 import { initializeWasm, WebGame } from "./wasm-test-support.mjs";
 
+test("Duel Commander starts the imported Bologna lists at twenty life", async () => {
+  await initializeWasm();
+  const deck = "CommandFest Italy 2026 — 1. Filippo Vicino";
+  const game = new WebGame(deck, deck, "Handcrafted", true, 9031, "duel-commander");
+  try {
+    const state = JSON.parse(game.state_json());
+    assert.equal(state.format, "duel-commander");
+    assert.equal(state.human.life, 20);
+    assert.equal(state.opponent.life, 20);
+    assert.equal(state.human.commandZone.length, 2);
+    assert.equal(state.commanders.length, 4);
+  } finally {
+    game.free();
+  }
+});
+
 test("cEDH opening state presents command zones and commander history", async () => {
   await initializeWasm();
   const deck = "Nacional de cEDH 100K @ WolfCon 2026 — 1st place, Gustavo Arrambide";

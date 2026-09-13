@@ -1840,12 +1840,13 @@ pub(in crate::card::sets) static CARRION_BEETLES: CardRecord = CardRecord::new(
 );
 
 // USG 123 — Contamination
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Mana replacement cannot replace both the type and total amount produced by
+// each land mana event with exactly one black mana.
 pub(in crate::card::sets) static CONTAMINATION: CardRecord = CardRecord::new(
     "Contamination",
     "86067dfe-65c3-4c96-bccd-b3915d6663f9",
     "Stephen Daniele",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // USG 124 — Corrupt

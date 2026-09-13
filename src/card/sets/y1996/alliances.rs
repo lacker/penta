@@ -2700,12 +2700,14 @@ pub(in crate::card::sets) static HELM_OF_OBEDIENCE: CardRecord = CardRecord::new
 );
 
 // ALL 122 — Lodestone Bauble
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The up-to-four targets must share one graveyard owner, including a chosen
+// player when zero lands are targeted. Target slots cannot bind this shared player to both target
+// validation and the next-upkeep draw.
 pub(in crate::card::sets) static LODESTONE_BAUBLE: CardRecord = CardRecord::new(
     "Lodestone Bauble",
     "84d88a33-3990-4044-a5fe-4123d5781f18",
     "Douglas Shuler",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // ALL 123 — Mishra's Groundbreaker

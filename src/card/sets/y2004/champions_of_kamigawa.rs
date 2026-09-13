@@ -23,6 +23,8 @@ use crate::card::CopyExceptionsDef;
 use crate::card::CostDef;
 use crate::card::CounterKind;
 use crate::card::CreatedTokensDef;
+use crate::card::DamageEventMatcherDef;
+use crate::card::DamagePreventionDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::InstalledTriggerDef;
@@ -421,6 +423,45 @@ AbilityDef::activated_mana("{T}, Pay 2 life: Add {C}. If that mana is spent on a
 ]),
 );
 
+// CHK 275 — Eiganjo Castle
+pub(in crate::card::sets) static EIGANJO_CASTLE_275: CardRecord = CardRecord::new(
+    "Eiganjo Castle",
+    "219c1d76-40cf-4edf-8145-e6cec8ca39ad",
+    "Wayne England",
+    CardRules::new_land(&[])
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::activated_mana(
+                "{T}: Add {W}.",
+                &[CostDef::TapSource],
+                EffectDef::AddMana(AddManaEffectDef::one(ManaColor::White)),
+            ),
+            AbilityDef::activated_with_targets(
+                "{W}, {T}: Prevent the next 2 damage that would be dealt to target legendary \
+                 creature this turn.",
+                &[CostDef::Mana(mana_cost!("{W}")), CostDef::TapSource],
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Supertype(CardSupertype::Legendary),
+                        ]),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: None,
+                        owner: None,
+                    },
+                )],
+                EffectDef::PreventDamage {
+                    prevention: DamagePreventionDef::amount(
+                        DamageEventMatcherDef::to(EffectRecipientDef::Target(TargetIndex::PRIMARY)),
+                        ValueDef::Constant(2),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ]),
+);
+
 // CHK 276 — Forbidden Orchard
 pub(in crate::card::sets) static FORBIDDEN_ORCHARD_276: CardRecord = CardRecord::new(
     "Forbidden Orchard",
@@ -525,6 +566,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &OROCHI_HATCHERY_266,
     &SENSEIS_DIVINING_TOP,
     &BOSEIJU_WHO_SHELTERS_ALL_273,
+    &EIGANJO_CASTLE_275,
     &FORBIDDEN_ORCHARD_276,
     &HALL_OF_THE_BANDIT_LORD_277,
     &MINAMO_SCHOOL_AT_WATERS_EDGE,

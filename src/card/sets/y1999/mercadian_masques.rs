@@ -24,6 +24,7 @@ use crate::card::CardRules;
 use crate::card::CardSupertype;
 use crate::card::CardType;
 use crate::card::CardTypeSet;
+use crate::card::ColorChoiceOperationDef;
 use crate::card::ComparisonDef;
 use crate::card::CostDef;
 use crate::card::CostQuantityDef;
@@ -865,13 +866,12 @@ pub(in crate::card::sets) static REVERED_ELDER: CardRecord = CardRecord::new(
 );
 
 // MMQ 44 — Reverent Mantra
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static REVERENT_MANTRA: CardRecord = CardRecord::new(
-    "Reverent Mantra",
-    "48364e19-a3ea-4980-925f-7918e57315f1",
-    "Rebecca Guay",
-    crate::card::CardRules::unsupported(),
-);
+"Reverent Mantra",
+"48364e19-a3ea-4980-925f-7918e57315f1",
+"Rebecca Guay",
+CardRules::new_instant(mana_cost!("{3}{W}")).with_abilities(&[AbilityDef::alternative_cast(&[CostDef::exile(ObjectPredicateDef::Color(ManaColor::White), ZoneKind::Hand, CostQuantityDef::Fixed(1))], AlternativeCastKindDef::AlternativeCost, Some("You may exile a white card from your hand rather than pay this spell's mana cost."), EffectDef::None),
+AbilityDef::spell("Choose a color. All creatures gain protection from the chosen color until end of turn.", EffectDef::ChooseColor { object: EffectRecipientDef::matching_objects(ObjectPredicateDef::HasType(CardType::Creature), &[ZoneKind::Battlefield], PlayerRelation::Any), operation: ColorChoiceOperationDef::ProtectionFromChosenColor, duration: ResolvedEffectDurationDef::UntilEndOfTurn })]));
 
 // MMQ 45 — Righteous Aura (reprint)
 const RIGHTEOUS_AURA_REPRINT: PrintingRecord = PrintingRecord::reprint(

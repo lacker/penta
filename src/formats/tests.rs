@@ -260,3 +260,28 @@ fn only_old_school_has_mana_burn_and_restrictions() {
         }
     }
 }
+
+#[test]
+fn duel_commander_has_separate_gameplay_and_ban_policy() {
+    let format = Format::DuelCommander;
+    assert_eq!(format.category(), FormatCategory::Commander);
+    assert_eq!(format.slug(), "duel-commander");
+    assert!(format.defers_deck_legality());
+    let rules = format.commander_definition().unwrap();
+    assert_eq!(rules.rules.starting_life, 20);
+    assert_eq!(rules.commander_damage_limit, None);
+    assert!(rules.one_command_zone_commander && rules.commander_swapping);
+    assert!(!rules.outside_game_effects);
+    assert!(format.is_banned("Sol Ring"));
+    assert!(!Format::Cedh.is_banned("Sol Ring"));
+    assert!(
+        rules
+            .commander_only_banned_cards
+            .contains(&"Derevi, Empyrial Tactician")
+    );
+    assert!(!format.is_banned("Derevi, Empyrial Tactician"));
+    assert_eq!(
+        rules.companion_only_banned_cards,
+        &["Lutri, the Spellchaser"]
+    );
+}

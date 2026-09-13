@@ -111,6 +111,17 @@ AbilityDef::triggered("Whenever another nontoken artifact you control enters, pr
 ]),
 );
 
+// EOC 20 — Eumidian Hatchery
+// Audit: unsupported — The immediate activated-mana path accepts AddMana, not a sequence that
+// also puts a counter on the source. A separate trigger or ordinary activated ability would
+// incorrectly add a response window to its mana production.
+pub(in crate::card::sets) static EUMIDIAN_HATCHERY_20: CardRecord = CardRecord::new(
+    "Eumidian Hatchery",
+    "25b57aaf-04fa-463d-8516-40fccd24d6ed",
+    "Valera Lutfullina",
+    CardRules::unsupported(),
+);
+
 // EOC 23 — Radiant Summit
 pub(in crate::card::sets) static RADIANT_SUMMIT_23: CardRecord = CardRecord::new(
     "Radiant Summit",
@@ -140,7 +151,11 @@ pub(in crate::card::sets) static RADIANT_SUMMIT_23: CardRecord = CardRecord::new
     )]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[&BALOTH_PRIME, &SURGE_CONDUCTOR_19, &RADIANT_SUMMIT_23];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &BALOTH_PRIME,
+    &SURGE_CONDUCTOR_19,
+    &EUMIDIAN_HATCHERY_20,
+    &RADIANT_SUMMIT_23,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

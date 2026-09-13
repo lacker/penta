@@ -37,6 +37,7 @@ fn format_variant(directory: &str) -> Option<&'static str> {
         "vintage_cube" => "VintageCube",
         "pauper_cube" => "PauperCube",
         "cedh" => "Cedh",
+        "duel_commander" => "DuelCommander",
         _ => return None,
     })
 }

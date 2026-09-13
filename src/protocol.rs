@@ -131,6 +131,7 @@ pub const PROTOCOL_CAPABILITIES: &[&str] = &[
     "observation.public-reveals.v1",
     "reconstruction.checkpoint.v17",
     "rules.commander.v1",
+    "rules.duel-commander.v1",
     "rules.restart-game.v1",
 ];
 

@@ -37,6 +37,26 @@ pub(in crate::card::sets) static FIRE_NATION_TURRET_64: CardRecord = CardRecord:
     crate::card::CardRules::unsupported(),
 );
 
+// TLE 76 — The Duke, Rebel Sentry
+// Audit: unsupported — Activated counter-removal costs require a fixed counter kind. Removing
+// exactly one counter of the controller's choice of any kind is not enumerated or payable.
+pub(in crate::card::sets) static THE_DUKE_REBEL_SENTRY_76: CardRecord = CardRecord::new(
+    "The Duke, Rebel Sentry",
+    "cd9d91a8-7315-4355-af99-941f3cf7398c",
+    "Logan Feliciano",
+    CardRules::unsupported(),
+);
+
+// TLE 105 — Fire Nation Occupation
+// Audit: unsupported — Firebending requires attack-generated mana that lasts until end of combat;
+// mana expiry has no end-of-combat duration.
+pub(in crate::card::sets) static FIRE_NATION_OCCUPATION_105: CardRecord = CardRecord::new(
+    "Fire Nation Occupation",
+    "3455d55e-aef5-4eb1-bcd9-1ff9d1ab3698",
+    "Arthur Yuan",
+    CardRules::unsupported(),
+);
+
 // TLE 120 — Longshot, Rebel Bowman
 pub(in crate::card::sets) static LONGSHOT_REBEL_BOWMAN_120: CardRecord = CardRecord::new(
     "Longshot, Rebel Bowman",
@@ -109,6 +129,8 @@ pub(in crate::card::sets) static WARSHIP_SCOUT: CardRecord = CardRecord::new(
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &FIRE_NATION_TURRET_64,
+    &THE_DUKE_REBEL_SENTRY_76,
+    &FIRE_NATION_OCCUPATION_105,
     &LONGSHOT_REBEL_BOWMAN_120,
     &THE_CABBAGE_MERCHANT_134,
     &SMELLERBEE_REBEL_FIGHTER_198,

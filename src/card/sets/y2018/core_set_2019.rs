@@ -265,6 +265,41 @@ pub(in crate::card::sets) static MYSTIC_ARCHAEOLOGIST: CardRecord = CardRecord::
     ]),
 );
 
+// M19 69 — Sai, Master Thopterist
+pub(in crate::card::sets) static SAI_MASTER_THOPTERIST_69: CardRecord = CardRecord::new(
+    "Sai, Master Thopterist",
+    "19316cbb-d1af-4ab7-b588-78637503e986",
+    "Adam Paquette",
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Human", "Artificer"], 1, 4)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::triggered(
+                "Whenever you cast an artifact spell, create a 1/1 colorless Thopter artifact \
+                 creature token with flying.",
+                TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ])),
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                    TokenCharacteristics::artifact_creature(&["Thopter"], &[], 1, 1)
+                        .with_abilities(&[abilities::flying()]),
+                ))),
+            ),
+            AbilityDef::activated(
+                "{1}{U}, Sacrifice two artifacts: Draw a card.",
+                &[
+                    CostDef::Mana(mana_cost!("{1}{U}")),
+                    CostDef::sacrifice_permanents(
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        PlayerRelation::You,
+                        2,
+                    ),
+                ],
+                abilities::draw_cards(ValueDef::Constant(1)),
+            ),
+        ]),
+);
+
 // M19 118 — Skeleton Archer
 pub(in crate::card::sets) static SKELETON_ARCHER: CardRecord = CardRecord::new(
     "Skeleton Archer",
@@ -892,6 +927,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &EXCLUSION_MAGE,
     &MIRROR_IMAGE_61,
     &MYSTIC_ARCHAEOLOGIST,
+    &SAI_MASTER_THOPTERIST_69,
     &SKELETON_ARCHER,
     &STITCHER_S_SUPPLIER_121,
     &VAMPIRE_NEONATE,

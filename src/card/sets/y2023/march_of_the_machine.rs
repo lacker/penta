@@ -147,6 +147,17 @@ pub(in crate::card::sets) static ELSPETH_S_SMITE: CardRecord = CardRecord::new(
     )]),
 );
 
+// MOM 22 — Invasion of Gobakhan // Lightshield Array
+// Audit: unsupported — Battle defenders, defense counters, and the defeat-triggered transformed
+// cast are not modeled by the current battlefield and casting rules.
+pub(in crate::card::sets) static INVASION_OF_GOBAKHAN_LIGHTSHIELD_ARRAY_22: CardRecord =
+    CardRecord::new(
+        "Invasion of Gobakhan // Lightshield Array",
+        "11798730-6788-4e0b-a828-b46cab1a4fa7",
+        "Andreas Zafiratos",
+        CardRules::unsupported(),
+    );
+
 // MOM 31 — Phyrexian Censor
 // Audit: unsupported — PlayRestrictionDef::after_spells_cast counts every prior spell, not only prior non-Phyrexian spells; the required filtered cast-history quota is absent.
 pub(in crate::card::sets) static PHYREXIAN_CENSOR_31: CardRecord = CardRecord::new(
@@ -764,6 +775,7 @@ AbilityDef::activated("{10}, {T}, Sacrifice Realmbreaker: Search your library fo
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ALABASTER_HOST_INTERCESSOR,
     &ELSPETH_S_SMITE,
+    &INVASION_OF_GOBAKHAN_LIGHTSHIELD_ARRAY_22,
     &PHYREXIAN_CENSOR_31,
     &SUNFALL,
     &SURGE_OF_SALVATION_41,

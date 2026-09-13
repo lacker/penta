@@ -127,6 +127,17 @@ pub(in crate::card::sets) static PRISMATIC_ENDING: CardRecord = CardRecord::new(
         )),
 );
 
+// MH2 27 — Sanctifier en-Vec
+// Audit: unsupported — The nonbattlefield graveyard-move replacement matcher reads only owner and
+// token status, not color. Its replacement would miss black and red spells and cards moving from
+// hand or library, even if battlefield deaths worked.
+pub(in crate::card::sets) static SANCTIFIER_EN_VEC_27: CardRecord = CardRecord::new(
+    "Sanctifier en-Vec",
+    "f8c3cca4-23c0-4c14-ab56-51ba011f5974",
+    "Michael C. Hayes",
+    CardRules::unsupported(),
+);
+
 // MH2 32 — Solitude
 pub(in crate::card::sets) static SOLITUDE: CardRecord = CardRecord::new(
     "Solitude",
@@ -701,6 +712,17 @@ pub(in crate::card::sets) static PERSIST_96: CardRecord = CardRecord::new(
         },
     )),
 );
+
+// MH2 102 — Tourach, Dread Cantor
+pub(in crate::card::sets) static TOURACH_DREAD_CANTOR_102: CardRecord = CardRecord::new(
+"Tourach, Dread Cantor",
+"f3526751-0101-4d91-a496-c53cd92326e0",
+"Greg Staples",
+CardRules::new_creature(mana_cost!("{1}{B}"), &["Human",
+"Cleric"], 2, 1).with_supertype(CardSupertype::Legendary).with_abilities(&[abilities::kicker(&[CostDef::Mana(mana_cost!("{B}{B}"))]),
+abilities::protection_from_color(ManaColor::White),
+AbilityDef::triggered("Whenever an opponent discards a card, put a +1/+1 counter on Tourach.", TriggerEventDef::Discarded(PlayerRelation::Opponent), EffectDef::AddCounters { object: EffectRecipientDef::Source, kind: CounterKind::PlusOnePlusOne, amount: ValueDef::Constant(1) }),
+AbilityDef::triggered_if_with_targets("When Tourach enters, if it was kicked, target opponent discards two cards at random.", TriggerEventDef::zone_changed(ObjectPredicateDef::Source, None, Some(ZoneKind::Battlefield)), &TriggerConditionDef::SourcePaidAdditionalCost(AdditionalCostIndex::PRIMARY), &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(PlayerRelation::Opponent))], EffectDef::Discard { recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY), amount: ValueDef::Constant(2), selection: DiscardSelectionDef::Random, then: None })]));
 
 // MH2 106 — Unmarked Grave
 pub(in crate::card::sets) static UNMARKED_GRAVE_106: CardRecord = CardRecord::new(
@@ -2023,6 +2045,7 @@ pub(in crate::card::sets) static DIAMOND_LION_470: CardRecord = CardRecord::new(
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &PRISMATIC_ENDING,
+    &SANCTIFIER_EN_VEC_27,
     &SOLITUDE,
     &UNBOUNDED_POTENTIAL,
     &DRESS_DOWN_39,
@@ -2041,6 +2064,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &LOATHSOME_CURATOR,
     &NESTED_SHAMBLER,
     &PERSIST_96,
+    &TOURACH_DREAD_CANTOR_102,
     &UNMARKED_GRAVE_106,
     &VERMIN_GORGER,
     &VILE_ENTOMBER,

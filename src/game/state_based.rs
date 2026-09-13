@@ -216,9 +216,14 @@ impl Game {
             self.players[1].counters.count(CounterKind::Poison) >= LETHAL_POISON,
         ];
         let commander_damage = [PlayerId::One, PlayerId::Two].map(|player| {
-            self.commanders
-                .iter()
-                .any(|commander| commander.damage[player.index()] >= 21)
+            self.format
+                .commander_definition()
+                .and_then(|rules| rules.commander_damage_limit)
+                .is_some_and(|limit| {
+                    self.commanders
+                        .iter()
+                        .any(|commander| commander.damage[player.index()] >= limit)
+                })
         });
         let lost = [
             self.players[0].life <= 0

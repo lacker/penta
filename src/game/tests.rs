@@ -973,3 +973,5 @@ mod teenage_mutant_ninja_turtles;
 mod the_hobbit;
 
 mod cedh_card_audit;
+
+mod duel_cards;

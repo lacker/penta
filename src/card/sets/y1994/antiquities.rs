@@ -341,12 +341,14 @@ pub(in crate::card::sets) static SAGE_OF_LAT_NAM: CardRecord = CardRecord::new(
 );
 
 // ATQ 14 — Transmute Artifact
-// Audit: unsupported — Needs the complete qualified library-search and post-search continuation for “Sacrifice an artifact. If you do, search your library for an artifact card. If that card's mana value is less than or equal to the sacrificed artifact's mana value, put it onto the…”.
+// Audit: unsupported — Needs a library-search continuation that keeps the chosen card in the
+// library while its mana-value difference is paid, then chooses battlefield or graveyard before
+// shuffling. SearchZone commits one declared destination before running its continuation.
 pub(in crate::card::sets) static TRANSMUTE_ARTIFACT: CardRecord = CardRecord::new(
     "Transmute Artifact",
     "6eab6765-eba3-4844-81ca-ae37a6e903df",
     "Anson Maddocks",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // ATQ 15 — Artifact Possession

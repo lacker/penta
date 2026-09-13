@@ -126,7 +126,7 @@ fn cedh_seed_decks_keep_commanders_separate() {
         .iter()
         .filter(|source| source.format == Some(Format::Cedh))
         .collect::<Vec<_>>();
-    assert!(!decks.is_empty(), "cEDH has seed decklists");
+    assert_eq!(decks.len(), 16, "cEDH keeps the top 16 seed lists");
 
     for source in decks {
         assert!(
@@ -152,5 +152,28 @@ fn cedh_seed_decks_keep_commanders_separate() {
         );
         deck.validate_for_format(&catalog, Format::Cedh)
             .unwrap_or_else(|error| panic!("{}: {error}", source.source));
+    }
+}
+
+#[test]
+fn duel_commander_seed_decks_resolve_the_published_top_eight() {
+    let catalog = card::catalog().unwrap();
+    let decks = BUILTIN_DECKS
+        .iter()
+        .filter(|source| source.format == Some(Format::DuelCommander))
+        .collect::<Vec<_>>();
+    assert_eq!(decks.len(), 8);
+    for source in decks {
+        let deck = source.resolve(&catalog);
+        assert!((1..=2).contains(&deck.commanders.len()), "{}", source.name);
+        assert_eq!(
+            deck.commanders.len() + deck.main.len(),
+            100,
+            "{}",
+            source.name
+        );
+        assert!(deck.sideboard.is_empty());
+        deck.validate_for_format(&catalog, Format::DuelCommander)
+            .unwrap();
     }
 }

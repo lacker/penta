@@ -2,6 +2,7 @@
 
 use super::CardRecord;
 use super::PrintingRecord;
+use crate::ParentBinding;
 use crate::TargetIndex;
 use crate::card::AbilityDef;
 use crate::card::AbilityTargetDef;
@@ -11,9 +12,12 @@ use crate::card::AddManaEffectDef;
 use crate::card::AppliedEffectDef;
 use crate::card::AppliedRuleDef;
 use crate::card::BasicLandType;
+use crate::card::BindObjectsDef;
 use crate::card::BlockRestrictionDef;
 use crate::card::BlockRestrictionMatchDef;
 use crate::card::BlockRestrictionSubjectDef;
+use crate::card::CardNameDef;
+use crate::card::CardNameSetDef;
 use crate::card::CardRules;
 use crate::card::CardSupertype;
 use crate::card::CardType;
@@ -33,6 +37,7 @@ use crate::card::InstalledTriggerDef;
 use crate::card::KeywordAbility;
 use crate::card::ManaColor;
 use crate::card::ManaRestrictionDef;
+use crate::card::ObjectCollectionSourceDef;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
 use crate::card::ObjectRefDef;
@@ -43,6 +48,7 @@ use crate::card::PayOrDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
 use crate::card::ResolvedEffectDurationDef;
+use crate::card::RevealAndClassifyCardsDef;
 use crate::card::ScaledValueDef;
 use crate::card::StaticApplyDef;
 use crate::card::SubtypeDef;
@@ -52,6 +58,7 @@ use crate::card::TriggerEventDef;
 use crate::card::TurnStepDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
+use crate::card::ZonePlacement;
 use crate::card::abilities;
 use crate::card::actions;
 use crate::card::sets::y1993::alpha as catalog_lea;
@@ -1631,12 +1638,64 @@ const DARK_RITUAL_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // ICE 121 — Demonic Consultation
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DEMONIC_CONSULTATION: CardRecord = CardRecord::new(
     "Demonic Consultation",
     "8d727b9b-6114-414d-9172-16b6e1db41cc",
     "Rob Alexander",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{B}")).with_abilities(&[AbilityDef::spell(
+        "Choose a card name. Exile the top six cards of your library, then reveal \
+         cards from the top of your library until you reveal a card with the chosen \
+         name. Put that card into your hand and exile all other cards revealed this \
+         way.",
+        EffectDef::Sequence(&[
+            EffectDef::BindOutput {
+                binding: Binding!("consultation_name"),
+                effect: &EffectDef::ChooseCardName {
+                    chooser: PlayerRefDef::EffectController,
+                    names: CardNameSetDef::AllCardNames,
+                },
+            },
+            EffectDef::BindObjects(BindObjectsDef {
+                source: ObjectCollectionSourceDef::TopCards {
+                    player: PlayerRefDef::EffectController,
+                    count: ValueDef::Constant(6),
+                },
+                binding: ParentBinding,
+                then: &EffectDef::move_to_zone(
+                    EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
+                    ZoneKind::Exile,
+                    ZonePlacement::Top,
+                ),
+            }),
+            EffectDef::RevealAndClassifyCards(RevealAndClassifyCardsDef {
+                source: ObjectCollectionSourceDef::TopCardsThroughFirstMatching {
+                    player: PlayerRefDef::EffectController,
+                    object: ObjectPredicateDef::NameEquals(CardNameDef::Binding(Binding!(
+                        "consultation_name"
+                    ))),
+                },
+                object: ObjectPredicateDef::NameEquals(CardNameDef::Binding(Binding!(
+                    "consultation_name"
+                ))),
+                matching: Binding!("consultation_found"),
+                remainder: ParentBinding,
+                then: &EffectDef::Sequence(&[
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!(
+                            "consultation_found"
+                        ))),
+                        ZoneKind::Hand,
+                        ZonePlacement::Top,
+                    ),
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
+                        ZoneKind::Exile,
+                        ZonePlacement::Top,
+                    ),
+                ]),
+            }),
+        ]),
+    )]),
 );
 
 // ICE 122 — Dread Wight

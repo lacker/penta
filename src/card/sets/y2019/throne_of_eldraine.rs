@@ -2,6 +2,7 @@
 
 use super::CardRecord;
 use super::PrintingRecord;
+use crate::AdditionalCostObjectIndex;
 use crate::CardPartId;
 use crate::PlayOptionId;
 use crate::TargetIndex;
@@ -11,6 +12,7 @@ use crate::card::AbilityTargetDef;
 use crate::card::AbilityTargetPredicate;
 use crate::card::ActivationTimingDef;
 use crate::card::AddManaEffectDef;
+use crate::card::AggregateOperationDef;
 use crate::card::AlternateSpellKind;
 use crate::card::AlternativeCastKindDef;
 use crate::card::AppliedEffectDef;
@@ -35,6 +37,7 @@ use crate::card::CardTypeSet;
 use crate::card::ColorSet;
 use crate::card::ComparisonDef;
 use crate::card::ConditionDef;
+use crate::card::ConditionValueDef;
 use crate::card::ControlDurationDef;
 use crate::card::CostDef;
 use crate::card::CounterKind;
@@ -51,7 +54,10 @@ use crate::card::ManaTypeDef;
 use crate::card::ObjectCountConditionDef;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
+use crate::card::ObjectRefDef;
 use crate::card::ObjectSetDef;
+use crate::card::ObjectValueAggregateDef;
+use crate::card::ObjectValueDef;
 use crate::card::PlayOptionDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
@@ -838,6 +844,66 @@ pub(in crate::card::sets) static CLAIM_THE_FIRSTBORN_118: CardRecord = CardRecor
     )),
 );
 
+// ELD 120 — Embercleave
+pub(in crate::card::sets) static EMBERCLEAVE_120: CardRecord = CardRecord::new(
+    "Embercleave",
+    "aaae15dd-11b6-4421-99e9-365c7fe4a5d6",
+    "Joe Slucher",
+    CardRules::new_artifact(mana_cost!("{4}{R}{R}"))
+        .with_supertype(CardSupertype::Legendary)
+        .with_subtypes(&["Equipment"])
+        .with_abilities(&[
+            abilities::flash(),
+            abilities::spell_cost_reduction(
+                "This spell costs {1} less to cast for each attacking creature you control.",
+                ObjectPredicateDef::Source,
+                PlayerRelation::You,
+                ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Attacking,
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                )),
+            ),
+            AbilityDef::triggered_with_targets(
+                "When Embercleave enters, attach it to target creature you control.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::Source,
+                    None,
+                    Some(ZoneKind::Battlefield),
+                ),
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::You),
+                        owner: None,
+                    },
+                )],
+                EffectDef::Attach {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                },
+            ),
+            AbilityDef::static_ability(
+                "Equipped creature gets +1/+1 and has double strike and trample.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(1),
+                            ValueDef::Constant(1),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::double_strike()),
+                        AppliedEffectDef::add_ability(&abilities::trample()),
+                    ]),
+                },
+            ),
+            abilities::equip(&[CostDef::Mana(mana_cost!("{3}"))], "Equip {3}"),
+        ]),
+);
+
 // ELD 122 — Embereth Shieldbreaker
 /// The adventure half. Answering an artifact for one red leaves the body
 /// waiting in exile, which is the whole bargain of the mechanic.
@@ -1153,6 +1219,92 @@ pub(in crate::card::sets) static WILDBORN_PRESERVER: CardRecord = CardRecord::ne
     CardRules::unsupported(),
 );
 
+// ELD 188 — Drown in the Loch
+pub(in crate::card::sets) static DROWN_IN_THE_LOCH_188: CardRecord = CardRecord::new(
+    "Drown in the Loch",
+    "8bf5df5b-164d-4ec2-a5e6-bbaea152e271",
+    "John Stanko",
+    CardRules::new_instant(mana_cost!("{U}{B}")).with_abilities(&[AbilityDef::modal_spell(
+        "Choose one —",
+        &[
+            AbilityDef::spell_with_targets(
+                "Counter target spell with mana value less than or equal to the number of \
+                 cards in its controller's graveyard.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::Spell,
+                            ObjectPredicateDef::AnyOf(&[
+                                ObjectPredicateDef::All(&[
+                                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                                    ObjectPredicateDef::ManaValueAtMostValue(
+                                        ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                                            ObjectPredicateDef::Any,
+                                            &[ZoneKind::Graveyard],
+                                            PlayerRelation::You,
+                                        )),
+                                    ),
+                                ]),
+                                ObjectPredicateDef::All(&[
+                                    ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
+                                    ObjectPredicateDef::ManaValueAtMostValue(
+                                        ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                                            ObjectPredicateDef::Any,
+                                            &[ZoneKind::Graveyard],
+                                            PlayerRelation::Opponent,
+                                        )),
+                                    ),
+                                ]),
+                            ]),
+                        ]),
+                        zones: &[ZoneKind::Stack],
+                        controller: None,
+                        owner: None,
+                    },
+                )],
+                EffectDef::counter_target(TargetIndex::PRIMARY),
+            ),
+            AbilityDef::spell_with_targets(
+                "Destroy target creature with mana value less than or equal to the number of \
+                 cards in its controller's graveyard.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::AnyOf(&[
+                                ObjectPredicateDef::All(&[
+                                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                                    ObjectPredicateDef::ManaValueAtMostValue(
+                                        ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                                            ObjectPredicateDef::Any,
+                                            &[ZoneKind::Graveyard],
+                                            PlayerRelation::You,
+                                        )),
+                                    ),
+                                ]),
+                                ObjectPredicateDef::All(&[
+                                    ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
+                                    ObjectPredicateDef::ManaValueAtMostValue(
+                                        ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                                            ObjectPredicateDef::Any,
+                                            &[ZoneKind::Graveyard],
+                                            PlayerRelation::Opponent,
+                                        )),
+                                    ),
+                                ]),
+                            ]),
+                        ]),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: None,
+                        owner: None,
+                    },
+                )],
+                EffectDef::destroy_target(TargetIndex::PRIMARY),
+            ),
+        ],
+    )]),
+);
+
 // ELD 190 — Faeburrow Elder
 // Audit: unsupported — Needs the distinct colors across a set of permanents, both as a power/toughness value and as individual mana outputs. ValueDef has no color-union aggregate.
 pub(in crate::card::sets) static FAEBURROW_ELDER_190: CardRecord = CardRecord::new(
@@ -1381,6 +1533,40 @@ pub(in crate::card::sets) static STONECOIL_SERPENT: CardRecord = CardRecord::new
         abilities::trample(),
         abilities::protection_from_multicolored(),
     ]),
+);
+
+// ELD 237 — Witch's Oven
+pub(in crate::card::sets) static WITCH_S_OVEN_237: CardRecord = CardRecord::new(
+    "Witch's Oven",
+    "04ef8493-d986-45f8-a718-617b028f7ad4",
+    "Alexander Forssberg",
+    CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[AbilityDef::activated(
+        "{T}, Sacrifice a creature: Create a Food token. If the sacrificed creature's \
+         toughness was 4 or greater, create two Food tokens instead.",
+        &[
+            CostDef::TapSource,
+            CostDef::sacrifice_permanent(ObjectPredicateDef::HasType(CardType::Creature)),
+        ],
+        EffectDef::CreateToken(
+            CreateTokenDef::new(TokenDef::Literal(tokens::food())).with_count(
+                ValueDef::IfCondition(&ConditionValueDef {
+                    condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                        left: ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
+                            objects: ObjectSetDef::One(ObjectRefDef::AdditionalCostObject(
+                                AdditionalCostObjectIndex::PRIMARY,
+                            )),
+                            select: ObjectValueDef::Toughness,
+                            operation: AggregateOperationDef::Sum,
+                        }),
+                        comparison: ComparisonDef::GreaterOrEqual,
+                        right: ValueDef::Constant(4),
+                    }),
+                    then: ValueDef::Constant(2),
+                    otherwise: ValueDef::Constant(1),
+                }),
+            ),
+        ),
+    )]),
 );
 
 // ELD 239 — Castle Embereth
@@ -1806,6 +1992,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &WISHCLAW_TALISMAN,
     &BONECRUSHER_GIANT,
     &CLAIM_THE_FIRSTBORN_118,
+    &EMBERCLEAVE_120,
     &EMBERETH_SHIELDBREAKER,
     &RAGING_REDCAP,
     &RIMROCK_KNIGHT,
@@ -1815,12 +2002,14 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &THE_GREAT_HENGE_161,
     &ONCE_UPON_A_TIME,
     &WILDBORN_PRESERVER,
+    &DROWN_IN_THE_LOCH_188,
     &FAEBURROW_ELDER_190,
     &OKO_THIEF_OF_CROWNS,
     &CRASHING_DRAWBRIDGE_217,
     &GINGERBRUTE,
     &HERALDIC_BANNER,
     &STONECOIL_SERPENT,
+    &WITCH_S_OVEN_237,
     &CASTLE_EMBERETH_239,
     &MYSTIC_SANCTUARY,
     &WITCH_S_COTTAGE,

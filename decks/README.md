@@ -62,11 +62,9 @@ a missing definition. This check is independent of `validate_for_format`, which
 checks construction and legality. A legal deck can still contain unsupported
 cards, and an inventory can be checked before its format profile exists.
 
-`cedh` is a two-player Commander gameplay baseline, not a claim of complete
-Commander deck validation. Its list files preserve designated commanders and
-the engine checks that every listed identity exists in the catalog; colour
-identity, singleton/count rules, and the Commander ban policy remain deferred
-until the shared Commander validator covers them. See Wizards of the Coast's
-[Commander format page](https://magic.wizards.com/en/formats/commander) for the
-current format description. The ban-list metadata follows
-Wizards of the Coast's [Banned and Restricted List](https://magic.wizards.com/en/banned-restricted-list), retrieved 2026-09-11. In that source, Lutri, the Spellchaser is banned only as a companion, not as a card in a Commander deck.
+`cedh` and `duel-commander` use separate Commander gameplay profiles. Their
+list files preserve designated commanders, and setup checks that every listed
+identity exists in the catalog. Color identity, singleton/count rules, pairing
+permissions, and format legality remain deferred. The seed collections contain
+16 cEDH lists and eight Duel Commander lists. See [Commander formats](../docs/commander.md)
+for gameplay, source links, ban metadata, and the limits of deck validation.

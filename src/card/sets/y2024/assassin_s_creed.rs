@@ -48,6 +48,42 @@ pub(in crate::card::sets) static SENU_KEEN_EYED_PROTECTOR_8: CardRecord = CardRe
     crate::card::CardRules::unsupported(),
 );
 
+// ACR 46 — Arbaaz Mir
+pub(in crate::card::sets) static ARBAAZ_MIR_46: CardRecord = CardRecord::new(
+    "Arbaaz Mir",
+    "c7187506-4af3-47e9-bad0-4ce8c78ccc10",
+    "Wangjie Li",
+    CardRules::new_creature(mana_cost!("{R}{W}"), &["Human", "Assassin"], 2, 2)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[AbilityDef::triggered(
+            "Whenever Arbaaz Mir or another nontoken historic permanent you control \
+             enters, Arbaaz Mir deals 1 damage to each opponent and you gain 1 life.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::Source,
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Artifact),
+                            ObjectPredicateDef::Supertype(CardSupertype::Legendary),
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Saga")),
+                        ]),
+                    ]),
+                ]),
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            EffectDef::Sequence(&[
+                EffectDef::damage(EffectRecipientDef::Opponent, ValueDef::Constant(1)),
+                EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+            ]),
+        )]),
+);
+
 // ACR 63 — Shao Jun
 pub(in crate::card::sets) static SHAO_JUN_63: CardRecord = CardRecord::new(
     "Shao Jun",
@@ -153,6 +189,7 @@ AbilityDef::alternative_cast(&[CostDef::Mana(mana_cost!("{3}"))], crate::card::f
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &SENU_KEEN_EYED_PROTECTOR_8,
+    &ARBAAZ_MIR_46,
     &SHAO_JUN_63,
     &APPLE_OF_EDEN_ISU_RELIC_70,
     &EXCALIBUR_SWORD_OF_EDEN_72,

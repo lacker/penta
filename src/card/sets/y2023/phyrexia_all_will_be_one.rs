@@ -66,6 +66,16 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
+// ONE 26 — Ossification
+// Audit: unsupported — Needs exile-until-source-leaves with an immediate return when the duration
+// ends, not a counterable leaves trigger.
+pub(in crate::card::sets) static OSSIFICATION_26: CardRecord = CardRecord::new(
+    "Ossification",
+    "0da03224-c1af-438f-96c2-b0e41e1070b7",
+    "Nino Vecia",
+    CardRules::unsupported(),
+);
+
 // ONE 28 — Planar Disruption
 pub(in crate::card::sets) static PLANAR_DISRUPTION: CardRecord = CardRecord::new(
     "Planar Disruption",
@@ -804,6 +814,7 @@ pub(in crate::card::sets) static MYR_CONVERT_479: CardRecord = CardRecord::new(
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &OSSIFICATION_26,
     &PLANAR_DISRUPTION,
     &ENCROACHING_MYCOSYNTH_47,
     &MINOR_MISSTEP_64,

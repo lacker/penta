@@ -154,6 +154,14 @@ impl Game {
                         DecisionZone::Exile,
                         ZoneKind::Exile,
                     ),
+                    CardChoiceSourceDef::OutsideGame
+                        if self
+                            .format
+                            .commander_definition()
+                            .is_some_and(|rules| !rules.outside_game_effects) =>
+                    {
+                        continue;
+                    }
                     CardChoiceSourceDef::OutsideGame => (
                         &self.players[player.index()].outside_game,
                         DecisionZone::OutsideGame,

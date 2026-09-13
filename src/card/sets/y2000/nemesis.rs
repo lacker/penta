@@ -20,6 +20,7 @@ use crate::card::CardType;
 use crate::card::CardTypeSet;
 use crate::card::ChoiceVisibilityDef;
 use crate::card::ChooseDef;
+use crate::card::ChooseForEachPlayerDef;
 use crate::card::ComparisonDef;
 use crate::card::ControlDurationDef;
 use crate::card::CostDef;
@@ -37,6 +38,7 @@ use crate::card::ObjectQueryDef;
 use crate::card::ObjectRefDef;
 use crate::card::ObjectSetDef;
 use crate::card::PayOrDef;
+use crate::card::PerPlayerSelectionDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
 use crate::card::PlayerSetDef;
@@ -822,12 +824,55 @@ pub(in crate::card::sets) static STRONGHOLD_ZEPPELIN: CardRecord = CardRecord::n
 );
 
 // NEM 48 — Submerge
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SUBMERGE: CardRecord = CardRecord::new(
     "Submerge",
     "d2741fe4-37fe-427f-ae85-5107991d4eee",
     "Mark Romanoski",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{4}{U}")).with_abilities(&[
+        AbilityDef::alternative_cast(
+            &[],
+            AlternativeCastKindDef::AlternativeCost,
+            Some(
+                "If an opponent controls a Forest and you control an Island, you may cast \
+                 this spell without paying its mana cost.",
+            ),
+            EffectDef::None,
+        )
+        .with_alternative_condition(&TriggerConditionDef::All(&[
+            TriggerConditionDef::ObjectCount {
+                query: ObjectQueryDef::controlled_basic_land_type(
+                    PlayerRelation::You,
+                    BasicLandType::Island,
+                ),
+                comparison: ComparisonDef::GreaterOrEqual,
+                amount: 1,
+            },
+            TriggerConditionDef::ObjectCount {
+                query: ObjectQueryDef::controlled_basic_land_type(
+                    PlayerRelation::Opponent,
+                    BasicLandType::Forest,
+                ),
+                comparison: ComparisonDef::GreaterOrEqual,
+                amount: 1,
+            },
+        ])),
+        AbilityDef::spell_with_targets(
+            "Put target creature on top of its owner's library.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+            )],
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Library,
+                ZonePlacement::Top,
+            ),
+        ),
+    ]),
 );
 
 // NEM 49 — Trickster Mage
@@ -2160,12 +2205,74 @@ pub(in crate::card::sets) static RUSTING_GOLEM: CardRecord = CardRecord::new(
 );
 
 // NEM 139 — Tangle Wire
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TANGLE_WIRE: CardRecord = CardRecord::new(
     "Tangle Wire",
     "ad62f313-8a8a-4ffa-ada2-b12b76288729",
     "Glen Angus",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
+        AbilityDef::as_enters(
+            "Fading 4",
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCounters {
+                    kind: CounterKind::named("fade"),
+                    amount: 4,
+                },
+            ),
+        ),
+        AbilityDef::triggered(
+            "At the beginning of your upkeep, remove a fade counter from this artifact. \
+             If you can't, sacrifice it.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
+            },
+            EffectDef::IfElseCondition {
+                condition: &TriggerConditionDef::SourceCounters {
+                    kind: CounterKind::named("fade"),
+                    comparison: ComparisonDef::GreaterOrEqual,
+                    amount: 1,
+                },
+                then: &EffectDef::RemoveCounters {
+                    object: EffectRecipientDef::Source,
+                    kind: CounterKind::named("fade"),
+                    amount: ValueDef::Constant(1),
+                },
+                otherwise: &EffectDef::sacrifice(EffectRecipientDef::Source),
+            },
+        ),
+        AbilityDef::triggered(
+            "At the beginning of each player's upkeep, that player taps an untapped \
+             artifact, creature, or land they control for each fade counter on this \
+             artifact.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::Any,
+            },
+            EffectDef::ChooseForEachPlayer(ChooseForEachPlayerDef {
+                player: EffectRecipientDef::players(PlayerSetDef::Related(
+                    PlayerRelation::ActivePlayer,
+                )),
+                candidates: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::HasType(CardType::Land),
+                    ]),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Tapped),
+                ]),
+                zone: ZoneKind::Battlefield,
+                selection: PerPlayerSelectionDef::Count(ValueDef::CountersOnSource(
+                    CounterKind::named("fade"),
+                )),
+                visibility: ChoiceVisibilityDef::Public,
+                chosen: ParentBinding,
+                unchosen: Binding!("wire_untapped"),
+                then: &EffectDef::Tap {
+                    object: EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
+                },
+            }),
+        ),
+    ]),
 );
 
 // NEM 140 — Viseling

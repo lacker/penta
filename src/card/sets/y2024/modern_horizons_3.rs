@@ -33,6 +33,7 @@ use crate::card::ChooseForEachPlayerDef;
 use crate::card::ClassifyObjectsDef;
 use crate::card::ColorSet;
 use crate::card::ComparisonDef;
+use crate::card::ConditionDef;
 use crate::card::ControlDurationDef;
 use crate::card::CopyExceptionsDef;
 use crate::card::CopyStackObjectDef;
@@ -42,6 +43,8 @@ use crate::card::CountConditionDef;
 use crate::card::CounterKind;
 use crate::card::CreateTokenDef;
 use crate::card::CreatureTypeSetDef;
+use crate::card::DiscardFollowUpDef;
+use crate::card::DiscardSelectionDef;
 use crate::card::DrawEventMatcherDef;
 use crate::card::EffectChoiceDef;
 use crate::card::EffectDef;
@@ -58,6 +61,7 @@ use crate::card::ManaSpendEffectDef;
 use crate::card::MoveObjectsDef;
 use crate::card::ObjectChoiceBindingDef;
 use crate::card::ObjectCollectionSourceDef;
+use crate::card::ObjectCountConditionDef;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
 use crate::card::ObjectRefDef;
@@ -639,6 +643,43 @@ pub(in crate::card::sets) static THRABEN_CHARM: CardRecord = CardRecord::new(
     )),
 );
 
+// MH3 49 — Wrath of the Skies
+pub(in crate::card::sets) static WRATH_OF_THE_SKIES_49: CardRecord = CardRecord::new(
+    "Wrath of the Skies",
+    "4ef1882e-b422-4f30-8a6c-bd71c2601660",
+    "Franz Vohwinkel",
+    CardRules::new_sorcery(mana_cost!("{X}{W}{W}")).with_abilities(&[AbilityDef::spell(
+        "You get X {E}, then you may pay any amount of {E}. Destroy each artifact, \
+         creature, and enchantment with mana value less than or equal to the amount \
+         of {E} paid this way.",
+        EffectDef::Sequence(&[
+            EffectDef::AddPlayerCounters {
+                recipient: EffectRecipientDef::Controller,
+                kind: CounterKind::named("energy"),
+                amount: ValueDef::ChosenX,
+            },
+            EffectDef::PayOr(PayOrDef::optional(
+                &[CostDef::ChosenEnergy],
+                &EffectDef::Destroy {
+                    object: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::AnyOf(&[
+                                ObjectPredicateDef::HasType(CardType::Artifact),
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                ObjectPredicateDef::HasType(CardType::Enchantment),
+                            ]),
+                            ObjectPredicateDef::ManaValueAtMostValue(ValueDef::PaidAmount),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    ),
+                    then: None,
+                },
+            )),
+        ]),
+    )]),
+);
+
 // MH3 51 — Amphibian Downpour
 pub(in crate::card::sets) static AMPHIBIAN_DOWNPOUR_51: CardRecord = CardRecord::new(
     "Amphibian Downpour",
@@ -809,6 +850,16 @@ pub(in crate::card::sets) static ACCURSED_MARAUDER: CardRecord = CardRecord::new
             },
         ),
     ),
+);
+
+// MH3 83 — Chthonian Nightmare
+// Audit: unsupported — Activation planning cannot bind a chosen variable energy payment to target
+// mana value while atomically sacrificing a creature and returning the source as costs.
+pub(in crate::card::sets) static CHTHONIAN_NIGHTMARE_83: CardRecord = CardRecord::new(
+    "Chthonian Nightmare",
+    "ce5dd2c1-b6e0-4914-b5c9-7dd451c29e22",
+    "Josu Solano",
+    CardRules::unsupported(),
 );
 
 // MH3 90 — Emperor of Bones
@@ -2543,6 +2594,73 @@ pub(in crate::card::sets) static SHIFTING_WOODLAND: CardRecord = CardRecord::new
     ]),
 );
 
+// MH3 230 — Spymaster's Vault
+pub(in crate::card::sets) static SPYMASTER_S_VAULT_230: CardRecord = CardRecord::new(
+    "Spymaster's Vault",
+    "3d5fbb30-abfc-4e79-8ce5-bbb04a241c9f",
+    "David Álvarez",
+    CardRules::new_land(&[]).with_abilities(&[
+        AbilityDef::as_enters(
+            "This land enters tapped unless you control a Swamp.",
+            ReplacementEffectDef::Conditional {
+                condition: ConditionDef::ObjectCount(&ObjectCountConditionDef {
+                    query: ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Swamp]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    comparison: ComparisonDef::GreaterOrEqual,
+                    amount: 1,
+                }),
+                if_true: &[],
+                if_false: &[ReplacementEffectDef::ModifyBattlefieldEntry(
+                    BattlefieldEntryModificationDef::Tapped,
+                )],
+            },
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add {B}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Black)),
+        ),
+        AbilityDef::activated_with_targets(
+            "{B}, {T}: Target creature you control connives X, where X is the number of \
+             creatures that died this turn.",
+            &[CostDef::Mana(mana_cost!("{B}")), CostDef::TapSource],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                },
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
+                    amount: ValueDef::CreaturesDiedThisTurn,
+                },
+                EffectDef::Discard {
+                    recipient: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
+                    amount: ValueDef::CreaturesDiedThisTurn,
+                    selection: DiscardSelectionDef::RecipientChooses,
+                    then: Some(DiscardFollowUpDef {
+                        counted: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(
+                            CardType::Land,
+                        )),
+                        bound: Some(ParentBinding),
+                        effect: &EffectDef::AddCounters {
+                            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            kind: CounterKind::PlusOnePlusOne,
+                            amount: ValueDef::BoundObjectCount(ParentBinding),
+                        },
+                    }),
+                },
+            ]),
+        ),
+    ]),
+);
+
 // MH3 231 — Tranquil Landscape
 pub(in crate::card::sets) static TRANQUIL_LANDSCAPE: CardRecord = CardRecord::new(
     "Tranquil Landscape",
@@ -3950,6 +4068,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &PHELIA_EXUBERANT_SHEPHERD,
     &STATIC_PRISON,
     &THRABEN_CHARM,
+    &WRATH_OF_THE_SKIES_49,
     &AMPHIBIAN_DOWNPOUR_51,
     &BRAINSURGE,
     &CONSIGN_TO_MEMORY_54,
@@ -3958,6 +4077,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &STRIX_SERENADE_71,
     &VOLATILE_STORMDRAKE_79,
     &ACCURSED_MARAUDER,
+    &CHTHONIAN_NIGHTMARE_83,
     &EMPEROR_OF_BONES,
     &NETHERGOYF,
     &RETROFITTED_TRANSMOGRANT,
@@ -4002,6 +4122,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &SHATTERED_LANDSCAPE,
     &SHELTERING_LANDSCAPE,
     &SHIFTING_WOODLAND,
+    &SPYMASTER_S_VAULT_230,
     &TRANQUIL_LANDSCAPE,
     &TWISTED_LANDSCAPE,
     &UGIN_S_LABYRINTH_233,

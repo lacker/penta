@@ -132,7 +132,7 @@ impl Game {
                 state
                     .command
                     .iter()
-                    .filter(|card| self.is_commander(card.id))
+                    .filter(|card| self.can_cast_commander_from_command_zone(card.id))
                     .map(|card| (card, CastSourceZone::Command)),
             )
             .chain(

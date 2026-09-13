@@ -368,47 +368,52 @@ fn restart_action_payment_finishes_replacements_but_abandons_old_followups() {
 
 #[test]
 fn commander_restart_preserves_designations_including_retained_exile_and_resets_history() {
-    let decks = [0, 1].map(|_| Deck {
-        commanders: vec![cards::GRIZZLY_BEARS, cards::SAVANNAH_LIONS],
-        main: vec![cards::FOREST; 98],
-        sideboard: Vec::new(),
-    });
-    let mut game = Game::new_with_format(Format::Cedh, card::catalog().unwrap(), decks, 1).unwrap();
-    let retained = game.players[0].command.remove(0);
-    let retained_id = retained.id;
-    game.players[0].exile.push(retained);
-    game.commanders[0].casts = 3;
-    game.commanders[0].damage = [4, 12];
-    game.pending_restart = Some(RestartRequest {
-        controller: PlayerId::One,
-        retained: vec![retained_id],
-    });
-    game.perform_restart();
-    assert_eq!(game.players[0].life, 40);
-    assert_eq!(game.commanders.len(), 4);
-    assert!(
-        game.commanders
+    for format in [Format::Cedh, Format::DuelCommander] {
+        let decks = [0, 1].map(|_| Deck {
+            commanders: vec![cards::GRIZZLY_BEARS, cards::SAVANNAH_LIONS],
+            main: vec![cards::FOREST; 98],
+            sideboard: Vec::new(),
+        });
+        let mut game = Game::new_with_format(format, card::catalog().unwrap(), decks, 1).unwrap();
+        let retained = game.players[0].command.remove(0);
+        let retained_id = retained.id;
+        game.players[0].exile.push(retained);
+        game.commanders[0].casts = 3;
+        game.commanders[0].damage = [4, 12];
+        game.pending_restart = Some(RestartRequest {
+            controller: PlayerId::One,
+            retained: vec![retained_id],
+        });
+        game.perform_restart();
+        assert_eq!(
+            game.players[0].life,
+            i16::from(format.rules().starting_life)
+        );
+        assert_eq!(game.commanders.len(), 4);
+        assert!(
+            game.commanders
+                .iter()
+                .all(|c| c.casts == 0 && c.damage == [0, 0])
+        );
+        assert_eq!(game.players[0].command.len(), 1);
+        assert_eq!(game.players[1].command.len(), 2);
+        let retained = &game.players[0].exile[0];
+        assert_eq!(retained.definition, cards::GRIZZLY_BEARS);
+        assert!(game.is_commander(retained.id));
+        assert_eq!(
+            game.players[0].hand.len() + game.players[0].library.len(),
+            98
+        );
+        assert_eq!(
+            game.players[1].hand.len() + game.players[1].library.len(),
+            98
+        );
+        keep(&mut game);
+        let bear = game
+            .battlefield
             .iter()
-            .all(|c| c.casts == 0 && c.damage == [0, 0])
-    );
-    assert_eq!(game.players[0].command.len(), 1);
-    assert_eq!(game.players[1].command.len(), 2);
-    let retained = &game.players[0].exile[0];
-    assert_eq!(retained.definition, cards::GRIZZLY_BEARS);
-    assert!(game.is_commander(retained.id));
-    assert_eq!(
-        game.players[0].hand.len() + game.players[0].library.len(),
-        98
-    );
-    assert_eq!(
-        game.players[1].hand.len() + game.players[1].library.len(),
-        98
-    );
-    keep(&mut game);
-    let bear = game
-        .battlefield
-        .iter()
-        .find(|p| p.card.definition == cards::GRIZZLY_BEARS)
-        .unwrap();
-    assert!(game.is_commander(bear.card.id));
+            .find(|p| p.card.definition == cards::GRIZZLY_BEARS)
+            .unwrap();
+        assert!(game.is_commander(bear.card.id));
+    }
 }

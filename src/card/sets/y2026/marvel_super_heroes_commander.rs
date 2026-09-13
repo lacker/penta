@@ -139,6 +139,17 @@ AbilityDef::triggered("Whenever an opponent draws their second card each turn, p
 ]),
 );
 
+// MSC 602 — Matt Murdock, Justice Seeker
+// Audit: unsupported — Needs a reflexive trigger after the optional mana payment so its target is
+// chosen after payment and receives a separate response window; PayOr only continues an effect
+// within the original resolution.
+pub(in crate::card::sets) static MATT_MURDOCK_JUSTICE_SEEKER_602: CardRecord = CardRecord::new(
+    "Matt Murdock, Justice Seeker",
+    "ab8e5c5d-e6a0-4666-930a-0a1f475d3c2e",
+    "Gintas Galvanauskas",
+    CardRules::unsupported(),
+);
+
 // MSC 654 — Doctor Doom, Unrivaled
 pub(in crate::card::sets) static DOCTOR_DOOM_UNRIVALED_654: CardRecord = CardRecord::new(
     "Doctor Doom, Unrivaled",
@@ -209,6 +220,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &LOKI_S_SCEPTER_56,
     &H_E_R_B_I_E_LOVABLE_ROBOT_106,
     &BLACK_WIDOW_AGILE_AVENGER_395,
+    &MATT_MURDOCK_JUSTICE_SEEKER_602,
     &DOCTOR_DOOM_UNRIVALED_654,
     &ASGARDIAN_INSPIRATION_678,
     &THE_VISION_AND_SCARLET_WITCH_707,

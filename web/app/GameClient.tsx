@@ -1790,7 +1790,9 @@ export function GameClient({
                   <span>Match length</span>
                   <select value={draftFirstToTwo ? "first-to-two" : "one"} onChange={(event) => setDraftFirstToTwo(event.target.value === "first-to-two")}>
                     <option value="one">One game conclusion</option>
-                    <option value="first-to-two">First to 2 wins · Sideboarding</option>
+                    <option value="first-to-two">
+                      First to 2 wins · {draftFormat === "duel-commander" ? "Commander selection" : "Sideboarding"}
+                    </option>
                   </select>
                 </label>
                 <label className="setup-seat">

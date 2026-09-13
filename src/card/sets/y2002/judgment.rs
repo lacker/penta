@@ -19,6 +19,7 @@ use crate::card::CardType;
 use crate::card::CharacteristicOperationDef;
 use crate::card::ChoiceVisibilityDef;
 use crate::card::ChooseDef;
+use crate::card::ColorChoiceOperationDef;
 use crate::card::ComparisonDef;
 use crate::card::ConditionalStaticEffectDef;
 use crate::card::CostDef;
@@ -147,12 +148,30 @@ pub(in crate::card::sets) static BATTLEWISE_AVEN: CardRecord = CardRecord::new(
 );
 
 // JUD 5 — Benevolent Bodyguard
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BENEVOLENT_BODYGUARD: CardRecord = CardRecord::new(
     "Benevolent Bodyguard",
     "22492fb3-5ceb-4d5e-ba82-ae1a6a69c105",
     "Roger Raupp",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{W}"), &["Human", "Cleric"], 1, 1).with_abilities(&[
+        AbilityDef::activated_with_targets(
+            "Sacrifice this creature: Target creature you control gains protection from \
+             the color of your choice until end of turn.",
+            &[CostDef::SacrificeSource],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                },
+            )],
+            EffectDef::ChooseColor {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                operation: ColorChoiceOperationDef::ProtectionFromChosenColor,
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // JUD 6 — Border Patrol

@@ -77,8 +77,25 @@ impl MatchContext {
         catalog: &CardCatalog,
         format: Format,
     ) -> bool {
-        deck.commanders == self.registered[player.index()].commanders
-            && pool(deck) == pool(&self.registered[player.index()])
-            && deck.clone().validate_for_format(catalog, format).is_ok()
+        let registered = &self.registered[player.index()];
+        let same_pool = if format
+            .commander_definition()
+            .is_some_and(|rules| rules.commander_swapping)
+        {
+            let mut current_pool = pool(deck);
+            for id in &deck.commanders {
+                *current_pool.entry(*id).or_default() += 1;
+            }
+            let mut original_pool = pool(registered);
+            for id in &registered.commanders {
+                *original_pool.entry(*id).or_default() += 1;
+            }
+            (1..=2).contains(&deck.commanders.len())
+                && deck.sideboard == registered.sideboard
+                && current_pool == original_pool
+        } else {
+            deck.commanders == registered.commanders && pool(deck) == pool(registered)
+        };
+        same_pool && deck.clone().validate_for_format(catalog, format).is_ok()
     }
 }

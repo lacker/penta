@@ -221,12 +221,24 @@ pub(in crate::card::sets) static LEGOLASS_QUICK_REFLEXES: CardRecord = CardRecor
     ]),
 );
 
+// LTC 500 — Galadriel's Dismissal
+// Audit: unsupported — Kicker changes the target from a creature to a player. Conditional target
+// predicates exist, but catalog validation does not narrow target-reference kinds inside the
+// paid/unpaid effect branches, so the complete phase-out declaration is rejected.
+pub(in crate::card::sets) static GALADRIEL_S_DISMISSAL_500: CardRecord = CardRecord::new(
+    "Galadriel's Dismissal",
+    "2d1c66a7-a39e-4869-80c7-1cec89777e0d",
+    "Alexander Mokhov",
+    CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &GIMLI_OF_THE_GLITTERING_CAVES_32,
     &FORTH_EORLINGAS,
     &CAVERN_HOARD_DRAGON_114,
     &RELIC_OF_SAURON,
     &LEGOLASS_QUICK_REFLEXES,
+    &GALADRIEL_S_DISMISSAL_500,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

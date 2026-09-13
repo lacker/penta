@@ -365,6 +365,17 @@ pub(in crate::card::sets) static AYLI_ETERNAL_PILGRIM: CardRecord = CardRecord::
         ]),
 );
 
+// OGW 157 — Reflector Mage
+// Audit: unsupported — Needs a name restriction bound to the targeted creature's pre-move name
+// and owner, lasting until your next turn even when that card changes zones; play restrictions
+// have no bound-name matcher.
+pub(in crate::card::sets) static REFLECTOR_MAGE_157: CardRecord = CardRecord::new(
+    "Reflector Mage",
+    "9473fe01-83f6-4432-ab01-f7953d2ca904",
+    "Willian Murai",
+    CardRules::unsupported(),
+);
+
 // OGW 172 — Holdout Settlement
 // Audit: unsupported — Mana-ability eligibility rejects the additional TapPermanents cost; the other creature cannot be reserved and tapped during immediate mana production.
 pub(in crate::card::sets) static HOLDOUT_SETTLEMENT_172: CardRecord = CardRecord::new(
@@ -395,6 +406,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &PULSE_OF_MURASA,
     &TAJURU_PATHWARDEN,
     &AYLI_ETERNAL_PILGRIM,
+    &REFLECTOR_MAGE_157,
     &HOLDOUT_SETTLEMENT_172,
     &WASTES,
 ];

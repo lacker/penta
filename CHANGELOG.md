@@ -45,9 +45,15 @@ the bot-wire epoch.
   deck commanders, a command zone, individual casting tax, optional return
   choices, and commander combat damage. Partner and Background designations
   share the deck model; construction and legality enforcement remain deferred.
-- Import 119 available decks from the 123-entry Nacional de cEDH 100K event,
-  preserving source provenance. Audit all 1,205 newly catalogued cards: 759
-  use shared declarative behavior and 446 retain specific unsupported comments. Add sourced WotC ban metadata without enforcing legality.
+- Seed cEDH with the Nacional event’s top 16 lists and Duel Commander with
+  the eight published CommandFest Italy 2026 lists. Keep commanders separate
+  and omit empty sideboards. Audit needed catalog identities using complete
+  shared declarations or whole-card unsupported rules with specific reasons.
+- Add `duel-commander`: 20 life, no commander-damage loss, one commander chosen
+  by the first command-zone cast, between-game commander selection, and no
+  outside-game retrieval effects. Preserve the companion exception. Publish
+  separate committee ban metadata; construction and legality remain deferred.
+- Advertise `rules.duel-commander.v1` for the new format and its match decisions.
 - Advertise `rules.commander.v1`, optional `commandZones` and `commanders`
   observations, and a capability-gated commander-damage result. Checkpoints
   preserve identity and history where reconstructible; pending hand/library

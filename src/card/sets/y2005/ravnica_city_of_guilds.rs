@@ -636,6 +636,16 @@ pub(in crate::card::sets) static DIMIR_GUILDMAGE: CardRecord = CardRecord::new(
     ),
 );
 
+// RAV 253 — Shadow of Doubt
+// Audit: unsupported — The search resolver has no temporary player-level prohibition against
+// library searches.
+pub(in crate::card::sets) static SHADOW_OF_DOUBT_253: CardRecord = CardRecord::new(
+    "Shadow of Doubt",
+    "7dbd0e3c-b26d-4080-b7cf-1c64fce09668",
+    "Greg Staples",
+    CardRules::unsupported(),
+);
+
 // RAV 255 — Boros Signet
 pub(in crate::card::sets) static BOROS_SIGNET_255: CardRecord = CardRecord::new(
     "Boros Signet",
@@ -815,6 +825,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &PUTREFY,
     &SKYKNIGHT_LEGIONNAIRE,
     &DIMIR_GUILDMAGE,
+    &SHADOW_OF_DOUBT_253,
     &BOROS_SIGNET_255,
     &CLOUDSTONE_CURIO_257,
     &DIMIR_SIGNET_260,

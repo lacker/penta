@@ -101,6 +101,22 @@ impl Game {
         self.commander_index(object).is_some()
     }
 
+    pub(super) fn can_cast_commander_from_command_zone(&self, object: GameObjectId) -> bool {
+        let Some(index) = self.commander_index(object) else {
+            return false;
+        };
+        let commander = &self.commanders[index];
+        !self
+            .format
+            .commander_definition()
+            .is_some_and(|rules| rules.one_command_zone_commander)
+            || commander.casts > 0
+            || !self
+                .commanders
+                .iter()
+                .any(|other| other.owner == commander.owner && other.casts > 0)
+    }
+
     /// Face-up cards currently in this player's command zone.
     #[must_use]
     pub fn command_zone(&self, player: PlayerId) -> Vec<ZoneCard> {

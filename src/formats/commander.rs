@@ -75,6 +75,11 @@ pub const COMPANION_ONLY_BANNED_CARDS: &[&str] = &["Lutri, the Spellchaser"];
 
 pub(super) const DEFINITION: CommanderFormatDefinition = CommanderFormatDefinition {
     rules: RULES,
+    commander_only_banned_cards: &[],
+    commander_damage_limit: Some(21),
+    one_command_zone_commander: false,
+    commander_swapping: false,
+    outside_game_effects: true,
     total_deck_size: 100,
     banned_cards: BANNED_CARDS,
     companion_only_banned_cards: COMPANION_ONLY_BANNED_CARDS,

@@ -34,6 +34,7 @@ use crate::card::DamagePreventionDef;
 use crate::card::EffectChoiceDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
+use crate::card::InstalledTriggerDef;
 use crate::card::ManaColor;
 use crate::card::ObjectChoiceBindingDef;
 use crate::card::ObjectPredicateDef;
@@ -321,6 +322,21 @@ pub(in crate::card::sets) static LILIANA_DREADHORDE_GENERAL: CardRecord = CardRe
     "Chris Rallis",
     CardRules::unsupported(),
 );
+
+// WAR 99 — Massacre Girl
+pub(in crate::card::sets) static MASSACRE_GIRL_99: CardRecord = CardRecord::new(
+"Massacre Girl",
+"be8ec9e1-2c8e-496d-9111-4d453b75b578",
+"Chris Rallis",
+CardRules::new_creature(mana_cost!("{3}{B}{B}"), &["Human",
+"Assassin"], 4, 4).with_supertype(CardSupertype::Legendary).with_abilities(&[abilities::menace(),
+abilities::enters_trigger("When Massacre Girl enters, each other creature gets -1/-1 until end of turn. \
+ Whenever a creature dies this turn, each creature other than Massacre Girl \
+ gets -1/-1 until end of turn.", EffectDef::Sequence(&[EffectDef::Apply { recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature),
+ObjectPredicateDef::Not(&ObjectPredicateDef::Source)]), &[ZoneKind::Battlefield], PlayerRelation::Any), effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(-1), ValueDef::Constant(-1)), duration: ResolvedEffectDurationDef::UntilEndOfTurn },
+EffectDef::InstallTrigger(InstalledTriggerDef::this_turn(&AbilityDef::triggered("Whenever a creature dies this turn, each creature other than Massacre Girl \
+ gets -1/-1 until end of turn.", TriggerEventDef::zone_changed(ObjectPredicateDef::HasType(CardType::Creature), Some(ZoneKind::Battlefield), Some(ZoneKind::Graveyard)), EffectDef::Apply { recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature),
+ObjectPredicateDef::Not(&ObjectPredicateDef::Source)]), &[ZoneKind::Battlefield], PlayerRelation::Any), effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(-1), ValueDef::Constant(-1)), duration: ResolvedEffectDurationDef::UntilEndOfTurn })))]))]));
 
 // WAR 115 — Bolt Bend
 pub(in crate::card::sets) static BOLT_BEND: CardRecord = CardRecord::new(
@@ -999,6 +1015,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &SPARK_DOUBLE_68,
     &BOLASS_CITADEL,
     &LILIANA_DREADHORDE_GENERAL,
+    &MASSACRE_GIRL_99,
     &BOLT_BEND,
     &DREADHORDE_ARCANIST,
     &FINALE_OF_PROMISE_127,

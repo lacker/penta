@@ -9,8 +9,10 @@ use crate::card::AbilityKindDef;
 use crate::card::AbilityPredicateDef;
 use crate::card::AbilityTargetDef;
 use crate::card::AbilityTargetPredicate;
+use crate::card::AddManaEffectDef;
 use crate::card::AggregateOperationDef;
 use crate::card::AppliedEffectDef;
+use crate::card::BattlefieldEntryModificationDef;
 use crate::card::BindObjectsDef;
 use crate::card::CardArt;
 use crate::card::CardRules;
@@ -18,6 +20,8 @@ use crate::card::CardSupertype;
 use crate::card::CardType;
 use crate::card::ChoiceVisibilityDef;
 use crate::card::ChooseDef;
+use crate::card::ComparisonDef;
+use crate::card::ConditionDef;
 use crate::card::CostDef;
 use crate::card::CostQuantityDef;
 use crate::card::CounterKind;
@@ -28,6 +32,7 @@ use crate::card::EffectRecipientDef;
 use crate::card::ManaColor;
 use crate::card::ObjectChoiceBindingDef;
 use crate::card::ObjectCollectionSourceDef;
+use crate::card::ObjectCountConditionDef;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
 use crate::card::ObjectRefDef;
@@ -37,6 +42,7 @@ use crate::card::ObjectValueDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
 use crate::card::PlayerSetDef;
+use crate::card::ReplacementEffectDef;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::SubtypeDef;
 use crate::card::TokenCharacteristics;
@@ -510,6 +516,44 @@ AbilityDef::activated("{1}, {T}, Sacrifice this artifact: Search your library fo
 ]),
 );
 
+// MID 260 — Deserted Beach
+pub(in crate::card::sets) static DESERTED_BEACH_260: CardRecord = CardRecord::new(
+    "Deserted Beach",
+    "38367ee5-154b-44cb-8974-422038d039df",
+    "Jonas De Ro",
+    CardRules::new_land(&[]).with_abilities(&[
+        AbilityDef::as_enters(
+            "This land enters tapped unless you control two or more other lands.",
+            ReplacementEffectDef::Conditional {
+                condition: ConditionDef::ObjectCount(&ObjectCountConditionDef {
+                    query: ObjectQueryDef::matching(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Land),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    comparison: ComparisonDef::GreaterOrEqual,
+                    amount: 2,
+                }),
+                if_true: &[],
+                if_false: &[ReplacementEffectDef::ModifyBattlefieldEntry(
+                    BattlefieldEntryModificationDef::Tapped,
+                )],
+            },
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add {W} or {U}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::White,
+                ManaColor::Blue,
+            ])),
+        ),
+    ]),
+);
+
 // MID 265 — Overgrown Farmland
 pub(in crate::card::sets) static OVERGROWN_FARMLAND_265: CardRecord = CardRecord::new(
     "Overgrown Farmland",
@@ -648,6 +692,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &TEFERI_WHO_SLOWS_THE_SUNSET_245,
     &JACK_O_LANTERN_254,
     &MOONSILVER_KEY_255,
+    &DESERTED_BEACH_260,
     &OVERGROWN_FARMLAND_265,
     &HAUNTED_RIDGE_282,
     &ROCKFALL_VALE_284,

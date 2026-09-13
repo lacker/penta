@@ -3,6 +3,7 @@
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::CounterKind;
+use crate::ParentBinding;
 use crate::TriggerEventDef;
 use crate::card::AbilityDef;
 use crate::card::AbilityTargetDef;
@@ -19,6 +20,8 @@ use crate::card::CopyExceptionsDef;
 use crate::card::CostDef;
 use crate::card::CreateTokenDef;
 use crate::card::CreatureTypeSetDef;
+use crate::card::DamageEventMatcherDef;
+use crate::card::DamagePreventionDef;
 use crate::card::EffectChoiceDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
@@ -56,6 +59,30 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
+// LRW 7 — Burrenton Forge-Tender
+pub(in crate::card::sets) static BURRENTON_FORGE_TENDER_7: CardRecord = CardRecord::new(
+    "Burrenton Forge-Tender",
+    "c000c3e4-d71a-43c8-8ded-f3da54bc088d",
+    "Chuck Lukacs",
+    CardRules::new_creature(mana_cost!("{W}"), &["Kithkin", "Wizard"], 1, 1).with_abilities(&[
+        abilities::protection_from_color(ManaColor::Red),
+        AbilityDef::activated(
+            "Sacrifice this creature: Prevent all damage a red source of your choice \
+             would deal this turn.",
+            &[CostDef::SacrificeSource],
+            abilities::shield_against_a_chosen_source(
+                ObjectPredicateDef::Color(ManaColor::Red),
+                &EffectDef::PreventDamage {
+                    prevention: DamagePreventionDef::unlimited(DamageEventMatcherDef::from(
+                        ObjectRefDef::Binding(ParentBinding),
+                    )),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ),
+    ]),
+);
 
 // LRW 11 — Crib Swap
 // Audit: unsupported — Needs an all-zone creature-type characteristic-defining ability whose all-types value is copiable; battlefield all-type modifiers do not implement changeling.
@@ -658,6 +685,7 @@ pub(in crate::card::sets) static SHIMMERING_GROTTO: CardRecord = CardRecord::new
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &BURRENTON_FORGE_TENDER_7,
     &CRIB_SWAP,
     &OBLIVION_RING,
     &CRYPTIC_COMMAND,

@@ -31,6 +31,7 @@ use crate::card::ManaColor;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
 use crate::card::ObjectRefDef;
+use crate::card::ObjectSetDef;
 use crate::card::PayOrDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
@@ -568,6 +569,41 @@ pub(in crate::card::sets) static LODESTONE_GOLEM_127: CardRecord = CardRecord::n
     ]),
 );
 
+// WWK 132 — Bojuka Bog
+pub(in crate::card::sets) static BOJUKA_BOG_132: CardRecord = CardRecord::new(
+    "Bojuka Bog",
+    "529c38b3-7397-4dac-9859-acd9cd451c32",
+    "Howard Lyon",
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        AbilityDef::triggered_with_targets(
+            "When this land enters, exile target player's graveyard.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Any),
+            )],
+            EffectDef::move_to_zone(
+                EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::owned_by(
+                    ObjectPredicateDef::Any,
+                    &[ZoneKind::Graveyard],
+                    PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                ))),
+                ZoneKind::Exile,
+                ZonePlacement::Top,
+            ),
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add {B}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Black)),
+        ),
+    ]),
+);
+
 // WWK 133 — Celestial Colonnade
 pub(in crate::card::sets) static CELESTIAL_COLONNADE: CardRecord = CardRecord::new(
     "Celestial Colonnade",
@@ -652,6 +688,52 @@ const QUICKSAND_REPRINT: PrintingRecord = PrintingRecord::reprint(
     "Matt Stewart",
 );
 
+// WWK 145 — Tectonic Edge
+pub(in crate::card::sets) static TECTONIC_EDGE_145: CardRecord = CardRecord::new(
+    "Tectonic Edge",
+    "fdcf5c0f-9d18-406d-a930-c179a781264f",
+    "Vincent Proce",
+    CardRules::new_land(&[]).with_abilities(&[
+        AbilityDef::activated_mana(
+            "{T}: Add {C}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless)),
+        ),
+        AbilityDef::activated_with_targets(
+            "{1}, {T}, Sacrifice this land: Destroy target nonbasic land. Activate only \
+             if an opponent controls four or more lands.",
+            &[
+                CostDef::Mana(mana_cost!("{1}")),
+                CostDef::TapSource,
+                CostDef::SacrificeSource,
+            ],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(
+                            CardSupertype::Basic,
+                        )),
+                    ]),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+            )],
+            EffectDef::destroy_target(TargetIndex::PRIMARY),
+        )
+        .with_activation_condition(&TriggerConditionDef::ObjectCount {
+            query: ObjectQueryDef::matching(
+                ObjectPredicateDef::HasType(CardType::Land),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Opponent,
+            ),
+            comparison: ComparisonDef::GreaterOrEqual,
+            amount: 4,
+        }),
+    ]),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &STONEFORGE_MYSTIC,
     &DISPEL,
@@ -669,8 +751,10 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &EVERFLOWING_CHALICE,
     &KITESAIL,
     &LODESTONE_GOLEM_127,
+    &BOJUKA_BOG_132,
     &CELESTIAL_COLONNADE,
     &CREEPING_TAR_PIT,
+    &TECTONIC_EDGE_145,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[QUICKSAND_REPRINT];

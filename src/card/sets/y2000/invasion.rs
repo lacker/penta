@@ -5095,12 +5095,23 @@ pub(in crate::card::sets) static BLOODSTONE_CAMEO: CardRecord = CardRecord::new(
 );
 
 // INV 299 — Chromatic Sphere
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CHROMATIC_SPHERE: CardRecord = CardRecord::new(
     "Chromatic Sphere",
     "920cd17f-9274-443e-906f-c9904f0658d5",
     "Luca Zontini",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[AbilityDef::activated(
+        "{1}, {T}, Sacrifice this artifact: Add one mana of any color. Draw a card. \
+         (Activate only as an instant.)",
+        &[
+            CostDef::Mana(mana_cost!("{1}")),
+            CostDef::TapSource,
+            CostDef::SacrificeSource,
+        ],
+        EffectDef::Sequence(&[
+            EffectDef::AddMana(AddManaEffectDef::any_color()),
+            abilities::draw_cards(ValueDef::Constant(1)),
+        ]),
+    )]),
 );
 
 // INV 300 — Crosis's Attendant

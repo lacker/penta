@@ -2,19 +2,24 @@
 
 use super::CardRecord;
 use super::PrintingRecord;
+use crate::ParentBinding;
 use crate::TargetIndex;
 use crate::card::AbilityDef;
 use crate::card::AbilityTargetDef;
 use crate::card::AppliedEffectDef;
 use crate::card::BindObjectsDef;
 use crate::card::CardRules;
+use crate::card::CardSupertype;
 use crate::card::CardType;
+use crate::card::ChoiceVisibilityDef;
+use crate::card::ChooseDef;
 use crate::card::ComparisonDef;
 use crate::card::ConditionalStaticEffectDef;
 use crate::card::CostDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::KeywordAbility;
+use crate::card::ObjectChoiceBindingDef;
 use crate::card::ObjectCollectionSourceDef;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
@@ -184,6 +189,48 @@ CardRules::new_creature(mana_cost!("{4}{B}{B}"), &["Demon"], 4, 4).with_abilitie
     ]),
 );
 
+// FRF 87 — Tasigur, the Golden Fang
+pub(in crate::card::sets) static TASIGUR_THE_GOLDEN_FANG_87: CardRecord = CardRecord::new(
+    "Tasigur, the Golden Fang",
+    "81f93ac5-d149-4ccf-8b99-13ecf3190c29",
+    "Chris Rahn",
+    CardRules::new_creature(mana_cost!("{5}{B}"), &["Human", "Shaman"], 4, 5)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::delve(),
+            AbilityDef::activated(
+                "{2}{G/U}{G/U}: Mill two cards, then return a nonland card of an opponent's \
+                 choice from your graveyard to your hand.",
+                &[CostDef::Mana(mana_cost!("{2}{G/U}{G/U}"))],
+                EffectDef::Sequence(&[
+                    EffectDef::Mill {
+                        player: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(2),
+                    },
+                    EffectDef::Choose(ChooseDef {
+                        binding: ObjectChoiceBindingDef::Objects(ParentBinding),
+                        unchosen: None,
+                        chooser: PlayerRefDef::Opponent,
+                        candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                            &[ZoneKind::Graveyard],
+                            PlayerRelation::You,
+                        )),
+                        exclude: None,
+                        minimum: 1,
+                        maximum: 1,
+                        visibility: ChoiceVisibilityDef::Public,
+                        then: &EffectDef::move_to_zone(
+                            EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
+                            ZoneKind::Hand,
+                            ZonePlacement::Top,
+                        ),
+                    }),
+                ]),
+            ),
+        ]),
+);
+
 // FRF 100 — Flamewake Phoenix
 pub(in crate::card::sets) static FLAMEWAKE_PHOENIX: CardRecord = CardRecord::new(
     "Flamewake Phoenix",
@@ -244,6 +291,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &REFOCUS_47,
     &GURMAG_ANGLER,
     &SOULFLAYER,
+    &TASIGUR_THE_GOLDEN_FANG_87,
     &FLAMEWAKE_PHOENIX,
     &TEMUR_SABERTOOTH_141,
 ];

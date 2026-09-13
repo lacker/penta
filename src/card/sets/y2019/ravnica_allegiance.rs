@@ -232,6 +232,27 @@ pub(in crate::card::sets) static SARULI_CARETAKER_139: CardRecord = CardRecord::
     crate::card::CardRules::unsupported(),
 );
 
+// RNA 149 — Wilderness Reclamation
+pub(in crate::card::sets) static WILDERNESS_RECLAMATION_149: CardRecord = CardRecord::new(
+    "Wilderness Reclamation",
+    "54af08f7-9c6c-464e-b2f7-2b5803f36481",
+    "Tyler Walpole",
+    CardRules::new_enchantment(mana_cost!("{3}{G}")).with_abilities(&[AbilityDef::triggered(
+        "At the beginning of your end step, untap all lands you control.",
+        TriggerEventDef::StepBegins {
+            step: TurnStepDef::End,
+            player: PlayerRelation::You,
+        },
+        EffectDef::Untap {
+            object: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::HasType(CardType::Land),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
+            ),
+        },
+    )]),
+);
+
 // RNA 158 — Biomancer's Familiar
 // Audit: unsupported — The cost discount is expressible, but no one-use rule lets a particular creature bypass the counter-presence condition of its next adapt activation this turn.
 pub(in crate::card::sets) static BIOMANCER_S_FAMILIAR_158: CardRecord = CardRecord::new(
@@ -437,6 +458,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &BIOGENIC_UPGRADE,
     &INCUBATION_DRUID_131,
     &SARULI_CARETAKER_139,
+    &WILDERNESS_RECLAMATION_149,
     &BIOMANCER_S_FAMILIAR_158,
     &CINDERVINES_161,
     &FINAL_PAYMENT,

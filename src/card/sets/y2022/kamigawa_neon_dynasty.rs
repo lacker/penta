@@ -180,6 +180,16 @@ pub(in crate::card::sets) static LION_SASH: CardRecord = CardRecord::new(
         ]),
 );
 
+// NEO 28 — March of Otherworldly Light
+// Audit: unsupported — Casting cost reductions cannot read the variable set of white hand cards
+// selected for this additional exile cost before payment is committed.
+pub(in crate::card::sets) static MARCH_OF_OTHERWORLDLY_LIGHT_28: CardRecord = CardRecord::new(
+    "March of Otherworldly Light",
+    "553fb946-2706-475b-89f9-e4355ec9ea2b",
+    "Nils Hamm",
+    CardRules::unsupported(),
+);
+
 // NEO 40 — Touch the Spirit Realm
 static AN_ARTIFACT_OR_CREATURE: ObjectPredicateDef = ObjectPredicateDef::AnyOf(&[
     ObjectPredicateDef::HasType(CardType::Artifact),
@@ -335,6 +345,33 @@ pub(in crate::card::sets) static THE_WANDERING_EMPEROR: CardRecord = CardRecord:
                 ]),
             ),
         ]),
+);
+
+// NEO 51 — Disruption Protocol
+pub(in crate::card::sets) static DISRUPTION_PROTOCOL_51: CardRecord = CardRecord::new(
+    "Disruption Protocol",
+    "053ab598-06a4-43ae-b9fd-c291bd05642c",
+    "Pauline Voss",
+    CardRules::new_instant(mana_cost!("{U}{U}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Counter target spell.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::Spell,
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            },
+        )],
+        EffectDef::counter_target(TargetIndex::PRIMARY),
+    )
+    .with_spell_additional_cost(&CostDef::Choice(&[
+        CostDef::TapPermanents {
+            object: ObjectPredicateDef::HasType(CardType::Artifact),
+            controller: PlayerRelation::You,
+            count: 1,
+        },
+        CostDef::Mana(mana_cost!("{1}")),
+    ]))]),
 );
 
 // NEO 61 — March of Swirling Mist
@@ -1379,8 +1416,10 @@ AbilityDef::activated("Channel — {3}{B}, Discard this card: Mill three cards, 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &IMPERIAL_OATH,
     &LION_SASH,
+    &MARCH_OF_OTHERWORLDLY_LIGHT_28,
     &TOUCH_THE_SPIRIT_REALM,
     &THE_WANDERING_EMPEROR,
+    &DISRUPTION_PROTOCOL_51,
     &MARCH_OF_SWIRLING_MIST_61,
     &MIRRORSHELL_CRAB,
     &MOON_CIRCUIT_HACKER,

@@ -349,6 +349,18 @@ pub(in crate::card::sets) static YOU_MEET_IN_A_TAVERN: CardRecord = CardRecord::
     )),
 );
 
+// AFR 258 — Hive of the Eye Tyrant
+pub(in crate::card::sets) static HIVE_OF_THE_EYE_TYRANT_258: CardRecord = CardRecord::new(
+"Hive of the Eye Tyrant",
+"9eb391dc-0378-4793-a5de-899b09792a4b",
+"Johannes Voss",
+CardRules::new_land(&[]).with_abilities(&[AbilityDef::as_enters("If you control two or more other lands, this land enters tapped.", ReplacementEffectDef::Conditional { condition: ConditionDef::ObjectCount(&ObjectCountConditionDef { query: ObjectQueryDef::matching(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Land),
+ObjectPredicateDef::Not(&ObjectPredicateDef::Source)]), &[ZoneKind::Battlefield], PlayerRelation::You), comparison: ComparisonDef::GreaterOrEqual, amount: 2 }), if_true: &[ReplacementEffectDef::ModifyBattlefieldEntry(BattlefieldEntryModificationDef::Tapped)], if_false: &[] }),
+AbilityDef::activated_mana("{T}: Add {B}.", &[CostDef::TapSource], EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Black))),
+AbilityDef::activated("{3}{B}: Until end of turn, this land becomes a 3/3 black Beholder creature \
+ with menace and \"Whenever this creature attacks, exile target card from \
+ defending player's graveyard.\" It's still a land.", &[CostDef::Mana(mana_cost!("{3}{B}"))], EffectDef::Apply { recipient: EffectRecipientDef::Source, effect: AppliedEffectDef::Composite(&[AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)), AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(3), ValueDef::Constant(3)), AppliedEffectDef::set_colors(ColorSet::from_colors(&[ManaColor::Black])), AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&["Beholder"])), AppliedEffectDef::add_ability(&abilities::menace()), AppliedEffectDef::add_ability(&AbilityDef::triggered_with_targets("Whenever this creature attacks, exile target card from defending player's graveyard.", TriggerEventDef::attacks(ObjectPredicateDef::Source), &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object { object: ObjectPredicateDef::Any, zones: &[ZoneKind::Graveyard], controller: None, owner: Some(PlayerRelation::Opponent) })], EffectDef::move_to_zone(EffectRecipientDef::Target(TargetIndex::PRIMARY), ZoneKind::Exile, ZonePlacement::Top)))]), duration: ResolvedEffectDurationDef::UntilEndOfTurn })]));
+
 // AFR 296 — Old Gnawbone
 pub(in crate::card::sets) static OLD_GNAWBONE_296: CardRecord = CardRecord::new(
     "Old Gnawbone",
@@ -449,6 +461,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &OWLBEAR,
     &THE_TARRASQUE_207,
     &YOU_MEET_IN_A_TAVERN,
+    &HIVE_OF_THE_EYE_TYRANT_258,
     &OLD_GNAWBONE_296,
     &OSWALD_FIDDLEBENDER_304,
     &DELINA_WILD_MAGE_317,

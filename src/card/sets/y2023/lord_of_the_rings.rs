@@ -124,6 +124,59 @@ pub(in crate::card::sets) static EAGLES_OF_THE_NORTH: CardRecord = CardRecord::n
         ]),
 );
 
+// LTR 15 — Flowering of the White Tree
+pub(in crate::card::sets) static FLOWERING_OF_THE_WHITE_TREE_15: CardRecord = CardRecord::new(
+    "Flowering of the White Tree",
+    "2203b2cd-48e5-471a-85fe-dc81012e5d61",
+    "Erikas Perl",
+    CardRules::new_enchantment(mana_cost!("{W}{W}"))
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Legendary creatures you control get +2/+1 and have ward {1}.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Supertype(CardSupertype::Legendary),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(2),
+                            ValueDef::Constant(1),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::ward(
+                            &[CostDef::Mana(mana_cost!("{1}"))],
+                            "Ward {1}",
+                        )),
+                    ]),
+                },
+            ),
+            AbilityDef::static_ability(
+                "Nonlegendary creatures you control get +1/+1.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(
+                                CardSupertype::Legendary,
+                            )),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(1),
+                    ),
+                },
+            ),
+        ]),
+);
+
 // LTR 26 — Reprieve
 pub(in crate::card::sets) static REPRIEVE: CardRecord = CardRecord::new(
     "Reprieve",
@@ -653,6 +706,16 @@ CardRules::new_instant(mana_cost!("{1}{U}{R}")).with_ability(
     ),
 );
 
+// LTR 225 — Sauron's Ransom
+// Audit: unsupported — Needs the Ring-bearer designation and progressive Ring temptation rules in
+// addition to the opponent-created public and hidden piles.
+pub(in crate::card::sets) static SAURON_S_RANSOM_225: CardRecord = CardRecord::new(
+    "Sauron's Ransom",
+    "6b98850c-ad69-42da-b91a-8dc5e226c444",
+    "Alex Brock",
+    CardRules::unsupported(),
+);
+
 // LTR 245 — Mithril Coat
 pub(in crate::card::sets) static MITHRIL_COAT_245: CardRecord = CardRecord::new(
     "Mithril Coat",
@@ -774,6 +837,16 @@ pub(in crate::card::sets) static GREAT_HALL_OF_THE_CITADEL_254: CardRecord = Car
 abilities::tap_for(ManaColor::Colorless),
 AbilityDef::activated_mana("{1}, {T}: Add two mana in any combination of colors. Spend this mana only to cast legendary spells.", &[CostDef::Mana(mana_cost!("{1}")), CostDef::TapSource], EffectDef::AddMana(AddManaEffectDef::combination(&[ManaColor::White, ManaColor::Blue, ManaColor::Black, ManaColor::Red, ManaColor::Green], 2).with_restrictions(&[ManaRestrictionDef::CastSpell(ObjectPredicateDef::Supertype(CardSupertype::Legendary))])))
 ]),
+);
+
+// LTR 256 — Minas Tirith
+// Audit: unsupported — Activation conditions cannot query the number of creatures a player
+// attacked with earlier this turn after those creatures leave combat or the battlefield.
+pub(in crate::card::sets) static MINAS_TIRITH_256: CardRecord = CardRecord::new(
+    "Minas Tirith",
+    "b38b6760-616f-4b11-8ce7-ac1223c7fd53",
+    "Arthur Yuan",
+    CardRules::unsupported(),
 );
 
 // LTR 257 — Mines of Moria
@@ -1009,6 +1082,7 @@ pub(in crate::card::sets) static THE_GREY_HAVENS_443: CardRecord = CardRecord::n
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &EAGLES_OF_THE_NORTH,
+    &FLOWERING_OF_THE_WHITE_TREE_15,
     &REPRIEVE,
     &SAMWISE_THE_STOUTHEARTED_28,
     &IORETH_OF_THE_HEALING_HOUSE_56,
@@ -1024,10 +1098,12 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &GENEROUS_ENT,
     &ARWEN_MORTAL_QUEEN,
     &FLAME_OF_ANOR,
+    &SAURON_S_RANSOM_225,
     &MITHRIL_COAT_245,
     &THE_ONE_RING,
     &STING_THE_GLINTING_DAGGER_250,
     &GREAT_HALL_OF_THE_CITADEL_254,
+    &MINAS_TIRITH_256,
     &MINES_OF_MORIA_257,
     &MOUNT_DOOM_258,
     &GANDALF_THE_WHITE_305,

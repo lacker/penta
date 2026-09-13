@@ -58,6 +58,17 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
+// M3C 3 — Satya, Aetherflux Genius
+// Audit: unsupported — CreateTokenDef rejects tapped/attacking entry modifiers for copy sources;
+// the copy-token path cannot create Satya's token already attacking. The end-step energy payment
+// alone would leave the attack trigger incomplete.
+pub(in crate::card::sets) static SATYA_AETHERFLUX_GENIUS_3: CardRecord = CardRecord::new(
+    "Satya, Aetherflux Genius",
+    "3b964bbe-54cc-425c-9cc6-c877f82af7ba",
+    "Aaron Miller",
+    CardRules::unsupported(),
+);
+
 // M3C 4 — Ulalek, Fused Atrocity
 // Audit: unsupported — Needs grouped copying of every controlled spell and nonmana stack ability with independent target reselection.
 pub(in crate::card::sets) static ULALEK_FUSED_ATROCITY: CardRecord = CardRecord::new(
@@ -391,6 +402,7 @@ const BASILISK_GATE_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &SATYA_AETHERFLUX_GENIUS_3,
     &ULALEK_FUSED_ATROCITY,
     &ELDRAZI_CONFLUENCE_32,
     &ELDRITCH_IMMUNITY_33,

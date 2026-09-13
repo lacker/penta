@@ -108,7 +108,36 @@ impl Game {
             context.chooser_after(self.result)
         };
         let deck = &context.decks[player.index()];
-        let (prompt, minimum, maximum, options) = if sideboarding {
+        let swapping = self
+            .format
+            .commander_definition()
+            .is_some_and(|rules| rules.commander_swapping);
+        let (prompt, minimum, maximum, options) = if sideboarding && swapping {
+            let options = deck
+                .commanders
+                .iter()
+                .chain(&deck.main)
+                .enumerate()
+                .map(|(index, id)| DecisionOption {
+                    id: u32::try_from(index).expect("deck size fits IDs"),
+                    label: self.catalog.get(*id).expect("registered card").name.clone(),
+                    card: None,
+                    members: Vec::new(),
+                    ability_text: None,
+                    zone: if index < deck.commanders.len() {
+                        DecisionZone::Command
+                    } else {
+                        DecisionZone::Library
+                    },
+                })
+                .collect::<Vec<_>>();
+            (
+                "Choose commanders for the next game",
+                1,
+                2.min(options.len()),
+                options,
+            )
+        } else if sideboarding {
             let options = deck
                 .main
                 .iter()
@@ -209,6 +238,25 @@ impl Game {
 
     fn sideboard_selection(&self, player: PlayerId, options: &[u32]) -> Deck {
         let deck = &self.match_context.as_ref().expect("match context").decks[player.index()];
+        if self
+            .format
+            .commander_definition()
+            .is_some_and(|rules| rules.commander_swapping)
+        {
+            let mut selected = Deck {
+                commanders: Vec::new(),
+                main: Vec::new(),
+                sideboard: deck.sideboard.clone(),
+            };
+            for (index, id) in deck.commanders.iter().chain(&deck.main).enumerate() {
+                if options.contains(&u32::try_from(index).expect("deck size fits IDs")) {
+                    selected.commanders.push(*id);
+                } else {
+                    selected.main.push(*id);
+                }
+            }
+            return selected;
+        }
         let mut selected = Deck {
             commanders: deck.commanders.clone(),
             main: Vec::new(),

@@ -528,6 +528,17 @@ pub(in crate::card::sets) static WILT_LEAF_LIEGE: CardRecord = CardRecord::new(
     CardRules::unsupported(),
 );
 
+// SHM 257 — Painter's Servant
+// Audit: unsupported — Needs one chosen-color addition across cards in every zone, spells, and
+// permanents, with that binding carried through the distinct card and battlefield characteristic
+// walks.
+pub(in crate::card::sets) static PAINTER_S_SERVANT_257: CardRecord = CardRecord::new(
+    "Painter's Servant",
+    "be407a81-b25a-4e5d-845e-be0cc0d18db8",
+    "Mike Dringenberg",
+    CardRules::unsupported(),
+);
+
 // SHM 258 — Pili-Pala
 // Audit: unsupported — The mana-ability eligibility/payment path rejects UntapSource costs; ordinary nonmana untap-symbol activations do not make this mana ability executable.
 pub(in crate::card::sets) static PILI_PALA_258: CardRecord = CardRecord::new(
@@ -575,6 +586,16 @@ pub(in crate::card::sets) static SUNKEN_RUINS_280: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// SHM 281 — Wooded Bastion
+// Audit: unsupported — The immediate mana-ability payment path rejects hybrid symbols in
+// activation costs, so it cannot pay either half of the filter cost.
+pub(in crate::card::sets) static WOODED_BASTION_281: CardRecord = CardRecord::new(
+    "Wooded Bastion",
+    "7e088fe6-e47a-4e27-b07e-ec35db045359",
+    "Christopher Moeller",
+    CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &CERULEAN_WISPS_31,
     &COUNTERBORE,
@@ -595,11 +616,13 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &BARKSHELL_BLESSING,
     &SEEDCRADLE_WITCH_241,
     &WILT_LEAF_LIEGE,
+    &PAINTER_S_SERVANT_257,
     &PILI_PALA_258,
     &UMBRAL_MANTLE_267,
     &FIRE_LIT_THICKET_271,
     &MYSTIC_GATE_277,
     &SUNKEN_RUINS_280,
+    &WOODED_BASTION_281,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

@@ -150,6 +150,16 @@ pub(in crate::card::sets) static GIVER_OF_RUNES: CardRecord = CardRecord::new(
     ),
 );
 
+// MH1 20 — On Thin Ice
+// Audit: unsupported — Needs exile-until-source-leaves with an immediate return when the duration
+// ends, not a counterable leaves trigger.
+pub(in crate::card::sets) static ON_THIN_ICE_20: CardRecord = CardRecord::new(
+    "On Thin Ice",
+    "b7d4f6b0-ea17-4374-a80c-ba4dd207e9d6",
+    "Lucas Graciano",
+    CardRules::unsupported(),
+);
+
 // MH1 21 — Ranger-Captain of Eos
 pub(in crate::card::sets) static RANGER_CAPTAIN_OF_EOS_21: CardRecord = CardRecord::new(
     "Ranger-Captain of Eos",
@@ -389,6 +399,59 @@ pub(in crate::card::sets) static WINDS_OF_ABANDON: CardRecord = CardRecord::new(
             ),
         ),
     ]),
+);
+
+// MH1 40 — Archmage's Charm
+pub(in crate::card::sets) static ARCHMAGE_S_CHARM_40: CardRecord = CardRecord::new(
+    "Archmage's Charm",
+    "57b852b6-4388-4a41-a5c0-bba37a5c1451",
+    "Alayna Danner",
+    CardRules::new_instant(mana_cost!("{U}{U}{U}")).with_abilities(&[AbilityDef::modal_spell(
+        "Choose one —",
+        &[
+            AbilityDef::spell_with_targets(
+                "Counter target spell.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::Spell,
+                        zones: &[ZoneKind::Stack],
+                        controller: None,
+                        owner: None,
+                    },
+                )],
+                EffectDef::counter_target(TargetIndex::PRIMARY),
+            ),
+            AbilityDef::spell_with_targets(
+                "Target player draws two cards.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Player(PlayerRelation::Any),
+                )],
+                EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(2),
+                },
+            ),
+            AbilityDef::spell_with_targets(
+                "Gain control of target nonland permanent with mana value 1 or less.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                            ObjectPredicateDef::ManaValueAtMost(1),
+                        ]),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: None,
+                        owner: None,
+                    },
+                )],
+                EffectDef::gain_control(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    PlayerRefDef::EffectController,
+                    ControlDurationDef::Indefinitely,
+                ),
+            ),
+        ],
+    )]),
 );
 
 // MH1 46 — Echo of Eons
@@ -1332,6 +1395,16 @@ pub(in crate::card::sets) static GOOD_FORTUNE_UNICORN: CardRecord = CardRecord::
     ]),
 );
 
+// MH1 202 — Hogaak, Arisen Necropolis
+// Audit: unsupported — Casting cannot prohibit every mana payment while allowing convoke and
+// delve to pay the whole cost, including additional costs and commander tax.
+pub(in crate::card::sets) static HOGAAK_ARISEN_NECROPOLIS_202: CardRecord = CardRecord::new(
+    "Hogaak, Arisen Necropolis",
+    "0049e68d-0caf-474f-9523-dad343f1250a",
+    "Vincent Proce",
+    CardRules::unsupported(),
+);
+
 // MH1 216 — Unsettled Mariner
 // Audit: unsupported — The all-zone subtype declaration is read for cards and spells but not applied by the battlefield/copy characteristic walk. Changeling needs the same intrinsic all-types value across those paths.
 pub(in crate::card::sets) static UNSETTLED_MARINER_216: CardRecord = CardRecord::new(
@@ -1416,6 +1489,17 @@ pub(in crate::card::sets) static WRENN_AND_SIX: CardRecord = CardRecord::new(
                 },
             ),
         ]),
+);
+
+// MH1 220 — Arcum's Astrolabe
+// Audit: unsupported — Printed ManaCost rejects snow symbols. SnowMana exists as a separate
+// payment cost, but cannot preserve the printed {S} mana cost and mana value through ordinary
+// casting and copies.
+pub(in crate::card::sets) static ARCUM_S_ASTROLABE_220: CardRecord = CardRecord::new(
+    "Arcum's Astrolabe",
+    "c2462fdf-a594-47d0-8e10-b55901e350d9",
+    "Igor Kieryluk",
+    CardRules::unsupported(),
 );
 
 // MH1 222 — Farmstead Gleaner
@@ -1683,11 +1767,13 @@ pub(in crate::card::sets) static WATERLOGGED_GROVE: CardRecord = CardRecord::new
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &EPHEMERATE,
     &GIVER_OF_RUNES,
+    &ON_THIN_ICE_20,
     &RANGER_CAPTAIN_OF_EOS_21,
     &RHOX_VETERAN,
     &SETTLE_BEYOND_REALITY,
     &SISAY_WEATHERLIGHT_CAPTAIN_29,
     &WINDS_OF_ABANDON,
+    &ARCHMAGE_S_CHARM_40,
     &ECHO_OF_EONS,
     &FAERIE_SEER,
     &FORCE_OF_NEGATION,
@@ -1713,8 +1799,10 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &WINDING_WAY,
     &FALLEN_SHINOBI,
     &GOOD_FORTUNE_UNICORN,
+    &HOGAAK_ARISEN_NECROPOLIS_202,
     &UNSETTLED_MARINER_216,
     &WRENN_AND_SIX,
+    &ARCUM_S_ASTROLABE_220,
     &FARMSTEAD_GLEANER,
     &LESSER_MASTICORE_225,
     &TALISMAN_OF_CONVICTION,

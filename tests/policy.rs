@@ -107,6 +107,7 @@ fn permanent(
         toughness,
         damage: 0,
         counters: Vec::new(),
+        class_level: None,
         loyalty: None,
         loyalty_ability_used_this_turn: false,
         attack_defender: None,

@@ -90,6 +90,7 @@ use crate::card::ValueDef;
 use crate::card::ZoneKind;
 use crate::card::ZonePlacement;
 use crate::card::abilities;
+use crate::card::sets::y2021::adventures_in_the_forgotten_realms::class_level;
 use crate::ids::TargetIndex;
 use crate::mana_cost;
 
@@ -158,6 +159,14 @@ const fn offspring_arrival() -> AbilityDef {
         ))),
     )
 }
+
+const OTTER_TOKEN: TokenCharacteristics =
+    TokenCharacteristics::creature(&["Otter"], &[ManaColor::Blue, ManaColor::Red], 1, 1)
+        .with_abilities(&[abilities::prowess()])
+        .with_art(CardArt::new(
+            "e6b2c465-c446-4dee-9101-763105dcf813",
+            "Julia Griffin",
+        ));
 
 const FOOD_TOKEN: TokenCharacteristics = crate::card::tokens::food().with_art(CardArt::new(
     "0dce2241-e58b-41d4-b57c-9794fc8ee004",
@@ -304,7 +313,7 @@ pub(in crate::card::sets) static BRIGHTBLADE_STOAT: CardRecord = CardRecord::new
 );
 
 // BLB 5 — Builder's Talent
-// Audit: unsupported — Needs a Class-level designation independent of counters, and level-gated ability grants; the existing GainClassLevel path stores ordinary level counters, contrary to CR 716.2b and 716.4.
+// Audit: unsupported — Needs one-or-more noncreature, nonland permanent entry events; the existing zone-change trigger fires once per permanent.
 pub(in crate::card::sets) static BUILDER_S_TALENT: CardRecord = CardRecord::new(
     "Builder's Talent",
     "15fa581a-724e-4196-a9a3-ff84c54bdb7d",
@@ -313,7 +322,7 @@ pub(in crate::card::sets) static BUILDER_S_TALENT: CardRecord = CardRecord::new(
 );
 
 // BLB 6 — Caretaker's Talent
-// Audit: unsupported — Needs a Class-level designation independent of counters, and level-gated ability grants; the existing GainClassLevel path stores ordinary level counters, contrary to CR 716.2b and 716.4.
+// Audit: unsupported — Needs level-granted static token anthem evaluation and one-or-more token entry events rather than token-creation events.
 pub(in crate::card::sets) static CARETAKER_S_TALENT: CardRecord = CardRecord::new(
     "Caretaker's Talent",
     "ad5ea98a-e36e-4ab9-b4da-cc572f3777db",
@@ -1310,12 +1319,93 @@ pub(in crate::card::sets) static FINCH_FORMATION: CardRecord = CardRecord::new(
 );
 
 // BLB 51 — Gossip's Talent
-// Audit: unsupported — Needs a Class-level designation independent of counters, and level-gated ability grants; the existing GainClassLevel path stores ordinary level counters, contrary to CR 716.2b and 716.4.
 pub(in crate::card::sets) static GOSSIP_S_TALENT: CardRecord = CardRecord::new(
     "Gossip's Talent",
     "b299889a-03d6-4659-b0e1-f0830842e40f",
     "Andrea Sipl",
-    CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{U}"))
+        .with_subtypes(&["Class"])
+        .with_abilities(&crate::ability_list![
+            [AbilityDef::triggered(
+                "Whenever a creature you control enters, surveil 1.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ]),
+                    None,
+                    Some(ZoneKind::Battlefield),
+                ),
+                abilities::surveil(ValueDef::Constant(1)),
+            )],
+            class_level!(
+                "{1}{U}: Level 2",
+                "{1}{U}",
+                2,
+                [AbilityDef::triggered_with_targets(
+                    "Whenever you attack, target attacking creature with power 3 \
+                     or less can't be blocked this turn.",
+                    TriggerEventDef::attack_declared(
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                        1,
+                        None,
+                    ),
+                    &[AbilityTargetDef::exactly_one(
+                        AbilityTargetPredicate::Object {
+                            object: ObjectPredicateDef::All(&[
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                ObjectPredicateDef::Attacking,
+                                ObjectPredicateDef::Not(&ObjectPredicateDef::PowerAtLeast(4)),
+                            ]),
+                            zones: &[ZoneKind::Battlefield],
+                            controller: Some(PlayerRelation::Any),
+                            owner: None,
+                        },
+                    )],
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
+                            ObjectPredicateDef::Any,
+                        )),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                )],
+            ),
+            class_level!(
+                "{3}{U}: Level 3",
+                "{3}{U}",
+                3,
+                [AbilityDef::triggered(
+                    "Whenever a creature you control deals combat damage to a \
+                     player, you may exile it, then return it to the battlefield \
+                     under its owner's control.",
+                    TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ])),
+                    EffectDef::May {
+                        player: EffectRecipientDef::Controller,
+                        effect: &EffectDef::WithZoneMoveResult {
+                            effect: &EffectDef::move_to_zone(
+                                EffectRecipientDef::TriggeringObject,
+                                ZoneKind::Exile,
+                                ZonePlacement::Top,
+                            ),
+                            binding: crate::Binding!("blinked"),
+                            then: &EffectDef::move_to_zone(
+                                EffectRecipientDef::objects(
+                                    ObjectSetDef::ZoneChangeSuccessorsOfBinding(crate::Binding!(
+                                        "blinked"
+                                    )),
+                                ),
+                                ZoneKind::Battlefield,
+                                ZonePlacement::Top,
+                            ),
+                        },
+                    },
+                )],
+            ),
+        ]),
 );
 
 // BLB 52 — Into the Flood Maw
@@ -1580,30 +1670,23 @@ pub(in crate::card::sets) static OTTERBALL_ANTICS: CardRecord = CardRecord::new(
              noncreature spell, a creature with prowess gets +1/+1 until \
              end of turn.)",
             EffectDef::CreateToken(
-                CreateTokenDef::new(TokenDef::Literal(
-                    TokenCharacteristics::creature(
-                        &["Otter"],
-                        &[ManaColor::Blue, ManaColor::Red],
-                        1,
-                        1,
-                    )
-                    .with_abilities(&[abilities::prowess()]),
-                ))
-                .with_created_tokens(CreatedTokensDef {
-                    binding: crate::Binding!("otter"),
-                    then: &EffectDef::IfCondition {
-                        condition: &TriggerConditionDef::Not(&TriggerConditionDef::SourceCastFrom(
-                            ZoneKind::Hand,
-                        )),
-                        then: &EffectDef::AddCounters {
-                            object: EffectRecipientDef::objects(ObjectSetDef::Binding(
-                                crate::Binding!("otter"),
-                            )),
-                            kind: CounterKind::PlusOnePlusOne,
-                            amount: ValueDef::Constant(1),
+                CreateTokenDef::new(TokenDef::Literal(OTTER_TOKEN)).with_created_tokens(
+                    CreatedTokensDef {
+                        binding: crate::Binding!("otter"),
+                        then: &EffectDef::IfCondition {
+                            condition: &TriggerConditionDef::Not(
+                                &TriggerConditionDef::SourceCastFrom(ZoneKind::Hand),
+                            ),
+                            then: &EffectDef::AddCounters {
+                                object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                    crate::Binding!("otter"),
+                                )),
+                                kind: CounterKind::PlusOnePlusOne,
+                                amount: ValueDef::Constant(1),
+                            },
                         },
                     },
-                }),
+                ),
             ),
         ),
         abilities::flashback(&[CostDef::Mana(mana_cost!("{3}{U}"))]),
@@ -1996,12 +2079,62 @@ pub(in crate::card::sets) static SPLASH_PORTAL: CardRecord = CardRecord::new(
 );
 
 // BLB 75 — Stormchaser's Talent
-// Audit: unsupported — Needs a Class-level designation independent of counters, and level-gated ability grants; the existing GainClassLevel path stores ordinary level counters, contrary to CR 716.2b and 716.4.
 pub(in crate::card::sets) static STORMCHASERS_TALENT: CardRecord = CardRecord::new(
     "Stormchaser's Talent",
     "a36e682d-b43d-4e08-bf5b-70d7e924dbe5",
     "Christina Kraus",
-    CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{U}"))
+        .with_subtypes(&["Class"])
+        .with_abilities(&crate::ability_list![
+            [abilities::enters_trigger(
+                "When this Class enters, create a 1/1 blue and red Otter \
+                 creature token with prowess.",
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(OTTER_TOKEN))),
+            )],
+            class_level!(
+                "{3}{U}: Level 2",
+                "{3}{U}",
+                2,
+                [AbilityDef::triggered_with_targets(
+                    "When this Class becomes level 2, return target instant or \
+                     sorcery card from your graveyard to your hand.",
+                    TriggerEventDef::BecomesLevel(2),
+                    &[AbilityTargetDef::exactly_one(
+                        AbilityTargetPredicate::Object {
+                            object: ObjectPredicateDef::AnyOf(&[
+                                ObjectPredicateDef::HasType(CardType::Instant),
+                                ObjectPredicateDef::HasType(CardType::Sorcery),
+                            ]),
+                            zones: &[ZoneKind::Graveyard],
+                            controller: None,
+                            owner: Some(PlayerRelation::You),
+                        },
+                    )],
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ZoneKind::Hand,
+                        ZonePlacement::Top,
+                    ),
+                )],
+            ),
+            class_level!(
+                "{5}{U}: Level 3",
+                "{5}{U}",
+                3,
+                [AbilityDef::triggered(
+                    "Whenever you cast an instant or sorcery spell, create a 1/1 \
+                     blue and red Otter creature token with prowess.",
+                    TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Instant),
+                            ObjectPredicateDef::HasType(CardType::Sorcery),
+                        ]),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ])),
+                    EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(OTTER_TOKEN))),
+                )],
+            ),
+        ]),
 );
 
 // BLB 76 — Sugar Coat
@@ -2184,12 +2317,86 @@ pub(in crate::card::sets) static AGATE_BLADE_ASSASSIN: CardRecord = CardRecord::
 );
 
 // BLB 83 — Bandit's Talent
-// Audit: unsupported — Needs a Class-level designation independent of counters, and level-gated ability grants; the existing GainClassLevel path stores ordinary level counters, contrary to CR 716.2b and 716.4.
 pub(in crate::card::sets) static BANDIT_S_TALENT: CardRecord = CardRecord::new(
     "Bandit's Talent",
     "485dc8d8-9e44-4a0f-9ff6-fa448e232290",
     "Volkan Baǵa",
-    CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{B}"))
+        .with_subtypes(&["Class"])
+        .with_abilities(&crate::ability_list![
+            [abilities::enters_trigger(
+                "When this Class enters, each opponent discards two cards \
+                 unless they discard a nonland card.",
+                EffectDef::PayOr(
+                    PayOrDef::unless(
+                        &[CostDef::discard(ObjectPredicateDef::Not(
+                            &ObjectPredicateDef::HasType(CardType::Land),
+                        ))],
+                        &EffectDef::Discard {
+                            recipient: EffectRecipientDef::Opponent,
+                            amount: ValueDef::Constant(2),
+                            selection: DiscardSelectionDef::RecipientChooses,
+                            then: None,
+                        },
+                    )
+                    .with_payer(crate::card::PlayerSetDef::Related(PlayerRelation::Opponent)),
+                ),
+            )],
+            class_level!(
+                "{B}: Level 2",
+                "{B}",
+                2,
+                [AbilityDef::triggered_if(
+                    "At the beginning of each opponent's upkeep, if that player \
+                     has one or fewer cards in hand, they lose 2 life.",
+                    TriggerEventDef::StepBegins {
+                        step: TurnStepDef::Upkeep,
+                        player: PlayerRelation::Opponent,
+                    },
+                    &TriggerConditionDef::ObjectCount {
+                        query: ObjectQueryDef::matching(
+                            ObjectPredicateDef::Any,
+                            &[ZoneKind::Hand],
+                            PlayerRelation::Opponent,
+                        ),
+                        comparison: ComparisonDef::LessOrEqual,
+                        amount: 1,
+                    },
+                    EffectDef::LoseLife {
+                        recipient: EffectRecipientDef::Opponent,
+                        amount: ValueDef::Constant(2),
+                    },
+                )],
+            ),
+            class_level!(
+                "{3}{B}: Level 3",
+                "{3}{B}",
+                3,
+                [AbilityDef::triggered(
+                    "At the beginning of your draw step, draw an additional card \
+                     for each opponent who has one or fewer cards in hand.",
+                    TriggerEventDef::StepBegins {
+                        step: TurnStepDef::Draw,
+                        player: PlayerRelation::You,
+                    },
+                    EffectDef::IfCondition {
+                        condition: &TriggerConditionDef::ObjectCount {
+                            query: ObjectQueryDef::matching(
+                                ObjectPredicateDef::Any,
+                                &[ZoneKind::Hand],
+                                PlayerRelation::Opponent,
+                            ),
+                            comparison: ComparisonDef::LessOrEqual,
+                            amount: 1,
+                        },
+                        then: &EffectDef::DrawCards {
+                            recipient: EffectRecipientDef::Controller,
+                            amount: ValueDef::Constant(1),
+                        },
+                    },
+                )],
+            ),
+        ]),
 );
 
 // BLB 84 — Bonebind Orator
@@ -2870,12 +3077,103 @@ pub(in crate::card::sets) static SCALES_OF_SHALE: CardRecord = CardRecord::new(
 );
 
 // BLB 111 — Scavenger's Talent
-// Audit: unsupported — Needs a Class-level designation independent of counters, and level-gated ability grants; the existing GainClassLevel path stores ordinary level counters, contrary to CR 716.2b and 716.4.
 pub(in crate::card::sets) static SCAVENGER_S_TALENT: CardRecord = CardRecord::new(
     "Scavenger's Talent",
     "9a52b7fe-87ae-425b-85fd-b24e6e0395f1",
     "Chris Seaman",
-    CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{B}"))
+        .with_subtypes(&["Class"])
+        .with_abilities(&crate::ability_list![
+            [AbilityDef::triggered(
+                "Whenever one or more creatures you control die, create a \
+                 Food token. This ability triggers only once each turn.",
+                TriggerEventDef::ObjectsDied {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ]),
+                },
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(FOOD_TOKEN))),
+            )
+            .triggering_at_most(1)],
+            class_level!(
+                "{1}{B}: Level 2",
+                "{1}{B}",
+                2,
+                [AbilityDef::triggered_with_targets(
+                    "Whenever you sacrifice a permanent, target player mills two \
+                     cards.",
+                    TriggerEventDef::Sacrificed {
+                        object: ObjectPredicateDef::Any,
+                        player: PlayerRelation::You,
+                    },
+                    &[AbilityTargetDef::exactly_one(
+                        AbilityTargetPredicate::Player(PlayerRelation::Any),
+                    )],
+                    EffectDef::Mill {
+                        player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        amount: ValueDef::Constant(2),
+                    },
+                )],
+            ),
+            class_level!(
+                "{2}{B}: Level 3",
+                "{2}{B}",
+                3,
+                [AbilityDef::triggered(
+                    "At the beginning of your end step, you may sacrifice three \
+                     other nonland permanents. If you do, return a creature card \
+                     from your graveyard to the battlefield with a finality \
+                     counter on it.",
+                    TriggerEventDef::StepBegins {
+                        step: TurnStepDef::End,
+                        player: PlayerRelation::You,
+                    },
+                    EffectDef::PayOr(PayOrDef::optional(
+                        &[crate::card::actions::choose_sacrifice(3)
+                            .matching(ObjectPredicateDef::All(&[
+                                ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                                ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(
+                                    CardType::Land,
+                                )),
+                            ]))
+                            .as_cost()],
+                        &EffectDef::Choose(ChooseDef {
+                            binding: ObjectChoiceBindingDef::Objects(crate::Binding!("returned")),
+                            unchosen: None,
+                            chooser: PlayerRefDef::EffectController,
+                            candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                &[ZoneKind::Graveyard],
+                                PlayerRelation::You,
+                            )),
+                            exclude: None,
+                            minimum: 1,
+                            maximum: 1,
+                            visibility: ChoiceVisibilityDef::Public,
+                            then: &EffectDef::WithBattlefieldArrival {
+                                effect: &EffectDef::move_to_zone(
+                                    EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                        crate::Binding!("returned"),
+                                    )),
+                                    ZoneKind::Battlefield,
+                                    ZonePlacement::Top,
+                                ),
+                                arrival: BattlefieldArrivalDef {
+                                    modifications: &[
+                                        BattlefieldEntryModificationDef::AddCountersValue {
+                                            kind: CounterKind::Finality,
+                                            amount: ValueDef::Constant(1),
+                                        },
+                                    ],
+                                    ..BattlefieldArrivalDef::DEFAULT
+                                },
+                            },
+                        }),
+                    )),
+                )],
+            ),
+        ]),
 );
 
 // BLB 112 — Season of Loss
@@ -3265,7 +3563,7 @@ pub(in crate::card::sets) static ALANIA_S_PATHMAKER: CardRecord = CardRecord::ne
 );
 
 // BLB 124 — Artist's Talent
-// Audit: unsupported — Needs a Class-level designation independent of counters, and level-gated ability grants; the existing GainClassLevel path stores ordinary level counters, contrary to CR 716.2b and 716.4.
+// Audit: unsupported — Needs level-granted static spell-cost reduction and a noncombat damage amount replacement for opposing recipients.
 pub(in crate::card::sets) static ARTIST_S_TALENT: CardRecord = CardRecord::new(
     "Artist's Talent",
     "8b9e51d9-189b-4dd6-87cb-628ea6373e81",
@@ -3274,7 +3572,7 @@ pub(in crate::card::sets) static ARTIST_S_TALENT: CardRecord = CardRecord::new(
 );
 
 // BLB 125 — Blacksmith's Talent
-// Audit: unsupported — Needs a Class-level designation independent of counters, and level-gated ability grants; the existing GainClassLevel path stores ordinary level counters, contrary to CR 716.2b and 716.4.
+// Audit: unsupported — Needs level-granted static ability grants to equipped creatures during your turn.
 pub(in crate::card::sets) static BLACKSMITH_S_TALENT: CardRecord = CardRecord::new(
     "Blacksmith's Talent",
     "4bb318fa-481d-40a7-978e-f01b49101ae0",
@@ -4828,16 +5126,107 @@ pub(in crate::card::sets) static HONORED_DREYLEADER: CardRecord = CardRecord::ne
 );
 
 // BLB 179 — Hunter's Talent
-// Audit: unsupported — Needs a Class-level designation independent of counters, and level-gated ability grants; the existing GainClassLevel path stores ordinary level counters, contrary to CR 716.2b and 716.4.
 pub(in crate::card::sets) static HUNTER_S_TALENT: CardRecord = CardRecord::new(
     "Hunter's Talent",
     "e9a31863-9649-4a4f-99e4-c93729938bd7",
     "Kisung Koh",
-    CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{G}"))
+        .with_subtypes(&["Class"])
+        .with_abilities(&crate::ability_list![
+            [abilities::enters_trigger_with_targets(
+                "When this Class enters, target creature you control deals \
+                 damage equal to its power to target creature you don't \
+                 control.",
+                &[
+                    AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::You),
+                        owner: None,
+                    }),
+                    AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::Opponent),
+                        owner: None,
+                    }),
+                ],
+                EffectDef::damage_from(
+                    ObjectRefDef::Target(TargetIndex::PRIMARY),
+                    EffectRecipientDef::Target(TargetIndex(1)),
+                    ValueDef::TargetPower(TargetIndex::PRIMARY),
+                ),
+            )],
+            class_level!(
+                "{1}{G}: Level 2",
+                "{1}{G}",
+                2,
+                [AbilityDef::triggered_with_targets(
+                    "Whenever you attack, target attacking creature gets +1/+0 \
+                     and gains trample until end of turn.",
+                    TriggerEventDef::attack_declared(
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                        1,
+                        None,
+                    ),
+                    &[AbilityTargetDef::exactly_one(
+                        AbilityTargetPredicate::Object {
+                            object: ObjectPredicateDef::All(&[
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                ObjectPredicateDef::Attacking,
+                            ]),
+                            zones: &[ZoneKind::Battlefield],
+                            controller: Some(PlayerRelation::Any),
+                            owner: None,
+                        },
+                    )],
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        effect: AppliedEffectDef::Composite(&[
+                            AppliedEffectDef::modify_power_toughness(
+                                ValueDef::Constant(1),
+                                ValueDef::Constant(0),
+                            ),
+                            AppliedEffectDef::add_ability(&abilities::trample()),
+                        ]),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                )],
+            ),
+            class_level!(
+                "{3}{G}: Level 3",
+                "{3}{G}",
+                3,
+                [AbilityDef::triggered_if(
+                    "At the beginning of your end step, if you control a creature \
+                     with power 4 or greater, draw a card.",
+                    TriggerEventDef::StepBegins {
+                        step: TurnStepDef::End,
+                        player: PlayerRelation::You,
+                    },
+                    &TriggerConditionDef::ObjectCount {
+                        query: ObjectQueryDef::matching(
+                            ObjectPredicateDef::All(&[
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                ObjectPredicateDef::PowerAtLeast(4),
+                            ]),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        ),
+                        comparison: ComparisonDef::GreaterOrEqual,
+                        amount: 1,
+                    },
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    },
+                )],
+            ),
+        ]),
 );
 
 // BLB 180 — Innkeeper's Talent
-// Audit: unsupported — Needs a Class-level designation independent of counters, and level-gated ability grants; the existing GainClassLevel path stores ordinary level counters, contrary to CR 716.2b and 716.4.
+// Audit: unsupported — Needs counter-placement replacement over permanent and player counters and level-granted static ward grants.
 pub(in crate::card::sets) static INNKEEPER_S_TALENT: CardRecord = CardRecord::new(
     "Innkeeper's Talent",
     "941b0afc-0e8f-45f2-ae7f-07595e164611",

@@ -96,6 +96,7 @@ pub(super) fn permanent_snapshot(
             .detained_until_turn_of
             .map(|(player, turns)| (player.index(), turns)),
         skipped_untap_steps: permanent.skipped_untap_steps,
+        class_level: permanent.class_level,
         control_reverts_to: permanent.control_reverts_to.map(PlayerId::index),
         control_source: permanent.control_source.map(|id| id.0),
         resolving_control_timestamp: permanent

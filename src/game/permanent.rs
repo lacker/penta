@@ -62,6 +62,8 @@ struct Permanent {
     /// How many of this permanent's controller's untap steps it still has to
     /// sit out. Counted rather than flagged because Telekinesis names two.
     skipped_untap_steps: u8,
+    /// CR 716.2b: a noncopiable designation, independent of counters.
+    class_level: Option<u8>,
     /// Who controls this permanent again once the turn ends, set while a
     /// control-changing effect holds it. Cleanup restores it.
     control_reverts_to: Option<PlayerId>,
@@ -323,6 +325,7 @@ impl Permanent {
             activated_loyalty_this_turn: false,
             detained_until_turn_of: None,
             skipped_untap_steps: 0,
+            class_level: None,
             control_reverts_to: None,
             control_source: None,
             resolving_control_timestamp: None,

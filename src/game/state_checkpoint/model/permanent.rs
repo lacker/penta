@@ -51,6 +51,8 @@ pub(super) struct PermanentSnapshot {
     /// Untap steps this permanent still owes before it untaps normally.
     #[serde(default, skip_serializing_if = "emptiness::is_zero_u8")]
     pub(super) skipped_untap_steps: u8,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(super) class_level: Option<u8>,
     pub(super) control_reverts_to: Option<usize>,
     /// The permanent sustaining a duration-scoped control change, absent for
     /// the turn-scoped form and for everything untouched.

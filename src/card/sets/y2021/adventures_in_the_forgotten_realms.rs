@@ -20,6 +20,7 @@ use crate::card::ColorSet;
 use crate::card::ComparisonDef;
 use crate::card::ConditionDef;
 use crate::card::CostDef;
+use crate::card::CounterKind;
 use crate::card::CreatureTypeSetDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
@@ -51,6 +52,123 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
+/// CR 716.2a: each bar is an activation plus a conditional ability grant.
+/// The level belongs to the permanent, including when copied abilities change.
+macro_rules! class_level {
+    ($text:literal, $cost:literal, $level:literal, [$($ability:expr),+ $(,)?] $(,)?) => {
+        [
+            $crate::card::AbilityDef::activated(
+                $text,
+                &[$crate::card::CostDef::Mana($crate::mana_cost!($cost))],
+                $crate::card::EffectDef::GainClassLevel { level: $level },
+            ).with_activation_timing($crate::card::ActivationTimingDef::SorcerySpeed)
+             .with_activation_condition(&$crate::card::TriggerConditionDef::SourceClassLevel {
+                 comparison: $crate::card::ComparisonDef::Equal, level: $level - 1,
+             }),
+            $($crate::card::AbilityDef::static_ability(
+                ($ability).text,
+                $crate::card::EffectDef::IfCondition {
+                    condition: &$crate::card::TriggerConditionDef::SourceClassLevel {
+                        comparison: $crate::card::ComparisonDef::GreaterOrEqual, level: $level,
+                    },
+                    then: &$crate::card::EffectDef::StaticApply {
+                        recipient: $crate::card::EffectRecipientDef::Source,
+                        effect: $crate::card::AppliedEffectDef::add_ability(&$ability),
+                    },
+                },
+            )),+
+        ]
+    };
+}
+pub(crate) use class_level;
+
+// AFR 6 — Cleric Class
+pub(in crate::card::sets) static CLERIC_CLASS: CardRecord = CardRecord::new(
+    "Cleric Class",
+    "47ce8b7e-d8e1-489a-a69e-99089eeb8739",
+    "Alayna Danner",
+    CardRules::new_enchantment(mana_cost!("{W}"))
+        .with_subtypes(&["Class"])
+        .with_abilities(&crate::ability_list![
+            [AbilityDef::replacement_for(
+                "If you would gain life, you gain that much life plus 1 instead.",
+                crate::card::ReplacementEventDef::WouldGainLife(PlayerRelation::You),
+                ReplacementEffectDef::AddToEventAmount(1),
+            )],
+            class_level!(
+                "{3}{W}: Level 2",
+                "{3}{W}",
+                2,
+                [AbilityDef::triggered_with_targets(
+                    "Whenever you gain life, put a +1/+1 counter on target creature you control.",
+                    TriggerEventDef::LifeGained(PlayerRelation::You),
+                    &[AbilityTargetDef::exactly_one(
+                        AbilityTargetPredicate::Object {
+                            object: ObjectPredicateDef::HasType(CardType::Creature),
+                            zones: &[ZoneKind::Battlefield],
+                            controller: Some(PlayerRelation::You),
+                            owner: None,
+                        }
+                    )],
+                    EffectDef::AddCounters {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        kind: CounterKind::PlusOnePlusOne,
+                        amount: ValueDef::Constant(1),
+                    },
+                )]
+            ),
+            class_level!(
+                "{4}{W}: Level 3",
+                "{4}{W}",
+                3,
+                [AbilityDef::triggered_with_targets(
+                    "When this Class becomes level 3, return target creature card \
+                     from your graveyard to the battlefield. You gain life equal \
+                     to that creature's toughness.",
+                    TriggerEventDef::BecomesLevel(3),
+                    &[AbilityTargetDef::exactly_one(
+                        AbilityTargetPredicate::Object {
+                            object: ObjectPredicateDef::HasType(CardType::Creature),
+                            zones: &[ZoneKind::Graveyard],
+                            controller: None,
+                            owner: Some(PlayerRelation::You),
+                        }
+                    )],
+                    EffectDef::WithZoneMoveResult {
+                        effect: &EffectDef::move_to_zone(
+                            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            ZoneKind::Battlefield,
+                            ZonePlacement::Top,
+                        ),
+                        binding: crate::Binding!("returned"),
+                        then: &EffectDef::GainLife {
+                            recipient: EffectRecipientDef::Controller,
+                            amount: ValueDef::AggregateObjectValues(
+                                &crate::card::ObjectValueAggregateDef {
+                                    objects:
+                                        crate::card::ObjectSetDef::ZoneChangeSuccessorsOfBinding(
+                                            crate::Binding!("returned")
+                                        ),
+                                    select: crate::card::ObjectValueDef::Toughness,
+                                    operation: crate::card::AggregateOperationDef::Sum,
+                                }
+                            ),
+                        },
+                    },
+                )]
+            ),
+        ]),
+);
+
+// AFR 29 — Paladin Class
+// Audit: unsupported — Needs level-granted static anthem evaluation and opponent spell taxation during your turn.
+pub(in crate::card::sets) static PALADIN_CLASS: CardRecord = CardRecord::new(
+    "Paladin Class",
+    "5bf81fb1-7992-4ae9-b1a8-80c31579a2bf",
+    "Campbell White",
+    CardRules::unsupported(),
+);
 
 // AFR 33 — Portable Hole
 pub(in crate::card::sets) static PORTABLE_HOLE: CardRecord = CardRecord::new(
@@ -125,6 +243,64 @@ pub(in crate::card::sets) static YOU_HEAR_SOMETHING_ON_WATCH: CardRecord = CardR
     )),
 );
 
+// AFR 81 — Wizard Class
+pub(in crate::card::sets) static WIZARD_CLASS: CardRecord = CardRecord::new(
+    "Wizard Class",
+    "d1f629fb-b097-4240-8560-ef47f5678f48",
+    "Marta Nael",
+    CardRules::new_enchantment(mana_cost!("{U}"))
+        .with_subtypes(&["Class"])
+        .with_abilities(&crate::ability_list![
+            [AbilityDef::static_ability(
+                "You have no maximum hand size.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Controller,
+                    effect: AppliedEffectDef::Rule(crate::card::AppliedRuleDef::PlayerRule(
+                        crate::card::PlayerRuleDef::NoMaximumHandSize,
+                    )),
+                },
+            )],
+            class_level!(
+                "{2}{U}: Level 2",
+                "{2}{U}",
+                2,
+                [AbilityDef::triggered(
+                    "When this Class becomes level 2, draw two cards.",
+                    TriggerEventDef::BecomesLevel(2),
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(2),
+                    },
+                )],
+            ),
+            class_level!(
+                "{4}{U}: Level 3",
+                "{4}{U}",
+                3,
+                [AbilityDef::triggered_with_targets(
+                    "Whenever you draw a card, put a +1/+1 counter on target \
+                     creature you control.",
+                    TriggerEventDef::DrewCard(crate::card::DrawEventMatcherDef::any(
+                        PlayerRelation::You,
+                    )),
+                    &[AbilityTargetDef::exactly_one(
+                        AbilityTargetPredicate::Object {
+                            object: ObjectPredicateDef::HasType(CardType::Creature),
+                            zones: &[ZoneKind::Battlefield],
+                            controller: Some(PlayerRelation::You),
+                            owner: None,
+                        },
+                    )],
+                    EffectDef::AddCounters {
+                        object: EffectRecipientDef::Target(TargetIndex(0)),
+                        kind: CounterKind::PlusOnePlusOne,
+                        amount: ValueDef::Constant(1),
+                    },
+                )],
+            ),
+        ]),
+);
+
 // AFR 119 — Shambling Ghast
 pub(in crate::card::sets) static SHAMBLING_GHAST_119: CardRecord = CardRecord::new(
     "Shambling Ghast",
@@ -192,6 +368,24 @@ pub(in crate::card::sets) static VAMPIRE_SPAWN: CardRecord = CardRecord::new(
             ]),
         ),
     ]),
+);
+
+// AFR 125 — Warlock Class
+// Audit: unsupported — Needs each opponent's total life lost this turn, rather than net life change.
+pub(in crate::card::sets) static WARLOCK_CLASS: CardRecord = CardRecord::new(
+    "Warlock Class",
+    "b7faf899-96b7-454e-b634-6684c2d72f26",
+    "Kieran Yanner",
+    CardRules::unsupported(),
+);
+
+// AFR 131 — Barbarian Class
+// Audit: unsupported — Needs dice-roll replacement and dice-roll trigger events.
+pub(in crate::card::sets) static BARBARIAN_CLASS: CardRecord = CardRecord::new(
+    "Barbarian Class",
+    "647c2269-bdc7-4455-9158-73abbff6e50e",
+    "Campbell White",
+    CardRules::unsupported(),
 );
 
 // AFR 132 — Battle Cry Goblin
@@ -277,6 +471,15 @@ pub(in crate::card::sets) static CIRCLE_OF_DREAMS_DRUID_176: CardRecord = CardRe
     ),
 );
 
+// AFR 180 — Druid Class
+// Audit: unsupported — Needs level-granted additional-land permission and durable animation with a granted characteristic-defining ability.
+pub(in crate::card::sets) static DRUID_CLASS: CardRecord = CardRecord::new(
+    "Druid Class",
+    "09278e95-eaae-4cd4-a0d8-a2d15b0abb58",
+    "Svetlin Velinov",
+    CardRules::unsupported(),
+);
+
 // AFR 198 — Owlbear
 pub(in crate::card::sets) static OWLBEAR: CardRecord = CardRecord::new(
     "Owlbear",
@@ -294,6 +497,15 @@ pub(in crate::card::sets) static OWLBEAR: CardRecord = CardRecord::new(
             },
         ),
     ]),
+);
+
+// AFR 202 — Ranger Class
+// Audit: unsupported — Needs level-granted top-library visibility and creature-casting permissions.
+pub(in crate::card::sets) static RANGER_CLASS: CardRecord = CardRecord::new(
+    "Ranger Class",
+    "7ca392ca-3219-4694-9a74-aa079c76b91e",
+    "Suzanne Helmigh",
+    CardRules::unsupported(),
 );
 
 // AFR 207 — The Tarrasque
@@ -347,6 +559,51 @@ pub(in crate::card::sets) static YOU_MEET_IN_A_TAVERN: CardRecord = CardRecord::
             ),
         ],
     )),
+);
+
+// AFR 217 — Bard Class
+// Audit: unsupported — Needs level-granted static colored-mana cost modifiers; the existing colored-symbol reduction is read only from intrinsic clauses.
+pub(in crate::card::sets) static BARD_CLASS: CardRecord = CardRecord::new(
+    "Bard Class",
+    "37d6343a-c514-4ca6-a415-62d1a473ae20",
+    "Andrew Mar",
+    CardRules::unsupported(),
+);
+
+// AFR 222 — Fighter Class
+// Audit: unsupported — Needs equip-only activation cost reduction and mandatory blocking of a particular attacker.
+pub(in crate::card::sets) static FIGHTER_CLASS: CardRecord = CardRecord::new(
+    "Fighter Class",
+    "d54a8329-b940-42c9-8ace-1d74407d14cb",
+    "Volkan Baǵa",
+    CardRules::unsupported(),
+);
+
+// AFR 228 — Monk Class
+// Audit: unsupported — Needs card-bound exile casting permission conditional on another spell cast this turn.
+pub(in crate::card::sets) static MONK_CLASS: CardRecord = CardRecord::new(
+    "Monk Class",
+    "b2edd708-46ee-4963-b7e6-b631616d78fe",
+    "Randy Vargas",
+    CardRules::unsupported(),
+);
+
+// AFR 230 — Rogue Class
+// Audit: unsupported — Needs source-linked face-down exile with persistent look permission and level-gated play permission.
+pub(in crate::card::sets) static ROGUE_CLASS: CardRecord = CardRecord::new(
+    "Rogue Class",
+    "0727f65b-cfbe-47d5-87c6-239cf8d93ca6",
+    "Véronique Meignaud",
+    CardRules::unsupported(),
+);
+
+// AFR 233 — Sorcerer Class
+// Audit: unsupported — Needs mana restricted specifically to Class-level bar activations, alongside instant or sorcery casting.
+pub(in crate::card::sets) static SORCERER_CLASS: CardRecord = CardRecord::new(
+    "Sorcerer Class",
+    "f754b385-a28d-48de-a91f-2b4f33cc47f7",
+    "Alexander Mokhov",
+    CardRules::unsupported(),
 );
 
 // AFR 258 — Hive of the Eye Tyrant
@@ -449,18 +706,30 @@ pub(in crate::card::sets) static ASMODEUS_THE_ARCHFIEND_373: CardRecord = CardRe
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &CLERIC_CLASS,
+    &PALADIN_CLASS,
     &PORTABLE_HOLE,
     &YOU_HEAR_SOMETHING_ON_WATCH,
+    &WIZARD_CLASS,
     &SHAMBLING_GHAST_119,
     &VAMPIRE_SPAWN,
+    &WARLOCK_CLASS,
+    &BARBARIAN_CLASS,
     &BATTLE_CRY_GOBLIN_132,
     &HOBGOBLIN_BANDIT_LORD_147,
     &PLUNDERING_BARBARIAN_158,
     &UNEXPECTED_WINDFALL_164,
     &CIRCLE_OF_DREAMS_DRUID_176,
+    &DRUID_CLASS,
     &OWLBEAR,
+    &RANGER_CLASS,
     &THE_TARRASQUE_207,
     &YOU_MEET_IN_A_TAVERN,
+    &BARD_CLASS,
+    &FIGHTER_CLASS,
+    &MONK_CLASS,
+    &ROGUE_CLASS,
+    &SORCERER_CLASS,
     &HIVE_OF_THE_EYE_TYRANT_258,
     &OLD_GNAWBONE_296,
     &OSWALD_FIDDLEBENDER_304,

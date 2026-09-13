@@ -984,6 +984,15 @@ pub(in crate::card::sets) static DELAYED_BLAST_FIREBALL: CardRecord = CardRecord
     ]),
 );
 
+// CLB 663 — Artificer Class
+// Audit: unsupported — Needs first-artifact-spell cost reduction per turn.
+pub(in crate::card::sets) static ARTIFICER_CLASS: CardRecord = CardRecord::new(
+    "Artificer Class",
+    "cf4e9335-06e3-4b27-8fd8-3e44ece89a36",
+    "Jim Nelson",
+    CardRules::unsupported(),
+);
+
 // CLB 748 — Dauthi Horror (reprint)
 const DAUTHI_HORROR_REPRINT: PrintingRecord = PrintingRecord::reprint(
     &crate::card::sets::y1997::tempest::DAUTHI_HORROR,
@@ -1026,6 +1035,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &DEEP_GNOME_TERRAMANCER_607,
     &BLACK_MARKET_CONNECTIONS_620,
     &DELAYED_BLAST_FIREBALL,
+    &ARTIFICER_CLASS,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[

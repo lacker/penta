@@ -198,6 +198,7 @@ fn permanent_observation_json(
             "count": counter.count,
         })).collect::<Vec<_>>(),
         "loyalty": permanent.loyalty,
+        "classLevel": permanent.class_level,
         "loyaltyAbilityUsedThisTurn": permanent.loyalty_ability_used_this_turn,
         "attacking": permanent.attacking,
         "attackDefender": permanent.attack_defender.map(defender_json),

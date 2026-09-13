@@ -1878,6 +1878,12 @@ random stream when its effect resolves; choosing a mana payment never rolls it.
 
 ## Determinism and versioning
 
+Battlefield observations expose the optional `classLevel` designation separately
+from counters. Null or absent means the permanent has no designation and is
+treated as level 1. Checkpoint permanent state preserves the additive
+`classLevel` field, including retired and phased-out objects; the level is not
+a copiable characteristic. Existing protocol and checkpoint epochs are unchanged.
+
 Entry-time creature-type choices retain their authored label in the optional
 `chosenCreatureTypeBinding` member of each checkpoint permanent's state. This
 also applies to pending and retired permanents, so floating restricted mana

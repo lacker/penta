@@ -182,8 +182,7 @@ pub(super) enum CommittedTriggerEvent {
     BecameMonarch {
         player: PlayerId,
     },
-    /// A Class reached a level it had not reached before. One event per
-    /// level crossed, so a Class taken from one to three raises two.
+    /// A permanent's level changed to this value (CR 716.2a).
     BecameLevel {
         object: GameObjectId,
         level: u8,

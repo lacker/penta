@@ -117,6 +117,7 @@ pub(in super::super) fn shared_trigger_condition(condition: TriggerConditionDef)
         | TriggerConditionDef::SourceWasCast
         | TriggerConditionDef::SourceCastAtInstantSpeed
         | TriggerConditionDef::SourceLoyalty { .. }
+        | TriggerConditionDef::SourceClassLevel { .. }
         | TriggerConditionDef::SourceCounters { .. }
         | TriggerConditionDef::ControlsGreatestPowerCreature
         | TriggerConditionDef::SourceActivationsThisTurn { .. }
@@ -189,6 +190,7 @@ pub(in super::super) fn shared_static_trigger_condition(condition: TriggerCondit
         | TriggerConditionDef::SpellsCastThisTurn { .. }
             | TriggerConditionDef::SourceUntapped
         | TriggerConditionDef::SourceIsPaired
+            | TriggerConditionDef::SourceClassLevel { .. }
             | TriggerConditionDef::SourceCounters { .. }
             // Reachable from the source by following its attachment, which
             // is exactly the input a static clause has.

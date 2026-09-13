@@ -33,8 +33,8 @@ pub enum EffectDef {
         color: ManaColor,
         amount: ValueDef,
     },
-    /// "{cost}: Level N." Adds counters until the Class reaches that level;
-    /// reaching it raises the matching event exactly once (CR 717.3).
+    /// Set the source permanent's level designation to N (CR 716.2a).
+    /// A change raises only the event for the resulting level.
     GainClassLevel {
         level: u8,
     },

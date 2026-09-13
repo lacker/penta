@@ -706,6 +706,10 @@ fn parse_permanent(
         .map(|(player, turns)| player_from_index(player).map(|player| (player, turns)))
         .transpose()?;
     permanent.skipped_untap_steps = state.skipped_untap_steps;
+    if state.class_level == Some(0) {
+        return Err("a permanent level must be positive".into());
+    }
+    permanent.class_level = state.class_level;
     permanent.control_reverts_to = state
         .control_reverts_to
         .map(player_from_index)

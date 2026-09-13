@@ -49,6 +49,7 @@ fn static_trigger_condition_supported(condition: TriggerConditionDef) -> bool {
         | TriggerConditionDef::SourceInZone(_)
         | TriggerConditionDef::SourceUntapped
         | TriggerConditionDef::SourceIsPaired
+        | TriggerConditionDef::SourceClassLevel { .. }
         | TriggerConditionDef::SourceCounters { .. }
         | TriggerConditionDef::SourceCastWith(_)
         | TriggerConditionDef::SourcePaidAlternativeCost(_)

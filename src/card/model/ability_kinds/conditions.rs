@@ -199,6 +199,8 @@ pub enum TriggerConditionDef {
     /// "as long as equipped creature is a Human" asks, and it is read live so
     /// the answer follows the Equipment as it moves.
     AttachedPermanentMatches { object: ObjectPredicateDef },
+    /// The source permanent's noncopiable level; an unset level reads as 1.
+    SourceClassLevel { comparison: ComparisonDef, level: u8 },
     /// How many counters of one kind the ability's own source carries. This
     /// is what "as long as there are exactly three tide counters on this
     /// creature" asks, and it is read live rather than captured.

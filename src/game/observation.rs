@@ -232,6 +232,8 @@ pub struct PermanentObservation {
     pub counters: Vec<CounterObservation>,
     /// Loyalty counters, present only for planeswalkers.
     pub loyalty: Option<u16>,
+    /// Noncopiable level designation. An absent designation is treated as 1.
+    pub class_level: Option<u8>,
     pub loyalty_ability_used_this_turn: bool,
     /// The declared player or planeswalker defender while this permanent is
     /// attacking. Declaring an attack does not target that defender.

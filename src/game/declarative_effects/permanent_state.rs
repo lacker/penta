@@ -15,36 +15,36 @@ use crate::ids::GameObjectId;
 use crate::{CharacteristicContext, EffectRecipientDef};
 
 impl Game {
-    /// "Level N": put level counters on a Class until it is that level, and
-    /// raise an event for each level it passes through. A Class is level 1
-    /// with no counters (CR 717.3), so level N is N-1 counters.
+    /// Setting a level is not placing counters or visiting intermediate levels.
+    /// An already activated ability can resolve even if the source is no longer
+    /// a Class, and can lower its level (for example, a delayed copied ability).
     pub(in crate::game) fn raise_class_level(&mut self, source: GameObjectId, level: u8) {
-        let Some(wanted) = u16::from(level).checked_sub(1) else {
-            return;
-        };
-        let Some(permanent) = self
-            .battlefield
-            .iter_mut()
-            .find(|permanent| permanent.card.id == source)
-        else {
-            return;
-        };
-        let current = permanent.counters(CounterKind::named("level"));
-        if current >= wanted {
+        if level == 0 {
             return;
         }
-        permanent.set_counters(CounterKind::named("level"), wanted);
-        // One event per level crossed, so a Class taken from one to three by
-        // a single effect fires both of its clauses.
-        for reached in current + 1..=wanted {
-            let Ok(reached) = u8::try_from(reached + 1) else {
-                continue;
-            };
+        let Some(permanent) = self.battlefield.iter_mut().find(|p| p.card.id == source) else {
+            return;
+        };
+        let previous = permanent.class_level.unwrap_or(1);
+        permanent.class_level = Some(level);
+        if previous != level {
             self.capture_battlefield_triggers(&CommittedTriggerEvent::BecameLevel {
                 object: source,
-                level: reached,
+                level,
             });
         }
+    }
+
+    pub(in crate::game) fn current_or_last_known_class_level(&self, source: GameObjectId) -> u8 {
+        self.battlefield
+            .iter()
+            .find(|p| p.card.id == source)
+            .or_else(|| match self.retired_objects.get(&source) {
+                Some(crate::game::RetiredObject::Permanent { permanent, .. }) => Some(permanent),
+                _ => None,
+            })
+            .and_then(|p| p.class_level)
+            .unwrap_or(1)
     }
 
     pub(super) fn resolve_permanent_state_effect(

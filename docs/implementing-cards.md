@@ -520,3 +520,18 @@ pool after activation costs, before any entry produces mana. Doubling Cube
 composes six entries, each counting and adding one matching type. Production
 creates new mana carrying the producing effect's source and payload; the count
 query does not copy restrictions, spend effects, or source properties.
+
+## Class level bars
+
+Use `sets::adventures_in_the_forgotten_realms::class_level!` inside
+`ability_list!` with the bar text, mana cost, level, and its complete ability
+clauses. It expands into a sorcery-speed activation restricted to the previous
+level and conditional grants of the enclosed abilities. The permanent's level
+is a noncopiable designation independent of counters (CR 716); a new object
+starts at level 1. Setting a level emits only the resulting level's event.
+
+A granted static ability must also be supported by the reader of its effects.
+Several current static-effect readers visit intrinsic clauses only; a level
+condition around a directly executable static effect is not a substitute for
+an actual ability grant. Keep such cards wholly unsupported until their readers
+can evaluate the granted clauses, and identify that gap in the inline audit.

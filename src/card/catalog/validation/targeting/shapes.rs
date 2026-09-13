@@ -562,6 +562,7 @@ fn validate_trigger_condition_shape(
         | TriggerConditionDef::PlayerHasMostLife(_)
         | TriggerConditionDef::ControllerLifeAtMostHalfStartingLife
         | TriggerConditionDef::ControlsGreatestPowerCreature
+        | TriggerConditionDef::SourceClassLevel { .. }
         | TriggerConditionDef::SourceCounters { .. } => Ok(()),
         TriggerConditionDef::ValueComparison(values) => {
             validate_value_shape(values.left, targets)?;

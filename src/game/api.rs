@@ -768,6 +768,7 @@ impl Game {
             power,
             toughness,
             damage: permanent.damage,
+            class_level: permanent.class_level,
             counters: permanent
                 .counters
                 .iter()
@@ -812,6 +813,7 @@ impl Game {
         let stateful = attached
             || stored_effect
             || permanent.detained_until_turn_of.is_some()
+            || permanent.class_level.is_some()
             || permanent.skipped_untap_steps > 0
             || permanent.control_reverts_to.is_some()
             || permanent.control_source.is_some()

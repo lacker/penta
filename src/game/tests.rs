@@ -948,6 +948,7 @@ pub(in crate::game) mod composed_mechanic_programs;
 mod playtest_regressions;
 
 mod bloomburrow;
+mod class_levels;
 mod lost_caverns_of_ixalan;
 mod wilds_of_eldraine;
 

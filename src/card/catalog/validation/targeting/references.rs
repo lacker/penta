@@ -389,6 +389,7 @@ fn validate_trigger_condition(
         | TriggerConditionDef::ControlsGreatestPowerCreature
         | TriggerConditionDef::SourceMatches { .. }
         | TriggerConditionDef::AttachedPermanentMatches { .. }
+        | TriggerConditionDef::SourceClassLevel { .. }
         | TriggerConditionDef::SourceCounters { .. }
         | TriggerConditionDef::SourceCastWith(_)
         | TriggerConditionDef::SourcePaidAdditionalCost(_)

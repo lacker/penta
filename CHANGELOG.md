@@ -26,6 +26,14 @@ the bot-wire epoch.
   and `result`; existing wire and checkpoint encodings are unchanged. Component
   counters use the existing named-counter representation.
 
+- Correct Class levels under CR 716: levels are noncopiable permanent
+  designations, not counters; bars activate from the preceding level at sorcery
+  speed and grant their abilities while at or above their level. Add optional
+  `classLevel` observation and checkpoint state without changing epochs.
+  Implement Cleric Class, Wizard Class, and Bandit's, Gossip's, Hunter's,
+  Scavenger's, and Stormchaser's Talents. Audit all remaining paper Class
+  cards from BLB, AFR, and CLB against their specific outstanding mechanics.
+
 - Add `legacy` and `vintage` format profiles and browser setup options with
   separate banned/restricted policies and all 24 lists from the initial event
   corpus. Card pools remain cataloged subsets; missing identities use complete

@@ -620,6 +620,9 @@ impl Game {
                             false,
                         )
                     }),
+                TriggerConditionDef::SourceClassLevel { comparison, level } => compare(
+                    &self.current_or_last_known_class_level(source), *comparison, level,
+                ),
                 // Read live off the source, so a card whose counters change
                 // during a turn answers differently each time it is asked --
                 // and off what it last carried once it has left, the way

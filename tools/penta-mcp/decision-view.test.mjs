@@ -7,7 +7,7 @@ const definition = "00000000-0000-0000-0000-000000000001";
 const catalog = { cards: [{ definition, name: "Printed name", rulesText: "Flying", parts: [{ id: 0, name: "Printed name", rulesText: "Flying" }] },
   { definition: "hidden", name: "Secret opponent card", rulesText: "Never inline" }] };
 const observation = {
-  protocolVersion: 32, seat: "p1", activeSeat: "p2", prioritySeat: "p1", turn: 3, activeTurn: 2, step: "Main1",
+  protocolVersion: 33, seat: "p1", activeSeat: "p2", prioritySeat: "p1", turn: 3, activeTurn: 2, step: "Main1",
   life: [0, 20], manaPools: [{ red: 1 }, {}], hand: [{ objectId: 9, name: "Same name", definition }],
   battlefield: [{ objectId: 10, name: "Copied name", definition, power: 3, toughness: 2, tapped: false,
     counters: [{ name: "+1/+1", count: 1 }], art: { scryfallId: definition, artist: "Artist" } },
@@ -93,7 +93,7 @@ test("frozen references page every choice and disclosure; card text can be refre
 
 test("decision view checks compatibility and does not join mismatched catalog text", () => {
   assert.throws(() => new DecisionView({ ...ready(), apiVersion: 2 }, catalog), /requires session API/);
-  assert.throws(() => new DecisionView(ready({ ...observation, protocolVersion: 33 }), catalog), /bot protocol 32/);
+  assert.throws(() => new DecisionView(ready({ ...observation, protocolVersion: 32 }), catalog), /bot protocol 33/);
   const view = new DecisionView(ready({ ...observation, simulationFingerprint: "current" }),
     { ...catalog, simulationFingerprint: "other" });
   assert.deepEqual(view.packet.rules, [{ definition, available: false }]);

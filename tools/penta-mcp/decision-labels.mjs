@@ -20,6 +20,7 @@ export function actionLabel(action, names) {
   const object = id => objectLabel(id, names);
   let label;
   switch (action.type) {
+    case "BeginPayment": label = "Choose payment"; break;
     case "PassPriority": label = "Pass priority"; break;
     case "Concede": label = "Concede"; break;
     case "KeepHand": label = "Keep hand"; break;

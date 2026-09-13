@@ -204,6 +204,12 @@ impl Game {
             arrived: None,
             enumerated: EnumeratedActions::default(),
             prospective_x: super::prospective_x::ProspectiveX::default(),
+            payment_query: super::payment::query::PaymentQuery::default(),
+            explicit_mana_payment: None,
+            explicit_mana_payment_tail: std::collections::VecDeque::new(),
+            payment_probe: None,
+            explicit_funding: None,
+            explicit_cast_contributions: None,
             successors: std::collections::HashMap::new(),
             damage_taken_this_turn: checkpoint.damage_taken_this_turn,
             attacked_subtypes_this_turn: [

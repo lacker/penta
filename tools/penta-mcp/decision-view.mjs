@@ -14,8 +14,8 @@ export class DecisionView {
   active = true;
 
   constructor(view, catalog, seenRules = new Set(), full = false) {
-    if (view.apiVersion !== 1 || (view.observation.protocolVersion !== undefined && view.observation.protocolVersion !== 32)) {
-      throw new Error("decision-v1 requires session API 1 and bot protocol 32; use the exact interface or update the adapter");
+    if (view.apiVersion !== 1 || (view.observation.protocolVersion !== undefined && view.observation.protocolVersion !== 33)) {
+      throw new Error("decision-v1 requires session API 1 and bot protocol 33; use the exact interface or update the adapter");
     }
     this.revision = view.revision;
     this.source = structuredClone(view.observation);

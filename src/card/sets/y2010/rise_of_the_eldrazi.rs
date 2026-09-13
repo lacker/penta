@@ -302,6 +302,7 @@ pub(in crate::card::sets) static TRAINING_GROUNDS: CardRecord = CardRecord::new(
          to activate. This effect can't reduce the mana in that cost \
          to less than one mana.",
         EffectDef::ModifyCost(CostModificationDef::AbilityReduction {
+            abilities: crate::card::AbilityKindDef::Activated,
             permanent: ObjectPredicateDef::All(&[
                 ObjectPredicateDef::HasType(CardType::Creature),
                 ObjectPredicateDef::ControlledBy(PlayerRelation::You),

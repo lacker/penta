@@ -18,9 +18,9 @@ pub(super) use stack_effects::shared_stack_effect;
 
 use crate::Game;
 use crate::card::{
-    ActivatedAbilityDef, AppliedRuleDef, BlockRestrictionMatchDef, CostAdjustmentDef,
-    CostAmountDef, CostModificationDef, ManaTypeDef, ReplacementConditionDef,
-    SpellCostConditionDef, StackObjectEventDef, StackTargetFilterDef,
+    AppliedRuleDef, BlockRestrictionMatchDef, CostAdjustmentDef, CostAmountDef,
+    CostModificationDef, ManaTypeDef, ReplacementConditionDef, SpellCostConditionDef,
+    StackObjectEventDef, StackTargetFilterDef,
 };
 
 use super::*;
@@ -419,30 +419,6 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
             }
         }
         DeclarativeAbilityDef::ActivatedMana(definition) => {
-            fn is_bounded(definition: &ActivatedAbilityDef) -> bool {
-                // A printed "only once each turn" bounds the ability just as
-                // surely as a cost that spends the board does, which is what
-                // lets Vivi Ornitier's {0} be a cost at all.
-                definition.activation_limit.is_some()
-                    || definition.once_per_object
-                    || definition.costs.iter().any(|cost| {
-                        matches!(
-                            cost,
-                            CostDef::TapSource
-                                | CostDef::ExertSource
-                                | CostDef::DiscardHand
-                                | CostDef::SacrificeSource
-                                | CostDef::ExileSource
-                                // Sacrificing another permanent bounds the
-                                // ability the same way spending the source
-                                // does.
-                                | CostDef::SacrificePermanent { .. }
-                                | CostDef::TapPermanents { count: 1, .. }
-                                | CostDef::ExileCardFromHand(_)
-                        )
-                    })
-            }
-
             let battlefield = battlefield_only(definition.source_zones);
             let hand = definition.source_zones == [ZoneKind::Hand]
                 && definition.costs == [CostDef::ExileSource]
@@ -498,14 +474,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     ) || matches!(cost, CostDef::TapPermanents { object, count: 1, .. }
                         if shared_object_predicate(*object)) || matches!(
                         cost,
-                        // Mana is paid out of the pool, so the ability also
-                        // has to be bounded some other way; flexible mana
-                        // symbols and {X} would need a choice the activation
-                        // cannot carry.
-                        CostDef::Mana(mana)
-                            if !mana.variable_x
-                                && mana.hybrid_total() == 0
-                                && is_bounded(&definition)
+                        CostDef::Mana(_) if crate::game::Game::mana_ability_cost_is_supported(&definition, cost)
                     )
                 })
                 && definition

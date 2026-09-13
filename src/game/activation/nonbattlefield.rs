@@ -9,9 +9,41 @@ use crate::ModeId;
 use crate::card::MoveToZoneCostDef;
 
 impl Game {
-    /// Pays what a graveyard activation owes. The permanent it taps goes
-    /// first, so automatic mana payment cannot tap it out from under the
-    /// cost it is paying.
+    #[allow(clippy::too_many_arguments)]
+    pub(super) fn probe_nonbattlefield_activation_payment(
+        &mut self,
+        player: PlayerId,
+        source: GameObjectId,
+        origin: AbilityOrigin,
+        cost: crate::ManaCost,
+        costs: &[CostDef],
+        announced: AnnouncedActivationCost<'_>,
+    ) -> bool {
+        if self.payment_probe.is_none() {
+            return false;
+        }
+        self.lose_life(player, crate::card::costs::life_cost(costs));
+        let cost = self.announced_activation_cost(player, cost, announced.mana_payment);
+        let mut reserved =
+            Self::activation_payment_reservations(source, origin, costs, announced.cost_objects);
+        reserved.retain(|resource| {
+            !matches!(
+                resource,
+                super::super::payment::resources::PaymentReservation::Life(_)
+            )
+        });
+        self.capture_payment_probe(
+            player,
+            cost,
+            announced.x,
+            announced.payment_purpose,
+            reserved,
+            costs.iter().any(|cost| matches!(cost, CostDef::Mana(_))),
+        )
+    }
+
+    /// Raise mana while reserving the chosen payer, then pay the remaining
+    /// graveyard activation costs at the same boundary as other abilities.
     pub(super) fn pay_graveyard_activation_costs(
         &mut self,
         player: PlayerId,
@@ -27,14 +59,6 @@ impl Game {
             mana_payment,
         } = announced;
         let mana_cost = self.priced_ability_mana_cost(source, definition, targets);
-        if definition
-            .costs
-            .iter()
-            .any(|cost| matches!(cost, CostDef::TapPermanents { count: 1, .. }))
-            && let Some(chosen) = cost_objects.first()
-        {
-            let _ = self.tap_permanent(*chosen);
-        }
         self.pay_nonbattlefield_activation_mana_and_life(
             player,
             mana_cost,
@@ -46,9 +70,17 @@ impl Game {
                 mana_payment,
             },
         );
+        if definition
+            .costs
+            .iter()
+            .any(|cost| matches!(cost, CostDef::TapPermanents { count: 1, .. }))
+            && let Some(chosen) = cost_objects.first()
+        {
+            let _ = self.tap_permanent(*chosen);
+        }
         for cost in definition.costs {
             match cost {
-                // Paid above; the chosen permanent is tapped before mana.
+                // Paid above, after raising mana.
                 CostDef::Mana(_)
                 | CostDef::PayLife(_)
                 | CostDef::TapPermanents { count: 1, .. } => {}

@@ -256,7 +256,7 @@ and request ID described below.
 
 The default `exact` presentation, explicit `play` batches, and raw `inspect`
 remain available. `inspect(section: "observation")` always supplies the exact
-playing observation. `decision-v1` checks session API 1 and bot protocol 32;
+playing observation. `decision-v1` checks session API 1 and bot protocol 33;
 it does not change HTTP, checkpoint, or replay schemas. See the
 [implementation note](design-notes/model-facing-bot-interface.md) for the field
 mapping and remaining controlled-evaluation work. No Astra token or wall-clock

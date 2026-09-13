@@ -25,6 +25,23 @@ use super::{
     rename_all_fields = "camelCase"
 )]
 pub(in crate::game::state_checkpoint) enum DecisionContinuationSnapshot {
+    ExplicitFunding {
+        draft: super::PaymentDraftSnapshot,
+    },
+    ExplicitDraftMana {
+        draft: super::PaymentDraftSnapshot,
+        action: Option<usize>,
+        units: Vec<usize>,
+    },
+    ExplicitPayment {
+        player: usize,
+        x: u16,
+        action: Option<usize>,
+        resume: Option<Box<ExplicitPaymentResumeSnapshot>>,
+        effect_choice: Option<Vec<u32>>,
+        allocations: Vec<Vec<usize>>,
+        units: Vec<usize>,
+    },
     CommanderReturn {
         remaining: Vec<(usize, Vec<u32>)>,
         selected: Vec<u32>,
@@ -404,4 +421,10 @@ pub(in crate::game::state_checkpoint) struct PregameAbilityActionSnapshot {
     pub(in crate::game::state_checkpoint) source: u32,
     pub(in crate::game::state_checkpoint) ability: AbilityOriginSnapshot,
     pub(in crate::game::state_checkpoint) cost_objects: Vec<u32>,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub(in crate::game::state_checkpoint) struct ExplicitPaymentResumeSnapshot {
+    pub(in crate::game::state_checkpoint) observation: serde_json::Value,
+    pub(in crate::game::state_checkpoint) state: Box<super::DecisionStateSnapshot>,
 }

@@ -411,7 +411,10 @@ impl Game {
             form: option.form.clone(),
             reserved_life_payment: total_life,
         };
-        if cost.variable_x && choices.x() > self.maximum_x_for(player, cost, &payment_purpose) {
+        if !self.payment_query.unfunded()
+            && cost.variable_x
+            && choices.x() > self.maximum_x_for(player, cost, &payment_purpose)
+        {
             return None;
         }
         if !self.can_pay_cost_for_reserving_with_life(

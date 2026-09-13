@@ -13,6 +13,7 @@ mod adversarial;
 mod broad_audit;
 mod composed_mechanic_programs;
 mod effect_walkers;
+mod explicit_payment;
 mod face_down_characteristics;
 mod game_action_programs;
 mod labeled_choices;

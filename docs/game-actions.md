@@ -174,6 +174,40 @@ its owner, including lands acquired through other effects. The control action
 has indefinite duration; the trigger later changes control. Vexing Sphinx,
 Polar Kraken, and Phyrexian Soulgorger exercise discard and sacrifice payments.
 
+## Explicit payment and automatic planning
+
+Paying a cost and finding an automatic payment are separate responsibilities.
+`BeginPayment` opens an engine decision for a spell, ordinary activated ability,
+mana ability, or a resolving mana payment. It remains available when automatic
+source search fails and when the player prefers another payment.
+
+An operation binds its targets, cost objects, modes, alternative costs, and X
+before funding. A prepared projection reaches the operation's real payment
+boundary, freezing its cost and reserving resources still owed. The player then
+selects mana abilities and their costs, followed by exact individual mana units.
+For spells, convoke, delve, and improvise bind each chosen resource to a specific
+cost symbol; those contributions never create floating mana. Mana abilities run
+before direct contributions and the remaining costs, with no intervening
+priority or state-based actions.
+
+The automatic allocator proposes individual mana units to the same validator
+and committer used by explicit payment. Validation checks exact quantities,
+restrictions, resource conflicts, and source identity. Committing a complete
+proposal replays its validated funding program through the existing semantic
+owners and preserves mana provenance and spend effects. An invalid or cancelled
+proposal spends nothing. Resolving payments retain their enclosing continuation;
+opening a payment choice never grants priority.
+
+Payment decisions collect choices incrementally, including replacement answers,
+and use the ordinary decision protocol for browser users, agents, and bots.
+Pending proposals reconstruct from checked continuation data. Checkpoint support
+fails closed where a viewer's hidden information cannot reproduce a proposal.
+
+The existing context-specific cost syntax boundaries still apply. Unsupported
+cost semantics require implementation in their semantic owner; improving source
+search cannot make them executable. Conversely, a bounded automatic search does
+not define which supported, explicitly supplied payments the engine accepts.
+
 ## Traversal and reconstruction
 
 `child_effects` exposes action sequences, alternatives, named selected-action bodies, and action

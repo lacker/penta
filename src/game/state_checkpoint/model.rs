@@ -620,3 +620,8 @@ pub(super) enum ZoneMoveCauseSnapshot {
 }
 
 include!("model/replacement_effect_context.rs");
+
+pub(super) use continuation::ExplicitPaymentResumeSnapshot;
+
+mod payment_drafts;
+pub(super) use payment_drafts::{FundingStepSnapshot, PaymentDraftSnapshot};

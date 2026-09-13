@@ -5,6 +5,13 @@ impl Game {
         source: GameObjectId,
         activation: &ManaAbilityActivation,
     ) {
+        let mana = activation.costs.iter().filter_map(|cost| match cost {
+            CostDef::Mana(mana) => Some(*mana), _ => None,
+        }).reduce(super::add_mana_cost);
+        if let Some(mana) = mana {
+            let purpose = super::payment::mana_ability_payment_purpose(source, &activation.costs);
+            let _ = self.pay_player_cost_for(player, mana, 0, &purpose);
+        }
         for cost in activation.costs.as_slice() {
             match cost {
                 CostDef::TapSource => {
@@ -36,7 +43,8 @@ impl Game {
                 // before the activation was built. The two sacrifices and the
                 // exile are deferred to the batch below, so that a Goblin
                 // sacrificing itself leaves the battlefield once.
-                CostDef::SacrificeSource
+                CostDef::Mana(_)
+                | CostDef::SacrificeSource
                 | CostDef::ReturnSourceToHand
                 | CostDef::ExileSource
                 | CostDef::SacrificePermanent { .. }
@@ -62,12 +70,6 @@ impl Game {
                         .map(|card| card.id)
                         .collect::<Vec<_>>();
                     self.discard_cards(player, &hand);
-                }
-                CostDef::Mana(cost) => {
-                    // Out of the pool, never by planning: the mana this
-                    // ability is about to make is not available to pay for
-                    // making it.
-                    let _ = self.pay_player_cost(player, *cost, 0);
                 }
                 CostDef::Loyalty(change) => {
                     self.pay_loyalty_cost(source, *change);

@@ -263,22 +263,20 @@ impl Game {
             x,
             mana_payment,
         } = request;
-        if let Some(card) = self.players[player.index()]
-            .hand
-            .iter()
-            .find(|card| card.id == source)
+        if let Some((zone, card)) = self.card_in_nonbattlefield_zone(source)
+            && card.owner == player
+            && let Some(context) = match zone {
+                ZoneKind::Hand => Some(CharacteristicContext::Hand),
+                ZoneKind::Graveyard => Some(CharacteristicContext::Graveyard),
+                ZoneKind::Exile => Some(CharacteristicContext::Exile),
+                _ => None,
+            }
             && let Some(definition) = self
-                .find_printed_card_ability(card, &CharacteristicContext::Hand, |effective| {
-                    effective.origin == ability
-                        && matches!(
-                            effective.ability.definition,
-                            DeclarativeAbilityDef::Activated(definition)
-                                if definition.procedure == AbilityProcedureDef::Shared
-                        )
-                })
+                .find_printed_card_ability(card, &context, |effective| effective.origin == ability)
                 .and_then(|effective| match effective.ability.definition {
                     DeclarativeAbilityDef::Activated(definition)
-                        if definition.source_zones.contains(&ZoneKind::Hand) =>
+                        if definition.procedure == AbilityProcedureDef::Shared
+                            && definition.source_zones.contains(&zone) =>
                     {
                         Some(definition)
                     }
@@ -437,26 +435,21 @@ impl Game {
             )
     }
 
-    /// Whether the player's floating pool alone covers this cost.
-    ///
-    /// A mana ability that costs mana is paid from the pool and nowhere
-    /// else. Planning further activations to cover it would ask the planner
-    /// about the very ability being planned, so the mana has to be there
-    /// already: tap the land, then filter what it made.
-    pub(super) fn pool_covers_cost(&self, player: PlayerId, cost: ManaCost) -> bool {
-        let mut spare = self.eligible_mana_pool(player, &ManaPaymentPurpose::Other);
+    /// Check floating mana, including the legacy repeatable-life source.
+    /// Explicit funding sequences activate each source separately.
+    pub(super) fn pool_covers_cost_for(
+        &self,
+        player: PlayerId,
+        cost: ManaCost,
+        purpose: &ManaPaymentPurpose,
+    ) -> bool {
+        let (cost, x) = self.restrict_x(cost, 0, purpose);
+        let mut spare = self.eligible_mana_pool(player, purpose);
         spare.add_color(
             ManaColor::Colorless,
             self.repeatable_life_mana_available(player),
         );
-        for color in colored_mana() {
-            let required = mana_cost_amount(cost, color);
-            if spare.amount(color) < required {
-                return false;
-            }
-            spare.remove_color(color, required);
-        }
-        spare.total() >= cost.generic
+        payment_remainder(spare, cost, x, &|_| 0, &ManaColor::ALL, false).is_some()
     }
 
     /// One planning record per enumerated activation.
@@ -662,6 +655,9 @@ impl Game {
         cost: ManaCost,
         purpose: &ManaPaymentPurpose,
     ) -> u16 {
+        if self.payment_query.unfunded() {
+            return u16::MAX;
+        }
         let maximum = self.available_mana_ceiling(player, purpose);
         // The upper bound is only a search ceiling; can_pay_cost_for is
         // what rules each X in or out, including the barred source.
@@ -765,6 +761,10 @@ impl Game {
         purpose: &ManaPaymentPurpose,
         reserved: &[GameObjectId],
     ) -> (ManaCost, u16) {
+        if self.explicit_mana_payment.is_some() {
+            self.run_explicit_funding(player);
+            return (cost, x);
+        }
         let life_available =
             u16::try_from(self.players[player.index()].life.max(0)).unwrap_or(u16::MAX);
         let Some(plan) = self.plan_mana_activations(ManaPlanningRequest {

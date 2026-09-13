@@ -107,6 +107,13 @@ impl Game {
         player: PlayerId,
         payments: &[ResolvedEffectPayment],
     ) -> Vec<Vec<PaymentStep>> {
+        if self.explicit_mana_payment.is_some() {
+            let mut query = self.clone();
+            query.payment_query = super::payment::query::PaymentQuery::announcement();
+            query.explicit_mana_payment = None;
+            query.explicit_mana_payment_tail.clear();
+            return query.cost_list_payment_plans(player, payments);
+        }
         let mut distinct = Vec::new();
         for payments in expanded_payment_lists(payments) {
             let normalized = ResolvedEffectPayment::all(payments);
@@ -225,6 +232,11 @@ impl Game {
                 _ => None,
             };
             let paid = if let Some((cost, purpose)) = mana {
+                if self.payment_query.unfunded() {
+                    // Bind nonmana resources independently of automatic funding.
+                    // The explicit executor validates each mana bill separately.
+                    continue;
+                }
                 let life_available = self.life_available_after_payment(player, life)?;
                 self.pay_resolving_mana_cost(player, cost, &reserved, life_available, &purpose)?
             } else {
@@ -278,6 +290,24 @@ impl Game {
                 }
             })
             .collect()
+    }
+
+    pub(super) fn cost_list_mana_obligations(&self, player: PlayerId,
+        payment: &ResolvedEffectPayment, chosen: u32)
+        -> Option<Vec<super::payment::ManaPaymentObligation>>
+    {
+        let plan = self.cost_list_payment_plans(player, std::slice::from_ref(payment))
+            .into_iter().nth(usize::try_from(chosen.checked_sub(1)?).ok()?)?;
+        let mana = plan.iter().filter_map(|step| match step.payment {
+            ResolvedEffectPayment::Mana(cost) => Some((cost, super::ManaPaymentPurpose::Other)),
+            ResolvedEffectPayment::LabeledMana { source, label, cost } => Some((cost,
+                super::ManaPaymentPurpose::Payment { source, label: Some(label), snow: false })),
+            ResolvedEffectPayment::SnowMana { source, label, amount } => Some((ManaCost::new(amount, 0),
+                super::ManaPaymentPurpose::Payment { source, label, snow: true })),
+            _ => None,
+        });
+        let obligations = mana.map(|(cost, purpose)| self.mana_payment_obligation(player, cost, 0, &purpose)).collect::<Vec<_>>();
+        (!obligations.is_empty()).then_some(obligations)
     }
 
     fn settle_cost_list_payment(

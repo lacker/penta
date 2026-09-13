@@ -35,6 +35,20 @@ pub(in crate::game::state_checkpoint) fn decision_referenced_object_ids(
 ) -> Vec<GameObjectId> {
     let mut ids = Vec::new();
     match continuation {
+        DecisionContinuation::Payment(payment) => {
+            use crate::game::payment::state::{PaymentDecision, PaymentTarget};
+            let resume = match payment {
+                PaymentDecision::Funding(draft) => draft.resume.as_deref(),
+                PaymentDecision::Operation { resume, .. } => resume.as_deref(),
+                PaymentDecision::Mana { target, .. } => match target {
+                    PaymentTarget::Draft(draft) | PaymentTarget::Funding { draft, .. } => draft.resume.as_deref(),
+                    PaymentTarget::Action { resume, .. } => resume.as_deref(),
+                    PaymentTarget::Effect { pending, .. } => Some(pending.as_ref()),
+                },
+            };
+            if let Some(pending) = resume { ids.extend(decision_referenced_object_ids(&pending.continuation)); }
+        }
+
         DecisionContinuation::LegendRule { candidates, .. } => {
             ids.extend(candidates.iter().copied());
         }

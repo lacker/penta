@@ -386,7 +386,7 @@ impl Game {
                                 let min_x = Self::configured_alternative_minimum_x(
                                     definition, option, &costs,
                                 );
-                                for x in min_x..=max_x {
+                                for x in self.payment_query.x_values(min_x, max_x) {
                                     // A permission that bounds what it
                                     // reaches by mana value reads the spell
                                     // as it will be on the stack, so an X

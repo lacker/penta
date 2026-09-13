@@ -35,7 +35,7 @@ omniscient event stream to improve its labels or card references.
 ## Versioned position mapping
 
 [`decision-view.mjs`](../../tools/penta-mcp/decision-view.mjs) implements the
-following mapping for session API 1 and bot protocol 32. A future incompatible
+following mapping for session API 1 and bot protocol 33. A future incompatible
 mapping needs a new presentation version; the canonical protocol, checkpoint,
 and replay schemas are unchanged by this layer.
 

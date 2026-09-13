@@ -403,6 +403,7 @@ pub(super) fn should_animate_action(action: &Action) -> bool {
             | Action::BottomCards { .. }
             | Action::Concede
             | Action::PassPriority
+            | Action::BeginPayment
             | Action::ActivateManaAbility { .. }
             | Action::FinishDeclaringAttackers
             | Action::FinishDeclaringBlockers
@@ -433,7 +434,8 @@ pub(super) fn animated_action_kind(action: &Action) -> &'static str {
         | Action::DiscardCards { .. }
         | Action::ChooseDecision { .. }
         | Action::CancelDecision { .. }
-        | Action::ChooseUntap { .. } => "choice",
+        | Action::ChooseUntap { .. }
+        | Action::BeginPayment => "choice",
         Action::Concede
         | Action::PassPriority
         | Action::ActivateManaAbility { .. }

@@ -22,6 +22,9 @@ impl Game {
         // named.
         let pending_options = pending.observation.options.clone();
         match pending.continuation {
+            DecisionContinuation::Payment(payment) => {
+                self.resolve_explicit_payment(payment, options);
+            }
             DecisionContinuation::CommanderReturn {
                 remaining,
                 mut selected,

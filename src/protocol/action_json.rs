@@ -51,6 +51,7 @@ pub fn action_json(action: &Action) -> Value {
             json!({ "type": "ChooseUntap", "permanents": instances_json(permanents) })
         }
         Action::PassPriority => json!({ "type": "PassPriority" }),
+        Action::BeginPayment => json!({ "type": "BeginPayment" }),
         Action::PlayLand { card, option } => json!({
             "type": "PlayLand",
             "card": card.0,

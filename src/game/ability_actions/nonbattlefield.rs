@@ -171,7 +171,7 @@ impl Game {
                 };
                 // As on the battlefield path, X is the outer loop so a slot
                 // whose count comes from X sees the X it was enumerated for.
-                for x in 0..=max_x {
+                for x in self.payment_query.x_values(0, max_x) {
                     for targets in self.legal_ability_target_selections(
                         definition.targets,
                         player,

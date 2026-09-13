@@ -2194,6 +2194,7 @@ button {
 
 .decision-options {
   display: grid;
+  grid-auto-rows: max-content;
   gap: 7px;
   max-height: min(42vh, 360px);
   overflow-y: auto;
@@ -2233,6 +2234,12 @@ button {
 .decision-options button.is-selected {
   border-color: var(--gold);
   box-shadow: inset 4px 0 0 var(--gold);
+}
+
+.engine-decision .decision-options button {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
 }
 
 .decision-options small,
@@ -2477,14 +2484,21 @@ button {
   /* Bottom-align the per-turn controls (Pass priority, play a card, Attack
      all, …) within their flexible region so they sit at the bottom of the
      right column, closer to where the pointer/thumb rests at end of turn.
-     justify-content: flex-end pushes short lists down; overflow-y keeps a
-     long list scrollable from the top when it exceeds the region. */
+     An auto margin absorbs spare space without pushing an overflowing
+     decision prompt above the scrollable region. */
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
   overflow-y: auto;
   scrollbar-color: #554b3e transparent;
   scrollbar-width: thin;
+}
+
+.action-list > :first-child {
+  margin-top: auto;
+}
+
+.action-list > .engine-decision {
+  flex-shrink: 0;
 }
 
 .action {

@@ -144,6 +144,17 @@ examples. Tests should exercise behavior rather than hard-code the current
 epoch or name a branch as its owner. Keep the root `BOTS.md` compatibility
 symlink pointed at `docs/bots.md`.
 
+### Explicit payment
+
+Protocol 33 adds the closed `BeginPayment` action tag. The
+`payments.explicit.v1` capability identifies the payment editor shared by native,
+WASM, and bot clients. Selection uses the ordinary `ChooseDecision` and
+`CancelDecision` contracts; clients must submit the offered option IDs rather
+than interpreting labels. Checkpoint format 19 includes the pending operation,
+funding program, and exact unit selections. The engine reconstructs the offer
+and rejects incompatible or forged choices. See
+[the payment contract](bots.md#explicit-payment).
+
 ### Natural keys and local references
 
 Protocol 32 uses canonical printing UUID strings for card definitions across

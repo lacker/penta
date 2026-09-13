@@ -143,20 +143,29 @@ fn casting_the_exiled_card_answers_the_offer() {
     assert_eq!(game.players[1].life, 20, "the else branch never ran");
 }
 
-/// A card with no legal way to be cast is never offered, and the else branch
-/// runs straight away.
+/// An unfunded card retains its manual offer; declining runs the else branch.
 #[test]
-fn an_unaffordable_card_is_not_offered() {
+fn an_unfunded_card_retains_the_manual_cast_offer() {
     let (mut game, chandra) = staged();
     on_top(&mut game, cards::LIGHTNING_BOLT);
 
     activate(&mut game, chandra, 0, Vec::new());
 
     assert!(
-        game.pending_decisions.is_empty(),
-        "an offer nobody could take is not made",
+        game.legal_actions(PlayerId::One)
+            .contains(&Action::BeginPayment)
     );
-    assert_eq!(game.players[1].life, 18, "the damage happened instead");
+    assert_eq!(game.players[1].life, 20);
+    let decision = game.pending_decisions[0].observation.id;
+    game.apply(
+        PlayerId::One,
+        Action::ChooseDecision {
+            decision,
+            options: vec![0],
+        },
+    )
+    .unwrap();
+    assert_eq!(game.players[1].life, 18, "declining deals the damage");
 }
 
 /// An empty library exiles nothing and offers nothing.

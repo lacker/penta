@@ -12,6 +12,7 @@ impl WebGame {
             && decision.minimum == 1
             && decision.maximum == 1
             && decision.options.len() == 1
+            && !decision.cancellable
             && !decision.prompt.starts_with("Erhnam Djinn")
         {
             return Some(Action::ChooseDecision {
@@ -428,6 +429,7 @@ pub(super) fn automatic_human_action_for_context(
             Action::Concede
                 | Action::PassPriority
                 | Action::ActivateManaAbility { .. }
+                | Action::BeginPayment
                 | Action::FinishDeclaringAttackers
                 | Action::FinishDeclaringBlockers
         )

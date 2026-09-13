@@ -201,7 +201,7 @@ fn session_api_skips_forced_actions_preserving_native_choices_and_replay() {
             .find(|action| {
                 !matches!(
                     action["type"].as_str(),
-                    Some("PassPriority" | "ActivateManaAbility" | "TakeMulligan")
+                    Some("PassPriority" | "ActivateManaAbility" | "TakeMulligan" | "BeginPayment")
                 )
             })
             .unwrap_or(&actions[0]);

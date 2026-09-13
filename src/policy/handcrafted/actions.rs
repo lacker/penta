@@ -219,6 +219,7 @@ impl HandcraftedPolicy {
                 6_000 + Self::score_assignment(observation, assignments)
             }
             Action::PassPriority => 0,
+            Action::BeginPayment => -1,
             Action::Concede => i32::MIN,
         }
     }

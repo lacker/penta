@@ -131,7 +131,10 @@ mod external_opponent {
             actions
                 .iter()
                 .position(|action| {
-                    !matches!(action["type"].as_str(), Some("PassPriority" | "Concede"))
+                    !matches!(
+                        action["type"].as_str(),
+                        Some("PassPriority" | "Concede" | "BeginPayment")
+                    )
                 })
                 .unwrap_or(0),
         )

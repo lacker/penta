@@ -164,6 +164,22 @@ impl Game {
             taps_source: false,
             leaves_source: true,
         };
+        let mana_cost = self.priced_ability_mana_cost(source, &definition, &targets);
+        if self.probe_nonbattlefield_activation_payment(
+            player,
+            source,
+            ability,
+            mana_cost,
+            definition.costs,
+            AnnouncedActivationCost {
+                cost_objects,
+                x,
+                payment_purpose: &payment_purpose,
+                mana_payment,
+            },
+        ) {
+            return;
+        }
         self.pay_graveyard_activation_costs(
             player,
             source,
@@ -345,6 +361,21 @@ impl Game {
                 leaves_source: false,
             };
             let mana_cost = self.priced_ability_mana_cost(source, &definition, &targets);
+            if self.probe_nonbattlefield_activation_payment(
+                player,
+                source,
+                ability,
+                mana_cost,
+                definition.costs,
+                AnnouncedActivationCost {
+                    cost_objects,
+                    x,
+                    payment_purpose: &payment_purpose,
+                    mana_payment,
+                },
+            ) {
+                return;
+            }
             self.pay_nonbattlefield_activation_mana_and_life(
                 player,
                 mana_cost,
@@ -580,6 +611,40 @@ impl Game {
             } else {
                 None
             };
+            // The mana portion is one obligation even when authored as several
+            // nodes. Raise mana before paying nonmana costs, and preserve the
+            // chosen untapped payer through the planner's reservation.
+            if let Some(cost) = payable_mana_cost {
+                let cost = self.announced_activation_cost(player, cost, mana_payment);
+                let payment_purpose = ManaPaymentPurpose::Ability {
+                    source,
+                    taps_source,
+                    leaves_source,
+                };
+                if self.payment_probe.is_some() {
+                    let reserved = Self::activation_payment_reservations(
+                        source,
+                        frozen_ability.origin,
+                        definition.costs,
+                        cost_objects,
+                    );
+                    if self.capture_payment_probe(player, cost, x, &payment_purpose, reserved, true)
+                    {
+                        return;
+                    }
+                }
+                self.activate_mana_for_cost_with_options_for(
+                    player,
+                    cost,
+                    x,
+                    ManaPlanOptions {
+                        avoid: (taps_source || animates_source).then_some(source),
+                        tap_cost_payer,
+                    },
+                    &payment_purpose,
+                );
+                let _ = self.pay_player_cost_for(player, cost, x, &payment_purpose);
+            }
             if definition.costs.iter().any(|cost| {
                 matches!(
                     cost,
@@ -587,40 +652,13 @@ impl Game {
                         | CostDef::TapPermanents { count: 1, .. }
                 )
             }) {
-                // Ahead of the loop, so automatic mana payment cannot tap the
-                // chosen permanent out from under the cost it is paying.
                 let chosen = *cost_objects
                     .first()
                     .expect("a legal activation chose the one to tap");
                 let _ = self.tap_permanent(chosen);
             }
-            let mut mana_paid = false;
             for cost in definition.costs {
                 match cost {
-                    CostDef::Mana(_) | CostDef::ManaCostOf(_) | CostDef::ManaValueOfTarget { .. } => {
-                        if mana_paid {
-                            continue;
-                        }
-                        let cost = payable_mana_cost.expect("a legal activation has its complete mana cost");
-                        let cost = self.announced_activation_cost(player, cost, mana_payment);
-                        let payment_purpose = ManaPaymentPurpose::Ability {
-                            source,
-                            taps_source,
-                            leaves_source,
-                        };
-                        self.activate_mana_for_cost_with_options_for(
-                            player,
-                            cost,
-                            x,
-                            ManaPlanOptions {
-                                avoid: (taps_source || animates_source).then_some(source),
-                                tap_cost_payer,
-                            },
-                            &payment_purpose,
-                        );
-                        let _ = self.pay_player_cost_for(player, cost, x, &payment_purpose);
-                        mana_paid = true;
-                    }
                     CostDef::TapSource => {
                         let _ = self.tap_permanent(source);
                     }
@@ -647,7 +685,8 @@ impl Game {
                     }
                     // The open-ended removal never reaches payment: mana
                     // enumeration replaced it with a sized one.
-                    CostDef::RemoveAnyNumberOfCountersFromSource(_)
+                    CostDef::Mana(_) | CostDef::ManaCostOf(_) | CostDef::ManaValueOfTarget { .. }
+                    | CostDef::RemoveAnyNumberOfCountersFromSource(_)
                     | CostDef::ReturnUnblockedAttackerToHand
                     | CostDef::TapPermanents { .. }
                     // Paid by decision after everything else, the way a

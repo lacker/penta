@@ -183,6 +183,7 @@ impl Game {
                     && offer.player == player
                 {
                     self.add_offered_cast_actions(offer, &mut offered_casts);
+                    actions.push(Action::BeginPayment);
                     // "You may play the exiled card": a land is played
                     // rather than cast, so the offer stands beside the
                     // casts rather than being one of them.
@@ -210,6 +211,10 @@ impl Game {
                 // answering the decision, so the cast stands beside the
                 // decline rather than behind it.
                 actions.append(&mut offered_casts);
+                if self.payment_mana_window() {
+                    self.add_payment_mana_actions(player, &mut actions);
+                    actions.push(Action::BeginPayment);
+                }
                 if let Some(pregame) = decision.continuation.pregame_actions(player) {
                     actions.extend(pregame.iter().map(PregameAbilityAction::action));
                 }
@@ -321,6 +326,9 @@ impl Game {
         self.add_plot_actions(player, &mut actions);
         self.add_suspend_actions(player, &mut actions);
         self.add_unlock_door_actions(player, &mut actions);
+        if self.explicit_payment_available(player, &actions) {
+            actions.push(Action::BeginPayment);
+        }
         actions
     }
 
@@ -481,7 +489,8 @@ impl Game {
         }
     }
 
-    fn apply_legal_action(&mut self, player: PlayerId, action: Action) {
+    #[allow(clippy::too_many_lines)]
+    pub(super) fn apply_legal_action(&mut self, player: PlayerId, action: Action) {
         // Declaration members arrive as separate UI actions, but CR 508.1
         // and 509.1 make each completed set one turn-based action. Do not let
         // state-based actions or state triggers inspect a partial set.
@@ -501,6 +510,7 @@ impl Game {
             Action::DiscardCards { cards } => self.discard_cards(player, &cards),
             Action::ChooseDecision { decision, options } => {
                 self.choose_decision(player, decision, &options);
+                self.refresh_payment_offer();
             }
             Action::CancelDecision { decision } => self.cancel_decision(decision),
             Action::ChooseUntap { permanents } => self.choose_untap(player, &permanents),
@@ -511,6 +521,7 @@ impl Game {
             | Action::Suspend { .. }
             | Action::UnlockDoor { .. } => self.take_special_action(player, &action),
             Action::PassPriority => self.pass_priority(player),
+            Action::BeginPayment => self.begin_explicit_payment(player),
             Action::PlayLand { card, option } => self.play_land(player, card, option),
             Action::ActivateManaAbility {
                 source,
@@ -521,6 +532,7 @@ impl Game {
                 combination,
                 triggered_mana,
             } => {
+                let enclosing = self.pending_decisions.len();
                 self.activate_mana_source(
                     player,
                     source,
@@ -533,6 +545,10 @@ impl Game {
                         triggered_mana,
                     ),
                 );
+                if enclosing > 0 && self.pending_decisions.len() > enclosing {
+                    self.pending_decisions.rotate_left(enclosing);
+                }
+                self.refresh_payment_offer();
             }
             Action::PayLifeForMana => {
                 unreachable!("the legacy Channel action is never legal")
@@ -632,6 +648,38 @@ impl Game {
                 })
             {
                 return false;
+            }
+            if let super::DecisionContinuation::Payment(
+                super::payment::state::PaymentDecision::Mana {
+                    target,
+                    obligation,
+                    selected,
+                },
+            ) = &pending.continuation
+            {
+                if options.len() != 1 {
+                    return false;
+                }
+                let Some(view) = self.exact_payment_view(target) else {
+                    return false;
+                };
+                let legal = match options[0] {
+                    0 => view.validate_mana_payment(
+                        obligation,
+                        &super::payment::BoundManaPayment {
+                            units: selected.clone(),
+                        },
+                    ),
+                    u32::MAX => !selected.is_empty(),
+                    option => {
+                        let mut next = selected.clone();
+                        next.push(option as usize - 1);
+                        view.mana_selection_can_complete(obligation, &next)
+                    }
+                };
+                if !legal {
+                    return false;
+                }
             }
             let available = observation
                 .options

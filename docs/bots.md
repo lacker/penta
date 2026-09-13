@@ -6,7 +6,7 @@ historical Standard windows, and two cubes. This guide is for writing a program
 that plays it: from Python, C, C++, or Rust, against the included bots or
 against itself.
 
-This guide describes the current development wire contract, **protocol 32**,
+This guide describes the current development wire contract, **protocol 33**,
 which retains protocol 22's open-world model. Ignore JSON object members your bot does not use;
 the epoch changes only when an existing field or tag is removed, renamed,
 retyped, or reinterpreted. Additive fields and different legal actions expressed
@@ -508,7 +508,7 @@ world it can search.
 
 | field | meaning |
 | --- | --- |
-| `protocolVersion` | the breaking bot-wire epoch; protocol 32 objects are open-world, but an epoch mismatch requires migration |
+| `protocolVersion` | the breaking bot-wire epoch; protocol 33 objects are open-world, but an epoch mismatch requires migration |
 | `protocolCapabilities` | optional named facilities emitted by this engine; includes `reconstruction.checkpoint.v18`, `match.first-to-two-wins.v1` and `rules.restart-game.v1`; ignore unknown entries |
 | `simulationFingerprint` | a conservative identity of simulation source and build requirements; pin it for training and require it for reconstruction |
 | `engineVersion` | package-release provenance; it is not an exact simulation identity |
@@ -727,6 +727,30 @@ Its `kind` determines the rest of its provenance:
   `sourceAbilityId` and `grantId`; it deliberately has neither a
   `sourceDefinition` nor `sourcePartId`.
 
+### Explicit payment
+
+With protocol 33 and `payments.explicit.v1`, `BeginPayment` opens a payment
+proposal through the ordinary decision API. It is available independently of
+whether automatic source planning found a cast or activation. Choose the
+operation and any X value, then select mana abilities in their desired order.
+Convoke, delve, and improvise options bind a selected resource to the displayed
+cost symbol without producing mana. A costed mana ability asks for its own exact
+mana selection. The final selection
+chooses individual eligible units for the enclosing payment, including units
+with different restrictions or spend effects. Selecting a color does not permit
+the engine to substitute a different unit of that color.
+
+Submit each decision's offered option IDs. Finish and undo are explicit options;
+they are not inferred from the number of selected units. Canceling an uncommitted
+proposal spends no resources. Funding proposals preserve the actual payment
+window: a spell's cost is frozen before raising mana, and state-based actions
+and priority wait until payment completes. A resolving payment also exposes
+legal mana abilities without granting priority.
+
+These decisions are part of replay and checkpoint state (checkpoint format 19).
+The bundled automatic policies continue using automatic payment; external
+players and policies can use the same explicit interface as browser players.
+
 `ActivateAbility` carries `source`, `ability`, `x`, an array `costObjects`,
 canonical `targetSelections`, flattened `targets`, and a compatibility
 `target` containing the first selected target. `costObjects` lists the objects
@@ -742,7 +766,7 @@ carries optional `costObject` for a chosen sacrifice, hand-exile, or
 single-permanent tap payment. For Springleaf Drum, it names the untapped
 creature to tap; it is a cost payer, not a target. Each payer and color pair
 is a separate legal action, with the creature allowed to have summoning sickness.
-The existing action shape and protocol epoch are unchanged. The action also
+The mana-ability action shape is unchanged. The action also
 carries an optional `countersRemoved` when, and only when, the ability's cost
 removes an open-ended number of counters: source, origin, and colour name the
 storage lands' ability once per size it could be paid at, so that number is
@@ -1573,10 +1597,10 @@ import time, requests
 
 # Local while building; the public deployment when you are ready.
 SERVER = "http://localhost:3000"
-# This bot consumes the protocol-32 indexed-action vocabulary and no optional
+# This bot consumes the protocol-33 indexed-action vocabulary and no optional
 # facilities. Do not echo capabilities from the server unless you implement them.
 COMPATIBILITY = {
-    "protocolVersion": 32,
+    "protocolVersion": 33,
     "capabilities": [],
     "requiredCapabilities": [],
     # Trained bots may require the exact server artifact they target:

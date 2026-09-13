@@ -171,11 +171,18 @@ fn validate_static_effect(
             Ok(())
         }
         EffectDef::ModifyCost(CostModificationDef::AbilityReduction {
+            abilities,
             permanent: matcher,
             amount,
             ..
         }) if position == StaticPosition::Root
             && source_zones == [ZoneKind::Battlefield]
+            && matches!(
+                abilities,
+                crate::card::AbilityKindDef::Activated
+                    | crate::card::AbilityKindDef::ActivatedMana
+                    | crate::card::AbilityKindDef::NonManaActivated
+            )
             && static_object_predicate_supported(matcher)
             && static_cost_reduction_value_supported(amount) =>
         {

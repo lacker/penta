@@ -225,6 +225,8 @@ pub enum CostModificationDef {
     /// own: "this effect can't reduce the mana in that cost to less than one
     /// mana" is what keeps a free ability from becoming free twice over.
     AbilityReduction {
+        /// Which activated abilities receive the reduction.
+        abilities: AbilityKindDef,
         permanent: ObjectPredicateDef,
         amount: ValueDef,
         /// The least mana the cost may be left with. An ability whose cost

@@ -2516,8 +2516,17 @@ export function GameClient({
                           onClick={() => chooseDecisionOption(option.id)}
                           disabled={watchingOpponent}
                         >
-                          <strong>{option.label}</strong>
-                          {(option.abilityText || option.zone !== "None") && (
+                          <strong>
+                            {option.label}
+                            {option.cardId != null && permanentMarkers.has(option.cardId) && (
+                              <span className="inline-object-marker">
+                                #{permanentMarkers.get(option.cardId)}
+                              </span>
+                            )}
+                          </strong>
+                          {(option.abilityText
+                            ? !option.label.includes(option.abilityText)
+                            : option.zone !== "None") && (
                             <small>{option.abilityText ?? option.zone}</small>
                           )}
                         </button>

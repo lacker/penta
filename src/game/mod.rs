@@ -118,6 +118,7 @@ mod match_flow;
 mod monarch;
 mod ninjutsu;
 mod observation;
+mod payment;
 mod phasing;
 mod play_permissions;
 mod plot;
@@ -574,6 +575,12 @@ pub struct Game {
     /// creatures are legal targets can depend on it, and the enumerator
     /// already walks one X at a time.
     prospective_x: prospective_x::ProspectiveX,
+    payment_query: payment::query::PaymentQuery,
+    explicit_mana_payment: Option<payment::BoundManaPayment>,
+    explicit_mana_payment_tail: std::collections::VecDeque<payment::BoundManaPayment>,
+    payment_probe: Option<payment::preview::PaymentProbe>,
+    explicit_funding: Option<Vec<payment::funding::FundingStep>>,
+    explicit_cast_contributions: Option<payment::contributions::BoundCastContributions>,
     /// What each retired object became when it changed zones. A trigger
     /// captured on the battlefield names the object that was there, and
     /// "return it to its owner's hand" has to reach the card that object is

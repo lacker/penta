@@ -500,7 +500,7 @@ impl Game {
     /// spell (CR 601.2f): a discount that ran first could take a cost to its
     /// floor and leave an increase to push it back up, which is not what
     /// either printed clause means.
-    pub(super) fn ability_mana_cost(&self, permanent: &Permanent, cost: ManaCost) -> ManaCost {
+    pub(super) fn ability_mana_cost(&self, permanent: &Permanent, cost: ManaCost, mana_ability: bool) -> ManaCost {
         let mut total = cost;
         let mut discounts = Vec::new();
         for other in &self.battlefield {
@@ -522,10 +522,11 @@ impl Game {
                         total = add_mana_cost(total, amount);
                     }
                     Some(EffectDef::ModifyCost(CostModificationDef::AbilityReduction {
+                        abilities,
                         permanent: matcher,
                         amount,
                         minimum,
-                    })) if self.ability_cost_effect_applies(matcher, permanent, other) => {
+                    })) if Self::activation_kind_matches(abilities, mana_ability) && self.ability_cost_effect_applies(matcher, permanent, other) => {
                         let amount =
                             self.cost_reduction_value(amount, other.controller, other.card.id);
                         discounts.push((amount, minimum));
@@ -544,6 +545,7 @@ impl Game {
         &self,
         object: &crate::game::TriggerEventObject,
         cost: ManaCost,
+        mana_ability: bool,
     ) -> ManaCost {
         let mut total = cost;
         let mut discounts = Vec::new();
@@ -567,10 +569,11 @@ impl Game {
                     // names is the activation, and the card object answers
                     // the same predicate a permanent would.
                     EffectDef::ModifyCost(CostModificationDef::AbilityReduction {
+                        abilities,
                         permanent: matcher,
                         amount,
                         minimum,
-                    }) if self.trigger_object_matches(
+                    }) if Self::activation_kind_matches(abilities, mana_ability) && self.trigger_object_matches(
                         matcher,
                         object,
                         permanent.card.id,
@@ -598,13 +601,14 @@ impl Game {
         &self,
         source: crate::ids::GameObjectId,
         cost: ManaCost,
+        mana_ability: bool,
     ) -> ManaCost {
         if let Some(permanent) = self
             .battlefield
             .iter()
             .find(|permanent| permanent.card.id == source)
         {
-            return self.ability_mana_cost(permanent, cost);
+            return self.ability_mana_cost(permanent, cost, mana_ability);
         }
         let Some((zone, card)) = self.card_in_nonbattlefield_zone(source) else {
             return cost;
@@ -620,7 +624,7 @@ impl Game {
         };
         self.printed_trigger_event_object(card.id, card.definition, card.owner, &context)
             .map_or(cost, |object| {
-                self.nonbattlefield_ability_mana_cost(&object, cost)
+                self.nonbattlefield_ability_mana_cost(&object, cost, mana_ability)
             })
     }
 
@@ -672,7 +676,24 @@ impl Game {
         cost: ManaCost,
         targets: Option<&[TargetSelection]>,
     ) -> ManaCost {
-        let cost = self.ability_mana_cost_for_source(source, cost);
+        self.activation_mana_cost_for_kind(definition, source, cost, false, targets)
+    }
+
+    pub(super) fn priced_mana_ability_cost(&self, source: GameObjectId, definition: &ActivatedAbilityDef) -> ManaCost {
+        let cost = crate::card::costs::mana_cost(definition.costs, None).expect("mana abilities have fixed costs");
+        self.activation_mana_cost_for_kind(definition, source, cost, true, Some(&[]))
+    }
+
+    fn activation_kind_matches(kind: crate::card::AbilityKindDef, mana_ability: bool) -> bool {
+        use crate::card::AbilityKindDef;
+        matches!(kind, AbilityKindDef::Activated)
+            || (mana_ability && kind == AbilityKindDef::ActivatedMana)
+            || (!mana_ability && kind == AbilityKindDef::NonManaActivated)
+    }
+
+    fn activation_mana_cost_for_kind(&self, definition: &ActivatedAbilityDef,
+        source: GameObjectId, cost: ManaCost, mana_ability: bool, targets: Option<&[TargetSelection]>) -> ManaCost {
+        let cost = self.ability_mana_cost_for_source(source, cost, mana_ability);
         let Some(reduction) = definition.cost_reduction else {
             return cost;
         };

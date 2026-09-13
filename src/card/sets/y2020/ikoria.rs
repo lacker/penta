@@ -443,13 +443,12 @@ pub(in crate::card::sets) static ZIRDA_THE_DAWNWAKER: CardRecord = CardRecord::n
             AbilityDef::static_ability(
                 "Abilities you activate that aren't mana abilities cost {2} less to activate. \
                  This effect can't reduce the mana in that cost to less than one mana.",
-                EffectDef::ModifyCost(CostModificationDef::AbilityReduction {
+                EffectDef::ModifyCost(CostModificationDef::AbilityReduction { abilities: crate::card::AbilityKindDef::NonManaActivated,
                     // "Abilities you activate", which is wider than the permanents you
                     // control: cycling and the rest of what a card in a hand or a
                     // graveyard prints is an ability you activate too, and the shared
-                    // vocabulary reaches those objects with the same predicate. Mana
-                    // abilities are outside it, and are excluded structurally rather
-                    // than here: their activation never reaches this reduction.
+                    // vocabulary reaches those objects with the same predicate. The ability-kind selector excludes mana abilities
+                    // while retaining the shared pricing path.
                     permanent: ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                     amount: ValueDef::Constant(2),
                     minimum: 1,

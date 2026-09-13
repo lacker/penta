@@ -235,7 +235,7 @@ fn parse_may_cast_alternative_continuation(
         cost: CastOfferCost::PrintedAlternative(ability),
     };
     let mut castable = Vec::new();
-    game.add_offered_cast_actions(offer, &mut castable);
+    game.add_announced_cast_actions(offer, &mut castable);
     if castable.is_empty() {
         return Err("alternative-cast offer has no legal offered cast".into());
     }
@@ -321,7 +321,7 @@ fn parse_may_cast_granted_continuation(
         cost: CastOfferCost::GrantedAlternative(grant),
     };
     let mut castable = Vec::new();
-    game.add_offered_cast_actions(offer, &mut castable);
+    game.add_announced_cast_actions(offer, &mut castable);
     if castable.is_empty() {
         return Err("granted-cast offer has no legal offered cast".into());
     }

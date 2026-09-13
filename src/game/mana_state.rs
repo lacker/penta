@@ -63,8 +63,8 @@ pub(super) struct ManaPlanOptions {
 }
 
 /// The choices that distinguish otherwise identical activations of one mana
-/// ability. A mana ability resolves without ever holding priority, so each is
-/// enumerated into the activation rather than asked afterwards.
+/// ability. These choices are carried into immediate resolution, independently
+/// of whether mana was paid automatically or selected through a decision.
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub(super) struct ManaActivationChoices {
     pub(super) counters_removed: Option<u16>,
@@ -108,12 +108,12 @@ pub(super) struct ManaAbilityActivation {
     /// The object chosen for a sacrifice, hand-exile, or single-permanent tap cost.
     /// Like the counter size above, source and colour do not distinguish one
     /// candidate from another, so the choice is enumerated into the activation
-    /// rather than asked afterwards -- a mana ability has no window to ask.
+    /// so the activation retains the exact selected payer.
     /// `None` when the cost has no chosen object.
     pub(super) cost_object: Option<GameObjectId>,
     /// How the amount is divided, for "add three mana in any combination of
     /// {U} and/or {R}". Each division is its own activation for the same
-    /// reason the counter size above is: there is no window in which to ask.
+    /// reason the counter size above is: the selected result must be retained.
     /// `None` for every ability that produces one type at a time, which is
     /// nearly all of them; `color` then carries the type by itself.
     pub(super) combination: Option<ManaSplit>,

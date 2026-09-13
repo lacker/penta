@@ -225,6 +225,7 @@ impl WebGame {
             | Action::TakeCompanion { .. }
             | Action::UnlockDoor { .. }
             | Action::PassPriority
+            | Action::BeginPayment
             | Action::PlayLand { .. }
             | Action::ActivateManaAbility { .. }
             | Action::PayLifeForMana
@@ -560,6 +561,7 @@ impl WebGame {
                     .join(", ")
             ),
             Action::PassPriority => "Pass priority".into(),
+            Action::BeginPayment => "Choose payment".into(),
             Action::PlayLand { card, option } => {
                 let option = self
                     .play_option_label(observation, *card, *option)

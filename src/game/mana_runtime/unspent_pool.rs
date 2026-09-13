@@ -53,11 +53,17 @@ impl Game {
         after
     }
 
-    fn unspent_pool_after_mana_costs(&self, player: PlayerId, costs: &[CostDef]) -> ManaPool {
+    fn unspent_pool_after_mana_costs(&self, player: PlayerId, source: super::GameObjectId, costs: &[CostDef]) -> ManaPool {
         let mut pool = self.players[player.index()].mana_pool;
-        let mut eligible = self.eligible_mana_pool(player, &ManaPaymentPurpose::Other);
+        let purpose = super::payment::mana_ability_payment_purpose(source, costs);
+        let mut eligible = self.eligible_mana_pool(player, &purpose);
         for cost in costs {
             if let CostDef::Mana(cost) = cost {
+                let cost = self.restrict_x(*cost, 0, &purpose).0;
+                if self.payment_query.unfunded() && !self.pool_covers_cost_for(player, cost, &purpose) {
+                    // Production is repriced after the explicit funding program.
+                    return pool;
+                }
                 // Repeatable life mana supplies only a shortfall, all of which
                 // is immediately consumed by this payment.
                 let required = cost.mana_value();
@@ -68,9 +74,9 @@ impl Game {
                 eligible = self.mana_payment_remainder(
                     player,
                     eligible,
-                    *cost,
+                    cost,
                     0,
-                    &ManaPaymentPurpose::Other,
+                    &purpose,
                 );
                 for color in ManaColor::ALL {
                     pool.remove_color(color, before.amount(color) - eligible.amount(color));
@@ -78,6 +84,27 @@ impl Game {
             }
         }
         pool
+    }
+
+    pub(super) fn price_explicit_mana_production(&self, player: PlayerId, activation: &mut ManaAbilityActivation) {
+        let Some(payment) = &self.explicit_mana_payment else { return; };
+        let permanent = self.battlefield.iter().find(|p| p.card.id == activation.source).or_else(|| {
+            match self.retired_objects.get(&activation.source) {
+                Some(super::RetiredObject::Permanent { permanent, .. }) => Some(permanent.as_ref()),
+                _ => None,
+            }
+        });
+        let Some(permanent) = permanent else { return; };
+        let mut pool = self.players[player.index()].mana_pool;
+        let available = self.payment_mana_units(player);
+        for index in &payment.units { pool.remove_color(available[*index].color, 1); }
+        if let ManaSelectionDef::Amounts(amounts) = activation.effect.mana {
+            activation.combination = Some(self.mana_amounts_for(amounts, permanent, pool));
+        }
+        if let Some(value) = activation.effect.variable_amount {
+            activation.effect.amount = self.mana_value_with_pool(value, permanent, pool);
+            activation.effect.amount = self.mana_amount_for(activation.effect, player, activation.source);
+        }
     }
 
     fn mana_amounts_for(

@@ -58,7 +58,10 @@ impl Game {
 
     pub(in crate::game) fn cancel_decision(&mut self, decision: u32) {
         debug_assert_eq!(self.pending_decisions[0].observation.id, decision);
-        self.pending_decisions.remove(0);
+        let pending = self.pending_decisions.remove(0);
+        if let super::DecisionContinuation::Payment(payment) = pending.continuation {
+            self.cancel_explicit_payment(payment);
+        }
     }
 
     pub(in crate::game) fn resolve_nested_effect_before_later(

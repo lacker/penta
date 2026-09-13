@@ -151,7 +151,7 @@ fn the_discount_stops_at_one_mana() {
         .battlefield
         .iter()
         .find(|permanent| permanent.card.id == ingot)
-        .map(|permanent| game.ability_mana_cost(permanent, crate::mana_cost!("{1}")))
+        .map(|permanent| game.ability_mana_cost(permanent, crate::mana_cost!("{1}"), false))
         .expect("the Ingot is there");
 
     assert_eq!(

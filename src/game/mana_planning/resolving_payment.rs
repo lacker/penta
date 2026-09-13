@@ -9,7 +9,8 @@ impl Game {
         life_available: u16,
         purpose: &ManaPaymentPurpose,
     ) -> Option<super::SettledEffectPayment> {
-        let plan = self.plan_mana_activations(ManaPlanningRequest {
+        let plan = if self.explicit_mana_payment.is_some() { Vec::new() } else {
+            self.plan_mana_activations(ManaPlanningRequest {
             player,
             cost,
             x: 0,
@@ -20,7 +21,8 @@ impl Game {
             purpose,
             reserved,
             life_available,
-        })?;
+        })?
+        };
         for payment in plan {
             let PlannedPaymentKind::Mana {
                 ability,

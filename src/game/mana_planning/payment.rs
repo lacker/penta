@@ -75,10 +75,50 @@ pub(super) fn payment_remainder(
         flexible_preference,
         generic_order,
         spread_generic_colors,
+        ManaPool::default(),
     )
 }
 
+/// Whether every supplied mana unit can be allocated to the obligation.
+/// Unlike automatic allocation, this accepts a player's choice to use the
+/// generic branch of a two-brid symbol even when its colored branch is available.
+pub(super) fn exact_mana_payment(pool: ManaPool, cost: ManaCost, x: u16) -> bool {
+    payment_including_units(pool, pool, cost, x)
+}
+
+/// A prefix of explicitly chosen units is legal when it can be extended to a
+/// complete allocation. This allocates the supplied pool, without searching for
+/// mana sources or choosing a different prefix for the player.
+pub(super) fn payment_including_units(
+    mut pool: ManaPool,
+    mut required: ManaPool,
+    cost: ManaCost,
+    x: u16,
+) -> bool {
+    for color in ManaColor::ALL {
+        let fixed = mana_cost_amount(cost, color);
+        if pool.amount(color) < fixed || required.amount(color) > pool.amount(color) {
+            return false;
+        }
+        pool.remove_color(color, fixed);
+        required.remove_color(color, fixed.min(required.amount(color)));
+    }
+    allocate_flexible_symbols(
+        pool,
+        cost,
+        0,
+        cost.generic
+            .saturating_add(x.saturating_mul(cost.x_multiplier)),
+        &|_| 0,
+        &ManaColor::ALL,
+        false,
+        required,
+    )
+    .is_some()
+}
+
 #[allow(clippy::too_many_arguments)]
+#[allow(clippy::too_many_lines)]
 fn allocate_flexible_symbols(
     pool: ManaPool,
     cost: ManaCost,
@@ -87,12 +127,17 @@ fn allocate_flexible_symbols(
     flexible_preference: &impl Fn(ManaColor) -> u16,
     generic_order: &[ManaColor],
     spread_generic_colors: bool,
+    required: ManaPool,
 ) -> Option<ManaPool> {
     let Some(symbol) = FlexibleManaSymbol::ALL.get(index).copied() else {
-        if pool.total() < generic {
+        if pool.total() < generic || required.total() > generic {
             return None;
         }
         let mut after = pool;
+        for color in ManaColor::ALL {
+            after.remove_color(color, required.amount(color));
+        }
+        let generic = generic - required.total();
         if spread_generic_colors {
             pay_generic_spreading_colors(&mut after, generic, generic_order);
         } else {
@@ -110,6 +155,7 @@ fn allocate_flexible_symbols(
             flexible_preference,
             generic_order,
             spread_generic_colors,
+            required,
         );
     }
 
@@ -122,6 +168,8 @@ fn allocate_flexible_symbols(
             let colored = maximum_colored - fewer_colored;
             let mut after = pool;
             after.remove_color(first, colored);
+            let mut required = required;
+            required.remove_color(first, colored.min(required.amount(first)));
             let added = (count - colored).saturating_mul(generic_alternative);
             if let Some(result) = allocate_flexible_symbols(
                 after,
@@ -131,6 +179,7 @@ fn allocate_flexible_symbols(
                 flexible_preference,
                 generic_order,
                 spread_generic_colors,
+                required,
             ) {
                 return Some(result);
             }
@@ -144,6 +193,8 @@ fn allocate_flexible_symbols(
         }
         let mut after = pool;
         after.remove_color(first, count);
+        let mut required = required;
+        required.remove_color(first, count.min(required.amount(first)));
         return allocate_flexible_symbols(
             after,
             cost,
@@ -152,6 +203,7 @@ fn allocate_flexible_symbols(
             flexible_preference,
             generic_order,
             spread_generic_colors,
+            required,
         );
     };
 
@@ -169,6 +221,9 @@ fn allocate_flexible_symbols(
         let mut after = pool;
         after.remove_color(first, first_count);
         after.remove_color(second, second_count);
+        let mut required = required;
+        required.remove_color(first, first_count.min(required.amount(first)));
+        required.remove_color(second, second_count.min(required.amount(second)));
         if let Some(result) = allocate_flexible_symbols(
             after,
             cost,
@@ -177,6 +232,7 @@ fn allocate_flexible_symbols(
             flexible_preference,
             generic_order,
             spread_generic_colors,
+            required,
         ) {
             return Some(result);
         }

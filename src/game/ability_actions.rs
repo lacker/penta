@@ -588,7 +588,7 @@ impl Game {
                 // each way of answering is its own action, with that mode's
                 // targets appended to the ability's own.
                 let mode_selections = Self::activated_mode_selections(&definition);
-                for x in 0..=max_x {
+                for x in self.payment_query.x_values(0, max_x) {
                     for selected_modes in &mode_selections {
                         let Some(plan) = Self::selected_activated_plan(&definition, selected_modes)
                         else {
@@ -644,18 +644,19 @@ impl Game {
                                     taps_chosen_permanent,
                                     payable_mana_cost,
                                     cost_objects.first().copied(),
-                                ) && self
-                                    .plan_mana_activations_with_options_for(
-                                        player,
-                                        cost,
-                                        x,
-                                        ManaPlanOptions {
-                                            avoid: None,
-                                            tap_cost_payer: Some(tap_cost_payer),
-                                        },
-                                        &payment_purpose,
-                                    )
-                                    .is_none()
+                                ) && !self.payment_query.unfunded()
+                                    && self
+                                        .plan_mana_activations_with_options_for(
+                                            player,
+                                            cost,
+                                            x,
+                                            ManaPlanOptions {
+                                                avoid: None,
+                                                tap_cost_payer: Some(tap_cost_payer),
+                                            },
+                                            &payment_purpose,
+                                        )
+                                        .is_none()
                                 {
                                     continue;
                                 }

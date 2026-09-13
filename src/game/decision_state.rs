@@ -233,6 +233,7 @@ pub(super) enum CounteredSpellZone {
 
 #[derive(Clone, Debug)]
 pub(super) enum DecisionContinuation {
+    Payment(super::payment::state::PaymentDecision),
     CommanderReturn {
         remaining: Vec<(PlayerId, Vec<GameObjectId>)>,
         selected: Vec<GameObjectId>,
@@ -543,7 +544,9 @@ pub(super) enum DecisionContinuation {
     /// "Choose any number of permanents and/or players, then give each
     /// another counter of each kind already there." Nothing is bound: what
     /// each chosen thing gets is read off it when the answer comes back.
-    Proliferate { candidates: Vec<Target> },
+    Proliferate {
+        candidates: Vec<Target>,
+    },
     /// "You may cast target instant or sorcery card from your graveyard
     /// without paying its mana cost." The card has not moved; what it holds
     /// is a lent ability, and answering the decision takes it back.
@@ -652,7 +655,9 @@ pub(super) enum DecisionContinuation {
     },
     /// The first card a player drew this turn, waiting for one optional
     /// private draw-specific action. An empty answer takes no action.
-    DrawActionWindow { card: GameObjectId },
+    DrawActionWindow {
+        card: GameObjectId,
+    },
     /// A linked trigger has resolved and offers one exact alternative way to
     /// cast its source card. Casting answers the decision; choosing its sole
     /// option declines.
@@ -737,7 +742,9 @@ pub(super) enum DecisionContinuation {
     },
     /// The ordered pair of different basic land types an entering permanent
     /// remembers for a persistent substitution effect.
-    BattlefieldEntryBasicLandTypePairChoice { context: ReplacementEffectContext },
+    BattlefieldEntryBasicLandTypePairChoice {
+        context: ReplacementEffectContext,
+    },
     /// The permanents an entering copy effect could imitate, plus the option
     /// of entering as itself.
     BattlefieldEntryCopy {

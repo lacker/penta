@@ -78,6 +78,12 @@ aggregate or card-by-card coverage reports from them on demand.
   lineage follows the underlying cards.
 - Player observations do not expose an opponent's hidden information.
 - Legal actions are enumerated and checked by the engine.
+- Payment legality and execution are independent of automatic payment search.
+  Players, agents, and bots must be able to choose a legal payment explicitly,
+  including when automatic planning finds no solution or selects a different
+  one. Both routes use shared validation and semantic execution; planner
+  failure is not proof that a cost is unpayable. See the
+  [payment design direction](game-actions.md#explicit-payment-and-automatic-planning).
 - The core engine has no UI, network, async-runtime, or training dependencies.
 - Unsupported cards remain visible as whole-card `Unsupported` coverage and
   expose no executable subset or silent no-op.

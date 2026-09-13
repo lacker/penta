@@ -132,6 +132,8 @@ pub enum Action {
         permanents: Vec<GameObjectId>,
     },
     PassPriority,
+    /// Choose an operation, funding abilities, and exact resources to pay for it.
+    BeginPayment,
     PlayLand {
         card: GameObjectId,
         option: PlayOptionId,
@@ -148,9 +150,9 @@ pub enum Action {
         counters_removed: Option<u16>,
         /// The object chosen for a sacrifice, hand-exile, or tap cost.
         /// Source, ability, and colour do not distinguish one payer from
-        /// another, so which one is part of the action: a mana ability
-        /// resolves without ever holding priority, and has no window in which
-        /// to ask afterwards. `None` when the cost has no chosen object.
+        /// another, so the selected payer is part of the activation.
+        /// Mana abilities may involve decisions while resolving immediately;
+        /// these choices never grant priority. `None` when no object is chosen.
         cost_object: Option<GameObjectId>,
         /// How the amount is divided, for an ability that adds mana "in any
         /// combination of" more than one type. Source, ability, and colour
@@ -182,8 +184,8 @@ pub enum Action {
         /// The objects chosen to pay a nonmana cost: the permanent a
         /// sacrifice cost takes, or the cards an exile cost lifts from a
         /// graveyard. Most costs name one or none; a cost that spends several
-        /// names them all, because an activation has no window in which to
-        /// ask afterwards. Empty when the cost spends nothing chosen.
+        /// names them all. Further cost decisions retain the activation's
+        /// continuation without granting priority. Empty when no object is chosen.
         cost_objects: Vec<GameObjectId>,
         /// The value chosen for X in the activation cost, zero when the cost
         /// has no X.

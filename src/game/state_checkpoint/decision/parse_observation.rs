@@ -22,6 +22,9 @@ pub(super) fn parse_pending_decision(
     let observation =
         parse_decision_observation(visible, &state.preference, &state.options, &game.catalog)?;
     let continuation = parse_continuation(&state.continuation, &observation, hidden, game)?;
+    if let DecisionContinuation::Payment(payment) = &continuation {
+        validate_explicit_payment_observation(game, &observation, payment)?;
+    }
     Ok(Some(PendingDecision {
         observation,
         continuation,

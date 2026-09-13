@@ -125,7 +125,7 @@ impl Game {
 
     /// The permanents still eligible to pay, excluding the ones already
     /// named: one permanent cannot be sacrificed twice for the same cost.
-    fn activation_sacrifice_candidates(
+    pub(super) fn activation_sacrifice_candidates(
         &self,
         player: PlayerId,
         object: ObjectPredicateDef,

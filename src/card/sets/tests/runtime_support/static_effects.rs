@@ -44,9 +44,18 @@ fn shared_cost_modification(source_zones: &[ZoneKind], modification: CostModific
             battlefield_only(source_zones) && shared_object_predicate(source)
         }
         CostModificationDef::AbilityReduction {
-            permanent, amount, ..
+            abilities,
+            permanent,
+            amount,
+            ..
         } => {
             battlefield_only(source_zones)
+                && matches!(
+                    abilities,
+                    crate::card::AbilityKindDef::Activated
+                        | crate::card::AbilityKindDef::ActivatedMana
+                        | crate::card::AbilityKindDef::NonManaActivated
+                )
                 && shared_object_predicate(permanent)
                 && matches!(
                     amount,

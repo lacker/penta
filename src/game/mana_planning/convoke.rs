@@ -1,8 +1,8 @@
 #[derive(Clone, Copy, Default)]
-struct ManaContributionKinds {
-    convoke: bool,
-    delve: bool,
-    improvise: bool,
+pub(in crate::game) struct ManaContributionKinds {
+    pub(in crate::game) convoke: bool,
+    pub(in crate::game) delve: bool,
+    pub(in crate::game) improvise: bool,
 }
 
 impl ManaContributionKinds {
@@ -14,7 +14,7 @@ impl ManaContributionKinds {
 impl Game {
     /// Which direct mana-cost contribution keywords are executable on the
     /// selected spell form.
-    fn payment_contributions(&self, purpose: &ManaPaymentPurpose) -> ManaContributionKinds {
+    pub(in crate::game) fn payment_contributions(&self, purpose: &ManaPaymentPurpose) -> ManaContributionKinds {
         let ManaPaymentPurpose::Spell {
             definition, form, ..
         } = purpose
@@ -92,7 +92,7 @@ impl Game {
 
     /// A permanent can supply at most one tap-based contribution. Convoke
     /// may pay with a creature's color; improvise is always generic-only.
-    fn permanent_contribution_outputs(
+    pub(in crate::game) fn permanent_contribution_outputs(
         &self,
         permanent: &Permanent,
         kinds: ManaContributionKinds,

@@ -472,7 +472,7 @@ impl Game {
         self.capture_cards_exiled(std::slice::from_ref(&card), ZoneKind::Library);
         self.permit_cast_this_turn(exiled, player);
         let mut castable = Vec::new();
-        self.add_offered_cast_actions(
+        self.add_announced_cast_actions(
             CastOffer {
                 player,
                 card: exiled,
@@ -541,7 +541,7 @@ impl Game {
             .get(printed)
             .map_or_else(|| "that card".to_owned(), |card| card.name.clone());
         let mut playable = Vec::new();
-        self.add_offered_cast_actions(
+        self.add_announced_cast_actions(
             CastOffer {
                 player,
                 card,
@@ -647,7 +647,7 @@ impl Game {
             return;
         };
         let mut castable = Vec::new();
-        self.add_offered_cast_actions(
+        self.add_announced_cast_actions(
             CastOffer {
                 player,
                 card,
@@ -726,7 +726,7 @@ impl Game {
             cost: CastOfferCost::PrintedAlternative(ability),
         };
         let mut castable = Vec::new();
-        self.add_offered_cast_actions(offer, &mut castable);
+        self.add_announced_cast_actions(offer, &mut castable);
         if castable.is_empty() {
             return;
         }

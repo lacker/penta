@@ -71,6 +71,7 @@ fn continuation_snapshot(
     visible_rebindings: &[GameObjectId],
 ) -> Option<DecisionContinuationSnapshot> {
     let value = match continuation {
+        DecisionContinuation::Payment(payment) => return explicit_payment_snapshot(game, viewer, payment),
         DecisionContinuation::ActionChoice { player, branch, definition, object, context, .. } =>
             DecisionContinuationSnapshot::ActionChoice {
                 player: player.index(), branch: *branch,
@@ -995,3 +996,5 @@ use support::*;
 pub(super) use support::{
     mana_cost_from_snapshot, mana_cost_snapshot, parse_pending_trigger, pending_trigger_snapshot,
 };
+
+include!("decision/explicit_payment.rs");

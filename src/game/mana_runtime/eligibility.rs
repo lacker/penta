@@ -1,6 +1,5 @@
-//! Which mana abilities the runtime is willing to offer at all: the costs it
-//! knows how to pay without a window in which to ask, and the bounds that
-//! keep an offered ability from being an unbounded loop.
+//! Semantic support and current resource eligibility for mana abilities.
+//! Automatic search applies its own termination bounds separately.
 
 use super::super::{ActivatedAbilityDef, CostDef, CounterKind, Game, Permanent, ZoneKind};
 
@@ -33,9 +32,11 @@ impl Game {
                 .iter()
                 .all(|cost| Self::mana_ability_cost_is_supported(definition, cost))
             && definition.costs.iter().all(|cost| match cost {
-                CostDef::Mana(cost) => self.pool_covers_cost(permanent.controller, *cost),
-                CostDef::PayLife(amount) => {
-                    self.can_pay_life(permanent.controller, *amount)
+                CostDef::Mana(_) => self.payment_query.unfunded() || self.pool_covers_cost_for(permanent.controller,
+                    self.priced_mana_ability_cost(permanent.card.id, definition),
+                    &super::super::payment::mana_ability_payment_purpose(permanent.card.id, definition.costs)),
+                CostDef::PayLife(_) => {
+                    self.can_pay_life(permanent.controller, crate::card::costs::life_cost(definition.costs))
                 }
                 CostDef::RemoveCountersFromSource { .. }
                 | CostDef::RemoveAnyNumberOfCountersFromSource(_)
@@ -111,13 +112,12 @@ impl Game {
 
     /// Whether the runtime can pay this cost as part of a mana ability.
     ///
-    /// A mana cost is payable only out of the pool, so the ability also has
-    /// to spend its source: one that could be activated again and again
-    /// without changing the board would have nothing to stop it. That is
-    /// also why flexible mana symbols and {X} are excluded -- both would need
-    /// a choice the activation has no room to carry.
-    pub(in crate::game) fn mana_ability_cost_is_supported(
-        definition: &ActivatedAbilityDef,
+    /// Search limits do not determine execution support. A fixed mana bill
+    /// can be paid explicitly even when it does not consume a permanent or
+    /// bound the number of activations. X and Phyrexian-life announcements
+    /// still require a declaration shape beyond this activation interface.
+    pub(crate) fn mana_ability_cost_is_supported(
+        _definition: &ActivatedAbilityDef,
         cost: &CostDef,
     ) -> bool {
         match cost {
@@ -147,30 +147,9 @@ impl Game {
             // that is what stops it looping.
             | CostDef::Loyalty(_)
             | CostDef::PayLife(_) => true,
-            CostDef::Mana(mana) => {
-                // A mana cost alone does not bound how often the ability can
-                // be activated, and an unbounded mana ability is a loop. What
-                // bounds it is either a cost that spends the board or a
-                // per-turn or per-object activation limit.
-                let bounded = definition.activation_limit.is_some()
-                    || definition.once_per_object
-                    || definition.costs.iter().any(|cost| {
-                        matches!(
-                            cost,
-                            CostDef::TapSource
-                                | CostDef::ExertSource
-                                | CostDef::DiscardHand
-                                | CostDef::SacrificeSource
-                                | CostDef::ReturnSourceToHand
-                                | CostDef::ExileSource
-                                | CostDef::SacrificePermanent { .. }
-                                | CostDef::TapPermanents { count: 1, .. }
-                                | CostDef::ExileCardFromHand(_)
-                                | CostDef::SacrificePermanents { .. }
-                        )
-                    });
-                !mana.variable_x && mana.hybrid_total() == 0 && bounded
-            }
+            CostDef::Mana(mana) => !mana.variable_x
+                && !crate::card::FlexibleManaSymbol::ALL.into_iter().any(|symbol|
+                    symbol.is_phyrexian() && mana.flexible_count(symbol) > 0),
             _ => false,
         }
     }

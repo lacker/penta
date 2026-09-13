@@ -1,7 +1,7 @@
 use super::Policy;
 use crate::{Action, PlayerObservation};
 
-/// Selects uniformly from the non-concession legal actions using a seeded PRNG.
+/// Selects uniformly from automatic-payment game actions using a seeded PRNG.
 #[derive(Clone, Debug)]
 pub struct RandomPolicy {
     state: u64,
@@ -76,7 +76,7 @@ impl Policy for RandomPolicy {
         let choices: Vec<_> = observation
             .legal_actions
             .iter()
-            .filter(|action| !matches!(action, Action::Concede))
+            .filter(|action| !matches!(action, Action::Concede | Action::BeginPayment))
             .collect();
         if choices.is_empty() {
             return observation.legal_actions.first().cloned();

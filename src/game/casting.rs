@@ -225,25 +225,38 @@ impl Game {
         color: ManaColor,
         choices: &ManaActivationChoices,
     ) {
-        let activation = self
-            .battlefield
-            .iter()
-            .find(|permanent| permanent.card.id == source)
-            .and_then(|permanent| self.mana_ability_activation(permanent, ability, color, choices))
-            .or_else(|| {
-                self.hand_mana_ability_activations(player)
-                    .into_iter()
-                    .chain(self.ongoing_mana_ability_activations(player))
-                    .find(|activation| {
-                        activation.source == source
-                            && activation.ability == ability
-                            && activation.color == color
-                            && activation.counters_removed == choices.counters_removed
-                            && activation.cost_object == choices.cost_object
-                            && activation.combination == choices.combination
-                    })
-            })
+        let mut activation = self
+            .concrete_mana_activation(player, source, ability, color, choices)
             .expect("legal mana action references a mana source");
+        if self.payment_probe.is_some() {
+            let cost = activation
+                .costs
+                .iter()
+                .filter_map(|cost| match cost {
+                    CostDef::Mana(mana) => Some(*mana),
+                    _ => None,
+                })
+                .reduce(super::add_mana_cost)
+                .unwrap_or_default();
+            let chosen = activation.cost_object.into_iter().collect::<Vec<_>>();
+            let reserved =
+                Self::activation_payment_reservations(source, ability, &activation.costs, &chosen);
+            if self.capture_payment_probe(
+                player,
+                cost,
+                0,
+                &super::payment::mana_ability_payment_purpose(source, &activation.costs),
+                reserved,
+                activation
+                    .costs
+                    .iter()
+                    .any(|cost| matches!(cost, CostDef::Mana(_))),
+            ) {
+                return;
+            }
+        }
+        self.run_explicit_funding(player);
+        self.price_explicit_mana_production(player, &mut activation);
         let produced_mana = Self::mana_for_activation(&activation);
         // Mana and stack-using abilities share per-turn and per-object history.
         if let Some(permanent) = self
@@ -377,6 +390,7 @@ impl Game {
         }
     }
 
+    #[allow(clippy::too_many_lines)]
     pub(super) fn cast_spell(
         &mut self,
         player: PlayerId,
@@ -466,6 +480,27 @@ impl Game {
             reserved_life_payment: life,
         };
         self.pay_cast_life_and_energy(player, life, opponent_life_gain, energy);
+        if self.payment_probe.is_some() {
+            let reserved = object_payments
+                .iter()
+                .map(|(object, cost)| match cost {
+                    CostDef::Tap { .. } => {
+                        super::payment::resources::PaymentReservation::Untapped(*object)
+                    }
+                    _ => super::payment::resources::PaymentReservation::Object(*object),
+                })
+                .collect();
+            if self.capture_payment_probe(
+                player,
+                cost,
+                x,
+                &payment_purpose,
+                reserved,
+                includes_mana_payment,
+            ) {
+                return;
+            }
+        }
         let plan = self.cast_mana_plan(
             player,
             cost,
@@ -593,7 +628,7 @@ impl Game {
     }
 
     fn cast_mana_plan(
-        &self,
+        &mut self,
         player: PlayerId,
         cost: ManaCost,
         x: u16,
@@ -603,7 +638,11 @@ impl Game {
     ) -> Vec<super::PlannedManaActivation> {
         // CR 601.2g: omitting a mana payment never opens a mana-ability
         // window. An explicit {0}, including a reduced mana cost, still does.
-        if includes_mana_payment {
+        self.run_explicit_funding(player);
+        if let Some(bound) = &self.explicit_cast_contributions {
+            return bound.plan.clone();
+        }
+        if includes_mana_payment && self.explicit_mana_payment.is_none() {
             let Some(plan) = self.plan_mana_activations_for_reserving(
                 player,
                 cost,
@@ -723,8 +762,11 @@ impl Game {
             .expect("a cast spell retains its context through payment")
             .exiled_payment_cards
             .extend(exiled);
-        let (mana_cost, mana_x) =
-            self.residual_cost_after_contributions(cost, x, &purpose, &plan, true);
+        let (mana_cost, mana_x) = if let Some(bound) = self.explicit_cast_contributions.take() {
+            (bound.remaining.cost, bound.remaining.x)
+        } else {
+            self.residual_cost_after_contributions(cost, x, &purpose, &plan, true)
+        };
         // The spell's nonmana life bill was paid before this continuation
         // began. Do not reserve it a second time when repeatable life mana
         // supplies the final shortfall after the planned abilities resolve.

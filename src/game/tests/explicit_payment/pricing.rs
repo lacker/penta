@@ -11,7 +11,12 @@ fn explicit_payment_prices_the_selected_targets_color_count() {
             .push(creature(blade.0, cards::DRAGONFIRE_BLADE, PlayerId::One));
         game.battlefield.push(token_permanent(
             host.0,
-            TokenCharacteristics::creature(&["Test"], &[ManaColor::White, ManaColor::Black], 2, 2),
+            TokenCharacteristics::creature(
+                &["Soldier"],
+                &[ManaColor::White, ManaColor::Black],
+                2,
+                2,
+            ),
             PlayerId::One,
         ));
         game.add_unrestricted_mana(PlayerId::One, ManaColor::Blue, 2);

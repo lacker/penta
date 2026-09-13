@@ -13,6 +13,7 @@ pub(super) fn execute(
         "effect_dispatch",
         match effect {
             PreparedEffect::DrawCards { .. } => "DrawCards",
+            PreparedEffect::DealDamage { .. } => "DealDamage",
             PreparedEffect::GrantSourceAbilityUntilEndOfTurn { .. } => "Apply",
         },
         "prepared",
@@ -20,6 +21,7 @@ pub(super) fn execute(
     );
     match effect {
         PreparedEffect::DrawCards { count } => host.draw_cards(controller, count),
+        PreparedEffect::DealDamage { recipient, amount } => host.deal_damage(recipient, amount),
         PreparedEffect::GrantSourceAbilityUntilEndOfTurn { ability } => {
             host.grant_source_ability_until_end_of_turn(source, origin, ability);
         }

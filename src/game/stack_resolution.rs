@@ -586,13 +586,17 @@ impl Game {
             })
             .expect("ability stack objects freeze their complete payload");
         match resolver {
-            StackAbilityResolver::Prepared {
-                reference: _,
-                effect,
-            } if self.prepared_engine.enabled() && mode_effects.is_empty() => {
+            StackAbilityResolver::Prepared { reference, effect }
+                if self.prepared_engine.enabled() && mode_effects.is_empty() =>
+            {
                 crate::prepared_engine::execute_effect(
                     effect,
-                    self,
+                    &mut super::prepared_host::PreparedResolution {
+                        game: self,
+                        object,
+                        context: &context,
+                        reference,
+                    },
                     object.controller,
                     object.source,
                     object

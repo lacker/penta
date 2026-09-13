@@ -8,9 +8,11 @@
 mod compiler;
 mod executor;
 mod predicates;
+mod resolving;
 mod sources;
 
 pub(crate) use predicates::{PreparedPredicate, PreparedPredicateLeaf};
+pub(crate) use resolving::PreparedDamageRecipient;
 pub(crate) use sources::PreparedSourceList;
 
 use std::collections::HashMap;
@@ -26,8 +28,16 @@ pub(crate) use compiler::{compile_catalog, compile_effect};
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(crate) enum PreparedEffect {
-    DrawCards { count: u16 },
-    GrantSourceAbilityUntilEndOfTurn { ability: &'static AbilityDef },
+    DrawCards {
+        count: u16,
+    },
+    DealDamage {
+        recipient: PreparedDamageRecipient,
+        amount: u16,
+    },
+    GrantSourceAbilityUntilEndOfTurn {
+        ability: &'static AbilityDef,
+    },
 }
 
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
@@ -38,6 +48,7 @@ pub(crate) struct PreparedStaticProgram {
     abilities: Box<[PreparedStaticAbility]>,
     base_abilities: Box<[(AbilityId, AbilityDef)]>,
     base_keywords: u64,
+    base_resolvers: Box<[Option<PreparedEffect>]>,
 }
 
 impl PreparedStaticProgram {
@@ -345,6 +356,8 @@ impl PreparedEngine {
 }
 
 pub(crate) trait PreparedHost {
+    fn deal_damage(&mut self, recipient: PreparedDamageRecipient, amount: u16);
+
     fn draw_cards(&mut self, player: PlayerId, count: u16);
 
     fn grant_source_ability_until_end_of_turn(

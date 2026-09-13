@@ -3,6 +3,23 @@ impl Game {
         _origin: AbilityOrigin,
         ability: &AbilityDef,
     ) -> StackAbilityResolver {
+        Self::ability_resolver_with(ability, crate::prepared_engine::compile_effect)
+    }
+
+    pub(super) fn cached_ability_resolver(
+        &self,
+        origin: AbilityOrigin,
+        ability: &AbilityDef,
+    ) -> StackAbilityResolver {
+        Self::ability_resolver_with(ability, |effect| {
+            self.prepared_engine.resolving_effect(origin, effect)
+        })
+    }
+
+    fn ability_resolver_with(
+        ability: &AbilityDef,
+        prepare: impl FnOnce(EffectDef) -> Option<crate::prepared_engine::PreparedEffect>,
+    ) -> StackAbilityResolver {
         if let Some(resolver) = StackAbilityResolver::linked_cast_offer(ability) {
             return resolver;
         }
@@ -17,13 +34,13 @@ impl Game {
             {
                 StackAbilityResolver::DeclarativeIgnoringTargetFizzle(scoped)
             }
-            _ if let Some(effect) = crate::prepared_engine::compile_effect(effect) => {
-                StackAbilityResolver::Prepared {
+            _ => match prepare(effect) {
+                Some(effect) => StackAbilityResolver::Prepared {
                     reference: scoped,
                     effect,
-                }
-            }
-            _ => StackAbilityResolver::Declarative(scoped),
+                },
+                None => StackAbilityResolver::Declarative(scoped),
+            },
         }
     }
 
@@ -61,7 +78,7 @@ impl Game {
                 };
                 (
                     target_defs,
-                    Self::ability_resolver(effective.origin, &effective.ability),
+                    self.cached_ability_resolver(effective.origin, &effective.ability),
                 )
             },
         );

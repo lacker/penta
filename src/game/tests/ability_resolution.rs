@@ -393,11 +393,11 @@ fn declarative_clause_uses_its_own_resolver_among_multiple_clauses() {
         game.stack[0]
             .ability
             .as_ref()
-            .map(|ability| ability.resolver),
-        Some(StackAbilityResolver::Declarative(ScopedEffect {
+            .and_then(|ability| ability.resolver.declarative_reference()),
+        Some(ScopedEffect {
             effect: EffectDef::DealDamage(_),
             ..
-        }))
+        })
     ));
 
     pass_priority_pair(&mut game);

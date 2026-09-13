@@ -206,3 +206,52 @@ fn engine_profile_reference_short_circuit_counts_only_executed_nodes() {
         0
     );
 }
+
+#[test]
+fn prepared_engine_profile_reuses_positive_and_negative_resolver_plans() {
+    let game = ready_game();
+    let capture = Capture::start().unwrap();
+    for _ in 0..10 {
+        for definition in [cards::LIGHTNING_BOLT, cards::COUNTERSPELL] {
+            let origin = primary_ability(definition);
+            let ability = game
+                .catalog
+                .get(definition)
+                .unwrap()
+                .part(CardPartId::PRIMARY)
+                .unwrap()
+                .rules
+                .ability_clauses()[0];
+            game.cached_ability_resolver(origin, &ability);
+        }
+    }
+    let report = capture.finish();
+    assert_eq!(
+        count(
+            &report,
+            "resolver_plan",
+            "DealDamage",
+            "catalog",
+            "supported"
+        ),
+        10
+    );
+    assert_eq!(
+        report
+            .counters
+            .iter()
+            .filter(|row| row.category == "effect_lowering")
+            .map(|row| row.count)
+            .sum::<u64>(),
+        0
+    );
+    assert_eq!(
+        report
+            .counters
+            .iter()
+            .filter(|row| row.category == "resolver_plan" && row.reason == "unsupported_shape")
+            .map(|row| row.count)
+            .sum::<u64>(),
+        10
+    );
+}

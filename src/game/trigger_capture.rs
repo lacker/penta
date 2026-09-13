@@ -248,7 +248,7 @@ impl Game {
                     target_defs: definition.targets.to_vec(),
                     targets: Vec::new(),
                     effect: ability.declarative_effect().unwrap_or(EffectDef::None),
-                    resolver: Self::ability_resolver(effective.origin, &ability),
+                    resolver: self.cached_ability_resolver(effective.origin, &ability),
                     context: TriggerContext::empty().into(),
                     condition: definition.condition,
                     modes: definition.modes,
@@ -323,7 +323,7 @@ impl Game {
                     target_defs: definition.targets.to_vec(),
                     targets: Vec::new(),
                     effect: ability.declarative_effect().unwrap_or(EffectDef::None),
-                    resolver: Self::ability_resolver(effective.origin, &ability),
+                    resolver: self.cached_ability_resolver(effective.origin, &ability),
                     context: TriggerContext::empty().into(),
                     condition: definition.condition,
                     modes: definition.modes,
@@ -412,14 +412,14 @@ impl Game {
                         (
                             definition,
                             effect,
-                            Self::ability_resolver(effective.origin, &ability),
+                            self.cached_ability_resolver(effective.origin, &ability),
                             false,
                         )
                     }
                     DeclarativeAbilityDef::Triggered(definition) => (
                         definition,
                         ability.declarative_effect().unwrap_or(EffectDef::None),
-                        Self::ability_resolver(effective.origin, &ability),
+                        self.cached_ability_resolver(effective.origin, &ability),
                         true,
                     ),
                     DeclarativeAbilityDef::Spell(_)

@@ -36,9 +36,65 @@ impl Game {
     }
 }
 
-impl PreparedHost for Game {
+pub(super) struct PreparedResolution<'a> {
+    pub(super) game: &'a mut Game,
+    pub(super) object: &'a super::StackObject,
+    pub(super) context: &'a super::EffectResolutionContext,
+    pub(super) reference: super::ScopedEffect,
+}
+
+impl PreparedHost for PreparedResolution<'_> {
+    fn deal_damage(
+        &mut self,
+        recipient: crate::prepared_engine::PreparedDamageRecipient,
+        amount: u16,
+    ) {
+        use super::{DamageAssignment, Target};
+        use crate::prepared_engine::PreparedDamageRecipient as Recipient;
+        let source = self.object.source.or(Some(self.object.id));
+        let assignment = |target| DamageAssignment {
+            source,
+            target: Some(target),
+            amount,
+            combat: false,
+        };
+        let player = match recipient {
+            Recipient::Controller => Some(self.object.controller),
+            Recipient::Opponent => Some(self.object.controller.opponent()),
+            Recipient::EventPlayer => self.context.trigger.event_player,
+            Recipient::ControllerOfTriggeringObject => self.game.player_reference(
+                crate::PlayerRefDef::ControllerOf(crate::ObjectRefDef::TriggeringObject),
+                self.object,
+                self.context,
+                self.reference,
+            ),
+            Recipient::EachPlayer | Recipient::LegalTargets(_) => None,
+        };
+        let assignments = match recipient {
+            Recipient::EachPlayer => [self.object.controller, self.object.controller.opponent()]
+                .into_iter()
+                .map(|player| assignment(Target::Player(player)))
+                .collect(),
+            Recipient::LegalTargets(target) => {
+                let slot = self.reference.target_slot(target);
+                Game::chosen_targets(self.object, slot)
+                    .filter(|target| {
+                        self.game
+                            .stack_ability_target_is_legal(self.object, slot, *target)
+                    })
+                    .map(assignment)
+                    .collect()
+            }
+            _ => player
+                .into_iter()
+                .map(|player| assignment(Target::Player(player)))
+                .collect(),
+        };
+        self.game.deal_damage_simultaneously(assignments);
+    }
+
     fn draw_cards(&mut self, player: PlayerId, count: u16) {
-        self.draw_instruction(player, count);
+        self.game.draw_instruction(player, count);
     }
 
     fn grant_source_ability_until_end_of_turn(
@@ -47,7 +103,8 @@ impl PreparedHost for Game {
         origin: AbilityOrigin,
         ability: &'static AbilityDef,
     ) {
-        Game::grant_source_ability_until_end_of_turn(self, source, origin, ability);
+        self.game
+            .grant_source_ability_until_end_of_turn(source, origin, ability);
     }
 }
 

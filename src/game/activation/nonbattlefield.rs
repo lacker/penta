@@ -172,7 +172,7 @@ impl Game {
             ),
             text: Some(effective.ability.text),
             target_defs: plan.target_defs,
-            resolver: Self::ability_resolver(effective.origin, &effective.ability),
+            resolver: self.cached_ability_resolver(effective.origin, &effective.ability),
             mode_effects: plan.mode_effects,
             x,
             sacrificed_mana_value: 0,

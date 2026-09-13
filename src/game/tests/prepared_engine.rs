@@ -104,27 +104,25 @@ fn prepared_self_grant_and_reference_self_grant_have_identical_state_changes() {
 #[test]
 fn prepared_source_ability_grant_preserves_live_nonbattlefield_sources() {
     let mut game = ready_game();
-    let source = card(98_075, cards::GOBLIN_BALLOON_BRIGADE, PlayerId::One);
-    let source_id = source.id;
-    game.players[0].hand.push(source);
+    let goblin = creature(98_075, cards::GOBLIN_BALLOON_BRIGADE, PlayerId::One);
+    let source_id = goblin.card.id;
+    game.battlefield.push(goblin);
+    game.players[0].mana_pool.red = 1;
+    let action = game.legal_actions(PlayerId::One).into_iter().find(|action| {
+        matches!(action, Action::ActivateAbility { source, .. } if *source == source_id)
+    }).unwrap();
+    game.apply(PlayerId::One, action).unwrap();
+    let position = game
+        .battlefield
+        .iter()
+        .position(|p| p.card.id == source_id)
+        .unwrap();
+    let source = game.battlefield.remove(position).card;
+    game.players[0].hand.push(source.into_card().unwrap());
     let before_timestamp = game.next_continuous_effect_timestamp;
-    let effect = crate::prepared_engine::compile_effect(EffectDef::Apply {
-        recipient: EffectRecipientDef::Source,
-        effect: AppliedEffectDef::add_ability(&TEST_FLYING_ABILITY[0]),
-        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-    })
-    .expect("the source grant has a prepared lowering");
-
-    crate::prepared_engine::execute_effect(
-        effect,
-        &mut game,
-        PlayerId::One,
-        Some(source_id),
-        primary_ability(cards::GOBLIN_BALLOON_BRIGADE),
-    );
-
+    pass_priority_pair(&mut game);
     assert_eq!(game.nonbattlefield_ability_grants.len(), 1);
-    assert_eq!(game.next_continuous_effect_timestamp, before_timestamp + 1,);
+    assert_eq!(game.next_continuous_effect_timestamp, before_timestamp + 1);
 }
 
 #[test]
@@ -369,3 +367,6 @@ mod prepared_queries;
 #[cfg(feature = "engine-profiling")]
 #[path = "engine_profile.rs"]
 mod engine_profile;
+
+#[path = "prepared_damage.rs"]
+mod prepared_damage;

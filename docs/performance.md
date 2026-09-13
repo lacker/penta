@@ -135,13 +135,18 @@ feature rejects the CLI switch with a rebuild instruction.
 |---|---|
 | `effect_dispatch` | Entered a resolving effect node, on the reference or prepared path. |
 | `game_action_dispatch` | Entered a shared action through ordinary effect resolution; payment execution is not included. |
-| `effect_lowering` | Attempted to lower a resolving root while constructing a resolver; this is preparation, not execution. |
+| `effect_lowering` | Compiled a resolving root; path `catalog` is initial catalog preparation and `compiler` is uncached runtime preparation. This is not execution. |
+| `resolver_plan` | Selected a cached supported/unsupported catalog result, or an uncached runtime effect. |
 | `effect_fallback` | A prepared resolver used reference execution because preparation was disabled or mode effects were present. |
 | `predicate_plan` | Selected a battlefield query plan, or rejected it with a context/unsupported-root reason; an empty query can still select a plan. |
 | `predicate_evaluation` | Entered a reference snapshot or static lazy predicate node; a lazy fallback may also enter the snapshot evaluator. |
 | `prepared_predicate_evaluation` | Entered a lowered predicate node; short-circuited children are not counted. Labels describe the lowered instruction vocabulary. |
 | `static_root` | A catalog static root fell back because its complete shape could not be lowered. |
 | `static_application` | Considered a prepared static application, before lane/recipient/condition filtering. |
+
+Catalog preparation counters depend on whether the process has already warmed
+the shared catalog cache when capture begins. Compare cold CLI runs with cold
+CLI runs, and distinguish `catalog` preparation from repeated runtime attempts.
 
 These categories describe different boundaries: do not add them to calculate
 an overall hit rate. Dispatch counts are attempts, not successful resolutions,

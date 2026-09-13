@@ -52,8 +52,13 @@ Preparation covers resolving effects, static programs, and immutable board queri
 
 ### Resolving effects
 
-When an ability resolver is frozen, `compile_effect` inspects its ordinary
-`EffectDef`. A successful lowering is stored in the stack payload alongside
+Catalog compilation stores a resolving plan for each printed ability, including
+negative results. Runtime resolver construction reuses that plan only when the
+current effect equals the printed effect at its origin. Changed effects and
+noncatalog origins use `compile_effect` directly. Special resolver behavior,
+such as ignoring target fizzle, is selected from the current ability before
+consulting the plan. These immutable plans are also reusable while prepared
+execution is disabled. A successful lowering is stored in the stack payload alongside
 the authoritative `ScopedEffect`. Resolution uses the prepared effect only
 when preparation is enabled and no modal or spliced effects have been added.
 Otherwise it resolves the retained reference effect.
@@ -67,8 +72,17 @@ DrawCards(recipient = Controller, amount = Constant(n))
 
 A second lowering handles a single ability granted to the source until end of
 turn. A dynamic draw amount, another draw recipient, an out-of-range count,
-or another unsupported root returns no lowering. Card declarations use the ordinary `draw_cards`
-constructor in both cases; they neither request nor observe the intrinsic.
+or another unsupported root returns no lowering. Constant damage also lowers
+when it has one implicit-source assignment, no follow-up, and a controller,
+opponent, each-player, event-player, triggering-object-controller, or legal-target
+recipient. It clamps the amount once during compilation and directly constructs
+ordered damage assignments at resolution. Target legality, clause-local target
+slots, last-known trigger controllers, and the shared damage pipeline remain
+authoritative. Explicit damage sources, dynamic amounts, batches, other recipient
+sets, and damage riders retain the complete reference root.
+
+Card declarations continue to use ordinary semantic constructors; they neither
+request nor observe these lowerings.
 
 ### Static programs and summaries
 

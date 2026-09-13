@@ -96,8 +96,8 @@ fn granted_activation_freezes_payload_before_sacrificing_grant_source() {
         )],
     );
     assert!(matches!(
-        payload.resolver,
-        StackAbilityResolver::Declarative(ScopedEffect {
+        payload.resolver.declarative_reference(),
+        Some(ScopedEffect {
             effect: EffectDef::DealDamage(_),
             ..
         })

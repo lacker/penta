@@ -508,7 +508,7 @@ impl Game {
             target_defs: Vec::new(),
             targets: Vec::new(),
             effect: EffectDef::None,
-            resolver: Self::ability_resolver(origin, &ability),
+            resolver: self.cached_ability_resolver(origin, &ability),
             context: TriggerContext::empty().into(),
             condition: None,
             modes: None,

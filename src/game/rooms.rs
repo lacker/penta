@@ -178,7 +178,7 @@ impl Game {
                 target_defs: triggered.targets.to_vec(),
                 targets: Vec::new(),
                 effect: ability.declarative_effect().unwrap_or(EffectDef::None),
-                resolver: Self::ability_resolver(origin, &ability),
+                resolver: self.cached_ability_resolver(origin, &ability),
                 context: TriggerContext::empty().into(),
                 condition: triggered.condition,
                 modes: triggered.modes,

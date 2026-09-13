@@ -38,6 +38,11 @@ pub(crate) fn compile_catalog(catalog: &CardCatalog) -> PreparedCatalog {
 }
 
 pub(crate) fn compile_effect(effect: EffectDef) -> Option<PreparedEffect> {
+    compile_effect_at(effect, "compiler")
+}
+
+#[cfg_attr(not(feature = "engine-profiling"), allow(unused_variables))]
+fn compile_effect_at(effect: EffectDef, path: &'static str) -> Option<PreparedEffect> {
     let prepared = match effect {
         EffectDef::DrawCards {
             recipient: crate::EffectRecipientDef::Controller,
@@ -53,13 +58,27 @@ pub(crate) fn compile_effect(effect: EffectDef) -> Option<PreparedEffect> {
                 )),
             duration: ResolvedEffectDurationDef::UntilEndOfTurn,
         } => Some(PreparedEffect::GrantSourceAbilityUntilEndOfTurn { ability }),
+        EffectDef::DealDamage(crate::card::DamageDef {
+            assignments:
+                crate::card::DamageAssignmentsDef::One(crate::card::DamageAssignmentDef {
+                    source: None,
+                    recipient,
+                    amount: ValueDef::Constant(amount),
+                }),
+            follow_up: None,
+        }) => super::PreparedDamageRecipient::compile(recipient).map(|recipient| {
+            PreparedEffect::DealDamage {
+                recipient,
+                amount: amount.max(0).try_into().unwrap_or(u16::MAX),
+            }
+        }),
         _ => None,
     };
     #[cfg(feature = "engine-profiling")]
     crate::engine_profiling::record(
         "effect_lowering",
         crate::engine_profiling::effect_kind(effect),
-        "compiler",
+        path,
         if prepared.is_some() {
             "supported"
         } else {
@@ -118,6 +137,15 @@ fn compile_static_program(abilities: &[AbilityDef]) -> PreparedStaticProgram {
                 (
                     crate::AbilityId::from_index(index).expect("validated ability index"),
                     ability,
+                )
+            })
+            .collect(),
+        base_resolvers: abilities
+            .iter()
+            .map(|ability| {
+                compile_effect_at(
+                    ability.declarative_effect().unwrap_or(EffectDef::None),
+                    "catalog",
                 )
             })
             .collect(),

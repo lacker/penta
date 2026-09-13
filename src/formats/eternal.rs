@@ -1,6 +1,6 @@
 //! Cataloged subset of the eternal card pool, with policy checked 2026-09-12.
 //!
-//! Source: https://magic.wizards.com/en/banned-restricted-list
+//! Source: <https://magic.wizards.com/en/banned-restricted-list>
 //! Named category bans (ante, Conspiracy, offensive cards, stickers and
 //! Attractions) are expanded using the local Scryfall snapshot. Missing sets
 //! and cards need not be cataloged to register either format.

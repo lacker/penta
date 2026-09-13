@@ -115,7 +115,7 @@ impl Game {
     /// Offers a non-search card choice over owned cards in one or more places.
     /// Any hidden source makes the whole decision private, so combining a
     /// public exile with a hidden sideboard never reveals the sideboard.
-    #[allow(clippy::too_many_arguments)]
+    #[allow(clippy::too_many_arguments, clippy::too_many_lines)]
     pub(super) fn queue_owned_card_choice(
         &mut self,
         player: PlayerId,

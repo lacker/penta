@@ -3,7 +3,7 @@ use super::*;
 #[test]
 fn cedh_opening_snapshot_keeps_command_zones_public_and_out_of_hand() {
     let decks = penta::protocol::deck_names_for_format(penta::Format::Cedh);
-    assert_eq!(decks.len(), 119, "every imported cEDH list is registered");
+    assert_eq!(decks.len(), 16, "the top 16 cEDH lists are registered");
     let deck = decks.first().expect("cEDH has an imported deck");
     let game = WebGame::new(deck, deck, "Handcrafted", true, 9_031, Some("cedh".into()))
         .expect("cEDH game starts");

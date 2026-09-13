@@ -1,6 +1,6 @@
 //! Duel Commander committee rules and named bans, consulted 2026-09-12.
-//! Rules: https://www.duelcommander.org/rules/duelcommander_comprehensiverules/
-//! Ban policy (2026-07-27): https://www.duelcommander.org/banlist/
+//! Rules: <https://www.duelcommander.org/rules/duelcommander_comprehensiverules/>
+//! Ban policy (2026-07-27): <https://www.duelcommander.org/banlist/>
 //! Construction and category-wide card legality remain deferred.
 use super::{CommanderFormatDefinition, FormatRules};
 

@@ -92,6 +92,8 @@ impl Game {
         })
     }
 
+    // Keep the three between-game choices beside their shared observation shape.
+    #[allow(clippy::too_many_lines)]
     pub(super) fn match_decision(&self) -> Option<DecisionObservation> {
         if !self.between_games() {
             return None;

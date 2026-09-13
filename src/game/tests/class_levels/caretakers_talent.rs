@@ -66,7 +66,7 @@ fn caretakers_talent_level_two_targets_tokens_and_copies_only_copiable_values() 
     let copy = game
         .battlefield
         .iter()
-        .find(|p| p.card.id != original && p.token_characteristics.is_some())
+        .find(|p| p.card.id != original && p.card.definition.is_token())
         .unwrap();
     assert_eq!(stats(&game, original), (Some(4), Some(4)));
     assert_eq!(stats(&game, copy.card.id), (Some(1), Some(1)));
@@ -92,7 +92,7 @@ fn caretakers_talent_can_level_without_a_target_and_copy_noncreature_tokens() {
     assert_eq!(
         game.battlefield
             .iter()
-            .filter(|p| p.token_characteristics.is_some())
+            .filter(|p| p.card.definition.is_token())
             .count(),
         2
     );
@@ -189,7 +189,7 @@ fn caretakers_talent_token_batch_draws_once_even_with_additional_triggers() {
     assert_eq!(
         game.battlefield
             .iter()
-            .filter(|p| p.token_characteristics.is_some())
+            .filter(|p| p.card.definition.is_token())
             .count(),
         2
     );

@@ -57,6 +57,13 @@ pub(super) enum StaticEffectKind {
 }
 
 impl StaticEffectKind {
+    const fn reads_granted_static_abilities(self) -> bool {
+        matches!(
+            self,
+            Self::Any | Self::PowerToughness | Self::BasePowerToughness
+        )
+    }
+
     const fn includes(self, effect: AppliedEffectDef) -> bool {
         if matches!(self, Self::BasePowerToughness) {
             return matches!(

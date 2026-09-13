@@ -11,6 +11,7 @@ impl Game {
         &self,
         input: StaticEffectSource<'_>,
         affected: StaticAffectedObject<'_>,
+        kind: StaticEffectKind,
         visitor: &mut impl FnMut(StaticAppliedEffect) -> ControlFlow<()>,
     ) -> ControlFlow<()> {
         let source = input.permanent;
@@ -40,12 +41,7 @@ impl Game {
                 next_grant: 0,
                 next_component_order: 0,
             };
-            self.visit_static_effect(
-                effect,
-                &mut traversal,
-                StaticEffectKind::PowerToughness,
-                visitor,
-            )
+            self.visit_static_effect(effect, &mut traversal, kind, visitor)
         })
     }
 }

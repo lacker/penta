@@ -20,7 +20,7 @@ impl Game {
         for source in self.battlefield.iter().chain(self.emblems.iter()) {
             let source_presentation = Self::effective_rules_source(source);
             let prepared = self.prepared_static_program(source_presentation);
-            if kind != StaticEffectKind::PowerToughness
+            if !kind.reads_granted_static_abilities()
                 && prepared.is_some_and(|program| !program.supplies(kind.prepared_lane()))
             {
                 continue;
@@ -78,7 +78,7 @@ impl Game {
         for source in self.battlefield.iter().chain(prospective_source) {
             let source_presentation = Self::effective_rules_source(source);
             let prepared = self.prepared_static_program(source_presentation);
-            if kind != StaticEffectKind::PowerToughness
+            if !kind.reads_granted_static_abilities()
                 && prepared.is_some_and(|program| !program.supplies(kind.prepared_lane()))
             {
                 continue;

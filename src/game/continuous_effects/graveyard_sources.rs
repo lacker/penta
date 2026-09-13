@@ -87,8 +87,8 @@ impl Game {
         let source = input.permanent;
         let source_presentation = Self::effective_rules_source(source);
         if input.zone == ZoneKind::Battlefield
-            && kind == StaticEffectKind::PowerToughness
-            && self.visit_granted_static_power_toughness(input, affected, visitor).is_break()
+            && kind.reads_granted_static_abilities()
+            && self.visit_granted_static_power_toughness(input, affected, kind, visitor).is_break()
         {
             return ControlFlow::Break(());
         }

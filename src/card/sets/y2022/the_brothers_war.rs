@@ -289,6 +289,46 @@ pub(in crate::card::sets) static BITTER_REUNION_127: CardRecord = CardRecord::ne
     ]),
 );
 
+// BRO 128 — Brotherhood's End
+pub(in crate::card::sets) static BROTHERHOOD_S_END: CardRecord = CardRecord::new(
+    "Brotherhood's End",
+    "50f7666d-0d60-4fe5-b144-286d4e47b704",
+    "Bryan Sola",
+    CardRules::new_sorcery(mana_cost!("{1}{R}{R}")).with_abilities(&[AbilityDef::modal_spell(
+        "Choose one —",
+        &[
+            AbilityDef::spell(
+                "Brotherhood's End deals 3 damage to each creature and each planeswalker.",
+                EffectDef::damage(
+                    EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::HasType(CardType::Planeswalker),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    ),
+                    ValueDef::Constant(3),
+                ),
+            ),
+            AbilityDef::spell(
+                "Destroy all artifacts with mana value 3 or less.",
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Artifact),
+                            ObjectPredicateDef::ManaValueAtMost(3),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    ),
+                    then: None,
+                },
+            ),
+        ],
+    )]),
+);
+
 // BRO 131 — Dwarven Forge-Chanter
 pub(in crate::card::sets) static DWARVEN_FORGE_CHANTER_131: CardRecord = CardRecord::new(
     "Dwarven Forge-Chanter",
@@ -354,6 +394,15 @@ pub(in crate::card::sets) static OBLITERATING_BOLT: CardRecord = CardRecord::new
             },
         ]),
     )]),
+);
+
+// BRO 163 — Phyrexian Dragon Engine
+// Audit: unsupported — Needs the complete physical meld relationship with Mishra, Claimed by Gix in addition to unearth.
+pub(in crate::card::sets) static PHYREXIAN_DRAGON_ENGINE: CardRecord = CardRecord::new(
+    "Phyrexian Dragon Engine",
+    "e2b826be-4256-4fd6-ad4d-6c80933ee940",
+    "Chris Rahn",
+    CardRules::unsupported(),
 );
 
 // BRO 164 — Scrapwork Mutt
@@ -887,10 +936,12 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &COMBAT_COURIER_77,
     &GIXIAN_INFILTRATOR,
     &BITTER_REUNION_127,
+    &BROTHERHOOD_S_END,
     &DWARVEN_FORGE_CHANTER_131,
     &FELDON_RONOM_EXCAVATOR_135,
     &GIANT_CINDERMAW,
     &OBLITERATING_BOLT,
+    &PHYREXIAN_DRAGON_ENGINE,
     &SCRAPWORK_MUTT,
     &BUSHWHACK,
     &CITANUL_STALWART_175,

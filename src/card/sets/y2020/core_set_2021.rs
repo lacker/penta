@@ -144,6 +144,15 @@ pub(in crate::card::sets) static SHIPWRECK_DOWSER: CardRecord = CardRecord::new(
     ),
 );
 
+// M21 116 — Necromentia
+// Audit: unsupported — Needs one multi-zone search with optional same-name selections and retained hand-origin counts for the token continuation.
+pub(in crate::card::sets) static NECROMENTIA: CardRecord = CardRecord::new(
+    "Necromentia",
+    "32c5252e-ff15-4f86-ad63-d8286427e70f",
+    "Mila Pesic",
+    CardRules::unsupported(),
+);
+
 // M21 121 — Sanguine Indulgence
 // Audit: unsupported — Needs a self spell-cost reduction based on life gained this turn; the self-cost evaluator does not read LifeGainedThisTurn.
 pub(in crate::card::sets) static SANGUINE_INDULGENCE: CardRecord = CardRecord::new(
@@ -489,6 +498,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &GHOSTLY_PILFERER_52,
     &MISCAST_57,
     &SHIPWRECK_DOWSER,
+    &NECROMENTIA,
     &SANGUINE_INDULGENCE,
     &VILLAGE_RITES,
     &CONSPICUOUS_SNOOP_139,

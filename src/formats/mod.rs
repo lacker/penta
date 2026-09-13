@@ -7,6 +7,7 @@ use crate::card::{CardDefinition, CardSet, CardStructure};
 mod commander;
 pub mod cubes;
 mod duel_commander;
+mod eternal;
 mod old_school_9394;
 mod premodern;
 pub mod standards;
@@ -34,6 +35,8 @@ pub enum Format {
     #[default]
     OldSchool9394,
     Premodern,
+    Legacy,
+    Vintage,
     IsdM14Standard,
     SomM13Standard,
     VintageCube,
@@ -47,6 +50,7 @@ pub enum Format {
 pub enum FormatCategory {
     OldSchool,
     Premodern,
+    Eternal,
     Standard,
     Cube,
     Commander,
@@ -56,6 +60,7 @@ impl FormatCategory {
     pub const ALL: &'static [Self] = &[
         Self::OldSchool,
         Self::Premodern,
+        Self::Eternal,
         Self::Standard,
         Self::Cube,
         Self::Commander,
@@ -66,6 +71,7 @@ impl FormatCategory {
         match self {
             Self::OldSchool => "Old School",
             Self::Premodern => "Premodern",
+            Self::Eternal => "Eternal",
             Self::Standard => "Standard",
             Self::Cube => "Cubes",
             Self::Commander => "Commander",
@@ -77,6 +83,7 @@ impl FormatCategory {
         match self {
             Self::OldSchool => &[Format::OldSchool9394],
             Self::Premodern => &[Format::Premodern],
+            Self::Eternal => &[Format::Legacy, Format::Vintage],
             Self::Standard => &[Format::IsdM14Standard, Format::SomM13Standard],
             Self::Cube => &[Format::VintageCube, Format::PauperCube],
             Self::Commander => &[Format::Cedh, Format::DuelCommander],
@@ -171,6 +178,8 @@ impl Format {
     pub const ALL: &'static [Self] = &[
         Self::OldSchool9394,
         Self::Premodern,
+        Self::Legacy,
+        Self::Vintage,
         Self::IsdM14Standard,
         Self::SomM13Standard,
         Self::VintageCube,
@@ -184,6 +193,7 @@ impl Format {
         match self {
             Self::OldSchool9394 => FormatCategory::OldSchool,
             Self::Premodern => FormatCategory::Premodern,
+            Self::Legacy | Self::Vintage => FormatCategory::Eternal,
             Self::IsdM14Standard | Self::SomM13Standard => FormatCategory::Standard,
             Self::VintageCube | Self::PauperCube => FormatCategory::Cube,
             Self::Cedh | Self::DuelCommander => FormatCategory::Commander,
@@ -195,6 +205,8 @@ impl Format {
         match self {
             Self::OldSchool9394 => FormatDefinition::Sets(&old_school_9394::DEFINITION),
             Self::Premodern => FormatDefinition::Sets(&premodern::DEFINITION),
+            Self::Legacy => FormatDefinition::Sets(&eternal::LEGACY),
+            Self::Vintage => FormatDefinition::Sets(&eternal::VINTAGE),
             Self::IsdM14Standard => FormatDefinition::Sets(&standards::isd_m14::DEFINITION),
             Self::SomM13Standard => FormatDefinition::Sets(&standards::som_m13::DEFINITION),
             Self::VintageCube => FormatDefinition::Cube(&cubes::vintage::DEFINITION),
@@ -248,6 +260,8 @@ impl Format {
         match self {
             Self::OldSchool9394 => "old-school-93-94",
             Self::Premodern => "premodern",
+            Self::Legacy => "legacy",
+            Self::Vintage => "vintage",
             Self::IsdM14Standard => "isd-m14-standard",
             Self::SomM13Standard => "som-m13-standard",
             Self::VintageCube => "vintage-cube",
@@ -262,6 +276,8 @@ impl Format {
         match self {
             Self::OldSchool9394 => "Old School 93/94",
             Self::Premodern => "Premodern",
+            Self::Legacy => "Legacy",
+            Self::Vintage => "Vintage",
             Self::IsdM14Standard => "Standard: ISD-M14",
             Self::SomM13Standard => "Standard: SOM-M13",
             Self::VintageCube => "Cube: Vintage",

@@ -1,0 +1,35 @@
+# Source: https://mtgtop8.com/event?e=90648&d=888206&f=LE
+# Finish: 3-4; player: _Shikamaru_.
+# Published main deck: 60; sideboard: 15.
+name: "Ux Tron — _Shikamaru_"
+description: "3-4 — _Shikamaru_; MTGTop8 event 90648."
+main:
+  "Force of Negation": 2
+  "Force of Will": 4
+  "Island": 1
+  "Urza's Mine": 4
+  "Kozilek's Command": 4
+  "Petrified Hamlet": 4
+  "Portent of Calamity": 1
+  "Sink into Stupor // Soporific Springs": 4
+  "Urza's Tower": 4
+  "Thundertrap Trainer": 1
+  "Stock Up": 4
+  "Karn, the Great Creator": 4
+  "Expedition Map": 3
+  "Urza's Power Plant": 4
+  "Grim Monolith": 4
+  "Planar Nexus": 4
+  "The One Ring": 4
+  "Ugin, Eye of the Storms": 4
+sideboard:
+  "Force of Negation": 2
+  "Dismember": 2
+  "Mycosynth Lattice": 1
+  "Extinguisher Battleship": 1
+  "Invasion Submersible": 1
+  "Karakas": 1
+  "Ensnaring Bridge": 1
+  "Summon: Bahamut": 2
+  "Tormod's Crypt": 2
+  "Faerie Macabre": 2

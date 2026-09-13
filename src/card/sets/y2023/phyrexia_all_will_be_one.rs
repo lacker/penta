@@ -584,6 +584,15 @@ pub(in crate::card::sets) static TYVAR_JUBILANT_BRAWLER_218: CardRecord = CardRe
     crate::card::CardRules::unsupported(),
 );
 
+// ONE 222 — Argentum Masticore
+// Audit: unsupported — Needs a reflexive trigger retaining the identity and mana value of a card discarded as a resolving payment.
+pub(in crate::card::sets) static ARGENTUM_MASTICORE: CardRecord = CardRecord::new(
+    "Argentum Masticore",
+    "9746e3ab-c0a6-46c1-a418-275b419962e4",
+    "Zack Stella",
+    CardRules::unsupported(),
+);
+
 // ONE 243 — Surgical Skullbomb
 pub(in crate::card::sets) static SURGICAL_SKULLBOMB_243: CardRecord = CardRecord::new(
     "Surgical Skullbomb",
@@ -832,6 +841,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ATRAXA_GRAND_UNIFIER,
     &OVIKA_ENIGMA_GOLIATH,
     &TYVAR_JUBILANT_BRAWLER_218,
+    &ARGENTUM_MASTICORE,
     &SURGICAL_SKULLBOMB_243,
     &ZENITH_CHRONICLER_246,
     &MONDRAK_GLORY_DOMINUS_346,

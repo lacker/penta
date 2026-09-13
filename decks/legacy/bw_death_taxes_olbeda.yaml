@@ -1,0 +1,43 @@
+# Source: https://mtgtop8.com/event?e=90648&d=888199&f=LE
+# Finish: 5-8; player: olbeda.
+# Published main deck: 80; sideboard: 15.
+name: "BW Death & Taxes — olbeda"
+description: "5-8 — olbeda; MTGTop8 event 90648."
+main:
+  "Flickerwisp": 1
+  "Arid Mesa": 4
+  "Thalia, Guardian of Thraben": 2
+  "Lion Sash": 1
+  "Recruiter of the Guard": 4
+  "Phelia, Exuberant Shepherd": 4
+  "Skyclave Apparition": 2
+  "Swamp": 1
+  "Stoneforge Mystic": 4
+  "Shadowy Backstreet": 2
+  "Plains": 5
+  "Witch Enchanter // Witch-Blessed Meadow": 2
+  "Swords to Plowshares": 4
+  "Thoughtseize": 4
+  "Meteor Sword": 1
+  "Scrubland": 2
+  "White Orchid Phantom": 2
+  "Prismatic Vista": 4
+  "Karakas": 4
+  "Aether Vial": 4
+  "Marsh Flats": 4
+  "Canoptek Scarab Swarm": 1
+  "Flagstones of Trokair": 1
+  "Orcish Bowmasters": 2
+  "Overlord of the Balemurk": 4
+  "Cloak and Dagger, Entwined": 1
+  "Pre-War Formalwear": 2
+  "Wasteland": 4
+  "Solitude": 4
+sideboard:
+  "Disruptor Flute": 3
+  "Yorion, Sky Nomad": 1
+  "Wrath of the Skies": 2
+  "Erode": 2
+  "Deafening Silence": 3
+  "Rest in Peace": 2
+  "Faerie Macabre": 2

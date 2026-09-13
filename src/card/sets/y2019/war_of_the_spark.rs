@@ -4,6 +4,8 @@ use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
 use crate::card::AbilityDef;
+use crate::card::AbilityKindDef;
+use crate::card::AbilityPredicateDef;
 use crate::card::AbilityTargetDef;
 use crate::card::AbilityTargetPredicate;
 use crate::card::AddManaEffectDef;
@@ -12,6 +14,7 @@ use crate::card::AppliedEffectDef;
 use crate::card::AppliedRuleDef;
 use crate::card::BasicLandType;
 use crate::card::CardArt;
+use crate::card::CardChoiceSourceDef;
 use crate::card::CardRules;
 use crate::card::CardSupertype;
 use crate::card::CardType;
@@ -74,12 +77,75 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // WAR 1 — Karn, the Great Creator
-// Audit: unsupported — The engine has no outside-the-game zone or wish-style retrieval operation. Searching exile alone would omit a legal branch of the -2 ability.
 pub(in crate::card::sets) static KARN_THE_GREAT_CREATOR_1: CardRecord = CardRecord::new(
     "Karn, the Great Creator",
     "3ec0c0fb-1a4f-45f4-85b7-346a6d3ce2c5",
     "Wisnu Tan",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_planeswalker(mana_cost!("{4}"), &["Karn"], 5)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Activated abilities of artifacts your opponents control can't be activated.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Opponent,
+                    ),
+                    effect: AppliedEffectDef::cannot_activate_abilities(AbilityPredicateDef::Is(
+                        AbilityKindDef::Activated,
+                    )),
+                },
+            ),
+            AbilityDef::activated_with_targets(
+                "+1: Until your next turn, up to one target noncreature artifact becomes an \
+                 artifact creature with power and toughness each equal to its mana value.",
+                &[CostDef::Loyalty(1)],
+                &[AbilityTargetDef::up_to(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Artifact),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(
+                                CardType::Creature,
+                            )),
+                        ]),
+                        zones: &[ZoneKind::Battlefield],
+                        owner: None,
+                        controller: None,
+                    },
+                    1,
+                )],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)),
+                        AppliedEffectDef::set_base_power_toughness(
+                            ValueDef::TargetManaValue(TargetIndex::PRIMARY),
+                            ValueDef::TargetManaValue(TargetIndex::PRIMARY),
+                        ),
+                    ]),
+                    duration: ResolvedEffectDurationDef::UntilYourNextTurn,
+                },
+            ),
+            AbilityDef::activated(
+                "−2: You may reveal an artifact card you own from outside the game or choose \
+                 a face-up artifact card you own in exile. Put that card into your hand.",
+                &[CostDef::Loyalty(-2)],
+                EffectDef::ChooseCards {
+                    player: EffectRecipientDef::Controller,
+                    sources: &[
+                        CardChoiceSourceDef::OutsideGame,
+                        CardChoiceSourceDef::Zone(ZoneKind::Exile),
+                    ],
+                    object: ObjectPredicateDef::HasType(CardType::Artifact),
+                    minimum: 0,
+                    maximum: 1,
+                    reveal: true,
+                    destination: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                },
+            ),
+        ]),
 );
 
 // WAR 2 — Ugin, the Ineffable

@@ -340,6 +340,15 @@ pub(in crate::card::sets) static LURRUS_OF_THE_DREAM_DEN: CardRecord = CardRecor
         ]),
 );
 
+// IKO 232 — Yorion, Sky Nomad
+// Audit: unsupported — Needs the companion condition comparing starting deck size with the format minimum.
+pub(in crate::card::sets) static YORION_SKY_NOMAD: CardRecord = CardRecord::new(
+    "Yorion, Sky Nomad",
+    "275426c4-c14e-47d0-a9d4-24da7f6f6911",
+    "Steven Belledin",
+    CardRules::unsupported(),
+);
+
 // IKO 233 — Zirda, the Dawnwaker
 pub(in crate::card::sets) static ZIRDA_THE_DAWNWAKER: CardRecord = CardRecord::new(
     "Zirda, the Dawnwaker",
@@ -549,6 +558,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &WINOTA_JOINER_OF_FORCES_216,
     &JEGANTHA_THE_WELLSPRING_222,
     &LURRUS_OF_THE_DREAM_DEN,
+    &YORION_SKY_NOMAD,
     &ZIRDA_THE_DAWNWAKER,
     &INDATHA_TRIOME,
     &KETRIA_TRIOME,

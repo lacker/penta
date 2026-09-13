@@ -223,6 +223,27 @@ pub(in crate::card::sets) static TAKE_UP_THE_SHIELD: CardRecord = CardRecord::ne
     )]),
 );
 
+// DMU 36 — Temporary Lockdown
+pub(in crate::card::sets) static TEMPORARY_LOCKDOWN: CardRecord = CardRecord::new(
+    "Temporary Lockdown",
+    "82b3088f-7b49-45e9-b447-129a597ceb75",
+    "Bryan Sola",
+    CardRules::new_enchantment(mana_cost!("{1}{W}{W}")).with_abilities(&[
+        abilities::enters_trigger(
+            "When this enchantment enters, exile each nonland permanent with mana value 2 \
+             or less until this enchantment leaves the battlefield.",
+            abilities::exile_until_source_leaves(EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                    ObjectPredicateDef::ManaValueAtMost(2),
+                ]),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
+            )),
+        ),
+    ]),
+);
+
 // DMU 57 — Micromancer
 pub(in crate::card::sets) static MICROMANCER: CardRecord = CardRecord::new(
     "Micromancer",
@@ -935,6 +956,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &PRAYER_OF_BINDING,
     &RESOLUTE_REINFORCEMENTS,
     &TAKE_UP_THE_SHIELD,
+    &TEMPORARY_LOCKDOWN,
     &MICROMANCER,
     &SHORE_UP,
     &TOLARIAN_TERROR,

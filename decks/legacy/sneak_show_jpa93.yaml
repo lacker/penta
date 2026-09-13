@@ -1,0 +1,38 @@
+# Source: https://mtgtop8.com/event?e=90648&d=888196&f=LE
+# Finish: 5-8; player: JPA93.
+# Published main deck: 60; sideboard: 15.
+name: "Sneak Show — JPA93"
+description: "5-8 — JPA93; MTGTop8 event 90648."
+main:
+  "Lotus Petal": 4
+  "Sneak Attack": 4
+  "Show and Tell": 4
+  "Stock Up": 4
+  "Brainstorm": 4
+  "Ponder": 4
+  "Force of Will": 4
+  "Atraxa, Grand Unifier": 4
+  "Emrakul, the Aeons Torn": 2
+  "Spell Pierce": 2
+  "Flusterstorm": 2
+  "City of Traitors": 1
+  "Island": 2
+  "Volcanic Island": 3
+  "Scalding Tarn": 4
+  "Thundering Falls": 1
+  "Flooded Strand": 1
+  "Polluted Delta": 1
+  "Misty Rainforest": 1
+  "Mountain": 1
+  "Omniscience": 1
+  "Chrome Mox": 1
+  "Ancient Tomb": 4
+  "Raph & Mikey, Troublemakers": 1
+sideboard:
+  "Pyroblast": 3
+  "Consign to Memory": 4
+  "Abrade": 1
+  "Brotherhood's End": 1
+  "Hexing Squelcher": 3
+  "Alpine Moon": 1
+  "Ghost Vacuum": 2

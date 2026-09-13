@@ -15,29 +15,38 @@ use crate::card::BindObjectsDef;
 use crate::card::CardRules;
 use crate::card::CardSupertype;
 use crate::card::CardType;
+use crate::card::ChoiceVisibilityDef;
+use crate::card::ChooseDef;
 use crate::card::ComparisonDef;
 use crate::card::CostDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::ManaColor;
 use crate::card::MoveObjectsDef;
+use crate::card::ObjectChoiceBindingDef;
 use crate::card::ObjectCollectionSourceDef;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
 use crate::card::ObjectRefDef;
 use crate::card::ObjectSetDef;
+use crate::card::ObjectSetFilterDef;
 use crate::card::ObjectValueAggregateDef;
 use crate::card::ObjectValueDef;
+use crate::card::PayOrDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
+use crate::card::PlayerSetDef;
 use crate::card::ResolvedEffectDurationDef;
+use crate::card::RevealObjectsDef;
 use crate::card::SumValueDef;
 use crate::card::TriggerConditionDef;
+use crate::card::TriggerEventDef;
 use crate::card::ValueComparisonDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
 use crate::card::ZonePlacement;
 use crate::card::abilities;
+use crate::ids::ParentBinding;
 use crate::mana_cost;
 
 /// Printed set identity and stable catalog slug.
@@ -48,6 +57,38 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
+// OGW 7 — Reality Smasher
+pub(in crate::card::sets) static REALITY_SMASHER: CardRecord = CardRecord::new(
+    "Reality Smasher",
+    "52d4b652-a830-4fd4-94bb-c17c227f2928",
+    "Jason Rainville",
+    CardRules::new_creature(mana_cost!("{4}{C}"), &["Eldrazi"], 5, 5).with_abilities(&[
+        abilities::trample(),
+        abilities::haste(),
+        AbilityDef::triggered(
+            "Whenever this creature becomes the target of a spell an opponent controls, \
+             counter that spell unless its controller discards a card.",
+            TriggerEventDef::becomes_targeted(ObjectPredicateDef::All(&[
+                ObjectPredicateDef::Spell,
+                ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
+            ])),
+            EffectDef::PayOr(
+                PayOrDef::unless(
+                    &[CostDef::DiscardCards(1)],
+                    &EffectDef::Counter {
+                        object: EffectRecipientDef::TriggeringObject,
+                        zone: ZoneKind::Graveyard,
+                        placement: ZonePlacement::Top,
+                    },
+                )
+                .with_payer(PlayerSetDef::One(PlayerRefDef::ControllerOf(
+                    ObjectRefDef::TriggeringObject,
+                ))),
+            ),
+        ),
+    ]),
+);
 
 // OGW 8 — Spatial Contortion
 pub(in crate::card::sets) static SPATIAL_CONTORTION_8: CardRecord = CardRecord::new(
@@ -68,6 +109,71 @@ pub(in crate::card::sets) static SPATIAL_CONTORTION_8: CardRecord = CardRecord::
             duration: ResolvedEffectDurationDef::UntilEndOfTurn,
         },
     )]),
+);
+
+// OGW 9 — Thought-Knot Seer
+pub(in crate::card::sets) static THOUGHT_KNOT_SEER: CardRecord = CardRecord::new(
+    "Thought-Knot Seer",
+    "bffc360e-db41-48f3-9365-680d55046e04",
+    "Svetlin Velinov",
+    CardRules::new_creature(mana_cost!("{3}{C}"), &["Eldrazi"], 4, 4).with_abilities(&[
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, target opponent reveals their hand. You choose a \
+             nonland card from it and exile that card.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::RevealObjects(RevealObjectsDef {
+                    input: ObjectSetDef::Query(ObjectQueryDef::owned_by(
+                        ObjectPredicateDef::Any,
+                        &[ZoneKind::Hand],
+                        PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                    )),
+                    then: &EffectDef::None,
+                }),
+                EffectDef::Choose(ChooseDef {
+                    binding: ObjectChoiceBindingDef::Objects(ParentBinding),
+                    unchosen: None,
+                    chooser: PlayerRefDef::EffectController,
+                    candidates: ObjectSetDef::Matching {
+                        objects: &ObjectSetDef::Query(ObjectQueryDef::owned_by(
+                            ObjectPredicateDef::Any,
+                            &[ZoneKind::Hand],
+                            PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                        )),
+                        object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::Not(
+                            &ObjectPredicateDef::HasType(CardType::Land),
+                        )),
+                    },
+                    exclude: None,
+                    minimum: 1,
+                    maximum: 1,
+                    visibility: ChoiceVisibilityDef::Public,
+                    then: &EffectDef::move_to_zone(
+                        EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
+                        ZoneKind::Exile,
+                        ZonePlacement::Top,
+                    ),
+                }),
+            ]),
+        ),
+        AbilityDef::triggered_with_targets(
+            "When this creature leaves the battlefield, target opponent draws a card.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                Some(ZoneKind::Battlefield),
+                None,
+            ),
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+            )],
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // OGW 12 — Warping Wail
@@ -396,7 +502,9 @@ pub(in crate::card::sets) static WASTES: CardRecord = CardRecord::new(
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &REALITY_SMASHER,
     &SPATIAL_CONTORTION_8,
+    &THOUGHT_KNOT_SEER,
     &WARPING_WAIL_12,
     &MAKE_A_STAND,
     &DIMENSIONAL_INFILTRATOR_44,

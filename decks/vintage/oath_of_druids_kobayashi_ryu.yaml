@@ -1,0 +1,51 @@
+# Source: https://mtgtop8.com/event?e=90586&d=887705&f=VI
+# Finish: 5-8; player: Kobayashi Ryu.
+# Published main deck: 60; sideboard: 15.
+name: "Oath of Druids — Kobayashi Ryu"
+description: "5-8 — Kobayashi Ryu; MTGTop8 event 90586."
+main:
+  "Atraxa, Grand Unifier": 4
+  "Black Lotus": 1
+  "Mox Emerald": 1
+  "Mox Jet": 1
+  "Mox Pearl": 1
+  "Mox Ruby": 1
+  "Mox Sapphire": 1
+  "Sol Ring": 1
+  "Mana Crypt": 1
+  "Vexing Bauble": 1
+  "Force of Will": 4
+  "Flash": 1
+  "Brainstorm": 1
+  "Ancestral Recall": 1
+  "Mental Misstep": 1
+  "Flusterstorm": 2
+  "Force of Negation": 2
+  "Gaea's Blessing": 1
+  "Demonic Tutor": 1
+  "Time Walk": 1
+  "Show and Tell": 4
+  "Gitaxian Probe": 1
+  "Lórien Revealed": 1
+  "Stock Up": 4
+  "Oath of Druids": 4
+  "Oko, Thief of Crowns": 1
+  "Island": 1
+  "Forbidden Orchard": 4
+  "Flooded Strand": 1
+  "Polluted Delta": 1
+  "Tropical Island": 2
+  "Underground Sea": 2
+  "Misty Rainforest": 1
+  "Scalding Tarn": 1
+  "Ancient Tomb": 1
+  "Boseiju, Who Endures": 2
+  "Hedge Maze": 1
+sideboard:
+  "Leyline of the Void": 4
+  "Mindbreak Trap": 1
+  "Null Rod": 3
+  "Abrupt Decay": 3
+  "Veil of Summer": 1
+  "Serra's Emissary": 1
+  "Consign to Memory": 2

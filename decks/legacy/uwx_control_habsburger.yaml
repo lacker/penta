@@ -1,0 +1,41 @@
+# Source: https://mtgtop8.com/event?e=90648&d=888194&f=LE
+# Finish: 16; player: habsburger.
+# Published main deck: 60; sideboard: 15.
+name: "UWx Control — habsburger"
+description: "16 — habsburger; MTGTop8 event 90648."
+main:
+  "Spell Snare": 1
+  "Lórien Revealed": 1
+  "Stifle": 1
+  "Force of Negation": 2
+  "Tune the Narrative": 2
+  "Wrath of the Skies": 2
+  "Flow State": 2
+  "Swords to Plowshares": 4
+  "Force of Will": 4
+  "Brainstorm": 4
+  "Ponder": 4
+  "Murktide Regent": 2
+  "Phelia, Exuberant Shepherd": 3
+  "Quantum Riddler": 3
+  "Tamiyo, Inquisitive Student // Tamiyo, Seasoned Scholar": 4
+  "Mystic Sanctuary": 1
+  "Plains": 1
+  "Meticulous Archive": 1
+  "Karakas": 1
+  "Island": 2
+  "Scalding Tarn": 2
+  "Polluted Delta": 2
+  "Tundra": 3
+  "Wasteland": 4
+  "Flooded Strand": 4
+sideboard:
+  "The One Ring": 2
+  "Consign to Memory": 3
+  "Surgical Extraction": 1
+  "Erode": 1
+  "Prismatic Ending": 1
+  "Moat": 1
+  "White Orchid Phantom": 2
+  "Containment Priest": 2
+  "Triumph of Saint Katherine": 2

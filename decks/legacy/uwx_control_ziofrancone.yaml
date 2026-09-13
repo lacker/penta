@@ -1,0 +1,41 @@
+# Source: https://mtgtop8.com/event?e=90648&d=888198&f=LE
+# Finish: 9; player: ziofrancone.
+# Published main deck: 60; sideboard: 15.
+name: "UWx Control — ziofrancone"
+description: "9 — ziofrancone; MTGTop8 event 90648."
+main:
+  "Meticulous Archive": 1
+  "Flooded Strand": 3
+  "Lórien Revealed": 4
+  "Force of Will": 4
+  "Plains": 2
+  "Scalding Tarn": 2
+  "Flow State": 4
+  "Island": 4
+  "Stock Up": 3
+  "Wrath of the Skies": 2
+  "Tundra": 1
+  "Volcanic Island": 1
+  "Thundertrap Trainer": 3
+  "Erode": 2
+  "Swords to Plowshares": 4
+  "Force of Negation": 3
+  "Prismatic Ending": 2
+  "Prismatic Vista": 3
+  "Teferi, Time Raveler": 2
+  "Mystic Sanctuary": 1
+  "Forth Eorlingas!": 2
+  "Dress Down": 2
+  "Mountain": 1
+  "Brainstorm": 4
+sideboard:
+  "Wrath of the Skies": 1
+  "Red Elemental Blast": 1
+  "Hydroblast": 1
+  "Consign to Memory": 3
+  "Surgical Extraction": 2
+  "Blue Elemental Blast": 2
+  "Damping Sphere": 1
+  "Temporary Lockdown": 1
+  "Containment Priest": 1
+  "Pyroblast": 2

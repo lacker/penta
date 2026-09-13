@@ -246,7 +246,7 @@ fn premodern_bans_its_own_list_and_restricts_nothing() {
 }
 
 #[test]
-fn only_old_school_has_mana_burn_and_restrictions() {
+fn only_old_school_has_mana_burn() {
     assert!(Format::OldSchool9394.rules().mana_burn);
     assert!(!Format::OldSchool9394.rules().mana_empties_at_end_of_step);
     assert!(Format::OldSchool9394.is_restricted(" black lotus "));
@@ -256,7 +256,10 @@ fn only_old_school_has_mana_burn_and_restrictions() {
         if format != Format::OldSchool9394 {
             assert!(!format.rules().mana_burn);
             assert!(format.rules().mana_empties_at_end_of_step);
-            assert!(!format.is_restricted("Black Lotus"));
+            assert_eq!(
+                format.is_restricted("Black Lotus"),
+                format == Format::Vintage
+            );
         }
     }
 }
@@ -284,4 +287,30 @@ fn duel_commander_has_separate_gameplay_and_ban_policy() {
         rules.companion_only_banned_cards,
         &["Lutri, the Spellchaser"]
     );
+}
+
+#[test]
+fn eternal_formats_share_cataloged_sets_but_have_distinct_ban_policies() {
+    for format in [Format::Legacy, Format::Vintage] {
+        assert_eq!(format.rules(), &super::CONSTRUCTED_RULES);
+        assert!(format.allows_set(sets::alpha::SET));
+        assert!(format.allows_set(sets::modern_horizons_3::SET));
+        assert!(format.allows_set(sets::fallout::SET));
+        assert!(!format.allows_set(CardSet::TOKEN));
+        for name in ["Chaos Orb", "Contract from Below", "Crusade", "Power Play"] {
+            assert!(format.is_banned(name), "{format}: {name}");
+        }
+        assert!(!format.is_banned("Force of Will"));
+        assert_eq!(
+            crate::protocol::parse_format_slug(format.slug()),
+            Ok(format)
+        );
+    }
+    assert!(Format::Legacy.is_banned("Black Lotus"));
+    assert!(!Format::Legacy.is_restricted("Black Lotus"));
+    assert!(!Format::Vintage.is_banned("Black Lotus"));
+    assert!(Format::Vintage.is_restricted("Black Lotus"));
+    assert!(Format::Vintage.is_restricted("Urza's Saga"));
+    assert!(!Format::Legacy.is_banned("Urza's Saga"));
+    assert!(!Format::Legacy.is_banned("Lodestone Golem"));
 }

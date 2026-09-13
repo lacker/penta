@@ -24,6 +24,7 @@ use crate::card::CostDef;
 use crate::card::CounterKind;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
+use crate::card::KeywordAbility;
 use crate::card::ManaColor;
 use crate::card::ObjectChoiceBindingDef;
 use crate::card::ObjectPredicateDef;
@@ -271,6 +272,51 @@ pub(in crate::card::sets) static MUCK_DRUBB_76: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// PLC 114 — Rough // Tumble
+pub(in crate::card::sets) static ROUGH_TUMBLE: CardRecord = CardRecord::new_split(
+    "Rough // Tumble",
+    "0c93c9a0-53eb-44cc-bd79-8103774bfd4c",
+    "Luca Zontini",
+    &[
+        (
+            "Rough",
+            CardRules::new_sorcery(mana_cost!("{1}{R}")).with_abilities(&[AbilityDef::spell(
+                "Rough deals 2 damage to each creature without flying.",
+                EffectDef::damage(
+                    EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::HasKeyword(
+                                KeywordAbility::Flying,
+                            )),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    ),
+                    ValueDef::Constant(2),
+                ),
+            )]),
+        ),
+        (
+            "Tumble",
+            CardRules::new_sorcery(mana_cost!("{5}{R}")).with_abilities(&[AbilityDef::spell(
+                "Tumble deals 6 damage to each creature with flying.",
+                EffectDef::damage(
+                    EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    ),
+                    ValueDef::Constant(6),
+                ),
+            )]),
+        ),
+    ],
+);
+
 // PLC 122 — Simian Spirit Guide
 pub(in crate::card::sets) static SIMIAN_SPIRIT_GUIDE_122: CardRecord = CardRecord::new(
     "Simian Spirit Guide",
@@ -375,6 +421,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &EXTIRPATE,
     &IMP_S_MISCHIEF_72,
     &MUCK_DRUBB_76,
+    &ROUGH_TUMBLE,
     &SIMIAN_SPIRIT_GUIDE_122,
     &FUNGAL_BEHEMOTH,
     &URBORG_TOMB_OF_YAWGMOTH,

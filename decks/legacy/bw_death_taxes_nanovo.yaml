@@ -1,0 +1,43 @@
+# Source: https://mtgtop8.com/event?e=90648&d=888204&f=LE
+# Finish: 1; player: Nanovo.
+# Published main deck: 80; sideboard: 15.
+name: "BW Death & Taxes — Nanovo"
+description: "1 — Nanovo; MTGTop8 event 90648."
+main:
+  "Plains": 5
+  "Swamp": 1
+  "Flagstones of Trokair": 1
+  "Wasteland": 4
+  "Thoughtseize": 4
+  "Marsh Flats": 4
+  "Thalia, Guardian of Thraben": 2
+  "Flickerwisp": 1
+  "Swords to Plowshares": 4
+  "Scrubland": 2
+  "Stoneforge Mystic": 4
+  "Aether Vial": 4
+  "Prismatic Vista": 4
+  "Skyclave Apparition": 2
+  "Arid Mesa": 4
+  "Lion Sash": 1
+  "Orcish Bowmasters": 2
+  "Shadowy Backstreet": 2
+  "White Orchid Phantom": 3
+  "Witch Enchanter // Witch-Blessed Meadow": 2
+  "Recruiter of the Guard": 4
+  "Phelia, Exuberant Shepherd": 4
+  "Overlord of the Balemurk": 4
+  "Pre-War Formalwear": 2
+  "Karakas": 4
+  "Meteor Sword": 1
+  "Cloak and Dagger, Entwined": 1
+  "Solitude": 4
+sideboard:
+  "White Orchid Phantom": 1
+  "Faerie Macabre": 2
+  "Deafening Silence": 3
+  "Yorion, Sky Nomad": 1
+  "Containment Priest": 1
+  "Wrath of the Skies": 3
+  "Disruptor Flute": 2
+  "Erode": 2

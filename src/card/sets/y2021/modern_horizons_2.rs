@@ -44,6 +44,7 @@ use crate::card::EffectRecipientDef;
 use crate::card::ExilePlayDurationDef;
 use crate::card::FreePlayDef;
 use crate::card::FreePlayDurationDef;
+use crate::card::GraveyardPlayPermissionDef;
 use crate::card::GraveyardTypeConditionDef;
 use crate::card::ManaColor;
 use crate::card::MillLoopDef;
@@ -54,11 +55,15 @@ use crate::card::ObjectQueryDef;
 use crate::card::ObjectRefDef;
 use crate::card::ObjectSetDef;
 use crate::card::ObjectSetFilterDef;
+use crate::card::OngoingEffectDef;
 use crate::card::PayOrDef;
+use crate::card::PlayActionMatcherDef;
+use crate::card::PlayRestrictionDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
 use crate::card::PlayerSetDef;
 use crate::card::PowerToughnessOperationDef;
+use crate::card::PrintedManaCost;
 use crate::card::ReplacementEffectDef;
 use crate::card::ReplacementEventDef;
 use crate::card::ResolvedEffectDurationDef;
@@ -1249,6 +1254,63 @@ pub(in crate::card::sets) static ENDURANCE: CardRecord = CardRecord::new(
         ]),
 );
 
+// MH2 162 — Gaea's Will
+pub(in crate::card::sets) static GAEA_S_WILL: CardRecord = CardRecord::new(
+    "Gaea's Will",
+    "488996b2-06c8-4866-bf0d-4664640c2be1",
+    "Lucas Graciano",
+    CardRules::base(
+        CardTypeSet::single(CardType::Sorcery),
+        PrintedManaCost::None,
+    )
+    .printed_colors(&[ManaColor::Green])
+    .with_abilities(&[
+        abilities::suspend(
+            "Suspend 4—{G}",
+            &SuspendAbilityDef::fixed(4, &[CostDef::Mana(mana_cost!("{G}"))]),
+        ),
+        AbilityDef::spell(
+            "Until end of turn, you may play lands and cast spells from your graveyard.\nIf a card \
+             would be put into your graveyard from anywhere this turn, exile that card instead.",
+            // The permission belongs to the player. The replacement belongs to nothing
+            // at all: the card making it is in the graveyard -- or in exile, by its own
+            // clause -- before it applies, so it is created as an effect object that
+            // lasts the turn rather than granted to a source that will not be there.
+            EffectDef::Sequence(&[
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Controller,
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlayFromGraveyard(
+                        // Everything, played every way: the permission names no card type and no
+                        // one play action, which is the whole of "play lands and cast spells".
+                        GraveyardPlayPermissionDef::unlimited(PlayRestrictionDef::new(
+                            PlayActionMatcherDef::Any,
+                            ObjectPredicateDef::Any,
+                        )),
+                    )),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+                EffectDef::CreateOngoingEffect(OngoingEffectDef::unbound(
+                    // "A card", not "a card or token": a token put into a graveyard goes there
+                    // and ceases to exist as it always would.
+                    &AbilityDef::replacement_for(
+                        "If a card would be put into your graveyard from anywhere this turn, \
+                         exile that card instead.",
+                        ReplacementEventDef::AnyObjectWouldMove {
+                            object: ObjectPredicateDef::All(&[
+                                ObjectPredicateDef::OwnedBy(PlayerRelation::You),
+                                ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
+                            ]),
+                            to: ZoneKind::Graveyard,
+                        },
+                        ReplacementEffectDef::MoveToZone(ZoneKind::Exile),
+                    ),
+                    ResolvedEffectDurationDef::UntilEndOfTurn,
+                )),
+            ]),
+        ),
+    ]),
+);
+
 // MH2 181 — Urban Daggertooth
 pub(in crate::card::sets) static URBAN_DAGGERTOOTH: CardRecord = CardRecord::new(
     "Urban Daggertooth",
@@ -2084,6 +2146,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &BANNERHIDE_KRUSHOK,
     &CHATTERFANG_SQUIRREL_GENERAL_151,
     &ENDURANCE,
+    &GAEA_S_WILL,
     &URBAN_DAGGERTOOTH,
     &CAPTURED_BY_LAGACS,
     &GRIST_THE_HUNGER_TIDE,

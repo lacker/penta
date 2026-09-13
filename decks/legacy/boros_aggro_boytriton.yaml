@@ -1,0 +1,38 @@
+# Source: https://mtgtop8.com/event?e=90648&d=888202&f=LE
+# Finish: 11; player: boytriton.
+# Published main deck: 60; sideboard: 15.
+name: "Boros Aggro — boytriton"
+description: "11 — boytriton; MTGTop8 event 90648."
+main:
+  "Windswept Heath": 1
+  "Amped Raptor": 4
+  "Swords to Plowshares": 4
+  "Elegant Parlor": 1
+  "Plateau": 3
+  "Plains": 1
+  "Ocelot Pride": 4
+  "Marsh Flats": 1
+  "Karakas": 2
+  "Lazotep Quarry": 2
+  "Guide of Souls": 4
+  "Mountain": 1
+  "Goblin Bombardment": 2
+  "Once Upon a Time": 3
+  "Phlage, Titan of Fire's Fury": 1
+  "Forth Eorlingas!": 1
+  "Flooded Strand": 2
+  "Sand Scout": 4
+  "Savannah": 1
+  "Static Prison": 2
+  "Arid Mesa": 4
+  "Voice of Victory": 4
+  "Wasteland": 4
+  "Ajani, Nacatl Pariah // Ajani, Nacatl Avenger": 4
+sideboard:
+  "Price of Progress": 3
+  "Gaddock Teeg": 2
+  "Faerie Macabre": 3
+  "Containment Priest": 2
+  "Jegantha, the Wellspring": 1
+  "Abrade": 2
+  "Red Elemental Blast": 2

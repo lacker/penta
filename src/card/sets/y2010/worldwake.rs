@@ -681,6 +681,51 @@ CardRules::new_land(&[]).with_abilities(&[
     ]),
 );
 
+// WWK 136 — Eye of Ugin
+pub(in crate::card::sets) static EYE_OF_UGIN: CardRecord = CardRecord::new(
+    "Eye of Ugin",
+    "c3b21941-1b7d-4fde-8b1d-7edbd5e5b796",
+    "James Paick",
+    CardRules::new_land(&[])
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Colorless Eldrazi spells you cast cost {2} less to cast.",
+                EffectDef::ModifyCost(CostModificationDef::reduce_spell(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::ColorCount(0),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Eldrazi")),
+                    ]),
+                    PlayerRelation::You,
+                    ValueDef::Constant(2),
+                )),
+            ),
+            AbilityDef::activated(
+                "{7}, {T}: Search your library for a colorless creature card, reveal it, put \
+                 it into your hand, then shuffle.",
+                &[CostDef::Mana(mana_cost!("{7}")), CostDef::TapSource],
+                EffectDef::SearchZone {
+                    player: EffectRecipientDef::Controller,
+                    source: ZoneKind::Library,
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::ColorCount(0),
+                    ]),
+                    minimum: 0,
+                    maximum: ValueDef::Constant(1),
+                    reveal: true,
+                    destination: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                    shuffle: true,
+                    enters_tapped: false,
+                    attachment: None,
+                    binding: None,
+                    then: None,
+                },
+            ),
+        ]),
+);
+
 // WWK 140 — Quicksand (reprint)
 const QUICKSAND_REPRINT: PrintingRecord = PrintingRecord::reprint(
     &crate::card::sets::y1997::visions::QUICKSAND,
@@ -754,6 +799,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &BOJUKA_BOG_132,
     &CELESTIAL_COLONNADE,
     &CREEPING_TAR_PIT,
+    &EYE_OF_UGIN,
     &TECTONIC_EDGE_145,
 ];
 

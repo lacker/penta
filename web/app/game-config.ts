@@ -1,7 +1,9 @@
+import vintageDeckNotes from "./vintage-decks.json";
+import legacyDeckNotes from "./legacy-decks.json";
 import duelCommanderDeckNotes from "./duel-commander-decks.json";
 import cedhDeckNotes from "./cedh-decks.json";
 
-export type FormatId = "old-school-93-94" | "isd-m14-standard" | "premodern" | "cedh" | "duel-commander";
+export type FormatId = "old-school-93-94" | "isd-m14-standard" | "premodern" | "legacy" | "vintage" | "cedh" | "duel-commander";
 
 type FormatConfig = {
   name: string;
@@ -85,6 +87,20 @@ export const formatConfigs: Record<FormatId, FormatConfig> = {
     description: "Two-player Commander baseline · 40 life · command zone · imported event lists may include unsupported cards",
     deckNotes: cedhDeckNotes,
   },
+  legacy: {
+    name: "Legacy",
+    shortName: "LEGACY",
+    cardBackMark: "LE",
+    description: "MTGO Challenge 32 · September 8, 2026 · some card effects unavailable",
+    deckNotes: legacyDeckNotes,
+  },
+  vintage: {
+    name: "Vintage",
+    shortName: "VINTAGE",
+    cardBackMark: "VI",
+    description: "God of Vintage · September 3, 2026 · restricted cards · some card effects unavailable",
+    deckNotes: vintageDeckNotes,
+  },
 };
 
 export const formatIds: FormatId[] = [
@@ -93,6 +109,8 @@ export const formatIds: FormatId[] = [
   "premodern",
   "cedh",
   "duel-commander",
+  "legacy",
+  "vintage",
 ];
 
 export const defaultFormat: FormatId = "old-school-93-94";

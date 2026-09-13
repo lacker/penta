@@ -1,0 +1,35 @@
+# Source: https://mtgtop8.com/event?e=90648&d=888207&f=LE
+# Finish: 15; player: Avperwat.
+# Published main deck: 60; sideboard: 15.
+name: "UR Tempo — Avperwat"
+description: "15 — Avperwat; MTGTop8 event 90648."
+main:
+  "Polluted Delta": 3
+  "Brainstorm": 4
+  "Daze": 3
+  "Dragon's Rage Channeler": 4
+  "Force of Will": 4
+  "Island": 1
+  "Lightning Bolt": 4
+  "Mishra's Bauble": 4
+  "Misty Rainforest": 4
+  "Cori-Steel Cutter": 4
+  "Ponder": 4
+  "Scalding Tarn": 2
+  "Delver of Secrets // Insectile Aberration": 4
+  "Volcanic Island": 4
+  "Wasteland": 4
+  "Flow State": 4
+  "Preordain": 1
+  "Thundering Falls": 1
+  "Prismari Charm": 1
+sideboard:
+  "Consign to Memory": 2
+  "Rough // Tumble": 1
+  "Force of Negation": 2
+  "Meltdown": 1
+  "Hydroblast": 1
+  "Price of Progress": 1
+  "Pyroblast": 3
+  "Surgical Extraction": 2
+  "Unholy Heat": 2

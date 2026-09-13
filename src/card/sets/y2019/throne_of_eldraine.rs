@@ -58,12 +58,15 @@ use crate::card::ObjectRefDef;
 use crate::card::ObjectSetDef;
 use crate::card::ObjectValueAggregateDef;
 use crate::card::ObjectValueDef;
+use crate::card::PlayActionMatcherDef;
 use crate::card::PlayOptionDef;
+use crate::card::PlayRestrictionDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
 use crate::card::ReplacementChoiceDef;
 use crate::card::ReplacementEffectDef;
 use crate::card::ResolvedEffectDurationDef;
+use crate::card::SpellCastQueryDef;
 use crate::card::SpellForm;
 use crate::card::SpellResolutionDestinationDef;
 use crate::card::TokenCharacteristics;
@@ -249,12 +252,61 @@ pub(in crate::card::sets) static CHARMING_PRINCE: CardRecord = CardRecord::new(
 );
 
 // ELD 10 — Deafening Silence
-// Audit: unsupported — The cast quota counts all prior spells. It cannot count only prior noncreature spells while allowing unlimited creature spells.
 pub(in crate::card::sets) static DEAFENING_SILENCE_10: CardRecord = CardRecord::new(
     "Deafening Silence",
     "6072d9b0-d3c7-46f4-bd24-095bb13c4dea",
     "Igor Kieryluk",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{W}")).with_abilities(&[AbilityDef::static_ability(
+        "Each player can't cast more than one noncreature spell each turn.",
+        EffectDef::Sequence(&[
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                    left: ValueDef::CountSpellsCastThisTurn(&SpellCastQueryDef {
+                        player: PlayerRelation::You,
+                        spell: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(
+                            CardType::Creature,
+                        )),
+                    }),
+                    comparison: ComparisonDef::GreaterOrEqual,
+                    right: ValueDef::Constant(1),
+                }),
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Controller,
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotPlay(
+                        PlayRestrictionDef::new(
+                            PlayActionMatcherDef::CastSpell,
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(
+                                CardType::Creature,
+                            )),
+                        ),
+                    )),
+                },
+            },
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                    left: ValueDef::CountSpellsCastThisTurn(&SpellCastQueryDef {
+                        player: PlayerRelation::Opponent,
+                        spell: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(
+                            CardType::Creature,
+                        )),
+                    }),
+                    comparison: ComparisonDef::GreaterOrEqual,
+                    right: ValueDef::Constant(1),
+                }),
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Opponent,
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotPlay(
+                        PlayRestrictionDef::new(
+                            PlayActionMatcherDef::CastSpell,
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(
+                                CardType::Creature,
+                            )),
+                        ),
+                    )),
+                },
+            },
+        ]),
+    )]),
 );
 
 // ELD 11 — Faerie Guidemother
@@ -573,6 +625,15 @@ pub(in crate::card::sets) static MIDNIGHT_CLOCK_54: CardRecord = CardRecord::new
     "0f7f1148-7b1b-4969-a2f8-428de1e2e8ff",
     "Alexander Forssberg",
     crate::card::CardRules::unsupported(),
+);
+
+// ELD 58 — Mystical Dispute
+// Audit: unsupported — Needs self spell-cost reduction based on a selected target; current cost evaluation only supports targeting-source increases.
+pub(in crate::card::sets) static MYSTICAL_DISPUTE: CardRecord = CardRecord::new(
+    "Mystical Dispute",
+    "fbe04cb8-a8b9-4241-baae-b398a2509a3a",
+    "Ekaterina Burmak",
+    CardRules::unsupported(),
 );
 
 // ELD 62 — Run Away Together
@@ -1985,6 +2046,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &CHARMED_SLEEP,
     &CORRIDOR_MONITOR_41,
     &MIDNIGHT_CLOCK_54,
+    &MYSTICAL_DISPUTE,
     &RUN_AWAY_TOGETHER,
     &WITCHING_WELL_74,
     &BAKE_INTO_A_PIE,

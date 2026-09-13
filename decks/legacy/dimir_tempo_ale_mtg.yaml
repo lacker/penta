@@ -1,0 +1,40 @@
+# Source: https://mtgtop8.com/event?e=90648&d=888200&f=LE
+# Finish: 12; player: Ale_Mtg.
+# Published main deck: 60; sideboard: 15.
+name: "Dimir Tempo — Ale_Mtg"
+description: "12 — Ale_Mtg; MTGTop8 event 90648."
+main:
+  "Thoughtseize": 4
+  "Snuff Out": 1
+  "Scalding Tarn": 1
+  "Ponder": 3
+  "Polluted Delta": 4
+  "Flow State": 2
+  "Orcish Bowmasters": 3
+  "Swamp": 1
+  "Kaito, Bane of Nightmares": 2
+  "Moonshadow": 4
+  "Misty Rainforest": 1
+  "Mishra's Bauble": 3
+  "Marsh Flats": 1
+  "Nethergoyf": 4
+  "Force of Will": 4
+  "Flooded Strand": 1
+  "Fatal Push": 3
+  "Daze": 4
+  "Brainstorm": 4
+  "Island": 1
+  "Bloodstained Mire": 1
+  "Undercity Sewers": 1
+  "Underground Sea": 3
+  "Wasteland": 4
+sideboard:
+  "Fatal Push": 1
+  "Barrowgoyf": 2
+  "Brazen Borrower": 1
+  "Consign to Memory": 2
+  "Nihil Spellbomb": 2
+  "Force of Negation": 2
+  "Massacre": 2
+  "Hydroblast": 2
+  "Null Rod": 1

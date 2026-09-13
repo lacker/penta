@@ -118,6 +118,26 @@ fn each_new_artifact_lock_is_global_and_live() {
 }
 
 #[test]
+fn karn_the_great_creator_locks_only_opposing_artifacts_including_mana() {
+    let (mut game, _, sources) = activation_board(cards::KARN_THE_GREAT_CREATOR_1);
+    for source in sources {
+        game.priority = source.player;
+        let actions = game.legal_actions(source.player);
+        let allowed = source.player == PlayerId::One;
+        assert_eq!(
+            has_ordinary_activation(&actions, source.artifact_ordinary),
+            allowed
+        );
+        assert_eq!(has_mana_activation(&actions, source.artifact_mana), allowed);
+        assert!(has_ordinary_activation(
+            &actions,
+            source.nonartifact_ordinary
+        ));
+        assert!(has_mana_activation(&actions, source.nonartifact_mana));
+    }
+}
+
+#[test]
 fn a_permanent_is_locked_as_soon_as_it_becomes_an_artifact() {
     let mut game = ready_game();
     game.turns_started = [1, 1];

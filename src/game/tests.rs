@@ -978,3 +978,5 @@ mod the_hobbit;
 mod cedh_card_audit;
 
 mod duel_cards;
+
+mod eternal_deck_cards;

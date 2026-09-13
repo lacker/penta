@@ -13,9 +13,13 @@ use crate::card::AbilityTargetDef;
 use crate::card::AddManaEffectDef;
 use crate::card::BasicLandType;
 use crate::card::BattlefieldEntryScalarChoiceDef;
+use crate::card::CardNameDef;
 use crate::card::CardRules;
 use crate::card::CardType;
+use crate::card::ChoiceVisibilityDef;
+use crate::card::ChooseDef;
 use crate::card::ClassifyObjectsDef;
+use crate::card::ComparisonDef;
 use crate::card::CostDef;
 use crate::card::CostModificationDef;
 use crate::card::EffectDef;
@@ -23,12 +27,16 @@ use crate::card::KeywordAbility;
 use crate::card::ManaColor;
 use crate::card::ManaTypeDef;
 use crate::card::MoveObjectsDef;
+use crate::card::ObjectChoiceBindingDef;
 use crate::card::ObjectPredicateDef;
+use crate::card::ObjectQueryDef;
+use crate::card::ObjectRefDef;
 use crate::card::ObjectSetDef;
 use crate::card::PlayerRefDef;
 use crate::card::ReplacementChoiceDef;
 use crate::card::ReplacementEffectDef;
 use crate::card::RevealObjectsDef;
+use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
@@ -100,6 +108,82 @@ pub(in crate::card::sets) static TIDESPOUT_TYRANT_34: CardRecord = CardRecord::n
             ),
         ),
     ]),
+);
+
+// DIS 46 — Infernal Tutor
+pub(in crate::card::sets) static INFERNAL_TUTOR: CardRecord = CardRecord::new(
+    "Infernal Tutor",
+    "6a4e4be5-e057-4b50-9f86-76bc0b9987de",
+    "Kev Walker",
+    CardRules::new_sorcery(mana_cost!("{1}{B}")).with_abilities(&[AbilityDef::spell(
+        "Reveal a card from your hand. Search your library for a card with the same \
+         name as that card, reveal it, put it into your hand, then shuffle.\nHellbent \
+         — If you have no cards in hand, instead search your library for a card, put \
+         it into your hand, then shuffle.",
+        EffectDef::IfElseCondition {
+            condition: &TriggerConditionDef::ObjectCount {
+                query: ObjectQueryDef::matching(
+                    ObjectPredicateDef::Any,
+                    &[ZoneKind::Hand],
+                    PlayerRelation::You,
+                ),
+                comparison: ComparisonDef::Equal,
+                amount: 0,
+            },
+            then: &EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                object: ObjectPredicateDef::Any,
+                minimum: 1,
+                maximum: ValueDef::Constant(1),
+                reveal: false,
+                destination: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+                shuffle: true,
+                enters_tapped: false,
+                attachment: None,
+                binding: None,
+                then: None,
+            },
+            otherwise: &EffectDef::Choose(ChooseDef {
+                binding: ObjectChoiceBindingDef::Object(ParentBinding),
+                unchosen: None,
+                chooser: PlayerRefDef::EffectController,
+                candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
+                    ObjectPredicateDef::Any,
+                    &[ZoneKind::Hand],
+                    PlayerRelation::You,
+                )),
+                exclude: None,
+                minimum: 1,
+                maximum: 1,
+                visibility: ChoiceVisibilityDef::Private,
+                then: &EffectDef::Sequence(&[
+                    EffectDef::RevealObjects(RevealObjectsDef {
+                        input: ObjectSetDef::One(ObjectRefDef::Binding(ParentBinding)),
+                        then: &EffectDef::None,
+                    }),
+                    EffectDef::SearchZone {
+                        player: EffectRecipientDef::Controller,
+                        source: ZoneKind::Library,
+                        object: ObjectPredicateDef::NameEquals(CardNameDef::NameOf(
+                            ObjectRefDef::Binding(ParentBinding),
+                        )),
+                        minimum: 0,
+                        maximum: ValueDef::Constant(1),
+                        reveal: true,
+                        destination: ZoneKind::Hand,
+                        placement: ZonePlacement::Top,
+                        shuffle: true,
+                        enters_tapped: false,
+                        attachment: None,
+                        binding: None,
+                        then: None,
+                    },
+                ]),
+            }),
+        },
+    )]),
 );
 
 // DIS 47 — Macabre Waltz
@@ -487,6 +571,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &GUARDIAN_OF_THE_GUILDPACT,
     &SPELL_SNARE,
     &TIDESPOUT_TYRANT_34,
+    &INFERNAL_TUTOR,
     &MACABRE_WALTZ,
     &WITS_END,
     &UTOPIA_SPRAWL,

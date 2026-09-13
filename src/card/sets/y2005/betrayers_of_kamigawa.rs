@@ -85,6 +85,15 @@ pub(in crate::card::sets) static NINJA_OF_THE_DEEP_HOURS: CardRecord = CardRecor
     ]),
 );
 
+// BOK 67 — Goryo's Vengeance
+// Audit: unsupported — Needs splice onto Arcane to append effects and targets to another spell while retaining this card in hand.
+pub(in crate::card::sets) static GORYO_S_VENGEANCE: CardRecord = CardRecord::new(
+    "Goryo's Vengeance",
+    "3027e6c5-eed3-44e7-bb12-67569721af99",
+    "Ittoku",
+    CardRules::unsupported(),
+);
+
 // BOK 76 — Okiba-Gang Shinobi
 pub(in crate::card::sets) static OKIBA_GANG_SHINOBI: CardRecord = CardRecord::new(
     "Okiba-Gang Shinobi",
@@ -331,6 +340,7 @@ CardRules::new_artifact(mana_cost!("{2}"))
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &DISRUPTING_SHOAL_33,
     &NINJA_OF_THE_DEEP_HOURS,
+    &GORYO_S_VENGEANCE,
     &OKIBA_GANG_SHINOBI,
     &BLAZING_SHOAL_96,
     &CRACK_THE_EARTH_98,

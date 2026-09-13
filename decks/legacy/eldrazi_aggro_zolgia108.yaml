@@ -1,0 +1,30 @@
+# Source: https://mtgtop8.com/event?e=90648&d=888201&f=LE
+# Finish: 2; player: Zolgia108.
+# Published main deck: 60; sideboard: 15.
+name: "Eldrazi Aggro — Zolgia108"
+description: "2 — Zolgia108; MTGTop8 event 90648."
+main:
+  "Glaring Fleshraker": 4
+  "Eldrazi Linebreaker": 4
+  "Kozilek's Command": 4
+  "Ancient Tomb": 4
+  "Thought-Knot Seer": 4
+  "Reality Smasher": 4
+  "Eye of Ugin": 3
+  "Eldrazi Temple": 4
+  "Chalice of the Void": 4
+  "Lotus Petal": 4
+  "Cavern of Souls": 4
+  "Secluded Courtyard": 4
+  "Sire of Seven Deaths": 1
+  "City of Traitors": 1
+  "Wastescape Battlemage": 4
+  "It That Heralds the End": 3
+  "Wasteland": 4
+sideboard:
+  "Disruptor Flute": 3
+  "Dismember": 2
+  "Null Rod": 2
+  "Leyline of the Void": 4
+  "Eldrazi Confluence": 2
+  "Warping Wail": 2

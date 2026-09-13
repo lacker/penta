@@ -177,3 +177,63 @@ fn duel_commander_seed_decks_resolve_the_published_top_eight() {
             .unwrap();
     }
 }
+
+#[test]
+fn eternal_event_lists_preserve_published_sizes_and_format_membership() {
+    let catalog = card::catalog().unwrap();
+    for (format, expected) in [(Format::Legacy, 16), (Format::Vintage, 8)] {
+        let lists: Vec<_> = BUILTIN_DECKS
+            .iter()
+            .filter(|source| source.format == Some(format))
+            .collect();
+        assert_eq!(lists.len(), expected);
+        for source in lists {
+            let deck = source.resolve(&catalog);
+            let main = if source.name.starts_with("BW Death & Taxes") {
+                80
+            } else if source.name == "Reanimator — The_shallow_grave" {
+                61
+            } else {
+                60
+            };
+            assert_eq!(deck.main.len(), main, "{}", source.source);
+            assert_eq!(deck.sideboard.len(), 15, "{}", source.source);
+            let other = if format == Format::Legacy {
+                Format::Vintage
+            } else {
+                Format::Legacy
+            };
+            assert!(crate::protocol::deck_by_name_for_format(other, source.name).is_none());
+        }
+    }
+}
+
+#[test]
+fn eternal_restrictions_count_main_and_sideboard_together() {
+    use crate::{DeckError, card::cards};
+    let catalog = card::catalog().unwrap();
+    let mut deck = Deck {
+        commanders: vec![],
+        main: vec![cards::ISLAND; 59],
+        sideboard: vec![],
+    };
+    deck.main.push(cards::BLACK_LOTUS);
+    assert!(
+        deck.clone()
+            .validate_for_format(&catalog, Format::Vintage)
+            .is_ok()
+    );
+    assert!(matches!(
+        deck.clone().validate_for_format(&catalog, Format::Legacy),
+        Err(DeckError::BannedCard(_))
+    ));
+    deck.sideboard.push(cards::BLACK_LOTUS);
+    assert!(matches!(
+        deck.validate_for_format(&catalog, Format::Vintage),
+        Err(DeckError::TooManyCopies {
+            count: 2,
+            limit: 1,
+            ..
+        })
+    ));
+}

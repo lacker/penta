@@ -11,6 +11,7 @@ use crate::card::AddManaEffectDef;
 use crate::card::AppliedEffectDef;
 use crate::card::AppliedRuleDef;
 use crate::card::CardArt;
+use crate::card::CardNameDef;
 use crate::card::CardRules;
 use crate::card::CardSupertype;
 use crate::card::CardType;
@@ -36,6 +37,7 @@ use crate::card::PlayerSetDef;
 use crate::card::ReplacementEffectDef;
 use crate::card::ReplacementEventDef;
 use crate::card::ResolvedEffectDurationDef;
+use crate::card::RevealObjectsDef;
 use crate::card::StackTargetAggregationDef;
 use crate::card::StackTargetFilterDef;
 use crate::card::TokenCharacteristics;
@@ -309,6 +311,67 @@ pub(in crate::card::sets) static TALE_S_END_77: CardRecord = CardRecord::new(
             },
         )],
         EffectDef::counter_target(TargetIndex::PRIMARY),
+    )]),
+);
+
+// M20 106 — Legion's End
+pub(in crate::card::sets) static LEGION_S_END: CardRecord = CardRecord::new(
+    "Legion's End",
+    "49a1cd92-9d75-4e22-a934-a26d84967015",
+    "David Palumbo",
+    CardRules::new_sorcery(mana_cost!("{1}{B}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Exile target creature an opponent controls with mana value 2 or less and all \
+         other creatures that player controls with the same name as that creature. \
+         Then that player reveals their hand and exiles all cards with that name from \
+         their hand and graveyard.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::ManaValueAtMost(2),
+                ]),
+                zones: &[ZoneKind::Battlefield],
+                owner: None,
+                controller: Some(PlayerRelation::Opponent),
+            },
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::move_to_zone(
+                EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::NameEquals(CardNameDef::NameOf(ObjectRefDef::Target(
+                            TargetIndex::PRIMARY,
+                        ))),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Opponent,
+                ),
+                ZoneKind::Exile,
+                ZonePlacement::Top,
+            ),
+            EffectDef::Sequence(&[
+                EffectDef::RevealObjects(RevealObjectsDef {
+                    input: ObjectSetDef::Query(ObjectQueryDef::matching(
+                        ObjectPredicateDef::Any,
+                        &[ZoneKind::Hand],
+                        PlayerRelation::Opponent,
+                    )),
+                    then: &EffectDef::None,
+                }),
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::NameEquals(CardNameDef::NameOf(ObjectRefDef::Target(
+                            TargetIndex::PRIMARY,
+                        ))),
+                        &[ZoneKind::Hand, ZoneKind::Graveyard],
+                        PlayerRelation::Opponent,
+                    ),
+                    ZoneKind::Exile,
+                    ZonePlacement::Top,
+                ),
+            ]),
+        ]),
     )]),
 );
 
@@ -834,6 +897,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &SCHOLAR_OF_THE_AGES_74,
     &SPECTRAL_SAILOR,
     &TALE_S_END_77,
+    &LEGION_S_END,
     &SCHEMING_SYMMETRY_113,
     &VILIS_BROKER_OF_BLOOD_122,
     &DRAKUSETH_MAW_OF_FLAMES,

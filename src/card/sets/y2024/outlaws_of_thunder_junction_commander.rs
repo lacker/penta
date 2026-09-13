@@ -59,6 +59,15 @@ AbilityDef::activated_with_targets("{T}: Copy target instant or sorcery spell yo
 ]),
 );
 
+// OTC 11 — Sand Scout
+// Audit: unsupported — Needs a once-per-turn grouped trigger for land cards entering a graveyard from any zone.
+pub(in crate::card::sets) static SAND_SCOUT: CardRecord = CardRecord::new(
+    "Sand Scout",
+    "e63ba7e6-87a9-49ef-bddc-60543edfd726",
+    "Olena Richards",
+    CardRules::unsupported(),
+);
+
 // OTC 40 — Cactus Preserve
 pub(in crate::card::sets) static CACTUS_PRESERVE_40: CardRecord = CardRecord::new(
     "Cactus Preserve",
@@ -149,6 +158,7 @@ abilities::plot(&[CostDef::Mana(mana_cost!("{3}{U}"))])
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &STELLA_LEE_WILD_CARD_3,
+    &SAND_SCOUT,
     &CACTUS_PRESERVE_40,
     &LOCK_AND_LOAD_51,
 ];

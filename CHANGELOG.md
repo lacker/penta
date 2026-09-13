@@ -20,6 +20,12 @@ the bot-wire epoch.
 
 ## Unreleased
 
+- Add `legacy` and `vintage` format profiles and browser setup options with
+  separate banned/restricted policies and all 24 lists from the initial event
+  corpus. Card pools remain cataloged subsets; missing identities use complete
+  existing mechanics or explicit whole-card unsupported rules. See
+  [Legacy and Vintage](docs/legacy-vintage.md). Existing protocol shapes and
+  epochs are unchanged.
 - Protocol 32 replaces numeric card-definition references with canonical
   printing UUID strings in catalogs, observations, decks, ability origins,
   match registrations, and Python/JSON hidden-world inputs. Checkpoint format

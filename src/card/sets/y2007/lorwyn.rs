@@ -510,6 +510,15 @@ pub(in crate::card::sets) static IMPERIOUS_PERFECT: CardRecord = CardRecord::new
     ]),
 );
 
+// LRW 248 — Gaddock Teeg
+// Audit: unsupported — Needs a printed-mana-cost X predicate in static casting prohibitions.
+pub(in crate::card::sets) static GADDOCK_TEEG: CardRecord = CardRecord::new(
+    "Gaddock Teeg",
+    "32c16e1b-f4ce-409f-928a-42c666adac9d",
+    "Greg Staples",
+    CardRules::unsupported(),
+);
+
 // LRW 257 — Herbal Poultice
 pub(in crate::card::sets) static HERBAL_POULTICE_257: CardRecord = CardRecord::new(
     "Herbal Poultice",
@@ -703,6 +712,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &WILD_RICOCHET,
     &ELVISH_HARBINGER_207,
     &IMPERIOUS_PERFECT,
+    &GADDOCK_TEEG,
     &HERBAL_POULTICE_257,
     &RINGS_OF_BRIGHTHEARTH_259,
     &RUNED_STALACTITE_260,

@@ -7,7 +7,7 @@ authoritative machine-readable account of card legality and coverage.
 
 ## Supported formats
 
-Penta currently ships six explicit format profiles in four presentation
+Penta currently ships ten explicit format profiles in six presentation
 categories:
 
 - **Old School 93/94**: the original card pool, EC banned and
@@ -15,6 +15,11 @@ categories:
 - **Premodern**: Fourth Edition through Scourge, the format's own ban list, no
   restricted list, modern mana rules, and the eight decks of the July 2026
   Sacred Torch Showdown Top 8.
+- **Legacy** and **Vintage**: the cataloged subset of their eternal paper card
+  pools, modern mana rules, and separate banned/restricted policies checked on
+  September 12, 2026. The [initial event corpus](legacy-vintage.md) includes
+  sixteen Legacy lists and eight Vintage lists, with sideboards and explicit
+  unsupported-card coverage.
 - **Standard: ISD-M14 (final pre-Theros snapshot)**: Innistrad, Dark Ascension,
   Avacyn Restored, Magic 2013, Return to Ravnica, Gatecrash, Dragon's Maze, and
   Magic 2014. It exposes all ten built-in decks from SCG events and testing in
@@ -24,9 +29,11 @@ categories:
 - **Cube: Vintage**: the dated 534-card MTGO Vintage Cube snapshot.
 - **Cube: The Pauper Cube**: the dated 450-card Cube Cobra list exported on
   2026-08-22 from the source maintained as The Pauper Cube.
+- **cEDH** and **Duel Commander**: separate two-player Commander profiles with
+  command-zone gameplay and imported event lists. See [Commander formats](commander.md).
 
 The set-based formats use 20 starting life, 60-card minimum decks, sideboards
-of up to 15 cards, and a four-copy limit except for basic lands. Cubes use 20
+of up to 15 cards, and a four-copy limit except for basic lands and format-restricted cards. Cubes use 20
 life, 40-card minimum decks, and singleton construction. Every profile
 currently uses London mulligans.
 

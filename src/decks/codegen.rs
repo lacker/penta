@@ -32,6 +32,8 @@ fn format_variant(directory: &str) -> Option<&'static str> {
     Some(match directory {
         "old_school_93_94" => "OldSchool9394",
         "premodern" => "Premodern",
+        "legacy" => "Legacy",
+        "vintage" => "Vintage",
         "isd_m14_standard" => "IsdM14Standard",
         "som_m13_standard" => "SomM13Standard",
         "vintage_cube" => "VintageCube",

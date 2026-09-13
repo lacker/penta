@@ -4,6 +4,7 @@ use super::super::y2016::eldritch_moon::escalate;
 use super::super::y2020::theros_beyond_death::escape;
 use super::CardRecord;
 use super::PrintingRecord;
+use crate::AdditionalCostIndex;
 use crate::TargetIndex;
 use crate::card::AbilityDef;
 use crate::card::AbilityPredicateDef;
@@ -28,9 +29,12 @@ use crate::card::CardType;
 use crate::card::CardTypeSet;
 use crate::card::CharacteristicOperationDef;
 use crate::card::ChoiceVisibilityDef;
+use crate::card::ChooseCardsFromCollectionDef;
 use crate::card::ChooseDef;
 use crate::card::ChooseForEachPlayerDef;
+use crate::card::ChooseObjectOrderDef;
 use crate::card::ClassifyObjectsDef;
+use crate::card::CollectionInspectionDef;
 use crate::card::ColorSet;
 use crate::card::ComparisonDef;
 use crate::card::ConditionDef;
@@ -38,6 +42,7 @@ use crate::card::ControlDurationDef;
 use crate::card::CopyExceptionsDef;
 use crate::card::CopyStackObjectDef;
 use crate::card::CostDef;
+use crate::card::CostModificationDef;
 use crate::card::CostQuantityDef;
 use crate::card::CountConditionDef;
 use crate::card::CounterKind;
@@ -266,6 +271,44 @@ pub(in crate::card::sets) static GLARING_FLESHRAKER_7: CardRecord = CardRecord::
     ]),
 );
 
+// MH3 9 — It That Heralds the End
+pub(in crate::card::sets) static IT_THAT_HERALDS_THE_END: CardRecord = CardRecord::new(
+    "It That Heralds the End",
+    "c8c47679-0fac-466f-be3c-794f23576e55",
+    "Alex Konstad",
+    CardRules::new_creature(mana_cost!("{1}{C}"), &["Eldrazi", "Drone"], 2, 2).with_abilities(&[
+        AbilityDef::static_ability(
+            "Colorless spells you cast with mana value 7 or greater cost {1} less to cast.",
+            EffectDef::ModifyCost(CostModificationDef::reduce_spell(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::ColorCount(0),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::ManaValueAtMost(6)),
+                ]),
+                PlayerRelation::You,
+                ValueDef::Constant(1),
+            )),
+        ),
+        AbilityDef::static_ability(
+            "Other colorless creatures you control get +1/+1.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::ColorCount(0),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(1),
+                ),
+            },
+        ),
+    ]),
+);
+
 // MH3 10 — Kozilek, the Broken Reality
 pub(in crate::card::sets) static KOZILEK_THE_BROKEN_REALITY_10: CardRecord = CardRecord::new(
     "Kozilek, the Broken Reality",
@@ -277,12 +320,177 @@ AbilityDef::static_ability("Other colorless creatures you control get +3/+2.", E
 );
 
 // MH3 11 — Kozilek's Command
-// Audit: unsupported — AbilityTargetDef has a fixed maximum and an exact dynamic count, but no dynamic up-to maximum. Its fourth mode needs any number from zero through chosen X, not exactly X targets.
 pub(in crate::card::sets) static KOZILEK_S_COMMAND_11: CardRecord = CardRecord::new(
     "Kozilek's Command",
     "92585587-cfdc-406a-9114-4f6dd8802c37",
     "Yeong-Hao Han",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{X}{C}{C}"))
+        .with_type(CardType::Kindred)
+        .with_subtypes(&["Eldrazi"])
+        .with_abilities(&[AbilityDef::modal_spell(
+            "Choose two —",
+            &[
+                AbilityDef::spell_with_targets(
+                    "Target player creates X 0/1 colorless Eldrazi Spawn creature tokens with \
+                     \"Sacrifice this token: Add {C}.\".",
+                    &[AbilityTargetDef::exactly_one(
+                        AbilityTargetPredicate::Player(PlayerRelation::Any),
+                    )],
+                    EffectDef::CreateToken(
+                        CreateTokenDef::new(TokenDef::Literal(ELDRAZI_SPAWN_TOKEN))
+                            .with_count(ValueDef::ChosenX)
+                            .with_controller(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                    ),
+                ),
+                AbilityDef::spell_with_targets(
+                    "Target player scries X, then draws a card.",
+                    &[AbilityTargetDef::exactly_one(
+                        AbilityTargetPredicate::Player(PlayerRelation::Any),
+                    )],
+                    EffectDef::ChooseCardsFromCollection(ChooseCardsFromCollectionDef {
+                        source: ObjectCollectionSourceDef::TopCards {
+                            player: PlayerRefDef::Target(TargetIndex::PRIMARY),
+                            count: ValueDef::ChosenX,
+                        },
+                        actor: PlayerRefDef::Target(TargetIndex::PRIMARY),
+                        inspection: CollectionInspectionDef::Look,
+                        object: ObjectPredicateDef::Any,
+                        minimum: 0,
+                        maximum: usize::MAX,
+                        chosen: Binding!("top"),
+                        remainder: Binding!("bottom"),
+                        then: &EffectDef::ChooseObjectOrder(ChooseObjectOrderDef {
+                            actor: PlayerRefDef::Target(TargetIndex::PRIMARY),
+                            input: ObjectSetDef::Binding(Binding!("bottom")),
+                            ordered: Binding!("ordered_bottom"),
+                            placement: ZonePlacement::Bottom,
+                            visibility: ChoiceVisibilityDef::Private,
+                            then: &EffectDef::Sequence(&[
+                                EffectDef::MoveObjects(MoveObjectsDef {
+                                    input: ObjectSetDef::Binding(Binding!("ordered_bottom")),
+                                    from: Some(ZoneKind::Library),
+                                    zone: ZoneKind::Library,
+                                    placement: ZonePlacement::Bottom,
+                                    moved: None,
+                                    then: &EffectDef::None,
+                                }),
+                                EffectDef::ChooseObjectOrder(ChooseObjectOrderDef {
+                                    actor: PlayerRefDef::Target(TargetIndex::PRIMARY),
+                                    input: ObjectSetDef::Binding(Binding!("top")),
+                                    ordered: Binding!("ordered_top"),
+                                    placement: ZonePlacement::Top,
+                                    visibility: ChoiceVisibilityDef::Private,
+                                    then: &EffectDef::Sequence(&[
+                                        EffectDef::MoveObjects(MoveObjectsDef {
+                                            input: ObjectSetDef::Binding(Binding!("ordered_top")),
+                                            from: Some(ZoneKind::Library),
+                                            zone: ZoneKind::Library,
+                                            placement: ZonePlacement::Top,
+                                            moved: None,
+                                            then: &EffectDef::None,
+                                        }),
+                                        EffectDef::DrawCards {
+                                            recipient: EffectRecipientDef::Target(
+                                                TargetIndex::PRIMARY,
+                                            ),
+                                            amount: ValueDef::Constant(1),
+                                        },
+                                    ]),
+                                }),
+                            ]),
+                        }),
+                    }),
+                ),
+                AbilityDef::spell_with_targets(
+                    "Exile target creature with mana value X or less.",
+                    &[AbilityTargetDef::exactly_one(
+                        AbilityTargetPredicate::Object {
+                            object: ObjectPredicateDef::All(&[
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                ObjectPredicateDef::ManaValueAtMostValue(ValueDef::ChosenX),
+                            ]),
+                            zones: &[ZoneKind::Battlefield],
+                            owner: None,
+                            controller: None,
+                        },
+                    )],
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ZoneKind::Exile,
+                        ZonePlacement::Top,
+                    ),
+                ),
+                AbilityDef::spell_with_targets(
+                    "Exile up to X target cards from graveyards.",
+                    &[AbilityTargetDef::up_to_chosen_x(
+                        AbilityTargetPredicate::Object {
+                            object: ObjectPredicateDef::Any,
+                            zones: &[ZoneKind::Graveyard],
+                            controller: None,
+                            owner: None,
+                        },
+                    )],
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ZoneKind::Exile,
+                        ZonePlacement::Top,
+                    ),
+                ),
+            ],
+        )
+        .with_mode_selection(2, 2, false)]),
+);
+
+// MH3 17 — Wastescape Battlemage
+pub(in crate::card::sets) static WASTESCAPE_BATTLEMAGE: CardRecord = CardRecord::new(
+    "Wastescape Battlemage",
+    "6bc119b8-429c-4ab6-adba-b65b03810e98",
+    "Paolo Parente",
+    CardRules::new_creature(mana_cost!("{1}{C}"), &["Eldrazi", "Wizard"], 2, 2).with_abilities(&[
+        abilities::kicker_with_label("Kicker {G}", &[CostDef::Mana(mana_cost!("{G}"))]),
+        abilities::kicker_with_label("Kicker {1}{U}", &[CostDef::Mana(mana_cost!("{1}{U}"))]),
+        AbilityDef::triggered_if_with_targets(
+            "When you cast this spell, if it was kicked with its {G} kicker, exile target \
+             artifact or enchantment an opponent controls.",
+            TriggerEventDef::spell_cast(ObjectPredicateDef::Source),
+            &TriggerConditionDef::SourcePaidAdditionalCost(AdditionalCostIndex(0)),
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        ObjectPredicateDef::HasType(CardType::Enchantment),
+                    ]),
+                    zones: &[ZoneKind::Battlefield],
+                    owner: None,
+                    controller: Some(PlayerRelation::Opponent),
+                },
+            )],
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Exile,
+                ZonePlacement::Top,
+            ),
+        ),
+        AbilityDef::triggered_if_with_targets(
+            "When you cast this spell, if it was kicked with its {1}{U} kicker, return \
+             target creature an opponent controls to its owner's hand.",
+            TriggerEventDef::spell_cast(ObjectPredicateDef::Source),
+            &TriggerConditionDef::SourcePaidAdditionalCost(AdditionalCostIndex(1)),
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    owner: None,
+                    controller: Some(PlayerRelation::Opponent),
+                },
+            )],
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
+        ),
+    ]),
 );
 
 // MH3 18 — Aerie Auxiliary
@@ -643,6 +851,63 @@ pub(in crate::card::sets) static THRABEN_CHARM: CardRecord = CardRecord::new(
     )),
 );
 
+// MH3 47 — White Orchid Phantom
+pub(in crate::card::sets) static WHITE_ORCHID_PHANTOM: CardRecord = CardRecord::new(
+    "White Orchid Phantom",
+    "4f8d885c-5b57-457f-a658-fd0b79cf98cc",
+    "Zoltan Boros",
+    CardRules::new_creature(mana_cost!("{W}{W}"), &["Spirit", "Knight"], 2, 2).with_abilities(&[
+        abilities::flying(),
+        abilities::first_strike(),
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, destroy up to one target nonbasic land. Its \
+             controller may search their library for a basic land card, put it onto the \
+             battlefield tapped, then shuffle.",
+            &[AbilityTargetDef::up_to(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(
+                            CardSupertype::Basic,
+                        )),
+                    ]),
+                    zones: &[ZoneKind::Battlefield],
+                    owner: None,
+                    controller: None,
+                },
+                1,
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    then: None,
+                },
+                EffectDef::May {
+                    player: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
+                    effect: &EffectDef::SearchZone {
+                        player: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
+                        source: ZoneKind::Library,
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Land),
+                            ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                        ]),
+                        minimum: 0,
+                        maximum: ValueDef::Constant(1),
+                        reveal: false,
+                        destination: ZoneKind::Battlefield,
+                        placement: ZonePlacement::Top,
+                        shuffle: true,
+                        enters_tapped: true,
+                        attachment: None,
+                        binding: None,
+                        then: None,
+                    },
+                },
+            ]),
+        ),
+    ]),
+);
+
 // MH3 49 — Wrath of the Skies
 pub(in crate::card::sets) static WRATH_OF_THE_SKIES_49: CardRecord = CardRecord::new(
     "Wrath of the Skies",
@@ -732,6 +997,18 @@ pub(in crate::card::sets) static CONSIGN_TO_MEMORY_54: CardRecord = CardRecord::
     "Ben Hill",
     CardRules::new_instant(mana_cost!("{U}")).with_abilities(&[
         abilities::replicate(&[CostDef::Mana(mana_cost!("{1}"))]),
+        AbilityDef::triggered(
+            "When you cast this spell, copy it for each time you paid its replicate cost. \
+             You may choose new targets for the copies.",
+            TriggerEventDef::spell_cast(ObjectPredicateDef::Source),
+            EffectDef::CopyStackObject(&CopyStackObjectDef {
+                object: EffectRecipientDef::Source,
+                controller: PlayerRefDef::EffectController,
+                count: ValueDef::AdditionalCostPayments(AdditionalCostIndex::PRIMARY),
+                retarget: true,
+                colors: None,
+            }),
+        ),
         AbilityDef::spell_with_targets(
             "Counter target triggered ability or colorless spell.",
             &[AbilityTargetDef::exactly_one(
@@ -744,8 +1021,8 @@ pub(in crate::card::sets) static CONSIGN_TO_MEMORY_54: CardRecord = CardRecord::
                         ]),
                     ]),
                     zones: &[ZoneKind::Stack],
-                    controller: None,
                     owner: None,
+                    controller: None,
                 },
             )],
             EffectDef::Counter {
@@ -813,6 +1090,27 @@ pub(in crate::card::sets) static STRIX_SERENADE_71: CardRecord = CardRecord::new
         &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object { object: ObjectPredicateDef::All(&[ObjectPredicateDef::Spell, ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Artifact), ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::HasType(CardType::Planeswalker)])]), zones: &[ZoneKind::Stack], controller: None, owner: None })],
         EffectDef::Sequence(&[EffectDef::counter_target(TargetIndex::PRIMARY), EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(crate::card::TokenCharacteristics::creature(&["Bird"], &[ManaColor::Blue], 2, 2).with_abilities(&[abilities::flying()]))).with_controller(PlayerRefDef::ControllerOf(ObjectRefDef::Target(TargetIndex::PRIMARY))))]),
     )),
+);
+
+// MH3 75 — Tune the Narrative
+pub(in crate::card::sets) static TUNE_THE_NARRATIVE: CardRecord = CardRecord::new(
+    "Tune the Narrative",
+    "40b13321-98f1-4e8c-802d-65498e43ec24",
+    "Nereida",
+    CardRules::new_instant(mana_cost!("{U}")).with_abilities(&[AbilityDef::spell(
+        "Draw a card. You get {E}{E} (two energy counters).",
+        EffectDef::Sequence(&[
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+            EffectDef::AddPlayerCounters {
+                recipient: EffectRecipientDef::Controller,
+                kind: CounterKind::named("energy"),
+                amount: ValueDef::Constant(2),
+            },
+        ]),
+    )]),
 );
 
 // MH3 79 — Volatile Stormdrake
@@ -1233,6 +1531,49 @@ pub(in crate::card::sets) static DETECTIVES_PHOENIX: CardRecord = CardRecord::ne
             EffectDef::None,
         )
         .with_source_zones(&[ZoneKind::Graveyard]),
+    ]),
+);
+
+// MH3 117 — Eldrazi Linebreaker
+pub(in crate::card::sets) static ELDRAZI_LINEBREAKER: CardRecord = CardRecord::new(
+    "Eldrazi Linebreaker",
+    "f67774a1-f5f8-4b7b-871d-88a1b5e57d27",
+    "Leonardo Santanna",
+    CardRules::new_creature(mana_cost!("{1}{C}{R}"), &["Eldrazi"], 3, 3).with_abilities(&[
+        abilities::devoid(),
+        abilities::trample(),
+        AbilityDef::triggered_with_targets(
+            "At the beginning of combat on your turn, target creature you control gains \
+             haste and gets +X/+0 until end of turn, where X is the number of Eldrazi you \
+             control.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::BeginningOfCombat,
+                player: PlayerRelation::You,
+            },
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    owner: None,
+                    controller: Some(PlayerRelation::You),
+                },
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::add_ability(&abilities::haste()),
+                    AppliedEffectDef::modify_power_toughness(
+                        ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Eldrazi")),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        )),
+                        ValueDef::Constant(0),
+                    ),
+                ]),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
     ]),
 );
 
@@ -4058,8 +4399,10 @@ const SIX_ALTERNATE_1: PrintingRecord = PrintingRecord::alternate(
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &DEVOURER_OF_DESTINY,
     &GLARING_FLESHRAKER_7,
+    &IT_THAT_HERALDS_THE_END,
     &KOZILEK_THE_BROKEN_REALITY_10,
     &KOZILEK_S_COMMAND_11,
+    &WASTESCAPE_BATTLEMAGE,
     &AERIE_AUXILIARY,
     &DOG_UMBRA,
     &FLARE_OF_FORTITUDE_26,
@@ -4068,6 +4411,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &PHELIA_EXUBERANT_SHEPHERD,
     &STATIC_PRISON,
     &THRABEN_CHARM,
+    &WHITE_ORCHID_PHANTOM,
     &WRATH_OF_THE_SKIES_49,
     &AMPHIBIAN_DOWNPOUR_51,
     &BRAINSURGE,
@@ -4075,6 +4419,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &HARBINGER_OF_THE_SEAS_63,
     &SERUM_VISIONARY,
     &STRIX_SERENADE_71,
+    &TUNE_THE_NARRATIVE,
     &VOLATILE_STORMDRAKE_79,
     &ACCURSED_MARAUDER,
     &CHTHONIAN_NIGHTMARE_83,
@@ -4085,6 +4430,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &WITHER_AND_BLOOM,
     &AMPED_RAPTOR,
     &DETECTIVES_PHOENIX,
+    &ELDRAZI_LINEBREAKER,
     &GALVANIC_DISCHARGE,
     &GHOSTFIRE_SLICE_123,
     &GLIMPSE_THE_IMPOSSIBLE_124,

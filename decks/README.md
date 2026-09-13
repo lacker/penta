@@ -6,7 +6,7 @@ no Rust registration or runtime filesystem access is needed. Native callers,
 bindings, and the browser use the same registry.
 
 Directories matching registered format slugs, such as `old_school_93_94`,
-`premodern`, and `isd_m14_standard`, supply that format's deck collection.
+`premodern`, `legacy`, `vintage`, and `isd_m14_standard`, supply that format's deck collection.
 Other directories, such as `woe_hob_standard`, retain inventories before their
 format profile is registered; `make deck-report` reports that separately.
 
@@ -68,3 +68,8 @@ identity exists in the catalog. Color identity, singleton/count rules, pairing
 permissions, and format legality remain deferred. The seed collections contain
 16 cEDH lists and eight Duel Commander lists. See [Commander formats](../docs/commander.md)
 for gameplay, source links, ban metadata, and the limits of deck validation.
+
+The [Legacy and Vintage event corpus](../docs/legacy-vintage.md) preserves the
+published lists, including 80-card and 61-card main decks. Registration and
+legality do not imply that all their cards are executable; use `make deck-report`
+for current support diagnostics.

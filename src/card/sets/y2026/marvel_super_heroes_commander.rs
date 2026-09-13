@@ -11,6 +11,7 @@ use crate::card::AppliedRuleDef;
 use crate::card::CardRules;
 use crate::card::CardSupertype;
 use crate::card::CardType;
+use crate::card::CardTypeSet;
 use crate::card::CharacteristicOperationDef;
 use crate::card::ComparisonDef;
 use crate::card::ControlDurationDef;
@@ -23,6 +24,7 @@ use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::ManaColor;
 use crate::card::ObjectPredicateDef;
+use crate::card::PayOrDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
 use crate::card::PlayerRuleDef;
@@ -31,6 +33,7 @@ use crate::card::ResolvedEffectDurationDef;
 use crate::card::SetOperationDef;
 use crate::card::SpellCastQueryDef;
 use crate::card::SubtypeDef;
+use crate::card::TokenCharacteristics;
 use crate::card::TokenDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
@@ -113,6 +116,74 @@ pub(in crate::card::sets) static LOKI_S_SCEPTER_56: CardRecord = CardRecord::new
 abilities::enters_trigger_with_targets("When Loki's Scepter enters, gain control of target creature until end of turn. Untap that creature. Until end of turn, it becomes a Villain in addition to its other types and gains haste.", &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Creature))], EffectDef::Sequence(&[EffectDef::gain_control(EffectRecipientDef::Target(TargetIndex::PRIMARY), PlayerRefDef::EffectController, ControlDurationDef::UntilEndOfTurn), EffectDef::Untap { object: EffectRecipientDef::Target(TargetIndex::PRIMARY) }, EffectDef::Apply { recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY), effect: AppliedEffectDef::Composite(&[AppliedEffectDef::Characteristic(CharacteristicOperationDef::Subtypes(SetOperationDef::Add(&["Villain"]))), AppliedEffectDef::add_ability(&abilities::haste())]), duration: ResolvedEffectDurationDef::UntilEndOfTurn }])),
 AbilityDef::activated_mana("{T}: Add one mana of any color.", &[CostDef::TapSource], EffectDef::AddMana(AddManaEffectDef::any_color()))
 ]),
+);
+
+// MSC 104 — The Fantasticar
+pub(in crate::card::sets) static THE_FANTASTICAR: CardRecord = CardRecord::new(
+    "The Fantasticar",
+    "ed0beb69-8441-4104-9990-81bd82f81f9a",
+    "Maxim Ruabtsev",
+    CardRules::new_vehicle(mana_cost!("{3}"), 4, 4)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::flying(),
+            AbilityDef::triggered(
+                "Whenever you cast a noncreature spell, you may have The Fantasticar become \
+                 an artifact creature until end of turn.",
+                TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ])),
+                EffectDef::May {
+                    player: EffectRecipientDef::Controller,
+                    effect: &EffectDef::Apply {
+                        recipient: EffectRecipientDef::Source,
+                        effect: AppliedEffectDef::add_card_types(CardTypeSet::single(
+                            CardType::Creature,
+                        )),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                },
+            ),
+            AbilityDef::triggered(
+                "Whenever you cast your fourth noncreature spell each turn, you may sacrifice \
+                 The Fantasticar. If you do, create four 4/4 colorless Construct artifact \
+                 creature tokens with flying and haste.",
+                TriggerEventDef::While {
+                    event: &TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ])),
+                    condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                        left: ValueDef::CountSpellsCastThisTurn(&SpellCastQueryDef {
+                            player: PlayerRelation::You,
+                            spell: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(
+                                CardType::Creature,
+                            )),
+                        }),
+                        comparison: ComparisonDef::Equal,
+                        right: ValueDef::Constant(4),
+                    }),
+                },
+                EffectDef::PayOr(PayOrDef::optional(
+                    &[CostDef::Perform(
+                        &crate::card::actions::choose_sacrifice(1)
+                            .matching(ObjectPredicateDef::Source),
+                    )],
+                    &EffectDef::CreateToken(
+                        CreateTokenDef::new(TokenDef::Literal(
+                            TokenCharacteristics::artifact_creature(&["Construct"], &[], 4, 4)
+                                .with_abilities(&[abilities::flying(), abilities::haste()])
+                                .with_art(crate::card::CardArt::new(
+                                    "530c7ad1-1127-40ad-86b4-cb959eb297cb",
+                                    "Gabriel Rubio",
+                                )),
+                        ))
+                        .with_amount(4),
+                    ),
+                )),
+            ),
+        ]),
 );
 
 // MSC 106 — H.E.R.B.I.E., Lovable Robot
@@ -218,6 +289,7 @@ pub(in crate::card::sets) static FOGWELL_S_GYM_754: CardRecord = CardRecord::new
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &COUNCIL_OF_REEDS,
     &LOKI_S_SCEPTER_56,
+    &THE_FANTASTICAR,
     &H_E_R_B_I_E_LOVABLE_ROBOT_106,
     &BLACK_WIDOW_AGILE_AVENGER_395,
     &MATT_MURDOCK_JUSTICE_SEEKER_602,

@@ -27,7 +27,7 @@ fn cast_gift(game: &mut Game, card_id: GameObjectId, promised: bool) {
         .into_iter()
         .find(|action| {
             matches!(action, Action::CastSpell { card, choices, .. }
-            if *card == card_id && !choices.costs().additional().is_empty() == promised)
+            if *card == card_id && choices.costs().additional().is_empty() != promised)
         })
         .expect("gift choice is a legal cast");
     game.apply(PlayerId::One, action).unwrap();
@@ -124,17 +124,17 @@ fn gift_modifies_required_target_counts_and_restrictions_before_payment() {
             .push(creature(id, cards::SOL_RING, PlayerId::Two));
     }
     for action in game.legal_actions(PlayerId::One) {
-        if let Action::CastSpell { card, choices, .. } = action {
-            if card == spell {
-                assert_eq!(
-                    choices.iter_targets().count(),
-                    if choices.costs().additional().is_empty() {
-                        1
-                    } else {
-                        2
-                    }
-                );
-            }
+        if let Action::CastSpell { card, choices, .. } = action
+            && card == spell
+        {
+            assert_eq!(
+                choices.iter_targets().count(),
+                if choices.costs().additional().is_empty() {
+                    1
+                } else {
+                    2
+                }
+            );
         }
     }
     let (mut game, spell) = gift_game(cards::INTO_THE_FLOOD_MAW);

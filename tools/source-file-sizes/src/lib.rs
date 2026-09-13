@@ -1,4 +1,4 @@
-//! The repository-wide Rust source-file size limit.
+//! Repository-wide Rust source-file sizes and printed-card source layout.
 //!
 //! This crate is a check, not a library: nothing links it, and it depends on
 //! nothing, so `cargo test -p source-file-sizes` is a filesystem walk that
@@ -11,6 +11,8 @@ use std::ffi::OsStr;
 use std::fs;
 use std::io;
 use std::path::{Component, Path, PathBuf};
+
+mod card_layout;
 
 const MAX_RUST_SOURCE_LINES: usize = 1_000;
 const SOURCE_DIRECTORY_NAMES: [&str; 4] = ["src", "tests", "examples", "benches"];

@@ -25,19 +25,24 @@ all be understood at the declaration.
 
 Name the `CardRecord` static after the card in `SCREAMING_SNAKE_CASE`, such as
 `SOUL_PARTITION`. Keep the collector number in the identifying comment;
-do not append it to the Rust symbol. The printing UUID supplies identity, and
-the collector number supplies source order.
+do not append it to the Rust symbol. Numbers printed in the name, such as
+`SPIDER_MAN_2099`, belong in the symbol. The printing UUID supplies identity,
+and the collector number supplies source order.
 
-Keep declarations within rustfmt's default 100-column width. Split long rules
-text with Rust's escaped-newline string continuation, preserving the space
+Use rustfmt's default 100-column target. Printed set files have a hard
+120-character line limit, including strings and comments; the small margin
+allows deeply nested expressions that rustfmt leaves wider than its target.
+Split long rules text with Rust's escaped-newline string continuation, preserving the space
 before the backslash so the displayed text stays identical. Then run rustfmt
 to lay out the surrounding calls. A long unbroken string can make rustfmt leave
 an entire call chain unformatted ([rustfmt issue #3863](https://github.com/rust-lang/rustfmt/issues/3863)).
 `cargo fmt --check` only checks whether rustfmt would change the file; it is
 not a hard line-width lint. Clippy does not enforce that width or the
-card-specific symbol convention, and the source-file size check limits line
-count rather than line width. Review these conventions even when those checks
-pass.
+card-specific symbol convention. The dependency-free source check now enforces
+the 120-character ceiling and rejects appended collector numbers while allowing
+numbers in the card's name. Run `make test-source-file-sizes` for the focused
+check; `make lint-rust`, `make preflight`, and CI also run it. Set files are
+exempt from the file-length limit, not these layout rules.
 
 Within a printed set module, keep declarations and the `CARDS` registry in
 natural collector-number order, with `CARDS` exactly mirroring declaration

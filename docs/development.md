@@ -180,8 +180,11 @@ make preflight
 
 It sequentially runs `make fmt` and `make test-source-file-sizes`. The latter is
 a dependency-free crate that enforces the 1,000-line Rust source-file limit
-without building the engine. Direct card-set files are the semantic exception;
-the checker discovers all Cargo roots and applies the repository rule.
+without building the engine. Direct card-set files are exempt from that file
+length limit, but must stay within 120 characters per line and must not append
+collector numbers to `CardRecord` symbols. Numbers printed in card names remain
+valid. The checker discovers all Cargo roots and applies the repository rule;
+`make lint-rust` also runs it before Clippy.
 
 Slow simulation sweeps are deferred to nightly CI. Run `make test-rust-slow` or
 `make test-web-wasm-slow` locally only when changed behavior is specifically

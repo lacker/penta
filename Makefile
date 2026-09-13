@@ -116,6 +116,7 @@ preflight: ## Run universal final checks once before an external handoff or push
 	$(MAKE) test-source-file-sizes
 
 lint-rust: ## Lint every Rust workspace target and feature.
+	$(MAKE) test-source-file-sizes
 	cargo clippy --locked --workspace --all-targets --all-features -- -D warnings
 
 lint-web: ## Lint the web client.
@@ -181,7 +182,7 @@ test-rust-full: ## Run every normal and slow Rust test in one pass.
 # in about a second even in a cold worktree. Keep it that way: as an
 # integration test of `penta` it linked the engine, and a check nobody can
 # afford to run before pushing is a check that fails in CI instead.
-test-source-file-sizes: ## Enforce the repository-wide Rust source-file size limit.
+test-source-file-sizes: ## Enforce Rust file sizes and printed-card line widths and names.
 	cargo test --locked -p source-file-sizes
 
 catalog-report: ## Print catalog and inline-audit coverage for every format category.

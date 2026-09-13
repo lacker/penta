@@ -23,6 +23,22 @@ when both introduce the identity. Its `CardRecord` keeps its identity and primar
 together: name, cost, types, creature stats, and ordered ability clauses can
 all be understood at the declaration.
 
+Name the `CardRecord` static after the card in `SCREAMING_SNAKE_CASE`, such as
+`SOUL_PARTITION`. Keep the collector number in the identifying comment;
+do not append it to the Rust symbol. The printing UUID supplies identity, and
+the collector number supplies source order.
+
+Keep declarations within rustfmt's default 100-column width. Split long rules
+text with Rust's escaped-newline string continuation, preserving the space
+before the backslash so the displayed text stays identical. Then run rustfmt
+to lay out the surrounding calls. A long unbroken string can make rustfmt leave
+an entire call chain unformatted ([rustfmt issue #3863](https://github.com/rust-lang/rustfmt/issues/3863)).
+`cargo fmt --check` only checks whether rustfmt would change the file; it is
+not a hard line-width lint. Clippy does not enforce that width or the
+card-specific symbol convention, and the source-file size check limits line
+count rather than line width. Review these conventions even when those checks
+pass.
+
 Within a printed set module, keep declarations and the `CARDS` registry in
 natural collector-number order, with `CARDS` exactly mirroring declaration
 order. Compare numeric portions numerically (`8`, `8a`, `8b`, `16`), not

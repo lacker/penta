@@ -179,7 +179,7 @@ pub enum AppliedEffectDef {
 pub enum PlayerRuleDef {
     /// Apply a stack effect as the affected player finishes casting each
     /// matching spell, before cast triggers or priority. The enclosing Apply
-    /// supplies expiration, including UntilNextMatchingCast for a one-shot grant.
+    /// supplies expiration, including `UntilNextMatchingCast` for a one-shot grant.
     /// The initial payload boundary supports counterability rules only.
     ApplyToMatchingSpell {
         object: ObjectPredicateDef,
@@ -496,7 +496,7 @@ pub enum AppliedRuleDef {
 
 impl AppliedRuleDef {
     /// The spell predicate used by resolving cast rules and their shared
-    /// UntilNextMatchingCast expiration. Rules without a cast predicate cannot
+    /// `UntilNextMatchingCast` expiration. Rules without a cast predicate cannot
     /// use that duration.
     #[must_use]
     pub const fn matching_cast_object(self) -> Option<ObjectPredicateDef> {

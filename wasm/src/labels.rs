@@ -560,6 +560,7 @@ impl WebGame {
             }
             Action::ActivateManaAbility {
                 source,
+                ability,
                 color,
                 cost_object,
                 combination,
@@ -580,14 +581,29 @@ impl WebGame {
                             .join(" and ")
                     );
                 }
-                // An ability that sacrifices some other permanent is offered
-                // once per candidate, and the source and colour are the same
-                // every time -- so the sacrifice is what the label has to
-                // name, or the choices read as duplicates.
+                // Each chosen payer is a distinct action. Read the payment
+                // verb from the effective ability, including granted abilities.
+                let cost_verb = self
+                    .session
+                    .ability_for_origin(*source, *ability)
+                    .and_then(|ability| match ability.definition {
+                        penta::card::DeclarativeAbilityDef::ActivatedMana(definition) => {
+                            definition.costs.iter().find_map(|cost| match cost {
+                                penta::card::CostDef::TapPermanents { .. } => Some("Tap"),
+                                penta::card::CostDef::ExileCardFromHand(_) => Some("Exile"),
+                                penta::card::CostDef::SacrificePermanent { .. } => {
+                                    Some("Sacrifice")
+                                }
+                                _ => None,
+                            })
+                        }
+                        _ => None,
+                    })
+                    .unwrap_or("Use");
                 match cost_object {
-                    Some(sacrificed) => format!(
-                        "Sacrifice {} for {} mana",
-                        self.instance_name(observation, *sacrificed),
+                    Some(payer) => format!(
+                        "{cost_verb} {} for {} mana",
+                        self.instance_name(observation, *payer),
                         readable_debug(*color)
                     ),
                     None => format!(

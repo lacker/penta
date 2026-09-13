@@ -13,6 +13,12 @@ impl Game {
                     let _ =
                         self.tap_permanent_for_mana(source, activation.triggered_mana.clone());
                 }
+                CostDef::TapPermanents { count: 1, .. } => {
+                    // Only the ability source is tapped for mana. The chosen
+                    // payer undergoes an ordinary tap transition (CR 106.12).
+                    let chosen = activation.cost_object.expect("a tap cost names its payer");
+                    let _ = self.tap_permanent(chosen);
+                }
                 // Paid now, like the tap: what it spends is the source's
                 // next untap step, and the ability is over long before that.
                 CostDef::ExertSource => {

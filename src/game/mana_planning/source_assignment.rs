@@ -424,7 +424,9 @@ impl Game {
     ) -> bool {
         let preserves_tap_cost_payer = request.options.tap_cost_payer.is_none_or(|payer| {
             Self::mana_activation_preserves_tap_payment(permanent, activation, payer)
-        });
+        }) && !matches!(request.purpose,
+            ManaPaymentPurpose::Ability { source, taps_source: true, .. }
+                if !Self::mana_activation_preserves_tap_payment(permanent, activation, *source));
         let preserves_required_source = !matches!(
             request.purpose,
             ManaPaymentPurpose::Ability {
@@ -731,8 +733,6 @@ struct PaymentAssignmentSearch<'a> {
     assignment: Vec<PlannedManaActivation>,
     best_assignment: Option<Vec<PlannedManaActivation>>,
     best_rank: Option<PaymentAssignmentRank>,
-    consumed: Vec<GameObjectId>,
-    contributors: Vec<GameObjectId>,
 }
 
 impl<'a> PaymentAssignmentSearch<'a> {
@@ -752,8 +752,6 @@ impl<'a> PaymentAssignmentSearch<'a> {
             assignment: Vec::new(),
             best_assignment: None,
             best_rank: None,
-            consumed: Vec::new(),
-            contributors: Vec::new(),
         }
     }
 
@@ -773,6 +771,11 @@ impl<'a> PaymentAssignmentSearch<'a> {
         };
         let rank = payment_assignment_rank(&self.assignment, life_mana, self.avoid);
         if self.best_rank.as_ref().is_none_or(|best| rank < *best) {
+            // A cyclic candidate must not replace a valid assignment or hide
+            // a later one with the same mana output.
+            if order_mana_activations_before_consumption(self.assignment.clone(), self.cost).is_none() {
+                return false;
+            }
             self.best_rank = Some(rank);
             self.best_assignment = Some(self.assignment.clone());
         }
@@ -825,9 +828,9 @@ impl<'a> PaymentAssignmentSearch<'a> {
         let output_count = self.sources[index].outputs.len();
         for output_index in 0..output_count {
             let output = self.sources[index].outputs[output_index].clone();
-            let cost_object = output.kind.cost_object();
+            let payment = planned_payment(&self.sources[index], output.clone());
             if output.life_payment > life_available
-                || cost_object.is_some_and(|object| self.consumed.contains(&object))
+                || self.assignment.iter().any(|other| payment.conflicts_with(other))
             {
                 continue;
             }
@@ -835,13 +838,7 @@ impl<'a> PaymentAssignmentSearch<'a> {
             next.add_output(&output);
             let life_payment = output.life_payment;
             self.push_output(index, output);
-            if let Some(object) = cost_object {
-                self.consumed.push(object);
-            }
             found |= self.assign_flexible(index + 1, next, life_available - life_payment);
-            if cost_object.is_some() {
-                self.consumed.pop();
-            }
             self.assignment.pop();
         }
         found | self.assign_flexible(index + 1, pool, life_available)
@@ -914,17 +911,12 @@ impl PaymentAssignmentSearch<'_> {
             return found;
         }
 
-        let source_id = self.sources[index].source;
         let output_count = self.sources[index].outputs.len();
         for output_index in 0..output_count {
             let output = self.sources[index].outputs[output_index].clone();
-            let uses_contribution = output.kind.uses_contribution();
-            let cost_object = output.kind.cost_object();
+            let payment = planned_payment(&self.sources[index], output.clone());
             if output.life_payment > life_available
-                || (uses_contribution && self.consumed.contains(&source_id))
-                || cost_object.is_some_and(|object| {
-                    self.consumed.contains(&object) || self.contributors.contains(&object)
-                })
+                || self.assignment.iter().any(|other| payment.conflicts_with(other))
             {
                 continue;
             }
@@ -933,19 +925,7 @@ impl PaymentAssignmentSearch<'_> {
             next.add_output(&output);
             let life_payment = output.life_payment;
             self.push_output(index, output);
-            if uses_contribution {
-                self.contributors.push(source_id);
-            }
-            if let Some(object) = cost_object {
-                self.consumed.push(object);
-            }
             found |= self.assign_contributions(index + 1, next, life_available - life_payment);
-            if cost_object.is_some() {
-                self.consumed.pop();
-            }
-            if uses_contribution {
-                self.contributors.pop();
-            }
             self.assignment.pop();
         }
 

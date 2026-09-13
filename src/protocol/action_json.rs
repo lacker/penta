@@ -77,10 +77,9 @@ pub fn action_json(action: &Action) -> Value {
             if let Some(removed) = counters_removed {
                 action["countersRemoved"] = json!(removed);
             }
-            // Likewise optional, and present only for a cost that sacrifices
-            // some other permanent.
-            if let Some(sacrificed) = cost_object {
-                action["costObject"] = json!(sacrificed.0);
+            // Present when a sacrifice, exile, or tap cost chooses an object.
+            if let Some(payer) = cost_object {
+                action["costObject"] = json!(payer.0);
             }
             // Likewise optional, and present only for an ability that adds
             // mana "in any combination of" more than one type. Types the

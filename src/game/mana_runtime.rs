@@ -178,10 +178,8 @@ impl Game {
             .map_or(effect.amount, |override_| override_.amount)
     }
 
-    /// The concrete activations one mana ability offers, which is one per
-    /// colour it can produce.
-    /// Which permanents a mana ability's "Sacrifice a <thing>" cost could
-    /// take, one per activation. An ability with no such cost yields a single
+    /// Which objects can pay a mana ability's chosen cost, one per
+    /// activation. An ability with no such cost yields a single
     /// `None`, so the enumeration below runs once for it rather than not at
     /// all.
     fn mana_ability_cost_candidates(
@@ -192,12 +190,30 @@ impl Game {
         let Some(cost) = definition.costs.iter().find(|cost| {
             matches!(
                 cost,
-                CostDef::SacrificePermanent { .. } | CostDef::ExileCardFromHand(_)
+                CostDef::SacrificePermanent { .. }
+                    | CostDef::ExileCardFromHand(_)
+                    | CostDef::TapPermanents { count: 1, .. }
             )
         }) else {
             return vec![None];
         };
         match cost {
+            CostDef::TapPermanents {
+                object,
+                controller,
+                count: 1,
+            } => self
+                .activation_tap_candidates(
+                    permanent.controller,
+                    *object,
+                    *controller,
+                    permanent.card.id,
+                    &[],
+                    definition.costs.contains(&CostDef::TapSource),
+                )
+                .into_iter()
+                .map(Some)
+                .collect(),
             CostDef::SacrificePermanent { object, controller } => self
                 .battlefield
                 .iter()
@@ -267,10 +283,10 @@ impl Game {
                     .collect::<Vec<_>>(),
                 None => vec![(definition.costs.to_vec(), effect.amount, None)],
             };
-            // "Sacrifice a Goblin" is a choice of which one, and a mana
+            // An object cost is a choice of which one, and a mana
             // ability has no window in which to ask: like the counter sizes
             // above, each candidate becomes its own activation.
-            let sacrifices = self.mana_ability_cost_candidates(permanent, definition);
+            let candidates = self.mana_ability_cost_candidates(permanent, definition);
             let mut add_activation = |color,
                                       costs: &[CostDef],
                                       amount,
@@ -296,7 +312,7 @@ impl Game {
                 });
             };
             for (costs, amount, counters_removed) in sizes {
-                for cost_object in &sacrifices {
+                for cost_object in &candidates {
                     match effect.mana {
                         ManaSelectionDef::Amounts(amounts) => {
                             let pool =

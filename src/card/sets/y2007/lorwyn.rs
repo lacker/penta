@@ -573,12 +573,22 @@ pub(in crate::card::sets) static RUNED_STALACTITE_260: CardRecord = CardRecord::
 );
 
 // LRW 261 — Springleaf Drum
-// Audit: unsupported — Needs an immediate mana-ability payment combining TapSource with a chosen untapped creature; ordinary nonmana activations support that tap payment but the immediate mana path does not.
 pub(in crate::card::sets) static SPRINGLEAF_DRUM: CardRecord = CardRecord::new(
     "Springleaf Drum",
     "fa8b09d0-fbd2-4441-9d87-02450412e0db",
     "Cyril Van Der Haegen",
-    CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{1}")).with_ability(AbilityDef::activated_mana(
+        "{T}, Tap an untapped creature you control: Add one mana of any color.",
+        &[
+            CostDef::TapSource,
+            CostDef::TapPermanents {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                controller: PlayerRelation::You,
+                count: 1,
+            },
+        ],
+        EffectDef::AddMana(AddManaEffectDef::any_color()),
+    )),
 );
 
 // LRW 262 — Thorn of Amethyst

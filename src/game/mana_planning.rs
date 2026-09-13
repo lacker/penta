@@ -451,6 +451,9 @@ impl Game {
                     kind: PlannedPaymentKind::Mana {
                         ability: activation.ability,
                         color: activation.color,
+                        resources: super::mana_state::ManaPaymentResources::from_costs(
+                            &activation.costs,
+                        ),
                         counters_removed: activation.counters_removed,
                         cost_object: activation.cost_object,
                         combination: activation.combination,

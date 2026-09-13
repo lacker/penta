@@ -441,6 +441,7 @@ mod subtype_protection;
 mod suspend;
 mod switched_stats;
 mod tap_for_chosen_colour;
+mod tap_for_mana_costs;
 mod target_toughness;
 mod targeted_answers;
 mod targeting_characteristics;

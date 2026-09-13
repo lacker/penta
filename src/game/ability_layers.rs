@@ -39,6 +39,46 @@ impl Drop for StaticAbilityLayerGuard {
 }
 
 impl Game {
+    /// Stack spells share the permanent layer's ordered operations and grant
+    /// identities. Evaluate live at cast completion, so grants follow the
+    /// selected spell face and controller regardless of the casting zone.
+    pub(super) fn apply_static_stack_ability_operations(
+        &self,
+        object: &super::StackObject,
+        abilities: &mut Vec<EffectiveAbility>,
+    ) {
+        if object.kind != super::StackObjectKind::Spell {
+            return;
+        }
+        let Some(_pass) = StaticAbilityLayerGuard::enter() else {
+            return;
+        };
+        let Some(characteristics) = self.stack_trigger_event_object(object) else {
+            return;
+        };
+        let affected = super::StaticAffectedObject::Object {
+            characteristics: &characteristics,
+            controller: Some(object.controller),
+            owner: object.card.owner,
+            zone: super::ZoneKind::Stack,
+            is_spell: true,
+        };
+        let mut operations = Vec::new();
+        let result = self.visit_battlefield_static_applied_effects_for_object(
+            affected,
+            StaticEffectKind::Abilities,
+            |applied| {
+                self.push_static_ability_layer_operations(&applied, &mut operations);
+                ControlFlow::Continue(())
+            },
+        );
+        debug_assert!(result.is_continue());
+        operations.sort_by_key(|operation| (operation.timestamp, operation.order));
+        for operation in operations {
+            Self::apply_ability_layer_operation(abilities, &operation);
+        }
+    }
+
     /// Whether one printed or copied ability remains after rules-text removal
     /// and already-resolved layer-6 operations. Static layer-6 dependencies
     /// still use the documented one-level model, but a resolved "loses all

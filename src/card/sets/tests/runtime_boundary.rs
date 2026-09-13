@@ -739,3 +739,41 @@ fn cast_rules_compose_calendar_and_cast_expirations() {
         duration,
     ));
 }
+
+#[test]
+fn static_stack_grants_support_source_cast_triggers_only() {
+    static STORM: AbilityDef = crate::card::abilities::storm();
+    static ACTIVATED: AbilityDef = AbilityDef::activated("Draw a card.", &[], EffectDef::None);
+    static OTHER_CAST: AbilityDef = AbilityDef::triggered(
+        "Whenever a spell is cast, draw a card.",
+        TriggerEventDef::spell_cast(ObjectPredicateDef::Any),
+        EffectDef::None,
+    );
+    let grant = |ability| EffectDef::StaticApply {
+        recipient: EffectRecipientDef::matching_objects(
+            ObjectPredicateDef::Any,
+            &[ZoneKind::Stack],
+            PlayerRelation::You,
+        ),
+        effect: AppliedEffectDef::add_ability(ability),
+    };
+    assert!(shared_static_effect(
+        &[ZoneKind::Battlefield],
+        grant(&STORM)
+    ));
+    assert!(!shared_static_effect(
+        &[ZoneKind::Battlefield],
+        grant(&ACTIVATED)
+    ));
+    assert!(!shared_static_effect(
+        &[ZoneKind::Battlefield],
+        grant(&OTHER_CAST)
+    ));
+    assert!(!shared_static_effect(
+        &[ZoneKind::Stack],
+        EffectDef::StaticApply {
+            recipient: EffectRecipientDef::Source,
+            effect: AppliedEffectDef::add_ability(&STORM),
+        },
+    ));
+}

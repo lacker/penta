@@ -316,7 +316,7 @@ fn shared_static_effect_at(source_zones: &[ZoneKind], effect: EffectDef, root: b
                         && shared_object_predicate(query.object)
                         && shared_static_query(query)
                 })
-                && shared_stack_uncounterability_effect(effect);
+                && shared_external_stack_effect(effect);
             // "As long as this isn't on the battlefield, it's a 1/1 Insect
             // creature": what a card says about itself, read by the card
             // view in whichever of its zones the clause names. The stack is
@@ -503,6 +503,31 @@ pub(super) fn shared_stack_uncounterability_effect(effect: AppliedEffectDef) -> 
                     .all(shared_stack_uncounterability_effect)
         }
         AppliedEffectDef::Rule(AppliedRuleDef::CannotBeCountered) => true,
+        AppliedEffectDef::Characteristic(_) | AppliedEffectDef::Rule(_) => false,
+    }
+}
+
+fn shared_external_stack_effect(effect: AppliedEffectDef) -> bool {
+    match effect {
+        AppliedEffectDef::Composite(effects) => {
+            !effects.is_empty() && effects.iter().copied().all(shared_external_stack_effect)
+        }
+        AppliedEffectDef::Rule(AppliedRuleDef::CannotBeCountered) => true,
+        AppliedEffectDef::Characteristic(CharacteristicOperationDef::Abilities(
+            AbilityOperationDef::Add(ability),
+        )) => {
+            shared_definition_ability(ability)
+                && matches!(ability.definition,
+                    DeclarativeAbilityDef::Triggered(definition)
+                        if definition.procedure == AbilityProcedureDef::Shared
+                            && definition.trigger_limit.is_none()
+                            && matches!(definition.event,
+                                TriggerEventDef::StackObject(matcher)
+                                    if matcher.object == ObjectPredicateDef::Source
+                                        && matches!(matcher.event, StackObjectEventDef::Cast { .. })
+                            )
+                )
+        }
         AppliedEffectDef::Characteristic(_) | AppliedEffectDef::Rule(_) => false,
     }
 }

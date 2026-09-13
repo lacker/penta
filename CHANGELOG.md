@@ -272,6 +272,11 @@ the bot-wire epoch.
   checkpoint format remain unchanged; exact simulations/replays must still
   match the generated simulation fingerprint.
 
+- Implement Ral, Crackling Wit, including its storm emblem. Static source-cast
+  ability grants now apply to stack spells using the existing layer operations
+  and grant identities. Granted storm triggers survive source removal and
+  checkpoint reconstruction; protocol and checkpoint encodings are unchanged.
+
 ## 0.7.0 — protocol 29
 
 This release reports engine 0.7.0 and protocol 29. The simulation fingerprint

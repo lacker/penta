@@ -6798,14 +6798,85 @@ pub(in crate::card::sets) static POND_PROPHET: CardRecord = CardRecord::new(
 );
 
 // BLB 230 — Ral, Crackling Wit
-// Audit: unsupported — Needs an emblem to grant storm as a spell ability to instant and sorcery
-// spells on the stack; continuous executable-ability grants currently operate on battlefield
-// permanents, not those spell objects.
 pub(in crate::card::sets) static RAL_CRACKLING_WIT: CardRecord = CardRecord::new(
     "Ral, Crackling Wit",
     "acfde780-899a-4c5b-a39b-f4a3ff129103",
     "Rudy Siswanto",
-    CardRules::unsupported(),
+    CardRules::new_planeswalker(mana_cost!("{2}{U}{R}"), &["Ral"], 4)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::triggered(
+                "Whenever you cast a noncreature spell, put a loyalty counter on Ral.",
+                TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
+                ])),
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::Source,
+                    kind: CounterKind::Loyalty,
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+            AbilityDef::activated(
+                "+1: Create a 1/1 blue and red Otter creature token with prowess.",
+                &[CostDef::Loyalty(1)],
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                    TokenCharacteristics::creature(
+                        &["Otter"],
+                        &[ManaColor::Blue, ManaColor::Red],
+                        1,
+                        1,
+                    )
+                    .with_abilities(&[abilities::prowess()])
+                    .with_art(CardArt::new(
+                        "e6b2c465-c446-4dee-9101-763105dcf813",
+                        "Julia Griffin",
+                    )),
+                ))),
+            ),
+            AbilityDef::activated(
+                "−3: Draw three cards, then discard two cards.",
+                &[CostDef::Loyalty(-3)],
+                EffectDef::Sequence(&[
+                    abilities::draw_cards(ValueDef::Constant(3)),
+                    EffectDef::Discard {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(2),
+                        selection: DiscardSelectionDef::RecipientChooses,
+                        then: None,
+                    },
+                ]),
+            ),
+            AbilityDef::activated(
+                "−10: Draw three cards. You get an emblem with \"Instant and sorcery spells you cast have storm.\" \
+                 (Whenever you cast an instant or sorcery spell, copy it for each spell cast before it this turn.)",
+                &[CostDef::Loyalty(-10)],
+                EffectDef::Sequence(&[
+                    abilities::draw_cards(ValueDef::Constant(3)),
+                    EffectDef::CreateEmblem {
+                        emblem: crate::card::EmblemCharacteristics::new(
+                            "Ral, Crackling Wit emblem",
+                            &[AbilityDef::static_ability(
+                                "Instant and sorcery spells you cast have storm.",
+                                EffectDef::StaticApply {
+                                    recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                                        ObjectQueryDef::matching(
+                                            ObjectPredicateDef::AnyOf(&[
+                                                ObjectPredicateDef::HasType(CardType::Instant),
+                                                ObjectPredicateDef::HasType(CardType::Sorcery),
+                                            ]),
+                                            &[ZoneKind::Stack],
+                                            PlayerRelation::You,
+                                        ),
+                                    )),
+                                    effect: AppliedEffectDef::add_ability(&abilities::storm()),
+                                },
+                            )],
+                        ),
+                    },
+                ]),
+            ),
+        ]),
 );
 
 // BLB 231 — Seedglaive Mentor

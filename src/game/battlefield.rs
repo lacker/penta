@@ -566,24 +566,46 @@ impl Game {
             .map(|card| card.id)
     }
 
-    /// Exiles a card from wherever it is outside the battlefield, reporting
-    /// the object it became so the link can be recorded.
-    pub(super) fn exile_card_returning_card(&mut self, id: GameObjectId) -> Option<GameObjectId> {
-        let (zone, owner) = self
-            .card_in_nonbattlefield_zone(id)
-            .map(|(zone, card)| (zone, card.owner))?;
-        if zone == ZoneKind::Exile {
-            return None;
+    /// Exile a collection of nonbattlefield cards, establishing face-down
+    /// characteristics before publishing the complete instruction for each owner.
+    pub(super) fn exile_cards_returning_cards(
+        &mut self,
+        ids: &[GameObjectId],
+        face_down: bool,
+    ) -> Vec<GameObjectId> {
+        let mut moved = Vec::new();
+        let mut exiled = Vec::new();
+        for &id in ids {
+            let Some((zone, owner)) = self
+                .card_in_nonbattlefield_zone(id)
+                .map(|(zone, card)| (zone, card.owner))
+            else {
+                continue;
+            };
+            if zone == ZoneKind::Exile {
+                continue;
+            }
+            let Some(card) = self.take_card_from_zone(owner, zone, id) else {
+                continue;
+            };
+            let (card, _zone_change) = self.zone_change_card(card);
+            self.players[owner.index()].exile.push(card.clone());
+            if face_down {
+                self.hide_from_everyone_while_exiled(card.id, owner);
+            }
+            exiled.push(card.id);
+            moved.push((card, zone));
         }
-        let card = self.take_card_from_zone(owner, zone, id)?;
-        let (card, _zone_change) = self.zone_change_card(card);
-        let exiled = card.id;
-        self.players[owner.index()].exile.push(card.clone());
-        self.capture_cards_exiled(std::slice::from_ref(&card), zone);
-        if zone == ZoneKind::Graveyard {
-            self.note_card_left_graveyard(owner);
+        self.capture_cards_exiled_from_zones(moved.iter().map(|(card, from)| (card, *from)));
+        for owner in [PlayerId::One, PlayerId::Two] {
+            if moved
+                .iter()
+                .any(|(card, zone)| card.owner == owner && *zone == ZoneKind::Graveyard)
+            {
+                self.note_card_left_graveyard(owner);
+            }
         }
-        Some(exiled)
+        exiled
     }
 
     /// Removes a card from one of a player's non-battlefield zones.

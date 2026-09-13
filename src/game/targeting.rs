@@ -256,6 +256,9 @@ impl Game {
         controller: PlayerId,
         context: &CharacteristicContext,
     ) -> Option<TriggerEventObject> {
+        if matches!(context, CharacteristicContext::Exile) && self.exiled_card_is_face_down(id) {
+            return Some(Self::face_down_exiled_event_object(id, controller));
+        }
         let definition = self.catalog.get(definition)?;
         let parts = applicable_part_ids_ref(definition, context).ok()?;
         let mut types = CardTypeSet::empty();

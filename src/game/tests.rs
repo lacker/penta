@@ -463,6 +463,7 @@ mod tribal_tap_costs;
 mod trigger_event_matchers;
 mod trigger_modifiers;
 mod triggers_and_stack;
+mod triumph_of_saint_katherine;
 mod triumphs;
 mod turn_and_loyalty;
 mod tutors_and_fetch_lands;

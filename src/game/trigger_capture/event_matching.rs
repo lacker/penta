@@ -406,7 +406,9 @@ impl Game {
                     from,
                     owner: exiled_by,
                 },
-            ) => self.exile_move_matches(zones, owner, cards, *from, *exiled_by, controller),
+            ) => from.iter().any(|from| {
+                self.exile_move_matches(zones, owner, cards, *from, *exiled_by, controller)
+            }),
             // One batch, one trigger: the predicate says which of the dead
             // count toward "one or more".
             (

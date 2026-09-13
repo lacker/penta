@@ -100,7 +100,7 @@ pub(super) enum CommittedTriggerEvent {
     /// this rather than any card in it.
     CardsExiled {
         cards: Vec<TriggerEventObject>,
-        from: ZoneKind,
+        from: Vec<ZoneKind>,
         owner: PlayerId,
     },
     /// Every token one instruction created, published once. A token is

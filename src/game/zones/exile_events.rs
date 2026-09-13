@@ -10,45 +10,23 @@ impl Game {
     /// a clause can name -- a permanent exiled from the battlefield is a
     /// zone change of its own and is published there.
     pub(in crate::game) fn capture_cards_exiled(&mut self, cards: &[CardInstance], from: ZoneKind) {
-        let Some(owner) = cards.first().map(|card| card.owner) else {
-            return;
-        };
-        let objects = cards
-            .iter()
-            .filter_map(|card| {
-                self.printed_trigger_event_object(
-                    card.id,
-                    card.definition,
-                    card.owner,
-                    &CharacteristicContext::Exile,
-                )
-            })
-            .collect::<Vec<_>>();
-        if objects.is_empty() {
-            return;
-        }
-        let source_context = match from {
-            ZoneKind::Hand => CharacteristicContext::Hand,
-            ZoneKind::Library => CharacteristicContext::Library,
-            ZoneKind::Graveyard => CharacteristicContext::Graveyard,
-            ZoneKind::Exile => CharacteristicContext::Exile,
-            ZoneKind::Battlefield | ZoneKind::Stack | ZoneKind::Command => return,
-        };
-        for card in cards {
-            let Some(previous) = self
-                .successors
-                .iter()
-                .find_map(|(previous, successor)| (*successor == card.id).then_some(*previous))
-            else {
-                continue;
-            };
-            let Some(before) = self.printed_trigger_event_object(
-                previous,
-                card.definition,
-                card.owner,
-                &source_context,
-            ) else {
-                continue;
+        self.capture_cards_exiled_from_zones(cards.iter().map(|card| (card, from)));
+    }
+
+    /// A single instruction can exile cards from several zones. Keep that
+    /// instruction whole for "one or more" while retaining each card's origin.
+    pub(in crate::game) fn capture_cards_exiled_from_zones<'a>(
+        &mut self,
+        cards: impl Iterator<Item = (&'a CardInstance, ZoneKind)>,
+    ) {
+        let mut groups = Vec::new();
+        for (card, from) in cards {
+            let source_context = match from {
+                ZoneKind::Hand => CharacteristicContext::Hand,
+                ZoneKind::Library => CharacteristicContext::Library,
+                ZoneKind::Graveyard => CharacteristicContext::Graveyard,
+                ZoneKind::Exile => CharacteristicContext::Exile,
+                ZoneKind::Battlefield | ZoneKind::Stack | ZoneKind::Command => continue,
             };
             let Some(after) = self.printed_trigger_event_object(
                 card.id,
@@ -58,19 +36,47 @@ impl Game {
             ) else {
                 continue;
             };
+            groups.push((card.owner, from, after.clone()));
+            let Some(previous) = self
+                .successors
+                .iter()
+                .find_map(|(previous, successor)| (*successor == card.id).then_some(*previous))
+            else {
+                continue;
+            };
+            let before = self.printed_trigger_event_object(
+                previous,
+                card.definition,
+                card.owner,
+                &source_context,
+            );
             self.capture_battlefield_triggers(&CommittedTriggerEvent::ZoneChanged {
-                before: Some(before),
+                before,
                 after: Some(after),
                 from,
                 to: ZoneKind::Exile,
                 damage_sources: Vec::new(),
             });
         }
-        self.capture_battlefield_triggers(&CommittedTriggerEvent::CardsExiled {
-            cards: objects,
-            from,
-            owner,
-        });
+        for owner in [super::PlayerId::One, super::PlayerId::Two] {
+            let mut objects = Vec::new();
+            let mut origins = Vec::new();
+            for (player, from, object) in &groups {
+                if *player == owner {
+                    objects.push(object.clone());
+                    if !origins.contains(from) {
+                        origins.push(*from);
+                    }
+                }
+            }
+            if !objects.is_empty() {
+                self.capture_battlefield_triggers(&CommittedTriggerEvent::CardsExiled {
+                    cards: objects,
+                    from: origins,
+                    owner,
+                });
+            }
+        }
     }
 
     /// Raises the exile event for cards already sitting in exile, for the

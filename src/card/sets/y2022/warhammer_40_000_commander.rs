@@ -6,23 +6,32 @@ use crate::TargetIndex;
 use crate::card::AbilityDef;
 use crate::card::AbilityTargetDef;
 use crate::card::AbilityTargetPredicate;
+use crate::card::BindObjectsDef;
 use crate::card::CardRules;
 use crate::card::CardType;
 use crate::card::ChoiceVisibilityDef;
 use crate::card::ChooseDef;
+use crate::card::ComparisonDef;
+use crate::card::CostDef;
 use crate::card::CreateTokenDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
+use crate::card::MoveObjectsDef;
 use crate::card::ObjectChoiceBindingDef;
+use crate::card::ObjectCollectionSourceDef;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
+use crate::card::ObjectRefDef;
 use crate::card::ObjectSetDef;
 use crate::card::ObjectSetFilterDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
+use crate::card::RandomizeObjectOrderDef;
 use crate::card::TokenCharacteristics;
 use crate::card::TokenDef;
+use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
+use crate::card::ValueComparisonDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
 use crate::card::ZonePlacement;
@@ -47,12 +56,71 @@ pub(in crate::card::sets) static MARNEUS_CALGAR_8: CardRecord = CardRecord::new(
 );
 
 // 40K 17 — Triumph of Saint Katherine
-// Audit: unsupported — Needs a face-down pile combining this exact graveyard object and the library top, followed by a hidden shuffle and ordered library return.
 pub(in crate::card::sets) static TRIUMPH_OF_SAINT_KATHERINE: CardRecord = CardRecord::new(
     "Triumph of Saint Katherine",
     "cc5338e1-26a6-466e-9393-788f69370e15",
     "David Astruga",
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{W}"), &["Human", "Warrior"], 5, 5).with_abilities(&[
+        abilities::lifelink(),
+        AbilityDef::triggered(
+            "Praesidium Protectiva — When this creature is put into your graveyard from the \
+             battlefield, exile it and the top six cards of your library in a face-down pile. \
+             If you do, shuffle that pile and put it back on top of your library.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Source,
+                    ObjectPredicateDef::OwnedBy(PlayerRelation::You),
+                ]),
+                Some(ZoneKind::Battlefield),
+                Some(ZoneKind::Graveyard),
+            ),
+            EffectDef::BindObjects(BindObjectsDef {
+                source: ObjectCollectionSourceDef::TopCards {
+                    player: PlayerRefDef::EffectController,
+                    count: ValueDef::Constant(6),
+                },
+                binding: Binding!("top_six"),
+                then: &EffectDef::BindObjects(BindObjectsDef {
+                    source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Union(&[
+                        ObjectSetDef::One(ObjectRefDef::ZoneChangeResultOfTriggeringObject),
+                        ObjectSetDef::Binding(Binding!("top_six")),
+                    ])),
+                    binding: Binding!("pile"),
+                    // This mandatory cost must be payable in full. The event
+                    // reference disappears if the graveyard object moves again.
+                    then: &EffectDef::IfCondition {
+                        condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                            left: ValueDef::BoundObjectCount(Binding!("pile")),
+                            comparison: ComparisonDef::Equal,
+                            right: ValueDef::Constant(7),
+                        }),
+                        then: &EffectDef::ExileLinkedToSource {
+                            object: EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!(
+                                "pile"
+                            ))),
+                            face_down: true,
+                            until_source_leaves: false,
+                            then: Some(&EffectDef::RandomizeObjectOrder(RandomizeObjectOrderDef {
+                                input: ObjectSetDef::ZoneChangeSuccessorsOfBinding(Binding!(
+                                    "pile"
+                                )),
+                                randomized: Binding!("shuffled_pile"),
+                                then: &EffectDef::MoveObjects(MoveObjectsDef {
+                                    input: ObjectSetDef::Binding(Binding!("shuffled_pile")),
+                                    from: Some(ZoneKind::Exile),
+                                    zone: ZoneKind::Library,
+                                    placement: ZonePlacement::Top,
+                                    moved: None,
+                                    then: &EffectDef::None,
+                                }),
+                            })),
+                        },
+                    },
+                }),
+            }),
+        ),
+        abilities::miracle(&[CostDef::Mana(mana_cost!("{1}{W}"))]),
+    ]),
 );
 
 // 40K 51★ — Psychomancer

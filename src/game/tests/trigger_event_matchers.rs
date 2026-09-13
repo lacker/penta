@@ -911,3 +911,51 @@ fn an_any_of_event_fires_on_each_alternative_and_no_others() {
         "a third event is still no match",
     );
 }
+
+#[test]
+fn face_down_linked_exile_masks_characteristics_before_capturing_arrival_triggers() {
+    static ABILITIES: [AbilityDef; 2] = [
+        AbilityDef::triggered(
+            "Whenever a creature card enters exile.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                None,
+                Some(ZoneKind::Exile),
+            ),
+            EffectDef::None,
+        ),
+        AbilityDef::triggered(
+            "Whenever a card enters exile.",
+            TriggerEventDef::zone_changed(ObjectPredicateDef::Any, None, Some(ZoneKind::Exile)),
+            EffectDef::None,
+        ),
+    ];
+    let mut game = ready_game();
+    game.set_prepared_engine_enabled(false);
+    let definition = CardDefinitionId::from_uuid("00000000-0000-0000-0000-00000000283d");
+    add_definition(
+        &mut game,
+        trigger_creature_definition(definition, "Exile watcher", &ABILITIES),
+    );
+    game.battlefield
+        .push(creature(10_400, definition, PlayerId::One));
+    game.set_library(PlayerId::One, &[cards::GRIZZLY_BEARS, cards::SERRA_ANGEL])
+        .unwrap();
+    let ids = game.players[0]
+        .library
+        .iter()
+        .map(|card| card.id)
+        .collect::<Vec<_>>();
+    let exiled = game.exile_cards_returning_cards(&ids, true);
+    assert_eq!(exiled.len(), 2);
+    assert_eq!(game.pending_triggers.len(), 2);
+    assert!(
+        game.pending_triggers
+            .iter()
+            .all(|trigger| trigger.text == "Whenever a card enters exile.")
+    );
+    for viewer in [PlayerId::One, PlayerId::Two] {
+        assert!(game.observe(viewer).exiles[0].is_empty());
+        assert_eq!(game.observe(viewer).face_down_exile_sizes[0], 2);
+    }
+}

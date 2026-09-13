@@ -71,9 +71,8 @@ impl Game {
         {
             return;
         }
-        for exiled in self.exile_effect_objects(recipient, object, context, scoped) {
+        for exiled in self.exile_effect_objects(recipient, face_down, object, context, scoped) {
             self.linked_exiles.push((source, exiled));
-            self.hide_linked_exile(exiled, face_down);
         }
         if let Some(then) = then {
             self.resolve_effect_def(scoped.with_effect(*then), object, context.clone());
@@ -136,7 +135,7 @@ impl Game {
                 object: recipient,
                 surcharge,
             } => {
-                for exiled in self.exile_effect_objects(recipient, object, context, scoped) {
+                for exiled in self.exile_effect_objects(recipient, false, object, context, scoped) {
                     // Its owner, not the exiler: what the clause hands back
                     // is the card's own player's ability to play it.
                     if let Some((_, instance)) = self.card_in_nonbattlefield_zone(exiled) {
@@ -146,7 +145,7 @@ impl Game {
                 }
             }
             EffectDef::ExileGrantingControllerPlayThisTurn { object: recipient } => {
-                for exiled in self.exile_effect_objects(recipient, object, context, scoped) {
+                for exiled in self.exile_effect_objects(recipient, false, object, context, scoped) {
                     self.permit_cast_this_turn(exiled, object.controller);
                 }
             }
@@ -215,18 +214,29 @@ impl Game {
     fn exile_effect_objects(
         &mut self,
         recipient: EffectRecipientDef,
+        face_down: bool,
         object: &StackObject,
         context: &EffectResolutionContext,
         scoped: ScopedEffect,
     ) -> Vec<GameObjectId> {
-        self.effect_recipients(recipient, object, context, scoped)
-            .into_iter()
+        let targets = self.effect_recipients(recipient, object, context, scoped);
+        let cards = targets
+            .iter()
             .filter_map(|target| match target {
-                Target::Permanent(id) => self.exile_permanent_returning_card(id),
-                Target::Card(id) => self.exile_card_returning_card(id),
-                Target::Player(_) | Target::Spell(_) => None,
+                Target::Card(id) => Some(*id),
+                _ => None,
             })
-            .collect()
+            .collect::<Vec<_>>();
+        let mut exiled = self.exile_cards_returning_cards(&cards, face_down);
+        for target in targets {
+            if let Target::Permanent(id) = target
+                && let Some(card) = self.exile_permanent_returning_card(id)
+            {
+                self.hide_linked_exile(card, face_down);
+                exiled.push(card);
+            }
+        }
+        exiled
     }
 
     /// "You may play those cards without paying their mana costs." The

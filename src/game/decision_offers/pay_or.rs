@@ -58,7 +58,7 @@ impl Game {
         &mut self,
         player: PlayerId,
         provenance: Option<super::PaymentProvenance>,
-        paid: Option<&SettledEffectPayment>,
+        paid: Option<&super::EffectPaymentReceipt>,
         scoped: ScopedEffect,
         object: &StackObject,
         mut context: EffectResolutionContext,

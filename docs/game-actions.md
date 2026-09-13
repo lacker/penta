@@ -130,6 +130,18 @@ The payment path distinguishes three stages:
    payment events and execute `if_paid`. A pending replacement decision keeps
    `CompletePayment` behind the unfinished work.
 
+Named object bindings from action choices are available in the payment's
+`if_paid` branch. They identify the selected objects before movement, so
+last-known characteristics remain readable after a replacement changes the
+destination. Repetitions combine their selections under the same binding.
+The committed continuation stores these bindings in its ordinary resolution
+context, including while replacement choices suspend the payment.
+
+A paid branch can install a one-use `OptionalEffectTaken(Source)` trigger for
+"when you do." Payment completion publishes that notification after the branch
+installs its listener, retaining the resolving spell or ability source even
+after it leaves the battlefield.
+
 This follows CR 118.11 and 118.12: payment is not a postcondition such as
 "three cards are now in the graveyard." The action must be legally payable
 when the player commits; a replacement can send those cards elsewhere. A

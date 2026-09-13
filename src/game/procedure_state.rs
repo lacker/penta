@@ -27,7 +27,7 @@ pub(super) enum PendingProcedure {
     CompletePayment {
         player: PlayerId,
         provenance: Option<super::PaymentProvenance>,
-        paid: Option<super::SettledEffectPayment>,
+        paid: Option<super::EffectPaymentReceipt>,
         definition: ScopedEffect,
         object: Box<StackObject>,
         context: EffectResolutionContext,

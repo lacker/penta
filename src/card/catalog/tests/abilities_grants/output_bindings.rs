@@ -1,4 +1,44 @@
 #[test]
+fn payment_action_outputs_are_available_only_in_the_paid_branch() {
+    static COSTS: [CostDef; 1] = [CostDef::repeated(
+        &[crate::card::actions::choose(
+            Binding!("discarded"),
+            ObjectSetDef::Query(ObjectQueryDef::owned_by(
+                ObjectPredicateDef::Any,
+                &[ZoneKind::Hand],
+                PlayerSetDef::Related(PlayerRelation::You),
+            )),
+            &crate::card::actions::discard_cards(EffectRecipientDef::objects(
+                ObjectSetDef::Binding(Binding!("discarded")),
+            )),
+        )
+        .as_cost()],
+        &ValueDef::Constant(2),
+    )];
+    static CONSUME: EffectDef = EffectDef::GainLife {
+        recipient: EffectRecipientDef::Controller,
+        amount: ValueDef::CountObjects(&ObjectSetDef::Binding(Binding!("discarded"))),
+    };
+    static PAYMENT: EffectDef = EffectDef::PayOr(PayOrDef::optional(&COSTS, &CONSUME));
+    static SIBLINGS: [EffectDef; 2] = [PAYMENT, CONSUME];
+    super::validate_ability_targets(&[], PAYMENT)
+        .expect("the paid continuation can read repeated action selections");
+
+    for invalid in [
+        EffectDef::PayOr(PayOrDef::unless(&COSTS, &CONSUME)),
+        EffectDef::Sequence(&SIBLINGS),
+    ] {
+        assert_eq!(
+            super::validate_ability_targets(&[], invalid),
+            Err(GrantedAbilityValidationError::ObjectSetBindingReferenceOutOfScope {
+                binding: Binding!("discarded"),
+            }),
+            "payment selections cannot escape into an unpaid path or a sibling",
+        );
+    }
+}
+
+#[test]
 fn later_sequence_steps_may_read_explicitly_bound_effect_outputs() {
     let produced_cards = Box::leak(Box::new(ObjectSetDef::Binding(Binding!("produced_cards"))));
     let count_bound = EffectDef::GainLife {

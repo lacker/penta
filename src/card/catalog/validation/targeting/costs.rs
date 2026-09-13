@@ -1,3 +1,32 @@
+/// Named selections are outputs of the complete payment. They are available
+/// only to its paid branch, including when an action was repeated or replaced.
+fn payment_object_set_outputs(costs: &[CostDef], outputs: &mut Vec<Binding>) {
+    fn action_outputs(action: GameActionDef, outputs: &mut Vec<Binding>) {
+        match action.unnamed() {
+            GameActionDef::Choose(choice) => {
+                if choice.binding != crate::ParentBinding && !outputs.contains(&choice.binding) {
+                    outputs.push(choice.binding);
+                }
+            }
+            GameActionDef::Sequence(actions) | GameActionDef::Choice(actions) => {
+                for action in actions {
+                    action_outputs(*action, outputs);
+                }
+            }
+            _ => {}
+        }
+    }
+    for cost in costs {
+        match cost {
+            CostDef::Perform(action) => action_outputs(**action, outputs),
+            CostDef::All(costs) | CostDef::Choice(costs) | CostDef::Repeated { costs, .. } => {
+                payment_object_set_outputs(costs, outputs);
+            }
+            _ => {}
+        }
+    }
+}
+
 fn validate_payment_cost_references(
     cost: CostDef,
     target_count: usize,

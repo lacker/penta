@@ -123,9 +123,18 @@ pub(super) enum ResolvedEffectPayment {
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
+pub(super) struct EffectPaymentReceipt {
+    pub(super) paid_amount: u16,
+    pub(super) mana_spent: Vec<Mana>,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub(super) struct SettledEffectPayment {
     pub(super) paid_amount: u16,
     pub(super) mana_spent: Vec<Mana>,
+    /// Named action selections, transferred into the continuation before it
+    /// is queued. Pending payments persist these in the ordinary context.
+    pub(super) object_bindings: Vec<(Binding, Vec<Target>)>,
 }
 
 impl SettledEffectPayment {
@@ -133,6 +142,28 @@ impl SettledEffectPayment {
         Self {
             paid_amount,
             mana_spent: Vec::new(),
+            object_bindings: Vec::new(),
+        }
+    }
+
+    pub(super) fn into_receipt(
+        self,
+        context: &mut EffectResolutionContext,
+    ) -> EffectPaymentReceipt {
+        let mut groups: Vec<(Binding, Vec<Target>)> = Vec::new();
+        for (binding, objects) in self.object_bindings {
+            if let Some((_, group)) = groups.iter_mut().find(|(label, _)| *label == binding) {
+                group.extend(objects);
+            } else {
+                groups.push((binding, objects));
+            }
+        }
+        for (binding, objects) in groups {
+            context.bind_object_group(binding, objects);
+        }
+        EffectPaymentReceipt {
+            paid_amount: self.paid_amount,
+            mana_spent: self.mana_spent,
         }
     }
 }

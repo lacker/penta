@@ -4538,67 +4538,40 @@ pub(in crate::card::sets) static ILL_TIMED_EXPLOSION: CardRecord = CardRecord::n
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(2),
             },
-            EffectDef::IfCondition {
-                // The optional discard is payable only with both cards.
-                condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
-                    left: ValueDef::CountObjects(&ObjectSetDef::Query(ObjectQueryDef::owned_by(
+            EffectDef::PayOr(PayOrDef::optional(
+                &[crate::card::actions::choose(
+                    crate::Binding!("discarded"),
+                    ObjectSetDef::Query(ObjectQueryDef::owned_by(
                         ObjectPredicateDef::Any,
                         &[ZoneKind::Hand],
                         PlayerSetDef::Related(PlayerRelation::You),
-                    ))),
-                    comparison: ComparisonDef::GreaterOrEqual,
-                    right: ValueDef::Constant(2),
-                }),
-                then: &EffectDef::May {
-                    player: EffectRecipientDef::Controller,
-                    effect: &EffectDef::Choose(ChooseDef {
-                        binding: ObjectChoiceBindingDef::Objects(crate::Binding!("discarded")),
-                        unchosen: None,
-                        chooser: PlayerRefDef::EffectController,
-                        candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
-                            ObjectPredicateDef::Any,
-                            &[ZoneKind::Hand],
-                            PlayerSetDef::Related(PlayerRelation::You),
-                        )),
-                        exclude: None,
-                        minimum: 2,
-                        maximum: 2,
-                        visibility: ChoiceVisibilityDef::Private,
-                        then: &EffectDef::Sequence(&[
-                            // Capture the selected hand objects before their zone change;
-                            // the single discard batch consumes this listener immediately.
-                            EffectDef::InstallTrigger(InstalledTriggerDef::once(
-                                &AbilityDef::triggered(
-                                    "When you do, Ill-Timed Explosion deals X damage to each \
-                                     creature, where X is the greatest mana value among cards \
-                                     discarded this way.",
-                                    TriggerEventDef::DiscardedCards(PlayerRelation::You),
-                                    EffectDef::damage(
-                                        EffectRecipientDef::objects(ObjectSetDef::Query(
-                                            ObjectQueryDef::matching(
-                                                ObjectPredicateDef::HasType(CardType::Creature),
-                                                &[ZoneKind::Battlefield],
-                                                PlayerRelation::Any,
-                                            ),
-                                        )),
-                                        ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
-                                            objects: ObjectSetDef::Binding(crate::Binding!(
-                                                "discarded"
-                                            )),
-                                            select: ObjectValueDef::ManaValue,
-                                            operation: AggregateOperationDef::Maximum,
-                                        }),
-                                    ),
-                                ),
-                            )),
-                            crate::card::actions::discard_cards(EffectRecipientDef::objects(
-                                ObjectSetDef::Binding(crate::Binding!("discarded")),
-                            ))
-                            .as_effect(),
-                        ]),
-                    }),
-                },
-            },
+                    )),
+                    &crate::card::actions::discard_cards(EffectRecipientDef::objects(
+                        ObjectSetDef::Binding(crate::Binding!("discarded")),
+                    )),
+                )
+                .with_amount(ValueDef::Constant(2))
+                .with_visibility(ChoiceVisibilityDef::Private)
+                .as_cost()],
+                &EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
+                    "When you do, Ill-Timed Explosion deals X damage to each \
+                         creature, where X is the greatest mana value among cards \
+                         discarded this way.",
+                    TriggerEventDef::OptionalEffectTaken(ObjectPredicateDef::Source),
+                    EffectDef::damage(
+                        EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::matching(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::Any,
+                        ))),
+                        ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
+                            objects: ObjectSetDef::Binding(crate::Binding!("discarded")),
+                            select: ObjectValueDef::ManaValue,
+                            operation: AggregateOperationDef::Maximum,
+                        }),
+                    ),
+                ))),
+            )),
         ]),
     )),
 );

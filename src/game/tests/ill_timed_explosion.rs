@@ -29,6 +29,39 @@ fn cast_explosion(game: &mut Game) -> GameObjectId {
     source
 }
 
+fn pay_discard(game: &mut Game, cards: [CardDefinitionId; 2]) {
+    let decision = game.observe(PlayerId::One).decision.unwrap();
+    assert_eq!((decision.minimum, decision.maximum), (1, 1));
+    assert!(
+        decision
+            .options
+            .iter()
+            .filter(|option| option.id != 0)
+            .all(|option| option.members.len() == 2)
+    );
+    let option = decision
+        .options
+        .iter()
+        .find(|option| {
+            option.members.len() == 2
+                && cards.iter().all(|definition| {
+                    option
+                        .members
+                        .iter()
+                        .any(|(_, card)| card.card_definition() == Some(*definition))
+                })
+        })
+        .expect("the complete discard payment is offered");
+    game.apply(
+        PlayerId::One,
+        Action::ChooseDecision {
+            decision: decision.id,
+            options: vec![option.id],
+        },
+    )
+    .unwrap();
+}
+
 fn restore(game: &Game) -> Game {
     let (wire, hidden) = checkpoint_fixture(game, PlayerId::One);
     Game::from_observation_checkpoint(game.catalog.clone(), game.format, &wire, &hidden, 241_100)
@@ -57,39 +90,9 @@ fn ill_timed_explosion_draws_then_discards_and_leaves_a_response_window() {
             3,
             "draw before offering the discard"
         );
-        choose_decision_by_label(&mut game, PlayerId::One, "Do it");
         game = restore(&game);
         game.set_prepared_engine_enabled(prepared);
-        let decision = game.observe(PlayerId::One).decision.unwrap();
-        assert_eq!((decision.minimum, decision.maximum), (2, 2));
-        let selected = decision
-            .options
-            .iter()
-            .filter_map(|option| {
-                let (_, card) = option.card?;
-                (card.card_definition() != Some(cards::ISLAND)).then_some(option.id)
-            })
-            .collect::<Vec<_>>();
-        assert_eq!(selected.len(), 2, "the newly drawn cards can be discarded");
-        assert!(
-            game.apply(
-                PlayerId::One,
-                Action::ChooseDecision {
-                    decision: decision.id,
-                    options: vec![selected[0]],
-                }
-            )
-            .is_err(),
-            "discarding only one card is illegal"
-        );
-        game.apply(
-            PlayerId::One,
-            Action::ChooseDecision {
-                decision: decision.id,
-                options: selected,
-            },
-        )
-        .unwrap();
+        pay_discard(&mut game, [cards::JUGGERNAUT, cards::LIGHTNING_BOLT]);
         assert_eq!(game.stack.len(), 1);
         assert_eq!(game.stack[0].kind, StackObjectKind::TriggeredAbility);
         assert_eq!(game.stack[0].source, Some(source));
@@ -191,7 +194,13 @@ fn ill_timed_explosion_cannot_discard_a_short_hand_after_restricted_draws() {
         }
         cast_explosion(&mut game);
         assert_eq!(game.players[0].hand.len(), usize::from(!already_drawn));
-        assert!(game.pending_decisions.is_empty());
+        let decision = game.observe(PlayerId::One).decision.unwrap();
+        assert_eq!(
+            decision.options.len(),
+            1,
+            "an incomplete payment cannot be offered"
+        );
+        choose_decision_by_label(&mut game, PlayerId::One, "Decline");
         assert!(game.stack.is_empty());
         assert!(game.installed_triggers.is_empty());
         assert_eq!(damage(&game, cards::GRIZZLY_BEARS), 0);
@@ -205,7 +214,7 @@ fn ill_timed_explosion_replaced_discards_still_trigger_once() {
         .unwrap();
     super::delayed_triggers::drain_pending(&mut game);
     cast_explosion(&mut game);
-    choose_decision_by_label(&mut game, PlayerId::One, "Do it");
+    pay_discard(&mut game, [cards::JUGGERNAUT, cards::LIGHTNING_BOLT]);
     assert_eq!(game.players[0].exile.len(), 3);
     assert!(game.players[0].graveyard.is_empty());
     assert_eq!(game.stack.len(), 1);
@@ -228,7 +237,7 @@ fn ill_timed_explosion_uses_zero_for_x_and_for_lands() {
     ] {
         let mut game = staged(drawn);
         cast_explosion(&mut game);
-        choose_decision_by_label(&mut game, PlayerId::One, "Do it");
+        pay_discard(&mut game, drawn);
         assert_eq!(
             game.stack.len(),
             1,

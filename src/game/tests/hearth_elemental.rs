@@ -182,8 +182,8 @@ fn has_adventure_uses_the_presented_part_and_preserves_copied_snapshots() {
         game.trigger_event_object(&game.battlefield[2])
             .has_adventure
     );
-    let copied = game.trigger_event_object(&game.battlefield[1]);
-    assert!(copied.has_adventure);
+    let snapshot = game.trigger_event_object(&game.battlefield[1]);
+    assert!(snapshot.has_adventure);
     game.battlefield[1].copy_effect = None;
     assert!(
         !game
@@ -192,8 +192,8 @@ fn has_adventure_uses_the_presented_part_and_preserves_copied_snapshots() {
     );
     assert!(game.trigger_object_matches_for_controller(
         ObjectPredicateDef::HasAdventure,
-        &copied,
-        copied.id,
+        &snapshot,
+        snapshot.id,
         false,
         Some(PlayerId::One)
     ));
@@ -203,5 +203,5 @@ fn has_adventure_uses_the_presented_part_and_preserves_copied_snapshots() {
             .trigger_event_object(&game.battlefield[0])
             .has_adventure
     );
-    assert!(!Game::face_down_exiled_event_object(copied.id, PlayerId::One).has_adventure);
+    assert!(!Game::face_down_exiled_event_object(snapshot.id, PlayerId::One).has_adventure);
 }

@@ -218,8 +218,8 @@ fn copies_return_only_physical_cards_and_the_type_change_is_not_copiable() {
     game.destroy_permanent(enduring);
     settle(&mut game);
     let returned = body(&game, cards::ENDURING_CURIOSITY);
-    let copied = Game::copiable_characteristics(returned);
-    game.create_token_copy(PlayerId::One, copied, None, CardPartId::PRIMARY);
+    let values = Game::copiable_characteristics(returned);
+    game.create_token_copy(PlayerId::One, values, None, CardPartId::PRIMARY);
     settle(&mut game);
     let token = game
         .battlefield

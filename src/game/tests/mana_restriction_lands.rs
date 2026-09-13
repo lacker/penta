@@ -432,13 +432,13 @@ fn countryside_changeling_survives_ability_loss_but_later_types_override_it() {
     }
 }
 
-fn add_fixture(game: &mut Game, rules: CardRules) -> CardDefinitionId {
+fn add_fixture(game: &mut Game, rules: &CardRules) -> CardDefinitionId {
     let id = CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000901");
     let definition = CardDefinition::new(
         id,
         "Restriction fixture",
         crate::card::sets::magic_2015::SET,
-        rules,
+        *rules,
     );
     game.catalog = CardCatalog::new(
         game.catalog
@@ -457,7 +457,7 @@ fn subtype_spell_restrictions_distinguish_kindred_from_creature_spells() {
     let mut game = ready_game();
     let kindred = add_fixture(
         &mut game,
-        CardRules::new_instant(mana_cost!("{R}"))
+        &CardRules::new_instant(mana_cost!("{R}"))
             .with_type(CardType::Kindred)
             .with_subtypes(&["Sliver", "Dragon"]),
     );
@@ -478,7 +478,7 @@ fn courtyard_pays_for_an_activated_creature_ability_from_hand() {
         let mut game = ready_game();
         let id = add_fixture(
             &mut game,
-            CardRules::new_creature(mana_cost!("{R}"), &["Goblin"], 1, 1).with_ability(
+            &CardRules::new_creature(mana_cost!("{R}"), &["Goblin"], 1, 1).with_ability(
                 AbilityDef::activated(
                     "{R}, Discard this card: You gain 1 life.",
                     &[CostDef::Mana(mana_cost!("{R}")), CostDef::DiscardSource],
@@ -515,7 +515,7 @@ fn changeling_defines_creature_types_in_every_card_zone() {
         let mut game = ready_game();
         let id = add_fixture(
             &mut game,
-            CardRules::new_creature(mana_cost!("{1}"), &["Shapeshifter"], 1, 1)
+            &CardRules::new_creature(mana_cost!("{1}"), &["Shapeshifter"], 1, 1)
                 .with_ability(abilities::changeling()),
         );
         game.set_prepared_engine_enabled(prepared);
@@ -583,7 +583,7 @@ fn kindred_permanents_and_copy_added_changeling_keep_creature_types() {
     let mut game = ready_game();
     let kindred = add_fixture(
         &mut game,
-        CardRules::new_enchantment(mana_cost!("{1}"))
+        &CardRules::new_enchantment(mana_cost!("{1}"))
             .with_type(CardType::Kindred)
             .with_subtypes(&["Shapeshifter"])
             .with_ability(abilities::changeling()),

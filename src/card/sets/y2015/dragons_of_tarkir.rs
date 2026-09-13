@@ -6,14 +6,17 @@ use crate::TargetIndex;
 use crate::card::AbilityDef;
 use crate::card::AbilityTargetDef;
 use crate::card::AbilityTargetPredicate;
+use crate::card::AddManaEffectDef;
 use crate::card::AppliedEffectDef;
 use crate::card::CardRules;
 use crate::card::CardType;
+use crate::card::CostDef;
 use crate::card::DiscardSelectionDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::KeywordAbility;
 use crate::card::ManaColor;
+use crate::card::ManaRestrictionDef;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
 use crate::card::ObjectSetDef;
@@ -270,6 +273,58 @@ pub(in crate::card::sets) static SAVAGE_VENTMAW: CardRecord = CardRecord::new(
     CardRules::unsupported(),
 );
 
+// DTK 249 — Haven of the Spirit Dragon
+pub(in crate::card::sets) static HAVEN_OF_THE_SPIRIT_DRAGON: CardRecord = CardRecord::new(
+    "Haven of the Spirit Dragon",
+    "9910042e-091f-47da-ad29-8f76c9d3b8c1",
+    "Raymond Swanland",
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated_mana(
+            "{T}: Add one mana of any color. Spend this mana only to cast a Dragon creature \
+             spell.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::any_color().with_restrictions(&[
+                ManaRestrictionDef::CastSpell(ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Dragon")),
+                ])),
+            ])),
+        ),
+        AbilityDef::activated_with_targets(
+            "{2}, {T}, Sacrifice this land: Return target Dragon creature card or Ugin \
+             planeswalker card from your graveyard to your hand.",
+            &[
+                CostDef::Mana(mana_cost!("{2}")),
+                CostDef::TapSource,
+                CostDef::SacrificeSource,
+            ],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Dragon")),
+                        ]),
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Planeswalker),
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Ugin")),
+                        ]),
+                    ]),
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: Some(PlayerRelation::You),
+                },
+            )],
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
+        ),
+    ]),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ARTFUL_MANEUVER,
     &SIDISI_UNDEAD_VIZIER_120,
@@ -282,6 +337,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &SURRAK_THE_HUNT_CALLER,
     &KOLAGHAN_S_COMMAND,
     &SAVAGE_VENTMAW,
+    &HAVEN_OF_THE_SPIRIT_DRAGON,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

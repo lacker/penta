@@ -66,37 +66,7 @@ impl Game {
     pub(super) fn mana_can_pay_for(&self, mana: Mana, purpose: &ManaPaymentPurpose) -> bool {
         mana.restrictions
             .iter()
-            .all(|restriction| match restriction {
-                ManaRestrictionDef::CastSpell(predicate) => self
-                    .payment_object(purpose)
-                    .is_some_and(|(object, is_spell)| {
-                        is_spell
-                            && self.trigger_object_matches(*predicate, &object, mana.source.map_or(object.id, |source| source.object), true)
-                    }),
-                // Nothing to check when the payment is not a cast: what the
-                // clause forbids is one kind of spell, not one kind of use.
-                ManaRestrictionDef::CannotCastSpell(predicate) => !self
-                    .payment_object(purpose)
-                    .is_some_and(|(object, is_spell)| {
-                        is_spell
-                            && self.trigger_object_matches(*predicate, &object, mana.source.map_or(object.id, |source| source.object), true)
-                    }),
-                ManaRestrictionDef::ActivateAbility(predicate) => self
-                    .payment_object(purpose)
-                    .is_some_and(|(object, is_spell)| {
-                        !is_spell
-                            && self.trigger_object_matches(*predicate, &object, mana.source.map_or(object.id, |source| source.object), false)
-                    }),
-                ManaRestrictionDef::Payment(expected) => {
-                    matches!(purpose, ManaPaymentPurpose::Payment { label: Some(actual), .. } if actual == expected)
-                }
-                ManaRestrictionDef::CastYourCommander => match purpose {
-                    ManaPaymentPurpose::Spell { commander_owner, controller, .. } =>
-                        *commander_owner == Some(*controller),
-                    _ => false,
-                },
-                ManaRestrictionDef::Special(_) => false,
-            })
+            .all(|restriction| self.mana_restriction_allows(mana, purpose, *restriction))
             && match purpose {
                 ManaPaymentPurpose::Payment { snow: true, .. } => mana
                     .source
@@ -105,9 +75,7 @@ impl Game {
                             .iter()
                             .find(|permanent| permanent.card.id == source.object)
                             .or_else(|| match self.retired_objects.get(&source.object) {
-                                Some(RetiredObject::Permanent { permanent, .. }) => {
-                                    Some(permanent)
-                                }
+                                Some(RetiredObject::Permanent { permanent, .. }) => Some(permanent),
                                 Some(RetiredObject::Card(_) | RetiredObject::Stack(_)) | None => {
                                     None
                                 }
@@ -117,6 +85,68 @@ impl Game {
                     .is_some_and(|types| types.contains(crate::card::CardSupertype::Snow)),
                 _ => true,
             }
+    }
+
+    fn mana_restriction_allows(
+        &self,
+        mana: Mana,
+        purpose: &ManaPaymentPurpose,
+        restriction: ManaRestrictionDef,
+    ) -> bool {
+        match &restriction {
+            ManaRestrictionDef::AnyOf(alternatives) => alternatives
+                .iter()
+                .any(|alternative| self.mana_restriction_allows(mana, purpose, *alternative)),
+            ManaRestrictionDef::CastSpell(predicate) => {
+                self.payment_object(purpose)
+                    .is_some_and(|(object, is_spell)| {
+                        is_spell
+                            && self.trigger_object_matches(
+                                *predicate,
+                                &object,
+                                mana.source.map_or(object.id, |source| source.object),
+                                true,
+                            )
+                    })
+            }
+            // Nothing to check when the payment is not a cast: what the
+            // clause forbids is one kind of spell, not one kind of use.
+            ManaRestrictionDef::CannotCastSpell(predicate) => !self
+                .payment_object(purpose)
+                .is_some_and(|(object, is_spell)| {
+                    is_spell
+                        && self.trigger_object_matches(
+                            *predicate,
+                            &object,
+                            mana.source.map_or(object.id, |source| source.object),
+                            true,
+                        )
+                }),
+            ManaRestrictionDef::ActivateAbility(predicate) => self
+                .payment_object(purpose)
+                .is_some_and(|(object, is_spell)| {
+                    matches!(purpose, ManaPaymentPurpose::Ability { .. })
+                        && !is_spell
+                        && self.trigger_object_matches(
+                            *predicate,
+                            &object,
+                            mana.source.map_or(object.id, |source| source.object),
+                            false,
+                        )
+                }),
+            ManaRestrictionDef::Payment(expected) => {
+                matches!(purpose, ManaPaymentPurpose::Payment { label: Some(actual), .. } if actual == expected)
+            }
+            ManaRestrictionDef::CastYourCommander => match purpose {
+                ManaPaymentPurpose::Spell {
+                    commander_owner,
+                    controller,
+                    ..
+                } => *commander_owner == Some(*controller),
+                _ => false,
+            },
+            ManaRestrictionDef::Special(_) => false,
+        }
     }
 
     pub(super) fn mana_has_spend_effect_for(mana: Mana, purpose: &ManaPaymentPurpose) -> bool {

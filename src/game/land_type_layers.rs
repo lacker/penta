@@ -845,17 +845,18 @@ impl Game {
         let Some(rules) = self.effective_rules(permanent) else {
             return Cow::Borrowed(&[]);
         };
+        let defined_subtypes = Self::permanent_defined_subtypes(permanent, &rules);
         let retained = self.retained_printed_subtypes(permanent);
         let text_words = self.text_word_map_for_permanent(permanent);
         if text_words.basic_land_types_are_identity()
             && operations.is_empty()
             && retained.is_empty()
-            && !self.has_subtypes_without_their_card_type(permanent, rules.subtypes())
+            && !self.has_subtypes_without_their_card_type(permanent, &defined_subtypes)
         {
-            return Cow::Borrowed(rules.subtypes());
+            return defined_subtypes;
         }
 
-        let mut subtypes = rules.subtypes().to_vec();
+        let mut subtypes = defined_subtypes.into_owned();
         for subtype in &mut subtypes {
             if let Some(land_type) = BasicLandType::from_subtype(subtype) {
                 *subtype = text_words.basic_land_type(land_type).subtype();
@@ -896,7 +897,7 @@ impl Game {
         permanent: &Permanent,
         subtypes: &mut Vec<&'static str>,
     ) {
-        if !self.is_a_creature_permanent(permanent) {
+        if !self.has_creature_subtype_family(permanent) {
             subtypes.retain(|subtype| crate::card::creature_type_name(subtype).is_none());
         }
     }
@@ -909,15 +910,16 @@ impl Game {
         permanent: &Permanent,
         subtypes: &[&'static str],
     ) -> bool {
-        !self.is_a_creature_permanent(permanent)
+        !self.has_creature_subtype_family(permanent)
             && subtypes
                 .iter()
                 .any(|subtype| crate::card::creature_type_name(subtype).is_some())
     }
 
-    fn is_a_creature_permanent(&self, permanent: &Permanent) -> bool {
-        self.permanent_types(permanent)
-            .is_some_and(|types| types.contains(CardType::Creature))
+    fn has_creature_subtype_family(&self, permanent: &Permanent) -> bool {
+        self.permanent_types(permanent).is_some_and(|types| {
+            types.contains(CardType::Creature) || types.contains(CardType::Kindred)
+        })
     }
 
     /// Basic land subtypes in effective type-line order, with duplicate types

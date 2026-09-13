@@ -182,6 +182,8 @@ pub enum KeywordAbility {
     /// card's printed color set being empty, so what this variant adds is
     /// the printed keyword itself -- the name and its reminder text.
     Devoid,
+    /// CR 702.73: this object is every creature type in every zone.
+    Changeling,
     /// CR 702.19. As long as a spell with split second is on the stack,
     /// players can't cast spells or activate abilities that aren't mana
     /// abilities. It is read off the spell rather than off any permanent,
@@ -249,6 +251,7 @@ impl KeywordAbility {
             Self::Shadow => 34,
             Self::Persist => 35,
             Self::Flanking => 37,
+            Self::Changeling => 38,
             Self::ProtectionFrom(_)
             // Never granted, never removed, and never asked about as part of
             // a set: split second is read off the one spell that has it.

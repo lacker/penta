@@ -70,13 +70,7 @@ pub(in super::super) fn shared_mana_effect(effect: EffectDef, choices_are_suppor
             .restrictions
             .iter()
             .copied()
-            .all(|restriction| match restriction {
-                ManaRestrictionDef::CastSpell(object)
-                | ManaRestrictionDef::CannotCastSpell(object)
-                | ManaRestrictionDef::ActivateAbility(object) => shared_object_predicate(object),
-                ManaRestrictionDef::CastYourCommander | ManaRestrictionDef::Payment(_) => true,
-                ManaRestrictionDef::Special(_) => false,
-            })
+            .all(shared_mana_restriction)
         && mana
             .spend_effects
             .iter()
@@ -111,5 +105,18 @@ fn shared_mana_amount(value: ValueDef) -> bool {
         ValueDef::Sum(sum) => shared_mana_amount(sum.left) && shared_mana_amount(sum.right),
         ValueDef::Scaled(scaled) => shared_mana_amount(scaled.value),
         _ => false,
+    }
+}
+
+fn shared_mana_restriction(restriction: ManaRestrictionDef) -> bool {
+    match restriction {
+        ManaRestrictionDef::AnyOf(alternatives) => {
+            alternatives.iter().copied().all(shared_mana_restriction)
+        }
+        ManaRestrictionDef::CastSpell(object)
+        | ManaRestrictionDef::CannotCastSpell(object)
+        | ManaRestrictionDef::ActivateAbility(object) => shared_object_predicate(object),
+        ManaRestrictionDef::CastYourCommander | ManaRestrictionDef::Payment(_) => true,
+        ManaRestrictionDef::Special(_) => false,
     }
 }

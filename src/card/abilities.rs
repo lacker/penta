@@ -187,6 +187,15 @@ pub const fn devoid() -> AbilityDef {
     keyword("Devoid (This card has no color.)", KeywordAbility::Devoid)
 }
 
+/// Changeling defines creature subtypes before ordinary layer-4 effects.
+#[must_use]
+pub const fn changeling() -> AbilityDef {
+    keyword(
+        "Changeling (This card is every creature type.)",
+        KeywordAbility::Changeling,
+    )
+}
+
 /// Split second (CR 702.19): while this spell is on the stack, nobody may
 /// cast a spell or activate anything that is not a mana ability.
 #[must_use]

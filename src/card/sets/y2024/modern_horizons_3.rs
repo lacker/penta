@@ -3568,8 +3568,6 @@ pub(in crate::card::sets) static ARENA_OF_GLORY: CardRecord = CardRecord::new(
     "Arena of Glory",
     "3d7d07bb-b875-4a6d-8b87-4187e823af75",
     "Piotr Dura",
-    // A red source that costs nothing to play and turns one creature a game
-    // into a surprise, which is what a haste land is for.
     CardRules::new_land(&[]).with_abilities(&[
         abilities::check_land_enters(
             "This land enters tapped unless you control a Mountain.",

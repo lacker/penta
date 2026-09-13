@@ -23,6 +23,7 @@ use crate::card::DrawEventMatcherDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::ManaColor;
+use crate::card::ManaRestrictionDef;
 use crate::card::ManaTypeSetDef;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
@@ -342,6 +343,20 @@ pub(in crate::card::sets) static BONE_SAW_135: CardRecord = CardRecord::new(
         ]),
 );
 
+// CON 141 — Ancient Ziggurat
+pub(in crate::card::sets) static ANCIENT_ZIGGURAT: CardRecord = CardRecord::new(
+    "Ancient Ziggurat",
+    "0348247d-0a70-4961-8590-9de41386c69b",
+    "John Avon",
+    CardRules::new_land(&[]).with_ability(AbilityDef::activated_mana(
+        "{T}: Add one mana of any color. Spend this mana only to cast a creature spell.",
+        &[CostDef::TapSource],
+        EffectDef::AddMana(AddManaEffectDef::any_color().with_restrictions(&[
+            ManaRestrictionDef::CastSpell(ObjectPredicateDef::HasType(CardType::Creature)),
+        ])),
+    )),
+);
+
 // CON 142 — Exotic Orchard
 pub(in crate::card::sets) static EXOTIC_ORCHARD: CardRecord = CardRecord::new(
     "Exotic Orchard",
@@ -400,6 +415,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &NICOL_BOLAS_PLANESWALKER,
     &PROGENITUS,
     &BONE_SAW_135,
+    &ANCIENT_ZIGGURAT,
     &EXOTIC_ORCHARD,
     &RELIQUARY_TOWER,
 ];

@@ -178,7 +178,7 @@ impl Game {
             types: rules.types(),
             controller,
             colors: rules.colors(),
-            subtypes: Cow::Owned(rules.subtypes().to_vec()),
+            subtypes: Self::defined_subtypes(&rules),
             attacking_or_blocking: false,
             keywords,
             mana_value: rules.mana_cost().map_or(0, ManaCost::mana_value),
@@ -279,7 +279,7 @@ impl Game {
             for (combined, present) in colors.iter_mut().zip(part.rules.colors()) {
                 *combined |= present;
             }
-            for subtype in part.rules.subtypes() {
+            for subtype in Self::defined_subtypes(&part.rules).iter() {
                 if !subtypes.contains(subtype) {
                     subtypes.push(*subtype);
                 }

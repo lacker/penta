@@ -137,6 +137,7 @@ pub(super) fn shared_keyword(keyword: KeywordAbility) -> bool {
             // keyword itself has nothing left to execute.
             | KeywordAbility::Infect
             | KeywordAbility::Devoid
+            | KeywordAbility::Changeling
             | KeywordAbility::Compleated
             | KeywordAbility::Suspend(_)
             | KeywordAbility::Rebound

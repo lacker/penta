@@ -6,14 +6,18 @@ use crate::TargetIndex;
 use crate::card::AbilityDef;
 use crate::card::AbilityTargetDef;
 use crate::card::AbilityTargetPredicate;
+use crate::card::AddManaEffectDef;
 use crate::card::AppliedEffectDef;
 use crate::card::CardArt;
 use crate::card::CardRules;
 use crate::card::CardType;
+use crate::card::ComparisonDef;
+use crate::card::CostDef;
 use crate::card::CreateTokenDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::ManaColor;
+use crate::card::ManaRestrictionDef;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
 use crate::card::ObjectSetDef;
@@ -22,6 +26,7 @@ use crate::card::ResolvedEffectDurationDef;
 use crate::card::SubtypeDef;
 use crate::card::TokenCharacteristics;
 use crate::card::TokenDef;
+use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::TurnStepDef;
 use crate::card::ValueDef;
@@ -300,6 +305,45 @@ pub(in crate::card::sets) static THE_CHAIN_VEIL_215: CardRecord = CardRecord::ne
     crate::card::CardRules::unsupported(),
 );
 
+// M15 247 — Sliver Hive
+pub(in crate::card::sets) static SLIVER_HIVE: CardRecord = CardRecord::new(
+    "Sliver Hive",
+    "91cef7ce-aa9f-4659-ac24-394c5ab9f77c",
+    "Igor Kieryluk",
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated_mana(
+            "{T}: Add one mana of any color. Spend this mana only to cast a Sliver spell.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::any_color().with_restrictions(&[
+                ManaRestrictionDef::CastSpell(ObjectPredicateDef::Subtype(SubtypeDef::Literal(
+                    "Sliver",
+                ))),
+            ])),
+        ),
+        AbilityDef::activated(
+            "{5}, {T}: Create a 1/1 colorless Sliver creature token. Activate only if you \
+             control a Sliver.",
+            &[CostDef::Mana(mana_cost!("{5}")), CostDef::TapSource],
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                TokenCharacteristics::creature(&["Sliver"], &[], 1, 1).with_art(CardArt::new(
+                    "dec96e95-5580-4110-86ec-561007ab0f1e",
+                    "Igor Kieryluk",
+                )),
+            ))),
+        )
+        .with_activation_condition(&TriggerConditionDef::ObjectCount {
+            query: ObjectQueryDef::matching(
+                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Sliver")),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
+            ),
+            comparison: ComparisonDef::GreaterOrEqual,
+            amount: 1,
+        }),
+    ]),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &HELIOD_S_PILGRIM,
     &HUSHWING_GRYFF_15,
@@ -313,6 +357,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &RECLAMATION_SAGE,
     &YISAN_THE_WANDERER_BARD_209,
     &THE_CHAIN_VEIL_215,
+    &SLIVER_HIVE,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] =

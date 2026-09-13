@@ -26,6 +26,17 @@ the bot-wire epoch.
   existing mechanics or explicit whole-card unsupported rules. See
   [Legacy and Vintage](docs/legacy-vintage.md). Existing protocol shapes and
   epochs are unchanged.
+
+- Implement Sliver Hive, Secluded Courtyard, Interplanar Beacon, Abundant
+  Countryside, Ancient Ziggurat, and Haven of the Spirit Dragon, with further
+  Arena of Glory mana-rider regression coverage. Native mana restrictions can
+  compose alternative uses with `ManaRestrictionDef::AnyOf`; activation-only
+  mana no longer pays costs offered during resolution.
+- Add intrinsic changeling to card, token, copy, and nonbattlefield subtype
+  evaluation. Checkpoints retain it through the additive `changeling` keyword
+  tag and existing catalog ability locators; protocol and checkpoint epochs
+  are unchanged.
+
 - Protocol 32 replaces numeric card-definition references with canonical
   printing UUID strings in catalogs, observations, decks, ability origins,
   match registrations, and Python/JSON hidden-world inputs. Checkpoint format

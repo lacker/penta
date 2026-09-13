@@ -667,6 +667,9 @@ pub enum ManaSelectionDef {
 /// A restriction carried by produced mana until that mana is spent.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum ManaRestrictionDef {
+    /// At least one alternative must permit the payment. The outer
+    /// `AddManaEffectDef::restrictions` slice remains a conjunction.
+    AnyOf(&'static [ManaRestrictionDef]),
     CastSpell(ObjectPredicateDef),
     /// "This mana can't be spent to cast nonartifact spells." A prohibition
     /// rather than a permission: unlike [`Self::CastSpell`] every other use

@@ -116,6 +116,18 @@ fn creature_type_entry_bindings_validate_the_producer_and_mana_consumer() {
         .is_err(),
         "mana restrictions must validate their subtype binding references"
     );
+    assert!(
+        validate_ability_targets(
+            &[],
+            EffectDef::AddMana(AddManaEffectDef::any_color().with_restrictions(&[
+                ManaRestrictionDef::AnyOf(&[ManaRestrictionDef::ActivateAbility(
+                    ObjectPredicateDef::Subtype(SubtypeDef::Binding(crate::ParentBinding))
+                ),])
+            ]))
+        )
+        .is_err(),
+        "alternative restrictions must validate nested bindings"
+    );
 }
 
 #[test]
@@ -176,7 +188,14 @@ fn labeled_choices_require_unique_nonempty_options_and_a_durable_binding() {
 
 #[test]
 fn labeled_choices_reject_nondurable_token_bindings() {
-    assert!(validate_effect_target_shapes(
-        EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Binding(crate::ParentBinding))), &[], None,
-    ).is_err());
+    assert!(
+        validate_effect_target_shapes(
+            EffectDef::CreateToken(crate::card::CreateTokenDef::new(
+                crate::card::TokenDef::Binding(crate::ParentBinding)
+            )),
+            &[],
+            None,
+        )
+        .is_err()
+    );
 }

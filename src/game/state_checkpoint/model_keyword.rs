@@ -13,6 +13,7 @@ pub(super) enum KeywordSnapshot {
     Delve,
     Improvise,
     Devoid,
+    Changeling,
     Compleated,
     SplitSecond,
     Infect,

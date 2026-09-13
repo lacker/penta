@@ -274,3 +274,28 @@ fn the_mana_pays_for_noncreature_spells_too() {
         "and the other red is still there",
     );
 }
+
+#[test]
+fn haste_rider_survives_the_land_leaving_and_expires_at_cleanup() {
+    let (mut game, arena, soldier) = staged(1);
+    exert_for_two_red(&mut game, arena);
+    game.destroy_permanent_without_regeneration(arena);
+    let (wire, hidden) = checkpoint_fixture(&game, PlayerId::One);
+    let mut rebuilt =
+        Game::from_observation_checkpoint(game.catalog.clone(), game.format, &wire, &hidden, 42)
+            .unwrap();
+    cast_soldier(&mut rebuilt, soldier);
+    assert!(
+        rebuilt.permanent_has_executable_keyword(
+            soldier_on_battlefield(&rebuilt),
+            KeywordAbility::Haste
+        )
+    );
+    rebuilt.cleanup();
+    assert!(
+        !rebuilt.permanent_has_executable_keyword(
+            soldier_on_battlefield(&rebuilt),
+            KeywordAbility::Haste
+        )
+    );
+}

@@ -37,6 +37,7 @@ use crate::card::EffectRecipientDef;
 use crate::card::ExilePlayDurationDef;
 use crate::card::InstalledTriggerDef;
 use crate::card::ManaColor;
+use crate::card::ManaRestrictionDef;
 use crate::card::ManaTypeDef;
 use crate::card::ObjectChoiceBindingDef;
 use crate::card::ObjectPredicateDef;
@@ -1034,12 +1035,43 @@ pub(in crate::card::sets) static OTAWARA_SOARING_CITY: CardRecord = CardRecord::
 );
 
 // NEO 275 — Secluded Courtyard
-// Audit: unsupported — Needs a mana restriction selecting both creature spells and creature-source activated abilities by the chosen creature type, with the choice retained in each produced mana unit.
 pub(in crate::card::sets) static SECLUDED_COURTYARD: CardRecord = CardRecord::new(
     "Secluded Courtyard",
     "0539b1a5-8704-476f-ba1f-2fe01190e157",
     "Sam Burley",
-    CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        AbilityDef::as_enters(
+            "As this land enters, choose a creature type.",
+            ReplacementEffectDef::BindOutput {
+                binding: crate::Binding!("courtyard_creature_type"),
+                effect: &ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(
+                    crate::card::BattlefieldEntryScalarChoiceDef::CREATURE_TYPE,
+                )),
+            },
+        ),
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated_mana(
+            "{T}: Add one mana of any color. Spend this mana only to cast a creature spell of \
+             the chosen type or activate an ability of a creature source of the chosen type.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::any_color().with_restrictions(&[
+                ManaRestrictionDef::AnyOf(&[
+                    ManaRestrictionDef::CastSpell(ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Binding(crate::Binding!(
+                            "courtyard_creature_type"
+                        ))),
+                    ])),
+                    ManaRestrictionDef::ActivateAbility(ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Binding(crate::Binding!(
+                            "courtyard_creature_type"
+                        ))),
+                    ])),
+                ]),
+            ])),
+        ),
+    ]),
 );
 
 // NEO 281 — Uncharted Haven

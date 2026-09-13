@@ -14,6 +14,49 @@ enum SubtypeLayerOperation {
 }
 
 impl Game {
+    /// CR 702.73 and 613.2: intrinsic changeling defines subtypes in every
+    /// zone before other layer-4 effects. Layer-6 ability removal cannot undo
+    /// it; later subtype-setting effects can overwrite it. Copying the rules
+    /// copies this ability, rather than freezing the resulting subtype list.
+    pub(super) fn defined_subtypes(rules: &crate::card::CardRules) -> Cow<'static, [&'static str]> {
+        if !rules.has_executable_keyword(crate::card::KeywordAbility::Changeling) {
+            return Cow::Borrowed(rules.subtypes());
+        }
+        Self::with_all_creature_types(Cow::Borrowed(rules.subtypes()))
+    }
+
+    fn with_all_creature_types(
+        subtypes: Cow<'static, [&'static str]>,
+    ) -> Cow<'static, [&'static str]> {
+        let mut subtypes = subtypes.into_owned();
+        for creature_type in CREATURE_TYPES {
+            if !subtypes.contains(creature_type) {
+                subtypes.push(creature_type);
+            }
+        }
+        Cow::Owned(subtypes)
+    }
+
+    fn permanent_defined_subtypes(
+        permanent: &Permanent,
+        rules: &crate::card::CardRules,
+    ) -> Cow<'static, [&'static str]> {
+        let subtypes = Self::defined_subtypes(rules);
+        let copy_grants_changeling = permanent.active_copy_values().is_some_and(|copy| {
+            copy.added_abilities.iter().any(|ability| {
+                matches!(
+                    ability.definition.definition,
+                    DeclarativeAbilityDef::Keyword(crate::card::KeywordAbility::Changeling)
+                )
+            })
+        });
+        if copy_grants_changeling {
+            Self::with_all_creature_types(subtypes)
+        } else {
+            subtypes
+        }
+    }
+
     fn static_source_chosen_creature_type(
         &self,
         source: crate::GameObjectId,

@@ -7,16 +7,7 @@ fn validate_mana_references(
     if let Some(amount) = mana.variable_amount {
         validate_value_target_references(amount, target_count, scope)?;
     }
-    for restriction in mana.restrictions {
-        match restriction {
-            crate::card::ManaRestrictionDef::CastSpell(predicate)
-            | crate::card::ManaRestrictionDef::CannotCastSpell(predicate)
-            | crate::card::ManaRestrictionDef::ActivateAbility(predicate) => {
-                validate_object_predicate_references(*predicate, target_count, scope)?;
-            }
-            _ => {}
-        }
-    }
+    validate_mana_restrictions(mana.restrictions, target_count, scope)?;
     match mana.mana {
         crate::card::ManaSelectionDef::Amounts(amounts) => {
             amounts.iter().try_for_each(|(_, value)| {
@@ -37,4 +28,25 @@ fn validate_mana_references(
         | crate::card::ManaSelectionDef::ColorsOfLinkedExiles
         | crate::card::ManaSelectionDef::ChoiceOfBundles(_) => Ok(()),
     }
+}
+
+fn validate_mana_restrictions(
+    restrictions: &[crate::card::ManaRestrictionDef],
+    target_count: usize,
+    scope: BindingScope<'_>,
+) -> Result<(), GrantedAbilityValidationError> {
+    for restriction in restrictions {
+        match restriction {
+            crate::card::ManaRestrictionDef::AnyOf(alternatives) => {
+                validate_mana_restrictions(alternatives, target_count, scope)?;
+            }
+            crate::card::ManaRestrictionDef::CastSpell(predicate)
+            | crate::card::ManaRestrictionDef::CannotCastSpell(predicate)
+            | crate::card::ManaRestrictionDef::ActivateAbility(predicate) => {
+                validate_object_predicate_references(*predicate, target_count, scope)?;
+            }
+            _ => {}
+        }
+    }
+    Ok(())
 }

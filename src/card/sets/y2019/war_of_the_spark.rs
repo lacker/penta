@@ -39,6 +39,8 @@ use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::InstalledTriggerDef;
 use crate::card::ManaColor;
+use crate::card::ManaRestrictionDef;
+use crate::card::ManaSplit;
 use crate::card::ObjectChoiceBindingDef;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
@@ -1063,6 +1065,49 @@ pub(in crate::card::sets) static EMERGENCE_ZONE_245: CardRecord = CardRecord::ne
     ]),
 );
 
+// WAR 247 — Interplanar Beacon
+pub(in crate::card::sets) static INTERPLANAR_BEACON: CardRecord = CardRecord::new(
+    "Interplanar Beacon",
+    "132d8e2a-e1dd-4867-8e8c-e48b9450b350",
+    "Adam Paquette",
+    CardRules::new_land(&[]).with_abilities(&[
+        AbilityDef::triggered(
+            "Whenever you cast a planeswalker spell, you gain 1 life.",
+            TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Planeswalker),
+                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+            ])),
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated_mana(
+            "{1}, {T}: Add two mana of different colors. Spend this mana only to cast \
+             planeswalker spells.",
+            &[CostDef::Mana(mana_cost!("{1}")), CostDef::TapSource],
+            EffectDef::AddMana(
+                AddManaEffectDef::choice_of_bundles(&[
+                    ManaSplit::from_amounts([(ManaColor::White, 1), (ManaColor::Blue, 1)]),
+                    ManaSplit::from_amounts([(ManaColor::White, 1), (ManaColor::Black, 1)]),
+                    ManaSplit::from_amounts([(ManaColor::White, 1), (ManaColor::Red, 1)]),
+                    ManaSplit::from_amounts([(ManaColor::White, 1), (ManaColor::Green, 1)]),
+                    ManaSplit::from_amounts([(ManaColor::Blue, 1), (ManaColor::Black, 1)]),
+                    ManaSplit::from_amounts([(ManaColor::Blue, 1), (ManaColor::Red, 1)]),
+                    ManaSplit::from_amounts([(ManaColor::Blue, 1), (ManaColor::Green, 1)]),
+                    ManaSplit::from_amounts([(ManaColor::Black, 1), (ManaColor::Red, 1)]),
+                    ManaSplit::from_amounts([(ManaColor::Black, 1), (ManaColor::Green, 1)]),
+                    ManaSplit::from_amounts([(ManaColor::Red, 1), (ManaColor::Green, 1)]),
+                ])
+                .with_restrictions(&[ManaRestrictionDef::CastSpell(
+                    ObjectPredicateDef::HasType(CardType::Planeswalker),
+                )]),
+            ),
+        ),
+    ]),
+);
+
 // WAR 275 — Tezzeret, Master of the Bridge
 // Audit: unsupported — The cast-cost scanner reads intrinsic payment keywords but cannot grant affinity to candidate creature and planeswalker spells from a battlefield static ability. A generic discount would not actually grant the printed affinity ability.
 pub(in crate::card::sets) static TEZZERET_MASTER_OF_THE_BRIDGE_275: CardRecord = CardRecord::new(
@@ -1103,6 +1148,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &PRISMITE_242,
     &BLAST_ZONE_244,
     &EMERGENCE_ZONE_245,
+    &INTERPLANAR_BEACON,
     &TEZZERET_MASTER_OF_THE_BRIDGE_275,
 ];
 

@@ -293,6 +293,7 @@ mod mana_ability_costs;
 mod mana_and_costs;
 mod mana_planning_life;
 mod mana_pool_doubling;
+mod mana_restriction_lands;
 mod mana_symbol_cards;
 mod mana_triggers;
 mod mana_vault;

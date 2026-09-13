@@ -243,6 +243,26 @@ scope. Its label must match exactly; an absent or differently labeled choice
 matches nothing. Floating mana retains its original object incarnation's choice
 when that source leaves. Keep riders on the paid spell in `with_spend_effects`.
 
+The restriction list is a conjunction. Use `ManaRestrictionDef::AnyOf` for
+alternative permitted uses, such as casting a matching creature spell or
+activating a matching creature source's ability. `ActivateAbility` accepts
+activation costs, including abilities from other zones, but excludes payments
+made while resolving a spell or ability. `Payment(label)` remains the separate
+restriction for those named payments.
+
+For a bounded choice between complete outputs, use
+`AddManaEffectDef::choice_of_bundles`. Interplanar Beacon lists the ten pairs of
+distinct colors with `ManaSplit::from_amounts`; each produced unit retains the
+same spell restriction and can be spent separately.
+
+### Changeling
+
+Use `abilities::changeling()` on the card or token's ordinary ability list.
+The shared subtype evaluator applies this characteristic-defining ability in
+all zones before other layer-4 effects. It is part of copiable abilities, not a
+printed expansion of the creature-type list. Losing abilities in layer 6 does
+not undo those types; a later subtype-setting effect can replace them.
+
 ### Damage instructions and follow-ups
 
 Use `EffectDef::DealDamage(DamageDef)` for ordinary damage instructions. Use

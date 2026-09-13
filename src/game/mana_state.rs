@@ -25,6 +25,9 @@ pub(super) enum ManaPaymentPurpose {
         object: GameObjectId,
         definition: CardDefinitionId,
         controller: PlayerId,
+        /// Frozen before the card leaves its source zone: the proposed spell
+        /// is local to the payment continuation until all costs are paid.
+        commander_owner: Option<PlayerId>,
         form: SpellForm,
         /// Life already committed by the spell while mana abilities are
         /// planned, including Phyrexian symbols paid with life.

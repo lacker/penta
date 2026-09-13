@@ -548,6 +548,7 @@ fn cavern_colored_mana(game: &mut Game, cavern: GameObjectId) -> crate::game::Ma
 fn cavern_payment(definition: CardDefinitionId) -> ManaPaymentPurpose {
     ManaPaymentPurpose::Spell {
         object: GameObjectId(19_200),
+        commander_owner: None,
         definition,
         controller: PlayerId::One,
         form: SpellForm::Part(CardPartId::PRIMARY),

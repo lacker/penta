@@ -71,11 +71,7 @@ impl Game {
                 choices,
                 sacrifices,
             } => {
-                let held = self
-                    .players
-                    .iter()
-                    .flat_map(|player| player.hand.iter().chain(&player.graveyard))
-                    .find(|candidate| candidate.id == *card)?;
+                let (_, held) = self.card_in_nonbattlefield_zone(*card)?;
                 let definition = self.catalog.get(held.definition)?;
                 let option = definition.play_option(choices.play_option())?;
                 let offer = self
@@ -162,6 +158,7 @@ impl Game {
                     ManaPlanOptions::default(),
                     ManaPaymentPurpose::Spell {
                         object: *card,
+                        commander_owner: self.commander_owner(*card),
                         definition: definition.id,
                         controller: player,
                         form: option.form.clone(),

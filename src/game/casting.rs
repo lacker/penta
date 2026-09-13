@@ -406,6 +406,7 @@ impl Game {
         };
         // Read before the signature reaches the stack object, then pay below.
         let opponent_life_gain = self.cast_opponent_life_gain(player, card_id, &signature);
+        let commander_owner = self.commander_owner(card_id);
         let card = self.remove_card_for_cast(player, card_id, source_zone);
         let mut stack_object = self.propose_spell_on_stack(
             player,
@@ -436,6 +437,7 @@ impl Game {
             .saturating_add(phyrexian_life);
         let payment_purpose = ManaPaymentPurpose::Spell {
             object: stack_id,
+            commander_owner,
             definition,
             controller: player,
             form: stack_object
@@ -711,10 +713,12 @@ impl Game {
                 object,
                 definition,
                 controller,
+                commander_owner,
                 form,
                 ..
             } => ManaPaymentPurpose::Spell {
                 object: *object,
+                commander_owner: *commander_owner,
                 definition: *definition,
                 controller: *controller,
                 form: form.clone(),

@@ -94,6 +94,11 @@ impl Game {
             .position(|commander| cards.contains(&commander.physical))
     }
 
+    pub(super) fn commander_owner(&self, object: GameObjectId) -> Option<PlayerId> {
+        self.commander_index(object)
+            .map(|index| self.commanders[index].owner)
+    }
+
     /// Whether this object is backed by a designated commander. A copy of a
     /// commander is not designated; a commander copying something else is.
     #[must_use]

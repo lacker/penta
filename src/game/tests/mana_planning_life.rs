@@ -114,6 +114,7 @@ fn flexible_allocation_caps_each_color_by_the_affordable_sources() {
     game.players[PlayerId::One.index()].life = 1;
     let purpose = ManaPaymentPurpose::Spell {
         object: GameObjectId(90_042),
+        commander_owner: None,
         definition: cards::BARKSHELL_BLESSING,
         controller: PlayerId::One,
         form: SpellForm::Part(CardPartId::PRIMARY),
@@ -197,6 +198,7 @@ fn exact_mana_plan_preserves_cross_color_source_correlation() {
     game.players[PlayerId::One.index()].life = 2;
     let purpose = ManaPaymentPurpose::Spell {
         object: GameObjectId(90_044),
+        commander_owner: None,
         definition: cards::BARKSHELL_BLESSING,
         controller: PlayerId::One,
         form: SpellForm::Part(CardPartId::PRIMARY),

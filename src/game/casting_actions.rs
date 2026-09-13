@@ -325,6 +325,7 @@ impl Game {
                                                 )?;
                                                 let exact_purpose = ManaPaymentPurpose::Spell {
                                                     object: card.id,
+                                                    commander_owner: self.commander_owner(card.id),
                                                     definition: card.definition,
                                                     controller: player,
                                                     form: option.form.clone(),
@@ -529,6 +530,7 @@ impl Game {
                                                 };
                                                 let exact_purpose = ManaPaymentPurpose::Spell {
                                                     object: card.id,
+                                                    commander_owner: self.commander_owner(card.id),
                                                     definition: card.definition,
                                                     controller: player,
                                                     form: option.form.clone(),

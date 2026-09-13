@@ -401,6 +401,7 @@ impl Game {
         let life_available = self.life_available_after_payment(player, total_life)?;
         let payment_purpose = ManaPaymentPurpose::Spell {
             object: card_id,
+            commander_owner: self.commander_owner(card_id),
             definition: definition.id,
             controller: player,
             form: option.form.clone(),

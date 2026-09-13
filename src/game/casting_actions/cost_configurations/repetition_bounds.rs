@@ -13,6 +13,7 @@ impl Game {
         };
         let purpose = ManaPaymentPurpose::Spell {
             object: card,
+            commander_owner: self.commander_owner(card),
             definition: definition.id,
             controller: player,
             form: option.form.clone(),

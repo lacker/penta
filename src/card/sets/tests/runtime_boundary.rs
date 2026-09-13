@@ -554,6 +554,46 @@ fn composite_uncounterability_stays_within_the_shared_runtime_boundary() {
 }
 
 #[test]
+fn mana_tap_cost_boundary_requires_one_fully_carried_object_choice() {
+    const TAP: CostDef = CostDef::TapPermanents {
+        object: ObjectPredicateDef::HasType(CardType::Creature),
+        controller: PlayerRelation::You,
+        count: 1,
+    };
+    const MANY: CostDef = CostDef::TapPermanents {
+        object: ObjectPredicateDef::HasType(CardType::Creature),
+        controller: PlayerRelation::You,
+        count: 2,
+    };
+    const SACRIFICE: CostDef = CostDef::SacrificePermanent {
+        object: ObjectPredicateDef::HasType(CardType::Creature),
+        controller: PlayerRelation::You,
+    };
+    static CASES: [(&[CostDef], bool); 6] = [
+        (&[CostDef::TapSource, TAP], true),
+        (&[TAP], true),
+        (&[CostDef::TapSource, MANY], false),
+        (&[TAP, TAP], false),
+        (&[TAP, SACRIFICE], false),
+        (
+            &[
+                TAP,
+                CostDef::RemoveAnyNumberOfCountersFromSource(CounterKind::named("storage")),
+            ],
+            false,
+        ),
+    ];
+    for (costs, supported) in CASES {
+        let ability = AbilityDef::activated_mana(
+            "Pay the cost: Add {G}.",
+            costs,
+            EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Green)),
+        );
+        assert_eq!(shared_definition_ability(&ability), supported, "{costs:?}");
+    }
+}
+
+#[test]
 fn fully_declarative_clauses_stay_within_the_shared_runtime_boundary() {
     for (set, record) in SET_MODULES
         .iter()

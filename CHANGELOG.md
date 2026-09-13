@@ -84,6 +84,12 @@ the bot-wire epoch.
   `observesTrigger` preserve these links and ordering through decisions; the
   protocol, replay, and checkpoint versions are unchanged.
 
+- Implement Springleaf Drum with shared immediate mana payments that choose
+  one untapped permanent. Mana planning distinguishes tap costs from object
+  consumption, prevents double taps, and orders taps before sacrifices.
+  The chosen payer uses the existing `ActivateManaAbility.costObject` field;
+  protocol and checkpoint formats are unchanged.
+
 - Protocol 32 replaces numeric card-definition references with canonical
   printing UUID strings in catalogs, observations, decks, ability origins,
   match registrations, and Python/JSON hidden-world inputs. Checkpoint format

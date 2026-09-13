@@ -105,11 +105,11 @@ pub(super) struct ManaAbilityActivation {
     /// `None` whenever the cost has only one size, which is every other
     /// mana ability.
     pub(super) counters_removed: Option<u16>,
-    /// The separate object a chosen sacrifice or hand-exile cost consumes.
+    /// The object chosen for a sacrifice, hand-exile, or single-permanent tap cost.
     /// Like the counter size above, source and colour do not distinguish one
     /// candidate from another, so the choice is enumerated into the activation
     /// rather than asked afterwards -- a mana ability has no window to ask.
-    /// `None` when no separate object is consumed.
+    /// `None` when the cost has no chosen object.
     pub(super) cost_object: Option<GameObjectId>,
     /// How the amount is divided, for "add three mana in any combination of
     /// {U} and/or {R}". Each division is its own activation for the same
@@ -178,6 +178,40 @@ impl ManaContributionKind {
     }
 }
 
+/// The finite resources used by one concrete mana activation. Derived from
+/// its costs so planning need not copy or interpret the cost list repeatedly.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[allow(clippy::struct_excessive_bools)] // Tap and consumption are independent for each payer.
+pub(super) struct ManaPaymentResources {
+    pub(super) taps_source: bool,
+    pub(super) taps_chosen: bool,
+    pub(super) consumes_source: bool,
+    pub(super) consumes_chosen: bool,
+}
+
+impl ManaPaymentResources {
+    pub(super) fn from_costs(costs: &[CostDef]) -> Self {
+        Self {
+            taps_source: costs.contains(&CostDef::TapSource),
+            taps_chosen: costs
+                .iter()
+                .any(|cost| matches!(cost, CostDef::TapPermanents { .. })),
+            consumes_source: costs.iter().any(|cost| {
+                matches!(
+                    cost,
+                    CostDef::SacrificeSource | CostDef::ExileSource | CostDef::ReturnSourceToHand
+                )
+            }),
+            consumes_chosen: costs.iter().any(|cost| {
+                matches!(
+                    cost,
+                    CostDef::SacrificePermanent { .. } | CostDef::ExileCardFromHand(_)
+                )
+            }),
+        }
+    }
+}
+
 /// What one selected payment source does. Convoke is deliberately not a mana
 /// ability: it taps the creature while costs are paid, produces no mana, and
 /// carries no mana restrictions or spend riders.
@@ -186,6 +220,8 @@ pub(super) enum PlannedPaymentKind {
     Mana {
         ability: AbilityOrigin,
         color: ManaColor,
+        /// Derived resource usage, never part of an action or checkpoint.
+        resources: ManaPaymentResources,
         counters_removed: Option<u16>,
         cost_object: Option<GameObjectId>,
         combination: Option<ManaSplit>,

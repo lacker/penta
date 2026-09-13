@@ -13,6 +13,7 @@ impl Game {
         let taps_source = definition.costs.contains(&CostDef::TapSource);
         definition.source_zones.contains(&ZoneKind::Battlefield)
             && !definition.costs.is_empty()
+            && Self::mana_ability_object_costs_are_supported(definition)
             && definition
                 .costs
                 .iter()
@@ -86,6 +87,28 @@ impl Game {
         })
     }
 
+    /// The activation carries one chosen object. Open-ended counter removal
+    /// currently builds its own complete cost list, so it cannot also carry
+    /// an object payment.
+    pub(crate) fn mana_ability_object_costs_are_supported(
+        definition: &ActivatedAbilityDef,
+    ) -> bool {
+        let count = definition
+            .costs
+            .iter()
+            .filter(|cost| {
+                matches!(
+                    cost,
+                    CostDef::SacrificePermanent { .. }
+                        | CostDef::ExileCardFromHand(_)
+                        | CostDef::TapPermanents { .. }
+                        | CostDef::SacrificePermanents { .. }
+                )
+            })
+            .count();
+        count <= 1 && (count == 0 || Self::variable_counter_removal(definition).is_none())
+    }
+
     /// Whether the runtime can pay this cost as part of a mana ability.
     ///
     /// A mana cost is payable only out of the pool, so the ability also has
@@ -116,6 +139,7 @@ impl Game {
             // object is spent is answered by enumerating one activation per
             // candidate.
             | CostDef::SacrificePermanent { .. }
+            | CostDef::TapPermanents { count: 1, .. }
             | CostDef::ExileCardFromHand(_)
             | CostDef::SacrificePermanents { .. }
             // A loyalty cost is bounded by the rule rather than by the
@@ -140,6 +164,7 @@ impl Game {
                                 | CostDef::ReturnSourceToHand
                                 | CostDef::ExileSource
                                 | CostDef::SacrificePermanent { .. }
+                                | CostDef::TapPermanents { count: 1, .. }
                                 | CostDef::ExileCardFromHand(_)
                                 | CostDef::SacrificePermanents { .. }
                         )

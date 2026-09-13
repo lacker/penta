@@ -267,6 +267,7 @@ impl Game {
                 let PlannedPaymentKind::Mana {
                     ability,
                     color,
+                    resources,
                     counters_removed,
                     cost_object,
                     combination,
@@ -280,6 +281,7 @@ impl Game {
                     kind: PlannedPaymentKind::Mana {
                         ability: *ability,
                         color: *color,
+                        resources: *resources,
                         counters_removed: *counters_removed,
                         cost_object: *cost_object,
                         combination: *combination,

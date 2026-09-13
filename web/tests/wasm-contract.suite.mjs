@@ -35,11 +35,18 @@ test("session API controls either seat and advances only forced continuations in
   } finally { game.free(); }
 });
 
-test("session API decision-v1 tickets share browser commands, sideboarding, seat views, and durable replay", async () => {
+test("session API decision-v1 tickets share browser commands, sideboarding, seat views, and durable replay", async t => {
   await initializeWasm();
   const { HostedGame } = await import("../app/wasm/penta_wasm.js");
   const support = await import("./game-room-support.mjs");
   const HttpResponse = globalThis.Response;
+  // External rooms replace the supplied seed. This deal reaches cleanup with
+  // an eight-card bot hand, exercising a discard ticket before the human acts.
+  const random = crypto.getRandomValues.bind(crypto);
+  t.mock.method(crypto, "getRandomValues", array => {
+    if (array instanceof Uint32Array && array.length === 1) { array[0] = 91; return array; }
+    return random(array);
+  });
   support.installRoomGlobals({ WebGame, HostedGame });
   try {
     const { GameRoom } = await support.loadGameRoom();
@@ -52,7 +59,7 @@ test("session API decision-v1 tickets share browser commands, sideboarding, seat
       return value;
     };
     const opened = await call("start", undefined, { format: "old-school-93-94", humanDeck: "Sligh", botDeck: "The Deck",
-      botPolicy: "external", humanFirst: false, seed: 42, sessionApi: true, matchMode: "first-to-two-wins" });
+      botPolicy: "external", humanFirst: false, seed: 91, sessionApi: true, matchMode: "first-to-two-wins" });
     const client = new SessionClient("http://localhost", async (url, init) => {
       const response = await room.fetch(new Request(url, init));
       return HttpResponse.json(await response.json(), { status: response.status });
@@ -80,6 +87,7 @@ test("session API decision-v1 tickets share browser commands, sideboarding, seat
       assert.equal(storage.values.get("hosted-game").commands.length, commandCount);
     };
     let sideboarded = false;
+    let discarded = false;
     let complete = false;
     for (let step = 0; step < 100; step++) {
       let view = await call("session", opened.humanToken);
@@ -101,10 +109,14 @@ test("session API decision-v1 tickets share browser commands, sideboarding, seat
           assert.ok(concede);
           await call("command", token, { t: "act", index: concede.index, revision: browser.sessionRevision });
         } else {
-          const action = keep ?? view.observation.legalActions.find(action => action.type === "PassPriority");
-          assert.ok(action);
-          if (token === opened.botToken) await choose(action);
-          else await call("play", token, { revision: view.revision, requestId: `step-${step}`, choices: [{ index: action.index }] });
+          const action = keep
+            ?? view.observation.legalActions.find(action => action.type === "PassPriority")
+            ?? view.observation.legalActions.find(action => action.type === "DiscardCards");
+          assert.ok(action, JSON.stringify(view.observation.legalActions));
+          if (token === opened.botToken) {
+            await choose(action);
+            discarded ||= action.type === "DiscardCards";
+          } else await call("play", token, { revision: view.revision, requestId: `step-${step}`, choices: [{ index: action.index }] });
         }
       }
       // Evict and rebuild while both seats submit match and in-game decisions.
@@ -113,6 +125,7 @@ test("session API decision-v1 tickets share browser commands, sideboarding, seat
       assert.deepEqual(await call("session", opened.humanToken), before);
     }
     assert.ok(sideboarded);
+    assert.ok(discarded, "the bot submitted a cleanup discard through a decision ticket");
     assert.ok(complete);
     const record = await call("record", opened.botToken);
     const replay = WebGame.fromReplayJson(JSON.stringify(record));

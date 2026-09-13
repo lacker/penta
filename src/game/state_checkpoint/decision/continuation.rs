@@ -856,6 +856,9 @@ fn parse_continuation(
                 spell: GameObjectId(*spell),
             }
         }
+        DecisionContinuationSnapshot::BasicLandTypeSubstitution { continuation } => {
+            parse_basic_land_type_substitution_continuation(continuation, observation, game)?
+        }
         DecisionContinuationSnapshot::ChooseColor {
             continuation,
             targets,

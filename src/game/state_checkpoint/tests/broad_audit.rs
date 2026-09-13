@@ -2,9 +2,11 @@
 //!
 //! Sampled decision boundaries are handed to `from_observation_checkpoint`
 //! twice: once with the host's true hidden zones and once with a hypothesis
-//! that deliberately disagrees with them. Both must produce a live game with
-//! the same public observation and the same indexed legal actions, because
+//! that deliberately disagrees with them. Available checkpoints must produce a
+//! live game with the same public observation and indexed legal actions, because
 //! that pair is what a hosted search bot is promised.
+//! The explicit hidden-face-down unavailable envelope must instead fail closed;
+//! those boundaries do not count toward reconstruction coverage.
 //!
 //! Every boundary of every game used to be reconstructed. The games grow with
 //! the deck registry, so that count grew with them -- three times the floor
@@ -146,9 +148,8 @@ fn audit_one_game(
                 game.in_pregame(),
                 &actions,
             );
-            for category in categories(&game, &wire) {
-                *census.entry(category).or_default() += 1;
-            }
+            let hidden_face_down =
+                wire["checkpoint"]["unavailableReason"].as_str() == Some("hiddenFaceDownObjects");
             let truth = true_hidden_hypothesis(&game, viewer);
             for (kind, hidden) in [
                 ("the host's own hidden zones", truth.clone()),
@@ -160,8 +161,18 @@ fn audit_one_game(
                     &wire,
                     &hidden,
                     seed ^ 0x5555,
-                )
-                .unwrap_or_else(|error| {
+                );
+                if hidden_face_down {
+                    let error = rebuilt.expect_err("hidden face-down checkpoints must fail closed");
+                    assert_eq!(
+                        error,
+                        "checkpoint reconstruction requires hidden face-down object hypotheses",
+                        "{}: unexpected unavailable-checkpoint error",
+                        context(&game, format, seed, action_number, kind),
+                    );
+                    continue;
+                }
+                let rebuilt = rebuilt.unwrap_or_else(|error| {
                     panic!(
                         "{}: {error}",
                         context(&game, format, seed, action_number, kind)
@@ -188,7 +199,12 @@ fn audit_one_game(
                     context(&game, format, seed, action_number, kind),
                 );
             }
-            *audited += 1;
+            if !hidden_face_down {
+                for category in categories(&game, &wire) {
+                    *census.entry(category).or_default() += 1;
+                }
+                *audited += 1;
+            }
         }
 
         let Some(action) = seats[viewer.index()].choose(&observation) else {

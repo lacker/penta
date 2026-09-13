@@ -31,18 +31,86 @@ const ID_FIELDS: &[&str] = &[
     "sourceObjectId",
     "attacker",
     "blocker",
-    "blocking",
     "costObject",
 ];
 
 /// The same, for fields holding a list of bare object ids.
 const ID_LIST_FIELDS: &[&str] = &[
+    "blocking",
     "cards",
     "chosenPermanents",
     "costObjects",
     "permanents",
     "sacrifices",
 ];
+
+#[test]
+fn canonical_blocking_references_preserve_the_attacker_relationship() {
+    let host = serde_json::json!({
+        "battlefield": [
+            { "objectId": 185, "blocking": [] },
+            { "objectId": 186, "blocking": [] },
+            { "objectId": 187, "blocking": [185] }
+        ]
+    });
+    let mut rebuilt = serde_json::json!({
+        "battlefield": [
+            { "objectId": 325, "blocking": [] },
+            { "objectId": 326, "blocking": [] },
+            { "objectId": 327, "blocking": [325] }
+        ]
+    });
+    assert_eq!(canonical(&host, true), canonical(&rebuilt, true));
+
+    rebuilt["battlefield"][2]["blocking"] = serde_json::json!([326]);
+    assert_ne!(canonical(&host, true), canonical(&rebuilt, true));
+}
+
+#[test]
+fn canonical_history_preserves_reveals_without_linking_hypothesized_hand_ids() {
+    let host = serde_json::json!({
+        "hand": [{ "objectId": 10, "definition": "a" }],
+        "publicReveals": [
+            { "seat": "p1", "objectId": 10, "definition": "a" },
+            { "seat": "p1", "objectId": 10, "definition": "a" }
+        ],
+        "lastSeenHand": { "seat": "p1", "cards": [{ "objectId": 10, "definition": "a" }] }
+    });
+    let mut rebuilt = host.clone();
+    rebuilt["hand"][0]["objectId"] = serde_json::json!(20);
+    assert_eq!(canonical(&host, true), canonical(&rebuilt, true));
+
+    rebuilt["publicReveals"][1]["objectId"] = serde_json::json!(11);
+    assert_ne!(canonical(&host, true), canonical(&rebuilt, true));
+    rebuilt["publicReveals"] = host["publicReveals"].clone();
+    rebuilt["publicReveals"][0]["definition"] = serde_json::json!("b");
+    assert_ne!(canonical(&host, true), canonical(&rebuilt, true));
+}
+
+#[test]
+fn canonical_hand_memory_is_compared_only_when_reconstructible() {
+    let host = serde_json::json!({
+        "lastSeenHand": { "seat": "p1", "cards": [{ "objectId": 10, "definition": "a" }] }
+    });
+    let rebuilt = serde_json::json!({ "lastSeenHand": null });
+    assert_eq!(canonical(&host, false), canonical(&rebuilt, false));
+    assert_ne!(canonical(&host, true), canonical(&rebuilt, true));
+}
+
+#[test]
+fn canonical_hand_memory_detects_a_missing_new_host_observation() {
+    let initial = Some((
+        PlayerId::One,
+        vec![(GameObjectId(10), crate::card::cards::ISLAND)],
+    ));
+    let changed = Some((
+        PlayerId::One,
+        vec![(GameObjectId(11), crate::card::cards::FOREST)],
+    ));
+    assert!(!hand_memory_is_reconstructible(&initial, &initial, &None));
+    assert!(hand_memory_is_reconstructible(&initial, &changed, &None));
+    assert!(hand_memory_is_reconstructible(&initial, &initial, &initial));
+}
 
 #[test]
 #[ignore = "slow decision-boundary reconstruction audit"]
@@ -149,6 +217,7 @@ fn walk_one_trajectory(
          host's hidden zones, so nothing below would mean anything",
     );
 
+    let initial_hand_memory = host.last_seen_hands.clone();
     let mut walked = 0_usize;
     for step in 0..400 {
         let Some(acting) = host.decision_player() else {
@@ -162,9 +231,19 @@ fn walk_one_trajectory(
         );
         let host_view = seat_wire(&host, acting);
         let rebuilt_view = seat_wire(&rebuilt, acting);
+        // Only the original viewer supplied private hand memory. Once
+        // either game learns a new snapshot for the other seat, both games
+        // must agree on that new memory as well. Checking the host too catches
+        // a reconstructed game that fails to record a later observation.
+        let compare_hand_memory = acting == viewer
+            || hand_memory_is_reconstructible(
+                &initial_hand_memory[acting.index()],
+                &host.last_seen_hands[acting.index()],
+                &rebuilt.last_seen_hands[acting.index()],
+            );
         assert_eq!(
-            canonical(&host_view),
-            canonical(&rebuilt_view),
+            canonical(&host_view, compare_hand_memory),
+            canonical(&rebuilt_view, compare_hand_memory),
             "{format:?} seed {seed} step {step} (turn {} {:?}): the rebuilt \
              game drifted from the host after {walked} shared actions",
             host.turn,
@@ -239,10 +318,18 @@ fn hidden_state(game: &Game) -> Vec<Vec<String>> {
         .collect()
 }
 
-/// Rewrites every object id to the order in which it is first encountered, so
-/// two views that differ only by which ids were minted compare equal while a
-/// view that genuinely names a different object does not.
-fn canonical(wire: &Value) -> Value {
+fn hand_memory_is_reconstructible(
+    initial: &crate::game::LastSeenHand,
+    host: &crate::game::LastSeenHand,
+    rebuilt: &crate::game::LastSeenHand,
+) -> bool {
+    host != initial || rebuilt.is_some()
+}
+
+/// Rewrites live object ids by first appearance, with separate historical
+/// identity maps. Initial private memory for an unobserved seat is omitted;
+/// all current state and legal-action relationships remain comparable.
+fn canonical(wire: &Value, compare_hand_memory: bool) -> Value {
     let mut ids = BTreeMap::new();
     // The checkpoint is rules bookkeeping rather than the bot's view, and the
     // boundary audit already compares it byte for byte at every position it
@@ -251,8 +338,25 @@ fn canonical(wire: &Value) -> Value {
     let mut view = wire.clone();
     if let Some(object) = view.as_object_mut() {
         object.remove("checkpoint");
+        if !compare_hand_memory {
+            object.remove("lastSeenHand");
+        }
     }
-    rewrite(&view, &mut ids)
+    // Historical observations retain the ids from when cards were seen.
+    // A hypothesized hidden card gets a fresh id, so those historical ids
+    // cannot share the live-object renaming map. Preserve identity within
+    // each historical record without asserting a link to today's hand.
+    let history = ["publicReveals", "lastSeenHand"].map(|field| {
+        let value = view.as_object_mut().and_then(|object| object.remove(field));
+        (field, value)
+    });
+    let mut result = rewrite(&view, &mut ids);
+    for (field, value) in history {
+        if let Some(value) = value {
+            result[field] = rewrite(&value, &mut BTreeMap::new());
+        }
+    }
+    result
 }
 
 fn rewrite(value: &Value, ids: &mut BTreeMap<u64, u64>) -> Value {

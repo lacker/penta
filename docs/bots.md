@@ -410,6 +410,15 @@ cards or one controlled Food. The `actionChoice` checkpoint continuation retains
 the player, selected branch, and authored action or PayOr locator; reconstruction
 validates the program, visibility, and offers against that stage.
 
+Pending basic-land-type substitutions also retain their resolving effect,
+including when it belongs to a spell mode. A scoped-effect locator's optional
+`abilityPath` selects nested authored abilities before its ordinary effect
+`path`; an absent `abilityPath` means the root ability. The `basicLandTypeSubstitution`
+continuation validates the chooser and complete authored pair menu before
+resuming. This extends previously unavailable checkpoints without changing
+existing root-effect encodings or version numbers; the simulation fingerprint
+still gates exact reconstruction.
+
 A private pending decision is reconstructible only from its choosing seat's
 observation. Other seats receive neither the decision nor its continuation in
 their checkpoint; `hasDeferredState` is true, so importing that checkpoint

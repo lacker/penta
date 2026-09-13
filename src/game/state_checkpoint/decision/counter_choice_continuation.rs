@@ -1,4 +1,38 @@
-// Reconstructing resolution-time color and counter choices.
+// Reconstructing resolution-time color, counter, and land-type choices.
+
+fn parse_basic_land_type_substitution_continuation(
+    continuation: &EffectContinuationSnapshot,
+    observation: &DecisionObservation,
+    game: &Game,
+) -> Result<DecisionContinuation, String> {
+    let followup = parse_effect_continuation(continuation, game)?;
+    let EffectDef::SubstituteBasicLandTypeUntilEndOfTurn { chooser } = followup.effect.effect
+    else {
+        return Err("a land-type substitution located a different effect".into());
+    };
+    if !ability_locator_matches_origin(&continuation.ability, &followup.object) {
+        return Err("land-type substitution locator disagrees with its resolving ability".into());
+    }
+    let player = game
+        .player_reference(chooser, &followup.object, &followup.context, followup.effect)
+        .ok_or("land-type substitution has no choosing player")?;
+    validate_authored_decision(
+        observation,
+        player,
+        "Each land of the first type becomes the second until end of turn",
+        DecisionVisibility::PublicNotice,
+        DecisionPreference::Neutral,
+        1,
+        1,
+        &Game::basic_land_type_pair_options(),
+        "land-type substitution",
+    )?;
+    Ok(DecisionContinuation::BasicLandTypeSubstitution {
+        object: followup.object,
+        context: followup.context,
+        effect: followup.effect,
+    })
+}
 
 fn parse_choose_color_continuation(
     continuation: &EffectContinuationSnapshot,

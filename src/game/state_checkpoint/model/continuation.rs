@@ -356,6 +356,9 @@ pub(in crate::game::state_checkpoint) enum DecisionContinuationSnapshot {
     ChooseEffect {
         continuation: Box<EffectContinuationSnapshot>,
     },
+    BasicLandTypeSubstitution {
+        continuation: Box<EffectContinuationSnapshot>,
+    },
     ChosenColorMana {
         controller: usize,
         /// The mana each answer produces, with its colour standing in for

@@ -167,6 +167,13 @@ distinguishes snapshots of the covered source and build inputs.
 
 ### Fixed
 
+- Checkpoints now reconstruct pending basic-land-type substitutions, including
+  Vision Charm's land mode. Scoped-effect locators optionally carry an
+  `abilityPath` for effects nested beneath modal abilities; existing root-effect
+  encodings remain unchanged. Reconstruction validates the authored chooser and
+  options. Protocol, checkpoint, and replay versions are unchanged; exact
+  reconstruction still requires the same simulation fingerprint.
+
 - **Canonical card definitions now live in their debut English-language paper
   sets.** Definitions authored under later reprints moved back to the first
   English paper set while later appearances remain exact-art reprints. This

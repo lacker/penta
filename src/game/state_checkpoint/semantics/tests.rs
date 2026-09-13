@@ -84,3 +84,56 @@ fn recursive_effect_children_round_trip_all_continuation_branches() {
         assert_eq!(rebuilt, CREATE_TOKEN);
     }
 }
+
+#[test]
+fn scoped_effect_ability_paths_preserve_mode_scope_and_existing_root_snapshots() {
+    use crate::CardDefinitionId;
+    use crate::card::{CardDefinition, CardRules, sets};
+
+    static DESTROY: EffectDef = EffectDef::Destroy {
+        object: EffectRecipientDef::Source,
+        then: None,
+    };
+    static MODES: [AbilityDef; 1] = [AbilityDef::spell(
+        "Destroy without regeneration.",
+        EffectDef::WithRule {
+            rule: AppliedRuleDef::CannotRegenerate,
+            effect: &DESTROY,
+        },
+    )];
+    static ABILITIES: [AbilityDef; 1] = [AbilityDef::modal_spell("Choose one.", &MODES)];
+
+    let definition = CardDefinition::new(
+        CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000001"),
+        "Scoped Modal Checkpoint",
+        sets::alpha::SET,
+        CardRules::new_instant(crate::ManaCost::new(1, 0)).with_abilities(&ABILITIES),
+    );
+    let catalog = CardCatalog::new([definition]).expect("the modal catalog validates");
+    let outer = ability_locator(&catalog, |candidate| *candidate == ABILITIES[0]).unwrap();
+    let mode = ability_locator(&catalog, |candidate| *candidate == MODES[0]).unwrap();
+    let scoped = ScopedEffect::at(DESTROY, 3).with_rule(AppliedRuleDef::CannotRegenerate);
+
+    let mut snapshot = scoped_effect_snapshot(&ABILITIES[0], scoped).unwrap();
+    assert_eq!(snapshot.ability_path, vec![0]);
+    assert_eq!(snapshot.path, vec![0]);
+    assert_eq!(snapshot.target_base, 3);
+    assert_eq!(
+        catalog_scoped_effect(&catalog, &outer, &snapshot),
+        Some(scoped)
+    );
+    snapshot.ability_path[0] = 99;
+    assert!(catalog_scoped_effect(&catalog, &outer, &snapshot).is_none());
+
+    // Locating directly from the mode preserves the preexisting effect path
+    // encoding. An older snapshot without abilityPath still decodes identically.
+    let root = scoped_effect_snapshot(&MODES[0], scoped).unwrap();
+    let wire = serde_json::to_value(&root).unwrap();
+    assert_eq!(wire, serde_json::json!({ "path": [0], "targetBase": 3 }));
+    let restored: ScopedEffectSnapshot = serde_json::from_value(wire).unwrap();
+    assert!(restored.ability_path.is_empty());
+    assert_eq!(
+        catalog_scoped_effect(&catalog, &mode, &restored),
+        Some(scoped)
+    );
+}

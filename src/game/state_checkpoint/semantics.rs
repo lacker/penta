@@ -520,10 +520,21 @@ pub(super) fn scoped_effect_snapshot(
                 }
             }),
     };
-    found.then_some(ScopedEffectSnapshot {
-        path,
-        target_base: effect.target_base,
-    })
+    if found {
+        return Some(ScopedEffectSnapshot {
+            ability_path: Vec::new(),
+            path,
+            target_base: effect.target_base,
+        });
+    }
+    child_abilities(ability)
+        .into_iter()
+        .enumerate()
+        .find_map(|(index, child)| {
+            let mut snapshot = scoped_effect_snapshot(child, effect)?;
+            snapshot.ability_path.insert(0, index);
+            Some(snapshot)
+        })
 }
 
 pub(super) fn catalog_scoped_effect(
@@ -531,7 +542,10 @@ pub(super) fn catalog_scoped_effect(
     ability: &AbilityLocator,
     snapshot: &ScopedEffectSnapshot,
 ) -> Option<ScopedEffect> {
-    let ability = catalog_ability(catalog, ability)?;
+    let mut ability = catalog_ability(catalog, ability)?;
+    for &index in &snapshot.ability_path {
+        ability = **child_abilities(&ability).get(index)?;
+    }
     let (mut effect, path) = match ability.effect.definition {
         AbilityProgramDef::Effects(effect) => (effect, snapshot.path.as_slice()),
         AbilityProgramDef::Replacement(replacement) => {

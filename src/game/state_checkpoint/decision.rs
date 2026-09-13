@@ -766,6 +766,12 @@ fn continuation_snapshot(
                 spell: spell.0,
             }
         }
+        DecisionContinuation::BasicLandTypeSubstitution { object, context, effect } =>
+            DecisionContinuationSnapshot::BasicLandTypeSubstitution {
+                continuation: Box::new(effect_continuation_snapshot(
+                    game, viewer, object, context, *effect, visible_rebindings,
+                )?),
+            },
         DecisionContinuation::ChooseColor {
             object,
             context,
@@ -931,10 +937,7 @@ fn continuation_snapshot(
                 None => None,
             },
         },
-        // The pair is not yet chosen, so what a land substitution would do to
-        // the board is not writable down either.
         DecisionContinuation::LifeGainReplacement { .. }
-        | DecisionContinuation::BasicLandTypeSubstitution { .. }
         // An entry paused mid-flight carries a prospective permanent that
         // this format has no place for yet.
         | DecisionContinuation::BattlefieldEntryExile { .. }

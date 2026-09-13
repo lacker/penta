@@ -241,6 +241,9 @@ pub(in crate::game::state_checkpoint) struct ManaCostSnapshot {
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub(in crate::game::state_checkpoint) struct ScopedEffectSnapshot {
+    /// Modal effects live beneath child abilities rather than the root program.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub(in crate::game::state_checkpoint) ability_path: Vec<usize>,
     pub(in crate::game::state_checkpoint) path: Vec<usize>,
     pub(in crate::game::state_checkpoint) target_base: usize,
 }

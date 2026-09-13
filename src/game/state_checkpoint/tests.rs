@@ -15,6 +15,7 @@ mod effect_walkers;
 mod face_down_characteristics;
 mod game_action_programs;
 mod labeled_choices;
+mod land_type_substitution;
 mod lci_counter_names;
 mod rare_reconstructions;
 mod rare_states;

@@ -70,9 +70,9 @@ mod bannerhide_krushok;
 mod becomes_blocked_pump;
 mod blaze_of_glory;
 mod blessing_and_flame;
+mod explicit_payment;
 mod harmonize;
 mod nemesis_audit;
-mod explicit_payment;
 mod temporary_self_effects;
 pub(super) use fixtures::*;
 
@@ -955,48 +955,32 @@ use search_and_reveal::stack_library;
 
 pub(in crate::game) mod composed_mechanic_programs;
 
-mod playtest_regressions;
-
+mod aetherdrift;
+mod avatar;
+mod big_score;
 mod bloomburrow;
 mod class_levels;
-mod lost_caverns_of_ixalan;
-mod wilds_of_eldraine;
-
+mod dragonfire_blade;
 mod duskmourn;
-
-mod big_score;
+mod edge_of_eternities;
+mod final_fantasy;
 mod foundations;
 mod karlov_manor;
-mod thunder_junction;
-
-mod aetherdrift;
-
-mod avatar;
-
-mod edge_of_eternities;
-
-mod final_fantasy;
-
-mod spider_man;
-
-mod dragonfire_blade;
 mod lorwyn_eclipsed;
-mod ramos_dragon_engine;
-mod tarkir_dragonstorm;
-
+mod lost_caverns_of_ixalan;
 mod marvel_super_heroes;
-
+mod playtest_regressions;
+mod ramos_dragon_engine;
 mod secrets_of_strixhaven;
-
+mod spider_man;
+mod tarkir_dragonstorm;
 mod teenage_mutant_ninja_turtles;
-
-#[path = "tests/the_hobbit.rs"]
-mod the_hobbit;
+mod thunder_junction;
+mod wilds_of_eldraine;
 
 mod cedh_card_audit;
-
 mod duel_cards;
-
-mod eternal_deck_cards;
-
 mod enduring_cycle;
+mod eternal_deck_cards;
+#[path = "tests/the_hobbit.rs"]
+mod the_hobbit;

@@ -40,7 +40,6 @@ use crate::card::EffectRecipientDef;
 use crate::card::InstalledTriggerDef;
 use crate::card::ManaColor;
 use crate::card::ManaRestrictionDef;
-use crate::card::ManaSplit;
 use crate::card::ObjectChoiceBindingDef;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
@@ -1088,21 +1087,11 @@ pub(in crate::card::sets) static INTERPLANAR_BEACON: CardRecord = CardRecord::ne
              planeswalker spells.",
             &[CostDef::Mana(mana_cost!("{1}")), CostDef::TapSource],
             EffectDef::AddMana(
-                AddManaEffectDef::choice_of_bundles(&[
-                    ManaSplit::from_amounts([(ManaColor::White, 1), (ManaColor::Blue, 1)]),
-                    ManaSplit::from_amounts([(ManaColor::White, 1), (ManaColor::Black, 1)]),
-                    ManaSplit::from_amounts([(ManaColor::White, 1), (ManaColor::Red, 1)]),
-                    ManaSplit::from_amounts([(ManaColor::White, 1), (ManaColor::Green, 1)]),
-                    ManaSplit::from_amounts([(ManaColor::Blue, 1), (ManaColor::Black, 1)]),
-                    ManaSplit::from_amounts([(ManaColor::Blue, 1), (ManaColor::Red, 1)]),
-                    ManaSplit::from_amounts([(ManaColor::Blue, 1), (ManaColor::Green, 1)]),
-                    ManaSplit::from_amounts([(ManaColor::Black, 1), (ManaColor::Red, 1)]),
-                    ManaSplit::from_amounts([(ManaColor::Black, 1), (ManaColor::Green, 1)]),
-                    ManaSplit::from_amounts([(ManaColor::Red, 1), (ManaColor::Green, 1)]),
-                ])
-                .with_restrictions(&[ManaRestrictionDef::CastSpell(
-                    ObjectPredicateDef::HasType(CardType::Planeswalker),
-                )]),
+                AddManaEffectDef::two_different_colors().with_restrictions(&[
+                    ManaRestrictionDef::CastSpell(ObjectPredicateDef::HasType(
+                        CardType::Planeswalker,
+                    )),
+                ]),
             ),
         ),
     ]),

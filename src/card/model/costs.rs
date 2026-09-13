@@ -847,6 +847,34 @@ impl AddManaEffectDef {
         }
     }
 
+    /// "Add two mana of different colors." Enumerate each unordered pair
+    /// once, using the ordinary complete-bundle choice representation.
+    #[must_use]
+    pub const fn two_different_colors() -> Self {
+        Self::choice_of_bundles(
+            &const {
+                let colors = ManaColor::COLORS;
+                let mut bundles = [super::ManaSplit::empty();
+                    ManaColor::COLORS.len() * (ManaColor::COLORS.len() - 1) / 2];
+                let mut index = 0;
+                let mut first = 0;
+                while first < colors.len() {
+                    let mut second = first + 1;
+                    while second < colors.len() {
+                        bundles[index] = super::ManaSplit::from_amounts([
+                            (colors[first], 1),
+                            (colors[second], 1),
+                        ]);
+                        index += 1;
+                        second += 1;
+                    }
+                    first += 1;
+                }
+                bundles
+            },
+        )
+    }
+
     #[must_use]
     pub const fn choice_from(mana: ManaTypeSetDef) -> Self {
         Self {

@@ -251,9 +251,11 @@ made while resolving a spell or ability. `Payment(label)` remains the separate
 restriction for those named payments.
 
 For a bounded choice between complete outputs, use
-`AddManaEffectDef::choice_of_bundles`. Interplanar Beacon lists the ten pairs of
-distinct colors with `ManaSplit::from_amounts`; each produced unit retains the
-same spell restriction and can be spent separately.
+`AddManaEffectDef::choice_of_bundles`. For "two mana of different colors," use
+`AddManaEffectDef::two_different_colors()`, which constructs the ten distinct
+color pairs as ordinary bundle choices. Interplanar Beacon adds its spell
+restriction to that shared constructor; each produced unit retains the same
+restriction and can be spent separately.
 
 ### Changeling
 

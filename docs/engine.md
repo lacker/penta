@@ -200,6 +200,23 @@ rules:
 - X, targets, and any required divisions are further choices made for the
   particular spell.
 
+`SpellView` supplies the same read-only spell context to cost modifiers and
+spell ability evaluation before and after casting. It carries the selected
+form, caster/controller, owner, originating zone, X, and face-down or bestow
+characteristics. Cost predicates inspect the spell's stack characteristics;
+origin-zone restrictions and surcharges still inspect its casting origin.
+Intrinsic discounts and cast-trigger capture share effective spell abilities,
+including live static grants. Querying a proposed spell does not move its card
+or consume a permission.
+
+Cost calculation and trigger capture remain separate stages. Enumeration uses
+conservative bounds when a modifier can change applicability with X, then
+prices each candidate exactly, including X in the total before discounts.
+Validation and mana previews use that same selected view. Costs lock before payment; spell abilities are evaluated again
+when the cast completes, after payment may have changed their sources. This
+view is derived context, not a new persisted spell object or checkpoint field.
+Timing permissions and target selection retain their existing evaluators.
+
 After validation, those choices form an immutable cast signature on the stack:
 the selected play option and spell form, chosen modes, cost choices, X, and
 target-slot assignments. Authored effects refer to clause-local target

@@ -11,7 +11,7 @@ use crate::card::{
     ActivatedAbilityDef, ActivationTimingDef, AddManaEffectDef, AlternativeCastAbilityDef,
     AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, BandingQuality, BasicLandType,
     BattlefieldEntryModificationDef, CREATURE_TYPES, CardCatalog, CardChoiceSourceDef,
-    CardDefinition, CardEffectStatus, CardPart, CardRules, CardSet, CardStructure, CardSupertype,
+    CardDefinition, CardEffectStatus, CardRules, CardSet, CardStructure, CardSupertype,
     CardSupertypeSet, CardType, CardTypeSet, CharacteristicContext, CharacteristicOperationDef,
     ColorChoiceOperationDef, ColorSet, ComparisonDef, ConditionDef, ControlDurationDef, CostDef,
     CounterKind, CreatureTypeSetDef, DamageEventMatcherDef, DamageKindDef,
@@ -127,6 +127,8 @@ mod prevention_state;
 mod procedure_state;
 mod proliferate;
 mod prospective_x;
+mod spell_view;
+use spell_view::SpellView;
 mod replacement_state;
 mod restart;
 mod rooms;

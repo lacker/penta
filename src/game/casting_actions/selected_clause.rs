@@ -283,13 +283,18 @@ impl Game {
         option: &PlayOptionDef,
         selected: AlternativeCostId,
     ) -> Option<&'static [crate::CostDef]> {
-        self.battlefield_spell_alternative_costs(player, card)
-            .into_iter()
-            .enumerate()
-            .find_map(|(index, cost)| {
-                (Self::battlefield_alternative_cost_id(option, index) == Some(selected))
-                    .then_some(cost)
-            })
+        self.battlefield_spell_alternative_costs(self.proposed_spell_view(
+            player,
+            card,
+            &option.form,
+            None,
+            0,
+        )?)
+        .into_iter()
+        .enumerate()
+        .find_map(|(index, cost)| {
+            (Self::battlefield_alternative_cost_id(option, index) == Some(selected)).then_some(cost)
+        })
     }
 
     /// The one alternative way to cast this card that something other than

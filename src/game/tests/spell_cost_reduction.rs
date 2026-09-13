@@ -26,17 +26,16 @@ fn cost_of(
 }
 
 fn reduction(game: &Game, spell: CardDefinitionId, card: GameObjectId) -> u16 {
-    game.spell_cost_reduction(
-        game.catalog
-            .get(spell)
-            .unwrap()
-            .play_option(PlayOptionId::DEFAULT)
-            .unwrap(),
-        PlayerId::One,
-        card,
-        &[],
-    )
-    .generic()
+    let option = game
+        .catalog
+        .get(spell)
+        .unwrap()
+        .play_option(PlayOptionId::DEFAULT)
+        .unwrap();
+    let view = game
+        .proposed_spell_view(PlayerId::One, card, &option.form, None, 0)
+        .unwrap();
+    game.spell_cost_reduction(view, &[]).generic()
 }
 
 #[test]

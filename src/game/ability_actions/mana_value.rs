@@ -1,6 +1,6 @@
 use super::{
-    CardPart, CardStructure, DoubleFacedKind, Game, GameObjectId, ObjectCharacteristics, Permanent,
-    RetiredObject, StackObject, mana_cost_value,
+    CardStructure, DoubleFacedKind, Game, GameObjectId, ObjectCharacteristics, Permanent,
+    RetiredObject, StackObject,
 };
 
 impl Game {
@@ -104,35 +104,7 @@ impl Game {
     }
 
     pub(in crate::game) fn stack_spell_mana_value(&self, object: &StackObject) -> u16 {
-        if let Some(face_down) = object.face_down {
-            return face_down.rules().printed_mana_cost().mana_value();
-        }
-        let Some(card_definition) = object.card.definition.card_definition() else {
-            return 0;
-        };
-        let Some(definition) = self.catalog.get(card_definition) else {
-            return 0;
-        };
-        let Some(signature) = &object.signature else {
-            return 0;
-        };
-        // CR 202.3b: the X in a spell's cost is the value its caster chose,
-        // so a Walking Ballista on the stack for X of three has a mana value
-        // of six and not of nothing.
-        let x = signature.x();
-        let with_chosen_x = |cost: crate::card::ManaCost| {
-            mana_cost_value(cost).saturating_add(x.saturating_mul(cost.x_multiplier))
-        };
-        match signature.form() {
-            crate::card::SpellForm::Part(part) => definition
-                .part(*part)
-                .and_then(CardPart::mana_cost)
-                .map_or(0, with_chosen_x),
-            crate::card::SpellForm::Combined(parts) => parts
-                .iter()
-                .filter_map(|part| definition.part(*part).and_then(CardPart::mana_cost))
-                .map(with_chosen_x)
-                .fold(0, u16::saturating_add),
-        }
+        self.stack_spell_view(object)
+            .map_or(0, |spell| self.spell_view_mana_value(spell))
     }
 }

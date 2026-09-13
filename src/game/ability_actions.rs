@@ -1,11 +1,11 @@
 use super::{
-    AbilityOrigin, AbilityProcedureDef, Action, CardInstance, CardPart, CardStructure,
+    AbilityOrigin, AbilityProcedureDef, Action, CardDefinitionId, CardInstance, CardStructure,
     CharacteristicContext, ControlFlow, CostDef, DeclarativeAbilityDef, DoubleFacedKind,
     EffectiveAbility, FrozenActivatedAbility, Game, GameEvent, GameObjectId, ManaCost,
     ManaPaymentPurpose, ManaPlanOptions, ObjectCharacteristics, ObjectInstance, ObjectRefDef,
     Permanent, PlayerId, RetiredObject, ScopedEffect, SelectedSpellPlan, StackAbilityPayload,
     StackObject, StackObjectKind, TargetSelection, TriggerContext, ZoneKind, add_mana_cost,
-    applicable_part_ids_ref, mana_cost_value, mode_id_selections,
+    applicable_part_ids_ref, mode_id_selections,
 };
 use crate::card::{
     ActivatedAbilityDef, ActivationPermissionDef, ObjectPredicateDef, PlayerRelation,
@@ -740,9 +740,18 @@ impl Game {
         &self,
         card: &CardInstance,
         context: &CharacteristicContext,
+        visitor: impl FnMut(EffectiveAbility) -> ControlFlow<()>,
+    ) -> ControlFlow<()> {
+        self.visit_printed_definition_abilities(card.definition, context, visitor)
+    }
+
+    pub(super) fn visit_printed_definition_abilities(
+        &self,
+        definition: CardDefinitionId,
+        context: &CharacteristicContext,
         mut visitor: impl FnMut(EffectiveAbility) -> ControlFlow<()>,
     ) -> ControlFlow<()> {
-        let Some(definition) = self.catalog.get(card.definition) else {
+        let Some(definition) = self.catalog.get(definition) else {
             return ControlFlow::Continue(());
         };
         let Ok(parts) = applicable_part_ids_ref(definition, context) else {

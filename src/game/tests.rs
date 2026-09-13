@@ -974,6 +974,7 @@ mod plot_exile;
 mod ral_crackling_wit;
 mod ramos_dragon_engine;
 mod secrets_of_strixhaven;
+mod spell_view;
 mod spider_man;
 mod tarkir_dragonstorm;
 mod teenage_mutant_ninja_turtles;

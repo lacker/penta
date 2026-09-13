@@ -214,16 +214,16 @@ fn hum_of_the_radix_counts_only_artifacts_the_spell_caster_controls() {
     let ring_id = ring.id;
     game.players[PlayerId::One.index()].hand.push(ring);
 
-    let increase = game.spell_cost_increase(
-        game.catalog
-            .get(cards::SOL_RING)
-            .unwrap()
-            .play_option(PlayOptionId::DEFAULT)
-            .unwrap(),
-        PlayerId::One,
-        ring_id,
-        &[],
-    );
+    let option = game
+        .catalog
+        .get(cards::SOL_RING)
+        .unwrap()
+        .play_option(PlayOptionId::DEFAULT)
+        .unwrap();
+    let spell = game
+        .proposed_spell_view(PlayerId::One, ring_id, &option.form, None, 0)
+        .unwrap();
+    let increase = game.spell_cost_increase(spell, &[]);
     assert_eq!(
         increase.generic, 2,
         "Hum counts the caster's two artifacts and ignores the opponent's",
@@ -255,23 +255,17 @@ fn hinata_adds_and_subtracts_per_distinct_target() {
         TargetSelection::single(TargetSlotId(0), Target::Permanent(target_id)),
         TargetSelection::single(TargetSlotId(1), Target::Permanent(target_id)),
     ];
+    let option = game
+        .catalog
+        .get(cards::DOOM_BLADE)
+        .unwrap()
+        .play_option(PlayOptionId::DEFAULT)
+        .unwrap();
+    let spell = game
+        .proposed_spell_view(PlayerId::Two, taxed_id, &option.form, None, 0)
+        .unwrap();
     assert_eq!(
-        game.spell_cost_increase(
-            game.catalog
-                .get(
-                    game.card_in_nonbattlefield_zone(taxed_id)
-                        .unwrap()
-                        .1
-                        .definition
-                )
-                .unwrap()
-                .play_option(PlayOptionId::DEFAULT)
-                .unwrap(),
-            PlayerId::Two,
-            taxed_id,
-            &duplicate_target
-        )
-        .generic,
+        game.spell_cost_increase(spell, &duplicate_target).generic,
         1,
         "the same object targeted twice counts once",
     );

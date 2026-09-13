@@ -9,40 +9,6 @@
 use super::{Action, Game, GameObjectId, PlayerId};
 
 impl Game {
-    /// The spell's abilities after face-down characteristics and static
-    /// layer-6 grants and removals, including abilities supplied by emblems.
-    pub(super) fn for_each_stack_spell_ability(
-        &self,
-        object: &super::StackObject,
-        mut visitor: impl FnMut(super::EffectiveAbility),
-    ) {
-        let mut abilities = Vec::new();
-        if let Some(face_down) = object.face_down {
-            for attached in face_down.rules().indexed_abilities() {
-                abilities.push(super::EffectiveAbility {
-                    origin: crate::AbilityOrigin::FaceDown {
-                        ability: attached.id,
-                    },
-                    ability: attached.definition,
-                });
-            }
-        } else if let Some(signature) = &object.signature
-            && let Some(card) = object.card.clone().into_card()
-        {
-            self.for_each_printed_card_ability(
-                &card,
-                &super::CharacteristicContext::Stack {
-                    form: signature.form().clone(),
-                },
-                |ability| abilities.push(ability),
-            );
-        }
-        self.apply_static_stack_ability_operations(object, &mut abilities);
-        for ability in abilities {
-            visitor(ability);
-        }
-    }
-
     /// A face-down card in exile has no characteristics (unlike a face-down
     /// spell or permanent, whose creating mechanism supplies a body).
     pub(super) fn face_down_exiled_event_object(

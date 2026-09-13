@@ -779,8 +779,11 @@ impl Game {
         selected_additional: &mut Vec<AdditionalCostId>,
         visitor: &mut impl FnMut(CostConfiguration) -> ControlFlow<()>,
     ) -> ControlFlow<()> {
+        let Some(spell) = self.proposed_spell_view(player, card, &option.form, None, 0) else {
+            return ControlFlow::Continue(());
+        };
         for (index, _) in self
-            .battlefield_spell_alternative_costs(player, card)
+            .battlefield_spell_alternative_costs(spell)
             .into_iter()
             .enumerate()
         {

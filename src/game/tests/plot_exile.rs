@@ -218,8 +218,12 @@ fn plot_exile_origin_taxes_and_discounts_apply_to_total_cast_cost_only() {
                 _ => unreachable!(),
             }
             assert_eq!(
-                game.spell_cost_increase(&option, PlayerId::One, id, &[])
-                    .generic,
+                game.spell_cost_increase(
+                    game.proposed_spell_view(PlayerId::One, id, &option.form, None, 0)
+                        .unwrap(),
+                    &[]
+                )
+                .generic,
                 if zone == ZoneKind::Hand { 0 } else { 2 }
             );
         }
@@ -238,18 +242,30 @@ fn plot_exile_origin_taxes_and_discounts_apply_to_total_cast_cost_only() {
             (ZoneKind::Exile, exiled),
         ] {
             assert_eq!(
-                game.spell_cost_reduction(&option, PlayerId::One, id, &[])
-                    .generic(),
+                game.spell_cost_reduction(
+                    game.proposed_spell_view(PlayerId::One, id, &option.form, None, 0)
+                        .unwrap(),
+                    &[]
+                )
+                .generic(),
                 if zone == ZoneKind::Hand { 0 } else { 2 }
             );
             assert_eq!(
-                game.spell_cost_increase(&option, PlayerId::Two, id, &[])
-                    .generic,
+                game.spell_cost_increase(
+                    game.proposed_spell_view(PlayerId::Two, id, &option.form, None, 0)
+                        .unwrap(),
+                    &[]
+                )
+                .generic,
                 0
             );
             assert_eq!(
-                game.spell_cost_reduction(&option, PlayerId::Two, id, &[])
-                    .generic(),
+                game.spell_cost_reduction(
+                    game.proposed_spell_view(PlayerId::Two, id, &option.form, None, 0)
+                        .unwrap(),
+                    &[]
+                )
+                .generic(),
                 0
             );
         }
@@ -342,15 +358,23 @@ fn plot_exile_doc_discounts_any_exile_but_only_the_casters_graveyard() {
     let id = foreign.id;
     game.players[1].graveyard.push(foreign);
     assert_eq!(
-        game.spell_cost_reduction(&option, PlayerId::One, id, &[])
-            .generic(),
+        game.spell_cost_reduction(
+            game.proposed_spell_view(PlayerId::One, id, &option.form, None, 0)
+                .unwrap(),
+            &[]
+        )
+        .generic(),
         0
     );
     let foreign = game.players[1].graveyard.remove(0);
     game.players[1].exile.push(foreign);
     assert_eq!(
-        game.spell_cost_reduction(&option, PlayerId::One, id, &[])
-            .generic(),
+        game.spell_cost_reduction(
+            game.proposed_spell_view(PlayerId::One, id, &option.form, None, 0)
+                .unwrap(),
+            &[]
+        )
+        .generic(),
         2
     );
 }

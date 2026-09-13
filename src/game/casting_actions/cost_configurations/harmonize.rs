@@ -60,23 +60,16 @@ impl Game {
             .max()
             .unwrap_or(0);
         let other_reductions = match purpose {
-            ManaPaymentPurpose::Spell {
-                object,
-                definition,
-                form,
-                ..
-            } => self
-                .catalog
-                .get(*definition)
-                .and_then(|definition| {
-                    definition
-                        .play_options
-                        .iter()
-                        .find(|option| option.form == *form)
-                })
-                .map_or(0, |option| {
-                    self.spell_cost_reduction(option, player, *object, &[])
-                        .generic()
+            ManaPaymentPurpose::Spell { object, form, .. } => self
+                .proposed_spell_view(
+                    player,
+                    *object,
+                    form,
+                    Some(AlternativeCastKindDef::Harmonize),
+                    0,
+                )
+                .map_or(0, |spell| {
+                    self.spell_cost_reduction_ceiling(spell).generic()
                 }),
             _ => 0,
         };

@@ -40,26 +40,23 @@ impl Drop for StaticAbilityLayerGuard {
 
 impl Game {
     /// Stack spells share the permanent layer's ordered operations and grant
-    /// identities. Evaluate live at cast completion, so grants follow the
-    /// selected spell face and controller regardless of the casting zone.
-    pub(super) fn apply_static_stack_ability_operations(
+    /// identities. Evaluate live against the selected spell view, both while
+    /// proposing a cast and when capturing its triggers after payment.
+    pub(super) fn apply_static_spell_ability_operations(
         &self,
-        object: &super::StackObject,
+        spell: super::SpellView<'_>,
         abilities: &mut Vec<EffectiveAbility>,
     ) {
-        if object.kind != super::StackObjectKind::Spell {
-            return;
-        }
         let Some(_pass) = StaticAbilityLayerGuard::enter() else {
             return;
         };
-        let Some(characteristics) = self.stack_trigger_event_object(object) else {
+        let Some(characteristics) = self.spell_view_characteristics(spell) else {
             return;
         };
         let affected = super::StaticAffectedObject::Object {
             characteristics: &characteristics,
-            controller: Some(object.controller),
-            owner: object.card.owner,
+            controller: Some(spell.controller),
+            owner: spell.owner,
             zone: super::ZoneKind::Stack,
             is_spell: true,
         };

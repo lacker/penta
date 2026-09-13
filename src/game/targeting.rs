@@ -46,61 +46,19 @@ impl Game {
     }
 
     pub(super) fn stack_spell_types(&self, object: &StackObject) -> Option<CardTypeSet> {
-        if let Some(face_down) = object.face_down {
-            return Some(face_down.rules().types());
-        }
-        let definition = self
-            .catalog
-            .get(object.card.definition.card_definition()?)?;
-        let signature = object.signature.as_ref()?;
-        let option = definition.play_option(signature.play_option())?;
-        let types = Self::play_option_types(definition, option)?;
-        Some(if self.was_cast_for_bestow(object) {
-            Self::without_creature(types)
-        } else {
-            types
-        })
+        self.stack_trigger_event_object(object)
+            .map(|view| view.types)
     }
 
     pub(super) fn stack_trigger_event_object(
         &self,
         object: &StackObject,
     ) -> Option<TriggerEventObject> {
-        if let Some(face_down) = object.face_down {
-            return self.presentation_trigger_event_object(
-                object.id,
-                ObjectCharacteristics::FaceDown { face_down },
-                object.controller,
-                false,
-            );
-        }
-        let signature = object.signature.as_ref()?;
-        let mut view = self.printed_trigger_event_object(
-            object.id,
-            object.card.definition.card_definition()?,
-            object.controller,
-            &CharacteristicContext::Stack {
-                form: signature.form().clone(),
-            },
-        )?;
-        // The printed view treats X as zero. A stack event observes the
-        // spell's chosen X, just like targeting and resolution do.
-        view.mana_value = self.stack_spell_mana_value(object);
-        // Bestow (CR 702.103b): a spell cast for its bestow cost is an Aura
-        // spell rather than a creature spell -- an enchantment spell either
-        // way, but never both halves at once. Which one it is follows from
-        // how it was paid for, so the printed view cannot see it and this
-        // is where the split is drawn.
-        if self.was_cast_for_bestow(object) {
-            view.types = Self::without_creature(view.types);
-            view.subtypes.insert(crate::card::Subtype::Aura);
-            view.subtypes.retain_for_card_types(view.types);
-        }
-        Some(view)
+        self.spell_view_characteristics(self.stack_spell_view(object)?)
     }
 
     /// Card types with Creature taken out of them.
-    fn without_creature(types: CardTypeSet) -> CardTypeSet {
+    pub(super) fn without_creature(types: CardTypeSet) -> CardTypeSet {
         crate::card::CardType::ALL
             .into_iter()
             .filter(|card_type| {
@@ -143,7 +101,7 @@ impl Game {
         })
     }
 
-    fn presentation_trigger_event_object(
+    pub(super) fn presentation_trigger_event_object(
         &self,
         id: GameObjectId,
         presentation: ObjectCharacteristics,

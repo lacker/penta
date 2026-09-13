@@ -17,18 +17,17 @@ fn generic_cost_reduction_counts_matching_cards_outside_the_battlefield() {
         .graveyard
         .push(card(10_004, cards::BLACK_VISE, PlayerId::One));
 
+    let option = game
+        .catalog
+        .get(cards::GHOULTREE)
+        .unwrap()
+        .play_option(PlayOptionId::DEFAULT)
+        .unwrap();
+    let spell = game
+        .proposed_spell_view(PlayerId::One, source, &option.form, None, 0)
+        .unwrap();
     assert_eq!(
-        game.spell_cost_reduction(
-            game.catalog
-                .get(cards::GHOULTREE)
-                .unwrap()
-                .play_option(PlayOptionId::DEFAULT)
-                .unwrap(),
-            PlayerId::One,
-            source,
-            &[]
-        )
-        .generic(),
+        game.spell_cost_reduction(spell, &[]).generic(),
         3,
         "Ghoultree reads creature cards in its controller's graveyard rather than only battlefield permanents",
     );

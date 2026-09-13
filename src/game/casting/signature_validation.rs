@@ -379,10 +379,9 @@ impl Game {
         } else if !self.declared_slot_selection_is_valid(&declared_slots, choices) {
             return None;
         }
-        cost = add_mana_cost(
-            cost,
-            self.spell_cost_increase(option, player, card_id, choices.targets()),
-        );
+        let spell =
+            self.proposed_spell_view(player, card_id, &option.form, alternative_kind, choices.x())?;
+        cost = add_mana_cost(cost, self.spell_cost_increase(spell, choices.targets()));
         let (cost, phyrexian_life) = Self::locked_mana_payment(
             cost,
             choices.mana_payment(),
@@ -395,7 +394,8 @@ impl Game {
                     choices.x(),
                     additional_payment.generic_reduction,
                 ),
-                self.spell_cost_reduction(option, player, card_id, choices.targets()),
+                self.spell_cost_reduction(spell, choices.targets()),
+                choices.x(),
             ),
             self.emerge_generic_reduction(alternative_kind, sacrifices),
         );
@@ -411,12 +411,6 @@ impl Game {
             form: option.form.clone(),
             reserved_life_payment: total_life,
         };
-        if !self.payment_query.unfunded()
-            && cost.variable_x
-            && choices.x() > self.maximum_x_for(player, cost, &payment_purpose)
-        {
-            return None;
-        }
         if !self.can_pay_cost_for_reserving_with_life(
             player,
             cost,

@@ -23,10 +23,13 @@ impl Game {
     /// them; choosing which Rooftop Storm supplied `{0}` has no rules meaning.
     pub(super) fn battlefield_spell_alternative_costs(
         &self,
-        player: PlayerId,
-        source: GameObjectId,
+        view: super::SpellView<'_>,
     ) -> Vec<&'static [crate::CostDef]> {
-        let Some((zone, card)) = self.card_in_nonbattlefield_zone(source) else {
+        let player = view.controller;
+        let Some(zone) = view.source_zone else {
+            return Vec::new();
+        };
+        let Some(object) = self.spell_view_characteristics(view) else {
             return Vec::new();
         };
         let mut alternatives = Vec::new();
@@ -59,7 +62,7 @@ impl Game {
                     permanent.controller,
                     TriggerContext::empty(),
                 ) || !zones.contains(&zone)
-                    || !self.card_object_matches(spell, card, zone, permanent.card.id)
+                    || !self.trigger_object_matches(spell, &object, permanent.card.id, true)
                     || alternatives.contains(&costs)
                 {
                     continue;
@@ -70,89 +73,97 @@ impl Game {
         alternatives
     }
 
-    /// Discounts from the announced spell and active external modifiers.
-    /// Its selected parts supply stack abilities regardless of its old zone.
+    /// Intrinsic reductions and battlefield modifiers read the same selected
+    /// spell that cast-trigger capture will observe after payment.
     pub(super) fn spell_cost_reduction(
         &self,
-        option: &PlayOptionDef,
-        player: PlayerId,
-        source: GameObjectId,
+        view: super::SpellView<'_>,
         targets: &[TargetSelection],
     ) -> SpellCostReduction {
-        let mut reduction = self.battlefield_spell_cost_reduction(player, source, targets);
-        self.visit_casting_spell_cost_adjustments(source, option, player, |adjustment| {
+        let mut reduction = self.battlefield_spell_cost_reduction(view, targets, true);
+        let intrinsic = self.intrinsic_spell_cost_reduction(view, targets);
+        reduction.generic = reduction.generic.saturating_add(intrinsic.generic);
+        reduction.symbols = add_mana_cost(reduction.symbols, intrinsic.symbols);
+        reduction
+    }
+
+    /// Enumeration must not exclude an X that makes a discount applicable.
+    /// Ignore the spell predicate for this bound; each candidate is priced
+    /// again with its actual characteristics before becoming a legal action.
+    pub(super) fn spell_cost_reduction_ceiling(
+        &self,
+        view: super::SpellView<'_>,
+    ) -> SpellCostReduction {
+        let mut reduction = self.battlefield_spell_cost_reduction(view, &[], false);
+        let intrinsic = self.intrinsic_spell_cost_reduction(view, &[]);
+        reduction.generic = reduction.generic.saturating_add(intrinsic.generic);
+        reduction.symbols = add_mana_cost(reduction.symbols, intrinsic.symbols);
+        reduction
+    }
+
+    fn intrinsic_spell_cost_reduction(
+        &self,
+        view: super::SpellView<'_>,
+        targets: &[TargetSelection],
+    ) -> SpellCostReduction {
+        let mut reduction = SpellCostReduction::default();
+        self.visit_casting_spell_cost_adjustments(view, |adjustment| {
             if let CostAdjustmentDef::Subtract(amount) = adjustment {
-                reduction = self
-                    .add_spell_cost_reduction(reduction, amount, player, source, targets, source);
+                reduction = self.add_spell_cost_reduction(
+                    reduction,
+                    amount,
+                    view.controller,
+                    view.object,
+                    targets,
+                    view.object,
+                );
             }
         });
         reduction
     }
 
-    /// CR 113.6d: an object's own cost modifiers function on the stack. The
-    /// cast planner has not moved the card yet, so inspect the announced
-    /// spell's parts instead of reading abilities from its current zone.
+    /// An object's own cost modifiers function on the stack (CR 113.6d).
+    /// Read effective abilities from the same view used by cast triggers.
     fn visit_casting_spell_cost_adjustments(
         &self,
-        source: GameObjectId,
-        option: &PlayOptionDef,
-        player: PlayerId,
+        view: super::SpellView<'_>,
         mut visit: impl FnMut(CostAdjustmentDef),
     ) {
-        let Some((_, card)) = self.card_in_nonbattlefield_zone(source) else {
-            return;
-        };
-        let Some(definition) = self.catalog.get(card.definition) else {
-            return;
-        };
-        let context = CharacteristicContext::Stack {
-            form: option.form.clone(),
-        };
-        let Ok(parts) = crate::card::applicable_part_ids_ref(definition, &context) else {
-            return;
-        };
-        for part in parts.iter().copied() {
-            let Some(part) = definition.part(part) else {
-                continue;
+        self.for_each_spell_view_ability(view, |effective| {
+            let ability = effective.ability;
+            let DeclarativeAbilityDef::Static(static_definition) = ability.definition else {
+                return;
             };
-            for ability in part.rules.ability_clauses() {
-                let DeclarativeAbilityDef::Static(static_definition) = ability.definition else {
-                    continue;
-                };
-                if !static_definition.source_zones.contains(&ZoneKind::Stack) {
-                    continue;
-                }
-                let Some(EffectDef::ModifyCost(CostModificationDef::Spell(modification))) =
-                    ability.declarative_effect()
-                else {
-                    continue;
-                };
-                if modification.spell == crate::card::ObjectPredicateDef::Source
-                    && modification.condition == SpellCostConditionDef::Always
-                    && self.player_relation_matches(
-                        player,
-                        modification.caster,
-                        player,
-                        TriggerContext::empty(),
-                    )
-                {
-                    visit(modification.adjustment);
-                }
+            if !static_definition.source_zones.contains(&ZoneKind::Stack) {
+                return;
             }
-        }
+            let Some(EffectDef::ModifyCost(CostModificationDef::Spell(modification))) =
+                ability.declarative_effect()
+            else {
+                return;
+            };
+            if modification.spell == crate::card::ObjectPredicateDef::Source
+                && modification.condition == SpellCostConditionDef::Always
+                && self.player_relation_matches(
+                    view.controller,
+                    modification.caster,
+                    view.controller,
+                    TriggerContext::empty(),
+                )
+            {
+                visit(modification.adjustment);
+            }
+        });
     }
 
-    /// What permanents on the battlefield take off this spell's cost.
-    ///
-    /// Read from the card being cast rather than from its definition, so a
-    /// continuous effect that changed its types is what the predicate sees.
     fn battlefield_spell_cost_reduction(
         &self,
-        player: PlayerId,
-        source: GameObjectId,
+        view: super::SpellView<'_>,
         targets: &[TargetSelection],
+        match_spell: bool,
     ) -> SpellCostReduction {
-        let Some((zone, card)) = self.card_in_nonbattlefield_zone(source) else {
+        let player = view.controller;
+        let Some(object) = self.spell_view_characteristics(view) else {
             return SpellCostReduction::default();
         };
         let mut reduction = SpellCostReduction::default();
@@ -187,10 +198,18 @@ impl Game {
                 ) {
                     continue;
                 }
-                if !self.card_object_matches(modification.spell, card, zone, permanent.card.id)
+                if (match_spell
+                    && !self.trigger_object_matches(
+                        modification.spell,
+                        &object,
+                        permanent.card.id,
+                        true,
+                    ))
                     || !spell_cost_condition_matches(
                         modification.condition,
-                        zone, card.owner, player,
+                        view.source_zone.unwrap_or(ZoneKind::Stack),
+                        view.owner,
+                        player,
                         Target::Permanent(permanent.card.id),
                         targets,
                     )
@@ -203,7 +222,7 @@ impl Game {
                     player,
                     permanent.card.id,
                     targets,
-                    source,
+                    view.object,
                 );
             }
         }
@@ -211,13 +230,42 @@ impl Game {
     }
 
     pub(super) fn apply_spell_cost_reduction(
-        cost: ManaCost,
+        mut cost: ManaCost,
         reduction: SpellCostReduction,
+        x: u16,
     ) -> ManaCost {
+        // Chosen X is part of the total generic cost before reductions.
+        cost.generic = cost
+            .generic
+            .saturating_add(x.saturating_mul(cost.x_multiplier));
+        cost.variable_x = false;
+        cost.x_multiplier = 0;
         reduce_generic(
             reduce_mana_symbols(cost, reduction.symbols),
             reduction.generic,
         )
+    }
+
+    pub(super) fn maximum_spell_x_for(
+        &self,
+        player: PlayerId,
+        cost: ManaCost,
+        reduction: SpellCostReduction,
+        purpose: &ManaPaymentPurpose,
+    ) -> u16 {
+        if self.payment_query.unfunded() {
+            return u16::MAX;
+        }
+        let maximum = self
+            .available_mana_ceiling(player, purpose)
+            .saturating_add(reduction.generic);
+        (0..=maximum)
+            .rev()
+            .find(|x| {
+                let payable = Self::apply_spell_cost_reduction(cost, reduction, *x);
+                self.can_pay_cost_for(player, payable, 0, purpose)
+            })
+            .unwrap_or(0)
     }
 
     /// What permanents on the battlefield add to this spell's cost. Read the
@@ -226,31 +274,24 @@ impl Game {
     /// before any reduction, even though both share one declarative shape.
     pub(super) fn spell_cost_increase(
         &self,
-        option: &PlayOptionDef,
-        player: PlayerId,
-        source: GameObjectId,
+        view: super::SpellView<'_>,
         targets: &[TargetSelection],
     ) -> ManaCost {
-        let Some((zone, card)) = self.card_in_nonbattlefield_zone(source) else {
+        let player = view.controller;
+        let Some(object) = self.spell_view_characteristics(view) else {
             return ManaCost::default();
         };
-        // A permission to play a card out of exile can carry its own tax,
-        // which lives on the card rather than on any permanent: Elite
-        // Spellbinder's is still owed long after the Spellbinder is dead.
-        let mut increase = if zone == ZoneKind::Exile {
-            self.exile_play_surcharge(source, player)
-        } else if zone == ZoneKind::Command {
-            ManaCost {
-                generic: self.commander_tax(source),
-                ..ManaCost::default()
-            }
-        } else {
-            ManaCost::default()
-        };
-        self.visit_casting_spell_cost_adjustments(source, option, player, |adjustment| {
+        let mut increase = self.spell_cost_increase_floor(view);
+        self.visit_casting_spell_cost_adjustments(view, |adjustment| {
             if let CostAdjustmentDef::Add(amount) = adjustment {
-                increase =
-                    self.add_spell_cost_amount(increase, amount, player, source, targets, source);
+                increase = self.add_spell_cost_amount(
+                    increase,
+                    amount,
+                    player,
+                    view.object,
+                    targets,
+                    view.object,
+                );
             }
         });
         for permanent in &self.battlefield {
@@ -284,14 +325,19 @@ impl Game {
                 ) {
                     continue;
                 }
-                if !self.card_object_matches(modification.spell, card, zone, permanent.card.id)
-                    || !spell_cost_condition_matches(
-                        modification.condition,
-                        zone, card.owner, player,
-                        Target::Permanent(permanent.card.id),
-                        targets,
-                    )
-                {
+                if !self.trigger_object_matches(
+                    modification.spell,
+                    &object,
+                    permanent.card.id,
+                    true,
+                ) || !spell_cost_condition_matches(
+                    modification.condition,
+                    view.source_zone.unwrap_or(ZoneKind::Stack),
+                    view.owner,
+                    player,
+                    Target::Permanent(permanent.card.id),
+                    targets,
+                ) {
                     continue;
                 }
                 increase = self.add_spell_cost_amount(
@@ -300,15 +346,30 @@ impl Game {
                     player,
                     permanent.card.id,
                     targets,
-                    source,
+                    view.object,
                 );
             }
         }
 
         add_mana_cost(
             increase,
-            self.stack_targeting_source_spell_increase(player, source, targets),
+            self.stack_targeting_source_spell_increase(view, targets),
         )
+    }
+
+    /// Origin-based surcharges do not depend on chosen X. Other taxes may
+    /// stop applying as X changes, so enumeration omits them from its floor.
+    pub(super) fn spell_cost_increase_floor(&self, view: super::SpellView<'_>) -> ManaCost {
+        if view.source_zone == Some(ZoneKind::Exile) {
+            self.exile_play_surcharge(view.object, view.controller)
+        } else if view.source_zone == Some(ZoneKind::Command) {
+            ManaCost {
+                generic: self.commander_tax(view.object),
+                ..ManaCost::default()
+            }
+        } else {
+            ManaCost::default()
+        }
     }
 
     /// A static printed on a spell normally does nothing away from the
@@ -316,11 +377,11 @@ impl Game {
     /// Kaervek's Torch is itself the stack object a counterspell names.
     fn stack_targeting_source_spell_increase(
         &self,
-        player: PlayerId,
-        source: GameObjectId,
+        view: super::SpellView<'_>,
         targets: &[TargetSelection],
     ) -> ManaCost {
-        let Some((zone, card)) = self.card_in_nonbattlefield_zone(source) else {
+        let player = view.controller;
+        let Some(object) = self.spell_view_characteristics(view) else {
             return ManaCost::default();
         };
         let mut increase = ManaCost::default();
@@ -365,16 +426,23 @@ impl Game {
                         modification.caster,
                         stack.controller,
                         TriggerContext::empty(),
-                    ) && self.card_object_matches(modification.spell, card, zone, stack.id)
+                    ) && self.trigger_object_matches(modification.spell, &object, stack.id, true)
                         && spell_cost_condition_matches(
                             modification.condition,
-                            zone, card.owner, player,
+                            view.source_zone.unwrap_or(ZoneKind::Stack),
+                            view.owner,
+                            player,
                             Target::Spell(stack.id),
                             targets,
                         )
                     {
                         increase = self.add_spell_cost_amount(
-                            increase, amount, player, stack.id, targets, source,
+                            increase,
+                            amount,
+                            player,
+                            stack.id,
+                            targets,
+                            view.object,
                         );
                     }
                 }
@@ -503,7 +571,12 @@ impl Game {
     /// spell (CR 601.2f): a discount that ran first could take a cost to its
     /// floor and leave an increase to push it back up, which is not what
     /// either printed clause means.
-    pub(super) fn ability_mana_cost(&self, permanent: &Permanent, cost: ManaCost, mana_ability: bool) -> ManaCost {
+    pub(super) fn ability_mana_cost(
+        &self,
+        permanent: &Permanent,
+        cost: ManaCost,
+        mana_ability: bool,
+    ) -> ManaCost {
         let mut total = cost;
         let mut discounts = Vec::new();
         for other in &self.battlefield {
@@ -529,7 +602,9 @@ impl Game {
                         permanent: matcher,
                         amount,
                         minimum,
-                    })) if Self::activation_kind_matches(abilities, mana_ability) && self.ability_cost_effect_applies(matcher, permanent, other) => {
+                    })) if Self::activation_kind_matches(abilities, mana_ability)
+                        && self.ability_cost_effect_applies(matcher, permanent, other) =>
+                    {
                         let amount =
                             self.cost_reduction_value(amount, other.controller, other.card.id);
                         discounts.push((amount, minimum));
@@ -576,12 +651,13 @@ impl Game {
                         permanent: matcher,
                         amount,
                         minimum,
-                    }) if Self::activation_kind_matches(abilities, mana_ability) && self.trigger_object_matches(
-                        matcher,
-                        object,
-                        permanent.card.id,
-                        false,
-                    ) =>
+                    }) if Self::activation_kind_matches(abilities, mana_ability)
+                        && self.trigger_object_matches(
+                            matcher,
+                            object,
+                            permanent.card.id,
+                            false,
+                        ) =>
                     {
                         let amount = self.cost_reduction_value(
                             amount,
@@ -682,8 +758,13 @@ impl Game {
         self.activation_mana_cost_for_kind(definition, source, cost, false, targets)
     }
 
-    pub(super) fn priced_mana_ability_cost(&self, source: GameObjectId, definition: &ActivatedAbilityDef) -> ManaCost {
-        let cost = crate::card::costs::mana_cost(definition.costs, None).expect("mana abilities have fixed costs");
+    pub(super) fn priced_mana_ability_cost(
+        &self,
+        source: GameObjectId,
+        definition: &ActivatedAbilityDef,
+    ) -> ManaCost {
+        let cost = crate::card::costs::mana_cost(definition.costs, None)
+            .expect("mana abilities have fixed costs");
         self.activation_mana_cost_for_kind(definition, source, cost, true, Some(&[]))
     }
 
@@ -694,8 +775,14 @@ impl Game {
             || (!mana_ability && kind == AbilityKindDef::NonManaActivated)
     }
 
-    fn activation_mana_cost_for_kind(&self, definition: &ActivatedAbilityDef,
-        source: GameObjectId, cost: ManaCost, mana_ability: bool, targets: Option<&[TargetSelection]>) -> ManaCost {
+    fn activation_mana_cost_for_kind(
+        &self,
+        definition: &ActivatedAbilityDef,
+        source: GameObjectId,
+        cost: ManaCost,
+        mana_ability: bool,
+        targets: Option<&[TargetSelection]>,
+    ) -> ManaCost {
         let cost = self.ability_mana_cost_for_source(source, cost, mana_ability);
         let Some(reduction) = definition.cost_reduction else {
             return cost;

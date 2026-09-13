@@ -291,6 +291,9 @@ impl Game {
                                 // spell it is spliced onto, so it joins the cost
                                 // before anything else is worked out from it.
                                 let cost = add_mana_cost(cost, splice_cost);
+                                let Some(spell) = self.proposed_spell_view(player, card.id, &option.form, alternative_kind, 0) else {
+                                    return ControlFlow::Continue(());
+                                };
                                 // X comes from the mana cost or any semantic
                                 // additional-cost branch that names it. A spell
                                 // naming more than one is bounded by whichever
@@ -304,7 +307,7 @@ impl Game {
                                 } else if cost.variable_x {
                                     let increased = add_mana_cost(
                                         cost,
-                                        self.spell_cost_increase(option, player, card.id, &[]),
+                                        self.spell_cost_increase_floor(spell),
                                     );
                                     Some(
                                         Self::mana_payment_choices(increased)
@@ -337,17 +340,10 @@ impl Game {
                                                     form: option.form.clone(),
                                                     reserved_life_payment: total_life,
                                                 };
-                                                let maximum = self.maximum_x_for(
+                                                let maximum = self.maximum_spell_x_for(
                                                     player,
-                                                    Self::apply_spell_cost_reduction(
-                                                        locked,
-                                                        self.spell_cost_reduction(
-                                                            option,
-                                                            player,
-                                                            card.id,
-                                                            &[],
-                                                        ),
-                                                    ),
+                                                    locked,
+                                                    self.spell_cost_reduction_ceiling(spell),
                                                     &exact_purpose,
                                                 );
                                                 Some(maximum)
@@ -387,6 +383,7 @@ impl Game {
                                     definition, option, &costs,
                                 );
                                 for x in self.payment_query.x_values(min_x, max_x) {
+                                    let spell = super::SpellView { x, ..spell };
                                     // A permission that bounds what it
                                     // reaches by mana value reads the spell
                                     // as it will be on the stack, so an X
@@ -501,9 +498,7 @@ impl Game {
                                                 .saturating_add(additional_payment.life);
                                             let increased_cost = add_mana_cost(
                                                 add_mana_cost(cost, additional_payment.mana),
-                                                self.spell_cost_increase(
-                                                    option, player, card.id, targets,
-                                                ),
+                                                self.spell_cost_increase(spell, targets),
                                             );
                                             for mana_payment in
                                                 Self::mana_payment_choices(increased_cost)
@@ -519,9 +514,8 @@ impl Game {
                                                 };
                                                 let payable_cost = Self::apply_spell_cost_reduction(
                                                     Self::apply_harmonize_reduction(locked_cost, x, additional_payment.generic_reduction),
-                                                    self.spell_cost_reduction(
-                                                        option, player, card.id, targets,
-                                                    ),
+                                                    self.spell_cost_reduction(spell, targets),
+                                                    x,
                                                 );
                                                 let Some(life_available) = self
                                                     .life_available_after_payment(

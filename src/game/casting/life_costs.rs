@@ -302,6 +302,16 @@ impl Game {
                 offer,
             )
             .saturating_add(payment.life);
+        let alternative = self.selected_alternative_kind_for_offer(
+            definition,
+            option,
+            card_id,
+            signature.costs(),
+            offer,
+        );
+        let spell = self
+            .proposed_spell_view(player, card_id, &option.form, alternative, signature.x())
+            .expect("validated cast still has its source card");
         let includes_mana = signature.spliced().iter().any(|id| {
             self.card_in_nonbattlefield_zone(*id)
                 .and_then(|(_, instance)| self.catalog.get(instance.definition))
@@ -316,8 +326,7 @@ impl Game {
                 signature.costs(),
                 offer,
             )
-            || self.spell_cost_increase(option, player, card_id, signature.targets())
-                != ManaCost::default();
+            || self.spell_cost_increase(spell, signature.targets()) != ManaCost::default();
         (payment.objects, life, includes_mana)
     }
 }

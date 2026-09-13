@@ -276,6 +276,13 @@ the bot-wire epoch.
   ability grants now apply to stack spells using the existing layer operations
   and grant identities. Granted storm triggers survive source removal and
   checkpoint reconstruction; protocol and checkpoint encodings are unchanged.
+- Share a proposed-spell view between cost modifiers and cast ability
+  evaluation. Discounts, taxes, and external alternative costs now inspect
+  the selected Adventure/split/MDFC form, face-down body, or bestowed Aura,
+  with chosen X and spell controller preserved through validation, mana
+  previews, and cast-trigger capture. Keep origin restrictions and cost locking
+  at their existing casting stages. Generic discounts also reduce the mana
+  contributed by X; enumeration accounts for modifiers that depend on X.
 
 ## 0.7.0 — protocol 29
 

@@ -191,7 +191,10 @@ fn ral_loyalty_trigger_and_otter_prowess_use_the_shared_stack() {
     let otter_id = otter.card.id;
     assert_eq!(game.power(otter), Some(1));
     assert_eq!(game.toughness(otter), Some(1));
-    assert!(game.effective_subtypes(otter).contains(&"Otter"));
+    assert!(
+        game.effective_subtypes(otter)
+            .contains(crate::card::Subtype::Otter)
+    );
     cast(&mut game, cards::MOX_SAPPHIRE, PlayerId::One, false);
     assert_eq!(
         game.battlefield
@@ -346,5 +349,59 @@ fn battlefield_grant_uses_spell_controller_and_survives_its_source_leaving() {
         let hand = game.players[0].hand.len();
         settle(&mut game);
         assert_eq!(game.players[0].hand.len(), hand + 2);
+    }
+}
+
+#[test]
+fn proposed_spell_view_shares_emblem_abilities_and_discounted_cast() {
+    for prepared in [false, true] {
+        let mut game = ready_game();
+        game.set_prepared_engine_enabled(prepared);
+        emblem(&mut game);
+        game.players[0].hand.clear();
+        game.players[0].mana_pool = ManaPool::default();
+        game.put_onto_battlefield(PlayerId::One, cards::GOBLIN_ELECTROMANCER)
+            .unwrap();
+        // Control of the spell, rather than ownership of the card in exile,
+        // determines both the discount and the emblem's grant.
+        let held = game
+            .build_zone(PlayerId::Two, &[cards::BONECRUSHER_GIANT])
+            .unwrap()
+            .remove(0);
+        let id = held.id;
+        game.players[1].exile.push(held);
+        game.permit_conditional_cast_while_exiled(id, PlayerId::One);
+        game.add_unrestricted_mana(PlayerId::One, ManaColor::Red, 1);
+        let option = game
+            .catalog
+            .get(cards::BONECRUSHER_GIANT)
+            .unwrap()
+            .play_option(PlayOptionId(1))
+            .unwrap();
+        let view = game
+            .proposed_spell_view(PlayerId::One, id, &option.form, None, 0)
+            .unwrap();
+        let mut grants = Vec::new();
+        game.for_each_spell_view_ability(view, |ability| {
+            if ability.ability == abilities::storm() {
+                grants.push(ability.origin);
+            }
+        });
+        assert_eq!(grants.len(), 1);
+        let action = game.legal_actions(PlayerId::One).into_iter().find(|a| matches!(a, Action::CastSpell { card, choices, .. } if *card == id && choices.play_option() == PlayOptionId(1))).unwrap();
+        game.apply(PlayerId::One, action).unwrap();
+        assert_eq!(storm_triggers(&game), 1);
+        let object = game
+            .stack
+            .iter()
+            .find(|object| object.kind == StackObjectKind::Spell)
+            .unwrap();
+        let mut committed = Vec::new();
+        game.for_each_stack_spell_ability(object, |ability| {
+            if ability.ability == abilities::storm() {
+                committed.push(ability.origin);
+            }
+        });
+        assert_eq!(committed, grants);
     }
 }

@@ -306,6 +306,10 @@ impl HandcraftedPolicy {
                 on_failure,
                 ..
             } => Self::effect_is_a_wash(*on_success) || Self::effect_is_a_wash(*on_failure),
+            EffectDef::RollDie(roll) => roll
+                .outcomes()
+                .iter()
+                .any(|(_, effect)| Self::effect_is_a_wash(*effect)),
             EffectDef::FlipCoin { on_win, on_loss } => {
                 Self::effect_is_a_wash(*on_win) || Self::effect_is_a_wash(*on_loss)
             }
@@ -422,6 +426,10 @@ impl HandcraftedPolicy {
                 ..
             } => Self::target_condition_in(*on_success)
                 .or_else(|| Self::target_condition_in(*on_failure)),
+            EffectDef::RollDie(roll) => roll
+                .outcomes()
+                .iter()
+                .find_map(|(_, effect)| Self::target_condition_in(*effect)),
             EffectDef::FlipCoin { on_win, on_loss } => {
                 Self::target_condition_in(*on_win).or_else(|| Self::target_condition_in(*on_loss))
             }

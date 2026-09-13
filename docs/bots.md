@@ -1861,6 +1861,11 @@ These routes, and the registry above, are gated by `HOSTED_GAMES`. Each seat
 of a room is held by a token minted when the room starts, so knowing a room
 id lets you name a room and nothing else.
 
+The event stream includes `DieRolled` with `seat`, `sides`, and `result` (a
+one-based integer). Event types are an open vocabulary: consumers may ignore
+unrecognized events. A die roll is public and consumes the engine's seeded
+random stream when its effect resolves; choosing a mana payment never rolls it.
+
 ## Determinism and versioning
 
 Entry-time creature-type choices retain their authored label in the optional

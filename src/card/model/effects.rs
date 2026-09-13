@@ -47,4 +47,5 @@ include!("effects/applied.rs");
 include!("effects/vocabulary.rs");
 include!("effects/damage.rs");
 include!("effects/definition.rs");
+include!("effects/dice.rs");
 include!("effects/shorthands.rs");

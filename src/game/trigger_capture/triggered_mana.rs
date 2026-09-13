@@ -57,6 +57,7 @@ impl Game {
             EffectDef::None
             | EffectDef::ContinueReplacedDraw
             | EffectDef::Randomized { .. }
+            | EffectDef::RollDie(_)
             | EffectDef::FlipCoin { .. }
             | EffectDef::Choose(_)
             | EffectDef::ChooseExact(_)

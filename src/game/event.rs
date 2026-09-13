@@ -98,6 +98,11 @@ pub enum GameEvent {
     GameStarted {
         seed: u64,
     },
+    DieRolled {
+        player: PlayerId,
+        sides: u16,
+        result: u16,
+    },
     CardDrawn {
         player: PlayerId,
         card: GameObjectId,

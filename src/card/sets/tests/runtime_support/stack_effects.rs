@@ -201,6 +201,10 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
             };
             branch_is_shared(*on_success) && branch_is_shared(*on_failure)
         }
+        EffectDef::RollDie(roll) => roll.outcomes().iter().all(|(_, effect)| {
+            *effect == EffectDef::None
+                || shared_stack_effect_at_position(*effect, deferred_decision_allowed)
+        }),
         EffectDef::FlipCoin { on_win, on_loss } => {
             let branch_is_shared = |branch: EffectDef| {
                 branch == EffectDef::None

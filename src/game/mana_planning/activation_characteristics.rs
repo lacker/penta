@@ -23,6 +23,7 @@ impl Game {
                 Self::effect_animates_source(Some(*on_success))
                     || Self::effect_animates_source(Some(*on_failure))
             }
+            Some(EffectDef::RollDie(roll)) => roll.outcomes().iter().any(|(_, effect)| Self::effect_animates_source(Some(*effect))),
             Some(EffectDef::FlipCoin { on_win, on_loss }) => {
                 Self::effect_animates_source(Some(*on_win))
                     || Self::effect_animates_source(Some(*on_loss))

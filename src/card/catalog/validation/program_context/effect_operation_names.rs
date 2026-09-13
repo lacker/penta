@@ -19,6 +19,7 @@ const fn effect_operation_name(effect: EffectDef) -> &'static str {
         EffectDef::WithRule { .. } => "WithRule",
         EffectDef::BindOutput { .. } => "BindOutput",
         EffectDef::Randomized { .. } => "Randomized",
+        EffectDef::RollDie(_) => "RollDie",
         EffectDef::FlipCoin { .. } => "FlipCoin",
         EffectDef::Perform(crate::card::GameActionDef::Choose(_))
         | EffectDef::Choose(_)

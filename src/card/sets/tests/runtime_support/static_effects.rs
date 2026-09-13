@@ -357,6 +357,7 @@ fn shared_static_effect_at(source_zones: &[ZoneKind], effect: EffectDef, root: b
         | EffectDef::BecomeMonarch { .. }
         | EffectDef::VoteForPermanentToExile { .. }
         | EffectDef::Randomized { .. }
+        | EffectDef::RollDie(_)
         | EffectDef::FlipCoin { .. }
         | EffectDef::Choose(_)
         | EffectDef::ChooseForEachPlayer(_)

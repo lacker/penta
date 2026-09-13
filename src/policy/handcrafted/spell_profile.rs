@@ -364,6 +364,11 @@ impl HandcraftedPolicy {
                 Self::collect_spell_effect_profile(*on_success, x, targets, profile);
                 Self::collect_spell_effect_profile(*on_failure, x, targets, profile);
             }
+            EffectDef::RollDie(roll) => {
+                for (_, effect) in roll.outcomes() {
+                    Self::collect_spell_effect_profile(*effect, x, targets, profile);
+                }
+            }
             EffectDef::FlipCoin { on_win, on_loss } => {
                 Self::collect_spell_effect_profile(*on_win, x, targets, profile);
                 Self::collect_spell_effect_profile(*on_loss, x, targets, profile);

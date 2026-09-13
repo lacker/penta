@@ -77,7 +77,7 @@ pub use model::{
     PutObjectsOntoBattlefieldFaceDownDef, QuantifierDef, QuotientValueDef, RandomizeObjectOrderDef,
     ReplacementAbilityDef, ReplacementChoiceDef, ReplacementConditionDef, ReplacementEffectDef,
     ReplacementEventDef, ResolvedEffectDurationDef, ResolvedEffectDurationSetDef, RestartGameDef,
-    RevealAndClassifyCardsDef, RevealObjectsDef, RoundingDef, SacrificedAmountDef,
+    RevealAndClassifyCardsDef, RevealObjectsDef, RollDieDef, RoundingDef, SacrificedAmountDef,
     ScalarChoiceListDef, ScaledValueDef, SetOperationDef, SourceMatchValueDef, SpecialActionDef,
     SpellAbilityDef, SpellCastQueryDef, SpellCostConditionDef, SpellCostModificationDef, SpellForm,
     SpellResolutionDestinationDef, StackObjectEventDef, StackObjectEventMatcherDef,

@@ -291,6 +291,7 @@ mod m13_stale_audits;
 mod m14_stale_audits;
 mod mana_ability_costs;
 mod mana_and_costs;
+mod mana_artifact_dice;
 mod mana_planning_life;
 mod mana_pool_doubling;
 mod mana_restriction_lands;

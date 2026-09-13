@@ -18,6 +18,13 @@ fn has_bindable_output(effect: EffectDef) -> Result<bool, GrantedAbilityValidati
             on_win: then,
             on_loss: otherwise,
         } => Ok(has_bindable_output(*then)? || has_bindable_output(*otherwise)?),
+        EffectDef::RollDie(roll) => {
+            let mut bindable = false;
+            for (_, effect) in roll.outcomes() {
+                bindable |= has_bindable_output(*effect)?;
+            }
+            Ok(bindable)
+        }
         EffectDef::None => Ok(false),
         _ => Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
             context: "bound effect output",

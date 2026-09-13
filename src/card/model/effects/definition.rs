@@ -656,6 +656,8 @@ pub enum EffectDef {
         on_success: &'static EffectDef,
         on_failure: &'static EffectDef,
     },
+    /// Roll a fair numbered die, publish the result, and resolve its table entry.
+    RollDie(RollDieDef),
     /// Flip a fair coin, publish the result, then resolve its branch.
     FlipCoin {
         on_win: &'static EffectDef,

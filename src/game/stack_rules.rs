@@ -148,6 +148,7 @@ impl Game {
             EffectDef::None
             | EffectDef::ContinueReplacedDraw
             | EffectDef::Randomized { .. }
+            | EffectDef::RollDie(_)
             | EffectDef::FlipCoin { .. }
             | EffectDef::PreventDamage { .. }
             | EffectDef::AddMana(_)

@@ -104,6 +104,14 @@ impl Game {
                 };
                 self.resolve_effect_output(scoped.with_effect(*effect), object, context)
             }
+            EffectDef::RollDie(roll) => {
+                let result = self.roll_die(object.controller, roll.sides());
+                self.resolve_effect_output(
+                    scoped.with_effect(roll.outcome(result)),
+                    object,
+                    context,
+                )
+            }
             EffectDef::FlipCoin { on_win, on_loss } => {
                 let won = self.flip_coin(object.controller);
                 let effect = if won { on_win } else { on_loss };

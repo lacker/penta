@@ -821,3 +821,26 @@ fn emblem_ability_actions_expose_their_stable_origins() {
         }))
     );
 }
+
+#[test]
+fn die_roll_event_labels_show_the_player_die_and_exact_result() {
+    let game = WebGame::new("The Deck", "Goblins", "Handcrafted", true, 42, None).unwrap();
+    let observation = game.session.engine().observe(game.human);
+    for (player, expected) in [
+        (game.human, "You rolled a d20: 10"),
+        (game.human.opponent(), "Opponent rolled a d20: 10"),
+    ] {
+        assert_eq!(
+            game.event_label(
+                &observation,
+                &GameEvent::DieRolled {
+                    player,
+                    sides: 20,
+                    result: 10
+                }
+            )
+            .as_deref(),
+            Some(expected)
+        );
+    }
+}

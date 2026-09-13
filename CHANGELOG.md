@@ -20,6 +20,12 @@ the bot-wire epoch.
 
 ## Unreleased
 
+- Implement Firemind Vessel, Guild Globe, and Component Pouch. A shared
+  `RollDieDef` executes fair seeded dice and inclusive result tables. The public
+  event stream adds the open-vocabulary `DieRolled` event with `seat`, `sides`,
+  and `result`; existing wire and checkpoint encodings are unchanged. Component
+  counters use the existing named-counter representation.
+
 - Add `legacy` and `vintage` format profiles and browser setup options with
   separate banned/restricted policies and all 24 lists from the initial event
   corpus. Card pools remain cataloged subsets; missing identities use complete

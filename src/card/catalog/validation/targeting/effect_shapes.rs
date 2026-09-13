@@ -62,6 +62,12 @@ fn validate_effect_target_shapes(
             validate_effect_target_shapes(*on_success, targets, triggering_object_zone)?;
             validate_effect_target_shapes(*on_failure, targets, triggering_object_zone)
         }
+        EffectDef::RollDie(roll) => {
+            for (_, effect) in roll.outcomes() {
+                validate_effect_target_shapes(*effect, targets, triggering_object_zone)?;
+            }
+            Ok(())
+        }
         EffectDef::FlipCoin { on_win, on_loss } => {
             validate_effect_target_shapes(*on_win, targets, triggering_object_zone)?;
             validate_effect_target_shapes(*on_loss, targets, triggering_object_zone)

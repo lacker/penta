@@ -148,6 +148,12 @@ fn validate_effect_references(
             validate_effect_references(*on_success, target_count, scope)?;
             validate_effect_references(*on_failure, target_count, scope)
         }
+        EffectDef::RollDie(roll) => {
+            for (_, effect) in roll.outcomes() {
+                validate_effect_references(*effect, target_count, scope)?;
+            }
+            Ok(())
+        }
         EffectDef::FlipCoin { on_win, on_loss } => {
             validate_effect_references(*on_win, target_count, scope)?;
             validate_effect_references(*on_loss, target_count, scope)

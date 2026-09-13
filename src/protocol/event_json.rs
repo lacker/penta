@@ -32,6 +32,13 @@ pub fn event_json(catalog: &CardCatalog, event: &GameEvent) -> Option<Value> {
         GameEvent::CardDrawn { player, card } => {
             json!({"type":"CardDrawn", "seat":seat_name(*player), "objectId":card.0})
         }
+        GameEvent::DieRolled {
+            player,
+            sides,
+            result,
+        } => {
+            json!({"type":"DieRolled", "seat":seat_name(*player), "sides":sides, "result":result})
+        }
         GameEvent::CardRevealed {
             player,
             card: id,

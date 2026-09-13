@@ -24,6 +24,17 @@ mod tapping;
 mod tokens;
 
 impl Game {
+    fn roll_die(&mut self, player: super::PlayerId, sides: u16) -> u16 {
+        let result = u16::try_from(self.rng.index_below(usize::from(sides)) + 1)
+            .expect("die result fits its declared size");
+        self.events.push(super::GameEvent::DieRolled {
+            player,
+            sides,
+            result,
+        });
+        result
+    }
+
     #[allow(clippy::too_many_lines)]
     pub(super) fn resolve_effect_def(
         &mut self,
@@ -70,6 +81,10 @@ impl Game {
                     on_failure
                 };
                 self.resolve_effect_def(scoped.with_effect(*branch), object, context);
+            }
+            EffectDef::RollDie(roll) => {
+                let result = self.roll_die(object.controller, roll.sides());
+                self.resolve_effect_def(scoped.with_effect(roll.outcome(result)), object, context);
             }
             EffectDef::FlipCoin { on_win, on_loss } => {
                 let won = self.flip_coin(object.controller);

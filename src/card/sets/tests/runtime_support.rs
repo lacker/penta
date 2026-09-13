@@ -549,6 +549,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::ContinueReplacedDraw
                     | EffectDef::AddManaEqualTo { .. }
                     | EffectDef::Randomized { .. }
+                    | EffectDef::RollDie(_)
                     | EffectDef::FlipCoin { .. }
                     | EffectDef::Choose(_)
                     | EffectDef::ChooseExact(_)

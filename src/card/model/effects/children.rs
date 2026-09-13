@@ -35,6 +35,7 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
             on_failure,
             ..
         } => vec![*on_success, *on_failure],
+        EffectDef::RollDie(roll) => roll.outcomes().iter().map(|(_, effect)| *effect).collect(),
         EffectDef::FlipCoin { on_win, on_loss } => vec![*on_win, *on_loss],
         EffectDef::MillWhileMatching(mill) => vec![*mill.body, *mill.on_match],
         EffectDef::Choose(choice) => vec![*choice.then],

@@ -997,6 +997,21 @@ pub(in crate::card::sets) static SAHEELI_SUBLIME_ARTIFICER: CardRecord =
             ]),
 );
 
+// WAR 237 — Firemind Vessel
+pub(in crate::card::sets) static FIREMIND_VESSEL: CardRecord = CardRecord::new(
+    "Firemind Vessel",
+    "ec0ebb6b-d35a-47db-8071-7fef2a46c17b",
+    "Ravenna Tran",
+    CardRules::new_artifact(mana_cost!("{4}")).with_abilities(&[
+        abilities::enters_tapped(CardType::Artifact),
+        AbilityDef::activated_mana(
+            "{T}: Add two mana of different colors.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::two_different_colors()),
+        ),
+    ]),
+);
+
 // WAR 238 — God-Pharaoh's Statue
 pub(in crate::card::sets) static GOD_PHARAOH_S_STATUE_238: CardRecord = CardRecord::new(
     "God-Pharaoh's Statue",
@@ -1023,6 +1038,31 @@ pub(in crate::card::sets) static GOD_PHARAOH_S_STATUE_238: CardRecord = CardReco
                 },
             ),
         ]),
+);
+
+// WAR 239 — Guild Globe
+pub(in crate::card::sets) static GUILD_GLOBE: CardRecord = CardRecord::new(
+    "Guild Globe",
+    "a7faf99e-f61f-46cb-a275-2e12c41f1e31",
+    "Daniel Ljunggren",
+    CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
+        abilities::enters_trigger(
+            "When this artifact enters, draw a card.",
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        AbilityDef::activated_mana(
+            "{2}, {T}, Sacrifice this artifact: Add two mana of different colors.",
+            &[
+                CostDef::Mana(mana_cost!("{2}")),
+                CostDef::TapSource,
+                CostDef::SacrificeSource,
+            ],
+            EffectDef::AddMana(AddManaEffectDef::two_different_colors()),
+        ),
+    ]),
 );
 
 // WAR 242 — Prismite
@@ -1133,7 +1173,9 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ASHIOK_DREAM_RENDER_228,
     &DOVIN_HAND_OF_CONTROL_229,
     &SAHEELI_SUBLIME_ARTIFICER,
+    &FIREMIND_VESSEL,
     &GOD_PHARAOH_S_STATUE_238,
+    &GUILD_GLOBE,
     &PRISMITE_242,
     &BLAST_ZONE_244,
     &EMERGENCE_ZONE_245,

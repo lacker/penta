@@ -91,6 +91,36 @@ impl Game {
         );
     }
 
+    /// Identify a plain batch exit whose completion can bind actual departures.
+    fn battlefield_exit_result_batch(
+        &self,
+        effect: EffectDef,
+        object: &StackObject,
+        context: &EffectResolutionContext,
+        scoped: ScopedEffect,
+    ) -> Option<(Vec<crate::GameObjectId>, ZoneKind, ZonePlacement)> {
+        let EffectDef::Perform(crate::card::GameActionDef::MoveToZone {
+            object: recipient,
+            zone,
+            placement,
+        }) = effect
+        else {
+            return None;
+        };
+        if matches!(zone, ZoneKind::Battlefield | ZoneKind::Stack) {
+            return None;
+        }
+        let permanents = self
+            .effect_recipients(recipient, object, context, scoped)
+            .into_iter()
+            .map(|target| match target {
+                Target::Permanent(id) => Some(id),
+                _ => None,
+            })
+            .collect::<Option<Vec<_>>>()?;
+        Some((permanents, zone, placement))
+    }
+
     pub(super) fn resolve_zone_move_result(
         &mut self,
         effect: &'static EffectDef,
@@ -100,18 +130,35 @@ impl Game {
         mut context: EffectResolutionContext,
         scoped: ScopedEffect,
     ) {
+        if let Some((permanents, zone, placement)) =
+            self.battlefield_exit_result_batch(*effect, object, &context, scoped)
+        {
+            self.move_permanents_to_zone_then(
+                &permanents,
+                zone,
+                placement,
+                Some(crate::game::BattlefieldExitCompletion::ZoneMoveFollowup {
+                    destination: None,
+                    binding,
+                    object: Box::new(object.clone()),
+                    context,
+                    effect: scoped.with_effect(*then),
+                }),
+            );
+            return;
+        }
         let move_recipient = match effect {
             EffectDef::Perform(crate::card::GameActionDef::MoveToZone {
                 object: recipient,
                 ..
-            }) => Some(*recipient),
-            EffectDef::WithBattlefieldArrival { effect: inner, .. } => match **inner {
-                EffectDef::Perform(crate::card::GameActionDef::MoveToZone {
-                    object: recipient,
-                    ..
-                }) => Some(recipient),
-                _ => unreachable!("battlefield arrival must wrap a zone move"),
-            },
+            })
+            | EffectDef::WithBattlefieldArrival {
+                effect:
+                    EffectDef::Perform(crate::card::GameActionDef::MoveToZone {
+                        object: recipient, ..
+                    }),
+                ..
+            } => Some(*recipient),
             _ => None,
         };
         if let Some(recipient) = move_recipient {

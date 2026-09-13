@@ -803,10 +803,9 @@ impl Game {
                     })
             })
             .collect::<Vec<_>>();
-        let moved_to_graveyard = exits
+        let moved = exits
             .iter()
-            .filter(|(_, _, _, destination)| destination.zone == ZoneKind::Graveyard)
-            .map(|(object, _, _, _)| *object)
+            .map(|(object, _, _, destination)| (*object, destination.zone))
             .collect::<Vec<_>>();
 
         self.record_exits_for_the_turn(&exits);
@@ -850,21 +849,21 @@ impl Game {
         self.capture_battlefield_trigger_batch_from_snapshot(&listeners, &events);
 
         if let Some(completion) = completion {
-            self.resume_battlefield_exit_completion(*completion, &moved_to_graveyard);
+            self.resume_battlefield_exit_completion(*completion, &moved);
         }
     }
 
     pub(in crate::game) fn resume_battlefield_exit_completion(
         &mut self,
         completion: BattlefieldExitCompletion,
-        moved_to_graveyard: &[GameObjectId],
+        moved: &[(GameObjectId, ZoneKind)],
     ) {
         match completion {
             BattlefieldExitCompletion::MechanicPerformed { mechanic, player } => {
                 self.capture_mechanic(mechanic, player);
             }
             BattlefieldExitCompletion::Completions(completions) => {
-                self.resume_battlefield_exit_completions(completions, moved_to_graveyard);
+                self.resume_battlefield_exit_completions(completions, moved);
             }
             BattlefieldExitCompletion::ContinueBattlefieldExitReplacements { batch } => {
                 self.continue_battlefield_exit_replacements(batch);
@@ -874,20 +873,22 @@ impl Game {
                 context,
                 effects,
             } => self.resolve_effect_defs(effects, &object, &context),
-            BattlefieldExitCompletion::DestroyFollowup {
-                candidates,
+            BattlefieldExitCompletion::ZoneMoveFollowup {
+                destination,
                 binding,
                 object,
-                context,
+                mut context,
                 effect,
-            } => self.resume_destroy_followup(
-                &candidates,
-                binding,
-                &object,
-                context,
-                effect,
-                moved_to_graveyard,
-            ),
+            } => {
+                context.bind_object_group(
+                    binding,
+                    moved.iter()
+                        .filter(|(_, zone)| destination.is_none_or(|expected| expected == *zone))
+                        .map(|(object, _)| Target::Permanent(*object))
+                        .collect(),
+                );
+                self.resolve_effect_def(effect, &object, context);
+            }
             BattlefieldExitCompletion::FinishStackResolution { object, resolved } => {
                 self.finish_stack_resolution(&object, resolved);
             }
@@ -947,12 +948,12 @@ impl Game {
     fn resume_battlefield_exit_completions(
         &mut self,
         completions: Vec<BattlefieldExitCompletion>,
-        moved_to_graveyard: &[GameObjectId],
+        moved: &[(GameObjectId, ZoneKind)],
     ) {
         let mut completions = completions.into_iter();
         while let Some(completion) = completions.next() {
             let pending_before = self.pending_decisions.len();
-            self.resume_battlefield_exit_completion(completion, moved_to_graveyard);
+            self.resume_battlefield_exit_completion(completion, moved);
             let remaining = completions.as_slice();
             if !remaining.is_empty()
                 && self.defer_after_battlefield_exit(
@@ -963,26 +964,5 @@ impl Game {
                 return;
             }
         }
-    }
-
-    fn resume_destroy_followup(
-        &mut self,
-        candidates: &[GameObjectId],
-        binding: Binding,
-        object: &StackObject,
-        mut context: EffectResolutionContext,
-        effect: ScopedEffect,
-        moved_to_graveyard: &[GameObjectId],
-    ) {
-        context.bind_object_group(
-            binding,
-            moved_to_graveyard
-                .iter()
-                .copied()
-                .filter(|object| candidates.contains(object))
-                .map(Target::Permanent)
-                .collect(),
-        );
-        self.resolve_effect_def(effect, object, context);
     }
 }

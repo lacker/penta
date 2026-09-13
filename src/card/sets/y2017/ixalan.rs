@@ -88,12 +88,54 @@ pub(in crate::card::sets) static KINJALLI_S_SUNWING_19: CardRecord = CardRecord:
 );
 
 // XLN 34 — Settle the Wreckage
-// Audit: unsupported — Needs a completed exile result that counts only attackers actually moved to exile, including replacement effects. WithZoneMoveResult binds attempted recipients and cannot filter their successors by destination for the search maximum.
 pub(in crate::card::sets) static SETTLE_THE_WRECKAGE: CardRecord = CardRecord::new(
     "Settle the Wreckage",
     "9cbd346e-098a-4cf6-a72f-468376fd2e8f",
     "Dimitar Marinski",
-    CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{2}{W}{W}")).with_ability(AbilityDef::spell_with_targets(
+        "Exile all attacking creatures target player controls. That player may search their \
+             library for that many basic land cards, put those cards onto the battlefield tapped, \
+             then shuffle.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Player(PlayerRelation::Any),
+        )],
+        EffectDef::WithZoneMoveResult {
+            effect: &EffectDef::move_to_zone(
+                EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::controlled_by(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Attacking,
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                ))),
+                ZoneKind::Exile,
+                ZonePlacement::Top,
+            ),
+            binding: ParentBinding,
+            then: &EffectDef::May {
+                player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: &EffectDef::SearchZone {
+                    player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    source: ZoneKind::Library,
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                    ]),
+                    minimum: 0,
+                    maximum: ValueDef::BoundObjectCount(ParentBinding),
+                    reveal: false,
+                    destination: ZoneKind::Battlefield,
+                    placement: ZonePlacement::Top,
+                    shuffle: true,
+                    enters_tapped: true,
+                    attachment: None,
+                    binding: None,
+                    then: None,
+                },
+            },
+        },
+    )),
 );
 
 // XLN 41 — Territorial Hammerskull

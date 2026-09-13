@@ -5,15 +5,13 @@ use super::{
     BattlefieldExit, BattlefieldExitCause, BattlefieldExitCompletion,
     BattlefieldExitReplacementAction, BattlefieldExitSnapshot, CardInstance, CommittedTriggerEvent,
     CounterKind, DecisionContinuation, DecisionOption, DecisionOrderSemantics, DecisionPreference,
-    DecisionVisibility, DecisionZone, DeclarativeAbilityDef, EffectDef, EffectResolutionContext,
-    FrozenZoneMoveReplacement, Game, GameEvent, GameObjectId, KeywordAbility, ObjectInstance,
-    PendingBattlefieldExitBatch, PendingBattlefieldExitMove, Permanent, PlayerId,
-    ReplacementConditionDef, ReplacementEffectContext, ReplacementEffectDef, ReplacementEventDef,
-    ResolvedAbilityOperation, ResolvedContinuousEffectKind, RetiredObject, ScopedEffect,
-    StackObject, StackObjectKind, Step, Target, TriggerContext, ZoneKind, ZoneMoveCauseDef,
-    ZonePlacement, remove_card,
+    DecisionVisibility, DecisionZone, DeclarativeAbilityDef, EffectDef, FrozenZoneMoveReplacement,
+    Game, GameEvent, GameObjectId, KeywordAbility, ObjectInstance, PendingBattlefieldExitBatch,
+    PendingBattlefieldExitMove, Permanent, PlayerId, ReplacementConditionDef,
+    ReplacementEffectContext, ReplacementEffectDef, ReplacementEventDef, ResolvedAbilityOperation,
+    ResolvedContinuousEffectKind, RetiredObject, ScopedEffect, StackObject, StackObjectKind, Step,
+    Target, TriggerContext, ZoneKind, ZoneMoveCauseDef, ZonePlacement, remove_card,
 };
-use crate::Binding;
 
 impl Game {
     /// The copiable name of any object the engine can still find, wherever it

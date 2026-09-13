@@ -577,6 +577,9 @@ pub enum EffectDef {
     /// Runs `then` after a zone-moving effect, with the moved objects saved
     /// in `binding`. The continuation explicitly follows each object's next
     /// zone-change successor, so it remains correct across a delayed entry.
+    /// A plain battlefield-exit batch binds the original identities of only
+    /// completed moves, including tokens and redirected destinations. Moves
+    /// replaced with nothing are omitted; replacement choices finish first.
     WithZoneMoveResult {
         effect: &'static EffectDef,
         binding: Binding,

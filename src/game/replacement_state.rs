@@ -130,8 +130,8 @@ pub(super) enum BattlefieldExitCompletion {
         context: EffectResolutionContext,
         effects: Vec<ScopedEffect>,
     },
-    DestroyFollowup {
-        candidates: Vec<GameObjectId>,
+    ZoneMoveFollowup {
+        destination: Option<ZoneKind>,
         binding: Binding,
         object: Box<StackObject>,
         context: EffectResolutionContext,

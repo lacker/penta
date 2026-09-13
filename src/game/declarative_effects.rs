@@ -325,13 +325,14 @@ impl Game {
                         Target::Player(_) | Target::Card(_) | Target::Spell(_) => None,
                     })
                     .collect::<Vec<_>>();
-                let completion = then.map(|follow_up| BattlefieldExitCompletion::DestroyFollowup {
-                    candidates: permanents.clone(),
-                    binding: follow_up.binding,
-                    object: Box::new(object.clone()),
-                    context,
-                    effect: scoped.with_effect(*follow_up.effect),
-                });
+                let completion =
+                    then.map(|follow_up| BattlefieldExitCompletion::ZoneMoveFollowup {
+                        destination: Some(ZoneKind::Graveyard),
+                        binding: follow_up.binding,
+                        object: Box::new(object.clone()),
+                        context,
+                        effect: scoped.with_effect(*follow_up.effect),
+                    });
                 self.destroy_permanents_then(
                     &permanents,
                     scoped.has_rule(AppliedRuleDef::CannotRegenerate),

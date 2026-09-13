@@ -8812,8 +8812,8 @@ pub(in crate::card::sets) static MISTRISE_VILLAGE: CardRecord = CardRecord::new(
             ReplacementEffectDef::Conditional {
                 condition: ConditionDef::Exists(ObjectQueryDef::matching(
                     ObjectPredicateDef::AnyOf(&[
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Mountain")),
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Forest")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::from_name("Mountain")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::from_name("Forest")),
                     ]),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::You,

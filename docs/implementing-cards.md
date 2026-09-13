@@ -310,6 +310,28 @@ color pairs as ordinary bundle choices. Interplanar Beacon adds its spell
 restriction to that shared constructor; each produced unit retains the same
 restriction and can be spent separately.
 
+### Effects on matching spells
+
+Use `AppliedRuleDef::PlayerRule(PlayerRuleDef::ApplyToMatchingSpell { object, effect })`
+in a resolving `EffectDef::Apply` aimed at the affected player. The enclosing
+Apply supplies the grant's duration: Mistrise Village combines `UntilEndOfTurn`
+and `UntilNextMatchingCast`, just as Quicken does for its
+`MayCastAsThoughItHadFlash` permission. Without the next-cast duration, a grant
+applies to each matching cast until its other expiration condition ends it.
+
+Both rules match the completed cast's stack characteristics and consume every
+matching next-cast duration before cast triggers or priority. Quicken's timing
+permission is also read while checking whether a cast can begin; legal-action
+queries, suspend actions, and uncast spell copies consume nothing. Timing
+permissions expire even when the spell was cast at ordinary sorcery timing.
+The initial stack-effect payload boundary accepts `AppliedRuleDef::CannotBeCountered`,
+including composites of that rule; other stack or permanent riders need their
+own runtime and duration support.
+
+The grant and the resulting stack effect retain catalog locators for checkpoint
+reconstruction. Once applied, counterability protection lasts for that spell's
+stack lifetime, even after the waiting grant's original deadline.
+
 ### Exiled card facing
 
 Use `ObjectPredicateDef::FaceUpInExile` for a live card selection requiring a
@@ -346,28 +368,6 @@ Instant and Sorcery share another. The evaluator removes subtypes when their
 corresponding card type is gone. Planar, dungeon, and battle subtype vocabularies
 are included without adding gameplay support for those card types. Names remain
 the persistence boundary; numeric subtype positions are never serialized.
-
-### Effects on matching spells
-
-Use `AppliedRuleDef::PlayerRule(PlayerRuleDef::ApplyToMatchingSpell { object, effect })`
-in a resolving `EffectDef::Apply` aimed at the affected player. The enclosing
-Apply supplies the grant's duration: Mistrise Village combines `UntilEndOfTurn`
-and `UntilNextMatchingCast`, just as Quicken does for its
-`MayCastAsThoughItHadFlash` permission. Without the next-cast duration, a grant
-applies to each matching cast until its other expiration condition ends it.
-
-Both rules match the completed cast's stack characteristics and consume every
-matching next-cast duration before cast triggers or priority. Quicken's timing
-permission is also read while checking whether a cast can begin; legal-action
-queries, suspend actions, and uncast spell copies consume nothing. Timing
-permissions expire even when the spell was cast at ordinary sorcery timing.
-The initial stack-effect payload boundary accepts `AppliedRuleDef::CannotBeCountered`,
-including composites of that rule; other stack or permanent riders need their
-own runtime and duration support.
-
-The grant and the resulting stack effect retain catalog locators for checkpoint
-reconstruction. Once applied, counterability protection lasts for that spell's
-stack lifetime, even after the waiting grant's original deadline.
 
 ### Changeling
 

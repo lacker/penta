@@ -53,7 +53,7 @@ impl Game {
         after
     }
 
-    fn unspent_pool_after_mana_costs(&self, player: PlayerId, costs: &[CostDef]) -> ManaSplit {
+    fn unspent_pool_after_mana_costs(&self, player: PlayerId, costs: &[CostDef]) -> ManaPool {
         let mut pool = self.players[player.index()].mana_pool;
         let mut eligible = self.eligible_mana_pool(player, &ManaPaymentPurpose::Other);
         for cost in costs {
@@ -77,10 +77,76 @@ impl Game {
                 }
             }
         }
+        pool
+    }
+
+    fn mana_amounts_for(
+        &self,
+        amounts: &[(ManaColor, crate::card::ValueDef)],
+        permanent: &Permanent,
+        pool: ManaPool,
+    ) -> ManaSplit {
         let mut split = ManaSplit::empty();
-        for color in ManaColor::ALL {
-            split.add(color, pool.amount(color));
+        for (color, value) in amounts {
+            split.add(*color, self.mana_value_with_pool(*value, permanent, pool));
         }
         split
+    }
+
+    /// Evaluate every amount against one projected post-payment pool, before
+    /// producing any units. Other board reads retain their ordinary meaning.
+    fn mana_value_with_pool(
+        &self,
+        value: crate::card::ValueDef,
+        permanent: &Permanent,
+        pool: ManaPool,
+    ) -> u16 {
+        u16::try_from(self.mana_value_expression(value, permanent, pool).max(0)).unwrap_or(u16::MAX)
+    }
+
+    fn mana_value_expression(
+        &self,
+        value: crate::card::ValueDef,
+        permanent: &Permanent,
+        pool: ManaPool,
+    ) -> i32 {
+        use crate::card::ValueDef;
+        match value {
+            ValueDef::Constant(amount) => amount,
+            ValueDef::SourcePower => self.power(permanent).map_or(0, i32::from),
+            ValueDef::ManaInPool { player, color } => {
+                i32::from(self.mana_in_pool_value(player, color, permanent.controller, Some(pool)))
+            }
+            ValueDef::Sum(sum) => self
+                .mana_value_expression(sum.left, permanent, pool)
+                .saturating_add(self.mana_value_expression(sum.right, permanent, pool)),
+            ValueDef::Scaled(scaled) => self
+                .mana_value_expression(scaled.value, permanent, pool)
+                .saturating_mul(scaled.factor),
+            other => i32::from(self.mana_ability_value(other, permanent)),
+        }
+    }
+
+    pub(super) fn mana_in_pool_value(
+        &self,
+        player: crate::card::PlayerRelation,
+        color: Option<ManaColor>,
+        controller: PlayerId,
+        controller_pool: Option<ManaPool>,
+    ) -> u16 {
+        [PlayerId::One, PlayerId::Two]
+            .into_iter()
+            .filter(|seat| {
+                self.player_relation_matches(*seat, player, controller, TriggerContext::empty())
+            })
+            .map(|seat| {
+                let pool = if seat == controller {
+                    controller_pool.unwrap_or(self.players[seat.index()].mana_pool)
+                } else {
+                    self.players[seat.index()].mana_pool
+                };
+                color.map_or_else(|| pool.total(), |color| pool.amount(color))
+            })
+            .fold(0, u16::saturating_add)
     }
 }

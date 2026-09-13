@@ -314,6 +314,12 @@ impl ObjectQueryDef {
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum ValueDef {
     Constant(i32),
+    /// Unspent mana held by the named player, optionally filtered by type.
+    /// Counts units regardless of their spending restrictions or provenance.
+    ManaInPool {
+        player: PlayerRelation,
+        color: Option<ManaColor>,
+    },
     ChosenX,
     /// The X chosen for the spell that put the ability's source onto the
     /// battlefield. An enters trigger is a new object, so [`Self::ChosenX`]

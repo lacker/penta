@@ -72,7 +72,7 @@ impl Game {
             ManaSelectionDef::One(ManaTypeDef::Fixed(color)) => add(color, None),
             ManaSelectionDef::One(ManaTypeDef::ChosenColor)
             | ManaSelectionDef::ColorsOfLinkedExiles
-            | ManaSelectionDef::UnspentPool
+            | ManaSelectionDef::Amounts(_)
             | ManaSelectionDef::ChoiceOfBundles(_) => {}
             ManaSelectionDef::Choice(types) => {
                 let ManaTypeSourceDef::Fixed(colors) = types.source else {

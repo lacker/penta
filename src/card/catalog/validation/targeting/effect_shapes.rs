@@ -685,6 +685,9 @@ fn validate_effect_target_shapes(
             Ok(())
         }
         EffectDef::AddMana(mana) => match mana.mana {
+            crate::card::ManaSelectionDef::Amounts(amounts) => amounts
+                .iter()
+                .try_for_each(|(_, value)| validate_value_shape(*value, targets)),
             crate::card::ManaSelectionDef::Choice(types)
             | crate::card::ManaSelectionDef::Combination(types) => match types.source {
                 crate::card::ManaTypeSourceDef::ProducedBy(reference) => {
@@ -697,7 +700,6 @@ fn validate_effect_target_shapes(
             },
             crate::card::ManaSelectionDef::One(_)
             | crate::card::ManaSelectionDef::ColorsOfLinkedExiles
-            | crate::card::ManaSelectionDef::UnspentPool
             | crate::card::ManaSelectionDef::ChoiceOfBundles(_) => Ok(()),
         },
         // The ballot is a predicate, not a target: nothing is pointed at.

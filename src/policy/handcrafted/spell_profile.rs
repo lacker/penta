@@ -709,7 +709,8 @@ impl HandcraftedPolicy {
             | ValueDef::OpponentsWhoLostLifeThisTurn
             | ValueDef::CardTypesAmongGraveyards(_)
             | ValueDef::IfCardTypesAmongGraveyards(_)
-            | ValueDef::DistinctTargets => None,
+            | ValueDef::DistinctTargets
+            | ValueDef::ManaInPool { .. } => None,
         }
     }
 }

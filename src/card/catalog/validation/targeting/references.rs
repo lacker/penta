@@ -590,6 +590,7 @@ fn validate_value_target_references(
         }
         ValueDef::BoundObjectCount(binding) => scope.validate_object_set_reference(binding),
         ValueDef::CountSpellsCastThisTurn(_)
+        | ValueDef::ManaInPool { .. }
         | ValueDef::Constant(_)
         | ValueDef::ChosenX
         | ValueDef::PlayerCounters { .. }

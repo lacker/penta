@@ -18,6 +18,11 @@ fn validate_mana_references(
         }
     }
     match mana.mana {
+        crate::card::ManaSelectionDef::Amounts(amounts) => {
+            amounts.iter().try_for_each(|(_, value)| {
+                validate_value_target_references(*value, target_count, scope)
+            })
+        }
         crate::card::ManaSelectionDef::Choice(types)
         | crate::card::ManaSelectionDef::Combination(types) => match types.source {
             crate::card::ManaTypeSourceDef::ProducedBy(reference) => {
@@ -30,7 +35,6 @@ fn validate_mana_references(
         },
         crate::card::ManaSelectionDef::One(_)
         | crate::card::ManaSelectionDef::ColorsOfLinkedExiles
-        | crate::card::ManaSelectionDef::UnspentPool
         | crate::card::ManaSelectionDef::ChoiceOfBundles(_) => Ok(()),
     }
 }

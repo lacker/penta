@@ -217,7 +217,7 @@ fn produced_mana(effect: AddManaEffectDef) -> Vec<Mana> {
                 | crate::card::ManaTypeSourceDef::CouldBeProducedBy(_) => ManaColor::ALL.to_vec(),
             }
         }
-        ManaSelectionDef::UnspentPool => ManaColor::ALL.to_vec(),
+        ManaSelectionDef::Amounts(amounts) => amounts.iter().map(|(color, _)| *color).collect(),
         // Whatever was imprinted, which no printed clause names. Every
         // colour is a possibility, so the sweep covers all five.
         ManaSelectionDef::ColorsOfLinkedExiles => crate::card::ManaColor::COLORS.to_vec(),

@@ -640,9 +640,9 @@ impl ManaTypeSetDef {
 /// the pool.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum ManaSelectionDef {
-    /// Add one mana of each type for each unspent mana of that type.
-    /// Counts the pool after activation costs; does not copy source or payload.
-    UnspentPool,
+    /// Add a bundle with an independently evaluated amount for each type.
+    /// All values read the same state after activation costs.
+    Amounts(&'static [(ManaColor, ValueDef)]),
     One(ManaTypeDef),
     /// One colour picked from a list, with the whole amount in that colour.
     /// A dual land offers "add {W} or {U}", not a mixture.
@@ -746,9 +746,9 @@ pub struct ManaAmountOverrideDef {
 
 impl AddManaEffectDef {
     #[must_use]
-    pub const fn double_unspent_pool() -> Self {
+    pub const fn amounts(amounts: &'static [(ManaColor, ValueDef)]) -> Self {
         Self {
-            mana: ManaSelectionDef::UnspentPool,
+            mana: ManaSelectionDef::Amounts(amounts),
             amount: 0,
             ..Self::one(ManaColor::Colorless)
         }

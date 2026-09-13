@@ -392,3 +392,100 @@ fn doubling_cube_preserves_commander_only_mana_through_checkpoint_and_both_casts
         "the commander can spend the original Lotus mana"
     );
 }
+
+fn game_with_composed_mana(effect: AddManaEffectDef, prepared: bool) -> (Game, GameObjectId) {
+    let mut game = ready_game();
+    let mut definition = game.catalog.get(cards::DOUBLING_CUBE).unwrap().clone();
+    definition.rules =
+        CardRules::new_artifact(mana_cost!("{2}")).with_ability(AbilityDef::activated_mana(
+            "{3}, {T}: Add the declared amounts of mana.",
+            &[CostDef::Mana(mana_cost!("{3}")), CostDef::TapSource],
+            EffectDef::AddMana(effect),
+        ));
+    synchronize_single_part_definition(&mut definition);
+    game.catalog = CardCatalog::new([definition]).unwrap();
+    game.prepared_engine = PreparedEngine::compile(&game.catalog);
+    game.set_prepared_engine_enabled(prepared);
+    let source = put(&mut game, 10_000, cards::DOUBLING_CUBE);
+    (game, source)
+}
+
+#[test]
+fn mana_pool_doubling_components_add_different_types_from_one_pool_snapshot() {
+    use crate::card::SumValueDef;
+    // Red reads white, while blue reads total mana plus one. Neither reads
+    // the mana produced by the other entry in the same bundle.
+    let effect = AddManaEffectDef::amounts(&[
+        (
+            ManaColor::Red,
+            ValueDef::ManaInPool {
+                player: PlayerRelation::You,
+                color: Some(ManaColor::White),
+            },
+        ),
+        (
+            ManaColor::Blue,
+            ValueDef::Sum(&SumValueDef {
+                left: ValueDef::ManaInPool {
+                    player: PlayerRelation::You,
+                    color: None,
+                },
+                right: ValueDef::Constant(1),
+            }),
+        ),
+        (
+            ManaColor::Green,
+            ValueDef::ManaInPool {
+                player: PlayerRelation::Opponent,
+                color: None,
+            },
+        ),
+    ]);
+    let mut results = Vec::new();
+    for prepared in [false, true] {
+        let (mut game, source) = game_with_composed_mana(effect, prepared);
+        game.add_unrestricted_mana(PlayerId::One, ManaColor::Colorless, 3);
+        game.add_unrestricted_mana(PlayerId::One, ManaColor::White, 2);
+        game.add_unrestricted_mana(PlayerId::Two, ManaColor::Black, 4);
+        activate(&mut game, source, None);
+        assert_eq!(game.players[0].mana_pool.white, 2);
+        assert_eq!(game.players[0].mana_pool.red, 2);
+        assert_eq!(game.players[0].mana_pool.blue, 3);
+        assert_eq!(game.players[0].mana_pool.green, 4);
+        assert_eq!(game.players[0].mana_pool.colorless, 0);
+        assert_eq!(game.players[1].mana_pool.black, 4);
+        results.push((game.players, game.events));
+    }
+    assert_eq!(results[0], results[1]);
+}
+
+#[test]
+fn mana_pool_doubling_query_also_works_as_an_ordinary_variable_amount() {
+    for value in [
+        ValueDef::ManaInPool {
+            player: PlayerRelation::You,
+            color: None,
+        },
+        ValueDef::Scaled(&crate::card::ScaledValueDef {
+            value: ValueDef::Sum(&crate::card::SumValueDef {
+                left: ValueDef::Constant(-1),
+                right: ValueDef::ManaInPool {
+                    player: PlayerRelation::You,
+                    color: None,
+                },
+            }),
+            factor: 2,
+        }),
+    ] {
+        let effect = AddManaEffectDef::one(ManaColor::Red).with_variable_amount(value);
+        for prepared in [false, true] {
+            let (mut game, source) = game_with_composed_mana(effect, prepared);
+            game.add_unrestricted_mana(PlayerId::One, ManaColor::Colorless, 3);
+            game.add_unrestricted_mana(PlayerId::One, ManaColor::Blue, 2);
+            activate(&mut game, source, Some(ManaColor::Red));
+            assert_eq!(game.players[0].mana_pool.blue, 2);
+            assert_eq!(game.players[0].mana_pool.red, 2);
+            assert_eq!(game.players[0].mana_pool.colorless, 0);
+        }
+    }
+}

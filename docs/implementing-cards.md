@@ -441,3 +441,17 @@ Resolving payments can contain `CostDef::repeated(costs, count)`. The count is a
 payment remains all-or-nothing. Use `PayOrDef::optional`, `optional_or`, or
 `unless` to choose the continuation, with `.labeled(...)` when observers or
 mana restrictions care about the payment's purpose.
+
+## Pool-dependent mana amounts
+
+Use `AddManaEffectDef::one(color).with_variable_amount(value)` to add a computed
+quantity of one mana type. `ValueDef::ManaInPool { player, color }` counts unspent
+mana, including restricted mana; `color: None` counts all types. Constants,
+sums, and scaling compose with this query in activated mana abilities.
+
+Use `AddManaEffectDef::amounts(&[(color, value), ...])` when one activation
+produces several types with independent quantities. Every entry reads the same
+pool after activation costs, before any entry produces mana. Doubling Cube
+composes six entries, each counting and adding one matching type. Production
+creates new mana carrying the producing effect's source and payload; the count
+query does not copy restrictions, spend effects, or source properties.

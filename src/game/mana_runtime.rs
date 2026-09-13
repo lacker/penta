@@ -241,7 +241,11 @@ impl Game {
             // Resolved here rather than at payment time so that the amount
             // the planner counts on is the amount the pool receives.
             if let Some(value) = effect.variable_amount {
-                effect.amount = self.mana_ability_value(value, permanent);
+                effect.amount = self.mana_value_with_pool(
+                    value,
+                    permanent,
+                    self.unspent_pool_after_mana_costs(permanent.controller, definition.costs),
+                );
             }
             effect.amount = self.mana_amount_for(effect, permanent.controller, permanent.card.id);
             // "Remove any number of storage counters" is a choice of size, so
@@ -294,9 +298,10 @@ impl Game {
             for (costs, amount, counters_removed) in sizes {
                 for cost_object in &sacrifices {
                     match effect.mana {
-                        ManaSelectionDef::UnspentPool => {
-                            let split =
+                        ManaSelectionDef::Amounts(amounts) => {
+                            let pool =
                                 self.unspent_pool_after_mana_costs(permanent.controller, &costs);
+                            let split = self.mana_amounts_for(amounts, permanent, pool);
                             add_activation(
                                 ManaColor::Colorless,
                                 &costs,
@@ -481,13 +486,13 @@ impl Game {
             // properties of the resulting mana, not of its type.
             if let Some(effect) = Self::shared_add_mana_effect(&definition, &effective.ability) {
                 match effect.mana {
-                    ManaSelectionDef::UnspentPool => {
-                        colors.extend(ManaColor::ALL.into_iter().filter(|color| {
-                            self.players[permanent.controller.index()]
-                                .mana_pool
-                                .amount(*color)
-                                > 0
-                        }));
+                    ManaSelectionDef::Amounts(amounts) => {
+                        let pool = self.players[permanent.controller.index()].mana_pool;
+                        colors.extend(
+                            self.mana_amounts_for(amounts, permanent, pool)
+                                .iter()
+                                .map(|(color, _)| color),
+                        );
                     }
                     ManaSelectionDef::One(kind) => {
                         colors.extend(self.mana_type_for_source(kind, permanent.card.id));

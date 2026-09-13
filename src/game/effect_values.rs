@@ -250,6 +250,9 @@ impl Game {
         scoped: ScopedEffect,
     ) -> i32 {
         match value {
+            ValueDef::ManaInPool { player, color } => {
+                i32::from(self.mana_in_pool_value(player, color, object.controller, None))
+            }
             ValueDef::Constant(value) => value,
             ValueDef::CreaturesDiedThisTurn => i32::from(self.creatures_died_this_turn),
             // A count of players, not of life: the clause asks how many

@@ -600,6 +600,10 @@ impl Game {
         source: GameObjectId,
     ) -> u16 {
         match value {
+            ValueDef::ManaInPool {
+                player: relation,
+                color,
+            } => self.mana_in_pool_value(relation, color, player, None),
             ValueDef::Constant(amount) => u16::try_from(amount.max(0)).unwrap_or(u16::MAX),
             ValueDef::CountersOnSource(kind) => self
                 .battlefield

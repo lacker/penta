@@ -121,7 +121,8 @@ fn static_power_toughness_value_supported(value: ValueDef) -> bool {
         | ValueDef::ObjectManaValue(_)
         | ValueDef::DistinctTargets
         | ValueDef::DividedAmongTargets
-        | ValueDef::ResolvedRecipientCount => false,
+        | ValueDef::ResolvedRecipientCount
+        | ValueDef::ManaInPool { .. } => false,
     }
 }
 
@@ -209,7 +210,8 @@ fn static_cost_reduction_value_supported(value: ValueDef) -> bool {
         | ValueDef::ObjectManaValue(_)
         | ValueDef::DistinctTargets
         | ValueDef::DividedAmongTargets
-        | ValueDef::ResolvedRecipientCount => false,
+        | ValueDef::ResolvedRecipientCount
+        | ValueDef::ManaInPool { .. } => false,
     }
 }
 

@@ -466,7 +466,50 @@ pub(in crate::card::sets) static DOUBLING_CUBE: CardRecord = CardRecord::new(
     CardRules::new_artifact(mana_cost!("{2}")).with_ability(AbilityDef::activated_mana(
         "{3}, {T}: Double the amount of each type of unspent mana you have.",
         &[CostDef::Mana(mana_cost!("{3}")), CostDef::TapSource],
-        EffectDef::AddMana(AddManaEffectDef::double_unspent_pool()),
+        EffectDef::AddMana(AddManaEffectDef::amounts(&[
+            (
+                ManaColor::White,
+                ValueDef::ManaInPool {
+                    player: PlayerRelation::You,
+                    color: Some(ManaColor::White),
+                },
+            ),
+            (
+                ManaColor::Blue,
+                ValueDef::ManaInPool {
+                    player: PlayerRelation::You,
+                    color: Some(ManaColor::Blue),
+                },
+            ),
+            (
+                ManaColor::Black,
+                ValueDef::ManaInPool {
+                    player: PlayerRelation::You,
+                    color: Some(ManaColor::Black),
+                },
+            ),
+            (
+                ManaColor::Red,
+                ValueDef::ManaInPool {
+                    player: PlayerRelation::You,
+                    color: Some(ManaColor::Red),
+                },
+            ),
+            (
+                ManaColor::Green,
+                ValueDef::ManaInPool {
+                    player: PlayerRelation::You,
+                    color: Some(ManaColor::Green),
+                },
+            ),
+            (
+                ManaColor::Colorless,
+                ValueDef::ManaInPool {
+                    player: PlayerRelation::You,
+                    color: Some(ManaColor::Colorless),
+                },
+            ),
+        ])),
     )),
 );
 

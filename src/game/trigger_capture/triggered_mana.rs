@@ -256,7 +256,7 @@ impl Game {
                 split
             }
             ManaSelectionDef::ColorsOfLinkedExiles
-            | ManaSelectionDef::UnspentPool
+            | ManaSelectionDef::Amounts(_)
             | ManaSelectionDef::ChoiceOfBundles(_) => return,
         };
         if let Some(color) = also {

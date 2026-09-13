@@ -21,8 +21,10 @@ pub(in super::super) fn shared_mana_effect(effect: EffectDef, choices_are_suppor
         return false;
     };
     let selection_is_supported = match mana.mana {
-        ManaSelectionDef::UnspentPool => {
-            choices_are_supported
+        ManaSelectionDef::Amounts(amounts) => {
+            !amounts.is_empty()
+                && amounts.iter().all(|(_, value)| shared_mana_amount(*value))
+                && choices_are_supported
                 && mana.also.is_none()
                 && mana.variable_amount.is_none()
                 && mana.amount_override.is_none()
@@ -59,16 +61,9 @@ pub(in super::super) fn shared_mana_effect(effect: EffectDef, choices_are_suppor
     // replaces it.
     let amount_is_known = matches!(
         mana.mana,
-        ManaSelectionDef::ChoiceOfBundles(_) | ManaSelectionDef::UnspentPool
+        ManaSelectionDef::ChoiceOfBundles(_) | ManaSelectionDef::Amounts(_)
     ) || mana.amount > 0
-        || matches!(
-            mana.variable_amount,
-            Some(
-                ValueDef::CountersOnSource(_)
-                    | ValueDef::SourcePower
-                    | ValueDef::CountMatchingObjects(_)
-            )
-        );
+        || mana.variable_amount.is_some_and(shared_mana_amount);
     selection_is_supported
         && amount_is_known
         && mana
@@ -101,4 +96,20 @@ pub(in super::super) fn shared_mana_effect(effect: EffectDef, choices_are_suppor
                 }
                 ManaSpendEffectDef::ApplyToPaidAbility(_) | ManaSpendEffectDef::Special(_) => false,
             })
+}
+
+fn shared_mana_amount(value: ValueDef) -> bool {
+    match value {
+        ValueDef::Constant(_)
+        | ValueDef::ManaInPool {
+            player: PlayerRelation::You | PlayerRelation::Opponent | PlayerRelation::Any,
+            ..
+        }
+        | ValueDef::CountersOnSource(_)
+        | ValueDef::SourcePower
+        | ValueDef::CountMatchingObjects(_) => true,
+        ValueDef::Sum(sum) => shared_mana_amount(sum.left) && shared_mana_amount(sum.right),
+        ValueDef::Scaled(scaled) => shared_mana_amount(scaled.value),
+        _ => false,
+    }
 }

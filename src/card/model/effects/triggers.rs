@@ -58,7 +58,7 @@ pub struct StackObjectEventMatcherDef {
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum TriggerEventDef {
     /// Another ability triggered because of the specified event (CR 603.3b).
-    /// The triggering object is that ability, and EventPlayer is its controller.
+    /// The triggering object is that ability, and `EventPlayer` is its controller.
     AbilityTriggeredBy(&'static TriggerEventDef),
     /// A named action completed, independently of the ability that requested it.
     MechanicPerformed {

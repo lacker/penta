@@ -221,7 +221,7 @@ pub(super) fn parse_pending_procedure(
                 paid: paid
                     .as_ref()
                     .map(|(amount, mana)| {
-                        Ok::<_, String>(super::super::SettledEffectPayment {
+                        Ok::<_, String>(super::super::EffectPaymentReceipt {
                             paid_amount: *amount,
                             mana_spent: super::wire::parse_mana(mana, &game.catalog)?,
                         })

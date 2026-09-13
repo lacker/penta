@@ -516,8 +516,17 @@ fn validate_effect_references(
         }
         EffectDef::PayOr(payment) => {
             validate_payment_references(payment.payment, target_count, scope)?;
-            for branch in payment.if_paid.iter().chain(payment.otherwise.iter()) {
-                validate_effect_references(**branch, target_count, scope)?;
+            let mut outputs = Vec::new();
+            payment_object_set_outputs(payment.payment.costs, &mut outputs);
+            let mut paid_scope = scope;
+            for binding in outputs {
+                paid_scope = paid_scope.with_declared_object_set(binding)?;
+            }
+            if let Some(branch) = payment.if_paid {
+                validate_effect_references(*branch, target_count, paid_scope)?;
+            }
+            if let Some(branch) = payment.otherwise {
+                validate_effect_references(*branch, target_count, scope)?;
             }
             Ok(())
         }

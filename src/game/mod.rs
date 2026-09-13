@@ -201,9 +201,9 @@ use continuous_state::{
 };
 use decision_state::{
     ApplicableBeginTurnReplacement, CounteredSpellZone, DecisionContinuation,
-    DeferredBeginTurnEffect, DiscardFollowUp, PaymentProvenance, PendingDecision, Pregame,
-    PregameAbilityAction, ResolvedEffectPayment, SacrificeDeclined, SacrificeFollowup,
-    SearchFollowUp, SettledEffectPayment, ZoneMoveCause,
+    DeferredBeginTurnEffect, DiscardFollowUp, EffectPaymentReceipt, PaymentProvenance,
+    PendingDecision, Pregame, PregameAbilityAction, ResolvedEffectPayment, SacrificeDeclined,
+    SacrificeFollowup, SearchFollowUp, SettledEffectPayment, ZoneMoveCause,
 };
 use exile_permission::{ExilePlayCost, ExilePlayPermission};
 use mana_state::{

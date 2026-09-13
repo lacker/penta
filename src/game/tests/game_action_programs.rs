@@ -4,6 +4,101 @@ use crate::card::{GameActionChoiceDef, GameActionDef, actions};
 
 pub(in crate::game) const DISCARD_THREE: GameActionDef = actions::choose_discard(3);
 
+static PAYMENT_OUTPUTS: [AbilityDef; 1] = [AbilityDef::triggered(
+    "You may sacrifice two creatures and draw a card. When you do, gain life for each creature sacrificed.",
+    TriggerEventDef::StepBegins {
+        step: TurnStepDef::Upkeep,
+        player: PlayerRelation::You,
+    },
+    EffectDef::PayOr(PayOrDef::optional(
+        &[
+            CostDef::repeated(
+                &[actions::choose(
+                    Binding!("paid_creatures"),
+                    ObjectSetDef::Query(ObjectQueryDef::controlled_by(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerSetDef::Related(PlayerRelation::You),
+                    )),
+                    &actions::sacrifice_yours(EffectRecipientDef::objects(ObjectSetDef::Binding(
+                        Binding!("paid_creatures"),
+                    ))),
+                )
+                .named(crate::card::MechanicId::from_name("test:payment-outputs"))
+                .as_cost()],
+                &ValueDef::Constant(2),
+            ),
+            CostDef::repeated(&[CostDef::DrawCards(1)], &ValueDef::Constant(1)),
+        ],
+        &EffectDef::ReflexiveTrigger(&AbilityDef::triggered(
+            "When you do, gain life for each creature sacrificed.",
+            TriggerEventDef::Reflexive,
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::CountObjects(&ObjectSetDef::Binding(Binding!("paid_creatures"))),
+            },
+        )),
+    )),
+)];
+
+#[test]
+fn game_action_programs_payment_outputs_survive_repetition_source_exit_and_checkpoint() {
+    let (mut game, source) = staged(&PAYMENT_OUTPUTS);
+    game.battlefield
+        .push(creature(31_400, cards::GRIZZLY_BEARS, PlayerId::One));
+    game.put_onto_battlefield(PlayerId::One, cards::ISLAND_SANCTUARY)
+        .unwrap();
+    start(&mut game);
+    game.step = Step::Draw;
+    let decision = game.observe(PlayerId::One).decision.unwrap();
+    let selected = decision
+        .options
+        .iter()
+        .find(|option| option.id != 0)
+        .unwrap()
+        .id;
+    game.apply(
+        PlayerId::One,
+        Action::ChooseDecision {
+            decision: decision.id,
+            options: vec![selected],
+        },
+    )
+    .unwrap();
+    assert!(!game.battlefield.iter().any(|p| p.card.id == source));
+    assert_eq!(game.players[0].graveyard.len(), 2);
+    assert_eq!(
+        game.players[0].life, 20,
+        "the payment is waiting for its draw replacement"
+    );
+    assert!(
+        game.pending_procedures
+            .iter()
+            .any(|procedure| matches!(procedure, PendingProcedure::CompletePayment { .. }))
+    );
+    let (wire, hidden) = checkpoint_fixture(&game, PlayerId::One);
+    let mut game = Game::from_observation_checkpoint(
+        game.catalog.clone(),
+        game.format,
+        &wire,
+        &hidden,
+        31_400,
+    )
+    .unwrap();
+    choose_decision_by_label(&mut game, PlayerId::One, "Draw the card");
+    assert_eq!(
+        game.players[0].life, 20,
+        "completion creates a separate trigger"
+    );
+    assert_eq!(game.stack.len(), 1);
+    assert_eq!(game.stack[0].source, Some(source));
+    pass_priority_pair(&mut game);
+    assert_eq!(
+        game.players[0].life, 22,
+        "both repetitions contribute their selected objects"
+    );
+}
+
 pub(in crate::game) static DISCARD_COST: [AbilityDef; 1] = [AbilityDef::triggered(
     "Discard three as a cost",
     TriggerEventDef::StepBegins {

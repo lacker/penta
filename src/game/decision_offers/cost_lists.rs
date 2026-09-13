@@ -237,6 +237,7 @@ impl Game {
             };
             result.paid_amount = result.paid_amount.saturating_add(paid.paid_amount);
             result.mana_spent.extend(paid.mana_spent);
+            result.object_bindings.extend(paid.object_bindings);
         }
         Some(result)
     }

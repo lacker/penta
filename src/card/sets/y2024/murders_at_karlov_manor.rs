@@ -4525,12 +4525,55 @@ pub(in crate::card::sets) static GRANITE_WITNESS: CardRecord = CardRecord::new(
 );
 
 // MKM 207 — Ill-Timed Explosion
-// Audit: unsupported — Needs a reflexive trigger installed by the resolving sacrifice or discard clause, retaining its source and selected objects even after the source leaves. SacrificePerformed currently only comes from the legacy sacrifice-of-choice path and requires a live source.
 pub(in crate::card::sets) static ILL_TIMED_EXPLOSION: CardRecord = CardRecord::new(
     "Ill-Timed Explosion",
     "0b5cdb01-eaa4-4a0a-b42a-332bcf4d6fff",
     "Aaron J. Riley",
-    CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{2}{U}{R}")).with_ability(AbilityDef::spell(
+        "Draw two cards. Then you may discard two cards. When you do, \
+         Ill-Timed Explosion deals X damage to each creature, where X is \
+         the greatest mana value among cards discarded this way.",
+        EffectDef::Sequence(&[
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(2),
+            },
+            EffectDef::PayOr(PayOrDef::optional(
+                &[crate::card::actions::choose(
+                    crate::Binding!("discarded"),
+                    ObjectSetDef::Query(ObjectQueryDef::owned_by(
+                        ObjectPredicateDef::Any,
+                        &[ZoneKind::Hand],
+                        PlayerSetDef::Related(PlayerRelation::You),
+                    )),
+                    &crate::card::actions::discard_cards(EffectRecipientDef::objects(
+                        ObjectSetDef::Binding(crate::Binding!("discarded")),
+                    )),
+                )
+                .with_amount(ValueDef::Constant(2))
+                .with_visibility(ChoiceVisibilityDef::Private)
+                .as_cost()],
+                &EffectDef::ReflexiveTrigger(&AbilityDef::triggered(
+                    "When you do, Ill-Timed Explosion deals X damage to each \
+                         creature, where X is the greatest mana value among cards \
+                         discarded this way.",
+                    TriggerEventDef::Reflexive,
+                    EffectDef::damage(
+                        EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::matching(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::Any,
+                        ))),
+                        ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
+                            objects: ObjectSetDef::Binding(crate::Binding!("discarded")),
+                            select: ObjectValueDef::ManaValue,
+                            operation: AggregateOperationDef::Maximum,
+                        }),
+                    ),
+                )),
+            )),
+        ]),
+    )),
 );
 
 // MKM 208 — Insidious Roots

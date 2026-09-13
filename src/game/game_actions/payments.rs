@@ -1,6 +1,6 @@
 use super::super::{
     EffectResolutionContext, Game, GameObjectId, PlayerId, ResolvedEffectPayment, ScopedEffect,
-    StackObject, Target,
+    SettledEffectPayment, StackObject, Target,
 };
 use crate::card::{EffectRecipientDef, GameActionDef};
 
@@ -173,10 +173,8 @@ impl Game {
         player: PlayerId,
         payment: &ActionPayment,
         selected: &[GameObjectId],
-    ) -> bool {
-        let Some(targets) = self.selected_action_payment_targets(player, payment, selected) else {
-            return false;
-        };
+    ) -> Option<SettledEffectPayment> {
+        let targets = self.selected_action_payment_targets(player, payment, selected)?;
         let choice = payment
             .program
             .payment_choice()
@@ -186,7 +184,7 @@ impl Game {
         let mut object = payment.object.clone();
         object.controller = player;
         let mut context = payment.context.clone();
-        context.bind_object_group(choice.binding, targets);
+        context.bind_object_group(choice.binding, targets.clone());
         self.pending_procedures
             .push_back(super::super::PendingProcedure::ResolveEffects {
                 effects: vec![payment.scoped.with_effect(crate::card::EffectDef::Perform(
@@ -195,7 +193,11 @@ impl Game {
                 object,
                 context,
             });
-        true
+        let mut receipt = SettledEffectPayment::without_mana(0);
+        if choice.binding != crate::ParentBinding {
+            receipt.object_bindings.push((choice.binding, targets));
+        }
+        Some(receipt)
     }
 }
 

@@ -123,8 +123,15 @@ fn format_deck_registries_resolve_without_cross_format_leakage() {
     assert_eq!(deck_names(), deck_names_for_format(Format::OldSchool9394));
     assert_eq!(deck_names_for_format(Format::OldSchool9394).len(), 15);
     assert_eq!(deck_names_for_format(Format::IsdM14Standard).len(), 10);
+    assert_eq!(deck_names_for_format(Format::Legacy).len(), 16);
+    assert_eq!(deck_names_for_format(Format::Vintage).len(), 8);
 
-    for format in [Format::OldSchool9394, Format::IsdM14Standard] {
+    for format in [
+        Format::OldSchool9394,
+        Format::IsdM14Standard,
+        Format::Legacy,
+        Format::Vintage,
+    ] {
         for name in deck_names_for_format(format) {
             assert!(
                 deck_by_name_for_format(format, name).is_some(),
@@ -159,7 +166,9 @@ fn format_deck_registries_resolve_without_cross_format_leakage() {
     );
     assert_eq!(parse_format_slug("vintage-cube"), Ok(Format::VintageCube));
     assert_eq!(parse_format_slug("pauper_cube"), Ok(Format::PauperCube));
-    assert!(parse_format_slug("vintage").is_err());
+    assert_eq!(parse_format_slug("legacy"), Ok(Format::Legacy));
+    assert_eq!(parse_format_slug("vintage"), Ok(Format::Vintage));
+    assert!(parse_format_slug("unknown-format").is_err());
 }
 
 #[test]

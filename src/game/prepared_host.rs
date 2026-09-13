@@ -134,9 +134,12 @@ impl Game {
                     return false;
                 }
                 let subtypes = self.effective_subtypes(permanent);
-                types.iter().any(|kind| subtypes.contains(&kind.subtype()))
+                types.iter().any(|kind| {
+                    subtypes.contains(&self.text_changed_basic_land_type(source, *kind).subtype())
+                })
             }
-            Leaf::Color(color) => color
+            Leaf::Color(color) => self
+                .text_changed_color_word(source, color)
                 .color_index()
                 .is_some_and(|index| self.permanent_colors(permanent)[index]),
             Leaf::ColorCount(count) => {
@@ -146,7 +149,12 @@ impl Game {
                     .count()
                     == usize::from(count)
             }
-            Leaf::Subtype(subtype) => self.effective_subtypes(permanent).contains(&subtype),
+            Leaf::Subtype(subtype) => {
+                let subtype = crate::BasicLandType::from_subtype(subtype).map_or(subtype, |kind| {
+                    self.text_changed_basic_land_type(source, kind).subtype()
+                });
+                self.effective_subtypes(permanent).contains(&subtype)
+            }
             Leaf::Supertype(kind) => self
                 .permanent_supertypes(permanent)
                 .unwrap_or_default()

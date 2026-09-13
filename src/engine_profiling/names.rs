@@ -27,7 +27,8 @@ pub(crate) const fn effect_kind(value: crate::EffectDef) -> &'static str {
         crate::EffectDef::CannotBeForcedToSacrifice => "CannotBeForcedToSacrifice",
         crate::EffectDef::CannotBeForcedToDiscard => "CannotBeForcedToDiscard",
         crate::EffectDef::ChooseColor { .. } => "ChooseColor",
-        crate::EffectDef::ChangeTextBasicLandType { .. } => "ChangeTextBasicLandType",
+        crate::EffectDef::ChangeText { .. } => "ChangeText",
+        crate::EffectDef::ReflexiveTrigger(..) => "ReflexiveTrigger",
         crate::EffectDef::SubstituteBasicLandTypeUntilEndOfTurn { .. } => {
             "SubstituteBasicLandTypeUntilEndOfTurn"
         }
@@ -157,6 +158,7 @@ pub(crate) const fn effect_kind(value: crate::EffectDef) -> &'static str {
 pub(crate) const fn predicate_kind(value: crate::ObjectPredicateDef) -> &'static str {
     match value {
         crate::ObjectPredicateDef::Any => "Any",
+        crate::ObjectPredicateDef::Commander => "Commander",
         crate::ObjectPredicateDef::Source => "Source",
         crate::ObjectPredicateDef::Token => "Token",
         crate::ObjectPredicateDef::Tapped => "Tapped",

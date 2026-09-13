@@ -252,3 +252,60 @@ fn prepared_player_rule_filters_preserve_permissions_and_restriction_order() {
         }
     }
 }
+
+#[test]
+fn prepared_queries_preserve_changed_color_and_land_type_words() {
+    let mut game = ready_game();
+    let mut source = creature(98_950, cards::BOG_WRAITH, PlayerId::One);
+    let source_id = source.card.id;
+    for word in [
+        TextWordChange::Color {
+            from: ManaColor::Black,
+            to: ManaColor::Red,
+        },
+        TextWordChange::BasicLandType {
+            from: BasicLandType::Swamp,
+            to: BasicLandType::Island,
+        },
+    ] {
+        source.text_changes.push(TextChange {
+            word,
+            expiration: ContinuousEffectExpiration::Never,
+        });
+    }
+    game.battlefield = vec![
+        source,
+        creature(98_951, cards::HILL_GIANT, PlayerId::One),
+        creature(98_952, cards::ISLAND, PlayerId::One),
+        creature(98_953, cards::SWAMP, PlayerId::One),
+    ];
+    for (predicate, expected) in [
+        (
+            ObjectPredicateDef::Color(ManaColor::Black),
+            GameObjectId(98_951),
+        ),
+        (
+            ObjectPredicateDef::Subtype(crate::SubtypeDef::Literal("Swamp")),
+            GameObjectId(98_952),
+        ),
+        (
+            ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Swamp]),
+            GameObjectId(98_952),
+        ),
+    ] {
+        let query =
+            ObjectQueryDef::matching(predicate, &[ZoneKind::Battlefield], PlayerRelation::Any);
+        for enabled in [false, true] {
+            game.set_prepared_engine_enabled(enabled);
+            assert_eq!(
+                game.objects_matching_query(
+                    query,
+                    PlayerId::One,
+                    source_id,
+                    TriggerContext::empty()
+                ),
+                vec![Target::Permanent(expected)]
+            );
+        }
+    }
+}

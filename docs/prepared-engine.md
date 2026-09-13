@@ -147,7 +147,8 @@ Battlefield object predicates are compiled lazily once per catalog and cached
 by their declarative value, including rejected roots. Plans support boolean
 composition over identity, token/tapped state, type, literal subtype, basic-land type,
 color, supertype, and constant mana-value limits. They read only the live
-characteristics needed by each leaf. The entire predicate must compile; one
+characteristics needed by each leaf. Color and basic-land-type words use the
+query source's effective text map during matching. The entire predicate must compile; one
 unsupported leaf, including a bound subtype, keeps the complete predicate on
 the reference path. Player
 relations and traversal order remain in the shared query driver. Nonbattlefield,

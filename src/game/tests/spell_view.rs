@@ -163,18 +163,18 @@ fn face_down_cast_does_not_receive_printed_angel_discount() {
 fn modifier_fixture(game: &mut Game, effect: EffectDef) {
     rules_fixture(
         game,
-        CardRules::new_enchantment(mana_cost!("{0}"))
+        &CardRules::new_enchantment(mana_cost!("{0}"))
             .with_ability(AbilityDef::static_ability("Spell cost modifier.", effect)),
     );
 }
 
-fn rules_fixture(game: &mut Game, rules: CardRules) -> GameObjectId {
+fn rules_fixture(game: &mut Game, rules: &CardRules) -> GameObjectId {
     let id = CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000903");
     let definition = CardDefinition::new(
         id,
         "Spell view modifier fixture",
         crate::card::sets::bloomburrow::SET,
-        rules,
+        *rules,
     );
     game.catalog = CardCatalog::new(
         game.catalog
@@ -293,7 +293,7 @@ fn payment_locks_discount_but_rechecks_the_source_of_storm() {
         game.battlefield.clear();
         let source = rules_fixture(
             &mut game,
-            CardRules::new_creature(mana_cost!("{0}"), &[], 1, 1).with_abilities(
+            &CardRules::new_creature(mana_cost!("{0}"), &[], 1, 1).with_abilities(
                 &const {
                     [
                         AbilityDef::static_ability(

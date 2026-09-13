@@ -14,15 +14,14 @@ pub mod tokens;
 
 mod catalog;
 mod characteristics;
-mod creature_types;
 mod model;
 mod record;
 pub mod sets;
+mod subtypes;
 
 pub use catalog::{CardCatalog, CatalogError, EffectSubjectKind, GrantedAbilityValidationError};
 pub(crate) use characteristics::applicable_part_ids_ref;
 pub use characteristics::{CharacteristicContext, CharacteristicError, applicable_part_ids};
-pub use creature_types::{CREATURE_TYPES, creature_type_name};
 pub(crate) use model::replacement_tokens;
 pub use model::{
     AbilityCostReductionDef, AbilityDef, AbilityEffectDef, AbilityKindDef, AbilityLabel,
@@ -58,15 +57,14 @@ pub use model::{
     FlexibleManaSymbol, FreePlayDef, FreePlayDurationDef, GameActionChoiceDef, GameActionDef,
     GraveyardPlayPermissionDef, GraveyardTypeConditionDef, HalvedValueDef, HybridPair,
     IfNoObjectsDef, ImplementationStatus, InstalledTriggerDef, InstalledTriggerLifetimeDef,
-    IntrinsicCounter, KeywordAbility, KeywordCounter, LAND_SUBTYPES, LifeConditionDef,
-    LikelihoodDef, LookAtObjectsDef, ManaColor, ManaCost, ManaCostParseError,
-    ManaCostParseErrorKind, ManaRestrictionDef, ManaSelectionDef, ManaSpendEffectDef, ManaSplit,
-    ManaTypeDef, ManaTypeFilterDef, ManaTypeSetDef, ManaTypeSourceDef, MechanicId,
-    MeldComponentDef, MeldRecipeDef, MeldResultDef, MillLoopDef, MillUntilDef, ModalModeListDef,
-    ModalSpellDef, ModeDef, ModeSetDef, MoveObjectsDef, MoveToZoneCostDef, NO_COSTS,
-    NONBASIC_LAND_SUBTYPES, ObjectChoiceBindingDef, ObjectCollectionSourceDef,
-    ObjectCountConditionDef, ObjectCounterValueDef, ObjectPredicateDef, ObjectQueryDef,
-    ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef, ObjectSetFilterDef,
+    IntrinsicCounter, KeywordAbility, KeywordCounter, LifeConditionDef, LikelihoodDef,
+    LookAtObjectsDef, ManaColor, ManaCost, ManaCostParseError, ManaCostParseErrorKind,
+    ManaRestrictionDef, ManaSelectionDef, ManaSpendEffectDef, ManaSplit, ManaTypeDef,
+    ManaTypeFilterDef, ManaTypeSetDef, ManaTypeSourceDef, MechanicId, MeldComponentDef,
+    MeldRecipeDef, MeldResultDef, MillLoopDef, MillUntilDef, ModalModeListDef, ModalSpellDef,
+    ModeDef, ModeSetDef, MoveObjectsDef, MoveToZoneCostDef, NO_COSTS, ObjectChoiceBindingDef,
+    ObjectCollectionSourceDef, ObjectCountConditionDef, ObjectCounterValueDef, ObjectPredicateDef,
+    ObjectQueryDef, ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef, ObjectSetFilterDef,
     ObjectSetPredicateDef, ObjectSetValueAtLeastDef, ObjectSetValueDef, ObjectValueAggregateDef,
     ObjectValueDef, OngoingEffectDef, OptionalAdditionalCostAbilityDef,
     OptionalAdditionalCostKindDef, PartitionGroupDef, PayOrDef, PerPlayerSelectionDef,
@@ -95,6 +93,10 @@ pub use model::{
     DamageAssignmentDef, DamageAssignmentsDef, DamageDef, DamageFollowUpDef, FightExcessDef,
 };
 pub(crate) use model::{child_effects, costs};
+pub use subtypes::{
+    CREATURE_TYPES, LAND_SUBTYPES, NONBASIC_LAND_SUBTYPES, Subtype, SubtypeFamily, SubtypeSet,
+    creature_type_name,
+};
 
 /// The built-in catalog, validated once per process. Construction walks every
 /// definition and printing, and callers used to pay for it on every game — a

@@ -177,11 +177,14 @@ fn the_town_type_grants_nothing_by_itself() {
         .find(|permanent| permanent.card.id == id)
         .expect("it is there");
     let subtypes = game.effective_subtypes(permanent);
-    assert!(subtypes.contains(&"Town"), "it is a Town");
+    assert!(
+        subtypes.contains(crate::card::Subtype::named("Town")),
+        "it is a Town"
+    );
     assert!(
         !["Forest", "Island", "Swamp", "Mountain", "Plains"]
             .iter()
-            .any(|basic| subtypes.contains(basic)),
+            .any(|basic| subtypes.contains(crate::card::Subtype::named(basic))),
         "and nothing else: a card hunting basic land types passes it by",
     );
 

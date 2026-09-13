@@ -505,7 +505,7 @@ impl Game {
                     object
                         .subtypes
                         .iter()
-                        .any(|subtype| subtype.eq_ignore_ascii_case(chosen))
+                        .any(|subtype| subtype.name().eq_ignore_ascii_case(chosen))
                 }),
         }
     }
@@ -556,7 +556,7 @@ impl Game {
                     && land_types
                         .iter()
                         .map(|land_type| text_words.basic_land_type(self, *land_type))
-                        .any(|land_type| object.subtypes.contains(&land_type.subtype()))
+                        .any(|land_type| object.subtypes.contains(land_type.subtype_id()))
             }
             ObjectPredicateDef::Spell => is_spell,
             ObjectPredicateDef::NoncreatureSpell => {
@@ -580,13 +580,13 @@ impl Game {
             ObjectPredicateDef::Subtype(subtype) => self
                 .source_subtype(subtype, source)
                 .map(|subtype| {
-                    if let Some(land_type) = BasicLandType::from_subtype(subtype) {
-                        text_words.basic_land_type(self, land_type).subtype()
+                    if let Some(land_type) = BasicLandType::from_id(subtype) {
+                        text_words.basic_land_type(self, land_type).subtype_id()
                     } else {
                         subtype
                     }
                 })
-                .is_some_and(|subtype| object.subtypes.contains(&subtype)),
+                .is_some_and(|subtype| object.subtypes.contains(subtype)),
             ObjectPredicateDef::ManaValueAtMost(limit) => object.mana_value <= u16::from(limit),
             ObjectPredicateDef::ManaValueEqualTo(value) => self
                 .value_from_source(value, source)

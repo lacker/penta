@@ -166,7 +166,10 @@ fn the_first_minus_makes_a_samurai() {
     let samurai = game
         .battlefield
         .iter()
-        .find(|permanent| game.effective_subtypes(permanent).contains(&"Samurai"))
+        .find(|permanent| {
+            game.effective_subtypes(permanent)
+                .contains(crate::card::Subtype::named("Samurai"))
+        })
         .expect("a token arrived");
     assert_eq!(game.power(samurai), Some(2));
     assert_eq!(game.toughness(samurai), Some(2));

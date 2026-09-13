@@ -309,7 +309,10 @@ fn sliver_hive_checks_control_only_when_activating() {
         .iter()
         .find(|p| p.card.definition == ObjectKind::Token)
         .unwrap();
-    assert_eq!(&*game.effective_subtypes(sliver), &["Sliver"]);
+    assert_eq!(
+        game.effective_subtypes(sliver),
+        crate::card::SubtypeSet::from_names(&["Sliver"])
+    );
     assert_eq!(
         (game.power(sliver), game.toughness(sliver)),
         (Some(1), Some(1))
@@ -416,7 +419,10 @@ fn countryside_changeling_survives_ability_loss_but_later_types_override_it() {
             .unwrap();
         assert!(!game.permanent_has_executable_keyword(p, KeywordAbility::Changeling));
         for subtype in ["Sliver", "Dragon", "Time Lord"] {
-            assert!(game.effective_subtypes(p).contains(&subtype));
+            assert!(
+                game.effective_subtypes(p)
+                    .contains(crate::card::Subtype::named(subtype))
+            );
         }
         apply_to(
             &mut game,
@@ -428,7 +434,10 @@ fn countryside_changeling_survives_ability_loss_but_later_types_override_it() {
             .iter()
             .find(|p| p.card.id == token)
             .unwrap();
-        assert_eq!(&*game.effective_subtypes(p), &["Frog"]);
+        assert_eq!(
+            game.effective_subtypes(p),
+            crate::card::SubtypeSet::from_names(&["Frog"])
+        );
     }
 }
 
@@ -533,7 +542,12 @@ fn changeling_defines_creature_types_in_every_card_zone() {
                 .printed_trigger_event_object(GameObjectId(900_020), id, PlayerId::One, &context)
                 .unwrap();
             for subtype in ["Dragon", "Sliver", "Time Lord"] {
-                assert!(object.subtypes.contains(&subtype), "{context:?}");
+                assert!(
+                    object
+                        .subtypes
+                        .contains(crate::card::Subtype::named(subtype)),
+                    "{context:?}"
+                );
             }
         }
         let permanent = put(&mut game, id);
@@ -553,7 +567,10 @@ fn changeling_defines_creature_types_in_every_card_zone() {
             .iter()
             .find(|p| p.card.definition.is_token())
             .unwrap();
-        assert!(game.effective_subtypes(copy).contains(&"Dragon"));
+        assert!(
+            game.effective_subtypes(copy)
+                .contains(crate::card::Subtype::named("Dragon"))
+        );
         assert!(game.permanent_has_executable_keyword(copy, KeywordAbility::Changeling));
     }
 }
@@ -575,7 +592,11 @@ fn countryside_token_and_changeling_reconstruct_from_checkpoint() {
         .find(|p| p.card.definition.is_token())
         .unwrap();
     assert!(rebuilt.permanent_has_executable_keyword(token, KeywordAbility::Changeling));
-    assert!(rebuilt.effective_subtypes(token).contains(&"Sliver"));
+    assert!(
+        rebuilt
+            .effective_subtypes(token)
+            .contains(crate::card::Subtype::named("Sliver"))
+    );
 }
 
 #[test]
@@ -594,7 +615,10 @@ fn kindred_permanents_and_copy_added_changeling_keep_creature_types() {
         .iter()
         .find(|p| p.card.id == source)
         .unwrap();
-    assert!(game.effective_subtypes(p).contains(&"Sliver"));
+    assert!(
+        game.effective_subtypes(p)
+            .contains(crate::card::Subtype::named("Sliver"))
+    );
     let mut copied = copied_characteristics(cards::SERRA_ANGEL);
     copied.added_abilities.push(CopiableAbility {
         origin: AbilityOrigin::Printed {
@@ -611,5 +635,8 @@ fn kindred_permanents_and_copy_added_changeling_keep_creature_types() {
         .iter()
         .find(|p| p.card.definition.is_token())
         .unwrap();
-    assert!(game.effective_subtypes(copy).contains(&"Sliver"));
+    assert!(
+        game.effective_subtypes(copy)
+            .contains(crate::card::Subtype::named("Sliver"))
+    );
 }

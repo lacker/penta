@@ -114,7 +114,7 @@ fn creature_definition(
         crate::card::CardRules::unsupported(),
     );
     definition.rules =
-        CardRules::new_creature(ManaCost::default(), &["Test"], 2, 2).with_abilities(abilities);
+        CardRules::new_creature(ManaCost::default(), &[], 2, 2).with_abilities(abilities);
     synchronize_single_part_definition(&mut definition);
     definition
 }

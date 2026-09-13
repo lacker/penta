@@ -571,7 +571,8 @@ fn copying_a_copy_makes_another_cat() {
         "the copiable values it read were the Cat's own",
     );
     assert!(
-        game.effective_subtypes(cat).contains(&"Cat"),
+        game.effective_subtypes(cat)
+            .contains(crate::card::Subtype::named("Cat")),
         "and it is a Cat like the rest of them",
     );
     assert!(

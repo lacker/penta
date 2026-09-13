@@ -358,7 +358,7 @@ fn a_crewed_copter_has_no_creature_type() {
     let subtypes = game.effective_subtypes(permanent(&game, copter));
     assert_eq!(
         subtypes,
-        vec!["Vehicle"],
+        crate::card::SubtypeSet::from_names(&["Vehicle"]),
         "the artifact type it was printed with, and no creature type at all",
     );
     assert!(
@@ -566,7 +566,7 @@ fn a_copy_of_a_crewed_copter_is_not_a_creature() {
     );
     assert!(
         game.effective_subtypes(permanent(&game, copy))
-            .contains(&"Vehicle"),
+            .contains(crate::card::Subtype::named("Vehicle")),
         "a Vehicle like the one it copied",
     );
     assert!(

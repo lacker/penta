@@ -21,7 +21,7 @@ static OUTER: AbilityDef = AbilityDef::replacement(
 );
 
 static NESTED_TOKEN: TokenCharacteristics =
-    TokenCharacteristics::creature(&["Test"], &[], 1, 1).with_name("Nested Walker Test");
+    TokenCharacteristics::creature(&["Shapeshifter"], &[], 1, 1).with_name("Nested Walker Test");
 static CREATE_TOKEN: EffectDef = EffectDef::CreateToken(crate::card::CreateTokenDef::new(
     crate::card::TokenDef::Literal(NESTED_TOKEN),
 ));

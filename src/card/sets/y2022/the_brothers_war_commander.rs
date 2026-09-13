@@ -62,7 +62,7 @@ pub(in crate::card::sets) static URZA_S_WORKSHOP: CardRecord = CardRecord::new(
                     ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
                         ObjectPredicateDef::All(&[
                             ObjectPredicateDef::HasType(CardType::Land),
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Urza's")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Urza's")),
                         ]),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::You,

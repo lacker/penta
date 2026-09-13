@@ -79,7 +79,7 @@ fn ability_text(game: &Game, source: GameObjectId, origin: AbilityOrigin) -> &'s
 fn subtypes(game: &Game, figure: GameObjectId) -> Vec<String> {
     game.effective_subtypes(permanent(game, figure))
         .iter()
-        .map(|subtype| (*subtype).to_string())
+        .map(|subtype| subtype.name().to_string())
         .collect()
 }
 
@@ -171,12 +171,12 @@ fn the_whole_ladder_ends_at_an_eight_eight_flier() {
     assert_eq!(
         subtypes(&game, figure),
         vec![
+            "Avatar".to_string(),
             "Kithkin".to_string(),
             "Spirit".to_string(),
             "Warrior".to_string(),
-            "Avatar".to_string(),
         ],
-        "all four types, in the order the card prints them",
+        "all four types, in canonical vocabulary order",
     );
 }
 

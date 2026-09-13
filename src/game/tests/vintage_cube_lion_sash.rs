@@ -189,7 +189,11 @@ fn a_worn_sash_is_no_longer_a_cat() {
     game.add_unrestricted_mana(PlayerId::One, ManaColor::Colorless, 4);
 
     let subtypes = |game: &Game| {
-        let mut subtypes = game.effective_subtypes(sash_permanent(game, sash)).to_vec();
+        let mut subtypes = game
+            .effective_subtypes(sash_permanent(game, sash))
+            .iter()
+            .map(crate::card::Subtype::name)
+            .collect::<Vec<_>>();
         subtypes.sort_unstable();
         subtypes
     };

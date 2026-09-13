@@ -104,7 +104,10 @@ fn cast_for(game: &mut Game, card: GameObjectId, offspring: bool) {
 fn trainers(game: &Game) -> Vec<&Permanent> {
     game.battlefield
         .iter()
-        .filter(|permanent| game.effective_subtypes(permanent).contains(&"Otter"))
+        .filter(|permanent| {
+            game.effective_subtypes(permanent)
+                .contains(crate::card::Subtype::named("Otter"))
+        })
         .collect()
 }
 

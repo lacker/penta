@@ -2874,7 +2874,7 @@ pub(in crate::card::sets) static GOBLIN_LACKEY: CardRecord = CardRecord::new(
                 // clause names permanents rather than creatures and so does this.
                 sources: &[CardChoiceSourceDef::Zone(ZoneKind::Hand)],
                 object: ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Goblin")),
                     ObjectPredicateDef::Not(&ObjectPredicateDef::AnyOf(&[
                         ObjectPredicateDef::HasType(CardType::Instant),
                         ObjectPredicateDef::HasType(CardType::Sorcery),
@@ -4076,7 +4076,7 @@ pub(in crate::card::sets) static PRIEST_OF_TITANIA: CardRecord = CardRecord::new
             EffectDef::AddManaEqualTo {
                 color: ManaColor::Green,
                 amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::new(
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Elf")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Elf")),
                     &[ZoneKind::Battlefield],
                 )),
             },

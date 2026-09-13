@@ -349,7 +349,8 @@ fn the_back_face_is_a_phyrexian_artifact_that_cannot_turn_back() {
         "an artifact creature, not merely a creature: {types:?}",
     );
     assert!(
-        game.effective_subtypes(turned).contains(&"Phyrexian"),
+        game.effective_subtypes(turned)
+            .contains(crate::card::Subtype::named("Phyrexian")),
         "and a Phyrexian",
     );
     assert_eq!(

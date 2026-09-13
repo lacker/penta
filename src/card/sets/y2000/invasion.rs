@@ -1297,7 +1297,7 @@ pub(in crate::card::sets) static SHORELINE_RAIDER: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{2}{U}"), &["Merfolk"], 2, 2).with_ability(
         AbilityDef::keyword(
             "Protection from Kavu",
-            KeywordAbility::ProtectionFrom(&ObjectPredicateDef::Subtype(SubtypeDef::Literal(
+            KeywordAbility::ProtectionFrom(&ObjectPredicateDef::Subtype(SubtypeDef::literal(
                 "Kavu",
             ))),
         ),
@@ -3314,7 +3314,7 @@ pub(in crate::card::sets) static ELVISH_CHAMPION: CardRecord = CardRecord::new(
                 recipient: EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Elf")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Elf")),
                         ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                     ]),
                     &[ZoneKind::Battlefield],

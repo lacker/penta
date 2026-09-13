@@ -37,8 +37,9 @@ fn it_makes_two_zombies_as_it_enters() {
     assert_eq!(game.power(made[0]), Some(2), "each a 2/2");
     assert_eq!(game.toughness(made[0]), Some(2));
     assert!(
-        made.iter()
-            .all(|zombie| game.effective_subtypes(zombie).contains(&"Zombie")),
+        made.iter().all(|zombie| game
+            .effective_subtypes(zombie)
+            .contains(crate::card::Subtype::named("Zombie"))),
         "and each a Zombie",
     );
     assert_eq!(
@@ -129,7 +130,9 @@ fn the_zombies_are_black_and_carry_nothing_of_the_titan() {
             "the Titan's deathtouch is the Titan's",
         );
         assert!(
-            !game.effective_subtypes(zombie).contains(&"Giant"),
+            !game
+                .effective_subtypes(zombie)
+                .contains(crate::card::Subtype::named("Giant")),
             "and so is being a Giant",
         );
     }

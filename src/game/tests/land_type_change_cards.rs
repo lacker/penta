@@ -39,12 +39,12 @@ fn illusionary_terrain_turning_islands_into_forests_kills_dandan() {
 
     assert!(
         game.effective_subtypes(&game.battlefield[1])
-            .contains(&"Forest")
+            .contains(crate::card::Subtype::named("Forest"))
     );
     assert!(
         !game
             .effective_subtypes(&game.battlefield[1])
-            .contains(&"Island")
+            .contains(crate::card::Subtype::named("Island"))
     );
 
     game.check_state_based_actions();
@@ -276,9 +276,18 @@ fn genju_animates_its_land_without_removing_land_characteristics() {
         game.permanent_colors(animated),
         [false, false, false, false, true]
     );
-    assert!(game.effective_subtypes(animated).contains(&"Spirit"));
-    assert!(game.effective_subtypes(animated).contains(&"Forest"));
-    assert!(game.effective_subtypes(animated).contains(&"Mountain"));
+    assert!(
+        game.effective_subtypes(animated)
+            .contains(crate::card::Subtype::named("Spirit"))
+    );
+    assert!(
+        game.effective_subtypes(animated)
+            .contains(crate::card::Subtype::named("Forest"))
+    );
+    assert!(
+        game.effective_subtypes(animated)
+            .contains(crate::card::Subtype::named("Mountain"))
+    );
 }
 
 #[test]
@@ -379,7 +388,10 @@ fn song_of_the_dryads_sets_every_named_characteristic_and_follows_text_changes()
         Some(CardTypeSet::single(CardType::Land))
     );
     assert_eq!(game.permanent_colors(enchanted), [false; 5]);
-    assert_eq!(game.effective_subtypes(enchanted).as_ref(), &["Forest"]);
+    assert_eq!(
+        game.effective_subtypes(enchanted),
+        crate::card::SubtypeSet::from_names(&["Forest"])
+    );
     assert!(!game.permanent_has_executable_keyword(enchanted, KeywordAbility::Flying));
     assert!(
         game.mana_ability_activations(enchanted)
@@ -396,7 +408,10 @@ fn song_of_the_dryads_sets_every_named_characteristic_and_follows_text_changes()
         BasicLandType::Mountain,
     );
     let enchanted = permanent(&game, angel_id);
-    assert_eq!(game.effective_subtypes(enchanted).as_ref(), &["Mountain"]);
+    assert_eq!(
+        game.effective_subtypes(enchanted),
+        crate::card::SubtypeSet::from_names(&["Mountain"])
+    );
     assert!(
         game.mana_ability_activations(enchanted)
             .iter()
@@ -414,8 +429,8 @@ fn song_of_the_dryads_removes_subtypes_of_the_card_types_it_replaces() {
     game.battlefield.extend([jitte, song]);
 
     assert_eq!(
-        game.effective_subtypes(permanent(&game, jitte_id)).as_ref(),
-        &["Forest"]
+        game.effective_subtypes(permanent(&game, jitte_id)),
+        crate::card::SubtypeSet::from_names(&["Forest"])
     );
 }
 
@@ -450,5 +465,8 @@ fn illusionary_terrain_chooses_and_remembers_an_ordered_type_pair_as_it_enters()
         .iter()
         .find(|permanent| permanent.card.definition == cards::ISLAND)
         .expect("the basic land remains");
-    assert_eq!(game.effective_subtypes(island).as_ref(), &["Forest"]);
+    assert_eq!(
+        game.effective_subtypes(island),
+        crate::card::SubtypeSet::from_names(&["Forest"])
+    );
 }

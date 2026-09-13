@@ -382,7 +382,7 @@ pub(in crate::card::sets) static SCUTTLETIDE: CardRecord = CardRecord::new(
                     recipient: EffectRecipientDef::matching_objects(
                         ObjectPredicateDef::All(&[
                             ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Crab")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Crab")),
                         ]),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::You,
@@ -431,7 +431,7 @@ pub(in crate::card::sets) static STEP_THROUGH: CardRecord = CardRecord::new(
              library for a Wizard card, reveal it, put it into your \
              hand, then shuffle.)",
             &[CostDef::Mana(mana_cost!("{2}"))],
-            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Wizard")),
+            ObjectPredicateDef::Subtype(SubtypeDef::literal("Wizard")),
         ),
     ]),
 );
@@ -1327,7 +1327,7 @@ pub(in crate::card::sets) static AEVE_PROGENITOR_OOZE: CardRecord = CardRecord::
                     BattlefieldEntryModificationDef::AddCountersValue {
                         kind: CounterKind::PlusOnePlusOne,
                         amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Ooze")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Ooze")),
                             &[ZoneKind::Battlefield],
                             PlayerRelation::You,
                         )),
@@ -1580,8 +1580,7 @@ pub(in crate::card::sets) static GRIST_THE_HUNGER_TIDE: CardRecord = CardRecord:
                             AppliedEffectDef::Characteristic(CharacteristicOperationDef::CardTypes(SetOperationDef::Add(
                                 CardTypeSet::single(CardType::Creature),
                             ))),
-                            AppliedEffectDef::Characteristic(CharacteristicOperationDef::Subtypes(SetOperationDef::Add(
-                                &["Insect"],
+                            AppliedEffectDef::Characteristic(CharacteristicOperationDef::Subtypes(SetOperationDef::Add(crate::card::SubtypeSet::from_names(&["Insect"]),
                             ))),
                             AppliedEffectDef::Characteristic(CharacteristicOperationDef::PowerToughness(
                                 PowerToughnessOperationDef::SetBase {
@@ -1618,7 +1617,7 @@ pub(in crate::card::sets) static GRIST_THE_HUNGER_TIDE: CardRecord = CardRecord:
                     ))),
                     // An Insect card in the library keeps the process going -- and a Grist on
                     // top is one, which is what his own first clause is for.
-                    object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Insect")),
+                    object: ObjectPredicateDef::Subtype(SubtypeDef::literal("Insect")),
                     on_match: &EffectDef::AddCounters {
                         object: EffectRecipientDef::Source,
                         kind: CounterKind::Loyalty,

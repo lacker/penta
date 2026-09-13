@@ -20,7 +20,7 @@ pub(crate) enum PreparedPredicateLeaf {
     BasicLandTypes(&'static [BasicLandType]),
     Color(ManaColor),
     ColorCount(u8),
-    Subtype(&'static str),
+    Subtype(crate::card::Subtype),
     Supertype(CardSupertype),
     ManaValueAtMost(u8),
 }
@@ -57,7 +57,7 @@ impl PreparedPredicate {
             }
             ObjectPredicateDef::Color(color) => Self::Leaf(Leaf::Color(color)),
             ObjectPredicateDef::ColorCount(count) => Self::Leaf(Leaf::ColorCount(count)),
-            ObjectPredicateDef::Subtype(crate::SubtypeDef::Literal(subtype)) => {
+            ObjectPredicateDef::Subtype(crate::SubtypeDef::Fixed(subtype)) => {
                 Self::Leaf(Leaf::Subtype(subtype))
             }
             ObjectPredicateDef::Supertype(supertype) => Self::Leaf(Leaf::Supertype(supertype)),

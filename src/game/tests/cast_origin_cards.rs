@@ -57,7 +57,10 @@ fn cast_of(game: &Game, player: PlayerId, card: GameObjectId) -> Action {
 fn wizard_count(game: &Game) -> usize {
     game.battlefield
         .iter()
-        .filter(|permanent| game.effective_subtypes(permanent).contains(&"Wizard"))
+        .filter(|permanent| {
+            game.effective_subtypes(permanent)
+                .contains(crate::card::Subtype::named("Wizard"))
+        })
         .count()
 }
 

@@ -187,8 +187,8 @@ pub(in crate::card::sets) static ALACRIAN_ARMORY: CardRecord = CardRecord::new(
             &[AbilityTargetDef::up_to(
                 AbilityTargetPredicate::Object {
                     object: ObjectPredicateDef::AnyOf(&[
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Mount")),
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Mount")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Vehicle")),
                     ]),
                     zones: &[ZoneKind::Battlefield],
                     controller: Some(PlayerRelation::You),
@@ -200,7 +200,7 @@ pub(in crate::card::sets) static ALACRIAN_ARMORY: CardRecord = CardRecord::new(
                 EffectDef::IfCondition {
                     condition: &TriggerConditionDef::TargetMatches {
                         slot: TargetIndex::PRIMARY,
-                        object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Mount")),
+                        object: ObjectPredicateDef::Subtype(SubtypeDef::literal("Mount")),
                     },
                     then: &EffectDef::Saddle {
                         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -209,7 +209,7 @@ pub(in crate::card::sets) static ALACRIAN_ARMORY: CardRecord = CardRecord::new(
                 EffectDef::IfCondition {
                     condition: &TriggerConditionDef::TargetMatches {
                         slot: TargetIndex::PRIMARY,
-                        object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                        object: ObjectPredicateDef::Subtype(SubtypeDef::literal("Vehicle")),
                     },
                     then: &EffectDef::Apply {
                         recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -258,7 +258,7 @@ pub(in crate::card::sets) static BASRI_TOMORROW_S_CHAMPION: CardRecord = CardRec
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
                         ObjectQueryDef::matching(
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Cat")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Cat")),
                             &[ZoneKind::Battlefield],
                             PlayerRelation::You,
                         ),
@@ -465,7 +465,7 @@ pub(in crate::card::sets) static COLLISION_COURSE: CardRecord = CardRecord::new(
                     ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
                         ObjectPredicateDef::AnyOf(&[
                             ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Vehicle")),
                         ]),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::You,
@@ -497,8 +497,8 @@ pub(in crate::card::sets) static DARING_MECHANIC: CardRecord = CardRecord::new(
             &[CostDef::Mana(mana_cost!("{3}{W}"))],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::AnyOf(&[
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Mount")),
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Mount")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Vehicle")),
                 ]),
             )],
             EffectDef::AddCounters {
@@ -568,7 +568,7 @@ pub(in crate::card::sets) static GLORYHEATH_LYNX: CardRecord = CardRecord::new(
                 player: EffectRecipientDef::Controller,
                 source: ZoneKind::Library,
                 object: ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Plains")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Plains")),
                     ObjectPredicateDef::Supertype(CardSupertype::Basic),
                 ]),
                 minimum: 0,
@@ -739,7 +739,7 @@ pub(in crate::card::sets) static LOTUSGUARD_DISCIPLE: CardRecord = CardRecord::n
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::AnyOf(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Vehicle")),
                 ]),
             )],
             EffectDef::Apply {
@@ -885,7 +885,7 @@ pub(in crate::card::sets) static SPECTACULAR_PILEUP: CardRecord = CardRecord::ne
                         ObjectQueryDef::matching(
                             ObjectPredicateDef::AnyOf(&[
                                 ObjectPredicateDef::HasType(CardType::Creature),
-                                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                                ObjectPredicateDef::Subtype(SubtypeDef::literal("Vehicle")),
                             ]),
                             &[ZoneKind::Battlefield],
                             PlayerRelation::Any,
@@ -901,7 +901,7 @@ pub(in crate::card::sets) static SPECTACULAR_PILEUP: CardRecord = CardRecord::ne
                         ObjectQueryDef::matching(
                             ObjectPredicateDef::AnyOf(&[
                                 ObjectPredicateDef::HasType(CardType::Creature),
-                                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                                ObjectPredicateDef::Subtype(SubtypeDef::literal("Vehicle")),
                             ]),
                             &[ZoneKind::Battlefield],
                             PlayerRelation::Any,
@@ -989,7 +989,7 @@ pub(in crate::card::sets) static TUNE_UP: CardRecord = CardRecord::new(
                         "returned"
                     )),
                     object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::Subtype(
-                        SubtypeDef::Literal("Vehicle"),
+                        SubtypeDef::literal("Vehicle"),
                     )),
                 }),
                 effect: AppliedEffectDef::add_card_types(
@@ -1139,7 +1139,7 @@ pub(in crate::card::sets) static BOUNCE_OFF: CardRecord = CardRecord::new(
         &[AbilityTargetDef::exactly_one_permanent(
             ObjectPredicateDef::AnyOf(&[
                 ObjectPredicateDef::HasType(CardType::Creature),
-                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                ObjectPredicateDef::Subtype(SubtypeDef::literal("Vehicle")),
             ]),
         )],
         EffectDef::move_to_zone(
@@ -1199,7 +1199,7 @@ pub(in crate::card::sets) static FLOOD_THE_ENGINE: CardRecord = CardRecord::new(
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::AnyOf(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Vehicle")),
                     ]),
                 )],
             ),
@@ -1270,7 +1270,7 @@ pub(in crate::card::sets) static HOWLER_S_HEAVY: CardRecord = CardRecord::new(
                 AbilityTargetPredicate::Object {
                     object: ObjectPredicateDef::AnyOf(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Vehicle")),
                     ]),
                     zones: &[ZoneKind::Battlefield],
                     controller: Some(PlayerRelation::Opponent),
@@ -1406,7 +1406,7 @@ pub(in crate::card::sets) static MINDSPRING_MERFOLK: CardRecord = CardRecord::ne
                         ObjectQueryDef::matching(
                             ObjectPredicateDef::All(&[
                                 ObjectPredicateDef::HasType(CardType::Creature),
-                                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Merfolk")),
+                                ObjectPredicateDef::Subtype(SubtypeDef::literal("Merfolk")),
                             ]),
                             &[ZoneKind::Battlefield],
                             PlayerRelation::You,
@@ -1713,7 +1713,7 @@ pub(in crate::card::sets) static STALL_OUT: CardRecord = CardRecord::new(
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::AnyOf(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Vehicle")),
                 ]),
             )],
             EffectDef::Sequence(&[
@@ -2010,7 +2010,7 @@ pub(in crate::card::sets) static CARRION_CRUISER: CardRecord = CardRecord::new(
                     candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
                         ObjectPredicateDef::AnyOf(&[
                             ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Vehicle")),
                         ]),
                         &[ZoneKind::Graveyard],
                         PlayerRelation::You,
@@ -2241,7 +2241,7 @@ pub(in crate::card::sets) static HELLISH_SIDESWIPE: CardRecord = CardRecord::new
         &[AbilityTargetDef::exactly_one_permanent(
             ObjectPredicateDef::AnyOf(&[
                 ObjectPredicateDef::HasType(CardType::Creature),
-                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                ObjectPredicateDef::Subtype(SubtypeDef::literal("Vehicle")),
             ]),
         )],
         EffectDef::Sequence(&[
@@ -2255,7 +2255,7 @@ pub(in crate::card::sets) static HELLISH_SIDESWIPE: CardRecord = CardRecord::new
                         AdditionalCostObjectIndex::PRIMARY,
                     )),
                     predicate: ObjectSetPredicateDef::contains(&ObjectPredicateDef::Subtype(
-                        SubtypeDef::Literal("Vehicle"),
+                        SubtypeDef::literal("Vehicle"),
                     )),
                 }),
                 then: &abilities::draw_cards(ValueDef::Constant(1)),
@@ -2453,7 +2453,7 @@ pub(in crate::card::sets) static QUAG_FEAST: CardRecord = CardRecord::new(
         &[AbilityTargetDef::exactly_one_permanent(
             ObjectPredicateDef::AnyOf(&[
                 ObjectPredicateDef::HasType(CardType::Creature),
-                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                ObjectPredicateDef::Subtype(SubtypeDef::literal("Vehicle")),
                 ObjectPredicateDef::HasType(CardType::Planeswalker),
             ]),
         )],
@@ -2591,7 +2591,7 @@ pub(in crate::card::sets) static SPIN_OUT: CardRecord = CardRecord::new(
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::AnyOf(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Vehicle")),
                 ]),
             )],
             EffectDef::Destroy {
@@ -2802,7 +2802,7 @@ pub(in crate::card::sets) static CHANDRA_SPARK_HUNTER: CardRecord = CardRecord::
                 },
                 &[AbilityTargetDef::up_to(
                     AbilityTargetPredicate::Object {
-                        object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                        object: ObjectPredicateDef::Subtype(SubtypeDef::literal("Vehicle")),
                         zones: &[ZoneKind::Battlefield],
                         controller: Some(PlayerRelation::You),
                         owner: None,
@@ -2959,7 +2959,7 @@ pub(in crate::card::sets) static CRASH_AND_BURN: CardRecord = CardRecord::new(
             AbilityDef::spell_with_targets(
                 "Destroy target Vehicle.",
                 &[AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Vehicle")),
                 )],
                 EffectDef::Destroy {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -3495,8 +3495,8 @@ pub(in crate::card::sets) static PUSH_THE_LIMIT: CardRecord = CardRecord::new(
                 effect: &EffectDef::move_to_zone(
                     EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::matching(
                         ObjectPredicateDef::AnyOf(&[
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Mount")),
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Mount")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Vehicle")),
                         ]),
                         &[ZoneKind::Graveyard],
                         PlayerRelation::You,
@@ -3523,7 +3523,7 @@ pub(in crate::card::sets) static PUSH_THE_LIMIT: CardRecord = CardRecord::new(
             EffectDef::Apply {
                 recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
                     ObjectQueryDef::matching(
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Vehicle")),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::You,
                     ),
@@ -3581,8 +3581,8 @@ pub(in crate::card::sets) static ROAD_RAGE: CardRecord = CardRecord::new(
                 ValueDef::Constant(2),
                 ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
                     ObjectPredicateDef::AnyOf(&[
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Mount")),
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Mount")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Vehicle")),
                     ]),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::You,
@@ -3630,8 +3630,8 @@ pub(in crate::card::sets) static SPIRE_MECHCYCLE: CardRecord = CardRecord::new(
             &[CostDef::TapPermanents {
                 object: ObjectPredicateDef::All(&[
                     ObjectPredicateDef::AnyOf(&[
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Mount")),
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Mount")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Vehicle")),
                     ]),
                     ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                 ]),
@@ -3653,8 +3653,8 @@ pub(in crate::card::sets) static SPIRE_MECHCYCLE: CardRecord = CardRecord::new(
                     amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
                         ObjectPredicateDef::All(&[
                             ObjectPredicateDef::AnyOf(&[
-                                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Mount")),
-                                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                                ObjectPredicateDef::Subtype(SubtypeDef::literal("Mount")),
+                                ObjectPredicateDef::Subtype(SubtypeDef::literal("Vehicle")),
                             ]),
                             ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                         ]),
@@ -3726,7 +3726,7 @@ pub(in crate::card::sets) static AGONASAUR_REX: CardRecord = CardRecord::new(
                 AbilityTargetPredicate::Object {
                     object: ObjectPredicateDef::AnyOf(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Vehicle")),
                     ]),
                     zones: &[ZoneKind::Battlefield],
                     controller: None,
@@ -4020,7 +4020,7 @@ pub(in crate::card::sets) static FANG_GUARDIAN: CardRecord = CardRecord::new(
                     object: ObjectPredicateDef::All(&[
                         ObjectPredicateDef::AnyOf(&[
                             ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Vehicle")),
                         ]),
                         ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                     ]),
@@ -4323,7 +4323,7 @@ pub(in crate::card::sets) static OVIYA_AUTOMECH_ARTISAN: CardRecord = CardRecord
                     candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
                         ObjectPredicateDef::AnyOf(&[
                             ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Vehicle")),
                         ]),
                         &[ZoneKind::Hand],
                         PlayerRelation::You,
@@ -4394,7 +4394,7 @@ pub(in crate::card::sets) static PLOW_THROUGH: CardRecord = CardRecord::new(
             AbilityDef::spell_with_targets(
                 "Destroy target Vehicle.",
                 &[AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Vehicle")),
                 )],
                 EffectDef::Destroy {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -4471,7 +4471,7 @@ pub(in crate::card::sets) static REGAL_IMPERIOSAUR: CardRecord = CardRecord::new
                     ObjectQueryDef::matching(
                         ObjectPredicateDef::All(&[
                             ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Dinosaur")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Dinosaur")),
                             ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                         ]),
                         &[ZoneKind::Battlefield],
@@ -4509,7 +4509,7 @@ pub(in crate::card::sets) static RISE_FROM_THE_WRECK: CardRecord = CardRecord::n
             ),
             AbilityTargetDef::up_to(
                 AbilityTargetPredicate::Object {
-                    object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Mount")),
+                    object: ObjectPredicateDef::Subtype(SubtypeDef::literal("Mount")),
                     zones: &[ZoneKind::Graveyard],
                     controller: None,
                     owner: Some(PlayerRelation::You),
@@ -4518,7 +4518,7 @@ pub(in crate::card::sets) static RISE_FROM_THE_WRECK: CardRecord = CardRecord::n
             ),
             AbilityTargetDef::up_to(
                 AbilityTargetPredicate::Object {
-                    object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                    object: ObjectPredicateDef::Subtype(SubtypeDef::literal("Vehicle")),
                     zones: &[ZoneKind::Graveyard],
                     controller: None,
                     owner: Some(PlayerRelation::You),
@@ -4578,7 +4578,7 @@ pub(in crate::card::sets) static SILKEN_STRENGTH: CardRecord = CardRecord::new(
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::AnyOf(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Vehicle")),
                     ]),
                 )],
             ),
@@ -4652,7 +4652,7 @@ pub(in crate::card::sets) static THUNDEROUS_VELOCIPEDE: CardRecord = CardRecord:
                 object: ObjectPredicateDef::All(&[
                     ObjectPredicateDef::AnyOf(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Vehicle")),
                     ]),
                     ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                     ObjectPredicateDef::ManaValueAtMost(4),
@@ -4676,7 +4676,7 @@ pub(in crate::card::sets) static THUNDEROUS_VELOCIPEDE: CardRecord = CardRecord:
                 object: ObjectPredicateDef::All(&[
                     ObjectPredicateDef::AnyOf(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Vehicle")),
                     ]),
                     ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                     ObjectPredicateDef::Not(&ObjectPredicateDef::ManaValueAtMost(4)),
@@ -4802,7 +4802,7 @@ pub(in crate::card::sets) static AATCHIK_EMERALD_RADIAN: CardRecord = CardRecord
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::All(&[
                             ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Insect")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Insect")),
                             ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                         ]),
                         ObjectPredicateDef::ControlledBy(PlayerRelation::You),
@@ -5027,7 +5027,7 @@ pub(in crate::card::sets) static BROODHEART_ENGINE: CardRecord = CardRecord::new
                 AbilityTargetPredicate::Object {
                     object: ObjectPredicateDef::AnyOf(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Vehicle")),
                     ]),
                     zones: &[ZoneKind::Graveyard],
                     controller: None,
@@ -5095,7 +5095,7 @@ pub(in crate::card::sets) static CLOUDSPIRE_SKYCYCLE: CardRecord = CardRecord::n
                     object: ObjectPredicateDef::All(&[
                         ObjectPredicateDef::AnyOf(&[
                             ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Vehicle")),
                         ]),
                         ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                     ]),
@@ -5519,8 +5519,8 @@ pub(in crate::card::sets) static KOLODIN_TRIUMPH_CASTER: CardRecord = CardRecord
                     recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
                         ObjectQueryDef::matching(
                             ObjectPredicateDef::AnyOf(&[
-                                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Mount")),
-                                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                                ObjectPredicateDef::Subtype(SubtypeDef::literal("Mount")),
+                                ObjectPredicateDef::Subtype(SubtypeDef::literal("Vehicle")),
                             ]),
                             &[ZoneKind::Battlefield],
                             PlayerRelation::You,
@@ -5534,7 +5534,7 @@ pub(in crate::card::sets) static KOLODIN_TRIUMPH_CASTER: CardRecord = CardRecord
                  end of turn.",
                 TriggerEventDef::zone_changed(
                     ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Mount")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Mount")),
                         ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                     ]),
                     None,
@@ -5549,7 +5549,7 @@ pub(in crate::card::sets) static KOLODIN_TRIUMPH_CASTER: CardRecord = CardRecord
                  creature until end of turn.",
                 TriggerEventDef::zone_changed(
                     ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Vehicle")),
                         ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                     ]),
                     None,
@@ -5588,8 +5588,8 @@ pub(in crate::card::sets) static LAGORIN_SOUL_OF_ALACRIA: CardRecord = CardRecor
                 &[AbilityTargetDef::up_to(
                     AbilityTargetPredicate::Object {
                         object: ObjectPredicateDef::AnyOf(&[
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Mount")),
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Mount")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Vehicle")),
                         ]),
                         zones: &[ZoneKind::Battlefield],
                         controller: None,
@@ -6178,7 +6178,7 @@ pub(in crate::card::sets) static GUIDELIGHT_MATRIX: CardRecord = CardRecord::new
             &[CostDef::Mana(mana_cost!("{2}")), CostDef::TapSource],
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Object {
-                    object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Mount")),
+                    object: ObjectPredicateDef::Subtype(SubtypeDef::literal("Mount")),
                     zones: &[ZoneKind::Battlefield],
                     controller: Some(PlayerRelation::You),
                     owner: None,
@@ -6195,7 +6195,7 @@ pub(in crate::card::sets) static GUIDELIGHT_MATRIX: CardRecord = CardRecord::new
             &[CostDef::Mana(mana_cost!("{2}")), CostDef::TapSource],
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Object {
-                    object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                    object: ObjectPredicateDef::Subtype(SubtypeDef::literal("Vehicle")),
                     zones: &[ZoneKind::Battlefield],
                     controller: Some(PlayerRelation::You),
                     owner: None,
@@ -6233,7 +6233,7 @@ pub(in crate::card::sets) static LIFECRAFT_ENGINE: CardRecord = CardRecord::new(
                     ObjectQueryDef::matching(
                         ObjectPredicateDef::All(&[
                             ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Vehicle")),
                         ]),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::You,
@@ -6455,7 +6455,7 @@ pub(in crate::card::sets) static SCRAP_COMPACTOR: CardRecord = CardRecord::new(
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::AnyOf(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Vehicle")),
                 ]),
             )],
             EffectDef::Destroy {
@@ -6922,8 +6922,8 @@ pub(in crate::card::sets) static WILLOWRUSH_VERGE: CardRecord = CardRecord::new(
             &TriggerConditionDef::ObjectCount {
                 query: ObjectQueryDef::matching(
                     ObjectPredicateDef::AnyOf(&[
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Forest")),
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Island")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Forest")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Island")),
                     ]),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::You,

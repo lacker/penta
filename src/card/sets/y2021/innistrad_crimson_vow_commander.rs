@@ -96,7 +96,7 @@ pub(in crate::card::sets) static CROSSWAY_TROUBLEMAKERS: CardRecord = CardRecord
                 recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
                     ObjectQueryDef::matching(
                         ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vampire")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Vampire")),
                             ObjectPredicateDef::Attacking,
                         ]),
                         &[ZoneKind::Battlefield],
@@ -114,7 +114,7 @@ pub(in crate::card::sets) static CROSSWAY_TROUBLEMAKERS: CardRecord = CardRecord
              you do, draw a card.",
             TriggerEventDef::zone_changed(
                 ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vampire")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Vampire")),
                     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                 ]),
                 Some(ZoneKind::Battlefield),

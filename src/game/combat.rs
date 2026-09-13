@@ -97,9 +97,9 @@ impl Game {
             return;
         };
         let recorded = &mut self.attacked_subtypes_this_turn[controller.index()];
-        for subtype in subtypes.iter() {
-            if !recorded.contains(subtype) {
-                recorded.push(*subtype);
+        for subtype in subtypes.iter().map(crate::card::Subtype::name) {
+            if !recorded.contains(&subtype) {
+                recorded.push(subtype);
             }
         }
     }

@@ -145,7 +145,10 @@ fn grave_betrayal_returns_each_dead_opposing_creature_at_the_next_end_step() {
             .expect("each dead creature returned");
         assert_eq!(returned.controller, PlayerId::One);
         assert_eq!(returned.counters(CounterKind::PlusOnePlusOne), 1);
-        assert!(game.effective_subtypes(returned).contains(&"Zombie"));
+        assert!(
+            game.effective_subtypes(returned)
+                .contains(crate::card::Subtype::named("Zombie"))
+        );
         let colors = game.effective_colors(returned, &game.effective_rules(returned).unwrap());
         assert!(colors[ManaColor::Black.index()]);
         assert!(colors[original_color.index()]);

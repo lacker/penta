@@ -102,8 +102,14 @@ fn job_select_equips_a_surviving_hero_and_grants_its_cast_trigger() {
         .unwrap();
     let body = game.battlefield.iter().find(|p| p.card.id == hero).unwrap();
     assert_eq!(game.power(body), Some(2));
-    assert!(game.effective_subtypes(body).contains(&"Hero"));
-    assert!(game.effective_subtypes(body).contains(&"Wizard"));
+    assert!(
+        game.effective_subtypes(body)
+            .contains(crate::card::Subtype::named("Hero"))
+    );
+    assert!(
+        game.effective_subtypes(body)
+            .contains(crate::card::Subtype::named("Wizard"))
+    );
     let life = game.players[1].life;
     cast(&mut game, cards::DREAMS_OF_LAGUNA);
     assert_eq!(game.players[1].life, life - 1);
@@ -111,7 +117,11 @@ fn job_select_equips_a_surviving_hero_and_grants_its_cast_trigger() {
     settle(&mut game);
     let body = game.battlefield.iter().find(|p| p.card.id == hero).unwrap();
     assert_eq!(game.power(body), Some(1));
-    assert!(!game.effective_subtypes(body).contains(&"Wizard"));
+    assert!(
+        !game
+            .effective_subtypes(body)
+            .contains(crate::card::Subtype::named("Wizard"))
+    );
 }
 
 #[test]
@@ -222,7 +232,12 @@ fn adventure_land_is_cast_as_an_adventure_and_then_played_as_a_land() {
     let action=game.legal_actions(PlayerId::One).into_iter().find(|a|matches!(a,Action::CastSpell{card,choices,..}if *card==id&&choices.play_option()==PlayOptionId(1))).unwrap();
     game.apply(PlayerId::One, action).unwrap();
     settle(&mut game);
-    assert!(game.battlefield.iter().any(|p|p.card.definition.is_token()&&game.effective_subtypes(p).contains(&"Wizard")));
+    assert!(game.battlefield.iter().any(|p| {
+        p.card.definition.is_token()
+            && game
+                .effective_subtypes(p)
+                .contains(crate::card::Subtype::named("Wizard"))
+    }));
     let exiled = game.players[0]
         .exile
         .iter()
@@ -262,7 +277,10 @@ fn card_collection_transforms_into_a_noncreature_vehicle_with_printed_stats() {
             .permanent_types(vehicle)
             .is_some_and(|types| types.contains(CardType::Creature))
     );
-    assert!(game.effective_subtypes(vehicle).contains(&"Vehicle"));
+    assert!(
+        game.effective_subtypes(vehicle)
+            .contains(crate::card::Subtype::named("Vehicle"))
+    );
     assert_eq!(game.effective_rules(vehicle).unwrap().mana_cost(), None);
 }
 

@@ -186,7 +186,10 @@ fn the_construct_counts_your_artifacts() {
     let construct = game
         .battlefield
         .iter()
-        .find(|permanent| game.effective_subtypes(permanent).contains(&"Construct"))
+        .find(|permanent| {
+            game.effective_subtypes(permanent)
+                .contains(crate::card::Subtype::named("Construct"))
+        })
         .expect("the token arrived");
     assert_eq!(game.power(construct), Some(1), "it counts itself");
 
@@ -197,7 +200,10 @@ fn the_construct_counts_your_artifacts() {
     let construct = game
         .battlefield
         .iter()
-        .find(|permanent| game.effective_subtypes(permanent).contains(&"Construct"))
+        .find(|permanent| {
+            game.effective_subtypes(permanent)
+                .contains(crate::card::Subtype::named("Construct"))
+        })
         .expect("still there");
     assert_eq!(game.power(construct), Some(2), "and every other artifact");
 }
@@ -219,7 +225,10 @@ fn the_construct_counts_your_side_only() {
     let constructs = |game: &Game| {
         game.battlefield
             .iter()
-            .filter(|permanent| game.effective_subtypes(permanent).contains(&"Construct"))
+            .filter(|permanent| {
+                game.effective_subtypes(permanent)
+                    .contains(crate::card::Subtype::named("Construct"))
+            })
             .map(|permanent| game.power(permanent))
             .collect::<Vec<_>>()
     };

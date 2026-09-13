@@ -111,7 +111,10 @@ fn bank(game: &mut Game, converter: GameObjectId, definition: CardDefinitionId) 
 fn subtyped(game: &Game, subtype: &str) -> Vec<GameObjectId> {
     game.battlefield
         .iter()
-        .filter(|permanent| game.effective_subtypes(permanent).contains(&subtype))
+        .filter(|permanent| {
+            game.effective_subtypes(permanent)
+                .contains(crate::card::Subtype::named(subtype))
+        })
         .map(|permanent| permanent.card.id)
         .collect()
 }

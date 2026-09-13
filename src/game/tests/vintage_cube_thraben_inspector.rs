@@ -32,7 +32,10 @@ fn staged() -> (Game, GameObjectId) {
 fn clues(game: &Game) -> Vec<GameObjectId> {
     game.battlefield
         .iter()
-        .filter(|permanent| game.effective_subtypes(permanent).contains(&"Clue"))
+        .filter(|permanent| {
+            game.effective_subtypes(permanent)
+                .contains(crate::card::Subtype::named("Clue"))
+        })
         .map(|permanent| permanent.card.id)
         .collect()
 }
@@ -81,7 +84,10 @@ fn the_clue_is_an_artifact() {
     let clue = game
         .battlefield
         .iter()
-        .find(|permanent| game.effective_subtypes(permanent).contains(&"Clue"))
+        .find(|permanent| {
+            game.effective_subtypes(permanent)
+                .contains(crate::card::Subtype::named("Clue"))
+        })
         .expect("the Clue is there");
     let types = game.permanent_types(clue).expect("it has card types");
     assert!(types.contains(CardType::Artifact));

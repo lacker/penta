@@ -58,7 +58,12 @@ impl Game {
                 retain_printed_subtypes: false,
                 base_power_toughness: exceptions.base_power_toughness,
                 colors: exceptions.colors,
-                added_creature_types: exceptions.added_creature_types.named.to_vec(),
+                added_creature_types: exceptions
+                    .added_creature_types
+                    .named
+                    .iter()
+                    .map(crate::card::Subtype::name)
+                    .collect(),
                 no_mana_cost: exceptions.no_mana_cost,
                 added_abilities,
             },

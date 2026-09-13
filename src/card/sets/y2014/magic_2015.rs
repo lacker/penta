@@ -64,7 +64,7 @@ pub(in crate::card::sets) static HELIOD_S_PILGRIM: CardRecord = CardRecord::new(
                 effect: &EffectDef::SearchZone {
                     player: EffectRecipientDef::Controller,
                     source: ZoneKind::Library,
-                    object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Aura")),
+                    object: ObjectPredicateDef::Subtype(SubtypeDef::literal("Aura")),
                     minimum: 0,
                     maximum: ValueDef::Constant(1),
                     reveal: true,
@@ -232,7 +232,7 @@ pub(in crate::card::sets) static GOBLIN_RABBLEMASTER: CardRecord = CardRecord::n
                     ObjectQueryDef::matching(
                         ObjectPredicateDef::All(&[
                             ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Goblin")),
                             ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                         ]),
                         &[ZoneKind::Battlefield],
@@ -270,7 +270,7 @@ pub(in crate::card::sets) static GOBLIN_RABBLEMASTER: CardRecord = CardRecord::n
                     // among them.
                     ValueDef::CountMatchingObjects(&ObjectQueryDef::new(
                         ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Goblin")),
                             ObjectPredicateDef::Attacking,
                             ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                         ]),
@@ -363,7 +363,7 @@ pub(in crate::card::sets) static SLIVER_HIVE: CardRecord = CardRecord::new(
             "{T}: Add one mana of any color. Spend this mana only to cast a Sliver spell.",
             &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::any_color().with_restrictions(&[
-                ManaRestrictionDef::CastSpell(ObjectPredicateDef::Subtype(SubtypeDef::Literal(
+                ManaRestrictionDef::CastSpell(ObjectPredicateDef::Subtype(SubtypeDef::literal(
                     "Sliver",
                 ))),
             ])),
@@ -381,7 +381,7 @@ pub(in crate::card::sets) static SLIVER_HIVE: CardRecord = CardRecord::new(
         )
         .with_activation_condition(&TriggerConditionDef::ObjectCount {
             query: ObjectQueryDef::matching(
-                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Sliver")),
+                ObjectPredicateDef::Subtype(SubtypeDef::literal("Sliver")),
                 &[ZoneKind::Battlefield],
                 PlayerRelation::You,
             ),

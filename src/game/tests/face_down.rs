@@ -48,7 +48,10 @@ fn an_effect_can_supply_nonstandard_face_down_characteristics() {
         game.permanent_types(permanent),
         Some(CardTypeSet::single(CardType::Land)),
     );
-    assert_eq!(game.effective_subtypes(permanent).as_ref(), &["Forest"]);
+    assert_eq!(
+        game.effective_subtypes(permanent),
+        crate::card::SubtypeSet::from_names(&["Forest"])
+    );
     assert_eq!(
         game.mana_ability_activations(permanent)[0].ability,
         AbilityOrigin::IntrinsicBasicLand(BasicLandType::Forest),

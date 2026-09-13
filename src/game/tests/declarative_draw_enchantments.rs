@@ -558,7 +558,9 @@ fn another_replacement_can_apply_after_chains_continues_the_draw() {
         game.battlefield
             .iter()
             .filter(|permanent| permanent.controller == PlayerId::Two)
-            .filter(|permanent| game.effective_subtypes(permanent).contains(&"Treasure"))
+            .filter(|permanent| game
+                .effective_subtypes(permanent)
+                .contains(crate::card::Subtype::named("Treasure")))
             .count(),
         1,
     );

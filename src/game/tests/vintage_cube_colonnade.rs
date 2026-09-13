@@ -322,7 +322,7 @@ fn the_body_it_wakes_up_as_is_white_and_blue() {
     }
     assert!(
         game.effective_subtypes(permanent(&game, colonnade))
-            .contains(&"Elemental"),
+            .contains(crate::card::Subtype::named("Elemental")),
         "and it is an Elemental while it lasts",
     );
 }

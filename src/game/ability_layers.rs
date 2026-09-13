@@ -169,7 +169,7 @@ impl Game {
         {
             let mut present = [false; BasicLandType::ALL.len()];
             for subtype in subtypes.iter() {
-                let Some(land_type) = BasicLandType::from_subtype(subtype) else {
+                let Some(land_type) = BasicLandType::from_id(subtype) else {
                     continue;
                 };
                 if !present[land_type.index()] {

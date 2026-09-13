@@ -1,6 +1,6 @@
 use super::{
     AppliedEffectDef, CardDefinition, CardDefinitionId, CardSupertype, CardTypeSet,
-    CharacteristicContext, CharacteristicOperationDef, Cow, DeclarativeAbilityDef, EffectDef,
+    CharacteristicContext, CharacteristicOperationDef, DeclarativeAbilityDef, EffectDef,
     EffectRecipientDef, Game, GameObjectId, ManaCost, ModeId, ObjectCharacteristics,
     PlayRestriction, PlayerId, PowerToughnessOperationDef, RetiredObject, SetOperationDef,
     StackObject, StackObjectKind, Step, Target, TargetPredicate, TargetSelection,
@@ -93,9 +93,8 @@ impl Game {
         // is where the split is drawn.
         if self.was_cast_for_bestow(object) {
             view.types = Self::without_creature(view.types);
-            if !view.subtypes.contains(&"Aura") {
-                view.subtypes.to_mut().push("Aura");
-            }
+            view.subtypes.insert(crate::card::Subtype::Aura);
+            view.subtypes.retain_for_card_types(view.types);
         }
         Some(view)
     }
@@ -263,7 +262,7 @@ impl Game {
         let parts = applicable_part_ids_ref(definition, context).ok()?;
         let mut types = CardTypeSet::empty();
         let mut colors = [false; 5];
-        let mut subtypes = Vec::new();
+        let mut subtypes = crate::card::SubtypeSet::EMPTY;
         let mut mana_value = 0;
         let mut power = None;
         let mut toughness = None;
@@ -282,11 +281,7 @@ impl Game {
             for (combined, present) in colors.iter_mut().zip(part.rules.colors()) {
                 *combined |= present;
             }
-            for subtype in Self::defined_subtypes(&part.rules).iter() {
-                if !subtypes.contains(subtype) {
-                    subtypes.push(*subtype);
-                }
-            }
+            subtypes = subtypes.union(Self::defined_subtypes(&part.rules));
             mana_value += part.rules.mana_cost().map_or(0, ManaCost::mana_value);
             if let Some(stats) = part.rules.creature_stats() {
                 // A characteristic-defining ability answers here too: what a
@@ -317,11 +312,7 @@ impl Game {
                     AppliedEffectDef::Characteristic(CharacteristicOperationDef::Subtypes(
                         SetOperationDef::Add(added),
                     )) => {
-                        for subtype in added {
-                            if !subtypes.contains(subtype) {
-                                subtypes.push(*subtype);
-                            }
-                        }
+                        subtypes = subtypes.union(added);
                     }
                     AppliedEffectDef::Characteristic(
                         CharacteristicOperationDef::PowerToughness(
@@ -344,7 +335,7 @@ impl Game {
             types,
             controller,
             colors,
-            subtypes: Cow::Owned(subtypes),
+            subtypes,
             // A card or a spell is nowhere near combat.
             attacking_or_blocking: false,
             keywords,

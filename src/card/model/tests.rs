@@ -306,12 +306,16 @@ fn semantic_target_labels_are_derived_from_predicates() {
         "target creature you control with toughness less than the source's power"
     );
 
-    let non_demon = AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
-        ObjectPredicateDef::HasType(CardType::Creature),
-        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(
-            crate::card::SubtypeDef::Literal("Demon"),
-        )),
-    ]));
+    let non_demon = AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(
+        &const {
+            [
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(
+                    crate::card::SubtypeDef::literal("Demon"),
+                )),
+            ]
+        },
+    ));
     assert_eq!(non_demon.label(), "target non-Demon creature");
 
     let not_red_land = AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Not(
@@ -772,8 +776,7 @@ fn coherence_validation_covers_kind_specific_invariants() {
     let mut instant_with_loyalty = CardRules::new_instant(ManaCost::default());
     instant_with_loyalty.starting_loyalty = Some(3);
 
-    let mut planeswalker_without_loyalty =
-        CardRules::new_planeswalker(ManaCost::default(), &["Test"], 3);
+    let mut planeswalker_without_loyalty = CardRules::new_planeswalker(ManaCost::default(), &[], 3);
     planeswalker_without_loyalty.starting_loyalty = None;
 
     let permanent_instant =

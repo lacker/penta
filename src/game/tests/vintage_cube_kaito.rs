@@ -96,7 +96,10 @@ fn he_is_a_creature_only_on_your_turn() {
     let him = permanent(&game, kaito);
     assert_eq!(game.power(him), Some(3));
     assert_eq!(game.toughness(him), Some(4));
-    assert!(game.effective_subtypes(him).contains(&"Ninja"));
+    assert!(
+        game.effective_subtypes(him)
+            .contains(crate::card::Subtype::named("Ninja"))
+    );
     assert!(game.permanent_has_executable_keyword(him, KeywordAbility::Hexproof));
 
     game.active_player = PlayerId::Two;

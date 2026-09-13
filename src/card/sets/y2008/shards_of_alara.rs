@@ -292,10 +292,10 @@ pub(in crate::card::sets) static DEATH_BARON: CardRecord = CardRecord::new(
                 recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
                     ObjectQueryDef::matching(
                         ObjectPredicateDef::AnyOf(&[
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Skeleton")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Skeleton")),
                             ObjectPredicateDef::All(&[
                                 ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-                                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Zombie")),
+                                ObjectPredicateDef::Subtype(SubtypeDef::literal("Zombie")),
                             ]),
                         ]),
                         &[ZoneKind::Battlefield],

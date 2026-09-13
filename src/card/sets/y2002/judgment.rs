@@ -1267,7 +1267,7 @@ pub(in crate::card::sets) static DWARVEN_BLOODBOILER: CardRecord = CardRecord::n
             &[CostDef::TapPermanents {
                 object: ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Dwarf")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Dwarf")),
                 ]),
                 controller: PlayerRelation::You,
                 count: 1,

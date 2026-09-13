@@ -70,7 +70,10 @@ fn casts(game: &Game, card: GameObjectId) -> Vec<Action> {
 fn squadrons(game: &Game) -> Vec<&Permanent> {
     game.battlefield
         .iter()
-        .filter(|permanent| game.effective_subtypes(permanent).contains(&"Robot"))
+        .filter(|permanent| {
+            game.effective_subtypes(permanent)
+                .contains(crate::card::Subtype::named("Robot"))
+        })
         .collect()
 }
 

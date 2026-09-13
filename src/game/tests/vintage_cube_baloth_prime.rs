@@ -137,7 +137,10 @@ fn sacrificing_a_land_pays_one_off_and_leaves_a_beast() {
         .battlefield
         .iter()
         .find(|permanent| {
-            permanent.card.id != baloth && game.effective_subtypes(permanent).contains(&"Beast")
+            permanent.card.id != baloth
+                && game
+                    .effective_subtypes(permanent)
+                    .contains(crate::card::Subtype::named("Beast"))
         })
         .expect("the trigger made a token");
     assert!(beast.tapped, "the token arrives tapped");

@@ -69,8 +69,8 @@ fn the_bite_cannot_target_olivia_and_permanently_adds_vampire_before_the_counter
     let bitten = permanent(&game, victim);
     assert_eq!(bitten.damage, 1);
     let subtypes = game.effective_subtypes(bitten);
-    assert!(subtypes.contains(&"Bear"));
-    assert!(subtypes.contains(&"Vampire"));
+    assert!(subtypes.contains(crate::card::Subtype::named("Bear")));
+    assert!(subtypes.contains(crate::card::Subtype::named("Vampire")));
     assert_eq!(
         permanent(&game, olivia).counters(CounterKind::PlusOnePlusOne),
         1,
@@ -87,7 +87,7 @@ fn the_bite_cannot_target_olivia_and_permanently_adds_vampire_before_the_counter
     game.check_state_based_actions();
     assert!(
         game.effective_subtypes(permanent(&game, victim))
-            .contains(&"Vampire"),
+            .contains(crate::card::Subtype::named("Vampire")),
         "the subtype change does not depend on Olivia remaining",
     );
 }
@@ -123,7 +123,7 @@ fn preventing_the_damage_does_not_prevent_the_vampire_rider_or_counter() {
     assert_eq!(permanent(&game, victim).damage, 0);
     assert!(
         game.effective_subtypes(permanent(&game, victim))
-            .contains(&"Vampire"),
+            .contains(crate::card::Subtype::named("Vampire")),
     );
     assert_eq!(
         permanent(&game, olivia).counters(CounterKind::PlusOnePlusOne),

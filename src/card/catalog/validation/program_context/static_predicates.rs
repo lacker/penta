@@ -18,9 +18,11 @@
 /// runtime's copies of this list; both sides are meant to say the same thing.
 fn static_animation_predicate_supported(predicate: ObjectPredicateDef, creature: bool) -> bool {
     match predicate {
-        ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Literal(name)) => !crate::card::BasicLandType::ALL
-            .iter()
-            .any(|land_type| land_type.subtype() == name),
+        ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Fixed(name)) => {
+            !crate::card::BasicLandType::ALL
+                .iter()
+                .any(|land_type| land_type.subtype() == name.name())
+        }
         ObjectPredicateDef::NameEquals(name) => static_card_name_supported(name),
         ObjectPredicateDef::NameIn(&CardNameSetDef::BasicLandNames)
         | ObjectPredicateDef::Any
@@ -140,10 +142,7 @@ fn static_card_name_supported(name: CardNameDef) -> bool {
 
 fn static_card_name_set_supported(names: CardNameSetDef) -> bool {
     match names {
-        CardNameSetDef::Union(sets) => sets
-            .iter()
-            .copied()
-            .all(static_card_name_set_supported),
+        CardNameSetDef::Union(sets) => sets.iter().copied().all(static_card_name_set_supported),
         CardNameSetDef::NamesOf(objects)
         | CardNameSetDef::NamesAppearingAtLeast { objects, .. } => {
             static_condition_object_set_supported(*objects)

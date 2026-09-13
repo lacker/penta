@@ -89,7 +89,10 @@ fn settle_discarding(game: &mut Game, wanted: &[CardDefinitionId]) {
 fn elementals(game: &Game) -> usize {
     game.battlefield
         .iter()
-        .filter(|permanent| game.effective_subtypes(permanent).contains(&"Elemental"))
+        .filter(|permanent| {
+            game.effective_subtypes(permanent)
+                .contains(crate::card::Subtype::named("Elemental"))
+        })
         .count()
 }
 

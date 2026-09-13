@@ -64,7 +64,10 @@ fn the_first_plus_makes_a_soldier() {
     let soldier = game
         .battlefield
         .iter()
-        .find(|permanent| game.effective_subtypes(permanent).contains(&"Soldier"))
+        .find(|permanent| {
+            game.effective_subtypes(permanent)
+                .contains(crate::card::Subtype::named("Soldier"))
+        })
         .expect("the Soldier is there");
     assert_eq!(game.power(soldier), Some(1));
     assert_eq!(game.toughness(soldier), Some(1));

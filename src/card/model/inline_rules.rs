@@ -1,3 +1,4 @@
+use crate::card::subtypes::{SubtypeList, SubtypeSet};
 use std::hash::{Hash, Hasher};
 
 use super::{
@@ -66,6 +67,9 @@ impl InlineRules {
         colors: &'static [ManaColor],
         creature_stats: Option<CreatureStats>,
     ) -> Self {
+        // Validate static declarations now, retaining only the names to fit the
+        // inline object budget. Materialization builds the effective rules mask.
+        let _ = SubtypeSet::from_names(subtypes);
         Self {
             card_types,
             supertypes: 0,
@@ -256,7 +260,7 @@ impl InlineRules {
         let rules = CardRules::from_inline_characteristics(
             self.card_types,
             self.supertypes(),
-            self.subtypes,
+            SubtypeList::new(self.subtypes),
             self.color_set(),
             self.creature_stats,
             self.abilities,

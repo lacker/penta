@@ -555,7 +555,7 @@ mod tests {
                 id,
                 name,
                 sets::commander_legends_baldurs_gate::SET,
-                CardRules::new_creature(ManaCost::new(0, 0), &["Test"], 1, 1)
+                CardRules::new_creature(ManaCost::new(0, 0), &[], 1, 1)
                     .with_supertype(CardSupertype::Legendary)
                     .with_ability(AbilityDef::deck_construction(
                         "Partner",

@@ -156,7 +156,7 @@ pub(in crate::card::sets) static THREE_VISITS: CardRecord = CardRecord::new(
         EffectDef::SearchZone {
             player: EffectRecipientDef::Controller,
             source: ZoneKind::Library,
-            object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Forest")),
+            object: ObjectPredicateDef::Subtype(SubtypeDef::literal("Forest")),
             minimum: 0,
             maximum: ValueDef::Constant(1),
             reveal: false,

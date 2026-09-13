@@ -87,7 +87,10 @@ fn cast(game: &mut Game, held: GameObjectId, mode: usize) {
 fn soldiers(game: &Game) -> usize {
     game.battlefield
         .iter()
-        .filter(|permanent| game.effective_subtypes(permanent).contains(&"Soldier"))
+        .filter(|permanent| {
+            game.effective_subtypes(permanent)
+                .contains(crate::card::Subtype::named("Soldier"))
+        })
         .filter(|permanent| permanent.card.definition != cards::COSMOGRAND_ZENITH)
         .count()
 }
@@ -398,8 +401,14 @@ fn the_soldiers_are_one_one_white_humans_and_nothing_is_grown() {
             "white and nothing else",
         );
         let subtypes = game.effective_subtypes(token);
-        assert!(subtypes.contains(&"Human"), "a Human");
-        assert!(subtypes.contains(&"Soldier"), "and a Soldier");
+        assert!(
+            subtypes.contains(crate::card::Subtype::named("Human")),
+            "a Human"
+        );
+        assert!(
+            subtypes.contains(crate::card::Subtype::named("Soldier")),
+            "and a Soldier"
+        );
     }
     assert_eq!(
         counters_on(&game, zenith),

@@ -102,7 +102,10 @@ fn alive(game: &Game, saga: GameObjectId) -> bool {
 fn constructs(game: &Game) -> Vec<&Permanent> {
     game.battlefield
         .iter()
-        .filter(|permanent| game.effective_subtypes(permanent).contains(&"Construct"))
+        .filter(|permanent| {
+            game.effective_subtypes(permanent)
+                .contains(crate::card::Subtype::named("Construct"))
+        })
         .collect()
 }
 

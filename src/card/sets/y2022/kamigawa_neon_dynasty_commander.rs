@@ -116,7 +116,7 @@ pub(in crate::card::sets) static SWIFT_RECONFIGURATION: CardRecord = CardRecord:
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::AnyOf(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Vehicle")),
                     ]),
                 )],
             ),
@@ -129,7 +129,7 @@ pub(in crate::card::sets) static SWIFT_RECONFIGURATION: CardRecord = CardRecord:
                     effect: AppliedEffectDef::Composite(&[
                         AppliedEffectDef::set_card_types(CardTypeSet::single(CardType::Artifact)),
                         AppliedEffectDef::Characteristic(CharacteristicOperationDef::Subtypes(
-                            SetOperationDef::Add(&["Vehicle"]),
+                            SetOperationDef::Add(crate::card::SubtypeSet::from_names(&["Vehicle"])),
                         )),
                         AppliedEffectDef::add_ability(&abilities::crew("Crew 5", 5)),
                     ]),

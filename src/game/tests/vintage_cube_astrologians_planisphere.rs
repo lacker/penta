@@ -124,8 +124,14 @@ fn the_hero_becomes_a_wizard_as_well() {
     let (game, _planisphere) = staged(&[]);
     let subtypes = game.effective_subtypes(hero(&game));
 
-    assert!(subtypes.contains(&"Hero"), "still a Hero");
-    assert!(subtypes.contains(&"Wizard"), "and a Wizard now");
+    assert!(
+        subtypes.contains(crate::card::Subtype::named("Hero")),
+        "still a Hero"
+    );
+    assert!(
+        subtypes.contains(crate::card::Subtype::named("Wizard")),
+        "and a Wizard now"
+    );
 }
 
 /// A noncreature spell puts a counter on the creature wearing it.
@@ -226,7 +232,8 @@ fn equipping_someone_else_moves_the_ability() {
         .expect("the Bear is there");
     assert_eq!(bear.counters(CounterKind::PlusOnePlusOne), 1, "it grew");
     assert!(
-        game.effective_subtypes(bear).contains(&"Wizard"),
+        game.effective_subtypes(bear)
+            .contains(crate::card::Subtype::named("Wizard")),
         "and it is a Wizard while it wears it",
     );
     assert_eq!(counters_on_hero(&game), 0, "the Hero kept nothing");

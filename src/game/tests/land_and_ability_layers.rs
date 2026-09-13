@@ -98,7 +98,7 @@ fn factory_and_sorceress_queen_base_setters_follow_timestamp_without_losing_type
     }
     assert!(
         game.effective_subtypes(&affected)
-            .contains(&"Assembly-Worker")
+            .contains(crate::card::Subtype::named("Assembly-Worker"))
     );
     assert_eq!(
         (game.power(&affected), game.toughness(&affected)),
@@ -195,8 +195,8 @@ fn turn_preserves_land_subtypes_and_only_later_ability_grants() {
     let affected = &game.battlefield[0];
     assert!(game.has_trample(affected));
     let subtypes = game.effective_subtypes(affected);
-    assert!(subtypes.contains(&"Forest"));
-    assert!(subtypes.contains(&"Weird"));
+    assert!(subtypes.contains(crate::card::Subtype::named("Forest")));
+    assert!(subtypes.contains(crate::card::Subtype::named("Weird")));
     assert_eq!(
         (game.power(affected), game.toughness(affected)),
         (Some(0), Some(1))

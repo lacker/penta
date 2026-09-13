@@ -629,7 +629,7 @@ pub(in crate::card::sets) static MASTER_APOTHECARY: CardRecord = CardRecord::new
             &[CostDef::TapPermanents {
                 object: ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Cleric")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Cleric")),
                 ]),
                 controller: PlayerRelation::You,
                 count: 1,
@@ -971,7 +971,7 @@ pub(in crate::card::sets) static ABOSHAN_CEPHALID_EMPEROR: CardRecord = CardReco
     "Christopher Moeller",
     // Tapping the board is the win condition; the Octopuses are the fuel,
     // and neither half costs a card once it is set up.
-    CardRules::new_creature(mana_cost!("{4}{U}{U}"), &["Cephalid"], 3, 3)
+    CardRules::new_creature(mana_cost!("{4}{U}{U}"), &["Octopus", "Noble"], 3, 3)
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
             AbilityDef::activated_with_targets(
@@ -979,7 +979,7 @@ pub(in crate::card::sets) static ABOSHAN_CEPHALID_EMPEROR: CardRecord = CardReco
                 &[CostDef::TapPermanents {
                     object: ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Octopus")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Octopus")),
                     ]),
                     controller: PlayerRelation::You,
                     count: 1,
@@ -1204,7 +1204,7 @@ pub(in crate::card::sets) static CEPHALID_BROKER: CardRecord = CardRecord::new(
     "Dave Dorman",
     // Twice the Looter's rate for one more mana, which only matters in the
     // deck that wanted the graveyard rather than the cards.
-    CardRules::new_creature(mana_cost!("{3}{U}"), &["Cephalid"], 2, 2).with_ability(
+    CardRules::new_creature(mana_cost!("{3}{U}"), &["Octopus"], 2, 2).with_ability(
         AbilityDef::activated_with_targets(
             "{T}: Target player draws two cards, then discards two cards.",
             &[CostDef::TapSource],
@@ -1242,7 +1242,7 @@ pub(in crate::card::sets) static CEPHALID_LOOTER: CardRecord = CardRecord::new(
     "Keith Garletts",
     // Filling the graveyard a card a turn is the whole Odyssey block, and
     // this is the cheapest engine that does it.
-    CardRules::new_creature(mana_cost!("{2}{U}"), &["Cephalid", "Rogue"], 2, 1).with_ability(
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Octopus", "Rogue"], 2, 1).with_ability(
         AbilityDef::activated_with_targets(
             "{T}: Target player draws a card, then discards a card.",
             &[CostDef::TapSource],
@@ -1272,7 +1272,7 @@ pub(in crate::card::sets) static CEPHALID_RETAINER: CardRecord = CardRecord::new
     "Tony Szczudlo",
     // Tapping a ground creature every turn is a soft lock against a deck
     // with one big attacker and nothing in the air.
-    CardRules::new_creature(mana_cost!("{2}{U}{U}"), &["Cephalid", "Wizard"], 2, 3).with_ability(
+    CardRules::new_creature(mana_cost!("{2}{U}{U}"), &["Octopus"], 2, 3).with_ability(
         AbilityDef::activated_with_targets(
             "{U}{U}: Tap target creature without flying.",
             &[CostDef::Mana(mana_cost!("{U}{U}"))],
@@ -1588,7 +1588,7 @@ pub(in crate::card::sets) static PATRON_WIZARD: CardRecord = CardRecord::new(
             &[CostDef::TapPermanents {
                 object: ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Wizard")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Wizard")),
                 ]),
                 controller: PlayerRelation::You,
                 count: 1,
@@ -4572,7 +4572,7 @@ pub(in crate::card::sets) static SQUIRREL_MOB: CardRecord = CardRecord::new(
                 effect: AppliedEffectDef::modify_power_toughness(
                     ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
                         ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Squirrel")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Squirrel")),
                             ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                         ]),
                         &[ZoneKind::Battlefield],
@@ -4580,7 +4580,7 @@ pub(in crate::card::sets) static SQUIRREL_MOB: CardRecord = CardRecord::new(
                     )),
                     ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
                         ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Squirrel")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Squirrel")),
                             ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                         ]),
                         &[ZoneKind::Battlefield],

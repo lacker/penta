@@ -408,7 +408,7 @@ pub(in crate::card::sets) static FORTIFIED_AREA: CardRecord = CardRecord::new(
         "Wall creatures you control get +1/+0 and have banding.",
         EffectDef::StaticApply {
             recipient: EffectRecipientDef::matching_objects(
-                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Wall")),
+                ObjectPredicateDef::Subtype(SubtypeDef::literal("Wall")),
                 &[ZoneKind::Battlefield],
                 PlayerRelation::You,
             ),
@@ -1991,7 +1991,7 @@ pub(in crate::card::sets) static EVIL_EYE_OF_ORMS_BY_GORE: CardRecord = CardReco
                 recipient: EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::Literal(
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::literal(
                             "Eye",
                         ))),
                     ]),
@@ -2006,7 +2006,7 @@ pub(in crate::card::sets) static EVIL_EYE_OF_ORMS_BY_GORE: CardRecord = CardReco
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
-                    ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::Literal(
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::literal(
                         "Wall",
                     ))),
                 )),
@@ -2184,7 +2184,7 @@ pub(in crate::card::sets) static HORROR_OF_HORRORS: CardRecord = CardRecord::new
         AbilityDef::activated_with_targets(
             "Sacrifice a Swamp: Regenerate target black creature.",
             &[CostDef::SacrificePermanent {
-                object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Swamp")),
+                object: ObjectPredicateDef::Subtype(SubtypeDef::literal("Swamp")),
                 controller: PlayerRelation::You,
             }],
             &[AbilityTargetDef::exactly_one_permanent(
@@ -2231,7 +2231,7 @@ pub(in crate::card::sets) static INFERNAL_MEDUSA: CardRecord = CardRecord::new(
              creature at end of combat.",
             TriggerEventDef::BecomesBlockedBy {
                 blocker: ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(
-                    SubtypeDef::Literal("Wall"),
+                    SubtypeDef::literal("Wall"),
                 )),
             },
             abilities::destroy_triggering_object_at_end_of_combat(),
@@ -2957,7 +2957,7 @@ pub(in crate::card::sets) static GLYPH_OF_DESTRUCTION: CardRecord = CardRecord::
         &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::Object {
                 object: ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Wall")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Wall")),
                     ObjectPredicateDef::Blocking,
                 ]),
                 zones: &[ZoneKind::Battlefield],
@@ -3064,7 +3064,7 @@ pub(in crate::card::sets) static KOBOLD_DRILL_SERGEANT: CardRecord = CardRecord:
                 recipient: EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Kobold")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Kobold")),
                         ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                     ]),
                     &[ZoneKind::Battlefield],
@@ -3095,7 +3095,7 @@ pub(in crate::card::sets) static KOBOLD_OVERLORD: CardRecord = CardRecord::new(
                 recipient: EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Kobold")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Kobold")),
                         ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                     ]),
                     &[ZoneKind::Battlefield],
@@ -3119,7 +3119,7 @@ pub(in crate::card::sets) static KOBOLD_TASKMASTER: CardRecord = CardRecord::new
                 recipient: EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Kobold")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Kobold")),
                         ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                     ]),
                     &[ZoneKind::Battlefield],
@@ -3576,7 +3576,7 @@ pub(in crate::card::sets) static ELVEN_RIDERS: CardRecord = CardRecord::new(
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
                     ObjectPredicateDef::Not(&ObjectPredicateDef::AnyOf(&[
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Wall")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Wall")),
                         ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
                     ])),
                 )),
@@ -3848,7 +3848,7 @@ static WOMBAT_BONUS: ValueDef = ValueDef::Scaled(&ScaledValueDef::new(
     // Every Aura on it counts, whoever controls them.
     ValueDef::CountMatchingObjects(&ObjectQueryDef::new(
         ObjectPredicateDef::All(&[
-            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Aura")),
+            ObjectPredicateDef::Subtype(SubtypeDef::literal("Aura")),
             ObjectPredicateDef::AttachedTo(&ObjectPredicateDef::Source),
         ]),
         &[ZoneKind::Battlefield],
@@ -5539,7 +5539,7 @@ pub(in crate::card::sets) static MARBLE_PRIEST: CardRecord = CardRecord::new(
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::Rule(AppliedRuleDef::MustBeBlockedBy(
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Wall")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Wall")),
                 )),
             },
         ),
@@ -5548,7 +5548,7 @@ pub(in crate::card::sets) static MARBLE_PRIEST: CardRecord = CardRecord::new(
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::prevent_combat_damage_from(ObjectPredicateDef::Subtype(
-                    SubtypeDef::Literal("Wall"),
+                    SubtypeDef::literal("Wall"),
                 )),
             },
         ),

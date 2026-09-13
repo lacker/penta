@@ -462,7 +462,7 @@ pub(in crate::card::sets) static CEMETERY_RECRUITMENT: CardRecord = CardRecord::
                         "returned"
                     )),
                     predicate: ObjectSetPredicateDef::contains(&ObjectPredicateDef::Subtype(
-                        SubtypeDef::Literal("Zombie"),
+                        SubtypeDef::literal("Zombie"),
                     )),
                 }),
                 then: &abilities::draw_cards(ValueDef::Constant(1)),

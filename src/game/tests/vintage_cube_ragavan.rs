@@ -165,9 +165,9 @@ fn connecting_steals_a_card_and_makes_treasure() {
     resolve(&mut game);
 
     assert!(
-        game.battlefield
-            .iter()
-            .any(|permanent| game.effective_subtypes(permanent).contains(&"Treasure")),
+        game.battlefield.iter().any(|permanent| game
+            .effective_subtypes(permanent)
+            .contains(crate::card::Subtype::named("Treasure"))),
         "a Treasure for the trouble",
     );
     assert_eq!(game.players[1].library.len(), 2, "their top card is gone");
@@ -241,9 +241,9 @@ fn an_empty_library_still_pays_a_treasure() {
     resolve(&mut game);
 
     assert!(
-        game.battlefield
-            .iter()
-            .any(|permanent| game.effective_subtypes(permanent).contains(&"Treasure")),
+        game.battlefield.iter().any(|permanent| game
+            .effective_subtypes(permanent)
+            .contains(crate::card::Subtype::named("Treasure"))),
         "the Treasure comes whether or not there was anything to steal",
     );
     assert!(

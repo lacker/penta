@@ -122,7 +122,8 @@ fn bestow_from_the_graveyard_makes_it_an_aura() {
     assert!(!types.contains(CardType::Creature), "not a creature");
     assert!(types.contains(CardType::Enchantment));
     assert!(
-        game.effective_subtypes(aura).contains(&"Aura"),
+        game.effective_subtypes(aura)
+            .contains(crate::card::Subtype::named("Aura")),
         "an Aura while it is attached",
     );
 
@@ -256,7 +257,9 @@ fn a_bestowed_phoenix_whose_host_dies_arrives_as_a_creature() {
     );
     assert!(types.contains(CardType::Enchantment));
     assert!(
-        !game.effective_subtypes(arrived).contains(&"Aura"),
+        !game
+            .effective_subtypes(arrived)
+            .contains(crate::card::Subtype::named("Aura")),
         "and it is no longer an Aura",
     );
     assert!(game.has_flying(arrived), "the printed body flies");
@@ -478,6 +481,26 @@ fn the_bestowed_spell_is_an_aura_spell_and_not_a_creature_spell() {
         answers(&game, negate, spell).is_none(),
         "which Negate cannot touch",
     );
+}
+
+#[test]
+fn bestow_stack_subtypes_follow_the_remaining_card_types() {
+    for prepared in [false, true] {
+        for bestowed in [false, true] {
+            let (mut game, spell, _) = cast_it_into(bestowed, cards::ANNUL);
+            game.set_prepared_engine_enabled(prepared);
+            let object = game.stack.iter().find(|object| object.id == spell).unwrap();
+            let view = game.stack_trigger_event_object(object).unwrap();
+            assert_eq!(
+                view.subtypes,
+                crate::card::SubtypeSet::from_names(if bestowed {
+                    &["Aura"]
+                } else {
+                    &["Phoenix"]
+                }),
+            );
+        }
+    }
 }
 
 /// "...although it's an enchantment spell in either case." Annul counters

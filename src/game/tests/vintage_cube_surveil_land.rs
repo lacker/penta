@@ -205,8 +205,8 @@ fn the_sewers_bring_their_own_two_basic_types() {
         .expect("it is on the battlefield");
     let subtypes = game.effective_subtypes(sewers);
 
-    assert!(subtypes.contains(&"Island"));
-    assert!(subtypes.contains(&"Swamp"));
+    assert!(subtypes.contains(crate::card::Subtype::named("Island")));
+    assert!(subtypes.contains(crate::card::Subtype::named("Swamp")));
     assert!(sewers.tapped, "and it still arrives tapped");
 }
 
@@ -520,10 +520,13 @@ fn a_red_green_fetch_finds_it_on_their_turn() {
         the_land_named(&game, cards::COMMERCIAL_DISTRICT).expect("a Mountain Forest was found");
     let subtypes = game.effective_subtypes(district);
     assert!(
-        subtypes.contains(&"Mountain"),
+        subtypes.contains(crate::card::Subtype::named("Mountain")),
         "the half the Foothills read"
     );
-    assert!(subtypes.contains(&"Forest"), "and its other half");
+    assert!(
+        subtypes.contains(crate::card::Subtype::named("Forest")),
+        "and its other half"
+    );
     assert!(district.tapped, "fetched onto their turn, and still tapped");
     assert!(
         game.players[0]

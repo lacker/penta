@@ -639,7 +639,7 @@ pub(in crate::card::sets) static BRISTLEBUD_FARMER: CardRecord = CardRecord::new
             TriggerEventDef::attacks(ObjectPredicateDef::Source),
             EffectDef::PayOr(PayOrDef::optional(
                 &[CostDef::sacrifice_permanent(ObjectPredicateDef::Subtype(
-                    SubtypeDef::Literal("Food"),
+                    SubtypeDef::literal("Food"),
                 ))],
                 &EffectDef::Sequence(&[
                     EffectDef::BindOutput {

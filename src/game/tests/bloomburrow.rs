@@ -109,7 +109,9 @@ fn offspring_is_payable_alongside_omnisciences_free_cast() {
     assert_eq!(
         game.battlefield
             .iter()
-            .filter(|p| game.effective_subtypes(p).contains(&"Otter"))
+            .filter(|p| game
+                .effective_subtypes(p)
+                .contains(crate::card::Subtype::named("Otter")))
             .count(),
         2
     );
@@ -183,7 +185,9 @@ fn cache_grab_makes_food_for_the_squirrel_returned_from_the_mill() {
     assert_eq!(
         game.battlefield
             .iter()
-            .filter(|p| game.effective_subtypes(p).contains(&"Food"))
+            .filter(|p| game
+                .effective_subtypes(p)
+                .contains(crate::card::Subtype::named("Food")))
             .count(),
         1
     );

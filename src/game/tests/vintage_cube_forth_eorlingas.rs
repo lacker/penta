@@ -252,8 +252,14 @@ fn the_riders_are_red_human_knights() {
         "red and nothing else",
     );
     let subtypes = game.effective_subtypes(permanent);
-    assert!(subtypes.contains(&"Human"), "a Human");
-    assert!(subtypes.contains(&"Knight"), "and a Knight");
+    assert!(
+        subtypes.contains(crate::card::Subtype::named("Human")),
+        "a Human"
+    );
+    assert!(
+        subtypes.contains(crate::card::Subtype::named("Knight")),
+        "and a Knight"
+    );
 }
 
 /// Trample and the crown together: a Rider held by a 1/1 still sends a point

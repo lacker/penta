@@ -18,8 +18,13 @@ pub(super) fn apply_copy_exceptions(
     if let Some(colors) = exceptions.colors {
         copy.colors = Some(game.text_changed_color_set(object.id, colors));
     }
-    copy.added_creature_types
-        .extend(exceptions.added_creature_types.named);
+    copy.added_creature_types.extend(
+        exceptions
+            .added_creature_types
+            .named
+            .iter()
+            .map(crate::card::Subtype::name),
+    );
     copy.added_types = copy.added_types.union(exceptions.added_types);
     for supertype in exceptions.added_supertypes {
         copy.added_supertypes[supertype.index()] = true;

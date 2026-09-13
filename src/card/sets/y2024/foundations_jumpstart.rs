@@ -150,7 +150,7 @@ pub(in crate::card::sets) static DROPKICK_BOMBER: CardRecord = CardRecord::new(
                     ObjectQueryDef::matching(
                         ObjectPredicateDef::All(&[
                             ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Goblin")),
                         ]),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::You,
@@ -171,7 +171,7 @@ pub(in crate::card::sets) static DROPKICK_BOMBER: CardRecord = CardRecord::new(
                 AbilityTargetPredicate::Object {
                     object: ObjectPredicateDef::All(&[
                         ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Goblin")),
                     ]),
                     zones: &[ZoneKind::Battlefield],
                     controller: Some(PlayerRelation::You),
@@ -211,7 +211,7 @@ pub(in crate::card::sets) static FIRESPITTER_WHELP: CardRecord = CardRecord::new
             TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
                 ObjectPredicateDef::AnyOf(&[
                     ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Dragon")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Dragon")),
                 ]),
                 ObjectPredicateDef::ControlledBy(PlayerRelation::You),
             ])),
@@ -464,7 +464,7 @@ pub(in crate::card::sets) static GENERAL_KREAT_THE_BOLTBRINGER: CardRecord = Car
                 TriggerEventDef::attack_declared(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Literal("Goblin")),
+                        ObjectPredicateDef::Subtype(crate::card::SubtypeDef::literal("Goblin")),
                         ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                     ]),
                     1,

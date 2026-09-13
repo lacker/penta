@@ -34,7 +34,10 @@ fn staged(artifacts: &[CardDefinitionId]) -> (Game, GameObjectId, Vec<GameObject
 fn thopters(game: &Game) -> Vec<&Permanent> {
     game.battlefield
         .iter()
-        .filter(|permanent| game.effective_subtypes(permanent).contains(&"Thopter"))
+        .filter(|permanent| {
+            game.effective_subtypes(permanent)
+                .contains(crate::card::Subtype::named("Thopter"))
+        })
         .collect()
 }
 

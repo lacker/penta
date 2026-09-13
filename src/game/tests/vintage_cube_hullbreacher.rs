@@ -38,7 +38,10 @@ fn treasures(game: &Game, player: PlayerId) -> usize {
     game.battlefield
         .iter()
         .filter(|permanent| permanent.controller == player)
-        .filter(|permanent| game.effective_subtypes(permanent).contains(&"Treasure"))
+        .filter(|permanent| {
+            game.effective_subtypes(permanent)
+                .contains(crate::card::Subtype::named("Treasure"))
+        })
         .count()
 }
 
@@ -117,7 +120,10 @@ fn the_treasure_makes_mana() {
     let treasure = game
         .battlefield
         .iter()
-        .find(|permanent| game.effective_subtypes(permanent).contains(&"Treasure"))
+        .find(|permanent| {
+            game.effective_subtypes(permanent)
+                .contains(crate::card::Subtype::named("Treasure"))
+        })
         .expect("the Treasure is there")
         .card
         .id;

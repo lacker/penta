@@ -149,7 +149,7 @@ pub(in crate::card::sets) static KARN_LIBERATED: CardRecord = CardRecord::new(
                             ObjectPredicateDef::HasType(CardType::Land),
                             ObjectPredicateDef::HasType(CardType::Planeswalker),
                         ]),
-                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::Literal(
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::literal(
                             "Aura",
                         ))),
                     ]),
@@ -203,7 +203,7 @@ pub(in crate::card::sets) static BLADE_SPLICER: CardRecord = CardRecord::new(
             "Golems you control have first strike.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::matching_objects(
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Golem")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Golem")),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::You,
                 ),
@@ -495,7 +495,7 @@ pub(in crate::card::sets) static MASTER_SPLICER: CardRecord = CardRecord::new(
             "Golems you control get +1/+1.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::matching_objects(
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Golem")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Golem")),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::You,
                 ),
@@ -559,7 +559,7 @@ pub(in crate::card::sets) static PURESTEEL_PALADIN: CardRecord = CardRecord::new
             "Whenever an Equipment you control enters, you may draw a card.",
             TriggerEventDef::zone_changed(
                 ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Equipment")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Equipment")),
                     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                 ]),
                 None,
@@ -580,7 +580,7 @@ pub(in crate::card::sets) static PURESTEEL_PALADIN: CardRecord = CardRecord::new
                 condition: &METALCRAFT,
                 then: &EffectDef::StaticApply {
                     recipient: EffectRecipientDef::matching_objects(
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Equipment")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Equipment")),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::You,
                     ),
@@ -660,7 +660,7 @@ pub(in crate::card::sets) static SENSOR_SPLICER: CardRecord = CardRecord::new(
                 "Golem creatures you control have vigilance.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::matching_objects(
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Golem")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Golem")),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::You,
                     ),
@@ -1404,7 +1404,7 @@ pub(in crate::card::sets) static WING_SPLICER: CardRecord = CardRecord::new(
             "Golem creatures you control have flying.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::matching_objects(
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Golem")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Golem")),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::You,
                 ),
@@ -3009,7 +3009,7 @@ pub(in crate::card::sets) static MAUL_SPLICER: CardRecord = CardRecord::new(
             "Golem creatures you control have trample.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::matching_objects(
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Golem")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Golem")),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::You,
                 ),
@@ -3248,7 +3248,7 @@ pub(in crate::card::sets) static VITAL_SPLICER: CardRecord = CardRecord::new(
             &[CostDef::Mana(mana_cost!("{1}"))],
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Object {
-                    object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Golem")),
+                    object: ObjectPredicateDef::Subtype(SubtypeDef::literal("Golem")),
                     zones: &[ZoneKind::Battlefield],
                     controller: Some(PlayerRelation::You),
                     owner: None,

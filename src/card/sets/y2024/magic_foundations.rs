@@ -234,7 +234,7 @@ pub(in crate::card::sets) static ARAHBO_THE_FIRST_FANG: CardRecord = CardRecord:
                             ObjectPredicateDef::All(&[
                                 ObjectPredicateDef::HasType(CardType::Creature),
                                 ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-                                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Cat")),
+                                ObjectPredicateDef::Subtype(SubtypeDef::literal("Cat")),
                             ]),
                             &[ZoneKind::Battlefield],
                             PlayerRelation::You,
@@ -253,7 +253,7 @@ pub(in crate::card::sets) static ARAHBO_THE_FIRST_FANG: CardRecord = CardRecord:
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::All(&[
                             ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Cat")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Cat")),
                             ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
                         ]),
                         ObjectPredicateDef::ControlledBy(PlayerRelation::You),
@@ -374,7 +374,7 @@ pub(in crate::card::sets) static CLAWS_OUT: CardRecord = CardRecord::new(
             "Affinity for Cats (This spell costs {1} less to cast for each \
              Cat you control.)",
             ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Cat")),
+                ObjectPredicateDef::Subtype(SubtypeDef::literal("Cat")),
                 &[ZoneKind::Battlefield],
                 PlayerRelation::You,
             )),
@@ -930,7 +930,7 @@ pub(in crate::card::sets) static ARCANE_EPIPHANY: CardRecord = CardRecord::new(
             "This spell costs {1} less to cast if you control a Wizard.",
             ValueDef::IfMatchingObjectCount(&CountConditionDef {
                 query: ObjectQueryDef::matching(
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Wizard")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Wizard")),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::You,
                 ),
@@ -2252,7 +2252,7 @@ pub(in crate::card::sets) static ZUL_ASHUR_LICH_LORD: CardRecord = CardRecord::n
                     AbilityTargetPredicate::Object {
                         object: ObjectPredicateDef::All(&[
                             ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Zombie")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Zombie")),
                         ]),
                         zones: &[ZoneKind::Graveyard],
                         controller: None,
@@ -3349,7 +3349,7 @@ pub(in crate::card::sets) static FIENDISH_PANDA: CardRecord = CardRecord::new(
                     object: ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
                         ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::Literal(
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::literal(
                             "Bear",
                         ))),
                         ObjectPredicateDef::ManaValueAtMostValue(ValueDef::SourcePower),
@@ -5197,7 +5197,7 @@ pub(in crate::card::sets) static KELLAN_PLANAR_TRAILBLAZER: CardRecord = CardRec
                     // Each activation asks what Kellan is now, so the two have to be paid in
                     // order and neither does anything twice.
                     condition: &TriggerConditionDef::SourceMatches {
-                        object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Scout")),
+                        object: ObjectPredicateDef::Subtype(SubtypeDef::literal("Scout")),
                     },
                     then: &EffectDef::Apply {
                         recipient: EffectRecipientDef::Source,
@@ -5241,7 +5241,7 @@ pub(in crate::card::sets) static KELLAN_PLANAR_TRAILBLAZER: CardRecord = CardRec
                 &[CostDef::Mana(mana_cost!("{2}{R}"))],
                 EffectDef::IfCondition {
                     condition: &TriggerConditionDef::SourceMatches {
-                        object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Detective")),
+                        object: ObjectPredicateDef::Subtype(SubtypeDef::literal("Detective")),
                     },
                     then: &EffectDef::Apply {
                         recipient: EffectRecipientDef::Source,

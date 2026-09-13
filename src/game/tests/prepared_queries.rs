@@ -82,7 +82,7 @@ fn prepared_predicate_queries_match_reference_across_live_characteristics() {
                 BasicLandType::Forest,
                 BasicLandType::Mountain,
             ]),
-            ObjectPredicateDef::Subtype(crate::SubtypeDef::Literal("Forest")),
+            ObjectPredicateDef::Subtype(crate::SubtypeDef::literal("Forest")),
             ObjectPredicateDef::Supertype(CardSupertype::Basic),
             ObjectPredicateDef::ColorCount(1),
             ObjectPredicateDef::ManaValueAtMost(3),
@@ -285,7 +285,7 @@ fn prepared_queries_preserve_changed_color_and_land_type_words() {
             GameObjectId(98_951),
         ),
         (
-            ObjectPredicateDef::Subtype(crate::SubtypeDef::Literal("Swamp")),
+            ObjectPredicateDef::Subtype(crate::SubtypeDef::literal("Swamp")),
             GameObjectId(98_952),
         ),
         (

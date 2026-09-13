@@ -94,7 +94,7 @@ static MULTICOLORED: ObjectPredicateDef = ObjectPredicateDef::AnyOf(&[
 
 static TWO_GATES_CONDITION: TriggerConditionDef = TriggerConditionDef::ObjectCount {
     query: ObjectQueryDef::matching(
-        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Gate")),
+        ObjectPredicateDef::Subtype(SubtypeDef::literal("Gate")),
         &[ZoneKind::Battlefield],
         PlayerRelation::You,
     ),
@@ -3904,7 +3904,7 @@ pub(in crate::card::sets) static MAZE_S_END: CardRecord = CardRecord::new(
                 EffectDef::SearchZone {
                     player: EffectRecipientDef::Controller,
                     source: ZoneKind::Library,
-                    object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Gate")),
+                    object: ObjectPredicateDef::Subtype(SubtypeDef::literal("Gate")),
                     minimum: 0,
                     maximum: ValueDef::Constant(1),
                     reveal: true,
@@ -3919,7 +3919,7 @@ pub(in crate::card::sets) static MAZE_S_END: CardRecord = CardRecord::new(
                 EffectDef::IfCondition {
                     condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
                         left: ValueDef::DistinctNamesAmong(&ObjectQueryDef::matching(
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Gate")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Gate")),
                             &[ZoneKind::Battlefield],
                             PlayerRelation::You,
                         )),

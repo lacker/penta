@@ -104,9 +104,14 @@ fn it_becomes_the_chosen_type() {
     play(&mut game, passage, "Island", true);
 
     let land = on_battlefield(&game);
-    assert!(game.effective_subtypes(land).contains(&"Island"));
     assert!(
-        !game.effective_subtypes(land).contains(&"Forest"),
+        game.effective_subtypes(land)
+            .contains(crate::card::Subtype::named("Island"))
+    );
+    assert!(
+        !game
+            .effective_subtypes(land)
+            .contains(crate::card::Subtype::named("Forest")),
         "one type, the one chosen",
     );
     let colors = game
@@ -125,7 +130,10 @@ fn a_different_choice_is_a_different_land() {
     play(&mut game, passage, "Mountain", true);
 
     let land = on_battlefield(&game);
-    assert!(game.effective_subtypes(land).contains(&"Mountain"));
+    assert!(
+        game.effective_subtypes(land)
+            .contains(crate::card::Subtype::named("Mountain"))
+    );
     assert_eq!(
         game.mana_ability_activations(land)
             .into_iter()

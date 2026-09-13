@@ -57,7 +57,7 @@ pub(in crate::card::sets) static LATHRIL_BLADE_OF_THE_ELVES: CardRecord = CardRe
                 &[
                     CostDef::TapSource,
                     CostDef::TapPermanents {
-                        object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Elf")),
+                        object: ObjectPredicateDef::Subtype(SubtypeDef::literal("Elf")),
                         controller: PlayerRelation::You,
                         count: 10,
                     },

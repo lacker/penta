@@ -1,90 +1,35 @@
 impl Game {
-    /// Applies one layer-4 basic-land-subtype operation. Set removes every
-    /// existing land subtype before installing its result (CR 305.7).
-    fn apply_basic_land_subtype_operation(
-        subtypes: &mut Vec<&'static str>,
-        operation: LandTypeOperation,
-    ) {
-        fn is_land_subtype(subtype: &str) -> bool {
-            LAND_SUBTYPES.contains(&subtype)
-        }
-
+    /// Set replaces the entire land family (CR 305.7), preserving other families.
+    fn apply_basic_land_subtype_operation(subtypes: &mut SubtypeSet, operation: LandTypeOperation) {
+        let mut selected = SubtypeSet::EMPTY;
         match operation {
-            LandTypeOperation::SetTo(_)
-            | LandTypeOperation::SetToChosen(_)
-            | LandTypeOperation::Substitute { .. } => {
-                if let LandTypeOperation::Substitute { from, .. } = operation
-                    && !subtypes
-                        .iter()
-                        .any(|subtype| BasicLandType::from_subtype(subtype) == Some(from))
-                {
+            LandTypeOperation::SetTo(mask)
+            | LandTypeOperation::Add(mask)
+            | LandTypeOperation::Remove(mask) => {
+                for land_type in BasicLandType::ALL {
+                    if mask[land_type.index()] {
+                        selected.insert(land_type.subtype_id());
+                    }
+                }
+            }
+            LandTypeOperation::SetToChosen(chosen) | LandTypeOperation::AddChosen(chosen) => {
+                selected.insert(chosen.subtype_id());
+            }
+            LandTypeOperation::Substitute { from, to } => {
+                if !subtypes.contains(from.subtype_id()) {
                     return;
                 }
-                let chosen = [match operation {
-                    LandTypeOperation::SetToChosen(chosen) => chosen,
-                    LandTypeOperation::Substitute { to, .. } => to,
-                    _ => BasicLandType::Plains,
-                }];
-                let types = match operation {
-                    LandTypeOperation::SetTo(mask) => BasicLandType::ALL
-                        .into_iter()
-                        .filter(|land_type| mask[land_type.index()])
-                        .collect::<Vec<_>>(),
-                    LandTypeOperation::SetToChosen(_) | LandTypeOperation::Substitute { .. } => {
-                        chosen.into_iter().collect()
-                    }
-                    LandTypeOperation::Add(_)
-                    | LandTypeOperation::AddChosen(_)
-                    | LandTypeOperation::Remove(_) => unreachable!(),
-                };
-                let mut insertion = subtypes
-                    .iter()
-                    .position(|subtype| is_land_subtype(subtype))
-                    .unwrap_or(0);
-                subtypes.retain(|subtype| !is_land_subtype(subtype));
-                insertion = insertion.min(subtypes.len());
-                for land_type in types {
-                    if subtypes
-                        .iter()
-                        .any(|subtype| BasicLandType::from_subtype(subtype) == Some(land_type))
-                    {
-                        continue;
-                    }
-                    subtypes.insert(insertion, land_type.subtype());
-                    insertion += 1;
-                }
-            }
-            LandTypeOperation::Add(_) | LandTypeOperation::AddChosen(_) => {
-                let chosen = [match operation {
-                    LandTypeOperation::AddChosen(chosen) => chosen,
-                    _ => BasicLandType::Plains,
-                }];
-                let mut insertion = subtypes
-                    .iter()
-                    .position(|subtype| !is_land_subtype(subtype))
-                    .unwrap_or(subtypes.len());
-                let types = BasicLandType::ALL.into_iter().filter(|land_type| match operation {
-                    LandTypeOperation::Add(mask) => mask[land_type.index()],
-                    LandTypeOperation::AddChosen(_) => chosen.contains(land_type),
-                    _ => false,
-                });
-                for land_type in types {
-                    if subtypes
-                        .iter()
-                        .any(|subtype| BasicLandType::from_subtype(subtype) == Some(land_type))
-                    {
-                        continue;
-                    }
-                    subtypes.insert(insertion, land_type.subtype());
-                    insertion += 1;
-                }
-            }
-            LandTypeOperation::Remove(types) => {
-                subtypes.retain(|subtype| {
-                    BasicLandType::from_subtype(subtype)
-                        .is_none_or(|land_type| !types[land_type.index()])
-                });
+                selected.insert(to.subtype_id());
             }
         }
+        *subtypes = match operation {
+            LandTypeOperation::SetTo(_)
+            | LandTypeOperation::SetToChosen(_)
+            | LandTypeOperation::Substitute { .. } => subtypes
+                .difference(const { SubtypeSet::family(SubtypeFamily::Land) })
+                .union(selected),
+            LandTypeOperation::Add(_) | LandTypeOperation::AddChosen(_) => subtypes.union(selected),
+            LandTypeOperation::Remove(_) => subtypes.difference(selected),
+        };
     }
 }

@@ -57,7 +57,10 @@ fn settle(game: &mut Game) {
 fn treasures(game: &Game) -> Vec<GameObjectId> {
     game.battlefield
         .iter()
-        .filter(|permanent| game.effective_subtypes(permanent).contains(&"Treasure"))
+        .filter(|permanent| {
+            game.effective_subtypes(permanent)
+                .contains(crate::card::Subtype::named("Treasure"))
+        })
         .map(|permanent| permanent.card.id)
         .collect()
 }

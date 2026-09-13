@@ -21,7 +21,7 @@ fn count_one_source_equipment_id() -> CardDefinitionId {
 static MANA_AND_TAP_ELF_EQUIP_COSTS: [CostDef; 2] = [
     CostDef::Mana(mana_cost!("{G}")),
     CostDef::TapPermanents {
-        object: ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Literal("Elf")),
+        object: ObjectPredicateDef::Subtype(crate::card::SubtypeDef::literal("Elf")),
         controller: PlayerRelation::You,
         count: 1,
     },

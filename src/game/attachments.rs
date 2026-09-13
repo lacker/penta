@@ -18,12 +18,12 @@ impl Game {
     /// The attachment category a permanent currently presents as.
     pub(super) fn attachment_kind(&self, permanent: &Permanent) -> Option<AttachmentKind> {
         let subtypes = self.effective_subtypes(permanent);
-        if subtypes.contains(&"Aura") {
+        if subtypes.contains(crate::card::Subtype::Aura) {
             return Some(AttachmentKind::Aura);
         }
-        if subtypes.contains(&"Equipment") {
+        if subtypes.contains(crate::card::Subtype::Equipment) {
             Some(AttachmentKind::Equipment)
-        } else if subtypes.contains(&"Fortification") {
+        } else if subtypes.contains(crate::card::Subtype::Fortification) {
             Some(AttachmentKind::Fortification)
         } else {
             None

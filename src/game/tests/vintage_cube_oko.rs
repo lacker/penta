@@ -71,7 +71,10 @@ fn it_turns_an_artifact_into_an_elk() {
 
     let elk = permanent(&game, mox);
     assert_eq!((game.power(elk), game.toughness(elk)), (Some(3), Some(3)));
-    assert!(game.effective_subtypes(elk).contains(&"Elk"));
+    assert!(
+        game.effective_subtypes(elk)
+            .contains(crate::card::Subtype::named("Elk"))
+    );
     assert!(
         game.permanent_types(elk)
             .is_some_and(|types| types.contains(CardType::Creature)),
@@ -97,11 +100,10 @@ fn it_makes_food() {
     game.apply(PlayerId::One, food).expect("it activates");
     drain_pending(&mut game);
 
-    assert!(
-        game.battlefield
-            .iter()
-            .any(|permanent| game.effective_subtypes(permanent).contains(&"Food")),
-    );
+    assert!(game.battlefield.iter().any(|permanent| {
+        game.effective_subtypes(permanent)
+            .contains(crate::card::Subtype::named("Food"))
+    }),);
 }
 
 /// The ultimate swaps something of yours for something small of theirs.
@@ -164,9 +166,9 @@ fn the_elk_keeps_its_supertype_and_loses_everything_else() {
         );
     }
     let subtypes = game.effective_subtypes(elk);
-    assert!(subtypes.contains(&"Elk"));
+    assert!(subtypes.contains(crate::card::Subtype::named("Elk")));
     assert!(
-        !subtypes.contains(&"Myr"),
+        !subtypes.contains(crate::card::Subtype::named("Myr")),
         "the creature types it had are gone: {subtypes:?}",
     );
 
@@ -331,7 +333,8 @@ fn a_land_that_stood_up_for_a_turn_stays_an_elk() {
         "and still a creature, with nothing left to animate it",
     );
     assert!(
-        game.effective_subtypes(elk).contains(&"Elk"),
+        game.effective_subtypes(elk)
+            .contains(crate::card::Subtype::named("Elk")),
         "an Elk for good",
     );
 }

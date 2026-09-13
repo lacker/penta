@@ -142,8 +142,8 @@ fn each_piece_has_its_two_printed_land_subtypes() {
             .find(|permanent| permanent.card.id == ids[0])
             .expect("the land is on the battlefield");
         let subtypes = game.effective_subtypes(permanent);
-        assert!(subtypes.contains(&"Urza's"));
-        assert!(subtypes.contains(&subtype));
+        assert!(subtypes.contains(crate::card::Subtype::named("Urza's")));
+        assert!(subtypes.contains(crate::card::Subtype::named(subtype)));
     }
 }
 
@@ -169,6 +169,9 @@ fn planar_nexus_has_every_urza_land_subtype() {
         .expect("Planar Nexus is on the battlefield");
     let subtypes = game.effective_subtypes(nexus);
     for subtype in ["Urza's", "Mine", "Power-Plant", "Tower"] {
-        assert!(subtypes.contains(&subtype), "missing {subtype}");
+        assert!(
+            subtypes.contains(crate::card::Subtype::named(subtype)),
+            "missing {subtype}"
+        );
     }
 }

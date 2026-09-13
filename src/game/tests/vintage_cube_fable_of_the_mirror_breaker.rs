@@ -376,7 +376,10 @@ fn the_copy_brings_the_enters_trigger_with_it() {
     let bloods = |game: &Game| {
         game.battlefield
             .iter()
-            .filter(|permanent| game.effective_subtypes(permanent).contains(&"Blood"))
+            .filter(|permanent| {
+                game.effective_subtypes(permanent)
+                    .contains(crate::card::Subtype::named("Blood"))
+            })
             .count()
     };
     let before = bloods(&game);

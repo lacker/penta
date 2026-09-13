@@ -139,8 +139,14 @@ fn the_copy_is_still_an_illusion() {
     cast_copying(&mut game, image, Some(angel));
 
     let subtypes = game.effective_subtypes(the_image(&game).expect("it resolved"));
-    assert!(subtypes.contains(&"Angel"), "an Angel: {subtypes:?}");
-    assert!(subtypes.contains(&"Illusion"), "and an Illusion too");
+    assert!(
+        subtypes.contains(crate::card::Subtype::named("Angel")),
+        "an Angel: {subtypes:?}"
+    );
+    assert!(
+        subtypes.contains(crate::card::Subtype::named("Illusion")),
+        "and an Illusion too"
+    );
 }
 
 /// "It has 'When this creature becomes the target of a spell or ability,

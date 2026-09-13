@@ -225,7 +225,7 @@ pub(in crate::card::sets) static IIZUKA_THE_RUTHLESS: CardRecord = CardRecord::n
                 &[
                     CostDef::Mana(mana_cost!("{2}{R}")),
                     CostDef::SacrificePermanent {
-                        object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Samurai")),
+                        object: ObjectPredicateDef::Subtype(SubtypeDef::literal("Samurai")),
                         controller: PlayerRelation::You,
                     },
                 ],
@@ -233,7 +233,7 @@ pub(in crate::card::sets) static IIZUKA_THE_RUTHLESS: CardRecord = CardRecord::n
                     recipient: EffectRecipientDef::matching_objects(
                         ObjectPredicateDef::All(&[
                             ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Samurai")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Samurai")),
                         ]),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::You,

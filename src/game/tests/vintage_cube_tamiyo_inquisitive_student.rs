@@ -83,7 +83,10 @@ fn is_planeswalker(game: &Game) -> bool {
 fn clues(game: &Game) -> usize {
     game.battlefield
         .iter()
-        .filter(|permanent| game.effective_subtypes(permanent).contains(&"Clue"))
+        .filter(|permanent| {
+            game.effective_subtypes(permanent)
+                .contains(crate::card::Subtype::named("Clue"))
+        })
         .count()
 }
 
@@ -319,7 +322,10 @@ fn cracking_her_clue_can_be_the_draw_that_turns_her() {
     let clue = game
         .battlefield
         .iter()
-        .find(|permanent| game.effective_subtypes(permanent).contains(&"Clue"))
+        .find(|permanent| {
+            game.effective_subtypes(permanent)
+                .contains(crate::card::Subtype::named("Clue"))
+        })
         .expect("the Clue is there")
         .card
         .id;

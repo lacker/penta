@@ -49,7 +49,10 @@ fn the_front_face_is_a_defending_egg() {
         (Some(0), Some(3))
     );
     assert!(game.permanent_has_executable_keyword(front, KeywordAbility::Defender));
-    assert!(game.effective_subtypes(front).contains(&"Egg"));
+    assert!(
+        game.effective_subtypes(front)
+            .contains(crate::card::Subtype::named("Egg"))
+    );
 }
 
 #[test]

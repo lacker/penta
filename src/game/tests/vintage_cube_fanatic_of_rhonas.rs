@@ -215,9 +215,18 @@ fn the_eternalized_token_is_a_zombie_snake_druid() {
         .find(|permanent| permanent.card.definition == ObjectKind::Token)
         .expect("the token was made");
     let subtypes = game.effective_subtypes(token);
-    assert!(subtypes.contains(&"Zombie"), "{subtypes:?}");
-    assert!(subtypes.contains(&"Snake"), "{subtypes:?}");
-    assert!(subtypes.contains(&"Druid"), "{subtypes:?}");
+    assert!(
+        subtypes.contains(crate::card::Subtype::named("Zombie")),
+        "{subtypes:?}"
+    );
+    assert!(
+        subtypes.contains(crate::card::Subtype::named("Snake")),
+        "{subtypes:?}"
+    );
+    assert!(
+        subtypes.contains(crate::card::Subtype::named("Druid")),
+        "{subtypes:?}"
+    );
 }
 
 /// With no mana cost, which is what makes its mana value zero.

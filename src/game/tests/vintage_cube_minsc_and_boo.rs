@@ -93,7 +93,10 @@ fn settle(game: &mut Game) {
 fn boo(game: &Game) -> Option<GameObjectId> {
     game.battlefield
         .iter()
-        .find(|permanent| game.effective_subtypes(permanent).contains(&"Hamster"))
+        .find(|permanent| {
+            game.effective_subtypes(permanent)
+                .contains(crate::card::Subtype::named("Hamster"))
+        })
         .map(|permanent| permanent.card.id)
 }
 

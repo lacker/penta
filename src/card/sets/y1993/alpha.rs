@@ -136,7 +136,7 @@ pub(in crate::card::sets) static ANIMATE_WALL: CardRecord = CardRecord::new(
             aura_spell(
                 "Enchant Wall",
                 &[AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Wall")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Wall")),
                 )],
             ),
             AbilityDef::static_ability(
@@ -1376,7 +1376,7 @@ pub(in crate::card::sets) static INVISIBILITY: CardRecord = CardRecord::new(
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::AttachedPermanent,
                     effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
-                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::Literal(
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::literal(
                             "Wall",
                         ))),
                     )),
@@ -1430,7 +1430,7 @@ pub(in crate::card::sets) static LORD_OF_ATLANTIS: CardRecord = CardRecord::new(
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Merfolk")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Merfolk")),
                         ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                     ]),
                     &[ZoneKind::Battlefield],
@@ -2974,7 +2974,7 @@ pub(in crate::card::sets) static WORD_OF_COMMAND: CardRecord = CardRecord::new(
 
 // LEA 137 — Zombie Master
 static OTHER_ZOMBIES: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Zombie")),
+    ObjectPredicateDef::Subtype(SubtypeDef::literal("Zombie")),
     ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
 ]);
 
@@ -3116,7 +3116,7 @@ pub(in crate::card::sets) static DWARVEN_DEMOLITION_TEAM: CardRecord = CardRecor
             "{T}: Destroy target Wall.",
             &[CostDef::TapSource],
             &[AbilityTargetDef::exactly_one_permanent(
-                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Wall")),
+                ObjectPredicateDef::Subtype(SubtypeDef::literal("Wall")),
             )],
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -3346,7 +3346,7 @@ pub(in crate::card::sets) static GOBLIN_KING: CardRecord = CardRecord::new(
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Goblin")),
                         ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                     ]),
                     &[ZoneKind::Battlefield],
@@ -3432,7 +3432,7 @@ pub(in crate::card::sets) static IRONCLAW_ORCS: CardRecord = CardRecord::new(
 static NON_WALL_CREATURES_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
     ObjectPredicateDef::All(&[
         ObjectPredicateDef::HasType(CardType::Creature),
-        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::Literal("Wall"))),
+        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::literal("Wall"))),
     ]),
     &[ZoneKind::Battlefield],
     PlayerRelation::You,
@@ -3792,7 +3792,7 @@ pub(in crate::card::sets) static TUNNEL: CardRecord = CardRecord::new(
     CardRules::new_instant(mana_cost!("{R}")).with_abilities(&[AbilityDef::spell_with_targets(
         "Destroy target Wall. It can't be regenerated.",
         &[AbilityTargetDef::exactly_one_permanent(
-            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Wall")),
+            ObjectPredicateDef::Subtype(SubtypeDef::literal("Wall")),
         )],
         EffectDef::WithRule {
             rule: AppliedRuleDef::CannotRegenerate,
@@ -4036,7 +4036,7 @@ pub(in crate::card::sets) static COCKATRICE: CardRecord = CardRecord::new(
              destroy that creature at end of combat.",
             TriggerEventDef::BlocksOrBecomesBlockedBy {
                 creature: ObjectPredicateDef::Source,
-                other: ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::Literal(
+                other: ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::literal(
                     "Wall",
                 ))),
             },
@@ -4622,7 +4622,7 @@ pub(in crate::card::sets) static THICKET_BASILISK: CardRecord = CardRecord::new(
              destroy that creature at end of combat.",
             TriggerEventDef::BlocksOrBecomesBlockedBy {
                 creature: ObjectPredicateDef::Source,
-                other: ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::Literal(
+                other: ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::literal(
                     "Wall",
                 ))),
             },
@@ -5337,7 +5337,7 @@ pub(in crate::card::sets) static JUGGERNAUT: CardRecord = CardRecord::new(
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Wall")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Wall")),
                 )),
             },
         ),

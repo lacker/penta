@@ -37,7 +37,7 @@ fn is_a_swamp(game: &Game, permanent: GameObjectId) -> bool {
 /// names one reads.
 fn card_is_a_swamp(game: &Game, card: &CardInstance, zone: ZoneKind, source: GameObjectId) -> bool {
     game.card_object_matches(
-        ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Literal("Swamp")),
+        ObjectPredicateDef::Subtype(crate::card::SubtypeDef::literal("Swamp")),
         card,
         zone,
         source,

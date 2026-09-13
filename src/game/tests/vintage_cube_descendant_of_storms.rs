@@ -56,7 +56,9 @@ fn spirits(game: &Game) -> usize {
         .iter()
         .filter(|permanent| {
             permanent.controller == PlayerId::One
-                && game.effective_subtypes(permanent).contains(&"Spirit")
+                && game
+                    .effective_subtypes(permanent)
+                    .contains(crate::card::Subtype::named("Spirit"))
         })
         .count()
 }
@@ -155,7 +157,10 @@ fn endure_can_make_the_spirit_instead() {
     let spirit = game
         .battlefield
         .iter()
-        .find(|permanent| game.effective_subtypes(permanent).contains(&"Spirit"))
+        .find(|permanent| {
+            game.effective_subtypes(permanent)
+                .contains(crate::card::Subtype::named("Spirit"))
+        })
         .expect("the Spirit is there");
     assert_eq!(game.power(spirit), Some(1));
     assert_eq!(game.toughness(spirit), Some(1));

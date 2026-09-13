@@ -26,7 +26,8 @@ fn maps(game: &Game) -> usize {
     game.battlefield
         .iter()
         .filter(|permanent| {
-            game.effective_subtypes(permanent).contains(&"Map")
+            game.effective_subtypes(permanent)
+                .contains(crate::card::Subtype::named("Map"))
                 && permanent.controller == PlayerId::One
         })
         .count()
@@ -81,7 +82,10 @@ fn the_map_explores() {
     let map = game
         .battlefield
         .iter()
-        .find(|permanent| game.effective_subtypes(permanent).contains(&"Map"))
+        .find(|permanent| {
+            game.effective_subtypes(permanent)
+                .contains(crate::card::Subtype::named("Map"))
+        })
         .expect("the Map is there")
         .card
         .id;
@@ -126,7 +130,10 @@ fn explore_with_map(game: &mut Game, creature: GameObjectId, bury: bool) {
     let map = game
         .battlefield
         .iter()
-        .find(|permanent| game.effective_subtypes(permanent).contains(&"Map"))
+        .find(|permanent| {
+            game.effective_subtypes(permanent)
+                .contains(crate::card::Subtype::named("Map"))
+        })
         .expect("the Map is there")
         .card
         .id;
@@ -307,7 +314,10 @@ fn nobody_acts_between_the_reveal_and_the_counter() {
     let map = game
         .battlefield
         .iter()
-        .find(|permanent| game.effective_subtypes(permanent).contains(&"Map"))
+        .find(|permanent| {
+            game.effective_subtypes(permanent)
+                .contains(crate::card::Subtype::named("Map"))
+        })
         .expect("the Map is there")
         .card
         .id;
@@ -374,7 +384,10 @@ fn the_map_is_a_sorcery_speed_ability() {
     let map = game
         .battlefield
         .iter()
-        .find(|permanent| game.effective_subtypes(permanent).contains(&"Map"))
+        .find(|permanent| {
+            game.effective_subtypes(permanent)
+                .contains(crate::card::Subtype::named("Map"))
+        })
         .expect("the Map is there")
         .card
         .id;
@@ -419,7 +432,10 @@ fn the_map_explores_only_your_own_creatures() {
     let map = game
         .battlefield
         .iter()
-        .find(|permanent| game.effective_subtypes(permanent).contains(&"Map"))
+        .find(|permanent| {
+            game.effective_subtypes(permanent)
+                .contains(crate::card::Subtype::named("Map"))
+        })
         .expect("the Map is there")
         .card
         .id;

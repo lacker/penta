@@ -126,7 +126,10 @@ fn assert_token(game: &Game, controller: PlayerId, subtype: &str, color_index: u
         (game.power(token), game.toughness(token)),
         (Some(1), Some(1))
     );
-    assert_eq!(game.effective_subtypes(token), vec![subtype]);
+    assert_eq!(
+        game.effective_subtypes(token),
+        crate::card::SubtypeSet::from_names(&[subtype])
+    );
     let mut colors = [false; 5];
     colors[color_index] = true;
     assert_eq!(
@@ -281,7 +284,10 @@ fn labeled_choices_bind_declarations_and_compose_with_token_modifiers_and_sequen
             (game.power(token), game.toughness(token)),
             (Some(2), Some(2))
         );
-        assert_eq!(game.effective_subtypes(token), vec!["Goblin"]);
+        assert_eq!(
+            game.effective_subtypes(token),
+            crate::card::SubtypeSet::from_names(&["Goblin"])
+        );
         assert_eq!(
             token
                 .token_characteristics
@@ -310,7 +316,8 @@ fn labeled_choices_bind_declarations_and_compose_with_token_modifiers_and_sequen
         game.battlefield
             .iter()
             .filter(|permanent| permanent.card.definition == ObjectKind::Token)
-            .all(|token| game.effective_subtypes(token) == vec!["Goblin"])
+            .all(|token| game.effective_subtypes(token)
+                == crate::card::SubtypeSet::from_names(&["Goblin"]))
     );
     let permanent = game
         .battlefield

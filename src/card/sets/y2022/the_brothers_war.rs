@@ -928,7 +928,7 @@ pub(in crate::card::sets) static MYREL_SHIELD_OF_ARGIVE: CardRecord = CardRecord
                     ))
                     .with_count(ValueDef::CountMatchingObjects(
                         &ObjectQueryDef::matching(
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Soldier")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Soldier")),
                             &[ZoneKind::Battlefield],
                             PlayerRelation::You,
                         ),

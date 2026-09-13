@@ -93,7 +93,7 @@ pub(in crate::card::sets) static GIADA_FONT_OF_HOPE: CardRecord = CardRecord::ne
                 ReplacementEventDef::ObjectEntersBattlefield {
                     object: ObjectPredicateDef::All(&[
                         ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Angel")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Angel")),
                     ]),
                     controller: PlayerRelation::You,
                     cast: None,
@@ -102,7 +102,7 @@ pub(in crate::card::sets) static GIADA_FONT_OF_HOPE: CardRecord = CardRecord::ne
                     BattlefieldEntryModificationDef::AddCountersValue {
                         kind: CounterKind::PlusOnePlusOne,
                         amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Angel")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Angel")),
                             &[ZoneKind::Battlefield],
                             PlayerRelation::You,
                         )),
@@ -114,7 +114,7 @@ pub(in crate::card::sets) static GIADA_FONT_OF_HOPE: CardRecord = CardRecord::ne
                 &[CostDef::TapSource],
                 EffectDef::AddMana(AddManaEffectDef::one(ManaColor::White).with_restrictions(&[
                     ManaRestrictionDef::CastSpell(ObjectPredicateDef::Subtype(
-                        SubtypeDef::Literal("Angel"),
+                        SubtypeDef::literal("Angel"),
                     )),
                 ])),
             ),
@@ -723,7 +723,7 @@ pub(in crate::card::sets) static PROFESSIONAL_FACE_BREAKER: CardRecord = CardRec
             "Sacrifice a Treasure: Exile the top card of your library. \
              You may play that card this turn.",
             &[CostDef::sacrifice_permanent(ObjectPredicateDef::Subtype(
-                SubtypeDef::Literal("Treasure"),
+                SubtypeDef::literal("Treasure"),
             ))],
             EffectDef::ExileTopOfLibraryToPlay {
                 player: EffectRecipientDef::Controller,

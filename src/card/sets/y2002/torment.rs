@@ -1307,7 +1307,7 @@ pub(in crate::card::sets) static BALTHOR_THE_STOUT: CardRecord = CardRecord::new
                     recipient: EffectRecipientDef::matching_objects(
                         ObjectPredicateDef::All(&[
                             ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Barbarian")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Barbarian")),
                             ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                         ]),
                         &[ZoneKind::Battlefield],
@@ -1325,7 +1325,7 @@ pub(in crate::card::sets) static BALTHOR_THE_STOUT: CardRecord = CardRecord::new
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Barbarian")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Barbarian")),
                         ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                     ]),
                 )],

@@ -236,7 +236,10 @@ fn a_trigger_still_fires_under_split_second() {
     let pests = |game: &Game| {
         game.battlefield
             .iter()
-            .filter(|permanent| game.effective_subtypes(permanent).contains(&"Pest"))
+            .filter(|permanent| {
+                game.effective_subtypes(permanent)
+                    .contains(crate::card::Subtype::named("Pest"))
+            })
             .count()
     };
     assert_eq!(pests(&game), 0, "no Pest before it is cast");

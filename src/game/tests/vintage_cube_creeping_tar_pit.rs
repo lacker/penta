@@ -108,7 +108,8 @@ fn animating_it_makes_an_unblockable_three_two() {
     assert!(types.contains(CardType::Creature), "a creature now");
     assert!(types.contains(CardType::Land), "and a land still");
     assert!(
-        game.effective_subtypes(body).contains(&"Elemental"),
+        game.effective_subtypes(body)
+            .contains(crate::card::Subtype::named("Elemental")),
         "an Elemental at that",
     );
     let colors = game.permanent_colors(body);

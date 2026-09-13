@@ -75,7 +75,8 @@ fn a_blood_moon_leaves_it_an_untapped_mountain() {
     );
     let id = canal(&game).card.id;
     assert!(
-        game.effective_subtypes(canal(&game)).contains(&"Mountain"),
+        game.effective_subtypes(canal(&game))
+            .contains(crate::card::Subtype::named("Mountain")),
         "it is a Mountain now",
     );
     assert_eq!(

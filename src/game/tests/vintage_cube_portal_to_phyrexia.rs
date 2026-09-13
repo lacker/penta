@@ -147,10 +147,14 @@ fn the_upkeep_reanimates_from_any_graveyard() {
         "under your control, out of their graveyard",
     );
     assert!(
-        game.effective_subtypes(angel).contains(&"Phyrexian"),
+        game.effective_subtypes(angel)
+            .contains(crate::card::Subtype::named("Phyrexian")),
         "and a Phyrexian in addition to being an Angel",
     );
-    assert!(game.effective_subtypes(angel).contains(&"Angel"));
+    assert!(
+        game.effective_subtypes(angel)
+            .contains(crate::card::Subtype::named("Angel"))
+    );
 }
 
 /// "*Each opponent sacrifices*": a sacrifice is not a destruction, so

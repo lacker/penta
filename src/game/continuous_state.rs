@@ -315,7 +315,7 @@ pub(super) enum ResolvedContinuousEffectKind {
     Supertypes(SetOperationDef<CardSupertypeSet>),
     Colors(SetOperationDef<ColorSet>),
     CreatureTypes(SetOperationDef<CreatureTypeSetDef>),
-    Subtypes(SetOperationDef<&'static [&'static str]>),
+    Subtypes(SetOperationDef<crate::card::SubtypeSet>),
     PowerToughness(ResolvedPowerToughnessOperation),
     Rule(AppliedRuleDef),
 }

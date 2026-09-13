@@ -1,4 +1,3 @@
-use std::borrow::Cow;
 use std::collections::BTreeMap;
 use std::fmt;
 use std::sync::{Arc, RwLock};
@@ -448,7 +447,7 @@ pub(super) struct TriggerEventObject {
     pub(super) types: CardTypeSet,
     pub(super) controller: PlayerId,
     pub(super) colors: [bool; 5],
-    pub(super) subtypes: Cow<'static, [&'static str]>,
+    pub(super) subtypes: crate::card::SubtypeSet,
     pub(super) mana_value: u16,
     /// Current power where one exists: a battlefield creature reports what it
     /// is now, not what it was printed as.

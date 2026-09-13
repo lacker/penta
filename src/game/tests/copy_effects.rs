@@ -47,8 +47,8 @@ fn stage_copies_dryad_arbors_copiable_values_but_not_hack_or_presence() {
     assert!(types.contains(CardType::Land));
     assert!(types.contains(CardType::Creature));
     assert_eq!(
-        game.effective_subtypes(stage).as_ref(),
-        &["Forest", "Dryad"]
+        game.effective_subtypes(stage),
+        crate::card::SubtypeSet::from_names(&["Forest", "Dryad"])
     );
     assert_eq!(
         (game.power(stage), game.toughness(stage)),
@@ -89,8 +89,8 @@ fn stage_copies_dryad_arbors_copiable_values_but_not_hack_or_presence() {
         .find(|permanent| permanent.card.id == arbor_id)
         .unwrap();
     assert_eq!(
-        game.effective_subtypes(arbor).as_ref(),
-        &["Island", "Dryad"],
+        game.effective_subtypes(arbor),
+        crate::card::SubtypeSet::from_names(&["Island", "Dryad"]),
         "removing Presence reveals the earlier text change",
     );
 }

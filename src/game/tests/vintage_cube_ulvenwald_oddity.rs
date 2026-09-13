@@ -125,7 +125,7 @@ fn transforming_changes_the_subtypes() {
     assert!(
         !game
             .effective_subtypes(permanent(&game, oddity))
-            .contains(&"Horror")
+            .contains(crate::card::Subtype::named("Horror"))
     );
 
     let action = transform(&mut game, oddity).expect("seven mana pays for it");
@@ -133,8 +133,8 @@ fn transforming_changes_the_subtypes() {
     drain_pending(&mut game);
 
     let subtypes = game.effective_subtypes(permanent(&game, oddity));
-    assert!(subtypes.contains(&"Beast"));
-    assert!(subtypes.contains(&"Horror"));
+    assert!(subtypes.contains(crate::card::Subtype::named("Beast")));
+    assert!(subtypes.contains(crate::card::Subtype::named("Horror")));
 }
 
 /// The anthem is a static effect rather than something the transform did

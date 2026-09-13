@@ -788,7 +788,7 @@ fn compleated_reduces_loyalty_for_each_phyrexian_symbol_paid_with_life() {
         sets::magic_2014::SET,
         crate::card::CardRules::unsupported(),
     );
-    definition.rules = CardRules::new_planeswalker(mana_cost!("{R/P}{R/P}"), &["Test"], 5)
+    definition.rules = CardRules::new_planeswalker(mana_cost!("{R/P}{R/P}"), &[], 5)
         .with_ability(abilities::compleated("Compleated"));
     synchronize_single_part_definition(&mut definition);
 

@@ -446,49 +446,30 @@ pub enum BasicLandType {
     Forest,
 }
 
-/// Every land subtype in CR 205.3i. Effects that remove "all land types"
-/// use this vocabulary while leaving creature, artifact, enchantment, and
-/// other subtype families untouched.
-pub const LAND_SUBTYPES: &[&str] = &[
-    "Cave",
-    "Desert",
-    "Forest",
-    "Gate",
-    "Island",
-    "Lair",
-    "Locus",
-    "Mine",
-    "Mountain",
-    "Plains",
-    "Planet",
-    "Power-Plant",
-    "Sphere",
-    "Swamp",
-    "Tower",
-    "Town",
-    "Urza's",
-    "Urza’s",
-];
-
-/// Every nonbasic land subtype in [`LAND_SUBTYPES`]. Characteristic-defining
-/// abilities such as Planar Nexus use this vocabulary in every zone.
-pub const NONBASIC_LAND_SUBTYPES: &[&str] = &[
-    "Cave",
-    "Desert",
-    "Gate",
-    "Lair",
-    "Locus",
-    "Mine",
-    "Planet",
-    "Power-Plant",
-    "Sphere",
-    "Tower",
-    "Town",
-    "Urza's",
-    "Urza’s",
-];
-
 impl BasicLandType {
+    #[must_use]
+    pub const fn subtype_id(self) -> crate::card::Subtype {
+        match self {
+            Self::Plains => crate::card::Subtype::Plains,
+            Self::Island => crate::card::Subtype::Island,
+            Self::Swamp => crate::card::Subtype::Swamp,
+            Self::Mountain => crate::card::Subtype::Mountain,
+            Self::Forest => crate::card::Subtype::Forest,
+        }
+    }
+
+    #[must_use]
+    pub const fn from_id(subtype: crate::card::Subtype) -> Option<Self> {
+        match subtype {
+            crate::card::Subtype::Plains => Some(Self::Plains),
+            crate::card::Subtype::Island => Some(Self::Island),
+            crate::card::Subtype::Swamp => Some(Self::Swamp),
+            crate::card::Subtype::Mountain => Some(Self::Mountain),
+            crate::card::Subtype::Forest => Some(Self::Forest),
+            _ => None,
+        }
+    }
+
     pub const ALL: [Self; 5] = [
         Self::Plains,
         Self::Island,

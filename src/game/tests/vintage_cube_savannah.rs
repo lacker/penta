@@ -271,8 +271,8 @@ fn a_blood_moon_takes_both_of_a_duals_types() {
         .find(|permanent| permanent.card.id == badlands)
         .expect("it is on the battlefield");
     assert_eq!(
-        game.effective_subtypes(land).as_ref(),
-        &["Mountain"],
+        game.effective_subtypes(land),
+        crate::card::SubtypeSet::from_names(&["Mountain"]),
         "the Swamp went with the rest of what it was",
     );
     assert_eq!(
@@ -317,8 +317,8 @@ fn magical_hack_changes_one_of_a_duals_types_and_leaves_the_other() {
         .find(|permanent| permanent.card.id == badlands)
         .expect("it is on the battlefield");
     assert_eq!(
-        game.effective_subtypes(land).as_ref(),
-        &["Island", "Mountain"],
+        game.effective_subtypes(land),
+        crate::card::SubtypeSet::from_names(&["Island", "Mountain"]),
         "one word was rewritten and the other was not",
     );
     let mut colors = colors_of(&game, badlands);
@@ -508,7 +508,7 @@ fn a_dual_keeps_its_types_in_every_zone() {
     drain_pending(&mut game);
     let is = |game: &Game, card: &CardInstance, zone, subtype| {
         game.card_object_matches(
-            ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Literal(subtype)),
+            ObjectPredicateDef::Subtype(crate::card::SubtypeDef::literal(subtype)),
             card,
             zone,
             source,

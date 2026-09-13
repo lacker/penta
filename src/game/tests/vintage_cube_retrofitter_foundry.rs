@@ -66,9 +66,10 @@ fn tokens(game: &Game) -> Vec<&Permanent> {
 }
 
 fn token_named<'a>(game: &'a Game, subtype: &str) -> Option<&'a Permanent> {
-    tokens(game)
-        .into_iter()
-        .find(|permanent| game.effective_subtypes(permanent).contains(&subtype))
+    tokens(game).into_iter().find(|permanent| {
+        game.effective_subtypes(permanent)
+            .contains(crate::card::Subtype::named(subtype))
+    })
 }
 
 /// Two mana and a tap is a Servo.

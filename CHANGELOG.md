@@ -70,6 +70,17 @@ the bot-wire epoch.
   additive `hexproofFromMonocolored` tag; reconstruction still requires the
   same simulation fingerprint. Existing protocol and checkpoint epochs are unchanged.
 
+- Compile literal subtype declarations into rules-owned typed identities and
+  distinct subtype sets. Card authors retain string syntax and printed type-line
+  order; unknown static names fail compilation. Changeling and subtype-changing
+  effects use shared family masks across battlefield and nonbattlefield objects.
+  Effective subtype iteration, including intrinsic land mana abilities, now uses
+  canonical vocabulary order. Checkpoints keep names and existing ability locators;
+  wire epochs are unchanged and the simulation fingerprint guards exact replay.
+- Correct the Oracle subtypes of four Odyssey Octopuses and remove the spurious
+  planeswalker subtype from The Wandering Emperor. Restore the Kindred card type
+  on Eldritch Immunity.
+
 - Declarative trigger modifiers now suppress or add occurrences caused by
   battlefield entries, deaths, and other departures. Ancient Greenwarden,
   Doorkeeper Thrull, Elesh Norn, Mother of Machines, Gandalf the White,

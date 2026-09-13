@@ -484,7 +484,8 @@ impl Game {
         if Self::is_bestowed_aura(permanent) {
             return true;
         }
-        self.effective_subtypes(permanent).contains(&"Aura")
+        self.effective_subtypes(permanent)
+            .contains(crate::card::Subtype::Aura)
             && self.effective_rules(permanent).is_some_and(|rules| {
                 (rules.enchant().is_some() && permanent.became_aura)
                     || rules.ability_clauses().iter().any(|ability| {

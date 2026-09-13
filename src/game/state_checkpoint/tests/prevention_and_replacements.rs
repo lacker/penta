@@ -43,19 +43,27 @@ fn every_runtime_keyword_has_a_stable_checkpoint_round_trip() {
             ManaColor::Green,
             ManaColor::Colorless,
         ]
-        .map(|color| {
-            keyword_from_ability(&crate::card::abilities::protection_from_color(color))
-        }),
+        .map(|color| keyword_from_ability(&crate::card::abilities::protection_from_color(color))),
     );
     keywords.extend([
-        KeywordAbility::ProtectionFrom(&ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Literal("Zombie"))),
-        KeywordAbility::ProtectionFrom(&ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Literal("Vampire"))),
-        KeywordAbility::ProtectionFrom(&ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Literal("Werewolf"))),
-        KeywordAbility::ProtectionFrom(&ObjectPredicateDef::AnyOf(&[
-            ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Literal("Vampire")),
-            ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Literal("Werewolf")),
-            ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Literal("Zombie")),
-        ])),
+        KeywordAbility::ProtectionFrom(
+            &const { ObjectPredicateDef::Subtype(crate::card::SubtypeDef::literal("Zombie")) },
+        ),
+        KeywordAbility::ProtectionFrom(
+            &const { ObjectPredicateDef::Subtype(crate::card::SubtypeDef::literal("Vampire")) },
+        ),
+        KeywordAbility::ProtectionFrom(
+            &const { ObjectPredicateDef::Subtype(crate::card::SubtypeDef::literal("Werewolf")) },
+        ),
+        KeywordAbility::ProtectionFrom(
+            &const {
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::Subtype(crate::card::SubtypeDef::literal("Vampire")),
+                    ObjectPredicateDef::Subtype(crate::card::SubtypeDef::literal("Werewolf")),
+                    ObjectPredicateDef::Subtype(crate::card::SubtypeDef::literal("Zombie")),
+                ])
+            },
+        ),
         KeywordAbility::ProtectionFrom(&ObjectPredicateDef::HasType(
             crate::card::CardType::Creature,
         )),
@@ -63,10 +71,16 @@ fn every_runtime_keyword_has_a_stable_checkpoint_round_trip() {
             ObjectPredicateDef::ColorCount(0),
             ObjectPredicateDef::ColorCount(1),
         ]))),
-        KeywordAbility::ProtectionFrom(&ObjectPredicateDef::All(&[
-            ObjectPredicateDef::HasType(crate::card::CardType::Creature),
-            ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Literal("Human"))),
-        ])),
+        KeywordAbility::ProtectionFrom(
+            &const {
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(crate::card::CardType::Creature),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(
+                        crate::card::SubtypeDef::literal("Human"),
+                    )),
+                ])
+            },
+        ),
         KeywordAbility::ProtectionFrom(&ObjectPredicateDef::HasType(
             crate::card::CardType::Enchantment,
         )),
@@ -231,16 +245,10 @@ fn island_sanctuary_draw_choice_and_attack_restriction_survive_checkpoint_round_
 #[test]
 fn chains_replacement_and_discard_choices_survive_checkpoint_round_trip() {
     let mut game = crate::game::tests::ready_game();
-    game.put_onto_battlefield(
-        PlayerId::One,
-        crate::card::cards::CHAINS_OF_MEPHISTOPHELES,
-    )
-    .expect("first Chains enters");
-    game.put_onto_battlefield(
-        PlayerId::Two,
-        crate::card::cards::CHAINS_OF_MEPHISTOPHELES,
-    )
-    .expect("second Chains enters");
+    game.put_onto_battlefield(PlayerId::One, crate::card::cards::CHAINS_OF_MEPHISTOPHELES)
+        .expect("first Chains enters");
+    game.put_onto_battlefield(PlayerId::Two, crate::card::cards::CHAINS_OF_MEPHISTOPHELES)
+        .expect("second Chains enters");
     game.step = Step::PrecombatMain;
     game.players[0].hand = vec![
         crate::game::tests::card(77_010, crate::card::cards::PLAINS, PlayerId::One),
@@ -420,7 +428,9 @@ fn sylvan_library_second_payment_survives_the_first_card_going_back() {
     )
     .expect("the first payment may be declined");
     assert!(
-        members.iter().any(|target| game.card_object_retired(*target)),
+        members
+            .iter()
+            .any(|target| game.card_object_retired(*target)),
         "the card that went back is gone as an object",
     );
     let Some(crate::game::DecisionContinuation::PayOr { context, .. }) = game
@@ -519,10 +529,7 @@ fn sylvan_library_for_each_payment_resumes_after_checkpoint_round_trip() {
     else {
         unreachable!();
     };
-    assert_eq!(
-        context.object_group(crate::ParentBinding),
-        expected_order
-    );
+    assert_eq!(context.object_group(crate::ParentBinding), expected_order);
     let (_, mut rebuilt) = rebuild_current_checkpoint(&game, PlayerId::One, 4_252);
     assert!(matches!(
         rebuilt.pending_procedures.front(),
@@ -707,10 +714,8 @@ fn resolved_play_restriction_source_splices_fail_closed_on_import_and_export() {
     let source_object = game
         .put_onto_battlefield(PlayerId::One, crate::card::cards::SAVANNAH_LIONS)
         .expect("the restriction source enters");
-    let restriction = PlayRestrictionDef::new(
-        PlayActionMatcherDef::CastSpell,
-        ObjectPredicateDef::Any,
-    );
+    let restriction =
+        PlayRestrictionDef::new(PlayActionMatcherDef::CastSpell, ObjectPredicateDef::Any);
     let definition = AppliedEffectDef::Rule(AppliedRuleDef::CannotPlay(restriction));
     let locator = ability_locator(&game.catalog, |ability| {
         semantics::applied_effects(ability).contains(&definition)

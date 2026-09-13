@@ -121,12 +121,21 @@ fn three_studies_return_creatures_from_every_graveyard_as_black_zombies() {
     let elemental = permanent(&game, cards::AIR_ELEMENTAL);
     for returned in [bear, elemental] {
         assert_eq!(returned.controller, PlayerId::One);
-        assert!(game.effective_subtypes(returned).contains(&"Zombie"));
+        assert!(
+            game.effective_subtypes(returned)
+                .contains(crate::card::Subtype::named("Zombie"))
+        );
         let colors = game.effective_colors(returned, &game.effective_rules(returned).unwrap());
         assert!(colors[ManaColor::Black.index()], "the creature is black");
     }
-    assert!(game.effective_subtypes(bear).contains(&"Bear"));
-    assert!(game.effective_subtypes(elemental).contains(&"Elemental"));
+    assert!(
+        game.effective_subtypes(bear)
+            .contains(crate::card::Subtype::named("Bear"))
+    );
+    assert!(
+        game.effective_subtypes(elemental)
+            .contains(crate::card::Subtype::named("Elemental"))
+    );
     assert!(
         game.effective_colors(bear, &game.effective_rules(bear).unwrap())[ManaColor::Green.index()],
         "the returned Bear keeps green",

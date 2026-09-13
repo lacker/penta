@@ -36,8 +36,8 @@ impl Game {
         creature: bool,
     ) -> bool {
         match predicate {
-            ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Literal(name)) => {
-                !subtype_is_supplied_by_a_static_effect(name)
+            ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Fixed(name)) => {
+                !subtype_is_supplied_by_a_static_effect(name.name())
             }
             ObjectPredicateDef::NameEquals(
                 CardNameDef::Literal(_)

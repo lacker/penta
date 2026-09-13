@@ -83,7 +83,7 @@ pub(in crate::card::sets) static DRAGONLORD_S_SERVANT: CardRecord = CardRecord::
     CardRules::new_creature(mana_cost!("{1}{R}"), &["Goblin", "Shaman"], 1, 3).with_abilities(&[
         abilities::spell_cost_reduction(
             "Dragon spells you cast cost {1} less to cast.",
-            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Dragon")),
+            ObjectPredicateDef::Subtype(SubtypeDef::literal("Dragon")),
             PlayerRelation::You,
             ValueDef::Constant(1),
         ),
@@ -296,7 +296,7 @@ pub(in crate::card::sets) static HAVEN_OF_THE_SPIRIT_DRAGON: CardRecord = CardRe
             EffectDef::AddMana(AddManaEffectDef::any_color().with_restrictions(&[
                 ManaRestrictionDef::CastSpell(ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Dragon")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Dragon")),
                 ])),
             ])),
         ),
@@ -313,11 +313,11 @@ pub(in crate::card::sets) static HAVEN_OF_THE_SPIRIT_DRAGON: CardRecord = CardRe
                     object: ObjectPredicateDef::AnyOf(&[
                         ObjectPredicateDef::All(&[
                             ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Dragon")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Dragon")),
                         ]),
                         ObjectPredicateDef::All(&[
                             ObjectPredicateDef::HasType(CardType::Planeswalker),
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Ugin")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Ugin")),
                         ]),
                     ]),
                     zones: &[ZoneKind::Graveyard],

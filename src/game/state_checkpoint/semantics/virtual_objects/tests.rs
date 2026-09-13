@@ -7,7 +7,7 @@ use crate::card::{
 use crate::{CardDefinitionId, CardPartId};
 
 static NESTED_TOKEN: TokenCharacteristics =
-    TokenCharacteristics::creature(&["Test"], &[], 1, 1).with_name("Nested Locator Test");
+    TokenCharacteristics::creature(&["Shapeshifter"], &[], 1, 1).with_name("Nested Locator Test");
 static CREATE_TOKEN: EffectDef = EffectDef::CreateToken(crate::card::CreateTokenDef::new(
     crate::card::TokenDef::Literal(NESTED_TOKEN),
 ));
@@ -91,7 +91,7 @@ fn token_and_emblem_owned_creators_form_one_semantic_chain() {
         EffectDef::CreateEmblem { emblem: EMBLEM },
     )];
     static PARENT_TOKEN: TokenCharacteristics =
-        TokenCharacteristics::creature(&["Parent"], &[], 2, 2)
+        TokenCharacteristics::creature(&["Shapeshifter"], &[], 2, 2)
             .with_name("Parent Token")
             .with_abilities(&PARENT_ABILITIES);
     static PRINTED_ABILITIES: [AbilityDef; 1] = [AbilityDef::activated(

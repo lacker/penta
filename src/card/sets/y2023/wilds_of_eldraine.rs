@@ -679,7 +679,7 @@ pub(in crate::card::sets) static DISCERNING_FINANCIER: CardRecord = CardRecord::
             &[CostDef::Mana(mana_cost!("{2}{W}"))],
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Object {
-                    object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Treasure")),
+                    object: ObjectPredicateDef::Subtype(SubtypeDef::literal("Treasure")),
                     zones: &const { [ZoneKind::Battlefield] },
                     controller: Some(PlayerRelation::You),
                     owner: None,
@@ -1920,7 +1920,7 @@ pub(in crate::card::sets) static CHANCELLOR_OF_TALES: CardRecord = CardRecord::n
             "Whenever you cast an Adventure spell, you may copy it. You \
              may choose new targets for the copy.",
             TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
-                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Adventure")),
+                ObjectPredicateDef::Subtype(SubtypeDef::literal("Adventure")),
                 ObjectPredicateDef::ControlledBy(PlayerRelation::You),
             ])),
             EffectDef::May {
@@ -2491,7 +2491,7 @@ pub(in crate::card::sets) static PICKLOCK_PRANKSTER: CardRecord = CardRecord::ne
                                                                 },
                                                             ),
                                                             ObjectPredicateDef::Subtype(
-                                                                SubtypeDef::Literal("Faerie"),
+                                                                SubtypeDef::literal("Faerie"),
                                                             ),
                                                         ]
                                                     },
@@ -2603,7 +2603,7 @@ pub(in crate::card::sets) static SPELL_STUTTER: CardRecord = CardRecord::new(
             &SumValueDef::new(
                 ValueDef::Constant(2),
                 ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Faerie")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Faerie")),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::You,
                 )),
@@ -3044,7 +3044,7 @@ pub(in crate::card::sets) static BARROW_NAUGHTY: CardRecord = CardRecord::new(
                     query: ObjectQueryDef::matching(
                         ObjectPredicateDef::All(&[
                             ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Faerie")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Faerie")),
                         ]),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::You,
@@ -3236,7 +3236,7 @@ pub(in crate::card::sets) static EGO_DRAIN: CardRecord = CardRecord::new(
             EffectDef::IfCondition {
                 condition: &TriggerConditionDef::Not(&TriggerConditionDef::ObjectCount {
                     query: ObjectQueryDef::matching(
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Faerie")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Faerie")),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::You,
                     ),
@@ -3648,7 +3648,7 @@ pub(in crate::card::sets) static LORD_SKITTER_SEWER_KING: CardRecord = CardRecor
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::All(&[
                             ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Rat")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Rat")),
                         ]),
                         ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                     ]),
@@ -4184,7 +4184,7 @@ pub(in crate::card::sets) static SWEETTOOTH_WITCH: CardRecord = CardRecord::new(
             "{2}, Sacrifice a Food: Target player loses 2 life.",
             &[
                 CostDef::Mana(mana_cost!("{2}")),
-                CostDef::sacrifice_permanent(ObjectPredicateDef::Subtype(SubtypeDef::Literal(
+                CostDef::sacrifice_permanent(ObjectPredicateDef::Subtype(SubtypeDef::literal(
                     "Food",
                 ))),
             ],
@@ -4265,7 +4265,7 @@ pub(in crate::card::sets) static TWISTED_SEWER_WITCH: CardRecord = CardRecord::n
                     token: WICKED_ROLE,
                     host: Some(EffectRecipientDef::objects(ObjectSetDef::Query(
                         ObjectQueryDef::matching(
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Rat")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Rat")),
                             &[ZoneKind::Battlefield],
                             PlayerRelation::You,
                         ),
@@ -5437,7 +5437,7 @@ pub(in crate::card::sets) static TATTERED_RATTER: CardRecord = CardRecord::new(
             TriggerEventDef::BecomesBlocked(ObjectPredicateDef::All(&[
                 ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Rat")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Rat")),
                 ]),
                 ObjectPredicateDef::ControlledBy(PlayerRelation::You),
             ])),
@@ -6210,7 +6210,7 @@ pub(in crate::card::sets) static HOLLOW_SCAVENGER: CardRecord = CardRecord::new(
                     [
                         CostDef::Mana(mana_cost!("{1}")),
                         CostDef::sacrifice_permanent(ObjectPredicateDef::Subtype(
-                            SubtypeDef::Literal("Food"),
+                            SubtypeDef::literal("Food"),
                         )),
                     ]
                 },
@@ -6382,7 +6382,7 @@ pub(in crate::card::sets) static NIGHT_OF_THE_SWEETS_REVENGE: CardRecord = CardR
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
                     ObjectQueryDef::matching(
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Food")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Food")),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::You,
                     ),
@@ -6408,12 +6408,12 @@ pub(in crate::card::sets) static NIGHT_OF_THE_SWEETS_REVENGE: CardRecord = CardR
                 )),
                 effect: AppliedEffectDef::modify_power_toughness(
                     ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Food")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Food")),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::You,
                     )),
                     ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Food")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Food")),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::You,
                     )),
@@ -6719,7 +6719,7 @@ pub(in crate::card::sets) static TANGLESPAN_LOOKOUT: CardRecord = CardRecord::ne
             "Whenever an Aura you control enters, draw a card.",
             TriggerEventDef::zone_changed(
                 ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Aura")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Aura")),
                     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                 ]),
                 None,
@@ -7052,7 +7052,7 @@ pub(in crate::card::sets) static WELCOME_TO_SWEETTOOTH: CardRecord = CardRecord:
                     amount: ValueDef::Sum(&SumValueDef::new(
                         ValueDef::Constant(1),
                         ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Food")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Food")),
                             &[ZoneKind::Battlefield],
                             PlayerRelation::You,
                         )),
@@ -7145,7 +7145,7 @@ pub(in crate::card::sets) static THE_APPRENTICE_S_FOLLY: CardRecord = CardRecord
                 "III — Sacrifice all Reflections you control.",
                 EffectDef::sacrifice(EffectRecipientDef::objects(ObjectSetDef::Query(
                     ObjectQueryDef::matching(
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Reflection")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Reflection")),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::You,
                     ),
@@ -7199,7 +7199,7 @@ pub(in crate::card::sets) static FAUNSBANE_TROLL: CardRecord = CardRecord::new(
             &[
                 CostDef::Mana(mana_cost!("{1}")),
                 CostDef::sacrifice_permanent(ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Aura")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Aura")),
                     ObjectPredicateDef::AttachedTo(&ObjectPredicateDef::Source),
                 ])),
             ],
@@ -7260,7 +7260,7 @@ pub(in crate::card::sets) static GRETA_SWEETTOOTH_SCOURGE: CardRecord = CardReco
                  creature. Activate only as a sorcery.",
                 &[
                     CostDef::Mana(mana_cost!("{G}")),
-                    CostDef::sacrifice_permanent(ObjectPredicateDef::Subtype(SubtypeDef::Literal(
+                    CostDef::sacrifice_permanent(ObjectPredicateDef::Subtype(SubtypeDef::literal(
                         "Food",
                     ))),
                 ],
@@ -7278,7 +7278,7 @@ pub(in crate::card::sets) static GRETA_SWEETTOOTH_SCOURGE: CardRecord = CardReco
                 "{1}{B}, Sacrifice a Food: You draw a card and you lose 1 life.",
                 &[
                     CostDef::Mana(mana_cost!("{1}{B}")),
-                    CostDef::sacrifice_permanent(ObjectPredicateDef::Subtype(SubtypeDef::Literal(
+                    CostDef::sacrifice_permanent(ObjectPredicateDef::Subtype(SubtypeDef::literal(
                         "Food",
                     ))),
                 ],
@@ -7435,7 +7435,7 @@ pub(in crate::card::sets) static OBYRA_DREAMING_DUELIST: CardRecord = CardRecord
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::All(&[
                             ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Faerie")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Faerie")),
                         ]),
                         ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                     ]),
@@ -7612,7 +7612,7 @@ pub(in crate::card::sets) static TOTENTANZ_SWARM_PIPER: CardRecord = CardRecord:
                     AbilityTargetPredicate::Object {
                         object: ObjectPredicateDef::All(&[
                             ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Rat")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Rat")),
                             ObjectPredicateDef::Attacking,
                         ]),
                         zones: &const { [ZoneKind::Battlefield] },
@@ -7698,7 +7698,7 @@ pub(in crate::card::sets) static YENNA_REDTOOTH_REGENT: CardRecord = CardRecord:
                             &ObjectSetCountConditionDef {
                                 objects: &ObjectSetDef::MatchingBinding {
                                     binding: crate::Binding!("copy"),
-                                    object: ObjectPredicateDef::Subtype(SubtypeDef::Literal(
+                                    object: ObjectPredicateDef::Subtype(SubtypeDef::literal(
                                         "Aura",
                                     )),
                                 },
@@ -8179,10 +8179,10 @@ pub(in crate::card::sets) static KELLAN_THE_FAE_BLOODED: CardRecord = CardRecord
                                                             &const {
                                                                 [
                                                                     ObjectPredicateDef::Subtype(
-                                                                        SubtypeDef::Literal("Aura"),
+                                                                        SubtypeDef::literal("Aura"),
                                                                     ),
                                                                     ObjectPredicateDef::Subtype(
-                                                                        SubtypeDef::Literal(
+                                                                        SubtypeDef::literal(
                                                                             "Equipment",
                                                                         ),
                                                                     ),
@@ -8224,8 +8224,8 @@ pub(in crate::card::sets) static KELLAN_THE_FAE_BLOODED: CardRecord = CardRecord
                         object: ObjectPredicateDef::AnyOf(
                             &const {
                                 [
-                                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Aura")),
-                                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Equipment")),
+                                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Aura")),
+                                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Equipment")),
                                 ]
                             },
                         ),
@@ -9911,7 +9911,7 @@ pub(in crate::card::sets) static STORYTELLER_PIXIE: CardRecord = CardRecord::new
         AbilityDef::triggered(
             "Whenever you cast an Adventure spell, draw a card.",
             TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
-                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Adventure")),
+                ObjectPredicateDef::Subtype(SubtypeDef::literal("Adventure")),
                 ObjectPredicateDef::ControlledBy(PlayerRelation::You),
             ])),
             abilities::draw_cards(ValueDef::Constant(1)),
@@ -9938,7 +9938,7 @@ pub(in crate::card::sets) static EXPERIMENTAL_CONFECTIONER: CardRecord = CardRec
             "Whenever you sacrifice a Food, create a 1/1 black Rat \
              creature token with \"This token can't block.\"",
             TriggerEventDef::Sacrificed {
-                object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Food")),
+                object: ObjectPredicateDef::Subtype(SubtypeDef::literal("Food")),
                 player: PlayerRelation::You,
             },
             EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
@@ -10100,7 +10100,7 @@ pub(in crate::card::sets) static CHARGING_HOOLIGAN: CardRecord = CardRecord::new
                     condition: &TriggerConditionDef::ObjectCount {
                         query: ObjectQueryDef::matching(
                             ObjectPredicateDef::All(&[
-                                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Rat")),
+                                ObjectPredicateDef::Subtype(SubtypeDef::literal("Rat")),
                                 ObjectPredicateDef::Attacking,
                             ]),
                             &[ZoneKind::Battlefield],
@@ -10148,7 +10148,7 @@ pub(in crate::card::sets) static OGRE_CHITTERLORD: CardRecord = CardRecord::new(
                 EffectDef::IfCondition {
                     condition: &TriggerConditionDef::ObjectCount {
                         query: ObjectQueryDef::matching(
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Rat")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Rat")),
                             &[ZoneKind::Battlefield],
                             PlayerRelation::You,
                         ),
@@ -10158,7 +10158,7 @@ pub(in crate::card::sets) static OGRE_CHITTERLORD: CardRecord = CardRecord::new(
                     then: &EffectDef::Apply {
                         recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
                             ObjectQueryDef::matching(
-                                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Rat")),
+                                ObjectPredicateDef::Subtype(SubtypeDef::literal("Rat")),
                                 &[ZoneKind::Battlefield],
                                 PlayerRelation::You,
                             ),
@@ -10247,7 +10247,7 @@ pub(in crate::card::sets) static PROVISIONS_MERCHANT: CardRecord = CardRecord::n
                 TriggerEventDef::attacks(ObjectPredicateDef::Source),
                 EffectDef::PayOr(PayOrDef::optional(
                     &[CostDef::sacrifice_permanent(ObjectPredicateDef::Subtype(
-                        SubtypeDef::Literal("Food"),
+                        SubtypeDef::literal("Food"),
                     ))],
                     &EffectDef::Apply {
                         recipient: EffectRecipientDef::objects(ObjectSetDef::Query(

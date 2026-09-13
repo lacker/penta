@@ -274,7 +274,10 @@ fn turn_strips_a_creature_and_burn_finishes_it() {
     );
     let subtypes = game.effective_subtypes(&turned);
     assert_eq!(
-        subtypes.as_ref(),
+        subtypes
+            .iter()
+            .map(crate::card::Subtype::name)
+            .collect::<Vec<_>>(),
         &["Weird"],
         "the printed creature types gave way rather than being added to"
     );
@@ -697,8 +700,8 @@ fn garruk_turns_over_when_his_own_ability_wounds_him() {
         "two or fewer loyalty turned him over"
     );
     assert_eq!(
-        game.effective_subtypes(turned).as_ref(),
-        &["Garruk"],
+        game.effective_subtypes(turned),
+        crate::card::SubtypeSet::from_names(&["Garruk"]),
         "and the object is the same permanent, now showing its other face"
     );
 }

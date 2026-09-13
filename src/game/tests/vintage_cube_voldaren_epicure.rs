@@ -45,7 +45,10 @@ fn cast(game: &mut Game, held: GameObjectId) {
 fn bloods(game: &Game) -> Vec<GameObjectId> {
     game.battlefield
         .iter()
-        .filter(|permanent| game.effective_subtypes(permanent).contains(&"Blood"))
+        .filter(|permanent| {
+            game.effective_subtypes(permanent)
+                .contains(crate::card::Subtype::named("Blood"))
+        })
         .map(|permanent| permanent.card.id)
         .collect()
 }

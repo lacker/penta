@@ -322,11 +322,11 @@ fn the_emblem_adds_a_body_without_taking_anything_away() {
     assert!(types.contains(CardType::Artifact), "and still an artifact");
     let subtypes = game.effective_subtypes(animated);
     assert!(
-        subtypes.contains(&"Robot"),
+        subtypes.contains(crate::card::Subtype::named("Robot")),
         "with the Robot the emblem names: {subtypes:?}",
     );
     assert!(
-        subtypes.contains(&"Equipment"),
+        subtypes.contains(crate::card::Subtype::named("Equipment")),
         "and the Equipment it already was: {subtypes:?}",
     );
     assert!(

@@ -457,7 +457,7 @@ pub(in crate::card::sets) static WILDWOOD_SCOURGE: CardRecord = CardRecord::new(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
                         ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::Literal(
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::literal(
                             "Hydra",
                         ))),
                     ]),

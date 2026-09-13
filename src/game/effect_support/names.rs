@@ -13,9 +13,9 @@ impl Game {
         &self,
         subtype: crate::card::SubtypeDef,
         source: GameObjectId,
-    ) -> Option<&str> {
+    ) -> Option<crate::card::Subtype> {
         match subtype {
-            crate::card::SubtypeDef::Literal(value) => Some(value),
+            crate::card::SubtypeDef::Fixed(value) => Some(value),
             crate::card::SubtypeDef::Binding(binding) => self
                 .battlefield
                 .iter()
@@ -29,7 +29,8 @@ impl Game {
                 .filter(|permanent| {
                     permanent.chosen_creature_type_binding.as_deref() == binding.label()
                 })
-                .and_then(|permanent| permanent.chosen_creature_type.as_deref()),
+                .and_then(|permanent| permanent.chosen_creature_type.as_deref())
+                .and_then(crate::card::Subtype::from_name),
         }
     }
 

@@ -328,8 +328,8 @@ fn awaken_the_ancient_animates_without_erasing_the_land() {
     assert!(types.contains(CardType::Land));
     assert!(types.contains(CardType::Creature));
     let subtypes = game.effective_subtypes(mountain);
-    assert!(subtypes.contains(&"Mountain"));
-    assert!(subtypes.contains(&"Giant"));
+    assert!(subtypes.contains(crate::card::Subtype::named("Mountain")));
+    assert!(subtypes.contains(crate::card::Subtype::named("Giant")));
     let colors = game.permanent_colors(mountain);
     assert_eq!(colors.iter().filter(|is_color| **is_color).count(), 1);
     assert!(colors[ManaColor::Red.color_index().expect("red is a color")]);

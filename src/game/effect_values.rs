@@ -197,7 +197,7 @@ impl Game {
                     )
                 }) {
                     for subtype in self.effective_subtypes(permanent).iter() {
-                        if let Some(basic) = crate::card::BasicLandType::from_subtype(subtype) {
+                        if let Some(basic) = crate::card::BasicLandType::from_id(subtype) {
                             found[basic.index()] = true;
                         }
                     }

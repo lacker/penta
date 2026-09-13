@@ -679,7 +679,14 @@ fn combined_spell_trigger_and_target_characteristics_union_parts() {
         .expect("a fused spell has trigger characteristics");
     assert!(trigger_object.types.contains(CardType::Instant));
     assert!(trigger_object.types.contains(CardType::Sorcery));
-    assert_eq!(trigger_object.subtypes.as_ref(), &["Arcane", "Lesson"]);
+    assert_eq!(
+        trigger_object
+            .subtypes
+            .iter()
+            .map(crate::card::Subtype::name)
+            .collect::<Vec<_>>(),
+        &["Arcane", "Lesson"]
+    );
     let event = CommittedTriggerEvent::StackObject {
         object: trigger_object,
         kind: StackObjectKind::Spell,
@@ -690,8 +697,8 @@ fn combined_spell_trigger_and_target_characteristics_union_parts() {
     for predicate in [
         ObjectPredicateDef::HasType(CardType::Instant),
         ObjectPredicateDef::HasType(CardType::Sorcery),
-        ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Literal("Arcane")),
-        ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Literal("Lesson")),
+        ObjectPredicateDef::Subtype(crate::card::SubtypeDef::literal("Arcane")),
+        ObjectPredicateDef::Subtype(crate::card::SubtypeDef::literal("Lesson")),
     ] {
         assert!(game.trigger_event_matches_for_controller(
             TriggerEventDef::spell_cast(predicate),
@@ -704,7 +711,7 @@ fn combined_spell_trigger_and_target_characteristics_union_parts() {
     game.stack.push(object);
     for predicate in [
         ObjectPredicateDef::HasType(CardType::Sorcery),
-        ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Literal("Lesson")),
+        ObjectPredicateDef::Subtype(crate::card::SubtypeDef::literal("Lesson")),
     ] {
         assert_eq!(
             game.ability_targets_matching(
@@ -735,7 +742,7 @@ fn split_card_target_characteristics_union_parts_outside_the_stack() {
 
     for predicate in [
         ObjectPredicateDef::HasType(CardType::Sorcery),
-        ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Literal("Lesson")),
+        ObjectPredicateDef::Subtype(crate::card::SubtypeDef::literal("Lesson")),
     ] {
         assert_eq!(
             game.ability_targets_matching(
@@ -775,7 +782,12 @@ fn animated_factory_keeps_types_and_last_known_stats_under_blood_moon() {
     // Assembly-Worker is a creature type the animation grants, so it survives
     // alongside the Mountain that replaced the land types.
     assert_eq!(
-        snapshot.object.subtypes.as_ref(),
+        snapshot
+            .object
+            .subtypes
+            .iter()
+            .map(crate::card::Subtype::name)
+            .collect::<Vec<_>>(),
         &["Mountain", "Assembly-Worker"]
     );
     for card_type in [CardType::Land, CardType::Creature, CardType::Artifact] {

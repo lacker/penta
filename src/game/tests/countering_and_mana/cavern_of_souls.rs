@@ -587,7 +587,7 @@ fn cavern_bound_subtype_restrictions_use_each_producers_labeled_choice() {
         true,
     ));
     assert!(game.trigger_object_matches(
-        ObjectPredicateDef::Subtype(crate::SubtypeDef::Literal("Soldier")),
+        ObjectPredicateDef::Subtype(crate::SubtypeDef::literal("Soldier")),
         &object,
         angel_cavern,
         true,
@@ -657,7 +657,7 @@ fn cavern_bound_mana_round_trips_before_and_after_its_source_returns() {
                 crate::SubtypeDef::Binding(Binding!("cavern_creature_type")),
                 cavern
             ),
-            Some("Soldier"),
+            Some(crate::card::Subtype::Soldier),
             "the producing incarnation retains its binding (returned={returned})",
         );
         assert!(

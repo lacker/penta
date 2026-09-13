@@ -95,7 +95,7 @@ fn catalog_accepts_each_supported_static_program_lane() {
     ];
     static AURAS_ON_SOURCE: ObjectQueryDef = ObjectQueryDef::new(
         ObjectPredicateDef::All(&[
-            ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Literal("Aura")),
+            ObjectPredicateDef::Subtype(crate::card::SubtypeDef::literal("Aura")),
             ObjectPredicateDef::AttachedTo(&ObjectPredicateDef::Source),
         ]),
         &[ZoneKind::Battlefield],
@@ -191,7 +191,7 @@ fn static_apply_rejects_shapes_its_live_reader_would_ignore() {
         ),
         (
             EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::new(
-                ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Literal("Forest")),
+                ObjectPredicateDef::Subtype(crate::card::SubtypeDef::literal("Forest")),
                 &[ZoneKind::Battlefield],
             ))),
             AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)),

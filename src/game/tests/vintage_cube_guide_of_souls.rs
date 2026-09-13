@@ -159,11 +159,13 @@ fn three_energy_makes_an_angel() {
     );
     assert!(game.has_flying(attacker), "which is what grants flying");
     assert!(
-        game.effective_subtypes(attacker).contains(&"Angel"),
+        game.effective_subtypes(attacker)
+            .contains(crate::card::Subtype::named("Angel")),
         "an Angel in addition to Bear",
     );
     assert!(
-        game.effective_subtypes(attacker).contains(&"Bear"),
+        game.effective_subtypes(attacker)
+            .contains(crate::card::Subtype::named("Bear")),
         "in addition to, not instead of",
     );
     assert_eq!(energy(&game), 0, "all three were spent");
@@ -258,5 +260,8 @@ fn the_angel_is_permanent() {
         game.has_flying(attacker),
         "and neither does the counter's word"
     );
-    assert!(game.effective_subtypes(attacker).contains(&"Angel"));
+    assert!(
+        game.effective_subtypes(attacker)
+            .contains(crate::card::Subtype::named("Angel"))
+    );
 }

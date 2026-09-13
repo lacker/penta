@@ -349,7 +349,9 @@ impl Game {
     /// not be one.
     fn is_role_token(&self, permanent: &Permanent) -> bool {
         permanent.card.definition == ObjectKind::Token
-            && self.effective_subtypes(permanent).contains(&"Role")
+            && self
+                .effective_subtypes(permanent)
+                .contains(crate::card::Subtype::Role)
     }
 
     /// CR 704.5k: of two or more World permanents, only the one that has had

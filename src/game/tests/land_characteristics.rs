@@ -135,7 +135,7 @@ fn printed_and_intrinsic_mana_abilities_coexist() {
 }
 
 #[test]
-fn direct_and_composite_land_type_effects_grant_intrinsic_mana_in_order() {
+fn direct_and_composite_land_type_effects_grant_intrinsic_mana_in_canonical_order() {
     static DIRECT_TYPES: [BasicLandType; 1] = [BasicLandType::Mountain];
     static FIRST_COMPOSITE_TYPES: [BasicLandType; 1] = [BasicLandType::Forest];
     static SECOND_COMPOSITE_TYPES: [BasicLandType; 1] = [BasicLandType::Island];
@@ -186,8 +186,8 @@ fn direct_and_composite_land_type_effects_grant_intrinsic_mana_in_order() {
     ]);
 
     assert_eq!(
-        game.effective_subtypes(&game.battlefield[0]).as_ref(),
-        &["Mountain", "Forest", "Island"],
+        game.effective_subtypes(&game.battlefield[0]),
+        crate::card::SubtypeSet::from_names(&["Mountain", "Forest", "Island"]),
     );
     assert_eq!(
         game.mana_ability_activations(&game.battlefield[0])
@@ -208,9 +208,9 @@ fn direct_and_composite_land_type_effects_grant_intrinsic_mana_in_order() {
             })
             .collect::<Vec<_>>(),
         vec![
-            (BasicLandType::Mountain, ManaColor::Red),
             (BasicLandType::Forest, ManaColor::Green),
             (BasicLandType::Island, ManaColor::Blue),
+            (BasicLandType::Mountain, ManaColor::Red),
         ],
     );
 }
@@ -324,7 +324,14 @@ fn blood_moon_preserves_nonland_subtypes_on_a_land_creature() {
     let event = game.trigger_event_object(permanent);
     assert!(event.types.contains(CardType::Land));
     assert!(event.types.contains(CardType::Creature));
-    assert_eq!(event.subtypes.as_ref(), &["Mountain", "Dryad"]);
+    assert_eq!(
+        event
+            .subtypes
+            .iter()
+            .map(crate::card::Subtype::name)
+            .collect::<Vec<_>>(),
+        &["Mountain", "Dryad"]
+    );
     assert_eq!(
         game.mana_ability_activations(permanent)
             .into_iter()
@@ -350,8 +357,8 @@ fn dryad_arbor_is_a_green_land_creature_with_summoning_sick_intrinsic_mana() {
     assert!(types.contains(CardType::Land));
     assert!(types.contains(CardType::Creature));
     assert_eq!(
-        game.effective_subtypes(arbor).as_ref(),
-        &["Forest", "Dryad"]
+        game.effective_subtypes(arbor),
+        crate::card::SubtypeSet::from_names(&["Forest", "Dryad"])
     );
     assert_eq!(
         game.effective_rules(arbor).unwrap().colors(),
@@ -402,8 +409,8 @@ fn magical_hack_changes_a_land_type_and_its_intrinsic_mana_but_preserves_dryad()
         .find(|permanent| permanent.card.id == arbor_id)
         .unwrap();
     assert_eq!(
-        game.effective_subtypes(arbor).as_ref(),
-        &["Island", "Dryad"]
+        game.effective_subtypes(arbor),
+        crate::card::SubtypeSet::from_names(&["Island", "Dryad"])
     );
     assert_eq!(
         game.mana_ability_activations(arbor)
@@ -573,8 +580,8 @@ fn magical_hack_on_stage_applies_to_land_types_that_stage_later_copies() {
 
     let stage = &game.battlefield[0];
     assert_eq!(
-        game.effective_subtypes(stage).as_ref(),
-        &["Island", "Dryad"]
+        game.effective_subtypes(stage),
+        crate::card::SubtypeSet::from_names(&["Island", "Dryad"])
     );
     assert_eq!(
         game.mana_ability_activations(stage)
@@ -633,8 +640,8 @@ fn magical_hack_deduplicates_basic_types_and_intrinsic_mana() {
     game.battlefield.push(taiga);
 
     assert_eq!(
-        game.effective_subtypes(&game.battlefield[0]).as_ref(),
-        &["Mountain"],
+        game.effective_subtypes(&game.battlefield[0]),
+        crate::card::SubtypeSet::from_names(&["Mountain"]),
     );
     assert_eq!(
         game.mana_ability_activations(&game.battlefield[0])
@@ -685,11 +692,11 @@ fn nyleas_presence_attaches_draws_and_adds_all_five_intrinsic_abilities() {
             .collect::<Vec<_>>(),
         vec![
             ManaColor::Colorless,
-            ManaColor::White,
-            ManaColor::Blue,
-            ManaColor::Black,
-            ManaColor::Red,
             ManaColor::Green,
+            ManaColor::Blue,
+            ManaColor::Red,
+            ManaColor::White,
+            ManaColor::Black,
         ],
     );
 

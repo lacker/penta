@@ -61,8 +61,14 @@ fn he_is_a_one_one_human_monk() {
         (Some(1), Some(1))
     );
     let subtypes = game.effective_subtypes(permanent);
-    assert!(subtypes.contains(&"Human"), "a Human");
-    assert!(subtypes.contains(&"Monk"), "and a Monk");
+    assert!(
+        subtypes.contains(crate::card::Subtype::named("Human")),
+        "a Human"
+    );
+    assert!(
+        subtypes.contains(crate::card::Subtype::named("Monk")),
+        "and a Monk"
+    );
 }
 
 /// He has no haste, so the turn he arrives he makes nothing. The white is a

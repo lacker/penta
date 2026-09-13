@@ -89,7 +89,11 @@ fn subtypes(game: &Game, kellan: GameObjectId) -> Vec<&'static str> {
         .iter()
         .find(|permanent| permanent.card.id == kellan)
         .expect("Kellan is there");
-    let mut types = game.effective_subtypes(permanent).to_vec();
+    let mut types = game
+        .effective_subtypes(permanent)
+        .iter()
+        .map(crate::card::Subtype::name)
+        .collect::<Vec<_>>();
     types.sort_unstable();
     types
 }

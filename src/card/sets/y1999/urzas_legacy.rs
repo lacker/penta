@@ -1805,7 +1805,7 @@ pub(in crate::card::sets) static DERANGED_HERMIT: CardRecord = CardRecord::new(
                 recipient: EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Squirrel")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Squirrel")),
                     ]),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Any,

@@ -715,7 +715,7 @@ pub(in crate::card::sets) static RAMOSIAN_COMMANDER: CardRecord = CardRecord::ne
                 // qualify even if one existed; the chain fetches bodies
                 // and Equipment alike.
                 object: ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Rebel")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Rebel")),
                     ObjectPredicateDef::ManaValueAtMost(5),
                 ]),
                 // Failing to find is allowed, so the minimum is zero:
@@ -753,7 +753,7 @@ pub(in crate::card::sets) static RAMOSIAN_LIEUTENANT: CardRecord = CardRecord::n
                 // qualify even if one existed; the chain fetches bodies
                 // and Equipment alike.
                 object: ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Rebel")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Rebel")),
                     ObjectPredicateDef::ManaValueAtMost(3),
                 ]),
                 // Failing to find is allowed, so the minimum is zero:
@@ -801,7 +801,7 @@ pub(in crate::card::sets) static RAMOSIAN_SERGEANT: CardRecord = CardRecord::new
                 // qualify even if one existed; the chain fetches bodies
                 // and Equipment alike.
                 object: ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Rebel")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Rebel")),
                     ObjectPredicateDef::ManaValueAtMost(2),
                 ]),
                 // Failing to find is allowed, so the minimum is zero:
@@ -2063,7 +2063,7 @@ pub(in crate::card::sets) static CATERAN_BRUTE: CardRecord = CardRecord::new(
                 player: EffectRecipientDef::Controller,
                 source: ZoneKind::Library,
                 object: ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Mercenary")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Mercenary")),
                     ObjectPredicateDef::ManaValueAtMost(2),
                 ]),
                 minimum: 0,
@@ -2106,7 +2106,7 @@ pub(in crate::card::sets) static CATERAN_KIDNAPPERS: CardRecord = CardRecord::ne
                 player: EffectRecipientDef::Controller,
                 source: ZoneKind::Library,
                 object: ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Mercenary")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Mercenary")),
                     ObjectPredicateDef::ManaValueAtMost(3),
                 ]),
                 minimum: 0,
@@ -2149,7 +2149,7 @@ pub(in crate::card::sets) static CATERAN_PERSUADER: CardRecord = CardRecord::new
                 player: EffectRecipientDef::Controller,
                 source: ZoneKind::Library,
                 object: ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Mercenary")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Mercenary")),
                     ObjectPredicateDef::ManaValueAtMost(1),
                 ]),
                 minimum: 0,
@@ -2713,7 +2713,7 @@ pub(in crate::card::sets) static RAMPART_CRAWLER: CardRecord = CardRecord::new(
                     BlockRestrictionDef::prohibit(
                         BlockRestrictionSubjectDef::Attacker,
                         BlockRestrictionMatchDef::Matching(ObjectPredicateDef::Subtype(
-                            SubtypeDef::Literal("Wall"),
+                            SubtypeDef::literal("Wall"),
                         )),
                     ),
                 )),
@@ -2945,7 +2945,7 @@ pub(in crate::card::sets) static STRONGARM_THUG: CardRecord = CardRecord::new(
              card from your graveyard to your hand.",
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Object {
-                    object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Mercenary")),
+                    object: ObjectPredicateDef::Subtype(SubtypeDef::literal("Mercenary")),
                     zones: &[ZoneKind::Graveyard],
                     controller: None,
                     owner: Some(PlayerRelation::You),
@@ -3107,7 +3107,7 @@ pub(in crate::card::sets) static ARMS_DEALER: CardRecord = CardRecord::new(
             &[
                 CostDef::Mana(mana_cost!("{1}{R}")),
                 CostDef::SacrificePermanent {
-                    object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
+                    object: ObjectPredicateDef::Subtype(SubtypeDef::literal("Goblin")),
                     controller: PlayerRelation::You,
                 },
             ],
@@ -3193,7 +3193,7 @@ pub(in crate::card::sets) static BLASTER_MAGE: CardRecord = CardRecord::new(
                 CostDef::discard(ObjectPredicateDef::Any),
             ],
             &[AbilityTargetDef::exactly_one_permanent(
-                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Wall")),
+                ObjectPredicateDef::Subtype(SubtypeDef::literal("Wall")),
             )],
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),

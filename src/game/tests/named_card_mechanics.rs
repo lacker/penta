@@ -320,7 +320,10 @@ fn alpine_moon_names_only_nonbasic_lands_and_rewrites_matching_opponent_lands() 
         .find(|permanent| permanent.card.id == tower)
         .expect("Urza's Tower remains on the battlefield");
     let subtypes = game.effective_subtypes(affected);
-    assert!(!subtypes.contains(&"Urza's") && !subtypes.contains(&"Tower"));
+    assert!(
+        !subtypes.contains(crate::card::Subtype::named("Urza's"))
+            && !subtypes.contains(crate::card::Subtype::named("Tower"))
+    );
     assert_eq!(
         game.mana_ability_activations(affected).len(),
         5,

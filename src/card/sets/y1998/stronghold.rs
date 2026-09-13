@@ -2118,7 +2118,7 @@ pub(in crate::card::sets) static ACIDIC_SLIVER: CardRecord = CardRecord::new(
                 // "This permanent" inside the granted ability is whichever
                 // Sliver has it, which is that ability's own source.
                 recipient: EffectRecipientDef::matching_objects(
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Sliver")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Sliver")),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Any,
                 ),
@@ -2155,7 +2155,7 @@ pub(in crate::card::sets) static CRYSTALLINE_SLIVER: CardRecord = CardRecord::ne
                 recipient: EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Sliver")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Sliver")),
                     ]),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Any,
@@ -2180,7 +2180,7 @@ pub(in crate::card::sets) static HIBERNATION_SLIVER: CardRecord = CardRecord::ne
                 // "This permanent" inside the granted ability is whichever
                 // Sliver has it, which is that ability's own source.
                 recipient: EffectRecipientDef::matching_objects(
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Sliver")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Sliver")),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Any,
                 ),
@@ -2237,7 +2237,7 @@ pub(in crate::card::sets) static VICTUAL_SLIVER: CardRecord = CardRecord::new(
                 // "This permanent" inside the granted ability is whichever
                 // Sliver has it, which is that ability's own source.
                 recipient: EffectRecipientDef::matching_objects(
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Sliver")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Sliver")),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Any,
                 ),

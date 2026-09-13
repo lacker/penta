@@ -17,7 +17,7 @@ fn token_owned_abilities_can_locate_tokens_they_create() {
         CREATE_CHILD,
     )];
     static PARENT_TOKEN: TokenCharacteristics =
-        TokenCharacteristics::creature(&["Parent"], &[], 2, 2)
+        TokenCharacteristics::creature(&["Shapeshifter"], &[], 2, 2)
             .with_name("Parent Token")
             .with_abilities(&PARENT_TOKEN_ABILITIES);
     static CREATE_PARENT: EffectDef = EffectDef::CreateToken(crate::card::CreateTokenDef::new(

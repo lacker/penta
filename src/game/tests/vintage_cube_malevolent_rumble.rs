@@ -83,9 +83,10 @@ fn cast(game: &mut Game, held: GameObjectId, take: bool) {
 }
 
 fn spawn(game: &Game) -> Option<&Permanent> {
-    game.battlefield
-        .iter()
-        .find(|permanent| game.effective_subtypes(permanent).contains(&"Spawn"))
+    game.battlefield.iter().find(|permanent| {
+        game.effective_subtypes(permanent)
+            .contains(crate::card::Subtype::named("Spawn"))
+    })
 }
 
 /// It takes the permanent, buries the other three, and leaves a Spawn.

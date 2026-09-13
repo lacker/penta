@@ -54,7 +54,10 @@ impl Game {
             .battlefield
             .iter()
             .find(|candidate| candidate.card.id == paying_for)
-            .is_some_and(|candidate| self.effective_subtypes(candidate).contains(&"Vehicle"));
+            .is_some_and(|candidate| {
+                self.effective_subtypes(candidate)
+                    .contains(crate::card::Subtype::Vehicle)
+            });
         if !crewing {
             return 0;
         }

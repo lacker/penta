@@ -36,7 +36,10 @@ fn staged(artifacts: &[CardDefinitionId]) -> (Game, GameObjectId) {
 fn construct(game: &Game) -> &Permanent {
     game.battlefield
         .iter()
-        .find(|permanent| game.effective_subtypes(permanent).contains(&"Construct"))
+        .find(|permanent| {
+            game.effective_subtypes(permanent)
+                .contains(crate::card::Subtype::named("Construct"))
+        })
         .expect("the Construct is there")
 }
 

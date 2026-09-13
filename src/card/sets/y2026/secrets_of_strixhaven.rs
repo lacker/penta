@@ -305,7 +305,7 @@ pub(in crate::card::sets) static ANTIQUITIES_ON_THE_LOOSE: CardRecord = CardReco
                     then: &EffectDef::AddCounters {
                         object: EffectRecipientDef::objects(ObjectSetDef::Query(
                             ObjectQueryDef::matching(
-                                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Spirit")),
+                                ObjectPredicateDef::Subtype(SubtypeDef::literal("Spirit")),
                                 &[ZoneKind::Battlefield],
                                 PlayerRelation::You,
                             ),
@@ -4108,7 +4108,7 @@ pub(in crate::card::sets) static APPLIED_GEOMETRY: CardRecord = CardRecord::new(
                             ObjectPredicateDef::HasType(CardType::Land),
                             ObjectPredicateDef::HasType(CardType::Planeswalker),
                         ]),
-                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::Literal(
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::literal(
                             "Aura",
                         ))),
                     ]),
@@ -4246,11 +4246,11 @@ pub(in crate::card::sets) static BLECH_LOAFING_PEST: CardRecord = CardRecord::ne
             EffectDef::AddCounters {
                 object: EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::matching(
                     ObjectPredicateDef::AnyOf(&[
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Pest")),
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Bat")),
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Insect")),
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Snake")),
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Spider")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Pest")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Bat")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Insect")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Snake")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Spider")),
                     ]),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::You,

@@ -405,7 +405,7 @@ pub(in crate::card::sets) static JENNIKA_BAD_APPLE_BIG_SISTER: CardRecord = Card
                  library for a Plains card, reveal it, put it into your hand, \
                  then shuffle.)",
                 &[CostDef::Mana(mana_cost!("{2}"))],
-                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Plains"))
+                ObjectPredicateDef::Subtype(SubtypeDef::literal("Plains"))
             ),
         ]),
 );
@@ -697,7 +697,7 @@ pub(in crate::card::sets) static QUINTESSENTIAL_KATANA: CardRecord = CardRecord:
                  Equipment to it.",
                 TriggerEventDef::zone_changed(
                     ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Ninja")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Ninja")),
                         ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                     ]),
                     None,
@@ -775,7 +775,7 @@ pub(in crate::card::sets) static TRICERATON_COMMANDER: CardRecord = CardRecord::
                     recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
                         ObjectQueryDef::matching(
                             ObjectPredicateDef::All(&[
-                                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Dinosaur")),
+                                ObjectPredicateDef::Subtype(SubtypeDef::literal("Dinosaur")),
                                 ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                             ]),
                             &[ZoneKind::Battlefield],
@@ -1624,7 +1624,7 @@ pub(in crate::card::sets) static STOCKMAN_MAD_FLY_ENTIST: CardRecord = CardRecor
              library for an Island card, reveal it, put it into your hand, \
              then shuffle.)",
             &[CostDef::Mana(mana_cost!("{2}"))],
-            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Island"))
+            ObjectPredicateDef::Subtype(SubtypeDef::literal("Island"))
         ),
     ]),
 );
@@ -1752,7 +1752,7 @@ pub(in crate::card::sets) static BEBOP_WARTHOG_WARRIOR: CardRecord = CardRecord:
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
                         ObjectQueryDef::matching(
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Rhino")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Rhino")),
                             &[ZoneKind::Battlefield],
                             PlayerRelation::You,
                         ),
@@ -1765,7 +1765,7 @@ pub(in crate::card::sets) static BEBOP_WARTHOG_WARRIOR: CardRecord = CardRecord:
                  for a Swamp card, reveal it, put it into your hand, then \
                  shuffle.)",
                 &[CostDef::Mana(mana_cost!("{2}"))],
-                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Swamp"))
+                ObjectPredicateDef::Subtype(SubtypeDef::literal("Swamp"))
             ),
         ]),
 );
@@ -3191,7 +3191,7 @@ pub(in crate::card::sets) static ZOG_TRICERATON_CASTAWAY: CardRecord = CardRecor
                  library for a Mountain card, reveal it, put it into your \
                  hand, then shuffle.)",
                 &[CostDef::Mana(mana_cost!("{2}"))],
-                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Mountain"))
+                ObjectPredicateDef::Subtype(SubtypeDef::literal("Mountain"))
             ),
         ]),
 );
@@ -3225,9 +3225,9 @@ pub(in crate::card::sets) static COWABUNGA: CardRecord = CardRecord::new(
             actor: PlayerRefDef::EffectController,
             inspection: CollectionInspectionDef::Look,
             object: ObjectPredicateDef::AnyOf(&[
-                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Mutant")),
-                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Ninja")),
-                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Turtle")),
+                ObjectPredicateDef::Subtype(SubtypeDef::literal("Mutant")),
+                ObjectPredicateDef::Subtype(SubtypeDef::literal("Ninja")),
+                ObjectPredicateDef::Subtype(SubtypeDef::literal("Turtle")),
                 ObjectPredicateDef::HasType(CardType::Land),
             ]),
             minimum: 0,
@@ -3617,7 +3617,7 @@ pub(in crate::card::sets) static RAGAMUFFIN_RAPTOR: CardRecord = CardRecord::new
                 AbilityTargetPredicate::Object {
                     object: ObjectPredicateDef::AnyOf(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Food")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Food")),
                     ]),
                     zones: &[ZoneKind::Graveyard],
                     controller: None,
@@ -3656,7 +3656,7 @@ pub(in crate::card::sets) static ROCKSTEADY_CRASH_COURSER: CardRecord = CardReco
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
                         ObjectQueryDef::matching(
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Boar")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Boar")),
                             &[ZoneKind::Battlefield],
                             PlayerRelation::You,
                         ),
@@ -3671,7 +3671,7 @@ pub(in crate::card::sets) static ROCKSTEADY_CRASH_COURSER: CardRecord = CardReco
                  library for a Forest card, reveal it, put it into your hand, \
                  then shuffle.)",
                 &[CostDef::Mana(mana_cost!("{2}"))],
-                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Forest"))
+                ObjectPredicateDef::Subtype(SubtypeDef::literal("Forest"))
             ),
         ]),
 );
@@ -3686,7 +3686,7 @@ pub(in crate::card::sets) static SAVED_BY_THE_SHELL: CardRecord = CardRecord::ne
             "This spell costs {1} less to cast if you control a Turtle.",
             ValueDef::IfMatchingObjectCount(&CountConditionDef {
                 query: ObjectQueryDef::matching(
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Turtle")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Turtle")),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::You,
                 ),
@@ -3784,7 +3784,7 @@ pub(in crate::card::sets) static TURTLE_POWER: CardRecord = CardRecord::new(
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
                     ObjectQueryDef::matching(
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Turtle")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Turtle")),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::You,
                     ),
@@ -4162,7 +4162,7 @@ pub(in crate::card::sets) static GENGHIS_FROG: CardRecord = CardRecord::new(
                         ObjectPredicateDef::Source,
                         ObjectPredicateDef::All(&[
                             ObjectPredicateDef::All(&[
-                                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Mutant")),
+                                ObjectPredicateDef::Subtype(SubtypeDef::literal("Mutant")),
                                 ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                             ]),
                             ObjectPredicateDef::ControlledBy(PlayerRelation::You),
@@ -5338,8 +5338,8 @@ pub(in crate::card::sets) static TURTLE_LAIR: CardRecord = CardRecord::new(
             &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::any_color().with_restrictions(&[
                 ManaRestrictionDef::CastSpell(ObjectPredicateDef::AnyOf(&[
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Ninja")),
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Turtle")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Ninja")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Turtle")),
                 ])),
             ])),
         ),
@@ -5348,8 +5348,8 @@ pub(in crate::card::sets) static TURTLE_LAIR: CardRecord = CardRecord::new(
             &[CostDef::Mana(mana_cost!("{3}")), CostDef::TapSource],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::AnyOf(&[
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Ninja")),
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Turtle")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Ninja")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Turtle")),
                 ]),
             )],
             EffectDef::Apply {

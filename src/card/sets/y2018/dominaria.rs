@@ -240,7 +240,7 @@ pub(in crate::card::sets) static LYRA_DAWNBRINGER: CardRecord = CardRecord::new(
                         ObjectQueryDef::matching(
                             ObjectPredicateDef::All(&[
                                 ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-                                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Angel")),
+                                ObjectPredicateDef::Subtype(SubtypeDef::literal("Angel")),
                             ]),
                             &[ZoneKind::Battlefield],
                             PlayerRelation::You,
@@ -276,7 +276,7 @@ pub(in crate::card::sets) static TESHAR_ANCESTOR_S_APOSTLE: CardRecord = CardRec
                     ObjectPredicateDef::AnyOf(&[
                         ObjectPredicateDef::HasType(CardType::Artifact),
                         ObjectPredicateDef::Supertype(CardSupertype::Legendary),
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Saga")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Saga")),
                     ]),
                     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                 ])),
@@ -316,7 +316,7 @@ pub(in crate::card::sets) static TEMPEST_DJINN: CardRecord = CardRecord::new(
                         ObjectPredicateDef::All(&[
                             ObjectPredicateDef::HasType(CardType::Land),
                             ObjectPredicateDef::Supertype(CardSupertype::Basic),
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Island")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Island")),
                         ]),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::You,
@@ -792,7 +792,7 @@ pub(in crate::card::sets) static TRAXOS_SCOURGE_OF_KROOG: CardRecord = CardRecor
                     ObjectPredicateDef::AnyOf(&[
                         ObjectPredicateDef::HasType(CardType::Artifact),
                         ObjectPredicateDef::Supertype(CardSupertype::Legendary),
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Saga")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Saga")),
                     ]),
                     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                 ])),
@@ -841,7 +841,7 @@ pub(in crate::card::sets) static CABAL_STRONGHOLD: CardRecord = CardRecord::new(
                         ObjectPredicateDef::All(&[
                             ObjectPredicateDef::HasType(CardType::Land),
                             ObjectPredicateDef::Supertype(CardSupertype::Basic),
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Swamp")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Swamp")),
                         ]),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::You,

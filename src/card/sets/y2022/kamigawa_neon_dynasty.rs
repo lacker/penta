@@ -267,7 +267,7 @@ pub(in crate::card::sets) static THE_WANDERING_EMPEROR: CardRecord = CardRecord:
     // A planeswalker you cast on their turn: she answers an attacker, makes
     // a blocker, or wins a fight, and she does it before they can respond by
     // killing her.
-    CardRules::new_planeswalker(mana_cost!("{2}{W}{W}"), &["The Wandering Emperor"], 3)
+    CardRules::new_planeswalker(mana_cost!("{2}{W}{W}"), &[], 3)
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
             abilities::flash(),
@@ -743,7 +743,7 @@ pub(in crate::card::sets) static GORO_GORO_DISCIPLE_OF_RYUSEI: CardRecord = Card
                 TriggerConditionDef::ObjectCount {
                     query: ObjectQueryDef::matching(
                         ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Aura")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Aura")),
                             ObjectPredicateDef::AttachedTo(&ObjectPredicateDef::All(&[
                                 ObjectPredicateDef::HasType(CardType::Creature),
                                 ObjectPredicateDef::Attacking,
@@ -759,7 +759,7 @@ pub(in crate::card::sets) static GORO_GORO_DISCIPLE_OF_RYUSEI: CardRecord = Card
                 TriggerConditionDef::ObjectCount {
                     query: ObjectQueryDef::matching(
                         ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Equipment")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Equipment")),
                             ObjectPredicateDef::AttachedTo(&ObjectPredicateDef::All(&[
                                 ObjectPredicateDef::HasType(CardType::Creature),
                                 ObjectPredicateDef::Attacking,

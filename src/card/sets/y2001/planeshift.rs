@@ -693,7 +693,7 @@ pub(in crate::card::sets) static LORD_OF_THE_UNDEAD: CardRecord = CardRecord::ne
                 recipient: EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Zombie")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Zombie")),
                         ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                     ]),
                     &[ZoneKind::Battlefield],
@@ -710,7 +710,7 @@ pub(in crate::card::sets) static LORD_OF_THE_UNDEAD: CardRecord = CardRecord::ne
             &[CostDef::Mana(mana_cost!("{1}{B}")), CostDef::TapSource],
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Object {
-                    object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Zombie")),
+                    object: ObjectPredicateDef::Subtype(SubtypeDef::literal("Zombie")),
                     zones: &[ZoneKind::Graveyard],
                     controller: None,
                     owner: Some(PlayerRelation::You),
@@ -928,7 +928,7 @@ pub(in crate::card::sets) static DEADAPULT: CardRecord = CardRecord::new(
             &[
                 CostDef::Mana(mana_cost!("{R}")),
                 CostDef::SacrificePermanent {
-                    object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Zombie")),
+                    object: ObjectPredicateDef::Subtype(SubtypeDef::literal("Zombie")),
                     controller: PlayerRelation::You,
                 },
             ],
@@ -1221,7 +1221,7 @@ pub(in crate::card::sets) static ALPHA_KAVU: CardRecord = CardRecord::new(
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Kavu")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Kavu")),
                 ]),
             )],
             EffectDef::Apply {
@@ -2191,7 +2191,7 @@ pub(in crate::card::sets) static CROSIS_S_CATACOMBS: CardRecord = CardRecord::ne
                     // second one cannot pay for the first.
                     object: ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Land),
-                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::Literal(
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::literal(
                             "Lair",
                         ))),
                         ObjectPredicateDef::ControlledBy(PlayerRelation::You),
@@ -2229,7 +2229,7 @@ pub(in crate::card::sets) static DARIGAAZ_S_CALDERA: CardRecord = CardRecord::ne
                     // second one cannot pay for the first.
                     object: ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Land),
-                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::Literal(
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::literal(
                             "Lair",
                         ))),
                         ObjectPredicateDef::ControlledBy(PlayerRelation::You),
@@ -2267,7 +2267,7 @@ pub(in crate::card::sets) static DROMAR_S_CAVERN: CardRecord = CardRecord::new(
                     // second one cannot pay for the first.
                     object: ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Land),
-                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::Literal(
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::literal(
                             "Lair",
                         ))),
                         ObjectPredicateDef::ControlledBy(PlayerRelation::You),
@@ -2374,7 +2374,7 @@ pub(in crate::card::sets) static RITH_S_GROVE: CardRecord = CardRecord::new(
                     // second one cannot pay for the first.
                     object: ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Land),
-                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::Literal(
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::literal(
                             "Lair",
                         ))),
                         ObjectPredicateDef::ControlledBy(PlayerRelation::You),
@@ -2453,7 +2453,7 @@ pub(in crate::card::sets) static TREVAS_RUINS: CardRecord = CardRecord::new(
                     // for the first.
                     object: ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Land),
-                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::Literal(
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::literal(
                             "Lair",
                         ))),
                         ObjectPredicateDef::ControlledBy(PlayerRelation::You),

@@ -77,7 +77,7 @@ pub(in crate::card::sets) static SAVAGE_ORDER: CardRecord = CardRecord::new(
                 candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Dinosaur")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Dinosaur")),
                     ]),
                     &[ZoneKind::Library],
                     PlayerRelation::You,

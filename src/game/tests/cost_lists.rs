@@ -413,7 +413,7 @@ fn once_per_object_restriction_does_not_require_an_exhaust_label() {
     .once_per_object();
     assert_eq!(ABILITY.label, None);
     let (mut game, _) = game_with_cost_rules(
-        &CardRules::new_creature(mana_cost!("{0}"), &["Test"], 1, 1).with_ability(ABILITY),
+        &CardRules::new_creature(mana_cost!("{0}"), &[], 1, 1).with_ability(ABILITY),
     );
     game.players[0].hand.clear();
     let source = game

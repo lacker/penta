@@ -39,8 +39,8 @@ fn leyline_adds_its_choice_to_creatures_as_they_enter() {
         let bear = definition(&game, "Grizzly Bears");
         let prospective = creature(29_000, bear, PlayerId::One);
         let subtypes = game.effective_subtypes_with_prospective(&prospective, &prospective);
-        assert!(subtypes.contains(&"Bear"));
-        assert!(subtypes.contains(&"Warrior"));
+        assert!(subtypes.contains(crate::card::Subtype::named("Bear")));
+        assert!(subtypes.contains(crate::card::Subtype::named("Warrior")));
     }
 }
 
@@ -117,8 +117,12 @@ fn leyline_uses_controller_on_the_battlefield_and_owner_everywhere_else() {
                 },
             )
             .expect("the creature has stack characteristics");
-        assert!(spell.subtypes.contains(&"Bear"));
-        assert!(spell.subtypes.contains(&"Warrior"));
+        assert!(spell.subtypes.contains(crate::card::Subtype::named("Bear")));
+        assert!(
+            spell
+                .subtypes
+                .contains(crate::card::Subtype::named("Warrior"))
+        );
 
         let opposing_card = game
             .build_zone(PlayerId::Two, &[bear])

@@ -667,6 +667,15 @@ fn cast_target_count_value(value: ValueDef, x: u16, payments: &[u16]) -> Option<
 /// choice attached to the source permanent by an entry `BindOutput`.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum SubtypeDef {
-    Literal(&'static str),
+    Fixed(crate::card::Subtype),
     Binding(crate::Binding),
+}
+
+impl SubtypeDef {
+    /// # Panics
+    /// Panics on an unknown name; static declarations fail compilation.
+    #[must_use]
+    pub const fn literal(name: &str) -> Self {
+        Self::Fixed(crate::card::Subtype::named(name))
+    }
 }

@@ -186,7 +186,10 @@ fn haunted_plate_mail_animation_removes_equipment_and_unattaches() {
         .expect("the animated permanent has effective types");
     assert!(types.contains(CardType::Artifact));
     assert!(types.contains(CardType::Creature));
-    assert_eq!(game.effective_subtypes(animated).as_ref(), &["Spirit"]);
+    assert_eq!(
+        game.effective_subtypes(animated),
+        crate::card::SubtypeSet::from_names(&["Spirit"])
+    );
     assert_eq!(
         (game.power(animated), game.toughness(animated)),
         (Some(4), Some(4))
@@ -279,7 +282,9 @@ fn an_attached_permanent_that_loses_aura_unattaches_but_stays_on_the_battlefield
     let former_aura = permanent(&game, aura_id);
     assert_eq!(former_aura.attached_to, None);
     assert!(
-        !game.effective_subtypes(former_aura).contains(&"Aura"),
+        !game
+            .effective_subtypes(former_aura)
+            .contains(crate::card::Subtype::named("Aura")),
         "effective subtype removal determines the current attachment kind"
     );
 }

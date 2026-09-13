@@ -9,15 +9,17 @@ fn an_attached_aura_search_checkpoint_preserves_its_player() {
     let mut game = Game::new(catalog.clone(), [deck.clone(), deck], 45).expect("game starts");
     let player = PlayerId::One;
     game.players[player.index()].library.clear();
-    game.players[player.index()].library.push(crate::game::tests::card(
-        90_001,
-        crate::card::cards::CURSE_OF_DEATH_S_HOLD,
-        player,
-    ));
+    game.players[player.index()]
+        .library
+        .push(crate::game::tests::card(
+            90_001,
+            crate::card::cards::CURSE_OF_DEATH_S_HOLD,
+            player,
+        ));
     game.queue_zone_search(
         player,
         ZoneKind::Library,
-        crate::card::ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Literal("Curse")),
+        crate::card::ObjectPredicateDef::Subtype(crate::card::SubtypeDef::literal("Curse")),
         0,
         1,
         true,

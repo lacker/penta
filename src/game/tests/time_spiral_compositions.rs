@@ -184,8 +184,14 @@ fn lim_dul_returns_the_dead_opposing_creature_under_your_control_as_a_zombie() {
         .expect("the dead card returned");
     assert_eq!(returned.controller, PlayerId::One);
     assert_eq!(returned.card.owner, PlayerId::Two);
-    assert!(game.effective_subtypes(returned).contains(&"Zombie"));
-    assert!(game.effective_subtypes(returned).contains(&"Bear"));
+    assert!(
+        game.effective_subtypes(returned)
+            .contains(crate::card::Subtype::named("Zombie"))
+    );
+    assert!(
+        game.effective_subtypes(returned)
+            .contains(crate::card::Subtype::named("Bear"))
+    );
 }
 
 #[test]

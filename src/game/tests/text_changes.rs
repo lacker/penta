@@ -226,9 +226,19 @@ fn magical_hack_changes_land_type_words_inside_static_effects() {
         .extend([urborg, creature(10_001, cards::PLAINS, PlayerId::Two)]);
 
     let plains = &game.battlefield[1];
-    assert!(game.effective_subtypes(plains).contains(&"Plains"));
-    assert!(game.effective_subtypes(plains).contains(&"Island"));
-    assert!(!game.effective_subtypes(plains).contains(&"Swamp"));
+    assert!(
+        game.effective_subtypes(plains)
+            .contains(crate::card::Subtype::named("Plains"))
+    );
+    assert!(
+        game.effective_subtypes(plains)
+            .contains(crate::card::Subtype::named("Island"))
+    );
+    assert!(
+        !game
+            .effective_subtypes(plains)
+            .contains(crate::card::Subtype::named("Swamp"))
+    );
 }
 
 #[test]

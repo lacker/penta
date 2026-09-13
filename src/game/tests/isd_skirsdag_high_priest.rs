@@ -113,7 +113,9 @@ fn morbid_and_two_other_untapped_creatures_create_the_demon() {
         .iter()
         .find(|permanent| {
             permanent.card.definition == ObjectKind::Token
-                && game.effective_subtypes(permanent).contains(&"Demon")
+                && game
+                    .effective_subtypes(permanent)
+                    .contains(crate::card::Subtype::named("Demon"))
         })
         .expect("the ability creates a Demon token");
     assert_eq!(

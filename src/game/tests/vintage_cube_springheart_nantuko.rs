@@ -185,7 +185,8 @@ fn declining_leaves_an_insect_instead() {
     assert_eq!(made.len(), 1, "one token either way");
     assert_eq!(game.power(made[0]), Some(1), "a 1/1 Insect");
     assert!(
-        game.effective_subtypes(made[0]).contains(&"Insect"),
+        game.effective_subtypes(made[0])
+            .contains(crate::card::Subtype::named("Insect")),
         "and it is an Insect",
     );
 }

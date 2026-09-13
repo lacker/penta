@@ -145,7 +145,7 @@ fn any_target_damage_can_remove_a_planeswalker() {
         sets::magic_2014::SET,
         crate::card::CardRules::unsupported(),
     );
-    definition.rules = CardRules::new_planeswalker(ManaCost::default(), &["Test"], 3)
+    definition.rules = CardRules::new_planeswalker(ManaCost::default(), &[], 3)
         .with_supertype(CardSupertype::Legendary);
     synchronize_single_part_definition(&mut definition);
 
@@ -713,7 +713,7 @@ fn simultaneous_exits_keep_pre_exit_characteristics_for_trigger_matching() {
     static ABILITIES: [AbilityDef; 1] = [AbilityDef::triggered(
         "Whenever a Mountain leaves the battlefield, you gain 1 life.",
         TriggerEventDef::zone_changed(
-            ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Literal("Mountain")),
+            ObjectPredicateDef::Subtype(crate::card::SubtypeDef::literal("Mountain")),
             Some(ZoneKind::Battlefield),
             Some(ZoneKind::Graveyard),
         ),

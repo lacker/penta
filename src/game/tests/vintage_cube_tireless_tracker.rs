@@ -27,7 +27,10 @@ fn staged() -> (Game, GameObjectId) {
 fn clues(game: &Game) -> Vec<GameObjectId> {
     game.battlefield
         .iter()
-        .filter(|permanent| game.effective_subtypes(permanent).contains(&"Clue"))
+        .filter(|permanent| {
+            game.effective_subtypes(permanent)
+                .contains(crate::card::Subtype::named("Clue"))
+        })
         .map(|permanent| permanent.card.id)
         .collect()
 }

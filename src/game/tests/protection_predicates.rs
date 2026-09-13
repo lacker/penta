@@ -23,6 +23,12 @@ fn has_protection(game: &Game, id: GameObjectId, predicate: &'static ObjectPredi
 
 #[test]
 fn spare_from_evil_grants_temporary_protection_to_the_creatures_it_resolves_over() {
+    const NON_HUMAN: ObjectPredicateDef = ObjectPredicateDef::All(&[
+        ObjectPredicateDef::HasType(CardType::Creature),
+        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(
+            crate::card::SubtypeDef::literal("Human"),
+        )),
+    ]);
     let mut game = ready_game();
     let protected = creature(20_000, cards::SAVANNAH_LIONS, PlayerId::One);
     let protected_id = protected.card.id;
@@ -41,27 +47,9 @@ fn spare_from_evil_grants_temporary_protection_to_the_creatures_it_resolves_over
     .expect("Spare from Evil is castable");
     drain_pending(&mut game);
 
-    assert!(has_protection(
-        &game,
-        protected_id,
-        &ObjectPredicateDef::All(&[
-            ObjectPredicateDef::HasType(CardType::Creature),
-            ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(
-                crate::card::SubtypeDef::Literal("Human")
-            )),
-        ]),
-    ));
+    assert!(has_protection(&game, protected_id, &NON_HUMAN,));
     assert!(
-        !has_protection(
-            &game,
-            opposing_id,
-            &ObjectPredicateDef::All(&[
-                ObjectPredicateDef::HasType(CardType::Creature),
-                ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(
-                    crate::card::SubtypeDef::Literal("Human")
-                )),
-            ]),
-        ),
+        !has_protection(&game, opposing_id, &NON_HUMAN,),
         "only the caster's creatures receive the grant",
     );
 
@@ -69,16 +57,7 @@ fn spare_from_evil_grants_temporary_protection_to_the_creatures_it_resolves_over
         .put_onto_battlefield(PlayerId::One, cards::GRIZZLY_BEARS)
         .expect("the Bear is cataloged");
     assert!(
-        !has_protection(
-            &game,
-            late,
-            &ObjectPredicateDef::All(&[
-                ObjectPredicateDef::HasType(CardType::Creature),
-                ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(
-                    crate::card::SubtypeDef::Literal("Human")
-                )),
-            ]),
-        ),
+        !has_protection(&game, late, &NON_HUMAN,),
         "a resolving group grant freezes its recipients",
     );
 
@@ -117,16 +96,7 @@ fn spare_from_evil_grants_temporary_protection_to_the_creatures_it_resolves_over
     assert_eq!(permanent(&game, protected_id).damage, 1);
 
     game.finish_cleanup();
-    assert!(!has_protection(
-        &game,
-        protected_id,
-        &ObjectPredicateDef::All(&[
-            ObjectPredicateDef::HasType(CardType::Creature),
-            ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(
-                crate::card::SubtypeDef::Literal("Human")
-            )),
-        ]),
-    ));
+    assert!(!has_protection(&game, protected_id, &NON_HUMAN,));
 }
 
 #[test]

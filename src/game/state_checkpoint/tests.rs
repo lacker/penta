@@ -326,7 +326,7 @@ fn subtype_change(
 ) -> (
     AbilitySourceRef,
     AppliedEffectDef,
-    SetOperationDef<&'static [&'static str]>,
+    SetOperationDef<crate::card::SubtypeSet>,
 ) {
     let locator = ability_locator(catalog, |ability| {
         semantics::applied_effects(ability).iter().any(|effect| {

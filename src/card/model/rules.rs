@@ -1,3 +1,4 @@
+use crate::card::subtypes::SubtypeList;
 use std::borrow::Cow;
 
 use crate::ids::{AbilityId, AdditionalCostId, AlternativeCostId, ModeId};
@@ -103,7 +104,7 @@ impl CardAbilityList {
 pub struct CardRules {
     card_types: CardTypeSet,
     supertypes: [bool; CardSupertype::COUNT],
-    subtypes: &'static [&'static str],
+    subtypes: SubtypeList,
     pub(super) printed_mana_cost: PrintedManaCost,
     pub(super) starting_loyalty: Option<u16>,
     pub(super) creature_stats: Option<CreatureStats>,
@@ -148,8 +149,6 @@ const fn hybrid_includes(cost: ManaCost, color: ManaColor) -> bool {
 /// The one subtype every Vehicle prints.
 static VEHICLE_SUBTYPES: &[&str] = &["Vehicle"];
 
-const VEHICLE: &[u8] = b"Vehicle";
-
 impl CardRules {
     /// The characteristic-level constructor used when a typed convenience
     /// constructor cannot represent a card face exactly.
@@ -180,7 +179,7 @@ impl CardRules {
         Self {
             card_types,
             supertypes: [false; CardSupertype::COUNT],
-            subtypes: &[],
+            subtypes: SubtypeList::new(&[]),
             printed_mana_cost,
             starting_loyalty: None,
             creature_stats: None,
@@ -201,7 +200,7 @@ impl CardRules {
     pub(super) const fn from_inline_characteristics(
         card_types: CardTypeSet,
         supertypes: [bool; CardSupertype::COUNT],
-        subtypes: &'static [&'static str],
+        subtypes: SubtypeList,
         colors: ColorSet,
         creature_stats: Option<CreatureStats>,
         abilities: &'static [AbilityDef],
@@ -244,7 +243,7 @@ impl CardRules {
             CardTypeSet::single(CardType::Creature),
             PrintedManaCost::Cost(mana_cost),
         );
-        rules.subtypes = subtypes;
+        rules.subtypes = SubtypeList::new(subtypes);
         rules.creature_stats = Some(CreatureStats { power, toughness });
         rules
     }
@@ -262,7 +261,7 @@ impl CardRules {
             CardTypeSet::single(CardType::Artifact),
             PrintedManaCost::Cost(mana_cost),
         );
-        rules.subtypes = VEHICLE_SUBTYPES;
+        rules.subtypes = SubtypeList::new(VEHICLE_SUBTYPES);
         rules.creature_stats = Some(CreatureStats { power, toughness });
         rules
     }
@@ -275,7 +274,7 @@ impl CardRules {
             CardTypeSet::single(CardType::Artifact),
             PrintedManaCost::None,
         );
-        rules.subtypes = VEHICLE_SUBTYPES;
+        rules.subtypes = SubtypeList::new(VEHICLE_SUBTYPES);
         rules.creature_stats = Some(CreatureStats { power, toughness });
         rules
     }
@@ -289,27 +288,7 @@ impl CardRules {
     /// Whether this card has the printed Vehicle subtype.
     #[must_use]
     pub const fn is_vehicle(&self) -> bool {
-        self.has_printed_subtype(VEHICLE)
-    }
-
-    const fn has_printed_subtype(&self, expected: &[u8]) -> bool {
-        let mut index = 0;
-        while index < self.subtypes.len() {
-            // Compared byte by byte because the coherence check that reads
-            // this runs in a const context, where `==` on strings does not.
-            let candidate = self.subtypes[index].as_bytes();
-            if candidate.len() == expected.len() {
-                let mut byte = 0;
-                while byte < candidate.len() && candidate[byte] == expected[byte] {
-                    byte += 1;
-                }
-                if byte == candidate.len() {
-                    return true;
-                }
-            }
-            index += 1;
-        }
-        false
+        self.subtypes.set().contains(crate::card::Subtype::Vehicle)
     }
 
     #[must_use]
@@ -333,7 +312,7 @@ impl CardRules {
             CardTypeSet::single(CardType::Creature),
             PrintedManaCost::None,
         );
-        rules.subtypes = subtypes;
+        rules.subtypes = SubtypeList::new(subtypes);
         rules.creature_stats = Some(CreatureStats { power, toughness });
         rules
     }
@@ -351,7 +330,7 @@ impl CardRules {
             CardTypeSet::single(CardType::Enchantment).with(CardType::Creature),
             PrintedManaCost::Cost(mana_cost),
         );
-        rules.subtypes = subtypes;
+        rules.subtypes = SubtypeList::new(subtypes);
         rules.creature_stats = Some(CreatureStats { power, toughness });
         rules
     }
@@ -367,7 +346,7 @@ impl CardRules {
             CardTypeSet::single(CardType::Artifact).with(CardType::Creature),
             PrintedManaCost::Cost(mana_cost),
         );
-        rules.subtypes = subtypes;
+        rules.subtypes = SubtypeList::new(subtypes);
         rules.creature_stats = Some(CreatureStats { power, toughness });
         rules
     }
@@ -382,7 +361,7 @@ impl CardRules {
             CardTypeSet::single(CardType::Artifact).with(CardType::Creature),
             PrintedManaCost::None,
         );
-        rules.subtypes = subtypes;
+        rules.subtypes = SubtypeList::new(subtypes);
         rules.creature_stats = Some(CreatureStats { power, toughness });
         rules
     }
@@ -390,7 +369,7 @@ impl CardRules {
     #[must_use]
     pub const fn new_land(subtypes: &'static [&'static str]) -> Self {
         let mut rules = Self::base(CardTypeSet::single(CardType::Land), PrintedManaCost::None);
-        rules.subtypes = subtypes;
+        rules.subtypes = SubtypeList::new(subtypes);
         rules
     }
 
@@ -411,7 +390,7 @@ impl CardRules {
             CardTypeSet::single(CardType::Artifact),
             PrintedManaCost::None,
         );
-        rules.subtypes = subtypes;
+        rules.subtypes = SubtypeList::new(subtypes);
         rules
     }
 
@@ -468,7 +447,7 @@ impl CardRules {
             CardTypeSet::single(CardType::Planeswalker),
             PrintedManaCost::Cost(mana_cost),
         );
-        rules.subtypes = subtypes;
+        rules.subtypes = SubtypeList::new(subtypes);
         rules.starting_loyalty = Some(starting_loyalty);
         rules
     }
@@ -481,7 +460,7 @@ impl CardRules {
             CardTypeSet::single(CardType::Planeswalker),
             PrintedManaCost::None,
         );
-        rules.subtypes = subtypes;
+        rules.subtypes = SubtypeList::new(subtypes);
         rules
     }
 
@@ -513,7 +492,12 @@ impl CardRules {
 
     #[must_use]
     pub const fn subtypes(&self) -> &'static [&'static str] {
-        self.subtypes
+        self.subtypes.names()
+    }
+
+    #[must_use]
+    pub const fn subtype_set(&self) -> crate::card::SubtypeSet {
+        self.subtypes.set()
     }
 
     #[must_use]
@@ -579,7 +563,10 @@ impl CardRules {
         if !self.has_type(CardType::Creature)
             && self.creature_stats.is_some()
             && !self.is_vehicle()
-            && !self.has_printed_subtype(b"Spacecraft")
+            && !self
+                .subtypes
+                .set()
+                .contains(crate::card::Subtype::Spacecraft)
         {
             return Some("a noncreature cannot have creature power and toughness");
         }
@@ -716,7 +703,7 @@ impl CardRules {
 
     #[must_use]
     pub const fn with_subtypes(mut self, subtypes: &'static [&'static str]) -> Self {
-        self.subtypes = subtypes;
+        self.subtypes = SubtypeList::new(subtypes);
         self
     }
 
@@ -727,7 +714,8 @@ impl CardRules {
 
     #[must_use]
     pub fn has_subtype(&self, subtype: &str) -> bool {
-        self.subtypes.contains(&subtype)
+        crate::card::Subtype::from_name(subtype)
+            .is_some_and(|subtype| self.subtypes.set().contains(subtype))
     }
 
     #[must_use]
@@ -745,9 +733,9 @@ impl CardRules {
         let type_name = self.card_types.type_name();
         words.push(&type_name);
         let mut line = words.join(" ");
-        if !self.subtypes.is_empty() {
+        if !self.subtypes.names().is_empty() {
             line.push_str(" — ");
-            line.push_str(&self.subtypes.join(" "));
+            line.push_str(&self.subtypes.names().join(" "));
         }
         line
     }

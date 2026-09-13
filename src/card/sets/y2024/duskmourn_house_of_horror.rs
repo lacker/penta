@@ -975,7 +975,7 @@ pub(in crate::card::sets) static SHEPHERDING_SPIRITS: CardRecord = CardRecord::n
         abilities::typecycling!(
             "Plainscycling {2}",
             &[CostDef::Mana(mana_cost!("{2}"))],
-            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Plains"))
+            ObjectPredicateDef::Subtype(SubtypeDef::literal("Plains"))
         ),
     ]),
 );
@@ -1763,7 +1763,7 @@ pub(in crate::card::sets) static DAGGERMAW_MEGALODON: CardRecord = CardRecord::n
         abilities::typecycling!(
             "Islandcycling {2}",
             &[CostDef::Mana(mana_cost!("{2}"))],
-            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Island"))
+            ObjectPredicateDef::Subtype(SubtypeDef::literal("Island"))
         ),
     ]),
 );
@@ -3111,7 +3111,7 @@ pub(in crate::card::sets) static DEMONIC_COUNSEL: CardRecord = CardRecord::new(
             otherwise: &EffectDef::SearchZone {
                 player: EffectRecipientDef::Controller,
                 source: ZoneKind::Library,
-                object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Demon")),
+                object: ObjectPredicateDef::Subtype(SubtypeDef::literal("Demon")),
                 minimum: 0,
                 maximum: ValueDef::Constant(1),
                 reveal: true,
@@ -3348,7 +3348,7 @@ pub(in crate::card::sets) static FEAR_OF_THE_DARK: CardRecord = CardRecord::new(
                 query: ObjectQueryDef::matching(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Glimmer")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Glimmer")),
                     ]),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Opponent,
@@ -3826,7 +3826,7 @@ pub(in crate::card::sets) static OVERLORD_OF_THE_BALEMURK: CardRecord = CardReco
                                 ObjectPredicateDef::All(&[
                                     ObjectPredicateDef::HasType(CardType::Creature),
                                     ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(
-                                        SubtypeDef::Literal("Avatar"),
+                                        SubtypeDef::literal("Avatar"),
                                     )),
                                 ]),
                                 ObjectPredicateDef::HasType(CardType::Planeswalker),
@@ -3952,7 +3952,7 @@ pub(in crate::card::sets) static SPECTRAL_SNATCHER: CardRecord = CardRecord::new
         abilities::typecycling!(
             "Swampcycling {2}",
             &[CostDef::Mana(mana_cost!("{2}"))],
-            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Swamp"))
+            ObjectPredicateDef::Subtype(SubtypeDef::literal("Swamp"))
         ),
     ]),
 );
@@ -3987,7 +3987,7 @@ pub(in crate::card::sets) static UNHOLY_ANNEX: CardRecord = CardRecord::new(
                 EffectDef::IfElseCondition {
                     condition: &TriggerConditionDef::ObjectCount {
                         query: ObjectQueryDef::matching(
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Demon")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Demon")),
                             &[ZoneKind::Battlefield],
                             PlayerRelation::You,
                         ),
@@ -4028,7 +4028,7 @@ pub(in crate::card::sets) static UNHOLY_ANNEX: CardRecord = CardRecord::new(
                 EffectDef::IfElseCondition {
                     condition: &TriggerConditionDef::ObjectCount {
                         query: ObjectQueryDef::matching(
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Demon")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Demon")),
                             &[ZoneKind::Battlefield],
                             PlayerRelation::You,
                         ),
@@ -4076,7 +4076,7 @@ pub(in crate::card::sets) static UNHOLY_ANNEX: CardRecord = CardRecord::new(
                     EffectDef::IfElseCondition {
                         condition: &TriggerConditionDef::ObjectCount {
                             query: ObjectQueryDef::matching(
-                                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Demon")),
+                                ObjectPredicateDef::Subtype(SubtypeDef::literal("Demon")),
                                 &[ZoneKind::Battlefield],
                                 PlayerRelation::You,
                             ),
@@ -4290,7 +4290,7 @@ pub(in crate::card::sets) static BEDHEAD_BEASTIE: CardRecord = CardRecord::new(
         abilities::typecycling!(
             "Mountaincycling {2}",
             &[CostDef::Mana(mana_cost!("{2}"))],
-            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Mountain"))
+            ObjectPredicateDef::Subtype(SubtypeDef::literal("Mountain"))
         ),
     ]),
 );
@@ -6606,7 +6606,7 @@ pub(in crate::card::sets) static SLAVERING_BRANCHSNAPPER: CardRecord = CardRecor
         abilities::typecycling!(
             "Forestcycling {2}",
             &[CostDef::Mana(mana_cost!("{2}"))],
-            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Forest"))
+            ObjectPredicateDef::Subtype(SubtypeDef::literal("Forest"))
         ),
     ]),
 );
@@ -7180,7 +7180,7 @@ pub(in crate::card::sets) static INTRUDING_SOULRAGER: CardRecord = CardRecord::n
              opponent. Draw a card.",
             &[
                 CostDef::TapSource,
-                CostDef::sacrifice_permanent(ObjectPredicateDef::Subtype(SubtypeDef::Literal(
+                CostDef::sacrifice_permanent(ObjectPredicateDef::Subtype(SubtypeDef::literal(
                     "Room",
                 ))),
             ],
@@ -7266,7 +7266,7 @@ pub(in crate::card::sets) static KAITO_BANE_OF_NIGHTMARES: CardRecord = CardReco
                             EffectDef::StaticApply {
                                 recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
                                     ObjectQueryDef::matching(
-                                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Ninja")),
+                                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Ninja")),
                                         &[ZoneKind::Battlefield],
                                         PlayerRelation::You,
                                     ),
@@ -7341,7 +7341,7 @@ pub(in crate::card::sets) static MIDNIGHT_MAYHEM: CardRecord = CardRecord::new(
             EffectDef::Apply {
                 recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
                     ObjectQueryDef::matching(
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Gremlin")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Gremlin")),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::You,
                     ),
@@ -7861,8 +7861,8 @@ pub(in crate::card::sets) static THE_SWARMWEAVER: CardRecord = CardRecord::new(
                         recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
                             ObjectQueryDef::matching(
                                 ObjectPredicateDef::AnyOf(&[
-                                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Insect")),
-                                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Spider")),
+                                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Insect")),
+                                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Spider")),
                                 ]),
                                 &[ZoneKind::Battlefield],
                                 PlayerRelation::You,

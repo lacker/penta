@@ -245,7 +245,7 @@ pub(super) fn predicate_color_count(predicate: ObjectPredicateDef) -> Option<u8>
 
 pub(super) fn predicate_subtype(predicate: ObjectPredicateDef) -> Option<&'static str> {
     match predicate {
-        ObjectPredicateDef::Subtype(super::SubtypeDef::Literal(subtype)) => Some(subtype),
+        ObjectPredicateDef::Subtype(super::SubtypeDef::Fixed(subtype)) => Some(subtype.name()),
         ObjectPredicateDef::All(predicates) => {
             predicates.iter().copied().find_map(predicate_subtype)
         }
@@ -322,7 +322,7 @@ pub(super) fn predicate_subtype(predicate: ObjectPredicateDef) -> Option<&'stati
 pub(super) fn predicate_negated_subtype(predicate: ObjectPredicateDef) -> Option<&'static str> {
     match predicate {
         ObjectPredicateDef::Not(inner) => match *inner {
-            ObjectPredicateDef::Subtype(super::SubtypeDef::Literal(subtype)) => Some(subtype),
+            ObjectPredicateDef::Subtype(super::SubtypeDef::Fixed(subtype)) => Some(subtype.name()),
             _ => None,
         },
         ObjectPredicateDef::All(predicates) => predicates

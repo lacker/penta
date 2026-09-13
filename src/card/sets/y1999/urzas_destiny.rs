@@ -444,7 +444,7 @@ pub(in crate::card::sets) static OPALESCENCE: CardRecord = CardRecord::new(
                 ObjectQueryDef::matching(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Enchantment),
-                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::Literal(
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::literal(
                             "Aura",
                         ))),
                         ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
@@ -978,7 +978,7 @@ pub(in crate::card::sets) static IRIDESCENT_DRAKE: CardRecord = CardRecord::new(
                 AbilityTargetPredicate::Object {
                     object: ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Enchantment),
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Aura")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Aura")),
                     ]),
                     zones: &[ZoneKind::Graveyard],
                     controller: None,
@@ -1757,7 +1757,7 @@ pub(in crate::card::sets) static LURKING_JACKALS: CardRecord = CardRecord::new(
                     SetOperationDef::Set(CardTypeSet::single(CardType::Creature)),
                 )),
                 AppliedEffectDef::Characteristic(CharacteristicOperationDef::Subtypes(
-                    SetOperationDef::Set(&["Jackal"]),
+                    SetOperationDef::Set(crate::card::SubtypeSet::from_names(&["Jackal"])),
                 )),
                 AppliedEffectDef::Characteristic(CharacteristicOperationDef::PowerToughness(
                     PowerToughnessOperationDef::SetBase {
@@ -2296,7 +2296,7 @@ pub(in crate::card::sets) static GOBLIN_MASONS: CardRecord = CardRecord::new(
         abilities::dies_trigger_with_targets(
             "When this creature dies, destroy target Wall.",
             &[AbilityTargetDef::exactly_one_permanent(
-                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Wall")),
+                ObjectPredicateDef::Subtype(SubtypeDef::literal("Wall")),
             )],
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),

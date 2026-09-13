@@ -647,7 +647,7 @@ pub(in crate::card::sets) static BLINKMOTH_NEXUS: CardRecord = CardRecord::new(
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Blinkmoth")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Blinkmoth")),
                 ]),
             )],
             EffectDef::Apply {

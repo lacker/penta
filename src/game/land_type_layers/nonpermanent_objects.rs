@@ -7,7 +7,7 @@ enum SubtypeLayerOperation {
         chosen: &'static str,
         replace: bool,
     },
-    Named(SetOperationDef<&'static [&'static str]>),
+    Named(SetOperationDef<crate::card::SubtypeSet>),
     /// The same as adding named subtypes, over a list a copy carries rather
     /// than one a card printed. Owned because the copy's exceptions are
     /// interned per game rather than authored as a static slice.
@@ -15,33 +15,25 @@ enum SubtypeLayerOperation {
 }
 
 impl Game {
-    /// CR 702.73 and 613.2: intrinsic changeling defines subtypes in every
+    /// CR 702.73 and 613.3: intrinsic changeling defines subtypes in every
     /// zone before other layer-4 effects. Layer-6 ability removal cannot undo
     /// it; later subtype-setting effects can overwrite it. Copying the rules
     /// copies this ability, rather than freezing the resulting subtype list.
-    pub(super) fn defined_subtypes(rules: &crate::card::CardRules) -> Cow<'static, [&'static str]> {
-        if !rules.has_executable_keyword(crate::card::KeywordAbility::Changeling) {
-            return Cow::Borrowed(rules.subtypes());
+    pub(super) fn defined_subtypes(rules: &crate::card::CardRules) -> crate::card::SubtypeSet {
+        let subtypes = rules.subtype_set();
+        if rules.has_executable_keyword(crate::card::KeywordAbility::Changeling) {
+            subtypes.union(
+                const { crate::card::SubtypeSet::family(crate::card::SubtypeFamily::Creature) },
+            )
+        } else {
+            subtypes
         }
-        Self::with_all_creature_types(Cow::Borrowed(rules.subtypes()))
-    }
-
-    fn with_all_creature_types(
-        subtypes: Cow<'static, [&'static str]>,
-    ) -> Cow<'static, [&'static str]> {
-        let mut subtypes = subtypes.into_owned();
-        for creature_type in CREATURE_TYPES {
-            if !subtypes.contains(creature_type) {
-                subtypes.push(creature_type);
-            }
-        }
-        Cow::Owned(subtypes)
     }
 
     fn permanent_defined_subtypes(
         permanent: &Permanent,
         rules: &crate::card::CardRules,
-    ) -> Cow<'static, [&'static str]> {
+    ) -> crate::card::SubtypeSet {
         let subtypes = Self::defined_subtypes(rules);
         let copy_grants_changeling = permanent.active_copy_values().is_some_and(|copy| {
             copy.added_abilities.iter().any(|ability| {
@@ -52,7 +44,9 @@ impl Game {
             })
         });
         if copy_grants_changeling {
-            Self::with_all_creature_types(subtypes)
+            subtypes.union(
+                const { crate::card::SubtypeSet::family(crate::card::SubtypeFamily::Creature) },
+            )
         } else {
             subtypes
         }
@@ -141,6 +135,7 @@ impl Game {
         );
         debug_assert!(result.is_continue());
         operations.sort_by_key(|(timestamp, order, _)| (*timestamp, *order));
-        Self::apply_subtype_operations(object.subtypes.to_mut(), operations);
+        Self::apply_subtype_operations(&mut object.subtypes, operations);
+        object.subtypes.retain_for_card_types(object.types);
     }
 }

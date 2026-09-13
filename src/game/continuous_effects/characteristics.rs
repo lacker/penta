@@ -529,21 +529,39 @@ impl Game {
             .iter()
             .find(|permanent| permanent.card.id == object)
         {
-            return self.effective_subtypes(permanent).into_owned();
+            return self
+                .effective_subtypes(permanent)
+                .iter()
+                .map(crate::card::Subtype::name)
+                .collect();
         }
         if let Some(stack) = self.stack.iter().find(|stack| stack.id == object) {
             return self
                 .stack_trigger_event_object(stack)
-                .map(|event| event.subtypes.into_owned())
+                .map(|event| {
+                    event
+                        .subtypes
+                        .iter()
+                        .map(crate::card::Subtype::name)
+                        .collect()
+                })
                 .unwrap_or_default();
         }
         match self.retired_objects.get(&object) {
-            Some(RetiredObject::Permanent { permanent, .. }) => {
-                self.effective_subtypes(permanent).into_owned()
-            }
+            Some(RetiredObject::Permanent { permanent, .. }) => self
+                .effective_subtypes(permanent)
+                .iter()
+                .map(crate::card::Subtype::name)
+                .collect(),
             Some(RetiredObject::Stack(stack)) => self
                 .stack_trigger_event_object(stack)
-                .map(|event| event.subtypes.into_owned())
+                .map(|event| {
+                    event
+                        .subtypes
+                        .iter()
+                        .map(crate::card::Subtype::name)
+                        .collect()
+                })
                 .unwrap_or_default(),
             Some(RetiredObject::Card(card)) => self
                 .printed_trigger_event_object(
@@ -552,7 +570,13 @@ impl Game {
                     card.owner,
                     &CharacteristicContext::Graveyard,
                 )
-                .map(|event| event.subtypes.into_owned())
+                .map(|event| {
+                    event
+                        .subtypes
+                        .iter()
+                        .map(crate::card::Subtype::name)
+                        .collect()
+                })
                 .unwrap_or_default(),
             None => self
                 .card_in_nonbattlefield_zone(object)
@@ -565,14 +589,15 @@ impl Game {
                         ZoneKind::Command => CharacteristicContext::Command,
                         ZoneKind::Battlefield | ZoneKind::Stack => return None,
                     };
-                    self.printed_trigger_event_object(
-                        object,
-                        card.definition,
-                        card.owner,
-                        &context,
-                    )
+                    self.printed_trigger_event_object(object, card.definition, card.owner, &context)
                 })
-                .map(|event| event.subtypes.into_owned())
+                .map(|event| {
+                    event
+                        .subtypes
+                        .iter()
+                        .map(crate::card::Subtype::name)
+                        .collect()
+                })
                 .unwrap_or_default(),
         }
     }

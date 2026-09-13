@@ -797,6 +797,9 @@ pub enum DeclarativeAbilityDef {
 
 /// The structured program of an ability.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+// Effect payloads include subtype masks. Keep the declarative program Copy and
+// const-constructible; nested programs already use borrowed schema components.
+#[allow(clippy::large_enum_variant)]
 pub enum AbilityProgramDef {
     Effects(EffectDef),
     Replacement(ReplacementEffectDef),

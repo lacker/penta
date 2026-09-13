@@ -57,7 +57,7 @@ impl Game {
             land_types
                 .iter()
                 .map(|land_type| text_words.basic_land_type(*land_type))
-                .any(|land_type| subtypes.contains(&land_type.subtype())),
+                .any(|land_type| subtypes.contains(land_type.subtype_id())),
         )
     }
 
@@ -274,8 +274,8 @@ impl Game {
         text_words: TextWordMap,
     ) -> bool {
         self.source_subtype(subtype, source.card.id).is_some_and(|subtype| {
-            let subtype = if let Some(land_type) = BasicLandType::from_subtype(subtype) {
-                text_words.basic_land_type(land_type).subtype()
+            let subtype = if let Some(land_type) = BasicLandType::from_id(subtype) {
+                text_words.basic_land_type(land_type).subtype_id()
             } else {
                 subtype
             };
@@ -283,7 +283,7 @@ impl Game {
                 || self.effective_subtypes(affected),
                 |prospective| self.effective_subtypes_with_prospective(affected, prospective),
             );
-            subtypes.contains(&subtype)
+            subtypes.contains(subtype)
         })
     }
 

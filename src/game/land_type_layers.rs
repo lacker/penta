@@ -1,16 +1,14 @@
-mod subtype_families;
-
 use super::continuous_effects::StaticEffectKind;
 use super::continuous_effects::StaticSetCharacteristicLayerGuard;
 use super::{
-    AppliedEffectDef, BasicLandType, CREATURE_TYPES, CardType, CharacteristicContext,
-    CharacteristicOperationDef, ContinuousEffectTimestamp, ControlFlow, Cow, CreatureTypeSetDef,
-    DeclarativeAbilityDef, EffectDef, EffectRecipientDef, EffectRecipientSetDef, Game,
-    LandTypeOperation, ObjectKind, ObjectPredicateDef, ObjectRefDef, ObjectSetDef, Permanent,
-    ResolvedContinuousEffectKind, SetOperationDef, StaticAffectedObject, TextWordMap,
-    TriggerContext, TriggerEventObject, ZoneKind,
+    AppliedEffectDef, BasicLandType, CardType, CharacteristicContext, CharacteristicOperationDef,
+    ContinuousEffectTimestamp, ControlFlow, CreatureTypeSetDef, DeclarativeAbilityDef, EffectDef,
+    EffectRecipientDef, EffectRecipientSetDef, Game, LandTypeOperation, ObjectKind,
+    ObjectPredicateDef, ObjectRefDef, ObjectSetDef, Permanent, ResolvedContinuousEffectKind,
+    SetOperationDef, StaticAffectedObject, TextWordMap, TriggerContext, TriggerEventObject,
+    ZoneKind,
 };
-use crate::card::LAND_SUBTYPES;
+use crate::card::{Subtype, SubtypeFamily, SubtypeSet};
 
 #[derive(Clone, Copy)]
 struct AppliedLandTypeContext {
@@ -613,11 +611,11 @@ impl Game {
         }
     }
 
-    /// Ordered subtypes after the continuous effects currently modeled by the
+    /// The subtype set after the continuous effects currently modeled by the
     /// engine. Layer-3 text changes apply to the copied/printed line first;
     /// timestamp-ordered layer-4 Set/Add operations then model Blood Moon and
     /// Aura-granted basic land types. Nonland subtypes such as Dryad survive.
-    pub(super) fn effective_subtypes(&self, permanent: &Permanent) -> Cow<'static, [&'static str]> {
+    pub(super) fn effective_subtypes(&self, permanent: &Permanent) -> SubtypeSet {
         let operations = self.subtype_layer_operations(permanent, None);
         self.effective_subtypes_with_operations(permanent, operations)
     }
@@ -626,7 +624,7 @@ impl Game {
         &self,
         permanent: &Permanent,
         prospective: &Permanent,
-    ) -> Cow<'static, [&'static str]> {
+    ) -> SubtypeSet {
         let operations = self.subtype_layer_operations(permanent, Some(prospective));
         self.effective_subtypes_with_operations(permanent, operations)
     }
@@ -696,7 +694,9 @@ impl Game {
             operations.push((
                 characteristic.timestamp,
                 u16::MAX,
-                SubtypeLayerOperation::Named(SetOperationDef::Add(&["Aura"])),
+                SubtypeLayerOperation::Named(SetOperationDef::Add(
+                    const { SubtypeSet::from_names(&["Aura"]) },
+                )),
             ));
         }
         if let Some(_pass) = StaticSetCharacteristicLayerGuard::enter() {
@@ -749,83 +749,56 @@ impl Game {
     }
 
     fn apply_subtype_operations(
-        subtypes: &mut Vec<&'static str>,
+        subtypes: &mut SubtypeSet,
         operations: Vec<(ContinuousEffectTimestamp, u16, SubtypeLayerOperation)>,
     ) {
+        const CREATURES: SubtypeSet = SubtypeSet::family(SubtypeFamily::Creature);
         for (_, _, operation) in operations {
             match operation {
                 // Type loss removes the associated subtypes at this timestamp;
                 // a later animation does not restore them implicitly.
                 SubtypeLayerOperation::RetainForCardTypes(types) => {
-                    subtypes
-                        .retain(|subtype| subtype_families::subtype_has_card_type(subtype, types));
+                    subtypes.retain_for_card_types(types);
                 }
                 SubtypeLayerOperation::BasicLand(operation) => {
                     Self::apply_basic_land_subtype_operation(subtypes, operation);
                 }
                 SubtypeLayerOperation::Creature(operation) => {
-                    let (types, removes_existing, removes_named) = match operation {
+                    let (types, set, remove) = match operation {
                         SetOperationDef::Add(types) => (types, false, false),
                         SetOperationDef::Remove(types) => (types, false, true),
                         SetOperationDef::Set(types) => (types, true, false),
                     };
-                    if removes_existing {
-                        subtypes.retain(|subtype| !CREATURE_TYPES.contains(subtype));
-                    } else if removes_named {
-                        subtypes.retain(|subtype| {
-                            !(types.named.contains(subtype)
-                                || types.all && CREATURE_TYPES.contains(subtype))
-                        });
-                        continue;
+                    let selected = if types.all {
+                        types.named.union(CREATURES)
+                    } else {
+                        types.named
+                    };
+                    if set {
+                        *subtypes = subtypes.difference(CREATURES);
                     }
-                    if types.all {
-                        for creature_type in CREATURE_TYPES {
-                            if !subtypes.contains(creature_type) {
-                                subtypes.push(creature_type);
-                            }
-                        }
-                    }
-                    for subtype in types.named {
-                        if !subtypes.contains(subtype) {
-                            subtypes.push(subtype);
-                        }
-                    }
+                    *subtypes = if remove {
+                        subtypes.difference(selected)
+                    } else {
+                        subtypes.union(selected)
+                    };
                 }
                 SubtypeLayerOperation::ChosenCreature { chosen, replace } => {
                     if replace {
-                        subtypes.retain(|subtype| !CREATURE_TYPES.contains(subtype));
+                        *subtypes = subtypes.difference(CREATURES);
                     }
-                    if !subtypes.contains(&chosen) {
-                        subtypes.push(chosen);
-                    }
+                    subtypes.insert(Subtype::named(chosen));
                 }
                 SubtypeLayerOperation::AddedNamed(types) => {
-                    for subtype in types {
-                        if !subtypes.contains(&subtype) {
-                            subtypes.push(subtype);
-                        }
-                    }
+                    *subtypes = subtypes.union(SubtypeSet::from_names(&types));
                 }
-                SubtypeLayerOperation::Named(operation) => match operation {
-                    SetOperationDef::Add(types) => {
-                        for subtype in types {
-                            if !subtypes.contains(subtype) {
-                                subtypes.push(subtype);
-                            }
-                        }
-                    }
-                    SetOperationDef::Remove(types) => {
-                        subtypes.retain(|subtype| !types.contains(subtype));
-                    }
-                    SetOperationDef::Set(types) => {
-                        subtypes.clear();
-                        for subtype in types {
-                            if !subtypes.contains(subtype) {
-                                subtypes.push(subtype);
-                            }
-                        }
-                    }
-                },
+                SubtypeLayerOperation::Named(operation) => {
+                    *subtypes = match operation {
+                        SetOperationDef::Add(types) => subtypes.union(types),
+                        SetOperationDef::Remove(types) => subtypes.difference(types),
+                        SetOperationDef::Set(types) => types,
+                    };
+                }
             }
         }
     }
@@ -834,51 +807,35 @@ impl Game {
         &self,
         permanent: &Permanent,
         operations: Vec<(ContinuousEffectTimestamp, u16, SubtypeLayerOperation)>,
-    ) -> Cow<'static, [&'static str]> {
+    ) -> SubtypeSet {
         let Some(rules) = self.effective_rules(permanent) else {
-            return Cow::Borrowed(&[]);
+            return SubtypeSet::EMPTY;
         };
-        let defined_subtypes = Self::permanent_defined_subtypes(permanent, &rules);
-        let retained = self.retained_printed_subtypes(permanent);
+        let defined = Self::permanent_defined_subtypes(permanent, &rules);
+        let retained = SubtypeSet::from_names(self.retained_printed_subtypes(permanent));
         let text_words = self.text_word_map_for_permanent(permanent);
-        if text_words.basic_land_types_are_identity()
-            && operations.is_empty()
-            && retained.is_empty()
-            && !self.has_subtypes_without_their_card_type(permanent, &defined_subtypes)
-        {
-            return defined_subtypes;
-        }
-
-        let mut subtypes = defined_subtypes.into_owned();
-        for subtype in &mut subtypes {
-            if let Some(land_type) = BasicLandType::from_subtype(subtype) {
-                *subtype = text_words.basic_land_type(land_type).subtype();
+        let mut subtypes = defined.union(retained);
+        if !text_words.basic_land_types_are_identity() {
+            let before = subtypes;
+            for land_type in BasicLandType::ALL {
+                if before.contains(land_type.subtype_id()) {
+                    subtypes.remove(land_type.subtype_id());
+                }
+            }
+            for land_type in BasicLandType::ALL {
+                if before.contains(land_type.subtype_id()) {
+                    subtypes.insert(text_words.basic_land_type(land_type).subtype_id());
+                }
             }
         }
-        for subtype in retained {
-            let subtype = BasicLandType::from_subtype(subtype).map_or(*subtype, |land_type| {
-                text_words.basic_land_type(land_type).subtype()
-            });
-            if !subtypes.contains(&subtype) {
-                subtypes.push(subtype);
-            }
-        }
-        let mut seen = [false; BasicLandType::ALL.len()];
-        subtypes.retain(|subtype| {
-            let Some(land_type) = BasicLandType::from_subtype(subtype) else {
-                return true;
-            };
-            let keep = !seen[land_type.index()];
-            seen[land_type.index()] = true;
-            keep
-        });
-
         Self::apply_subtype_operations(&mut subtypes, operations);
-        self.drop_subtypes_without_their_card_type(permanent, &mut subtypes);
-        Cow::Owned(subtypes)
+        if let Some(types) = self.permanent_types(permanent) {
+            subtypes.retain_for_card_types(types);
+        }
+        subtypes
     }
 
-    /// Basic land subtypes in effective type-line order, with duplicate types
+    /// Basic land subtypes in canonical vocabulary order, with duplicate types
     /// collapsed before the rules grant one intrinsic ability for each type.
     fn visit_effective_basic_land_types(
         &self,
@@ -894,7 +851,7 @@ impl Game {
 
         let mut present = [false; BasicLandType::ALL.len()];
         for subtype in self.effective_subtypes(permanent).iter() {
-            let Some(land_type) = BasicLandType::from_subtype(subtype) else {
+            let Some(land_type) = BasicLandType::from_id(subtype) else {
                 continue;
             };
             if present[land_type.index()] {

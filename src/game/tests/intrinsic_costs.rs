@@ -30,7 +30,7 @@ macro_rules! mechanics {
 
 fn staged(ability: &AbilityDef, destination: ZoneKind) -> (Game, GameObjectId, GameObjectId) {
     let (mut game, source) = cost_lists::game_with_cost_rules(
-        &CardRules::new_creature(mana_cost!("{3}"), &["Test"], 2, 2).with_ability(*ability),
+        &CardRules::new_creature(mana_cost!("{3}"), &[], 2, 2).with_ability(*ability),
     );
     if destination == ZoneKind::Exile {
         let card = game.players[0].hand.pop().unwrap();

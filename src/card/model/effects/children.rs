@@ -252,7 +252,7 @@ mod tests {
 
     static CHILD: EffectDef = EffectDef::None;
     static TOKEN: TokenCharacteristics =
-        TokenCharacteristics::creature(&["Test"], &[], 1, 1).with_name("Walker Test");
+        TokenCharacteristics::creature(&["Shapeshifter"], &[], 1, 1).with_name("Walker Test");
 
     #[test]
     fn created_token_continuation_is_a_child() {

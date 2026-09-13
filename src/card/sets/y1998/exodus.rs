@@ -3455,7 +3455,7 @@ pub(in crate::card::sets) static THOPTER_SQUADRON: CardRecord = CardRecord::new(
                 CostDef::Mana(mana_cost!("{1}")),
                 CostDef::SacrificePermanent {
                     object: ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Thopter")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Thopter")),
                         ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                     ]),
                     controller: PlayerRelation::You,

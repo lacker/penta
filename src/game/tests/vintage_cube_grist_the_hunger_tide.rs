@@ -130,7 +130,10 @@ fn loyalty(game: &Game, grist: GameObjectId) -> u16 {
 fn insects(game: &Game) -> usize {
     game.battlefield
         .iter()
-        .filter(|permanent| game.effective_subtypes(permanent).contains(&"Insect"))
+        .filter(|permanent| {
+            game.effective_subtypes(permanent)
+                .contains(crate::card::Subtype::named("Insect"))
+        })
         .count()
 }
 

@@ -625,7 +625,7 @@ fn mutavault_becomes_a_creature_of_every_type_until_cleanup() {
     let subtypes = game.effective_subtypes(&animated);
     for creature_type in ["Goblin", "Angel", "Assembly-Worker"] {
         assert!(
-            subtypes.contains(&creature_type),
+            subtypes.contains(crate::card::Subtype::named(creature_type)),
             "all creature types includes {creature_type}"
         );
     }

@@ -303,7 +303,7 @@ pub(in crate::card::sets) static IPNU_RIVULET: CardRecord = CardRecord::new(
             &[
                 CostDef::Mana(mana_cost!("{1}{U}")),
                 CostDef::TapSource,
-                CostDef::sacrifice_permanent(ObjectPredicateDef::Subtype(SubtypeDef::Literal(
+                CostDef::sacrifice_permanent(ObjectPredicateDef::Subtype(SubtypeDef::literal(
                     "Desert",
                 ))),
             ],
@@ -335,7 +335,7 @@ pub(in crate::card::sets) static RAMUNAP_RUINS: CardRecord = CardRecord::new(
             &[
                 CostDef::Mana(mana_cost!("{2}{R}{R}")),
                 CostDef::TapSource,
-                CostDef::sacrifice_permanent(ObjectPredicateDef::Subtype(SubtypeDef::Literal(
+                CostDef::sacrifice_permanent(ObjectPredicateDef::Subtype(SubtypeDef::literal(
                     "Desert",
                 ))),
             ],
@@ -356,7 +356,7 @@ pub(in crate::card::sets) static SCAVENGER_GROUNDS: CardRecord = CardRecord::new
             &[
                 CostDef::Mana(mana_cost!("{2}")),
                 CostDef::TapSource,
-                CostDef::sacrifice_permanent(ObjectPredicateDef::Subtype(SubtypeDef::Literal(
+                CostDef::sacrifice_permanent(ObjectPredicateDef::Subtype(SubtypeDef::literal(
                     "Desert",
                 ))),
             ],

@@ -50,7 +50,7 @@ impl Game {
             types: super::CardTypeSet::empty(),
             controller: owner,
             colors: [false; 5],
-            subtypes: std::borrow::Cow::Borrowed(&[]),
+            subtypes: crate::card::SubtypeSet::EMPTY,
             mana_value: 0,
             power: None,
             toughness: None,

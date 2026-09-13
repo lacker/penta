@@ -113,7 +113,10 @@ fn it_becomes_a_three_six_golem_artifact_creature() {
         types.contains(CardType::Artifact),
         "it keeps its artifact type rather than trading it away",
     );
-    assert!(game.effective_subtypes(&permanent).contains(&"Golem"));
+    assert!(
+        game.effective_subtypes(&permanent)
+            .contains(crate::card::Subtype::named("Golem"))
+    );
     assert_eq!(
         (game.power(&permanent), game.toughness(&permanent)),
         (Some(3), Some(6)),

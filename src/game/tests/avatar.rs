@@ -324,8 +324,15 @@ fn zhao_sets_nonbasic_land_types_only_after_its_counter() {
     game.add_unrestricted_mana(PlayerId::One, ManaColor::Red, 7);
     activate(&mut game, zhao);
     let land = permanent(&game, cards::TROPICAL_ISLAND);
-    assert!(game.effective_subtypes(land).contains(&"Mountain"));
-    assert!(!game.effective_subtypes(land).contains(&"Island"));
+    assert!(
+        game.effective_subtypes(land)
+            .contains(crate::card::Subtype::named("Mountain"))
+    );
+    assert!(
+        !game
+            .effective_subtypes(land)
+            .contains(crate::card::Subtype::named("Island"))
+    );
 }
 #[test]
 fn cabbage_merchant_returns_even_when_its_search_finds_nothing() {

@@ -121,7 +121,7 @@ pub(in crate::card::sets) static EAGLES_OF_THE_NORTH: CardRecord = CardRecord::n
             "Plainscycling {1} ({1}, Discard this card: Search your library for a Plains card, \
              reveal it, put it into your hand, then shuffle.)",
             &[CostDef::Mana(mana_cost!("{1}"))],
-            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Plains")),
+            ObjectPredicateDef::Subtype(SubtypeDef::literal("Plains")),
         ),
     ]),
 );
@@ -283,7 +283,7 @@ pub(in crate::card::sets) static LORIEN_REVEALED: CardRecord = CardRecord::new(
              library for an Island card, reveal it, put it into your \
              hand, then shuffle.)",
             &[CostDef::Mana(mana_cost!("{1}"))],
-            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Island")),
+            ObjectPredicateDef::Subtype(SubtypeDef::literal("Island")),
         ),
     ]),
 );
@@ -318,7 +318,7 @@ pub(in crate::card::sets) static STERN_SCOLDING: CardRecord = CardRecord::new(
 
 // LTR 103 — Orcish Bowmasters
 static AN_ARMY_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::controlled_by(
-    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Army")),
+    ObjectPredicateDef::Subtype(SubtypeDef::literal("Army")),
     &[ZoneKind::Battlefield],
     PlayerSetDef::Related(PlayerRelation::You),
 );
@@ -433,7 +433,7 @@ pub(in crate::card::sets) static TROLL_OF_KHAZAD_DUM: CardRecord = CardRecord::n
              library for a Swamp card, reveal it, put it into your hand, \
              then shuffle.)",
             &[CostDef::Mana(mana_cost!("{1}"))],
-            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Swamp")),
+            ObjectPredicateDef::Subtype(SubtypeDef::literal("Swamp")),
         ),
     ]),
 );
@@ -549,7 +549,7 @@ pub(in crate::card::sets) static OLIPHAUNT: CardRecord = CardRecord::new(
              library for a Mountain card, reveal it, put it into your \
              hand, then shuffle.)",
             &[CostDef::Mana(mana_cost!("{1}"))],
-            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Mountain")),
+            ObjectPredicateDef::Subtype(SubtypeDef::literal("Mountain")),
         ),
     ]),
 );
@@ -578,7 +578,7 @@ pub(in crate::card::sets) static RALLY_AT_THE_HORNBURG: CardRecord = CardRecord:
             // the turn this resolves.
             EffectDef::Apply {
                 recipient: EffectRecipientDef::matching_objects(
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Human")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Human")),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::You,
                 ),
@@ -633,7 +633,7 @@ pub(in crate::card::sets) static GENEROUS_ENT: CardRecord = CardRecord::new(
              library for a Forest card, reveal it, put it into your \
              hand, then shuffle.)",
             &[CostDef::Mana(mana_cost!("{1}"))],
-            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Forest")),
+            ObjectPredicateDef::Subtype(SubtypeDef::literal("Forest")),
         ),
     ]),
 );
@@ -755,7 +755,7 @@ pub(in crate::card::sets) static FLAME_OF_ANOR: CardRecord = CardRecord::new(
         // Wizard that dies in response has already done its work.
         .with_conditional_mode_maximum(
             ConditionDef::Exists(ObjectQueryDef::controlled_by(
-                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Wizard")),
+                ObjectPredicateDef::Subtype(SubtypeDef::literal("Wizard")),
                 &[ZoneKind::Battlefield],
                 PlayerSetDef::Related(PlayerRelation::You),
             )),
@@ -1155,7 +1155,7 @@ pub(in crate::card::sets) static GLOIN_DWARF_EMISSARY: CardRecord =
                         ObjectPredicateDef::AnyOf(&[
                             ObjectPredicateDef::HasType(CardType::Artifact),
                             ObjectPredicateDef::Supertype(CardSupertype::Legendary),
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Saga")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Saga")),
                         ]),
                         ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                     ])),
@@ -1171,7 +1171,7 @@ pub(in crate::card::sets) static GLOIN_DWARF_EMISSARY: CardRecord =
                     &[
                         CostDef::TapSource,
                         CostDef::sacrifice_permanent(ObjectPredicateDef::Subtype(
-                            SubtypeDef::Literal("Treasure"),
+                            SubtypeDef::literal("Treasure"),
                         )),
                     ],
                     &[AbilityTargetDef::exactly_one_permanent(
@@ -1201,8 +1201,8 @@ pub(in crate::card::sets) static MORIA_MARAUDER: CardRecord = CardRecord::new(
              that card this turn.",
             TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::All(&[
                 ObjectPredicateDef::AnyOf(&[
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Orc")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Goblin")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Orc")),
                 ]),
                 ObjectPredicateDef::ControlledBy(PlayerRelation::You),
             ])),
@@ -1327,7 +1327,7 @@ pub(in crate::card::sets) static MERRY_ESQUIRE_OF_ROHAN: CardRecord = CardRecord
                     condition: &TriggerConditionDef::ObjectCount {
                         query: ObjectQueryDef::matching(
                             ObjectPredicateDef::All(&[
-                                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Equipment")),
+                                ObjectPredicateDef::Subtype(SubtypeDef::literal("Equipment")),
                                 ObjectPredicateDef::AttachedTo(&ObjectPredicateDef::Source),
                             ]),
                             &[ZoneKind::Battlefield],

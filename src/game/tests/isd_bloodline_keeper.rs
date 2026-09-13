@@ -133,7 +133,10 @@ fn the_shared_tap_ability_creates_a_black_two_two_flying_vampire() {
         (game.power(token), game.toughness(token)),
         (Some(2), Some(2))
     );
-    assert!(game.effective_subtypes(token).contains(&"Vampire"));
+    assert!(
+        game.effective_subtypes(token)
+            .contains(crate::card::Subtype::named("Vampire"))
+    );
     assert_eq!(
         game.effective_colors(token, &game.effective_rules(token).unwrap()),
         [false, false, true, false, false],

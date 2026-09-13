@@ -34,18 +34,30 @@ impl CastTimingPermissionDef {
 /// so a permanent with all creature types also matches types added later.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct CreatureTypeSetDef {
-    pub named: &'static [&'static str],
+    pub named: crate::card::SubtypeSet,
     pub all: bool,
 }
 
 impl CreatureTypeSetDef {
+    /// # Panics
+    /// Panics if a name is not a creature subtype. Static declarations fail
+    /// compilation rather than admitting unknown names or another family.
     #[must_use]
     pub const fn named(named: &'static [&'static str]) -> Self {
+        let named = crate::card::SubtypeSet::from_names(named);
+        assert!(
+            named
+                .difference(crate::card::SubtypeSet::family(
+                    crate::card::SubtypeFamily::Creature
+                ))
+                .is_empty(),
+            "expected creature subtype names"
+        );
         Self { named, all: false }
     }
 
     pub const ALL: Self = Self {
-        named: &[],
+        named: crate::card::SubtypeSet::EMPTY,
         all: true,
     };
 }
@@ -145,7 +157,7 @@ pub enum CharacteristicOperationDef {
     /// Named subtype operations across every subtype family. Unlike
     /// `CreatureTypes`, this can remove a noncreature subtype such as
     /// Equipment without disturbing the permanent's other subtypes.
-    Subtypes(SetOperationDef<&'static [&'static str]>),
+    Subtypes(SetOperationDef<crate::card::SubtypeSet>),
     PowerToughness(PowerToughnessOperationDef),
 }
 
@@ -479,8 +491,7 @@ impl AppliedRuleDef {
     pub const CANNOT_ATTACK: Self = Self::AttackRestriction(AttackRestrictionDef::CANNOT_ATTACK);
 
     /// The common object-facing rule used by Pacifism and similar effects.
-    pub const CANNOT_BLOCK: Self =
-        Self::BlockRestriction(BlockRestrictionDef::CANNOT_BLOCK);
+    pub const CANNOT_BLOCK: Self = Self::BlockRestriction(BlockRestrictionDef::CANNOT_BLOCK);
 
     /// The common attacker-facing rule for complete unblockability.
     pub const CANNOT_BE_BLOCKED: Self =
@@ -730,9 +741,9 @@ impl AppliedEffectDef {
 
     #[must_use]
     pub const fn add_supertype(supertype: CardSupertype) -> Self {
-        Self::Characteristic(CharacteristicOperationDef::Supertypes(SetOperationDef::Add(
-            CardSupertypeSet::single(supertype),
-        )))
+        Self::Characteristic(CharacteristicOperationDef::Supertypes(
+            SetOperationDef::Add(CardSupertypeSet::single(supertype)),
+        ))
     }
 
     /// "It's an enchantment. (It's not a creature.)" Replaces the type line
@@ -781,7 +792,7 @@ impl AppliedEffectDef {
     #[must_use]
     pub const fn remove_subtypes(types: &'static [&'static str]) -> Self {
         Self::Characteristic(CharacteristicOperationDef::Subtypes(
-            SetOperationDef::Remove(types),
+            SetOperationDef::Remove(crate::card::SubtypeSet::from_names(types)),
         ))
     }
 
@@ -790,9 +801,9 @@ impl AppliedEffectDef {
     /// also removes subtypes belonging to every type it removed.
     #[must_use]
     pub const fn set_subtypes(types: &'static [&'static str]) -> Self {
-        Self::Characteristic(CharacteristicOperationDef::Subtypes(
-            SetOperationDef::Set(types),
-        ))
+        Self::Characteristic(CharacteristicOperationDef::Subtypes(SetOperationDef::Set(
+            crate::card::SubtypeSet::from_names(types),
+        )))
     }
 
     /// "In addition to its other colors", which adds rather than replaces.
@@ -812,7 +823,9 @@ impl AppliedEffectDef {
 
     #[must_use]
     pub const fn set_color(color: ManaTypeDef) -> Self {
-        Self::Characteristic(CharacteristicOperationDef::Color(SetOperationDef::Set(color)))
+        Self::Characteristic(CharacteristicOperationDef::Color(SetOperationDef::Set(
+            color,
+        )))
     }
 
     #[must_use]

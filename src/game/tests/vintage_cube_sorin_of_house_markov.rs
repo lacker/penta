@@ -227,8 +227,14 @@ fn the_ultimate_takes_a_creature_and_marks_it() {
         .expect("it is still on the battlefield");
     assert_eq!(stolen.controller, PlayerId::One, "under your control now");
     let subtypes = game.effective_subtypes(stolen);
-    assert!(subtypes.contains(&"Bear"), "it is still a Bear");
-    assert!(subtypes.contains(&"Vampire"), "and a Vampire as well");
+    assert!(
+        subtypes.contains(crate::card::Subtype::named("Bear")),
+        "it is still a Bear"
+    );
+    assert!(
+        subtypes.contains(crate::card::Subtype::named("Vampire")),
+        "and a Vampire as well"
+    );
     assert_eq!(stolen.counters(CounterKind::Lifelink), 1);
 }
 
@@ -480,7 +486,8 @@ fn what_the_ultimate_takes_outlives_him() {
         "the creature he took is still yours, with him in the graveyard",
     );
     assert!(
-        game.effective_subtypes(stolen).contains(&"Vampire"),
+        game.effective_subtypes(stolen)
+            .contains(crate::card::Subtype::named("Vampire")),
         "and still the Vampire he made of it",
     );
 }

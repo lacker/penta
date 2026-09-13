@@ -175,8 +175,11 @@ fn its_activation_makes_only_a_forest_until_this_liege_leaves() {
         "the effect remains active while this Liege remains",
     );
     let subtypes = game.effective_subtypes(permanent(&game, island_id));
-    assert!(subtypes.contains(&"Forest"));
-    assert!(!subtypes.contains(&"Island"), "the basic type is replaced");
+    assert!(subtypes.contains(crate::card::Subtype::named("Forest")));
+    assert!(
+        !subtypes.contains(crate::card::Subtype::named("Island")),
+        "the basic type is replaced"
+    );
 
     game.move_target_to_zone(
         Target::Permanent(liege),
@@ -190,8 +193,11 @@ fn its_activation_makes_only_a_forest_until_this_liege_leaves() {
     drain_pending(&mut game);
 
     let subtypes = game.effective_subtypes(permanent(&game, island_id));
-    assert!(subtypes.contains(&"Island"), "the printed type returns");
-    assert!(!subtypes.contains(&"Forest"));
+    assert!(
+        subtypes.contains(crate::card::Subtype::named("Island")),
+        "the printed type returns"
+    );
+    assert!(!subtypes.contains(crate::card::Subtype::named("Forest")));
 }
 
 #[test]

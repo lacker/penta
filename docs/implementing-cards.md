@@ -289,7 +289,7 @@ to attach its authored label to the entering permanent. Read that value through
 `HasType(CardType::Creature)` inside `ManaRestrictionDef::CastSpell` when the
 mana may pay only for creature spells of that type. The subtype predicate alone
 does not require the object to be a creature. Fixed subtypes use the same
-predicate with `SubtypeDef::Literal("Soldier")`.
+predicate with `SubtypeDef::literal("Soldier")`.
 
 Mana restrictions evaluate the paid object in the producing ability source's
 scope. Its label must match exactly; an absent or differently labeled choice
@@ -320,13 +320,42 @@ make it face up (CR 406.3). Exile facing is distinct from permanent status
 (CR 708.2). It does not follow a permanent through a zone change. This live
 selection predicate is not supported in trigger snapshots or static effects.
 
+### Subtype names and sets
+
+Keep literal names in card declarations: `&["Elf", "Druid"]`,
+`SubtypeDef::literal("Dragon")`, and `CreatureTypeSetDef::named(&["Sliver"])`.
+Their `const fn` constructors resolve names against the CR 205.3 vocabulary in
+`src/card/subtypes/vocabulary.rs`. Unknown names in static declarations are
+compile errors. Use `Subtype::from_name` for fallible parsing of dynamic input.
+Apostrophe aliases resolve to one subtype identity.
+
+Card and token characteristics retain the authored names in type-line order
+for presentation. Card rules cache a `SubtypeSet`; inline virtual objects validate
+names at construction and materialize the set when used as card rules, keeping
+within their 128-byte object budget. Predicates and continuous effects use typed
+identities and bitsets; subtype order and repeated names do not affect set
+membership. Effective sets iterate in canonical vocabulary order.
+Direct `CharacteristicOperationDef::Subtypes`
+operations accept `SubtypeSet::from_names(&["Food"])`; the `set_subtypes` and
+`remove_subtypes` helpers compile their literal slices themselves. Helpers that
+borrow freshly constructed predicates may need `&const { ... }` for the static
+lifetime, just like other borrowed declaration components.
+
+The vocabulary owns family membership too. Creature and Kindred share a family;
+Instant and Sorcery share another. The evaluator removes subtypes when their
+corresponding card type is gone. Planar, dungeon, and battle subtype vocabularies
+are included without adding gameplay support for those card types. Names remain
+the persistence boundary; numeric subtype positions are never serialized.
+
 ### Changeling
 
 Use `abilities::changeling()` on the card or token's ordinary ability list.
 The shared subtype evaluator applies this characteristic-defining ability in
 all zones before other layer-4 effects. It is part of copiable abilities, not a
 printed expansion of the creature-type list. Losing abilities in layer 6 does
-not undo those types; a later subtype-setting effect can replace them.
+not undo those types; a later subtype-setting effect can replace them. The
+evaluator unions the creature-family mask into the effective set, so membership,
+enumeration, and later add/remove/set operations agree without expanding strings.
 
 ### Damage instructions and follow-ups
 

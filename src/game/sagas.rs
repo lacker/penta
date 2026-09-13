@@ -9,12 +9,10 @@
 
 use super::{CounterKind, Game, GameObjectId, Permanent, PlayerId};
 
-/// The subtype that makes a permanent a Saga.
-const SAGA: &str = "Saga";
-
 impl Game {
     fn is_saga(&self, permanent: &Permanent) -> bool {
-        self.effective_subtypes(permanent).contains(&SAGA)
+        self.effective_subtypes(permanent)
+            .contains(crate::card::Subtype::Saga)
     }
 
     /// CR 714.2a: a Saga enters with a lore counter on it. Placed through

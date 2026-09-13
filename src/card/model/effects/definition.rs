@@ -440,6 +440,10 @@ pub enum EffectDef {
     },
     /// Installs a triggered ability that listens from outside every zone.
     InstallTrigger(InstalledTriggerDef),
+    /// Queue a reflexive ability after the enclosing program has established
+    /// its triggering outcome. It chooses fresh targets at ordinary trigger
+    /// placement, after the resolving spell or ability finishes.
+    ReflexiveTrigger(&'static AbilityDef),
     /// Freeze the top cards of a library as a named collection before subsequent
     /// selection, partition, arrangement, or ordinary effects.
     BindObjects(super::BindObjectsDef),

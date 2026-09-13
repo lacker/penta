@@ -677,6 +677,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::Detain { .. }
                     | EffectDef::ExchangeControl { .. }
                     | EffectDef::InstallTrigger(_)
+                    | EffectDef::ReflexiveTrigger(_)
                     | EffectDef::IfCondition { .. }
                     | EffectDef::IfElseCondition { .. }
                     | EffectDef::ReduceGenericCostBy(_)

@@ -485,7 +485,8 @@ fn validate_trigger_event_references(
         }
         // A clause that names no zone at all is not a clause about exiling.
         TriggerEventDef::LifeGained(PlayerRelation::ChosenPlayer)
-        | TriggerEventDef::CardsExiled { zones: &[], .. } => Err(unsupported_trigger_event(event)),
+        | TriggerEventDef::CardsExiled { zones: &[], .. }
+        | TriggerEventDef::Reflexive => Err(unsupported_trigger_event(event)),
         TriggerEventDef::MechanicPerformed { .. }
         | TriggerEventDef::CommittedCrime(_)
         | TriggerEventDef::PaymentPaid { .. }

@@ -841,6 +841,9 @@ fn validate_effect_references(
             validate_recipient_target_references(object, target_count, scope)?;
             validate_value_target_references(amount, target_count, scope)
         }
+        EffectDef::ReflexiveTrigger(ability) => {
+            validate_reflexive_trigger_references(ability, scope)
+        }
         EffectDef::InstallTrigger(trigger) => {
             let DeclarativeAbilityDef::Triggered(definition) = trigger.ability.definition else {
                 return Err(GrantedAbilityValidationError::UnsupportedInstalledTriggerAbility);

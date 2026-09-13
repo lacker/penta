@@ -179,6 +179,7 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         | EffectDef::VoteForPermanentToExile { .. }
         | EffectDef::BecomeMonarch { .. }
         | EffectDef::InstallTrigger(_)
+        | EffectDef::ReflexiveTrigger(_)
         | EffectDef::LandwalkCanBeBlocked(_)
         | EffectDef::LookAtHand { .. }
         | EffectDef::ExileOneFromEachZone { .. }

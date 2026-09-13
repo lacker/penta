@@ -579,6 +579,10 @@ fn validate_effect_target_shapes(
                 None => Ok(()),
             }
         }
+        EffectDef::ReflexiveTrigger(ability) => {
+            let definition = reflexive_trigger_definition(ability)?;
+            validate_program_target_shapes(ability.effect.definition, definition.targets, None)
+        }
         EffectDef::InstallTrigger(trigger) => {
             if let crate::card::InstalledTriggerLifetimeDef::UntilNextTurn(player) =
                 trigger.lifetime

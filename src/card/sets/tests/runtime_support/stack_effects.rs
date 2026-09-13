@@ -800,6 +800,7 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         // Installing an ability is a resolution like any other; what it
         // installs has to be an ability the shared runtime can fire.
         EffectDef::InstallTrigger(trigger) => shared_definition_ability(trigger.ability),
+        EffectDef::ReflexiveTrigger(ability) => shared_definition_ability(ability),
         // The effect object is where a turn-scoped replacement lives, and
         // both zone-move walks read it there.
         EffectDef::CreateOngoingEffect(ongoing)

@@ -644,6 +644,9 @@ impl Game {
                     self.resolve_effect_def(scoped.with_effect(*branch), object, context);
                 }
             }
+            EffectDef::ReflexiveTrigger(ability) => {
+                self.create_reflexive_trigger(ability, object, context);
+            }
             EffectDef::InstallTrigger(installed) => {
                 let Some(source_ability) = object.ability.as_ref().map(|frozen| frozen.origin)
                 else {

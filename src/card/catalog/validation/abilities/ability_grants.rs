@@ -24,9 +24,10 @@ fn collect_ability_grants(
     emblems: &mut Vec<EmblemCharacteristics>,
 ) {
     match effect {
-        EffectDef::InstallTrigger(trigger) => {
+        EffectDef::InstallTrigger(crate::card::InstalledTriggerDef { ability, .. })
+        | EffectDef::ReflexiveTrigger(ability) => {
             collect_program_ability_grants(
-                trigger.ability.effect.definition,
+                ability.effect.definition,
                 grants,
                 tokens,
                 emblems,
@@ -164,8 +165,9 @@ fn program_ability_grant_sites(program: AbilityProgramDef) -> usize {
 
 fn ability_grant_sites(effect: EffectDef) -> usize {
     let direct = match effect {
-        EffectDef::InstallTrigger(trigger) => {
-            program_ability_grant_sites(trigger.ability.effect.definition)
+        EffectDef::InstallTrigger(crate::card::InstalledTriggerDef { ability, .. })
+        | EffectDef::ReflexiveTrigger(ability) => {
+            program_ability_grant_sites(ability.effect.definition)
         }
         EffectDef::CreateOngoingEffect(ongoing) => {
             program_ability_grant_sites(ongoing.ability.effect.definition)

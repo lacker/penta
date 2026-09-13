@@ -135,6 +135,7 @@ const fn effect_operation_name(effect: EffectDef) -> &'static str {
         EffectDef::IfCondition { .. } => "IfCondition",
         EffectDef::IfElseCondition { .. } => "IfElseCondition",
         EffectDef::InstallTrigger(_) => "InstallTrigger",
+        EffectDef::ReflexiveTrigger(_) => "ReflexiveTrigger",
         EffectDef::CreateOngoingEffect(_) => "CreateOngoingEffect",
         EffectDef::CannotBeForcedToSacrifice => "CannotBeForcedToSacrifice",
         EffectDef::CannotBeForcedToDiscard => "CannotBeForcedToDiscard",

@@ -380,6 +380,7 @@ mod rampage;
 mod random_discard;
 mod reaper_from_the_abyss;
 mod reckless_impulse;
+mod reflexive_triggers;
 mod regeneration;
 mod relic_bind;
 mod reliquary_tower;

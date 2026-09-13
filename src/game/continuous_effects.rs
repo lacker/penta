@@ -629,6 +629,7 @@ impl Game {
                 | EffectDef::IfCondition { .. }
                 | EffectDef::IfElseCondition { .. }
                 | EffectDef::InstallTrigger(_)
+                | EffectDef::ReflexiveTrigger(_)
                 | EffectDef::CannotBeForcedToSacrifice
                 | EffectDef::CannotBeForcedToDiscard
                 | EffectDef::SubstituteBasicLandTypeUntilEndOfTurn { .. }

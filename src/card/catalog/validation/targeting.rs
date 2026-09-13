@@ -26,6 +26,7 @@ include!("targeting/resolving_applied_effect.rs");
 include!("targeting/trigger_references.rs");
 include!("targeting/effect_predicate_references.rs");
 include!("targeting/effect_references.rs");
+include!("targeting/reflexive_triggers.rs");
 include!("targeting/bindable_outputs.rs");
 include!("targeting/replacement_effect_references.rs");
 include!("targeting/trigger_zones.rs");

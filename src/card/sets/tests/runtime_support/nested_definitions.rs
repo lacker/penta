@@ -158,7 +158,8 @@ pub(in super::super) fn shared_trigger_event(event: TriggerEventDef) -> bool {
         // nothing else for a predicate to read.
         | TriggerEventDef::BecomesMonarch(_)
         | TriggerEventDef::DrewCard(_)
-        | TriggerEventDef::StateCondition => true,
+        | TriggerEventDef::StateCondition
+        | TriggerEventDef::Reflexive => true,
         TriggerEventDef::DamageDealt(matcher) => {
             let source = match matcher.source {
                 DamageSourceMatcherDef::Matching(object) => {
@@ -526,8 +527,9 @@ pub(in super::super) fn assert_nested_program_abilities(
 
 pub(in super::super) fn assert_nested_definition_abilities(card_name: &str, effect: EffectDef) {
     match effect {
-        EffectDef::InstallTrigger(trigger) => {
-            assert_nested_installed_ability(card_name, trigger.ability);
+        EffectDef::InstallTrigger(crate::card::InstalledTriggerDef { ability, .. })
+        | EffectDef::ReflexiveTrigger(ability) => {
+            assert_nested_installed_ability(card_name, ability);
         }
         EffectDef::ConditionalStatic(conditional) => {
             assert_nested_definition_applied_effect(card_name, conditional.then.effect);

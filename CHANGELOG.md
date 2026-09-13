@@ -44,6 +44,11 @@ the bot-wire epoch.
   and creation options on `CreateTokenDef`; the token helpers and builders on
   `EffectDef` are removed. Wire observations and checkpoint formats are unchanged.
 
+- Implement Faebloom Trick with an untargeted token-creation spell and a separate
+  reflexive tap trigger. Native `EffectDef::ReflexiveTrigger` queues an ordinary
+  ability with fresh targets from a completed action's outcome branch. Existing
+  trigger decisions and checkpoint locators carry it without a wire-format change.
+
 - Replace the native `EffectDef::MoveToZone` variant with
   `EffectDef::move_to_zone(object, zone, placement)`, a shorthand for the shared
   game action's `as_effect()`. Arrival and move-result wrappers remain supported.

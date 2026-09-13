@@ -252,6 +252,7 @@ impl Game {
             | EffectDef::IfCondition { .. }
             | EffectDef::IfElseCondition { .. }
             | EffectDef::InstallTrigger(_)
+            | EffectDef::ReflexiveTrigger(_)
             | EffectDef::ReduceGenericCostBy(_)
             | EffectDef::ModifyCost(_)
             | EffectDef::LandwalkCanBeBlocked(_)

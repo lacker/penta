@@ -68,6 +68,7 @@ impl Game {
                 Self::trigger_condition_reads_colors_spent(*condition)
             }
             EffectDef::InstallTrigger(trigger) => Self::ability_reads_colors_spent(trigger.ability),
+            EffectDef::ReflexiveTrigger(ability) => Self::ability_reads_colors_spent(ability),
             EffectDef::CreateOngoingEffect(ongoing) => {
                 Self::ability_reads_colors_spent(ongoing.ability)
             }

@@ -56,6 +56,7 @@ fn trigger_event_object_zone(event: TriggerEventDef) -> Option<ZoneKind> {
         | TriggerEventDef::DamageDealt(_)
         | TriggerEventDef::CountersRemoved { .. }
         | TriggerEventDef::LastCounterRemoved { .. }
+        | TriggerEventDef::Reflexive
         | TriggerEventDef::StateCondition
         | TriggerEventDef::LifeGained(_)
         | TriggerEventDef::BecomesMonarch(_)

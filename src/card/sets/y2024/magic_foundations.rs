@@ -1147,12 +1147,47 @@ pub(in crate::card::sets) static ERUDITE_WIZARD: CardRecord = CardRecord::new(
 );
 
 // FDN 38 — Faebloom Trick
-// Audit: unsupported — Needs a reflexive trigger after token creation with targets chosen after the tokens enter; an ordinary targeted spell clause chooses those targets too early.
 pub(in crate::card::sets) static FAEBLOOM_TRICK: CardRecord = CardRecord::new(
     "Faebloom Trick",
     "0c3bee8f-f5be-4404-a696-c902637799c3",
     "Annie Stegg",
-    CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{2}{U}")).with_abilities(&[AbilityDef::spell(
+        "Create two 1/1 blue Faerie creature tokens with flying. \
+             When you do, tap target creature an opponent controls.",
+        EffectDef::CreateToken(
+            CreateTokenDef::new(TokenDef::Literal(
+                TokenCharacteristics::creature(&["Faerie"], &[ManaColor::Blue], 1, 1)
+                    .with_art(CardArt::new(
+                        "d1c0556e-ba3c-4a8e-b704-8eaa7c4dba1c",
+                        "Irina Nordsol",
+                    ))
+                    .with_abilities(&[abilities::flying()]),
+            ))
+            .with_amount(2)
+            .with_created_tokens(crate::card::CreatedTokensDef {
+                binding: crate::Binding!("faeries"),
+                then: &EffectDef::IfNoObjects(crate::card::IfNoObjectsDef {
+                    input: ObjectSetDef::Binding(crate::Binding!("faeries")),
+                    if_empty: &EffectDef::None,
+                    otherwise: &EffectDef::ReflexiveTrigger(&AbilityDef::triggered_with_targets(
+                        "When you do, tap target creature an opponent controls.",
+                        TriggerEventDef::Reflexive,
+                        &[AbilityTargetDef::exactly_one(
+                            AbilityTargetPredicate::Object {
+                                object: ObjectPredicateDef::HasType(CardType::Creature),
+                                zones: &[ZoneKind::Battlefield],
+                                controller: Some(PlayerRelation::Opponent),
+                                owner: None,
+                            },
+                        )],
+                        EffectDef::Tap {
+                            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        },
+                    )),
+                }),
+            }),
+        ),
+    )]),
 );
 
 // FDN 39 — Grappling Kraken

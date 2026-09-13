@@ -228,6 +228,23 @@ owns its timing and atomicity. `CreateAttachedToken` retains the attachment
 operation's entry sequencing. Neither needs a dummy copy source or a second
 representation of token characteristics.
 
+### Reflexive triggers
+
+Use `EffectDef::ReflexiveTrigger` with an ordinary triggered `AbilityDef` whose
+event is `TriggerEventDef::Reflexive`. Place it in the completed action's outcome
+branch, such as the nonempty branch of a created-token binding or the paid branch
+of a resolving payment. Reaching the operation queues one trigger; it does not
+listen for future events or infer whether the preceding action succeeded.
+
+The nested ability declares its own targets, chosen during ordinary trigger
+placement after the enclosing resolution finishes. It retains the creator's
+source, controller, X, and effect bindings, and can resolve after that source
+leaves. Its target slots start at zero and do not inherit the creator's targets.
+Express conditions about the completed action in the enclosing program; the
+initial reflexive boundary accepts nonmodal abilities without listener limits
+or intervening-if conditions. `InstallTrigger` remains the operation for a
+listener awaiting a future event.
+
 ### Bound entry choices in mana restrictions
 
 Wrap an entry-time creature-type choice in `ReplacementEffectDef::BindOutput`

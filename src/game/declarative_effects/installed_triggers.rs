@@ -8,6 +8,39 @@ use crate::game::{
 };
 
 impl Game {
+    pub(super) fn create_reflexive_trigger(
+        &mut self,
+        ability: &'static crate::card::AbilityDef,
+        object: &StackObject,
+        context: EffectResolutionContext,
+    ) {
+        let DeclarativeAbilityDef::Triggered(definition) = ability.definition else {
+            return;
+        };
+        let (Some(effect), Some(frozen)) = (ability.declarative_effect(), object.ability.as_ref())
+        else {
+            return;
+        };
+        self.capture_trigger(&TriggerCapture {
+            source: AbilitySourceRef {
+                object: object.source.unwrap_or(object.id),
+                ability: frozen.origin,
+            },
+            presentation: frozen.presentation,
+            owner: object.card.owner,
+            controller: object.controller,
+            text: ability.text,
+            target_defs: definition.targets.to_vec(),
+            targets: Vec::new(),
+            effect,
+            resolver: Self::ability_resolver(frozen.origin, ability),
+            context,
+            condition: None,
+            modes: None,
+            x: frozen.x,
+        });
+    }
+
     pub(in crate::game) fn install_trigger_from(
         &mut self,
         installed: InstalledTriggerDef,

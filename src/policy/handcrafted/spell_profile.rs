@@ -616,6 +616,7 @@ impl HandcraftedPolicy {
             | EffectDef::Detain { .. }
             | EffectDef::ExchangeControl { .. }
             | EffectDef::InstallTrigger(_)
+            | EffectDef::ReflexiveTrigger(_)
             | EffectDef::IfCondition { .. }
             | EffectDef::IfElseCondition { .. }
             | EffectDef::ReduceGenericCostBy(_)

@@ -211,6 +211,10 @@ pub enum TriggerEventDef {
     /// whenever its ability's condition is true, and does not trigger again
     /// while it is already waiting or on the stack.
     StateCondition,
+    /// A reflexive ability created by `EffectDef::ReflexiveTrigger`. The
+    /// enclosing effect program gates creation on its actual outcome; this
+    /// is not a listener for future battlefield events.
+    Reflexive,
     /// This permanent turned over to the face carrying this ability, which is
     /// what "whenever this transforms into ..." names.
     Transforms(ObjectPredicateDef),

@@ -882,7 +882,8 @@ fn collect_effect_abilities(effect: EffectDef, abilities: &mut Vec<&'static Abil
         }
         EffectDef::InstallTrigger(installed) => abilities.push(installed.ability),
         EffectDef::CreateOngoingEffect(ongoing) => abilities.push(ongoing.ability),
-        EffectDef::MayCastTargetWithoutPaying { ability, .. } => abilities.push(ability),
+        EffectDef::ReflexiveTrigger(ability)
+        | EffectDef::MayCastTargetWithoutPaying { ability, .. } => abilities.push(ability),
         EffectDef::BecomeCopyOf { exceptions, .. } => {
             abilities.extend(exceptions.added_abilities.iter().filter_map(
                 |addition| match addition {

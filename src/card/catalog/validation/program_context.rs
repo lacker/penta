@@ -660,9 +660,10 @@ fn validate_resolving_effect(
         } if matches!(*effect, EffectDef::Destroy { .. }) => {
             validate_resolving_effect(*effect, source_zones)
         }
-        EffectDef::InstallTrigger(trigger) => {
-            let Some(effect) = trigger.ability.declarative_effect() else {
-                return Err("InstallTrigger with a non-declarative program");
+        EffectDef::InstallTrigger(crate::card::InstalledTriggerDef { ability, .. })
+        | EffectDef::ReflexiveTrigger(ability) => {
+            let Some(effect) = ability.declarative_effect() else {
+                return Err("effect-created trigger with a non-declarative program");
             };
             validate_resolving_effect(effect, source_zones)
         }

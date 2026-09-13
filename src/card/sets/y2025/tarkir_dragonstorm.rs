@@ -242,6 +242,17 @@ const SPIRIT_TOKEN: TokenCharacteristics =
         "Julie Dillon",
     ));
 
+/// Harmonize's mana cost; the casting procedure owns its optional creature tap.
+#[must_use]
+pub const fn harmonize(costs: &'static [CostDef]) -> AbilityDef {
+    AbilityDef::alternative_cast(
+        costs,
+        crate::card::AlternativeCastKindDef::Harmonize,
+        None,
+        EffectDef::None,
+    )
+}
+
 // TDM 1 — Ugin, Eye of the Storms
 /// "Up to one target permanent that's one or more colors": colorless is what
 /// Ugin does not touch, which is the whole bargain of the deck built around
@@ -2397,21 +2408,41 @@ pub(in crate::card::sets) static TEMUR_DEVOTEE: CardRecord = CardRecord::new(
 );
 
 // TDM 62 — Unending Whisper
-// Audit: unsupported — Needs a graveyard alternative cast cost whose payment can optionally tap one controlled creature and reduce generic mana by that creature's power, while retaining the exile-on-leaving-stack rider; existing convoke pays one mana per creature and cannot represent harmonize.
 pub(in crate::card::sets) static UNENDING_WHISPER: CardRecord = CardRecord::new(
     "Unending Whisper",
     "fc48180a-ccac-469f-938d-c050821d0160",
     "Danny Schwartz",
-    CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{U}")).with_abilities(&[
+        AbilityDef::spell(
+            "Draw a card.",
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        harmonize(&[CostDef::Mana(mana_cost!("{5}{U}"))]),
+    ]),
 );
 
 // TDM 63 — Ureni's Rebuff
-// Audit: unsupported — Needs a graveyard alternative cast cost whose payment can optionally tap one controlled creature and reduce generic mana by that creature's power, while retaining the exile-on-leaving-stack rider; existing convoke pays one mana per creature and cannot represent harmonize.
 pub(in crate::card::sets) static URENI_S_REBUFF: CardRecord = CardRecord::new(
     "Ureni's Rebuff",
     "722716df-9cea-40a7-924b-c28497e227e6",
     "Sergio Cosmai",
-    CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{1}{U}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Return target creature to its owner's hand.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
+        ),
+        harmonize(&[CostDef::Mana(mana_cost!("{5}{U}"))]),
+    ]),
 );
 
 // TDM 64 — Veteran Ice Climber
@@ -2507,12 +2538,31 @@ pub(in crate::card::sets) static WINGSPAN_STRIDE: CardRecord = CardRecord::new(
 );
 
 // TDM 67 — Winternight Stories
-// Audit: unsupported — Needs a graveyard alternative cast cost whose payment can optionally tap one controlled creature and reduce generic mana by that creature's power, while retaining the exile-on-leaving-stack rider; existing convoke pays one mana per creature and cannot represent harmonize.
 pub(in crate::card::sets) static WINTERNIGHT_STORIES: CardRecord = CardRecord::new(
     "Winternight Stories",
     "64d9367c-f50c-4568-aa63-6760c44ecaeb",
     "Zara Alfonso",
-    CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{2}{U}")).with_abilities(&[
+        AbilityDef::spell(
+            "Draw three cards. Then discard two cards unless you discard a creature card.",
+            EffectDef::Sequence(&[
+                abilities::draw_cards(ValueDef::Constant(3)),
+                EffectDef::PayOr(PayOrDef::optional_or(
+                    &[CostDef::discard(ObjectPredicateDef::HasType(
+                        CardType::Creature,
+                    ))],
+                    &EffectDef::None,
+                    &EffectDef::Discard {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(2),
+                        selection: DiscardSelectionDef::RecipientChooses,
+                        then: None,
+                    },
+                )),
+            ]),
+        ),
+        harmonize(&[CostDef::Mana(mana_cost!("{4}{U}"))]),
+    ]),
 );
 
 // TDM 68 — Abzan Devotee
@@ -3454,12 +3504,23 @@ pub(in crate::card::sets) static BREACHING_DRAGONSTORM: CardRecord = CardRecord:
 );
 
 // TDM 102 — Channeled Dragonfire
-// Audit: unsupported — Needs a graveyard alternative cast cost whose payment can optionally tap one controlled creature and reduce generic mana by that creature's power, while retaining the exile-on-leaving-stack rider; existing convoke pays one mana per creature and cannot represent harmonize.
 pub(in crate::card::sets) static CHANNELED_DRAGONFIRE: CardRecord = CardRecord::new(
     "Channeled Dragonfire",
     "24204881-690c-4043-8771-20cb93385072",
     "Jorge Jacinto",
-    CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{R}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Channeled Dragonfire deals 2 damage to any target.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(2),
+            ),
+        ),
+        harmonize(&[CostDef::Mana(mana_cost!("{5}{R}{R}"))]),
+    ]),
 );
 
 // TDM 103 — Cori-Steel Cutter (alternate printing)
@@ -4472,12 +4533,30 @@ pub(in crate::card::sets) static WAR_EFFORT: CardRecord = CardRecord::new(
 );
 
 // TDM 132 — Wild Ride
-// Audit: unsupported — Needs a graveyard alternative cast cost whose payment can optionally tap one controlled creature and reduce generic mana by that creature's power, while retaining the exile-on-leaving-stack rider; existing convoke pays one mana per creature and cannot represent harmonize.
 pub(in crate::card::sets) static WILD_RIDE: CardRecord = CardRecord::new(
     "Wild Ride",
     "abc8c6f5-6135-428e-8476-1751f82623f9",
     "Filipe Pagliuso",
-    CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{R}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Target creature gets +3/+0 and gains haste until end of turn.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(3),
+                        ValueDef::Constant(0),
+                    ),
+                    AppliedEffectDef::add_ability(&abilities::haste()),
+                ]),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+        harmonize(&[CostDef::Mana(mana_cost!("{4}{R}"))]),
+    ]),
 );
 
 // TDM 133 — Zurgo's Vanguard
@@ -5159,12 +5238,35 @@ pub(in crate::card::sets) static LASYD_PROWLER: CardRecord = CardRecord::new(
 );
 
 // TDM 150 — Nature's Rhythm
-// Audit: unsupported — Needs a graveyard alternative cast cost whose payment can optionally tap one controlled creature and reduce generic mana by that creature's power, while retaining the exile-on-leaving-stack rider; existing convoke pays one mana per creature and cannot represent harmonize.
 pub(in crate::card::sets) static NATURE_S_RHYTHM: CardRecord = CardRecord::new(
     "Nature's Rhythm",
     "1397d904-c51d-451e-8505-7f3118acc1f6",
     "Liiga Smilshkalne",
-    CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{X}{G}{G}")).with_abilities(&[
+        AbilityDef::spell(
+            "Search your library for a creature card with mana value X or less, put it \
+                 onto the battlefield, then shuffle.",
+            EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::ManaValueAtMostValue(ValueDef::ChosenX),
+                ]),
+                minimum: 0,
+                maximum: ValueDef::Constant(1),
+                reveal: false,
+                destination: ZoneKind::Battlefield,
+                placement: ZonePlacement::Top,
+                shuffle: true,
+                enters_tapped: false,
+                attachment: None,
+                binding: None,
+                then: None,
+            },
+        ),
+        harmonize(&[CostDef::Mana(mana_cost!("{X}{G}{G}{G}{G}"))]),
+    ]),
 );
 
 // TDM 151 — Piercing Exhale
@@ -5259,12 +5361,35 @@ pub(in crate::card::sets) static RITE_OF_RENEWAL: CardRecord = CardRecord::new(
 );
 
 // TDM 154 — Roamer's Routine
-// Audit: unsupported — Needs a graveyard alternative cast cost whose payment can optionally tap one controlled creature and reduce generic mana by that creature's power, while retaining the exile-on-leaving-stack rider; existing convoke pays one mana per creature and cannot represent harmonize.
 pub(in crate::card::sets) static ROAMER_S_ROUTINE: CardRecord = CardRecord::new(
     "Roamer's Routine",
     "fb8c2d5c-ba0c-4d50-8898-5c6574b1e974",
     "Andrew Mar",
-    CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{2}{G}")).with_abilities(&[
+        AbilityDef::spell(
+            "Search your library for a basic land card, put it onto the battlefield \
+                 tapped, then shuffle.",
+            EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                ]),
+                minimum: 0,
+                maximum: ValueDef::Constant(1),
+                reveal: false,
+                destination: ZoneKind::Battlefield,
+                placement: ZonePlacement::Top,
+                shuffle: true,
+                enters_tapped: true,
+                attachment: None,
+                binding: None,
+                then: None,
+            },
+        ),
+        harmonize(&[CostDef::Mana(mana_cost!("{4}{G}"))]),
+    ]),
 );
 
 // TDM 155 — Sage of the Fang
@@ -5541,12 +5666,53 @@ pub(in crate::card::sets) static SURRAK_ELUSIVE_HUNTER: CardRecord = CardRecord:
 );
 
 // TDM 162 — Synchronized Charge
-// Audit: unsupported — Needs a graveyard alternative cast cost whose payment can optionally tap one controlled creature and reduce generic mana by that creature's power, while retaining the exile-on-leaving-stack rider; existing convoke pays one mana per creature and cannot represent harmonize.
 pub(in crate::card::sets) static SYNCHRONIZED_CHARGE: CardRecord = CardRecord::new(
     "Synchronized Charge",
     "1f721f8d-fd2f-480b-8645-4bf6ce38dde9",
     "Johan Grenier",
-    CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{1}{G}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Distribute two +1/+1 counters among one or two target creatures you \
+                 control. Creatures you control with counters on them gain vigilance and \
+                 trample until end of turn.",
+            &[AbilityTargetDef {
+                minimum: 1,
+                maximum: 2,
+                divided_total: Some(crate::card::DividedTotal::Fixed(2)),
+                ..AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                })
+            }],
+            EffectDef::Sequence(&[
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::DividedAmongTargets,
+                },
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                        ObjectQueryDef::matching(
+                            ObjectPredicateDef::All(&[
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                ObjectPredicateDef::HasAnyCounter,
+                            ]),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        ),
+                    )),
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::add_ability(&abilities::vigilance()),
+                        AppliedEffectDef::add_ability(&abilities::trample()),
+                    ]),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ]),
+        ),
+        harmonize(&[CostDef::Mana(mana_cost!("{4}{G}"))]),
+    ]),
 );
 
 // TDM 163 — Trade Route Envoy
@@ -6251,12 +6417,53 @@ pub(in crate::card::sets) static FROSTCLIFF_SIEGE: CardRecord = CardRecord::new(
 );
 
 // TDM 188 — Glacial Dragonhunt
-// Audit: unsupported — Needs a graveyard alternative cast cost whose payment can optionally tap one controlled creature and reduce generic mana by that creature's power, while retaining the exile-on-leaving-stack rider; existing convoke pays one mana per creature and cannot represent harmonize.
 pub(in crate::card::sets) static GLACIAL_DRAGONHUNT: CardRecord = CardRecord::new(
     "Glacial Dragonhunt",
     "95994c88-e404-4a4f-8be6-b99d703d4609",
     "Igor Grechanyi",
-    CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{U}{R}")).with_abilities(&[
+        AbilityDef::spell(
+            "Draw a card, then you may discard a card. When you discard a nonland \
+             card this way, Glacial Dragonhunt deals 3 damage to target creature.",
+            EffectDef::Sequence(&[
+                abilities::draw_cards(ValueDef::Constant(1)),
+                EffectDef::May {
+                    player: EffectRecipientDef::Controller,
+                    effect: &EffectDef::Discard {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                        selection: DiscardSelectionDef::RecipientChooses,
+                        then: Some(DiscardFollowUpDef {
+                            counted: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(
+                                CardType::Land,
+                            )),
+                            bound: Some(crate::Binding!("discarded")),
+                            effect: &EffectDef::IfNoObjects(crate::card::IfNoObjectsDef {
+                                input: ObjectSetDef::Binding(crate::Binding!("discarded")),
+                                if_empty: &EffectDef::None,
+                                otherwise: &EffectDef::ReflexiveTrigger(
+                                    &AbilityDef::triggered_with_targets(
+                                        "When you discard a nonland card this way, \
+                                         Glacial Dragonhunt deals 3 damage to \
+                                         target creature.",
+                                        TriggerEventDef::Reflexive,
+                                        &[AbilityTargetDef::exactly_one_permanent(
+                                            ObjectPredicateDef::HasType(CardType::Creature),
+                                        )],
+                                        EffectDef::damage(
+                                            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                            ValueDef::Constant(3),
+                                        ),
+                                    ),
+                                ),
+                            }),
+                        }),
+                    },
+                },
+            ]),
+        ),
+        harmonize(&[CostDef::Mana(mana_cost!("{4}{U}{R}"))]),
+    ]),
 );
 
 // TDM 189 — Glacierwood Siege
@@ -6581,12 +6788,24 @@ pub(in crate::card::sets) static LOTUSLIGHT_DANCERS: CardRecord = CardRecord::ne
 );
 
 // TDM 205 — Mammoth Bellow
-// Audit: unsupported — Needs a graveyard alternative cast cost whose payment can optionally tap one controlled creature and reduce generic mana by that creature's power, while retaining the exile-on-leaving-stack rider; existing convoke pays one mana per creature and cannot represent harmonize.
 pub(in crate::card::sets) static MAMMOTH_BELLOW: CardRecord = CardRecord::new(
     "Mammoth Bellow",
     "468b17b4-79ce-4dfa-8873-a9cfc347e38f",
     "Xavier Ribeiro",
-    CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{2}{G}{U}{R}")).with_abilities(&[
+        AbilityDef::spell(
+            "Create a 5/5 green Elephant creature token.",
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                TokenCharacteristics::creature(&["Elephant"], &[ManaColor::Green], 5, 5).with_art(
+                    CardArt::new(
+                        "243bcfa9-0310-4d68-9864-df46069906fa",
+                        "Deruchenko Alexander",
+                    ),
+                ),
+            ))),
+        ),
+        harmonize(&[CostDef::Mana(mana_cost!("{5}{G}{U}{R}"))]),
+    ]),
 );
 
 // TDM 206 — Mardu Siegebreaker
@@ -7275,12 +7494,36 @@ pub(in crate::card::sets) static SKIRMISH_RHINO: CardRecord = CardRecord::new(
 );
 
 // TDM 225 — Songcrafter Mage
-// Audit: unsupported — Needs a graveyard alternative cast cost whose payment can optionally tap one controlled creature and reduce generic mana by that creature's power, while retaining the exile-on-leaving-stack rider; existing convoke pays one mana per creature and cannot represent harmonize.
 pub(in crate::card::sets) static SONGCRAFTER_MAGE: CardRecord = CardRecord::new(
     "Songcrafter Mage",
     "9523bc07-49e5-409c-ae6b-b28e305eef36",
     "Irina Nordsol",
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{G}{U}{R}"), &["Human", "Bard"], 3, 2).with_abilities(&[
+        abilities::flash(),
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, target instant or sorcery card in your \
+                 graveyard gains harmonize until end of turn. Its harmonize cost is equal \
+                 to its mana cost.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Instant),
+                        ObjectPredicateDef::HasType(CardType::Sorcery),
+                    ]),
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: Some(PlayerRelation::You),
+                },
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::add_ability(&harmonize(&[CostDef::ManaCostOf(
+                    ObjectRefDef::Source,
+                )])),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // TDM 226 — Sonic Shrieker

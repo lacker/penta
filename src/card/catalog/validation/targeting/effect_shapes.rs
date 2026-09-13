@@ -672,7 +672,7 @@ fn validate_effect_target_shapes(
                 )
                 && !match duration {
                     ResolvedEffectDurationDef::UntilEndOfTurn => {
-                        nonbattlefield_ability_grants_are_flashback(effect)
+                        nonbattlefield_ability_grants_are_graveyard_casts(effect)
                             && recipient_nonbattlefield_zones_support_flashback(
                                 recipient,
                                 targets,

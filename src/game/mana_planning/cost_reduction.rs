@@ -12,7 +12,6 @@ pub(super) struct SpellCostReduction {
 }
 
 impl SpellCostReduction {
-    #[cfg(test)]
     pub(super) const fn generic(self) -> u16 {
         self.generic
     }

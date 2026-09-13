@@ -415,15 +415,18 @@ impl Game {
             return;
         }
 
-        // Flashback replaces the move from the stack with exile, not the rest
+        // Flashback and harmonize replace the move from the stack with exile, not the rest
         // of the resolution. In particular, White Sun's Zenith still shuffles
         // its owner's library, and a spell that already exiles itself still
         // gets its destination counters.
-        let flashback_replaces_move = object.cast.as_ref().is_some_and(|cast| cast.via_flashback);
+        let exile_replaces_move = object
+            .cast
+            .as_ref()
+            .is_some_and(|cast| cast.exiles_on_leaving_stack());
         let graveyard_move_is_replaced = object
             .cast
             .as_ref()
-            .is_some_and(|cast| cast.via_flashback || cast.exile_if_put_into_graveyard);
+            .is_some_and(|cast| cast.exiles_on_leaving_stack() || cast.exile_if_put_into_graveyard);
         let (mut card, _zone_change) = self.zone_change_card(
             object
                 .card
@@ -435,7 +438,7 @@ impl Game {
             SpellResolutionDestinationDef::Graveyard if !graveyard_move_is_replaced => {
                 self.put_card_into_graveyard(owner, card);
             }
-            SpellResolutionDestinationDef::Hand if !flashback_replaces_move => {
+            SpellResolutionDestinationDef::Hand if !exile_replaces_move => {
                 self.players[owner.index()].hand.push(card);
             }
             // Flashback exiles the card wherever else it would have gone, so
@@ -460,7 +463,7 @@ impl Game {
             }
             SpellResolutionDestinationDef::Rebound => {}
             SpellResolutionDestinationDef::LibraryShuffled => {
-                if flashback_replaces_move {
+                if exile_replaces_move {
                     self.players[owner.index()].exile.push(card);
                 } else {
                     self.players[owner.index()].library.push(card);

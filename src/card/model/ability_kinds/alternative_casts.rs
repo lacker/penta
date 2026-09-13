@@ -60,6 +60,9 @@ pub struct AlternativeCastAbilityDef {
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum AlternativeCastKindDef {
     Flashback,
+    /// Harmonize (CR 702.180): graveyard casting with an optional creature tap
+    /// reducing generic mana by its power, and exile on leaving the stack.
+    Harmonize,
     Overload,
     /// Cast from hand only in the window opened by drawing the card, as the
     /// first card drawn that turn.
@@ -198,6 +201,7 @@ impl AlternativeCastKindDef {
     pub const fn label(self) -> &'static str {
         match self {
             Self::Flashback => "Flashback",
+            Self::Harmonize => "Harmonize",
             Self::Overload => "Overload",
             Self::Miracle => "Miracle",
             Self::Kicked => "Kicker",
@@ -237,6 +241,7 @@ impl AlternativeCastKindDef {
             Self::Emerge,
             Self::Splice,
             Self::Flashback,
+            Self::Harmonize,
             Self::Overload,
             Self::Miracle,
             Self::Kicked,
@@ -406,6 +411,11 @@ impl AlternativeCastAbilityDef {
             return text;
         }
         match (self.kind, self.mana_cost_source()) {
+            (AlternativeCastKindDef::Harmonize, AlternativeCastManaCostDef::Fixed(mana_cost)) => {
+                format!("Harmonize {mana_cost} (You may cast this card from your graveyard for its harmonize cost. You may tap a creature you control to reduce that cost by an amount of generic mana equal to its power. Then exile this spell.)")
+            }
+            (AlternativeCastKindDef::Harmonize, AlternativeCastManaCostDef::ThisCardManaCost) =>
+                "Harmonize—its harmonize cost is equal to its mana cost. (You may cast this card from your graveyard for its harmonize cost. You may tap a creature you control to reduce that cost by an amount of generic mana equal to its power. Then exile this spell.)".into(),
             (AlternativeCastKindDef::Flashback, AlternativeCastManaCostDef::Fixed(mana_cost)) => {
                 format!(
                     "Flashback {mana_cost} (You may cast this card from your graveyard for its flashback cost. Then exile it.)",

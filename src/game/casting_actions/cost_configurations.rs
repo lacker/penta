@@ -19,6 +19,7 @@ use crate::game::ManaPaymentPurpose;
 include!("cost_configurations/object_combinations.rs");
 include!("cost_configurations/additional_cost_payments.rs");
 include!("cost_configurations/mana_presence.rs");
+include!("cost_configurations/harmonize.rs");
 
 /// The chosen quantities a cost can be counted from: the X the spell is cast
 /// for, how many modes it was cast with, and how many targets it names.
@@ -67,6 +68,8 @@ pub(in crate::game) struct SpellAdditionalCostPayment {
     pub(in crate::game) mana: ManaCost,
     pub(in crate::game) includes_mana_payment: bool,
     pub(in crate::game) life: u16,
+    /// A selected cost reduction locks announced X into the total, even at zero.
+    pub(in crate::game) generic_reduction: Option<u16>,
 }
 
 impl SpellAdditionalCostPayment {
@@ -76,15 +79,28 @@ impl SpellAdditionalCostPayment {
             mana: ManaCost::default(),
             includes_mana_payment: false,
             life: 0,
+            generic_reduction: None,
         }
     }
 
     fn combine(&self, other: &Self) -> Option<Self> {
-        if other
-            .objects
-            .iter()
-            .any(|(object, _)| self.objects.iter().any(|(paid, _)| paid == object))
-        {
+        // Tapping and then moving the same permanent spend distinct resources.
+        // Harmonize may tap the creature later sacrificed to an additional cost.
+        if other.objects.iter().any(|(object, next)| {
+            self.objects.iter().any(|(paid, previous)| {
+                paid == object
+                    && !(matches!(previous, CostDef::Tap { .. })
+                        && matches!(
+                            next,
+                            CostDef::Sacrifice { .. }
+                                | CostDef::ReturnToHand { .. }
+                                | CostDef::Exile {
+                                    from: ZoneKind::Battlefield,
+                                    ..
+                                }
+                        ))
+            })
+        }) {
             return None;
         }
         let mut objects = self.objects.clone();
@@ -94,7 +110,17 @@ impl SpellAdditionalCostPayment {
             mana: add_mana_cost(self.mana, other.mana),
             includes_mana_payment: self.includes_mana_payment || other.includes_mana_payment,
             life: self.life.saturating_add(other.life),
+            generic_reduction: match (self.generic_reduction, other.generic_reduction) {
+                (None, None) => None,
+                (left, right) => Some(left.unwrap_or(0).saturating_add(right.unwrap_or(0))),
+            },
         })
+    }
+
+    pub(in crate::game) fn tap_cost_payer(&self) -> Option<GameObjectId> {
+        self.objects
+            .iter()
+            .find_map(|(id, cost)| matches!(cost, CostDef::Tap { .. }).then_some(*id))
     }
 
     pub(in crate::game) fn object_ids(&self) -> Vec<GameObjectId> {
@@ -296,11 +322,7 @@ impl Game {
         let Some(required) = self.selected_spell_additional_costs(request) else {
             return Vec::new();
         };
-        if required.is_empty() {
-            return vec![SpellAdditionalCostPayment::free()];
-        }
-
-        let mut combined = vec![SpellAdditionalCostPayment::free()];
+        let mut combined = self.harmonize_payment_options(request);
         for selected in required {
             let ways = self.repeated_spell_additional_cost_payment_options(
                 selected.cost,
@@ -365,6 +387,7 @@ impl Game {
                     mana: ManaCost::default(),
                     includes_mana_payment: false,
                     life: 0,
+                    generic_reduction: None,
                 })
                 .collect();
         }
@@ -391,6 +414,7 @@ impl Game {
                 mana: ManaCost::default(),
                 includes_mana_payment: false,
                 life: 0,
+                generic_reduction: None,
             })
             .collect()
     }
@@ -546,6 +570,7 @@ impl Game {
                 CastSourceZone::Graveyard,
                 Some(
                     AlternativeCastKindDef::Flashback
+                        | AlternativeCastKindDef::Harmonize
                         | AlternativeCastKindDef::Escape
                         | AlternativeCastKindDef::Retrace
                         | AlternativeCastKindDef::Granted

@@ -390,7 +390,11 @@ impl Game {
         )?;
         let cost = reduce_generic(
             Self::apply_spell_cost_reduction(
-                cost,
+                Self::apply_harmonize_reduction(
+                    cost,
+                    choices.x(),
+                    additional_payment.generic_reduction,
+                ),
                 self.spell_cost_reduction(definition.id, player, card_id, choices.targets()),
             ),
             self.emerge_generic_reduction(alternative_kind, sacrifices),
@@ -415,7 +419,10 @@ impl Game {
             cost,
             choices.x(),
             &payment_purpose,
-            sacrifices,
+            crate::game::mana_planning::ManaPaymentReservations {
+                objects: sacrifices,
+                tap_cost_payer: additional_payment.tap_cost_payer(),
+            },
             life_available,
         ) {
             return None;

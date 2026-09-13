@@ -23,6 +23,7 @@ impl Game {
                 mana: cost,
                 includes_mana_payment: true,
                 life: 0,
+                generic_reduction: None,
             }],
             CostDef::ManaTimes { cost, quantity } => {
                 let repetitions = scale
@@ -35,6 +36,7 @@ impl Game {
                     mana,
                     includes_mana_payment: repetitions > 0,
                     life: 0,
+                    generic_reduction: None,
                 }]
             }
             CostDef::PayLife(amount) => (i64::from(amount)
@@ -44,6 +46,7 @@ impl Game {
                 mana: ManaCost::default(),
                 includes_mana_payment: false,
                 life: amount,
+                generic_reduction: None,
             })
             .into_iter()
             .collect(),
@@ -57,6 +60,7 @@ impl Game {
                         mana: ManaCost::default(),
                         includes_mana_payment: false,
                         life: amount,
+                        generic_reduction: None,
                     })
                     .into_iter()
                     .collect()
@@ -154,6 +158,7 @@ impl Game {
                     mana: plan.mana,
                     includes_mana_payment: plan.includes_mana_payment,
                     life: plan.life,
+                    generic_reduction: None,
                 })
                 .collect();
         }
@@ -180,6 +185,7 @@ impl Game {
                 mana: repeated,
                 includes_mana_payment: total_repetitions > 0,
                 life: 0,
+                generic_reduction: None,
             }];
         }
         if let CostDef::Mana(cost) = cost {
@@ -190,6 +196,7 @@ impl Game {
                 mana: repeated,
                 includes_mana_payment: repetitions > 0,
                 life: 0,
+                generic_reduction: None,
             }];
         }
         if let CostDef::PayLifeTimes(quantity) = cost {
@@ -203,6 +210,7 @@ impl Game {
                     mana: ManaCost::default(),
                     includes_mana_payment: false,
                     life: amount,
+                    generic_reduction: None,
                 })
                 .into_iter()
                 .collect();

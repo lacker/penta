@@ -420,7 +420,7 @@ impl Game {
             && !proposed
                 .cast
                 .as_ref()
-                .is_some_and(|cast| cast.via_flashback)
+                .is_some_and(|cast| cast.exiles_on_leaving_stack())
             && let Some((destination, placement)) = requested
         {
             let Some(destination) = self.commander_hidden_move_destination(
@@ -449,7 +449,7 @@ impl Game {
                 return;
             }
             let exile_replaces_move = object.cast.as_ref().is_some_and(|cast| {
-                cast.via_flashback
+                cast.exiles_on_leaving_stack()
                     || (zone == CounteredSpellZone::Graveyard && cast.exile_if_put_into_graveyard)
             });
             match if exile_replaces_move {

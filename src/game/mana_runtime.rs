@@ -871,7 +871,7 @@ impl Game {
         cost: ManaCost,
         x: u16,
         purpose: &ManaPaymentPurpose,
-        reserved: &[GameObjectId],
+        reserved: super::mana_planning::ManaPaymentReservations<'_>,
         life_available: u16,
     ) -> bool {
         self.assigned_mana_activations_for_reserving_with_life(

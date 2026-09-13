@@ -312,6 +312,7 @@ impl Game {
             matches!(
                 alternative.kind,
                 AlternativeCastKindDef::Flashback
+                    | AlternativeCastKindDef::Harmonize
                     | AlternativeCastKindDef::Granted
                     // Rebound's own card, lent back to its caster out of the
                     // exile it put itself in.

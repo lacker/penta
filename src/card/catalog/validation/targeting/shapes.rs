@@ -597,19 +597,19 @@ fn applied_effect_adds_ability(effect: AppliedEffectDef) -> bool {
     }
 }
 
-fn nonbattlefield_ability_grants_are_flashback(effect: AppliedEffectDef) -> bool {
+fn nonbattlefield_ability_grants_are_graveyard_casts(effect: AppliedEffectDef) -> bool {
     match effect {
         AppliedEffectDef::Composite(effects) => effects
             .iter()
             .copied()
-            .all(nonbattlefield_ability_grants_are_flashback),
+            .all(nonbattlefield_ability_grants_are_graveyard_casts),
         AppliedEffectDef::Characteristic(CharacteristicOperationDef::Abilities(
             AbilityOperationDef::Add(ability),
         )) => {
             matches!(
                 ability.definition,
                 DeclarativeAbilityDef::AlternativeCast(definition)
-                    if definition.kind == AlternativeCastKindDef::Flashback
+                    if matches!(definition.kind, AlternativeCastKindDef::Flashback | AlternativeCastKindDef::Harmonize)
             )
         }
         AppliedEffectDef::Characteristic(_) | AppliedEffectDef::Rule(_) => true,

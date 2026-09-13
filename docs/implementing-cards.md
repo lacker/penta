@@ -360,6 +360,14 @@ its controller. Compose an ordinary `PayOrDef::unless` with `Counter` for a trig
 tax. The engine freezes these observers at the event and places them in the second
 APNAP pass required by CR 603.3b, after the abilities that caused them to trigger.
 
+### Harmonize
+
+Use `sets::tarkir_dragonstorm::harmonize(costs)` for the complete graveyard
+alternative. Pass only the mana cost; the casting procedure adds the optional
+creature tap, locks its power reduction before mana payment, and exiles the
+cast spell whenever it leaves the stack. For a grant whose cost equals the
+recipient card's mana cost, pass `&[CostDef::ManaCostOf(ObjectRefDef::Source)]`.
+
 ### Temporary self effects
 
 Use `abilities::apply_to_self_until_end_of_turn` for activated stat changes,

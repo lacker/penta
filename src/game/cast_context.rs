@@ -84,6 +84,11 @@ impl CastContext {
         }
     }
 
+    pub(super) fn exiles_on_leaving_stack(&self) -> bool {
+        self.via_flashback
+            || (self.was_cast() && self.alternative == Some(AlternativeCastKindDef::Harmonize))
+    }
+
     pub(super) fn for_spell_copy(&self) -> Self {
         let mut copied = self.clone();
         copied.source_zone = None;

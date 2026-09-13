@@ -274,8 +274,10 @@ pub(super) fn shared_resolving_applied_effect(effect: AppliedEffectDef) -> bool 
             | DeclarativeAbilityDef::Replacement(_)
             | DeclarativeAbilityDef::Keyword(_) => shared_definition_ability(ability),
             DeclarativeAbilityDef::AlternativeCast(definition) => {
-                definition.kind == AlternativeCastKindDef::Flashback
-                    && ability.declarative_effect() == Some(EffectDef::None)
+                matches!(
+                    definition.kind,
+                    AlternativeCastKindDef::Flashback | AlternativeCastKindDef::Harmonize
+                ) && ability.declarative_effect() == Some(EffectDef::None)
             }
             DeclarativeAbilityDef::Spell(_)
             | DeclarativeAbilityDef::Pregame(_)
@@ -823,6 +825,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
             // change only how the permanent arrives, and the card's own
             // clauses say what that change is.
             AlternativeCastKindDef::Flashback
+            | AlternativeCastKindDef::Harmonize
             | AlternativeCastKindDef::Granted
             | AlternativeCastKindDef::Foretell
             // Rebound's free cast, which like the others above only says

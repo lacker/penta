@@ -295,7 +295,13 @@ impl Game {
                                 // additional-cost branch that names it. A spell
                                 // naming more than one is bounded by whichever
                                 // required resource runs out first.
-                                let mana_x = if cost.variable_x {
+                                let mana_x = if cost.variable_x && alternative_kind == Some(AlternativeCastKindDef::Harmonize) {
+                                    Some(self.harmonize_x_ceiling(player, &ManaPaymentPurpose::Spell {
+                                        object: card.id, commander_owner: self.commander_owner(card.id),
+                                        definition: definition.id, controller: player, form: option.form.clone(),
+                                        reserved_life_payment: 0,
+                                    }))
+                                } else if cost.variable_x {
                                     let increased = add_mana_cost(
                                         cost,
                                         self.spell_cost_increase(player, card.id, &[]),
@@ -510,7 +516,7 @@ impl Game {
                                                     continue;
                                                 };
                                                 let payable_cost = Self::apply_spell_cost_reduction(
-                                                    locked_cost,
+                                                    Self::apply_harmonize_reduction(locked_cost, x, additional_payment.generic_reduction),
                                                     self.spell_cost_reduction(
                                                         definition.id,
                                                         player,
@@ -555,7 +561,9 @@ impl Game {
                                                     payable_cost,
                                                     x,
                                                     &exact_purpose,
-                                                    &sacrifices,
+                                                    crate::game::mana_planning::ManaPaymentReservations {
+                                                        objects: &sacrifices, tap_cost_payer: additional_payment.tap_cost_payer(),
+                                                    },
                                                     life_available,
                                                 ) {
                                                     continue;

@@ -223,16 +223,19 @@ impl Game {
         cost: ManaCost,
         x: u16,
         purpose: &ManaPaymentPurpose,
-        reserved: &[GameObjectId],
+        reserved: ManaPaymentReservations<'_>,
         life_available: u16,
     ) -> Option<Vec<PlannedManaActivation>> {
         self.assigned_mana_activations(ManaPlanningRequest {
             player,
             cost,
             x,
-            options: ManaPlanOptions::default(),
+            options: ManaPlanOptions {
+                avoid: None,
+                tap_cost_payer: reserved.tap_cost_payer,
+            },
             purpose,
-            reserved,
+            reserved: reserved.objects,
             life_available,
         })
     }
@@ -308,7 +311,7 @@ impl Game {
             let activations = self.eligible_payment_activations(permanent, request, cost);
             let mana_outputs = Self::planned_outputs(&activations, request.purpose);
             let mut outputs = mana_outputs.clone();
-            if contributions.any() {
+            if contributions.any() && request.options.tap_cost_payer != Some(permanent.card.id) {
                 let contribution_outputs =
                     self.permanent_contribution_outputs(permanent, contributions);
                 let combined = Self::mana_and_contribution_outputs(

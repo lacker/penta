@@ -185,7 +185,9 @@ impl Game {
                                 mana_cost,
                                 x,
                                 &payment_purpose,
-                                cost_objects,
+                                crate::game::mana_planning::ManaPaymentReservations {
+                                    objects: cost_objects, tap_cost_payer: None,
+                                },
                                 life_available,
                             ) {
                                 continue;
@@ -295,7 +297,9 @@ impl Game {
                                 mana_cost,
                                 0,
                                 &payment_purpose,
-                                cost_objects,
+                                crate::game::mana_planning::ManaPaymentReservations {
+                                    objects: cost_objects, tap_cost_payer: None,
+                                },
                                 life_available,
                             ) {
                                 continue;

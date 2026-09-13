@@ -17,6 +17,13 @@ use super::{
     SetOperationDef, Target, TargetSelection, TargetSlotId, TriggerContext, ValueDef, ZoneKind,
 };
 
+/// Objects committed to nonmana costs, including the tap reserved by harmonize.
+#[derive(Clone, Copy)]
+pub(in crate::game) struct ManaPaymentReservations<'a> {
+    pub(in crate::game) objects: &'a [GameObjectId],
+    pub(in crate::game) tap_cost_payer: Option<GameObjectId>,
+}
+
 #[derive(Clone, Copy)]
 struct AbilityManaRequest<'a> {
     player: PlayerId,
@@ -144,7 +151,11 @@ impl Game {
                 Some((
                     reduce_generic(
                         Self::apply_spell_cost_reduction(
-                            locked,
+                            Self::apply_harmonize_reduction(
+                                locked,
+                                choices.x(),
+                                payment.generic_reduction,
+                            ),
                             self.spell_cost_reduction(
                                 definition.id,
                                 player,
@@ -155,7 +166,10 @@ impl Game {
                         emerge,
                     ),
                     choices.x(),
-                    ManaPlanOptions::default(),
+                    ManaPlanOptions {
+                        avoid: None,
+                        tap_cost_payer: payment.tap_cost_payer(),
+                    },
                     ManaPaymentPurpose::Spell {
                         object: *card,
                         commander_owner: self.commander_owner(*card),
@@ -525,7 +539,7 @@ impl Game {
         x: u16,
         avoid: Option<GameObjectId>,
         purpose: &ManaPaymentPurpose,
-        reserved: &[GameObjectId],
+        reserved: ManaPaymentReservations<'_>,
     ) -> Option<Vec<PlannedManaActivation>> {
         let life_available =
             u16::try_from(self.players[player.index()].life.max(0)).unwrap_or(u16::MAX);
@@ -535,10 +549,10 @@ impl Game {
             x,
             options: ManaPlanOptions {
                 avoid,
-                tap_cost_payer: None,
+                tap_cost_payer: reserved.tap_cost_payer,
             },
             purpose,
-            reserved,
+            reserved: reserved.objects,
             life_available,
         })
     }

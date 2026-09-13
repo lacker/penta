@@ -191,10 +191,14 @@ pub(in crate::card::sets) static SOUL_PARTITION: CardRecord = CardRecord::new(
             then: &EffectDef::ExileGrantingOwnerPlay {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 surcharge: mana_cost!("{0}"),
+                later_turn: false,
+                cast_only: false,
             },
             otherwise: &EffectDef::ExileGrantingOwnerPlay {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 surcharge: mana_cost!("{2}"),
+                later_turn: false,
+                cast_only: false,
             },
         },
     )]),

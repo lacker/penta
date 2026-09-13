@@ -189,6 +189,12 @@ The constructor also accepts the colored-card exile costs. Use
 `abilities::evoke_with_text(costs, text)` for other nonmana wording or a printed
 text override. Both constructors always return the complete mechanic.
 
+Declare Warp once with `abilities::warp(costs, text)`. Its alternative-cost
+clause installs the ordinary delayed exile trigger as the permanent spell
+resolves. Do not add an enters trigger for Warp. The owner receives a cast-only
+permission that begins after the turn on which the delayed trigger exiles it;
+other effects that exile the same physical card do not grant that permission.
+
 Other clauses that refer to a particular alternative cost can use
 `TriggerConditionDef::SourcePaidAlternativeCost(binding)`, paired with
 `.with_alternative_cost_binding(binding)` on that cost. Ability order does

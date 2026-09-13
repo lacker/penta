@@ -348,6 +348,10 @@ pub enum EffectDef {
         /// cost. Empty is a legal value and means the card is simply
         /// castable from where it now sits.
         surcharge: ManaCost,
+        /// Permission starts only after the turn of exile has ended.
+        later_turn: bool,
+        /// Permit casting spells, excluding playing land faces.
+        cast_only: bool,
     },
     /// Exiles the recipient and lets this effect's controller play the new
     /// exiled object this turn. Moving and granting permission are one zone

@@ -257,6 +257,34 @@ impl Game {
         self.finish_stack_resolution(&object, !spell_fizzled);
     }
 
+    pub(super) fn install_permanent_spell_resolution_trigger(
+        &mut self,
+        spell: super::GameObjectId,
+        permanent: super::GameObjectId,
+    ) {
+        let Some(super::RetiredObject::Stack(object)) = self.retired_objects.get(&spell) else {
+            return;
+        };
+        let Some(payload) = object.ability.as_ref() else {
+            return;
+        };
+        let Some(ability) = payload.definition.as_ref() else {
+            return;
+        };
+        if !matches!(
+            ability.definition,
+            DeclarativeAbilityDef::AlternativeCast(_)
+        ) || !matches!(
+            ability.declarative_effect(),
+            Some(crate::card::EffectDef::InstallTrigger(_))
+        ) {
+            return;
+        }
+        let mut object = object.clone();
+        object.source = Some(permanent);
+        self.resolve_stack_ability(&object);
+    }
+
     /// Records that one of a permanent's abilities is resolving, for the
     /// cards that count their own resolutions.
     fn record_ability_resolution(&mut self, object: &StackObject) {

@@ -820,7 +820,6 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
             // Offspring changes only what the cast cost, which the arrival
             // trigger reads off the permanent afterwards.
             | AlternativeCastKindDef::Offspring
-            | AlternativeCastKindDef::Warp
             // Emerge says only what the cast costs and what is sacrificed
             // to reach it.
             | AlternativeCastKindDef::Emerge
@@ -829,6 +828,9 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
             | AlternativeCastKindDef::FaceDown { .. } => effect == EffectDef::None,
             // Plot executes its authored program immediately after payment.
             AlternativeCastKindDef::Plot => shared_stack_effect(effect),
+            AlternativeCastKindDef::Warp => {
+                matches!(effect, EffectDef::InstallTrigger(_)) && shared_stack_effect(effect)
+            }
             // Overload carries the instructions the modified spell resolves
             // with, so it has to be an effect the shared runtime can execute.
             // Overload and bestow both carry the instructions the modified

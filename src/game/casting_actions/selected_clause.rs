@@ -401,7 +401,10 @@ impl Game {
                 // Bestow is not a cheaper way to cast the same spell: it is
                 // an Aura spell with a target of its own, so it resolves the
                 // clause that says so.
-                | AlternativeCastKindDef::Bestow,
+                | AlternativeCastKindDef::Bestow
+                // Warp's instructions run as the permanent spell resolves,
+                // using this frozen clause even if its abilities change on entry.
+                | AlternativeCastKindDef::Warp,
             )) = Self::alternative_cast_ability(definition, option, selected)
             // A kicker that only costs more resolves the printed spell, so
             // it falls through to the base clause below rather than being

@@ -47,6 +47,12 @@ the bot-wire epoch.
   identities, including Dawn's Truce, and update the remaining Dewdrop Cure and
   Cruelclaw's Heist audits. Checkpoints add an optional `castPlayerBindings` map;
   ordinary action vocabulary and protocol/artifact versions are unchanged.
+- Fix Warp to install its delayed exile as the permanent spell resolves and
+  grant its owner cast permission only on later turns. Implement Quantum
+  Riddler and 26 other Warp cards; remaining cards retain whole-card unsupported
+  rules with specific capability audits. Existing installed-trigger locators
+  and exile-permission checkpoint fields carry the mechanic without a wire
+  or checkpoint version change.
 
 - Implement Firemind Vessel, Guild Globe, and Component Pouch. A shared
   `RollDieDef` executes fair seeded dice and inclusive result tables. The public

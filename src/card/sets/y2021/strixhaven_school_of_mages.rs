@@ -132,6 +132,8 @@ pub(in crate::card::sets) static ELITE_SPELLBINDER: CardRecord = CardRecord::new
                     then: &EffectDef::ExileGrantingOwnerPlay {
                         object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
                         surcharge: mana_cost!("{2}"),
+                        later_turn: false,
+                        cast_only: false,
                     },
                 }),
             ]),

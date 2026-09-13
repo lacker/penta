@@ -939,6 +939,12 @@ impl Game {
             to: ZoneKind::Battlefield,
             damage_sources: Vec::new(),
         });
+        // A delayed trigger in a permanent spell's selected alternative
+        // clause is installed by resolution, not by an enters ability. Use
+        // the frozen spell payload, even if entry changes its abilities.
+        if let EntryCompletion::SpellResolved { card, .. } = entry.completion {
+            self.install_permanent_spell_resolution_trigger(card, permanent_id);
+        }
         self.capture_room_entry_unlock(permanent_id);
         self.place_entry_lore_counter(permanent_id);
         if self.pregame.is_none() && self.restart_arrivals.is_none() {

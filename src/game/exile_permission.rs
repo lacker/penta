@@ -535,6 +535,8 @@ impl Game {
         card: GameObjectId,
         owner: PlayerId,
         surcharge: ManaCost,
+        later_turn: bool,
+        cast_only: bool,
     ) {
         self.exile_play_permissions.push(ExilePlayPermission {
             card,
@@ -543,7 +545,10 @@ impl Game {
             until_end_of_turn: None,
             adventure_return_only: false,
             surcharge,
-            not_before_turn: None,
+            not_before_turn: later_turn.then_some((
+                self.active_player,
+                self.turns_started[self.active_player.index()],
+            )),
             face_down: false,
             hidden_only: false,
             spend_any_color: false,
@@ -552,7 +557,7 @@ impl Game {
             zone: ZoneKind::Exile,
             group: None,
             hidden_from_owner: false,
-            lands_may_be_played: true,
+            lands_may_be_played: !cast_only,
             grants_haste: false,
         });
     }

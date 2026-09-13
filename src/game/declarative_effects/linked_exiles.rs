@@ -134,13 +134,17 @@ impl Game {
             EffectDef::ExileGrantingOwnerPlay {
                 object: recipient,
                 surcharge,
+                later_turn,
+                cast_only,
             } => {
                 for exiled in self.exile_effect_objects(recipient, false, object, context, scoped) {
                     // Its owner, not the exiler: what the clause hands back
                     // is the card's own player's ability to play it.
                     if let Some((_, instance)) = self.card_in_nonbattlefield_zone(exiled) {
                         let owner = instance.owner;
-                        self.permit_owner_play_while_exiled(exiled, owner, surcharge);
+                        self.permit_owner_play_while_exiled(
+                            exiled, owner, surcharge, later_turn, cast_only,
+                        );
                     }
                 }
             }

@@ -88,10 +88,9 @@ pub enum AlternativeCastKindDef {
     /// discarded land. Like escape the card is not exiled afterwards, which
     /// is what makes a land-heavy hand into a repeatable spell.
     Retrace,
-    /// Cast for its warp cost. Like a kicker it is an ordinary cast from
-    /// hand for a different price; what it changes is that the permanent is
-    /// exiled at the beginning of the next end step and may be cast again
-    /// from there on a later turn, which the card's own clauses say.
+    /// Cast for its warp cost. The selected clause installs a delayed exile
+    /// as the permanent spell resolves; its owner can cast the exiled card
+    /// on a later turn.
     Warp,
     /// Cast for its dash cost (CR 702.109a). Like a kicker it is an
     /// ordinary cast from hand for a different price; what it changes is

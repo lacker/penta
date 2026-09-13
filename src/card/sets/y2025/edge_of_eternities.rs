@@ -41,6 +41,7 @@ use crate::card::CreatedTokensDef;
 use crate::card::CreatureTypeSetDef;
 use crate::card::DamageEventMatcherDef;
 use crate::card::DamageRecipientMatcherDef;
+use crate::card::DamageSourceMatcherDef;
 use crate::card::DeclarativeAbilityDef;
 use crate::card::DestroyFollowUpDef;
 use crate::card::DiscardSelectionDef;
@@ -74,7 +75,10 @@ use crate::card::PlayerRelation;
 use crate::card::PlayerSetDef;
 use crate::card::QuantifierDef;
 use crate::card::RandomizeObjectOrderDef;
+use crate::card::ReplacementAbilityDef;
+use crate::card::ReplacementConditionDef;
 use crate::card::ReplacementEffectDef;
+use crate::card::ReplacementEventDef;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::RevealObjectsDef;
 use crate::card::RoundingDef;
@@ -146,6 +150,13 @@ pub const fn station(text: &'static str) -> AbilityDef {
     .labeled(STATION)
 }
 
+const HUMAN_SOLDIER_TOKEN: TokenCharacteristics =
+    TokenCharacteristics::creature(&["Human", "Soldier"], &[ManaColor::White], 1, 1).with_art(
+        CardArt::new(
+            "631c2c16-132d-4607-ab7e-207a6af188e5",
+            "Deruchenko Alexander",
+        ),
+    );
 const ROBOT_TOKEN: TokenCharacteristics =
     TokenCharacteristics::artifact_creature(&["Robot"], &[], 2, 2).with_art(CardArt::new(
         "c46f9a07-005c-44b7-8057-b2f00b274dd6",
@@ -191,15 +202,62 @@ const ROBOT_TOKEN_2: TokenCharacteristics =
     ));
 
 // EOE 1 — Anticausal Vestige
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
-// without an extra counterable enters trigger, and owner cast permission that starts only after
-// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
-// permission immediately.
 pub(in crate::card::sets) static ANTICAUSAL_VESTIGE: CardRecord = CardRecord::new(
     "Anticausal Vestige",
     "35372b69-6086-44e0-9f7c-681e362e5142",
     "Chase Stone",
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{6}"), &["Eldrazi"], 7, 5).with_abilities(&[
+        AbilityDef::triggered(
+            "When this creature leaves the battlefield, draw a card, then \
+             you may put a permanent card with mana value less than or \
+             equal to the number of lands you control from your hand onto \
+             the battlefield tapped.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                Some(ZoneKind::Battlefield),
+                None,
+            ),
+            EffectDef::Sequence(&[
+                abilities::draw_cards(ValueDef::Constant(1)),
+                EffectDef::SearchZone {
+                    player: EffectRecipientDef::Controller,
+                    source: ZoneKind::Hand,
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Artifact),
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::HasType(CardType::Enchantment),
+                            ObjectPredicateDef::HasType(CardType::Land),
+                            ObjectPredicateDef::HasType(CardType::Planeswalker),
+                        ]),
+                        ObjectPredicateDef::ManaValueAtMostValue(ValueDef::CountMatchingObjects(
+                            &ObjectQueryDef::matching(
+                                ObjectPredicateDef::HasType(CardType::Land),
+                                &[ZoneKind::Battlefield],
+                                PlayerRelation::You,
+                            ),
+                        )),
+                    ]),
+                    minimum: 0,
+                    maximum: ValueDef::Constant(1),
+                    reveal: false,
+                    destination: ZoneKind::Battlefield,
+                    placement: ZonePlacement::Top,
+                    shuffle: false,
+                    enters_tapped: true,
+                    attachment: None,
+                    binding: None,
+                    then: None,
+                },
+            ]),
+        ),
+        abilities::warp(
+            &[CostDef::Mana(mana_cost!("{4}"))],
+            "Warp {4} (You may cast this card from your hand for its warp \
+             cost. Exile this creature at the beginning of the next end \
+             step, then you may cast it from exile on a later turn.)",
+        ),
+    ]),
 );
 
 // EOE 2 — Tezzeret, Cruel Captain
@@ -349,10 +407,8 @@ pub(in crate::card::sets) static TEZZERET_CRUEL_CAPTAIN: CardRecord = CardRecord
 );
 
 // EOE 3 — All-Fates Stalker
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
-// without an extra counterable enters trigger, and owner cast permission that starts only after
-// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
-// permission immediately.
+// Audit: unsupported — Needs exile-until-source-leaves with immediate return when the duration ends (CR
+// 610.3); an ordinary leaves trigger returns through the stack too late. Warp is supported.
 pub(in crate::card::sets) static ALL_FATES_STALKER: CardRecord = CardRecord::new(
     "All-Fates Stalker",
     "82ae4f7b-8122-4af6-8079-888eabf1a11e",
@@ -361,11 +417,8 @@ pub(in crate::card::sets) static ALL_FATES_STALKER: CardRecord = CardRecord::new
 );
 
 // EOE 4 — Astelli Reclaimer
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
-// without an extra counterable enters trigger, and owner cast permission that starts only after
-// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
-// permission immediately. Also needs the source spell's mana-spent amount retained for target
-// selection after the source leaves.
+// Audit: unsupported — Needs the source spell's mana-spent amount retained for target selection after the
+// source leaves.
 pub(in crate::card::sets) static ASTELLI_RECLAIMER: CardRecord = CardRecord::new(
     "Astelli Reclaimer",
     "4fb36405-cd28-432f-b0a4-e74ff8be928d",
@@ -680,15 +733,28 @@ pub(in crate::card::sets) static EMERGENCY_EJECT: CardRecord = CardRecord::new(
 );
 
 // EOE 15 — Exalted Sunborn
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
-// without an extra counterable enters trigger, and owner cast permission that starts only after
-// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
-// permission immediately.
 pub(in crate::card::sets) static EXALTED_SUNBORN: CardRecord = CardRecord::new(
     "Exalted Sunborn",
     "7e1fe101-f634-41e5-9aa4-e8d7474535dc",
     "Scott M. Fischer",
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{W}{W}"), &["Angel", "Wizard"], 4, 5).with_abilities(&[
+        abilities::flying(),
+        abilities::lifelink(),
+        AbilityDef::static_ability(
+            "If one or more tokens would be created under your control, \
+             twice that many of those tokens are created instead.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Controller,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::DoublesTokensCreated),
+            },
+        ),
+        abilities::warp(
+            &[CostDef::Mana(mana_cost!("{1}{W}"))],
+            "Warp {1}{W} (You may cast this card from your hand for its \
+             warp cost. Exile this creature at the beginning of the next \
+             end step, then you may cast it from exile on a later turn.)",
+        ),
+    ]),
 );
 
 // EOE 16 — Exosuit Savior
@@ -798,15 +864,58 @@ pub(in crate::card::sets) static FOCUS_FIRE: CardRecord = CardRecord::new(
 );
 
 // EOE 19 — Haliya, Guided by Light
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
-// without an extra counterable enters trigger, and owner cast permission that starts only after
-// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
-// permission immediately.
 pub(in crate::card::sets) static HALIYA_GUIDED_BY_LIGHT: CardRecord = CardRecord::new(
     "Haliya, Guided by Light",
     "6f7c63ae-5df3-410f-8643-b8c69133ca9d",
     "Kieran Yanner",
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Soldier"], 3, 3)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::triggered(
+                "Whenever Haliya or another creature or artifact you control \
+                 enters, you gain 1 life.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::Source,
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::AnyOf(&[
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                ObjectPredicateDef::HasType(CardType::Artifact),
+                            ]),
+                            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                        ]),
+                    ]),
+                    None,
+                    Some(ZoneKind::Battlefield),
+                ),
+                EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+            AbilityDef::triggered(
+                "At the beginning of your end step, draw a card if you've \
+                 gained 3 or more life this turn.",
+                TriggerEventDef::StepBegins {
+                    step: TurnStepDef::End,
+                    player: PlayerRelation::You,
+                },
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                        left: ValueDef::LifeGainedThisTurn(PlayerRelation::You),
+                        comparison: ComparisonDef::GreaterOrEqual,
+                        right: ValueDef::Constant(3),
+                    }),
+                    then: &abilities::draw_cards(ValueDef::Constant(1)),
+                },
+            ),
+            abilities::warp(
+                &[CostDef::Mana(mana_cost!("{W}"))],
+                "Warp {W} (You may cast this card from your hand for its warp \
+                 cost. Exile this creature at the beginning of the next end \
+                 step, then you may cast it from exile on a later turn.)",
+            ),
+        ]),
 );
 
 // EOE 20 — Hardlight Containment
@@ -886,15 +995,23 @@ pub(in crate::card::sets) static HONORED_KNIGHT_CAPTAIN: CardRecord = CardRecord
 );
 
 // EOE 23 — Knight Luminary
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
-// without an extra counterable enters trigger, and owner cast permission that starts only after
-// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
-// permission immediately.
 pub(in crate::card::sets) static KNIGHT_LUMINARY: CardRecord = CardRecord::new(
     "Knight Luminary",
     "34334971-c1b7-4506-a6dd-77f66b3ae4e7",
     "Aaron Miller",
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{W}"), &["Human", "Knight"], 3, 2).with_abilities(&[
+        abilities::enters_trigger(
+            "When this creature enters, create a 1/1 white Human Soldier \
+             creature token.",
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(HUMAN_SOLDIER_TOKEN))),
+        ),
+        abilities::warp(
+            &[CostDef::Mana(mana_cost!("{1}{W}"))],
+            "Warp {1}{W} (You may cast this card from your hand for its \
+             warp cost. Exile this creature at the beginning of the next \
+             end step, then you may cast it from exile on a later turn.)",
+        ),
+    ]),
 );
 
 // EOE 24 — Lightstall Inquisitor
@@ -1113,15 +1230,45 @@ pub(in crate::card::sets) static RADIANT_STRIKE: CardRecord = CardRecord::new(
 );
 
 // EOE 30 — Rayblade Trooper
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
-// without an extra counterable enters trigger, and owner cast permission that starts only after
-// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
-// permission immediately.
 pub(in crate::card::sets) static RAYBLADE_TROOPER: CardRecord = CardRecord::new(
     "Rayblade Trooper",
     "c08c7bf9-a2ed-45c6-8b48-15122d9d9e37",
     "Cristi Balanescu",
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Soldier"], 2, 2).with_abilities(&[
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, put a +1/+1 counter on target \
+             creature you control.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
+            )],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        abilities::dies_trigger_matching(
+            "Whenever a nontoken creature you control with a +1/+1 \
+             counter on it dies, create a 1/1 white Human Soldier \
+             creature token.",
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
+                ObjectPredicateDef::HasCounter(CounterKind::PlusOnePlusOne),
+            ]),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(HUMAN_SOLDIER_TOKEN))),
+        ),
+        abilities::warp(
+            &[CostDef::Mana(mana_cost!("{1}{W}"))],
+            "Warp {1}{W} (You may cast this card from your hand for its \
+             warp cost. Exile this creature at the beginning of the next \
+             end step, then you may cast it from exile on a later turn.)",
+        ),
+    ]),
 );
 
 // EOE 31 — Reroute Systems
@@ -1371,15 +1518,49 @@ pub(in crate::card::sets) static SQUIRE_S_LIGHTBLADE: CardRecord = CardRecord::n
 );
 
 // EOE 37 — Starfield Shepherd
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
-// without an extra counterable enters trigger, and owner cast permission that starts only after
-// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
-// permission immediately.
 pub(in crate::card::sets) static STARFIELD_SHEPHERD: CardRecord = CardRecord::new(
     "Starfield Shepherd",
     "1226e575-aa78-4c68-be1d-6e5c2dc6315b",
     "Marta Nael",
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{W}{W}"), &["Angel"], 3, 2).with_abilities(&[
+        abilities::flying(),
+        abilities::enters_trigger(
+            "When this creature enters, search your library for a basic \
+             Plains card or a creature card with mana value 1 or less, \
+             reveal it, put it into your hand, then shuffle.",
+            EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                object: ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                        ObjectPredicateDef::Subtype(SubtypeDef::from_name("Plains")),
+                    ]),
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::ManaValueAtMost(1),
+                    ]),
+                ]),
+                minimum: 0,
+                maximum: ValueDef::Constant(1),
+                reveal: true,
+                destination: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+                shuffle: true,
+                enters_tapped: false,
+                attachment: None,
+                binding: None,
+                then: None,
+            },
+        ),
+        abilities::warp(
+            &[CostDef::Mana(mana_cost!("{1}{W}"))],
+            "Warp {1}{W} (You may cast this card from your hand for its \
+             warp cost. Exile this creature at the beginning of the next \
+             end step, then you may cast it from exile on a later turn.)",
+        ),
+    ]),
 );
 
 // EOE 38 — Starfighter Pilot
@@ -1576,15 +1757,36 @@ pub(in crate::card::sets) static WEDGELIGHT_RAMMER: CardRecord = CardRecord::new
 );
 
 // EOE 44 — Weftblade Enhancer
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
-// without an extra counterable enters trigger, and owner cast permission that starts only after
-// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
-// permission immediately.
 pub(in crate::card::sets) static WEFTBLADE_ENHANCER: CardRecord = CardRecord::new(
     "Weftblade Enhancer",
     "8d72b00c-5043-4630-949a-fc17eeb962bc",
     "Nathaniel Himawan",
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{5}{W}"), &["Drix", "Artificer"], 3, 4).with_abilities(&[
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, put a +1/+1 counter on each of up \
+             to two target creatures.",
+            &[AbilityTargetDef::up_to(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+                2,
+            )],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        abilities::warp(
+            &[CostDef::Mana(mana_cost!("{2}{W}"))],
+            "Warp {2}{W} (You may cast this card from your hand for its \
+             warp cost. Exile this creature at the beginning of the next \
+             end step, then you may cast it from exile on a later turn.)",
+        ),
+    ]),
 );
 
 // EOE 45 — Zealous Display
@@ -1737,15 +1939,29 @@ pub(in crate::card::sets) static CLOUDSCULPT_TECHNICIAN: CardRecord = CardRecord
 );
 
 // EOE 50 — Codecracker Hound
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
-// without an extra counterable enters trigger, and owner cast permission that starts only after
-// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
-// permission immediately.
 pub(in crate::card::sets) static CODECRACKER_HOUND: CardRecord = CardRecord::new(
     "Codecracker Hound",
     "6723b891-6013-4ec6-b439-2233d270dc48",
     "Julia Metzger",
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Dog"], 2, 1).with_abilities(&[
+        abilities::enters_trigger(
+            "When this creature enters, look at the top two cards of your \
+             library. Put one into your hand and the other into your \
+             graveyard.",
+            abilities::look_at_top_cards_choose_to_hand_rest_graveyard(
+                ValueDef::Constant(2),
+                ObjectPredicateDef::Any,
+                1,
+                1,
+            ),
+        ),
+        abilities::warp(
+            &[CostDef::Mana(mana_cost!("{2}{U}"))],
+            "Warp {2}{U} (You may cast this card from your hand for its \
+             warp cost. Exile this creature at the beginning of the next \
+             end step, then you may cast it from exile on a later turn.)",
+        ),
+    ]),
 );
 
 // EOE 51 — Consult the Star Charts
@@ -2292,15 +2508,46 @@ pub(in crate::card::sets) static MECHAN_SHIELDMATE: CardRecord = CardRecord::new
 );
 
 // EOE 66 — Mechanozoa
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
-// without an extra counterable enters trigger, and owner cast permission that starts only after
-// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
-// permission immediately.
 pub(in crate::card::sets) static MECHANOZOA: CardRecord = CardRecord::new(
     "Mechanozoa",
     "0cb8d8ce-329a-4a97-b3d8-796703ebcb37",
     "Daarken",
-    CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{4}{U}{U}"), &["Robot", "Jellyfish"], 5, 5)
+        .with_abilities(&[
+            abilities::enters_trigger_with_targets(
+                "When this creature enters, tap target artifact or creature \
+                 an opponent controls and put a stun counter on it. (If a \
+                 permanent with a stun counter would become untapped, remove \
+                 one from it instead.)",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Artifact),
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                        ]),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::Opponent),
+                        owner: None,
+                    },
+                )],
+                EffectDef::Sequence(&[
+                    EffectDef::Tap {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    },
+                    EffectDef::AddCounters {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        kind: CounterKind::Stun,
+                        amount: ValueDef::Constant(1),
+                    },
+                ]),
+            ),
+            abilities::warp(
+                &[CostDef::Mana(mana_cost!("{2}{U}"))],
+                "Warp {2}{U} (You may cast this card from your hand for its \
+                 warp cost. Exile it at the beginning of the next end step, \
+                 then you may cast it from exile on a later turn.)",
+            ),
+        ]),
 );
 
 // EOE 67 — Mental Modulation
@@ -2394,15 +2641,39 @@ pub(in crate::card::sets) static NANOFORM_SENTINEL: CardRecord = CardRecord::new
 );
 
 // EOE 72 — Quantum Riddler
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
-// without an extra counterable enters trigger, and owner cast permission that starts only after
-// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
-// permission immediately.
 pub(in crate::card::sets) static QUANTUM_RIDDLER: CardRecord = CardRecord::new(
     "Quantum Riddler",
     "120be808-ff3b-4fca-96a1-4db6b9825856",
     "Izzy",
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{U}{U}"), &["Sphinx"], 4, 6).with_abilities(&[
+        abilities::flying(),
+        abilities::enters_trigger(
+            "When this creature enters, draw a card.",
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        AbilityDef::defined_replacement(
+            "As long as you have one or fewer cards in hand, if you would \
+             draw one or more cards, you draw that many cards plus one \
+             instead.",
+            ReplacementAbilityDef::new()
+                .with_event(ReplacementEventDef::WouldDraw {
+                    player: PlayerRelation::You,
+                    during_own_draw_step: false,
+                    except_first_in_draw_step: false,
+                })
+                .with_condition(ReplacementConditionDef::ControllerHandAtMost(1)),
+            ReplacementEffectDef::AddToEventAmount(1),
+        ),
+        abilities::warp(
+            &[CostDef::Mana(mana_cost!("{1}{U}"))],
+            "Warp {1}{U} (You may cast this card from your hand for its \
+             warp cost. Exile it at the beginning of the next end step, \
+             then you may cast it from exile on a later turn.)",
+        ),
+    ]),
 );
 
 // EOE 73 — Scour for Scrap
@@ -2465,15 +2736,38 @@ pub(in crate::card::sets) static SELFCRAFT_MECHAN: CardRecord = CardRecord::new(
 );
 
 // EOE 75 — Sinister Cryologist
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
-// without an extra counterable enters trigger, and owner cast permission that starts only after
-// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
-// permission immediately.
 pub(in crate::card::sets) static SINISTER_CRYOLOGIST: CardRecord = CardRecord::new(
     "Sinister Cryologist",
     "e8fbe740-05ec-4ced-bb9d-3084c8c2b631",
     "Domenico Cava",
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Jellyfish", "Wizard"], 2, 3).with_abilities(
+        &[
+            abilities::enters_trigger_with_targets(
+                "When this creature enters, target creature an opponent \
+                 controls gets -3/-0 until end of turn.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
+                    ]),
+                )],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(-3),
+                        ValueDef::Constant(0),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+            abilities::warp(
+                &[CostDef::Mana(mana_cost!("{U}"))],
+                "Warp {U} (You may cast this card from your hand for its warp \
+                 cost. Exile this creature at the beginning of the next end \
+                 step, then you may cast it from exile on a later turn.)",
+            ),
+        ],
+    ),
 );
 
 // EOE 76 — Specimen Freighter
@@ -2560,39 +2854,91 @@ pub(in crate::card::sets) static SPECIMEN_FREIGHTER: CardRecord = CardRecord::ne
 );
 
 // EOE 77 — Starbreach Whale
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
-// without an extra counterable enters trigger, and owner cast permission that starts only after
-// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
-// permission immediately.
 pub(in crate::card::sets) static STARBREACH_WHALE: CardRecord = CardRecord::new(
     "Starbreach Whale",
     "8a1a0476-7145-4493-97e5-4fc05c85e476",
     "Sam Burley",
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{U}"), &["Whale"], 3, 5).with_abilities(&[
+        abilities::flying(),
+        abilities::enters_trigger(
+            "When this creature enters, surveil 2. (Look at the top two \
+             cards of your library, then put any number of them into your \
+             graveyard and the rest on top of your library in any order.)",
+            abilities::surveil(ValueDef::Constant(2)),
+        ),
+        abilities::warp(
+            &[CostDef::Mana(mana_cost!("{1}{U}"))],
+            "Warp {1}{U} (You may cast this card from your hand for its \
+             warp cost. Exile it at the beginning of the next end step, \
+             then you may cast it from exile on a later turn.)",
+        ),
+    ]),
 );
 
 // EOE 78 — Starfield Vocalist
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
-// without an extra counterable enters trigger, and owner cast permission that starts only after
-// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
-// permission immediately.
 pub(in crate::card::sets) static STARFIELD_VOCALIST: CardRecord = CardRecord::new(
     "Starfield Vocalist",
     "deca0b2a-e7f3-444a-883d-7c41dd62c9cc",
     "Nathaniel Himawan",
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{U}"), &["Human", "Bard"], 3, 4).with_abilities(&[
+        AbilityDef::static_ability(
+            "If a permanent entering the battlefield causes a triggered \
+             ability of a permanent you control to trigger, that ability \
+             triggers an additional time.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Controller,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::ModifyTriggers(
+                    &crate::card::TriggerModificationDef {
+                        cause: TriggerEventDef::zone_changed(
+                            ObjectPredicateDef::Any,
+                            None,
+                            Some(ZoneKind::Battlefield),
+                        ),
+                        permanent: Some(ObjectPredicateDef::Any),
+                        kind: crate::card::TriggerModificationKindDef::Additional,
+                    },
+                )),
+            },
+        ),
+        abilities::warp(
+            &[CostDef::Mana(mana_cost!("{1}{U}"))],
+            "Warp {1}{U} (You may cast this card from your hand for its \
+             warp cost. Exile this creature at the beginning of the next \
+             end step, then you may cast it from exile on a later turn.)",
+        ),
+    ]),
 );
 
 // EOE 79 — Starwinder
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
-// without an extra counterable enters trigger, and owner cast permission that starts only after
-// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
-// permission immediately.
 pub(in crate::card::sets) static STARWINDER: CardRecord = CardRecord::new(
     "Starwinder",
     "27d1a010-5790-4b35-9fdc-0e366eed021d",
     "Devin Elle Kurtz",
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{5}{U}{U}"), &["Leviathan"], 7, 7).with_abilities(&[
+        AbilityDef::triggered(
+            "Whenever a creature you control deals combat damage to a \
+             player, you may draw that many cards.",
+            TriggerEventDef::DamageDealt(DamageEventMatcherDef {
+                source: DamageSourceMatcherDef::Matching(ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ])),
+                recipient: DamageRecipientMatcherDef::Recipients(EffectRecipientDef::EachPlayer),
+                kind: crate::card::DamageKindDef::Combat,
+            }),
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &abilities::draw_cards(ValueDef::TriggerEventAmount),
+            },
+        ),
+        abilities::warp(
+            &[CostDef::Mana(mana_cost!("{2}{U}{U}"))],
+            "Warp {2}{U}{U} (You may cast this card from your hand for \
+             its warp cost. Exile this creature at the beginning of the \
+             next end step, then you may cast it from exile on a later \
+             turn.)",
+        ),
+    ]),
 );
 
 // EOE 80 — Steelswarm Operator
@@ -3479,15 +3825,58 @@ pub(in crate::card::sets) static MONOIST_SENTRY: CardRecord = CardRecord::new(
 );
 
 // EOE 112 — Perigee Beckoner
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
-// without an extra counterable enters trigger, and owner cast permission that starts only after
-// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
-// permission immediately.
 pub(in crate::card::sets) static PERIGEE_BECKONER: CardRecord = CardRecord::new(
     "Perigee Beckoner",
     "f3666a08-d449-496f-969a-bf21d4afbd77",
     "Dmitry Burmak",
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{B}"), &["Horror"], 4, 5).with_abilities(&[
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, until end of turn, another target \
+             creature you control gets +2/+0 and gains \"When this \
+             creature dies, return it to the battlefield tapped under its \
+             owner's control.\"",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                ]),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(0),
+                    ),
+                    AppliedEffectDef::add_ability(&abilities::dies_trigger(
+                        "When this creature dies, return it to the battlefield tapped \
+                         under its owner's control.",
+                        EffectDef::WithBattlefieldArrival {
+                            effect: &EffectDef::move_to_zone(
+                                EffectRecipientDef::object(
+                                    ObjectRefDef::ZoneChangeResultOfTriggeringObject,
+                                ),
+                                ZoneKind::Battlefield,
+                                ZonePlacement::Top,
+                            ),
+                            arrival: BattlefieldArrivalDef {
+                                modifications: &[BattlefieldEntryModificationDef::Tapped],
+                                ..BattlefieldArrivalDef::DEFAULT
+                            },
+                        },
+                    )),
+                ]),
+            },
+        ),
+        abilities::warp(
+            &[CostDef::Mana(mana_cost!("{1}{B}"))],
+            "Warp {1}{B} (You may cast this card from your hand for its \
+             warp cost. Exile this creature at the beginning of the next \
+             end step, then you may cast it from exile on a later turn.)",
+        ),
+    ]),
 );
 
 // EOE 113 — Requiem Monolith
@@ -3785,15 +4174,46 @@ pub(in crate::card::sets) static SUSURIAN_DIRGECRAFT: CardRecord = CardRecord::n
 );
 
 // EOE 118 — Susurian Voidborn
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
-// without an extra counterable enters trigger, and owner cast permission that starts only after
-// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
-// permission immediately.
 pub(in crate::card::sets) static SUSURIAN_VOIDBORN: CardRecord = CardRecord::new(
     "Susurian Voidborn",
     "beb97e7b-0ae7-4b08-9ceb-6a7f825bcd49",
     "Jehan Choo",
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{B}"), &["Vampire", "Soldier"], 2, 2).with_abilities(&[
+        abilities::dies_trigger_matching_with_targets(
+            "Whenever this creature or another creature or artifact you \
+             control dies, target opponent loses 1 life and you gain 1 \
+             life.",
+            ObjectPredicateDef::AnyOf(&[
+                ObjectPredicateDef::Source,
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                    ]),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
+            ]),
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::LoseLife {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(1),
+                },
+                EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+            ]),
+        ),
+        abilities::warp(
+            &[CostDef::Mana(mana_cost!("{B}"))],
+            "Warp {B} (You may cast this card from your hand for its warp \
+             cost. Exile this creature at the beginning of the next end \
+             step, then you may cast it from exile on a later turn.)",
+        ),
+    ]),
 );
 
 // EOE 119 — Swarm Culler
@@ -3833,15 +4253,27 @@ pub(in crate::card::sets) static TEMPORAL_INTERVENTION: CardRecord = CardRecord:
 );
 
 // EOE 121 — Timeline Culler
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
-// without an extra counterable enters trigger, and owner cast permission that starts only after
-// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
-// permission immediately.
 pub(in crate::card::sets) static TIMELINE_CULLER: CardRecord = CardRecord::new(
     "Timeline Culler",
     "33410410-72f2-49c4-9e63-a72202cd075a",
     "Alfonso Santano",
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{B}{B}"), &["Drix", "Warlock"], 2, 2).with_abilities(&[
+        abilities::haste(),
+        AbilityDef::static_ability(
+            "You may cast this card from your graveyard using its warp \
+             ability.",
+            EffectDef::None,
+        )
+        .with_source_zones(&[ZoneKind::Graveyard]),
+        abilities::warp(
+            &[CostDef::Mana(mana_cost!("{B}")), CostDef::PayLife(2)],
+            "Warp—{B}, Pay 2 life. (You may cast this card from your hand \
+             or graveyard for its warp cost. If you do, exile this \
+             creature at the beginning of the next end step, then you may \
+             cast it from exile on a later turn.)",
+        )
+        .with_alternative_from_graveyard(),
+    ]),
 );
 
 // EOE 122 — Tragic Trajectory
@@ -4434,15 +4866,38 @@ pub(in crate::card::sets) static MELDED_MOXITE: CardRecord = CardRecord::new(
 );
 
 // EOE 144 — Memorial Team Leader
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
-// without an extra counterable enters trigger, and owner cast permission that starts only after
-// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
-// permission immediately.
 pub(in crate::card::sets) static MEMORIAL_TEAM_LEADER: CardRecord = CardRecord::new(
     "Memorial Team Leader",
     "3ddc240a-62df-4773-98d7-48a9adaf1846",
     "Andrew Mar",
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{R}"), &["Kavu", "Soldier"], 4, 3).with_abilities(&[
+        AbilityDef::static_ability(
+            "During your turn, other creatures you control get +1/+0.",
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::ActivePlayer(PlayerRelation::You),
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(0),
+                    ),
+                },
+            },
+        ),
+        abilities::warp(
+            &[CostDef::Mana(mana_cost!("{1}{R}"))],
+            "Warp {1}{R} (You may cast this card from your hand for its \
+             warp cost. Exile this creature at the beginning of the next \
+             end step, then you may cast it from exile on a later turn.)",
+        ),
+    ]),
 );
 
 // EOE 145 — Memorial Vault
@@ -4540,15 +4995,34 @@ pub(in crate::card::sets) static NEBULA_DRAGON: CardRecord = CardRecord::new(
 );
 
 // EOE 148 — Nova Hellkite
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
-// without an extra counterable enters trigger, and owner cast permission that starts only after
-// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
-// permission immediately.
 pub(in crate::card::sets) static NOVA_HELLKITE: CardRecord = CardRecord::new(
     "Nova Hellkite",
     "424af0d0-398c-4d78-9ad5-2171bf1bcbd1",
     "Raymond Swanland",
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{R}{R}"), &["Dragon"], 4, 5).with_abilities(&[
+        abilities::flying(),
+        abilities::haste(),
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, it deals 1 damage to target \
+             creature an opponent controls.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
+                ]),
+            )],
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(1),
+            ),
+        ),
+        abilities::warp(
+            &[CostDef::Mana(mana_cost!("{2}{R}"))],
+            "Warp {2}{R} (You may cast this card from your hand for its \
+             warp cost. Exile this creature at the beginning of the next \
+             end step, then you may cast it from exile on a later turn.)",
+        ),
+    ]),
 );
 
 // EOE 149 — Orbital Plunge
@@ -4672,11 +5146,7 @@ pub(in crate::card::sets) static PLASMA_BOLT: CardRecord = CardRecord::new(
 );
 
 // EOE 153 — Possibility Technician
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
-// without an extra counterable enters trigger, and owner cast permission that starts only after
-// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
-// permission immediately. Also needs an indefinite controller play permission conditional on
-// currently controlling a Kavu.
+// Audit: unsupported — Needs an indefinite controller play permission conditional on currently controlling a Kavu.
 pub(in crate::card::sets) static POSSIBILITY_TECHNICIAN: CardRecord = CardRecord::new(
     "Possibility Technician",
     "4b146c78-403f-48c8-941d-41114498bb89",
@@ -4685,15 +5155,21 @@ pub(in crate::card::sets) static POSSIBILITY_TECHNICIAN: CardRecord = CardRecord
 );
 
 // EOE 154 — Red Tiger Mechan
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
-// without an extra counterable enters trigger, and owner cast permission that starts only after
-// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
-// permission immediately.
 pub(in crate::card::sets) static RED_TIGER_MECHAN: CardRecord = CardRecord::new(
     "Red Tiger Mechan",
     "b7b2fa48-cd2d-42ea-afd8-8cbd7a1bcdab",
     "Simon Dominic",
-    CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{3}{R}"), &["Robot", "Cat"], 3, 3).with_abilities(
+        &[
+            abilities::haste(),
+            abilities::warp(
+                &[CostDef::Mana(mana_cost!("{1}{R}"))],
+                "Warp {1}{R} (You may cast this card from your hand for its \
+                 warp cost. Exile this creature at the beginning of the next \
+                 end step, then you may cast it from exile on a later turn.)",
+            ),
+        ],
+    ),
 );
 
 // EOE 155 — Remnant Elemental
@@ -4928,11 +5404,7 @@ pub(in crate::card::sets) static SYSTEMS_OVERRIDE: CardRecord = CardRecord::new(
 );
 
 // EOE 162 — Tannuk, Steadfast Second
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
-// without an extra counterable enters trigger, and owner cast permission that starts only after
-// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
-// permission immediately. Also needs granting a complete Warp alternative to matching cards in
-// hand.
+// Audit: unsupported — Needs granting a complete Warp alternative to matching cards in hand.
 pub(in crate::card::sets) static TANNUK_STEADFAST_SECOND: CardRecord = CardRecord::new(
     "Tannuk, Steadfast Second",
     "44607ed3-9523-40ac-9f61-0edd011cf762",
@@ -5187,15 +5659,35 @@ pub(in crate::card::sets) static WEAPONS_MANUFACTURING: CardRecord = CardRecord:
 );
 
 // EOE 169 — Weftstalker Ardent
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
-// without an extra counterable enters trigger, and owner cast permission that starts only after
-// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
-// permission immediately.
 pub(in crate::card::sets) static WEFTSTALKER_ARDENT: CardRecord = CardRecord::new(
     "Weftstalker Ardent",
     "cddb48cc-8eb1-47ce-90f0-7aad1e93e2c4",
     "Valera Lutfullina",
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Drix", "Artificer"], 2, 3).with_abilities(&[
+        AbilityDef::triggered(
+            "Whenever another creature or artifact you control enters, \
+             this creature deals 1 damage to each opponent.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                    ]),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                ]),
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            EffectDef::damage(EffectRecipientDef::Opponent, ValueDef::Constant(1)),
+        ),
+        abilities::warp(
+            &[CostDef::Mana(mana_cost!("{R}"))],
+            "Warp {R} (You may cast this card from your hand for its warp \
+             cost. Exile this creature at the beginning of the next end \
+             step, then you may cast it from exile on a later turn.)",
+        ),
+    ]),
 );
 
 // EOE 170 — Zookeeper Mechan
@@ -5359,11 +5851,7 @@ pub(in crate::card::sets) static BLOOMING_STINGER: CardRecord = CardRecord::new(
 );
 
 // EOE 175 — Broodguard Elite
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
-// without an extra counterable enters trigger, and owner cast permission that starts only after
-// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
-// permission immediately. Also needs transferring every last-known counter kind and amount from
-// the departed creature.
+// Audit: unsupported — Needs transferring every last-known counter kind and amount from the departed creature.
 pub(in crate::card::sets) static BROODGUARD_ELITE: CardRecord = CardRecord::new(
     "Broodguard Elite",
     "08b1d019-65ab-4dea-9076-041fd6338a35",
@@ -5434,15 +5922,45 @@ const DIPLOMATIC_RELATIONS_ALTERNATE_1: PrintingRecord = PrintingRecord::alterna
 );
 
 // EOE 178 — Drix Fatemaker
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
-// without an extra counterable enters trigger, and owner cast permission that starts only after
-// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
-// permission immediately.
 pub(in crate::card::sets) static DRIX_FATEMAKER: CardRecord = CardRecord::new(
     "Drix Fatemaker",
     "1beb7566-305e-4091-bdc4-cf4c789ac05a",
     "Anna Pavleeva",
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{G}"), &["Drix", "Wizard"], 3, 2).with_abilities(&[
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, put a +1/+1 counter on target \
+             creature.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        AbilityDef::static_ability(
+            "Each creature you control with a +1/+1 counter on it has \
+             trample.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::HasCounter(CounterKind::PlusOnePlusOne),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                effect: AppliedEffectDef::add_ability(&abilities::trample()),
+            },
+        ),
+        abilities::warp(
+            &[CostDef::Mana(mana_cost!("{1}{G}"))],
+            "Warp {1}{G} (You may cast this card from your hand for its \
+             warp cost. Exile this creature at the beginning of the next \
+             end step, then you may cast it from exile on a later turn.)",
+        ),
+    ]),
 );
 
 // EOE 179 — Edge Rover
@@ -5495,15 +6013,32 @@ pub(in crate::card::sets) static EUMIDIAN_TERRABOTANIST: CardRecord = CardRecord
 );
 
 // EOE 181 — Eusocial Engineering
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
-// without an extra counterable enters trigger, and owner cast permission that starts only after
-// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
-// permission immediately.
 pub(in crate::card::sets) static EUSOCIAL_ENGINEERING: CardRecord = CardRecord::new(
     "Eusocial Engineering",
     "011bd7d8-6d60-482a-91b7-d3f0aad13b71",
     "Francisco Badilla",
-    CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{3}{G}{G}")).with_abilities(&[
+        AbilityDef::triggered(
+            "Landfall — Whenever a land you control enters, create a 2/2 \
+             colorless Robot artifact creature token.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(ROBOT_TOKEN))),
+        ),
+        abilities::warp(
+            &[CostDef::Mana(mana_cost!("{1}{G}"))],
+            "Warp {1}{G} (You may cast this card from your hand for its \
+             warp cost. Exile this enchantment at the beginning of the \
+             next end step, then you may cast it from exile on a later \
+             turn.)",
+        ),
+    ]),
 );
 
 // EOE 182 — Famished Worldsire
@@ -5593,15 +6128,25 @@ pub(in crate::card::sets) static GENE_POLLINATOR: CardRecord = CardRecord::new(
 );
 
 // EOE 187 — Germinating Wurm
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
-// without an extra counterable enters trigger, and owner cast permission that starts only after
-// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
-// permission immediately.
 pub(in crate::card::sets) static GERMINATING_WURM: CardRecord = CardRecord::new(
     "Germinating Wurm",
     "fcde173a-6314-4904-bddd-68b2ab1e4867",
     "Monztre",
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{G}"), &["Plant", "Wurm"], 5, 5).with_abilities(&[
+        abilities::enters_trigger(
+            "When this creature enters, you gain 2 life.",
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(2),
+            },
+        ),
+        abilities::warp(
+            &[CostDef::Mana(mana_cost!("{1}{G}"))],
+            "Warp {1}{G} (You may cast this card from your hand for its \
+             warp cost. Exile this creature at the beginning of the next \
+             end step, then you may cast it from exile on a later turn.)",
+        ),
+    ]),
 );
 
 // EOE 188 — Glacier Godmaw
@@ -5863,10 +6408,8 @@ pub(in crate::card::sets) static LASHWHIP_PREDATOR: CardRecord = CardRecord::new
 );
 
 // EOE 196 — Loading Zone
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
-// without an extra counterable enters trigger, and owner cast permission that starts only after
-// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
-// permission immediately.
+// Audit: unsupported — Needs a counter-placement replacement that doubles every counter kind on matching
+// controlled creatures, Spacecraft, and Planets, including entry counters. Warp is supported.
 pub(in crate::card::sets) static LOADING_ZONE: CardRecord = CardRecord::new(
     "Loading Zone",
     "0d2c95bd-79af-4a23-b265-62cc0b164e3e",
@@ -6757,15 +7300,46 @@ pub(in crate::card::sets) static MUTINOUS_MASSACRE: CardRecord = CardRecord::new
 );
 
 // EOE 223 — Pinnacle Emissary
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
-// without an extra counterable enters trigger, and owner cast permission that starts only after
-// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
-// permission immediately.
 pub(in crate::card::sets) static PINNACLE_EMISSARY: CardRecord = CardRecord::new(
     "Pinnacle Emissary",
     "3c922347-f05f-40a4-bbee-6bc02a1e0de5",
     "Alejandro Pacheco",
-    CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{1}{U}{R}"), &["Robot"], 3, 3).with_abilities(&[
+        AbilityDef::triggered(
+            "Whenever you cast an artifact spell, create a 1/1 colorless \
+             Drone artifact creature token with flying and \"This token \
+             can block only creatures with flying.\"",
+            TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Artifact),
+                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+            ])),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                TokenCharacteristics::artifact_creature(&["Drone"], &[], 1, 1)
+                    .with_art(CardArt::new(
+                        "3fcf8950-117a-4587-8522-79001dffa500",
+                        "Artur Nakhodkin",
+                    ))
+                    .with_abilities(&[
+                        abilities::flying(),
+                        AbilityDef::static_ability(
+                            "This token can block only creatures with flying.",
+                            EffectDef::StaticApply {
+                                recipient: EffectRecipientDef::Source,
+                                effect: AppliedEffectDef::Rule(AppliedRuleDef::can_block_only(
+                                    ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
+                                )),
+                            },
+                        ),
+                    ]),
+            ))),
+        ),
+        abilities::warp(
+            &[CostDef::Mana(mana_cost!("{U/R}"))],
+            "Warp {U/R} (You may cast this card from your hand for its \
+             warp cost. Exile this creature at the beginning of the next \
+             end step, then you may cast it from exile on a later turn.)",
+        ),
+    ]),
 );
 
 // EOE 224 — Ragost, Deft Gastronaut
@@ -7219,15 +7793,18 @@ pub(in crate::card::sets) static ALL_FATES_SCROLL: CardRecord = CardRecord::new(
 );
 
 // EOE 235 — Bygone Colossus
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
-// without an extra counterable enters trigger, and owner cast permission that starts only after
-// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
-// permission immediately.
 pub(in crate::card::sets) static BYGONE_COLOSSUS: CardRecord = CardRecord::new(
     "Bygone Colossus",
     "4bb8f2ef-4398-4a07-9130-5005356a3b4a",
     "Maxime Minard",
-    CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{9}"), &["Robot", "Giant"], 9, 9).with_abilities(
+        &[abilities::warp(
+            &[CostDef::Mana(mana_cost!("{3}"))],
+            "Warp {3} (You may cast this card from your hand for its warp \
+             cost. Exile this creature at the beginning of the next end \
+             step, then you may cast it from exile on a later turn.)",
+        )],
+    ),
 );
 
 // EOE 236 — Chrome Companion
@@ -8391,15 +8968,46 @@ const TANNUK_STEADFAST_SECOND_ALTERNATE_1: PrintingRecord = PrintingRecord::alte
 );
 
 // EOE 297 — Mightform Harmonizer
-// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell,
-// without an extra counterable enters trigger, and owner cast permission that starts only after
-// the exile turn has ended; the existing Warp helper installs an enters trigger and grants
-// permission immediately.
 pub(in crate::card::sets) static MIGHTFORM_HARMONIZER: CardRecord = CardRecord::new(
     "Mightform Harmonizer",
     "29bc9be4-4fc3-440a-a851-0c7f8989c9b5",
     "Jessica Fong",
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{G}{G}"), &["Insect", "Druid"], 4, 4).with_abilities(&[
+        AbilityDef::triggered_with_targets(
+            "Landfall — Whenever a land you control enters, double the \
+             power of target creature you control until end of turn.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                },
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::TargetPower(TargetIndex::PRIMARY),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+        abilities::warp(
+            &[CostDef::Mana(mana_cost!("{2}{G}"))],
+            "Warp {2}{G} (You may cast this card from your hand for its \
+             warp cost. Exile this creature at the beginning of the next \
+             end step, then you may cast it from exile on a later turn.)",
+        ),
+    ]),
 );
 
 // EOE 298 — Dyadrine, Synthesis Amalgam (alternate printing)

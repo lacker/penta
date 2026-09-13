@@ -98,3 +98,36 @@ fn subtype_families_match_catalog_type_lines() {
     }
     assert!(invalid.is_empty(), "{}", invalid.join("\n"));
 }
+
+#[test]
+fn subtype_sets_use_oracle_names_for_the_corrected_cards() {
+    let catalog = crate::card::catalog().unwrap();
+    for (name, expected) in [
+        (
+            "Cephalid Looter",
+            SubtypeSet::from_names(&["Octopus", "Rogue"]),
+        ),
+        ("Cephalid Broker", SubtypeSet::from_names(&["Octopus"])),
+        ("Cephalid Retainer", SubtypeSet::from_names(&["Octopus"])),
+        (
+            "Aboshan, Cephalid Emperor",
+            SubtypeSet::from_names(&["Octopus", "Noble"]),
+        ),
+        ("The Wandering Emperor", SubtypeSet::EMPTY),
+    ] {
+        let definition = catalog
+            .definitions()
+            .into_iter()
+            .find(|definition| definition.name == name)
+            .unwrap();
+        assert_eq!(definition.rules.subtype_set(), expected, "{name}");
+    }
+    let immunity = catalog
+        .definitions()
+        .into_iter()
+        .find(|definition| definition.name == "Eldritch Immunity")
+        .unwrap();
+    assert!(immunity.rules.has_type(CardType::Kindred));
+    assert!(immunity.rules.subtype_set().contains(Subtype::Eldrazi));
+    assert!(Subtype::from_name("Cephalid").is_none());
+}

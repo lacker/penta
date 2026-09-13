@@ -262,6 +262,12 @@ pub(super) fn shared_resolving_applied_effect(effect: AppliedEffectDef) -> bool 
         AppliedEffectDef::Composite(effects) => {
             !effects.is_empty() && effects.iter().copied().all(shared_resolving_applied_effect)
         }
+        AppliedEffectDef::Rule(AppliedRuleDef::PlayerRule(
+            crate::card::PlayerRuleDef::ApplyToNextSpell { object, effect },
+        )) => {
+            shared_object_predicate(object)
+                && static_effects::shared_stack_uncounterability_effect(*effect)
+        }
         AppliedEffectDef::Rule(AppliedRuleDef::CannotBeCountered) => false,
         AppliedEffectDef::Characteristic(CharacteristicOperationDef::Abilities(
             AbilityOperationDef::Add(ability),

@@ -438,7 +438,9 @@ pub(super) fn applied_effects(ability: &AbilityDef) -> Vec<AppliedEffectDef> {
     }
     for mana in mana_effects(ability) {
         for spend in mana.spend_effects {
-            if let ManaSpendEffectDef::ApplyToPaidSpell(effect) = *spend {
+            if let ManaSpendEffectDef::ApplyToPaidSpell(effect)
+            | ManaSpendEffectDef::ApplyToPaidSpellMatching { effect, .. } = *spend
+            {
                 collect_applied_effect(effect, &mut found);
             }
         }
@@ -492,6 +494,9 @@ fn collect_applied_effect(effect: AppliedEffectDef, found: &mut Vec<AppliedEffec
                 collect_applied_effect(*child, found);
             }
         }
+        AppliedEffectDef::Rule(AppliedRuleDef::PlayerRule(
+            crate::card::PlayerRuleDef::ApplyToNextSpell { effect, .. },
+        )) => collect_applied_effect(*effect, found),
         // "If you do, it gains ...": what a graveyard permission hands to
         // the permanent it allowed is a rider like any other, and the
         // permanent keeps it long after the play, so it has to be findable

@@ -43,6 +43,12 @@ the bot-wire epoch.
   Scavenger's, and Stormchaser's Talents. Audit all remaining paper Class
   cards from BLB, AFR, and CLB against their specific outstanding mechanics.
 
+- Implement Mistrise Village with a resolving player rule that applies a
+  counterability effect to the next matching spell during casting. Unused
+  grants expire at turn end; copies do not inherit the protection. Extend
+  Boseiju, Who Shelters All regression coverage and checkpoint lookup for
+  conditional mana riders. Existing protocol and checkpoint epochs are unchanged.
+
 - Add `legacy` and `vintage` format profiles and browser setup options with
   separate banned/restricted policies and all 24 lists from the initial event
   corpus. Card pools remain cataloged subsets; missing identities use complete

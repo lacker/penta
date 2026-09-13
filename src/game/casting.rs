@@ -907,7 +907,8 @@ impl Game {
         granted
     }
 
-    fn complete_spell_cast(&mut self, stack_object: StackObject, targets: Vec<Target>) {
+    fn complete_spell_cast(&mut self, mut stack_object: StackObject, targets: Vec<Target>) {
+        self.apply_next_spell_effects(&mut stack_object);
         let face_down = stack_object.face_down.is_some();
         let player = stack_object.controller;
         let stack_id = stack_object.id;

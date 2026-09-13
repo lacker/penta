@@ -8802,14 +8802,48 @@ pub(in crate::card::sets) static MAELSTROM_OF_THE_SPIRIT_DRAGON: CardRecord = Ca
 );
 
 // TDM 261 — Mistrise Village
-// Audit: unsupported — Needs a next-spell-cast permission making that spell uncounterable
-// immediately as it is cast, with expiration at turn end; adding the ability from a subsequent
-// cast trigger leaves an incorrect response window.
 pub(in crate::card::sets) static MISTRISE_VILLAGE: CardRecord = CardRecord::new(
     "Mistrise Village",
     "d44bccbf-6fab-46e4-8ddb-6577e27ec6e8",
     "Constantin Marin",
-    CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        AbilityDef::as_enters(
+            "This land enters tapped unless you control a Mountain or a Forest.",
+            ReplacementEffectDef::Conditional {
+                condition: ConditionDef::Exists(ObjectQueryDef::matching(
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Mountain")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Forest")),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                )),
+                if_true: &[],
+                if_false: &[ReplacementEffectDef::ModifyBattlefieldEntry(
+                    BattlefieldEntryModificationDef::Tapped,
+                )],
+            },
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add {U}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Blue)),
+        ),
+        AbilityDef::activated(
+            "{U}, {T}: The next spell you cast this turn can't be countered.",
+            &[CostDef::Mana(mana_cost!("{U}")), CostDef::TapSource],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Controller,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::PlayerRule(
+                    crate::card::PlayerRuleDef::ApplyToNextSpell {
+                        object: ObjectPredicateDef::Any,
+                        effect: &AppliedEffectDef::Rule(AppliedRuleDef::CannotBeCountered),
+                    },
+                )),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // TDM 262 — Mystic Monastery (reprint)

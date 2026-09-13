@@ -137,3 +137,22 @@ fn scoped_effect_ability_paths_preserve_mode_scope_and_existing_root_snapshots()
         Some(scoped)
     );
 }
+
+#[test]
+fn conditional_mana_riders_are_locatable_in_their_producing_ability() {
+    let catalog = crate::poc::catalog().unwrap();
+    for definition in [
+        crate::card::cards::BOSEIJU_WHO_SHELTERS_ALL_273,
+        crate::card::cards::HALL_OF_THE_BANDIT_LORD_277,
+    ] {
+        for ability in catalog.get(definition).unwrap().rules.indexed_abilities() {
+            for mana in mana_effects(&ability.definition) {
+                for rider in mana.spend_effects {
+                    if let ManaSpendEffectDef::ApplyToPaidSpellMatching { effect, .. } = rider {
+                        assert!(applied_effects(&ability.definition).contains(effect));
+                    }
+                }
+            }
+        }
+    }
+}

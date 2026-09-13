@@ -413,6 +413,9 @@ fn static_player_applied_effect_supported(effect: AppliedEffectDef) -> bool {
                 && static_attack_restriction_supported(restriction)
         }
         AppliedEffectDef::Rule(AppliedRuleDef::PlayerRule(
+            crate::card::PlayerRuleDef::ApplyToNextSpell { .. },
+        )) => false,
+        AppliedEffectDef::Rule(AppliedRuleDef::PlayerRule(
             crate::card::PlayerRuleDef::LegendRuleDoesNotApplyTo(predicate),
         )) => static_object_predicate_supported(*predicate),
         // Read by the cleanup step, by the same walk and for the same reason.

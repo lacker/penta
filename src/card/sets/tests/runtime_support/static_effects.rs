@@ -486,7 +486,7 @@ fn shared_static_effect_at(source_zones: &[ZoneKind], effect: EffectDef, root: b
     }
 }
 
-fn shared_stack_uncounterability_effect(effect: AppliedEffectDef) -> bool {
+pub(super) fn shared_stack_uncounterability_effect(effect: AppliedEffectDef) -> bool {
     match effect {
         AppliedEffectDef::Composite(effects) => {
             !effects.is_empty()
@@ -677,7 +677,8 @@ pub(in super::super) fn shared_static_applied_effect(
 /// for.
 fn shared_static_applied_rule(recipient: EffectRecipientDef, rule: AppliedRuleDef) -> bool {
     match rule {
-        AppliedRuleDef::RedirectDamageFromTo { .. } => false,
+        AppliedRuleDef::RedirectDamageFromTo { .. }
+        | AppliedRuleDef::PlayerRule(PlayerRuleDef::ApplyToNextSpell { .. }) => false,
         AppliedRuleDef::PlayerRule(PlayerRuleDef::LegendRuleDoesNotApplyTo(predicate)) => {
             matches!(recipient.0, EffectRecipientSetDef::Players(_))
                 && shared_object_predicate(*predicate)

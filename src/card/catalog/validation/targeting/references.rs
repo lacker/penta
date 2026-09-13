@@ -675,6 +675,12 @@ fn validate_applied_effect_target_references(
             validate_value_target_references(power, target_count, scope)?;
             validate_value_target_references(toughness, target_count, scope)
         }
+        AppliedEffectDef::Rule(AppliedRuleDef::PlayerRule(
+            crate::card::PlayerRuleDef::ApplyToNextSpell { object, effect },
+        )) => {
+            validate_object_predicate_references(object, target_count, scope)?;
+            validate_applied_effect_target_references(*effect, target_count, scope)
+        }
         AppliedEffectDef::Rule(AppliedRuleDef::PreventDamage(matcher)) => {
             validate_damage_matcher_references(matcher, target_count, scope)
         }

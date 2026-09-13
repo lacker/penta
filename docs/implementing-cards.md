@@ -347,6 +347,21 @@ corresponding card type is gone. Planar, dungeon, and battle subtype vocabularie
 are included without adding gameplay support for those card types. Names remain
 the persistence boundary; numeric subtype positions are never serialized.
 
+### Effects on the next spell
+
+Use `AppliedRuleDef::PlayerRule(PlayerRuleDef::ApplyToNextSpell { object, effect })`
+in a resolving `EffectDef::Apply` aimed at the affected player. The enclosing
+Apply supplies the unused grant's duration. The spell predicate is checked
+against the completed cast's stack characteristics, and every matching grant
+is consumed before cast triggers or priority. Legal-action queries and spell
+copies consume nothing. The initial payload boundary accepts
+`AppliedRuleDef::CannotBeCountered`, including composites of that rule; other
+stack or permanent riders need their own runtime and duration support.
+
+The grant and the resulting stack effect retain catalog locators for checkpoint
+reconstruction. Once applied, counterability protection lasts for that spell's
+stack lifetime, even after the unused grant's original deadline.
+
 ### Changeling
 
 Use `abilities::changeling()` on the card or token's ordinary ability list.

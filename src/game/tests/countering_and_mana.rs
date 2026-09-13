@@ -1,4 +1,5 @@
 mod cavern_of_souls;
+mod protecting_lands;
 
 use super::*;
 use crate::AbilityProgramDef;

@@ -19,6 +19,43 @@ impl Game {
         u16::try_from(index).unwrap_or(u16::MAX)
     }
 
+    /// Move every matching one-shot player rule onto the completed spell.
+    /// Copies never enter this path, and querying legal casts consumes nothing.
+    pub(super) fn apply_next_spell_effects(&mut self, spell: &mut super::StackObject) {
+        if self.resolved_player_rules.is_empty() {
+            return;
+        }
+        let Some(event) = self.stack_trigger_event_object(spell) else {
+            return;
+        };
+        let consumed = self
+            .resolved_player_rules
+            .iter()
+            .enumerate()
+            .filter_map(|(index, resolved)| {
+                let crate::card::PlayerRuleDef::ApplyToNextSpell { object, effect } = resolved.rule
+                else {
+                    return None;
+                };
+                (resolved.affected_player == spell.controller
+                    && self.continuous_effect_expiration_is_active(
+                        resolved.expiration,
+                        resolved.source.object,
+                    )
+                    && self.trigger_object_matches(object, &event, resolved.source.object, true))
+                .then_some((index, resolved.source, *effect))
+            })
+            .collect::<Vec<_>>();
+        for (index, source, effect) in consumed.into_iter().rev() {
+            self.resolved_player_rules.remove(index);
+            spell.applied_effects.push(super::AppliedStackEffect {
+                source: None,
+                granting: Some(source),
+                effect,
+            });
+        }
+    }
+
     pub(super) fn record_spell_cast(&mut self, player: PlayerId, spell: GameObjectId) {
         self.record_commander_cast(spell);
         self.spells_cast_this_turn[player.index()] =

@@ -890,6 +890,14 @@ fn validate_applied_effect_shapes(
             Ok(())
         }
         AppliedEffectDef::Rule(AppliedRuleDef::PlayerRule(
+            crate::card::PlayerRuleDef::ApplyToNextSpell { object, effect },
+        )) => {
+            if static_effect || !next_spell_effect_supported(*effect) {
+                return Err(GrantedAbilityValidationError::UnsupportedResolvingAppliedEffect);
+            }
+            validate_predicated_player_rule_shape(recipient, object, targets)
+        }
+        AppliedEffectDef::Rule(AppliedRuleDef::PlayerRule(
             crate::card::PlayerRuleDef::LegendRuleDoesNotApplyTo(predicate),
         )) => validate_predicated_player_rule_shape(recipient, *predicate, targets),
         // Each names a player and carries nothing else.

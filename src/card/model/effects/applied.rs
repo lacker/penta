@@ -177,6 +177,14 @@ pub enum AppliedEffectDef {
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum PlayerRuleDef {
+    /// Apply a stack effect as the affected player finishes casting their next
+    /// matching spell, before cast triggers or priority. Each resolved instance
+    /// is consumed by that same cast. The enclosing Apply supplies expiration.
+    /// The initial payload boundary supports counterability rules only.
+    ApplyToNextSpell {
+        object: ObjectPredicateDef,
+        effect: &'static AppliedEffectDef,
+    },
     /// The legend rule ignores matching permanents the affected player
     /// controls. The predicate is part of the rule because exemptions range
     /// from every permanent (Mirror Gallery) to only tokens, creatures, or a

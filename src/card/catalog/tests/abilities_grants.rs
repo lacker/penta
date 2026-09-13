@@ -932,3 +932,51 @@ fn face_up_in_exile_rejects_trigger_and_static_contexts() {
 }
 
 include!("abilities_grants/static_power_toughness.rs");
+
+#[test]
+fn next_spell_grants_reject_static_use_and_non_stack_payloads() {
+    for payload in [
+        &AppliedEffectDef::Rule(AppliedRuleDef::CannotBeCountered),
+        &AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+    ] {
+        let effect = AppliedEffectDef::Rule(AppliedRuleDef::PlayerRule(
+            crate::card::PlayerRuleDef::ApplyToNextSpell {
+                object: ObjectPredicateDef::Any,
+                effect: payload,
+            },
+        ));
+        let result = validate_ability_targets(
+            &[],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Controller,
+                effect,
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        );
+        assert_eq!(
+            result.is_ok(),
+            *payload == AppliedEffectDef::Rule(AppliedRuleDef::CannotBeCountered)
+        );
+        assert!(
+            validate_ability_targets(
+                &[],
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Controller,
+                    effect,
+                }
+            )
+            .is_err()
+        );
+        assert!(
+            validate_ability_targets(
+                &[],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Source,
+                    effect,
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                }
+            )
+            .is_err()
+        );
+    }
+}

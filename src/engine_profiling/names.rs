@@ -29,6 +29,7 @@ pub(crate) const fn effect_kind(value: crate::EffectDef) -> &'static str {
         crate::EffectDef::ChooseColor { .. } => "ChooseColor",
         crate::EffectDef::ChangeText { .. } => "ChangeText",
         crate::EffectDef::ReflexiveTrigger(..) => "ReflexiveTrigger",
+        crate::EffectDef::RollDie(..) => "RollDie",
         crate::EffectDef::SubstituteBasicLandTypeUntilEndOfTurn { .. } => {
             "SubstituteBasicLandTypeUntilEndOfTurn"
         }

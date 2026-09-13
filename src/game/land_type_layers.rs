@@ -1,3 +1,5 @@
+mod subtype_families;
+
 use super::continuous_effects::StaticEffectKind;
 use super::continuous_effects::StaticSetCharacteristicLayerGuard;
 use super::{
@@ -677,6 +679,11 @@ impl Game {
                 .iter()
                 .filter(|effect| self.resolved_continuous_effect_is_active(effect))
                 .filter_map(|effect| match effect.kind {
+                    ResolvedContinuousEffectKind::CardTypes(SetOperationDef::Set(types)) => Some((
+                        effect.timestamp,
+                        effect.component_order,
+                        SubtypeLayerOperation::RetainForCardTypes(types),
+                    )),
                     ResolvedContinuousEffectKind::CreatureTypes(operation) => Some((
                         effect.timestamp,
                         effect.component_order,
@@ -767,6 +774,12 @@ impl Game {
     ) {
         for (_, _, operation) in operations {
             match operation {
+                // Type loss removes the associated subtypes at this timestamp;
+                // a later animation does not restore them implicitly.
+                SubtypeLayerOperation::RetainForCardTypes(types) => {
+                    subtypes
+                        .retain(|subtype| subtype_families::subtype_has_card_type(subtype, types));
+                }
                 SubtypeLayerOperation::BasicLand(operation) => {
                     Self::apply_basic_land_subtype_operation(subtypes, operation);
                 }
@@ -883,43 +896,6 @@ impl Game {
         Self::apply_subtype_operations(&mut subtypes, operations);
         self.drop_subtypes_without_their_card_type(permanent, &mut subtypes);
         Cow::Owned(subtypes)
-    }
-
-    /// A subtype belongs to a card type, and goes when that type does
-    /// (CR 205.1b): an Enduring Innocence that comes back as an enchantment
-    /// is no longer a Sheep Glimmer, because it is no longer a creature.
-    ///
-    /// Audit: unsupported -- creature types only. The other kinds of subtype are
-    /// carried on cards whose type line the engine never takes that type
-    /// away from, so nothing in the catalog can tell the difference yet.
-    fn drop_subtypes_without_their_card_type(
-        &self,
-        permanent: &Permanent,
-        subtypes: &mut Vec<&'static str>,
-    ) {
-        if !self.has_creature_subtype_family(permanent) {
-            subtypes.retain(|subtype| crate::card::creature_type_name(subtype).is_none());
-        }
-    }
-
-    /// Whether any of these subtypes has lost the card type it belongs to,
-    /// which is what decides whether the printed list can be handed back as
-    /// it stands.
-    fn has_subtypes_without_their_card_type(
-        &self,
-        permanent: &Permanent,
-        subtypes: &[&'static str],
-    ) -> bool {
-        !self.has_creature_subtype_family(permanent)
-            && subtypes
-                .iter()
-                .any(|subtype| crate::card::creature_type_name(subtype).is_some())
-    }
-
-    fn has_creature_subtype_family(&self, permanent: &Permanent) -> bool {
-        self.permanent_types(permanent).is_some_and(|types| {
-            types.contains(CardType::Creature) || types.contains(CardType::Kindred)
-        })
     }
 
     /// Basic land subtypes in effective type-line order, with duplicate types

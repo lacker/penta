@@ -10,7 +10,7 @@ use super::{
     TurnKindDef, ValueDef, ZoneKind,
 };
 use crate::{AdditionalCostIndex, card::AlternativeCastKindDef};
-use crate::{Binding, card::CardNameSetDef};
+use crate::{Binding, CardTypeSet, card::CardNameSetDef};
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum ReplacementEventDef {
@@ -128,6 +128,9 @@ pub enum ReplacementConditionDef {
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum BattlefieldEntryModificationDef {
     Tapped,
+    /// Establish a noncopiable layer-4 type-setting effect before replacement
+    /// effects inspect the prospective permanent. It lasts for this object.
+    SetCardTypes(CardTypeSet),
     AddCounters {
         kind: CounterKind,
         amount: u16,

@@ -728,7 +728,11 @@ impl Game {
         // would, so nothing observes the permanent arriving untapped first.
         permanent.tapped = arrival.tapped;
         for modification in arrival.modifications {
-            self.modify_battlefield_entry_permanent(&mut permanent, *modification);
+            self.modify_battlefield_entry_permanent(
+                &mut permanent,
+                *modification,
+                arrival.modification_source,
+            );
         }
         // A card put onto the battlefield face down was never face up there,
         // so these are part of the arrival rather than a later turn-over.

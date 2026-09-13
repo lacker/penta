@@ -1,5 +1,6 @@
 #[derive(Clone)]
 enum SubtypeLayerOperation {
+    RetainForCardTypes(crate::card::CardTypeSet),
     BasicLand(LandTypeOperation),
     Creature(SetOperationDef<CreatureTypeSetDef>),
     ChosenCreature {

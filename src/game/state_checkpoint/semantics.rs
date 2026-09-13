@@ -428,6 +428,14 @@ pub(super) fn applied_effects(ability: &AbilityDef) -> Vec<AppliedEffectDef> {
             }
         }
     }
+    for replacement in replacement_effects(ability) {
+        if let ReplacementEffectDef::ModifyBattlefieldEntry(
+            crate::card::BattlefieldEntryModificationDef::SetCardTypes(types),
+        ) = replacement
+        {
+            collect_applied_effect(AppliedEffectDef::set_card_types(types), &mut found);
+        }
+    }
     for mana in mana_effects(ability) {
         for spend in mana.spend_effects {
             if let ManaSpendEffectDef::ApplyToPaidSpell(effect) = *spend {
@@ -448,6 +456,15 @@ fn collect_applied_effects_from_effect(effect: EffectDef, found: &mut Vec<Applie
         // that grant on a permanent, which has to be locatable afterwards.
         EffectDef::ConditionalStatic(conditional) => {
             collect_applied_effect(conditional.then.effect, found);
+        }
+        EffectDef::WithBattlefieldArrival { arrival, .. } => {
+            for modification in arrival.modifications {
+                if let crate::card::BattlefieldEntryModificationDef::SetCardTypes(types) =
+                    modification
+                {
+                    collect_applied_effect(AppliedEffectDef::set_card_types(*types), found);
+                }
+            }
         }
         EffectDef::Apply {
             effect: applied, ..

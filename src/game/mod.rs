@@ -398,6 +398,8 @@ pub(super) struct BattlefieldArrival {
     /// prospective permanent before replacement effects and entry triggers
     /// observe it.
     pub(super) modifications: &'static [BattlefieldEntryModificationDef],
+    /// Provenance for persistent, noncopiable entry modifications.
+    modification_source: Option<AbilitySourceRef>,
     /// The attachment this permanent makes as it enters, in whichever
     /// direction. "Put target creature card onto the battlefield and attach
     /// this to it" cannot be two steps: what arrives is a new object, and by
@@ -427,6 +429,7 @@ impl BattlefieldArrival {
             controller,
             tapped: false,
             modifications: &[],
+            modification_source: None,
             transformed: false,
             attachment: None,
             face_down: None,
@@ -446,6 +449,7 @@ impl BattlefieldArrival {
             controller,
             tapped: false,
             modifications: &[],
+            modification_source: None,
             transformed: false,
             attachment: None,
             face_down: Some(face_down),
@@ -459,6 +463,7 @@ impl BattlefieldArrival {
             controller,
             tapped: true,
             modifications: &[],
+            modification_source: None,
             transformed: false,
             attachment: None,
             face_down: None,
@@ -472,6 +477,7 @@ impl BattlefieldArrival {
             controller,
             tapped: false,
             modifications: &[],
+            modification_source: None,
             transformed: true,
             attachment: None,
             face_down: None,

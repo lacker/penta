@@ -20,6 +20,15 @@ the bot-wire epoch.
 
 ## Unreleased
 
+- Implement Duskmourn's five Enduring enchantment creatures. Their death
+  triggers return the exact graveyard object under its owner's control with a
+  noncopiable type-setting effect established before entry replacements and
+  triggers inspect it. Type changes also remove inapplicable permanent subtypes,
+  and a returning copy only receives loyalty counters if it enters as a
+  planeswalker. Existing continuous-effect checkpoint encodings preserve
+  the effect and its original ability source; wire and checkpoint epochs are
+  unchanged.
+
 - Implement Firemind Vessel, Guild Globe, and Component Pouch. A shared
   `RollDieDef` executes fair seeded dice and inclusive result tables. The public
   event stream adds the open-vocabulary `DieRolled` event with `seat`, `sides`,

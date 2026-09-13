@@ -245,6 +245,21 @@ initial reflexive boundary accepts nonmodal abilities without listener limits
 or intervening-if conditions. `InstallTrigger` remains the operation for a
 listener awaiting a future event.
 
+### Characteristics established by a return
+
+Use `EffectDef::WithBattlefieldArrival` around the ordinary zone move when the
+instruction establishes characteristics before the permanent enters.
+`BattlefieldEntryModificationDef::SetCardTypes` installs a noncopiable layer-4
+type-setting effect on the prospective permanent. Entry replacements and enters
+triggers see those types; copying does not copy the effect, and another zone
+change ends it. This uses the existing continuous-effect state and retains the
+resolving ability's provenance for checkpoint reconstruction.
+
+For a past-tense death condition such as "if it was a creature," constrain the
+zone-change event's before observation. Do not inspect the new graveyard card or
+apply the type change as a later effect after entry. Duskmourn's `enduring_return`
+helper composes these two boundaries for its five-card cycle.
+
 ### Bound entry choices in mana restrictions
 
 Wrap an entry-time creature-type choice in `ReplacementEffectDef::BindOutput`

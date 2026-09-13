@@ -128,6 +128,39 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
+// The past-tense condition is frozen by the zone-change matcher's before
+// observation. Rechecking the graveyard card would lose the dying object's types.
+const fn enduring_return(text: &'static str) -> AbilityDef {
+    AbilityDef::triggered(
+        text,
+        TriggerEventDef::zone_changed(
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::Source,
+                ObjectPredicateDef::HasType(CardType::Creature),
+            ]),
+            Some(ZoneKind::Battlefield),
+            Some(ZoneKind::Graveyard),
+        ),
+        EffectDef::WithBattlefieldArrival {
+            effect: &const {
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::object(ObjectRefDef::ZoneChangeResultOfTriggeringObject),
+                    ZoneKind::Battlefield,
+                    ZonePlacement::Top,
+                )
+            },
+            arrival: BattlefieldArrivalDef {
+                modifications: &const {
+                    [BattlefieldEntryModificationDef::SetCardTypes(
+                        CardTypeSet::single(CardType::Enchantment),
+                    )]
+                },
+                ..BattlefieldArrivalDef::DEFAULT
+            },
+        },
+    )
+}
+
 const fn impending_cast(costs: &'static [CostDef], text: &'static str) -> AbilityDef {
     AbilityDef::alternative_cast(
         costs,
@@ -266,12 +299,38 @@ pub(in crate::card::sets) static EMERGE_FROM_THE_COCOON: CardRecord = CardRecord
 );
 
 // DSK 6 — Enduring Innocence
-// Audit: unsupported — Needs a return-to-battlefield instruction that establishes the permanent as a noncreature enchantment before entry replacement effects and enters triggers inspect it; applying a type change after the return produces an incorrect creature entry.
 pub(in crate::card::sets) static ENDURING_INNOCENCE: CardRecord = CardRecord::new(
     "Enduring Innocence",
     "08f79439-b8f8-418f-9772-26d81844749e",
     "Liiga Smilshkalne",
-    CardRules::unsupported(),
+    CardRules::new_enchantment_creature(mana_cost!("{1}{W}{W}"), &["Sheep", "Glimmer"], 2, 1)
+        .with_abilities(&[
+            abilities::lifelink(),
+            AbilityDef::triggered(
+                "Whenever one or more other creatures you control with power \
+                 2 or less enter, draw a card. This ability triggers only \
+                 once each turn.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::PowerGreaterThan(
+                            ValueDef::Constant(2),
+                        )),
+                    ]),
+                    None,
+                    Some(ZoneKind::Battlefield),
+                ),
+                abilities::draw_cards(ValueDef::Constant(1)),
+            )
+            .triggering_at_most(1),
+            enduring_return(
+                "When Enduring Innocence dies, if it was a creature, return it \
+                 to the battlefield under its owner's control. It's an \
+                 enchantment. (It's not a creature.)",
+            ),
+        ]),
 );
 
 // DSK 7 — Ethereal Armor (reprint)
@@ -1742,12 +1801,28 @@ pub(in crate::card::sets) static DUSKMOURN_S_DOMINATION: CardRecord = CardRecord
 );
 
 // DSK 51 — Enduring Curiosity
-// Audit: unsupported — Needs a return-to-battlefield instruction that establishes the permanent as a noncreature enchantment before entry replacement effects and enters triggers inspect it; applying a type change after the return produces an incorrect creature entry.
 pub(in crate::card::sets) static ENDURING_CURIOSITY: CardRecord = CardRecord::new(
     "Enduring Curiosity",
     "8616629e-08f9-41ad-bfec-f86c8096f1cb",
     "Julie Dillon",
-    CardRules::unsupported(),
+    CardRules::new_enchantment_creature(mana_cost!("{2}{U}{U}"), &["Cat", "Glimmer"], 4, 3)
+        .with_abilities(&[
+            abilities::flash(),
+            AbilityDef::triggered(
+                "Whenever a creature you control deals combat damage to a \
+                 player, draw a card.",
+                TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ])),
+                abilities::draw_cards(ValueDef::Constant(1)),
+            ),
+            enduring_return(
+                "When Enduring Curiosity dies, if it was a creature, return it \
+                 to the battlefield under its owner's control. It's an \
+                 enchantment. (It's not a creature.)",
+            ),
+        ]),
 );
 
 // DSK 52 — Enter the Enigma
@@ -3106,12 +3181,29 @@ pub(in crate::card::sets) static DOOMSDAY_EXCRUCIATOR: CardRecord = CardRecord::
 );
 
 // DSK 95 — Enduring Tenacity
-// Audit: unsupported — Needs a return-to-battlefield instruction that establishes the permanent as a noncreature enchantment before entry replacement effects and enters triggers inspect it; applying a type change after the return produces an incorrect creature entry.
 pub(in crate::card::sets) static ENDURING_TENACITY: CardRecord = CardRecord::new(
     "Enduring Tenacity",
     "d5756d4b-3068-412c-8643-880d3459151e",
     "Isis",
-    CardRules::unsupported(),
+    CardRules::new_enchantment_creature(mana_cost!("{2}{B}{B}"), &["Snake", "Glimmer"], 4, 3)
+        .with_abilities(&[
+            AbilityDef::triggered_with_targets(
+                "Whenever you gain life, target opponent loses that much life.",
+                TriggerEventDef::LifeGained(PlayerRelation::You),
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+                )],
+                EffectDef::LoseLife {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::TriggerEventAmount,
+                },
+            ),
+            enduring_return(
+                "When Enduring Tenacity dies, if it was a creature, return it \
+                 to the battlefield under its owner's control. It's an \
+                 enchantment. (It's not a creature.)",
+            ),
+        ]),
 );
 
 // DSK 96 — Fanatic of the Harrowing
@@ -4237,12 +4329,42 @@ pub(in crate::card::sets) static DIVERSION_SPECIALIST: CardRecord = CardRecord::
 );
 
 // DSK 133 — Enduring Courage
-// Audit: unsupported — Needs a return-to-battlefield instruction that establishes the permanent as a noncreature enchantment before entry replacement effects and enters triggers inspect it; applying a type change after the return produces an incorrect creature entry.
 pub(in crate::card::sets) static ENDURING_COURAGE: CardRecord = CardRecord::new(
     "Enduring Courage",
     "f46ac55f-d68e-4d5d-af0a-3879f97f705e",
     "Yigit Koroglu",
-    CardRules::unsupported(),
+    CardRules::new_enchantment_creature(mana_cost!("{2}{R}{R}"), &["Dog", "Glimmer"], 3, 3)
+        .with_abilities(&[
+            AbilityDef::triggered(
+                "Whenever another creature you control enters, it gets +2/+0 \
+                 and gains haste until end of turn.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    ]),
+                    None,
+                    Some(ZoneKind::Battlefield),
+                ),
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::object(ObjectRefDef::TriggeringObject),
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(2),
+                            ValueDef::Constant(0),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::haste()),
+                    ]),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+            enduring_return(
+                "When Enduring Courage dies, if it was a creature, return it \
+                 to the battlefield under its owner's control. It's an \
+                 enchantment. (It's not a creature.)",
+            ),
+        ]),
 );
 
 // DSK 134 — Fear of Being Hunted
@@ -5511,12 +5633,33 @@ pub(in crate::card::sets) static DEFIANT_SURVIVOR: CardRecord = CardRecord::new(
 );
 
 // DSK 176 — Enduring Vitality
-// Audit: unsupported — Needs a return-to-battlefield instruction that establishes the permanent as a noncreature enchantment before entry replacement effects and enters triggers inspect it; applying a type change after the return produces an incorrect creature entry.
 pub(in crate::card::sets) static ENDURING_VITALITY: CardRecord = CardRecord::new(
     "Enduring Vitality",
     "9d76a30c-0431-4334-892a-9822dda9671a",
     "Valera Lutfullina",
-    CardRules::unsupported(),
+    CardRules::new_enchantment_creature(mana_cost!("{1}{G}{G}"), &["Elk", "Glimmer"], 3, 3)
+        .with_abilities(&[
+            abilities::vigilance(),
+            AbilityDef::static_ability(
+                "Creatures you control have \"{T}: Add one mana of any color.\"",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::add_ability(&abilities::tap_for_mana(
+                        "{T}: Add one mana of any color.",
+                        AddManaEffectDef::any_color(),
+                    )),
+                },
+            ),
+            enduring_return(
+                "When Enduring Vitality dies, if it was a creature, return it \
+                 to the battlefield under its owner's control. It's an \
+                 enchantment. (It's not a creature.)",
+            ),
+        ]),
 );
 
 // DSK 177 — Fear of Exposure

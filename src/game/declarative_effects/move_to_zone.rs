@@ -463,7 +463,19 @@ impl Game {
                     attachment,
                     arriving_counters,
                     modifications,
-                ),
+                )
+                .map(|mut arrival| {
+                    arrival.modification_source = Some(crate::game::AbilitySourceRef {
+                        object: object.source.unwrap_or(object.id),
+                        ability: object.ability_origin().unwrap_or_else(|| {
+                            Self::authored_ability_origin(
+                                object.presentation(),
+                                crate::AbilityId::PRIMARY,
+                            )
+                        }),
+                    });
+                    arrival
+                }),
                 placement,
             );
         }

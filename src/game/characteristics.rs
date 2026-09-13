@@ -35,8 +35,8 @@ impl Game {
 
     pub(super) fn initialize_battlefield_entry(&self, permanent: &mut Permanent) {
         let starting_loyalty = self.effective_rules(permanent).and_then(|rules| {
-            rules
-                .has_type(CardType::Planeswalker)
+            self.permanent_types(permanent)
+                .is_some_and(|types| types.contains(CardType::Planeswalker))
                 .then(|| rules.starting_loyalty())
                 .flatten()
         });

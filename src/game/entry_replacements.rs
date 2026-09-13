@@ -185,7 +185,7 @@ impl Game {
                 Some(pending)
             }
             ReplacementEffectDef::ModifyBattlefieldEntry(modification) => {
-                self.modify_pending_battlefield_entry(&mut pending, modification);
+                self.modify_pending_battlefield_entry(&mut pending, modification, context.source);
                 Some(pending)
             }
             ReplacementEffectDef::Conditional {
@@ -528,21 +528,39 @@ impl Game {
     }
 
     pub(super) fn modify_pending_battlefield_entry(
-        &self,
+        &mut self,
         pending: &mut PendingEvent,
         modification: BattlefieldEntryModificationDef,
+        source: AbilitySourceRef,
     ) {
         let ReplaceableEvent::BattlefieldEntry(entry) = &mut pending.event;
-        self.modify_battlefield_entry_permanent(&mut entry.permanent, modification);
+        self.modify_battlefield_entry_permanent(&mut entry.permanent, modification, Some(source));
     }
 
     pub(super) fn modify_battlefield_entry_permanent(
-        &self,
+        &mut self,
         permanent: &mut Permanent,
         modification: BattlefieldEntryModificationDef,
+        source: Option<AbilitySourceRef>,
     ) {
         match modification {
             BattlefieldEntryModificationDef::Tapped => permanent.tapped = true,
+            BattlefieldEntryModificationDef::SetCardTypes(types) => {
+                let source = source.expect("a characteristic modification has an authored source");
+                let timestamp = self.allocate_continuous_effect_timestamp();
+                permanent
+                    .resolved_continuous_effects
+                    .push(super::ResolvedContinuousEffect {
+                        definition: crate::card::AppliedEffectDef::set_card_types(types),
+                        source,
+                        timestamp,
+                        component_order: 0,
+                        expiration: super::ContinuousEffectExpiration::Never,
+                        kind: super::ResolvedContinuousEffectKind::CardTypes(
+                            crate::card::SetOperationDef::Set(types),
+                        ),
+                    });
+            }
             BattlefieldEntryModificationDef::AddCounters { kind, amount } => {
                 permanent.add_counters(kind, amount);
             }

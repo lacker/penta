@@ -146,7 +146,7 @@ pub(in crate::card::sets) static GOLDSPAN_DRAGON: CardRecord = CardRecord::new(
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
                     ObjectQueryDef::matching(
-                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Treasure")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::from_name("Treasure")),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::You,
                     ),
@@ -181,7 +181,7 @@ pub(in crate::card::sets) static MAGDA_BRAZEN_OUTLAW: CardRecord = CardRecord::n
                         // "Other Dwarves you control": Magda pumps the rest of the Dwarves and not
                         // herself, which is the whole reason she is a 2/1 rather than a 3/1.
                         ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Dwarf")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::from_name("Dwarf")),
                             ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                         ]),
                         &[ZoneKind::Battlefield],
@@ -198,7 +198,7 @@ pub(in crate::card::sets) static MAGDA_BRAZEN_OUTLAW: CardRecord = CardRecord::n
                 // Any Dwarf you control becoming tapped, not just an attack: tapping one
                 // for mana or to pay a cost makes a Treasure just the same.
                 TriggerEventDef::tapped(ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Dwarf")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::from_name("Dwarf")),
                     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                 ])),
                 EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))),
@@ -208,7 +208,7 @@ pub(in crate::card::sets) static MAGDA_BRAZEN_OUTLAW: CardRecord = CardRecord::n
                  artifact or Dragon card, put that card onto the \
                  battlefield, then shuffle.",
                 &[CostDef::SacrificePermanents {
-                    object: ObjectPredicateDef::Subtype(SubtypeDef::literal("Treasure")),
+                    object: ObjectPredicateDef::Subtype(SubtypeDef::from_name("Treasure")),
                     controller: PlayerRelation::You,
                     count: 5,
                 }],
@@ -217,7 +217,7 @@ pub(in crate::card::sets) static MAGDA_BRAZEN_OUTLAW: CardRecord = CardRecord::n
                     source: ZoneKind::Library,
                     object: ObjectPredicateDef::AnyOf(&[
                         ObjectPredicateDef::HasType(CardType::Artifact),
-                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Dragon")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::from_name("Dragon")),
                     ]),
                     minimum: 0,
                     maximum: ValueDef::Constant(1),
@@ -1106,7 +1106,7 @@ pub(in crate::card::sets) static THE_WORLD_TREE: CardRecord = CardRecord::new(
             EffectDef::SearchZone {
                 player: EffectRecipientDef::Controller,
                 source: ZoneKind::Library,
-                object: ObjectPredicateDef::Subtype(SubtypeDef::literal("God")),
+                object: ObjectPredicateDef::Subtype(SubtypeDef::from_name("God")),
                 minimum: 0,
                 maximum: ValueDef::Constant(255),
                 reveal: false,
@@ -1136,7 +1136,7 @@ pub(in crate::card::sets) static YOUTHFUL_VALKYRIE: CardRecord = CardRecord::new
                 ObjectPredicateDef::All(&[
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Angel")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::from_name("Angel")),
                     ]),
                     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                 ]),

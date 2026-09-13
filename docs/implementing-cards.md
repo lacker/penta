@@ -289,7 +289,7 @@ to attach its authored label to the entering permanent. Read that value through
 `HasType(CardType::Creature)` inside `ManaRestrictionDef::CastSpell` when the
 mana may pay only for creature spells of that type. The subtype predicate alone
 does not require the object to be a creature. Fixed subtypes use the same
-predicate with `SubtypeDef::literal("Soldier")`.
+predicate with `SubtypeDef::from_name("Soldier")`.
 
 Mana restrictions evaluate the paid object in the producing ability source's
 scope. Its label must match exactly; an absent or differently labeled choice
@@ -323,7 +323,7 @@ selection predicate is not supported in trigger snapshots or static effects.
 ### Subtype names and sets
 
 Keep literal names in card declarations: `&["Elf", "Druid"]`,
-`SubtypeDef::literal("Dragon")`, and `CreatureTypeSetDef::named(&["Sliver"])`.
+`SubtypeDef::from_name("Dragon")`, and `CreatureTypeSetDef::named(&["Sliver"])`.
 Their `const fn` constructors resolve names against the CR 205.3 vocabulary in
 `src/card/subtypes/vocabulary.rs`. Unknown names in static declarations are
 compile errors. Use `Subtype::from_name` for fallible parsing of dynamic input.

@@ -597,7 +597,7 @@ pub(in crate::card::sets) static ELVISH_HARBINGER: CardRecord = CardRecord::new(
             EffectDef::SearchZone {
                 player: EffectRecipientDef::Controller,
                 source: ZoneKind::Library,
-                object: ObjectPredicateDef::Subtype(SubtypeDef::literal("Elf")),
+                object: ObjectPredicateDef::Subtype(SubtypeDef::from_name("Elf")),
                 minimum: 0,
                 maximum: ValueDef::Constant(1),
                 reveal: true,
@@ -630,7 +630,7 @@ pub(in crate::card::sets) static IMPERIOUS_PERFECT: CardRecord = CardRecord::new
                     ObjectQueryDef::matching(
                         ObjectPredicateDef::All(&[
                             ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Elf")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::from_name("Elf")),
                         ]),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::You,

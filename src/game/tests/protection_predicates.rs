@@ -26,7 +26,7 @@ fn spare_from_evil_grants_temporary_protection_to_the_creatures_it_resolves_over
     const NON_HUMAN: ObjectPredicateDef = ObjectPredicateDef::All(&[
         ObjectPredicateDef::HasType(CardType::Creature),
         ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(
-            crate::card::SubtypeDef::literal("Human"),
+            crate::card::SubtypeDef::from_name("Human"),
         )),
     ]);
     let mut game = ready_game();

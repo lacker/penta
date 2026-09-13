@@ -78,7 +78,7 @@ pub(in crate::card::sets) static AKROMA_S_DEVOTED: CardRecord = CardRecord::new(
                 recipient: EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Cleric")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::from_name("Cleric")),
                     ]),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Any,
@@ -157,7 +157,7 @@ pub(in crate::card::sets) static CLOUDREACH_CAVALRY: CardRecord = CardRecord::ne
                     objects: &ObjectSetDef::Query(ObjectQueryDef::matching(
                         ObjectPredicateDef::All(&[
                             ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Bird")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::from_name("Bird")),
                         ]),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::You,
@@ -240,7 +240,7 @@ pub(in crate::card::sets) static ESSENCE_SLIVER: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{3}{W}"), &["Sliver"], 3, 3).with_ability(
         AbilityDef::triggered(
             "Whenever a Sliver deals damage, its controller gains that much life.",
-            TriggerEventDef::damage_dealt_by(ObjectPredicateDef::Subtype(SubtypeDef::literal(
+            TriggerEventDef::damage_dealt_by(ObjectPredicateDef::Subtype(SubtypeDef::from_name(
                 "Sliver",
             ))),
             EffectDef::GainLife {
@@ -319,7 +319,7 @@ pub(in crate::card::sets) static PLATED_SLIVER: CardRecord = CardRecord::new(
                 recipient: EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Sliver")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::from_name("Sliver")),
                     ]),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Any,
@@ -723,7 +723,7 @@ pub(in crate::card::sets) static SHIFTING_SLIVER: CardRecord = CardRecord::new(
             "Slivers can't be blocked except by Slivers.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::matching_objects(
-                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Sliver")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::from_name("Sliver")),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Any,
                 ),
@@ -731,7 +731,7 @@ pub(in crate::card::sets) static SHIFTING_SLIVER: CardRecord = CardRecord::new(
                     BlockRestrictionDef::prohibit(
                         BlockRestrictionSubjectDef::Attacker,
                         BlockRestrictionMatchDef::Except(ObjectPredicateDef::Subtype(
-                            SubtypeDef::literal("Sliver"),
+                            SubtypeDef::from_name("Sliver"),
                         )),
                     ),
                 )),
@@ -751,7 +751,7 @@ pub(in crate::card::sets) static SYNAPSE_SLIVER: CardRecord = CardRecord::new(
         AbilityDef::triggered(
             "Whenever a Sliver deals combat damage to a player, its controller may draw a card.",
             TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Subtype(
-                SubtypeDef::literal("Sliver"),
+                SubtypeDef::from_name("Sliver"),
             )),
             EffectDef::May {
                 player: EffectRecipientDef::ControllerOfTriggeringObject,
@@ -862,7 +862,7 @@ pub(in crate::card::sets) static CRYPT_SLIVER: CardRecord = CardRecord::new(
                 // "This permanent" inside the granted ability is whichever
                 // Sliver has it, which is that ability's own source.
                 recipient: EffectRecipientDef::matching_objects(
-                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Sliver")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::from_name("Sliver")),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Any,
                 ),
@@ -870,7 +870,7 @@ pub(in crate::card::sets) static CRYPT_SLIVER: CardRecord = CardRecord::new(
                     "{T}: Regenerate target Sliver.",
                     &[CostDef::TapSource],
                     &[AbilityTargetDef::exactly_one_permanent(
-                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Sliver")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::from_name("Sliver")),
                     )],
                     EffectDef::Regenerate {
                         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -931,7 +931,7 @@ pub(in crate::card::sets) static EARTHBLIGHTER: CardRecord = CardRecord::new(
                 CostDef::Mana(mana_cost!("{2}{B}")),
                 CostDef::TapSource,
                 CostDef::SacrificePermanent {
-                    object: ObjectPredicateDef::Subtype(SubtypeDef::literal("Goblin")),
+                    object: ObjectPredicateDef::Subtype(SubtypeDef::from_name("Goblin")),
                     controller: PlayerRelation::You,
                 },
             ],
@@ -984,7 +984,7 @@ pub(in crate::card::sets) static GOBLIN_TURNCOAT: CardRecord = CardRecord::new(
         abilities::regenerate_self(
             "Sacrifice a Goblin: Regenerate this creature.",
             &[CostDef::SacrificePermanent {
-                object: ObjectPredicateDef::Subtype(SubtypeDef::literal("Goblin")),
+                object: ObjectPredicateDef::Subtype(SubtypeDef::from_name("Goblin")),
                 controller: PlayerRelation::You,
             }],
         ),
@@ -1186,7 +1186,7 @@ pub(in crate::card::sets) static SPECTRAL_SLIVER: CardRecord = CardRecord::new(
                 recipient: EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Sliver")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::from_name("Sliver")),
                     ]),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Any,
@@ -1225,7 +1225,7 @@ pub(in crate::card::sets) static TOXIN_SLIVER: CardRecord = CardRecord::new(
             TriggerEventDef::DamageDealt(DamageEventMatcherDef {
                 kind: DamageKindDef::Combat,
                 source: DamageSourceMatcherDef::Matching(ObjectPredicateDef::Subtype(
-                    SubtypeDef::literal("Sliver"),
+                    SubtypeDef::from_name("Sliver"),
                 )),
                 recipient: DamageRecipientMatcherDef::MatchingObject(ObjectPredicateDef::HasType(
                     CardType::Creature,
@@ -1304,7 +1304,7 @@ pub(in crate::card::sets) static BLADE_SLIVER: CardRecord = CardRecord::new(
                 recipient: EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Sliver")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::from_name("Sliver")),
                     ]),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Any,
@@ -1379,7 +1379,7 @@ pub(in crate::card::sets) static FRENETIC_RAPTOR: CardRecord = CardRecord::new(
             "Beasts can't block.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::matching_objects(
-                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Beast")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::from_name("Beast")),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Any,
                 ),
@@ -1417,7 +1417,7 @@ pub(in crate::card::sets) static GEMPALM_INCINERATOR: CardRecord = CardRecord::n
                     // Every Goblin on the battlefield, whoever controls it -- the count is of
                     // the board, not of your side of it.
                     ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Goblin")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::from_name("Goblin")),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::Any,
                     )),
@@ -1494,7 +1494,7 @@ pub(in crate::card::sets) static GOBLIN_LOOKOUT: CardRecord = CardRecord::new(
             &[
                 CostDef::TapSource,
                 CostDef::SacrificePermanent {
-                    object: ObjectPredicateDef::Subtype(SubtypeDef::literal("Goblin")),
+                    object: ObjectPredicateDef::Subtype(SubtypeDef::from_name("Goblin")),
                     controller: PlayerRelation::You,
                 },
             ],
@@ -1502,7 +1502,7 @@ pub(in crate::card::sets) static GOBLIN_LOOKOUT: CardRecord = CardRecord::new(
                 recipient: EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Goblin")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::from_name("Goblin")),
                     ]),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Any,
@@ -1586,7 +1586,7 @@ pub(in crate::card::sets) static MAGMA_SLIVER: CardRecord = CardRecord::new(
                 // "This permanent" inside the granted ability is whichever
                 // Sliver has it, which is that ability's own source.
                 recipient: EffectRecipientDef::matching_objects(
-                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Sliver")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::from_name("Sliver")),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Any,
                 ),
@@ -1597,14 +1597,14 @@ pub(in crate::card::sets) static MAGMA_SLIVER: CardRecord = CardRecord::new(
                     &[AbilityTargetDef::exactly_one_permanent(
                         ObjectPredicateDef::All(&[
                             ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Sliver")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::from_name("Sliver")),
                         ]),
                     )],
                     EffectDef::Apply {
                         recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                         effect: AppliedEffectDef::modify_power_toughness(
                             ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-                                ObjectPredicateDef::Subtype(SubtypeDef::literal("Sliver")),
+                                ObjectPredicateDef::Subtype(SubtypeDef::from_name("Sliver")),
                                 &[ZoneKind::Battlefield],
                                 PlayerRelation::Any,
                             )),
@@ -1703,7 +1703,7 @@ pub(in crate::card::sets) static SKIRK_OUTRIDER: CardRecord = CardRecord::new(
                     objects: &ObjectSetDef::Query(ObjectQueryDef::matching(
                         ObjectPredicateDef::All(&[
                             ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Beast")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::from_name("Beast")),
                         ]),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::You,

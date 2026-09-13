@@ -110,7 +110,7 @@ pub(in crate::card::sets) static ESSENCE_FLUX: CardRecord = CardRecord::new(
                     effect: &EffectDef::IfCondition {
                         condition: &TriggerConditionDef::BoundObjectMatches {
                             binding: Binding!("flux_spirit"),
-                            object: ObjectPredicateDef::Subtype(SubtypeDef::literal("Spirit")),
+                            object: ObjectPredicateDef::Subtype(SubtypeDef::from_name("Spirit")),
                         },
                         then: &EffectDef::AddCounters {
                             object: EffectRecipientDef::objects(ObjectSetDef::One(
@@ -409,7 +409,7 @@ pub(in crate::card::sets) static TIRELESS_TRACKER: CardRecord = CardRecord::new(
         AbilityDef::triggered(
             "Whenever you sacrifice a Clue, put a +1/+1 counter on this creature.",
             TriggerEventDef::Sacrificed {
-                object: ObjectPredicateDef::Subtype(SubtypeDef::literal("Clue")),
+                object: ObjectPredicateDef::Subtype(SubtypeDef::from_name("Clue")),
                 player: PlayerRelation::You,
             },
             EffectDef::AddCounters {

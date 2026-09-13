@@ -838,7 +838,7 @@ static HARVESTER_PENALTY: ValueDef = ValueDef::Scaled(&ScaledValueDef::new(
     // enough: the count is read as the ability resolves, and the token the
     // Harvester's own arrival made is one of them.
     ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-        ObjectPredicateDef::Subtype(SubtypeDef::literal("Blood")),
+        ObjectPredicateDef::Subtype(SubtypeDef::from_name("Blood")),
         &[ZoneKind::Battlefield],
         PlayerRelation::You,
     )),

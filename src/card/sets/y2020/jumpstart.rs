@@ -131,7 +131,7 @@ pub(in crate::card::sets) static EMIEL_THE_BLESSED: CardRecord = CardRecord::new
                             left: ValueDef::CountObjects(&ObjectSetDef::Matching {
                                 objects: &ObjectSetDef::One(ObjectRefDef::TriggeringObject),
                                 object: ObjectSetFilterDef::Predicate(
-                                    &ObjectPredicateDef::Subtype(SubtypeDef::literal("Unicorn")),
+                                    &ObjectPredicateDef::Subtype(SubtypeDef::from_name("Unicorn")),
                                 ),
                             }),
                             comparison: ComparisonDef::Greater,
@@ -194,7 +194,7 @@ pub(in crate::card::sets) static CORSAIR_CAPTAIN: CardRecord = CardRecord::new(
                     ObjectQueryDef::matching(
                         ObjectPredicateDef::All(&[
                             ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Pirate")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::from_name("Pirate")),
                         ]),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::You,
@@ -229,7 +229,7 @@ pub(in crate::card::sets) static MUXUS_GOBLIN_GRANDEE: CardRecord = CardRecord::
                     },
                     object: ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Goblin")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::from_name("Goblin")),
                         ObjectPredicateDef::ManaValueAtMost(5),
                     ]),
                     matching: Binding!("recruited"),
@@ -266,7 +266,7 @@ pub(in crate::card::sets) static MUXUS_GOBLIN_GRANDEE: CardRecord = CardRecord::
                     effect: AppliedEffectDef::modify_power_toughness(
                         ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
                             ObjectPredicateDef::All(&[
-                                ObjectPredicateDef::Subtype(SubtypeDef::literal("Goblin")),
+                                ObjectPredicateDef::Subtype(SubtypeDef::from_name("Goblin")),
                                 ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                             ]),
                             &[ZoneKind::Battlefield],
@@ -274,7 +274,7 @@ pub(in crate::card::sets) static MUXUS_GOBLIN_GRANDEE: CardRecord = CardRecord::
                         )),
                         ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
                             ObjectPredicateDef::All(&[
-                                ObjectPredicateDef::Subtype(SubtypeDef::literal("Goblin")),
+                                ObjectPredicateDef::Subtype(SubtypeDef::from_name("Goblin")),
                                 ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                             ]),
                             &[ZoneKind::Battlefield],
@@ -314,7 +314,7 @@ pub(in crate::card::sets) static ALLOSAURUS_SHEPHERD: CardRecord = CardRecord::n
                 recipient: EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Elf")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::from_name("Elf")),
                     ]),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::You,

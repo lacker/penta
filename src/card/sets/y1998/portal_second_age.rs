@@ -200,7 +200,7 @@ pub(in crate::card::sets) static GOBLIN_MATRON: CardRecord = CardRecord::new(
             EffectDef::SearchZone {
                 player: EffectRecipientDef::Controller,
                 source: ZoneKind::Library,
-                object: ObjectPredicateDef::Subtype(SubtypeDef::literal("Goblin")),
+                object: ObjectPredicateDef::Subtype(SubtypeDef::from_name("Goblin")),
                 minimum: 0,
                 maximum: ValueDef::Constant(1),
                 reveal: true,
@@ -254,7 +254,7 @@ pub(in crate::card::sets) static GOBLIN_WAR_STRIKE: CardRecord = CardRecord::new
         EffectDef::damage(
             EffectRecipientDef::Target(TargetIndex::PRIMARY),
             ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-                ObjectPredicateDef::Subtype(SubtypeDef::literal("Goblin")),
+                ObjectPredicateDef::Subtype(SubtypeDef::from_name("Goblin")),
                 &[ZoneKind::Battlefield],
                 PlayerRelation::You,
             )),

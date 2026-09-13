@@ -157,7 +157,7 @@ pub(in crate::card::sets) static HAZEL_S_BREWMASTER: CardRecord = CardRecord::ne
                  creature cards exiled with this creature.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::matching_objects(
-                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Food")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::from_name("Food")),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::You,
                     ),

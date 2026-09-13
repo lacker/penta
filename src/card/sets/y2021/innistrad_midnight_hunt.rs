@@ -397,7 +397,7 @@ pub(in crate::card::sets) static STROMKIRK_BLOODTHIEF: CardRecord = CardRecord::
             &TriggerConditionDef::OpponentLostLifeThisTurn,
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Object {
-                    object: ObjectPredicateDef::Subtype(SubtypeDef::literal("Vampire")),
+                    object: ObjectPredicateDef::Subtype(SubtypeDef::from_name("Vampire")),
                     zones: &[ZoneKind::Battlefield],
                     controller: Some(PlayerRelation::You),
                     owner: None,

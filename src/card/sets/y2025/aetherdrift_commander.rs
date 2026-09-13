@@ -58,13 +58,13 @@ pub(in crate::card::sets) static ACCURSED_DUNEYARD: CardRecord = CardRecord::new
             &[CostDef::Mana(mana_cost!("{2}")), CostDef::TapSource],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::AnyOf(&[
-                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Shade")),
-                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Skeleton")),
-                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Specter")),
-                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Spirit")),
-                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Vampire")),
-                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Wraith")),
-                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Zombie")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::from_name("Shade")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::from_name("Skeleton")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::from_name("Specter")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::from_name("Spirit")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::from_name("Vampire")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::from_name("Wraith")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::from_name("Zombie")),
                 ]),
             )],
             EffectDef::Regenerate {

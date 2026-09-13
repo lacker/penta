@@ -114,7 +114,7 @@ pub(in crate::card::sets) static OTHARRI_SUNS_GLORY: CardRecord = CardRecord::ne
                 &[
                     CostDef::Mana(mana_cost!("{2}{R}{W}")),
                     CostDef::TapPermanents {
-                        object: ObjectPredicateDef::Subtype(SubtypeDef::literal("Rebel")),
+                        object: ObjectPredicateDef::Subtype(SubtypeDef::from_name("Rebel")),
                         controller: PlayerRelation::You,
                         count: 1,
                     },

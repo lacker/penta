@@ -384,7 +384,7 @@ pub(in crate::card::sets) static DEVIL_DINOSAUR: CardRecord = CardRecord::new(
                         ObjectPredicateDef::All(&[
                             ObjectPredicateDef::All(&[
                                 ObjectPredicateDef::HasType(CardType::Creature),
-                                ObjectPredicateDef::Subtype(SubtypeDef::literal("Dinosaur")),
+                                ObjectPredicateDef::Subtype(SubtypeDef::from_name("Dinosaur")),
                             ]),
                             ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                         ]),

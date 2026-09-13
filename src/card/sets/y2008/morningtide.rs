@@ -58,8 +58,8 @@ pub(in crate::card::sets) static BALLYRUSH_BANNERET: CardRecord = CardRecord::ne
         abilities::spell_cost_reduction(
             "Kithkin spells and Soldier spells you cast cost {1} less to cast.",
             ObjectPredicateDef::AnyOf(&[
-                ObjectPredicateDef::Subtype(SubtypeDef::literal("Kithkin")),
-                ObjectPredicateDef::Subtype(SubtypeDef::literal("Soldier")),
+                ObjectPredicateDef::Subtype(SubtypeDef::from_name("Kithkin")),
+                ObjectPredicateDef::Subtype(SubtypeDef::from_name("Soldier")),
             ]),
             PlayerRelation::You,
             ValueDef::Constant(1),
@@ -199,7 +199,7 @@ pub(in crate::card::sets) static BRAMBLEWOOD_PARAGON: CardRecord = CardRecord::n
             ReplacementEventDef::ObjectEntersBattlefield {
                 object: ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Warrior")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::from_name("Warrior")),
                     ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                 ]),
                 controller: PlayerRelation::You,
@@ -363,7 +363,7 @@ pub(in crate::card::sets) static THORNBITE_STAFF: CardRecord = CardRecord::new(
                 TriggerEventDef::zone_changed(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Shaman")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::from_name("Shaman")),
                     ]),
                     None,
                     Some(ZoneKind::Battlefield),

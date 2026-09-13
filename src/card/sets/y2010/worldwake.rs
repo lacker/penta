@@ -77,7 +77,7 @@ pub(in crate::card::sets) static STONEFORGE_MYSTIC: CardRecord = CardRecord::new
                 effect: &EffectDef::SearchZone {
                     player: EffectRecipientDef::Controller,
                     source: ZoneKind::Library,
-                    object: ObjectPredicateDef::Subtype(SubtypeDef::literal("Equipment")),
+                    object: ObjectPredicateDef::Subtype(SubtypeDef::from_name("Equipment")),
                     minimum: 0,
                     maximum: ValueDef::Constant(1),
                     reveal: true,
@@ -100,7 +100,7 @@ pub(in crate::card::sets) static STONEFORGE_MYSTIC: CardRecord = CardRecord::new
             EffectDef::ChooseCards {
                 player: EffectRecipientDef::Controller,
                 sources: &[CardChoiceSourceDef::Zone(ZoneKind::Hand)],
-                object: ObjectPredicateDef::Subtype(SubtypeDef::literal("Equipment")),
+                object: ObjectPredicateDef::Subtype(SubtypeDef::from_name("Equipment")),
                 minimum: 0,
                 maximum: 1,
                 reveal: false,
@@ -260,7 +260,7 @@ pub(in crate::card::sets) static KALASTRIA_HIGHBORN: CardRecord = CardRecord::ne
              you gain 2 life.",
             TriggerEventDef::zone_changed(
                 ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Vampire")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::from_name("Vampire")),
                     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                 ]),
                 Some(ZoneKind::Battlefield),
@@ -399,7 +399,7 @@ pub(in crate::card::sets) static ARBOR_ELF: CardRecord = CardRecord::new(
             &[CostDef::TapSource],
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Object {
-                    object: ObjectPredicateDef::Subtype(SubtypeDef::literal("Forest")),
+                    object: ObjectPredicateDef::Subtype(SubtypeDef::from_name("Forest")),
                     zones: &[ZoneKind::Battlefield],
                     controller: None,
                     owner: None,
@@ -758,7 +758,7 @@ pub(in crate::card::sets) static EYE_OF_UGIN: CardRecord = CardRecord::new(
                 EffectDef::ModifyCost(CostModificationDef::reduce_spell(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::ColorCount(0),
-                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Eldrazi")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::from_name("Eldrazi")),
                     ]),
                     PlayerRelation::You,
                     ValueDef::Constant(2),

@@ -272,7 +272,7 @@ pub(in crate::card::sets) static KOGLA_THE_TITAN_APE: CardRecord = CardRecord::n
                 &[CostDef::Mana(mana_cost!("{1}{G}"))],
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Object {
-                        object: ObjectPredicateDef::Subtype(SubtypeDef::literal("Human")),
+                        object: ObjectPredicateDef::Subtype(SubtypeDef::from_name("Human")),
                         zones: &[ZoneKind::Battlefield],
                         controller: Some(PlayerRelation::You),
                         owner: None,

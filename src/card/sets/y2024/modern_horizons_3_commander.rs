@@ -345,7 +345,7 @@ pub(in crate::card::sets) static PYROGOYF: CardRecord = CardRecord::new(
             TriggerEventDef::zone_changed(
                 ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Lhurgoyf")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::from_name("Lhurgoyf")),
                     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                 ]),
                 None,
@@ -420,7 +420,7 @@ pub(in crate::card::sets) static SIEGE_GANG_LIEUTENANT: CardRecord = CardRecord:
              any target.",
             &[
                 CostDef::Mana(mana_cost!("{2}")),
-                CostDef::sacrifice_permanent(ObjectPredicateDef::Subtype(SubtypeDef::literal(
+                CostDef::sacrifice_permanent(ObjectPredicateDef::Subtype(SubtypeDef::from_name(
                     "Goblin",
                 ))),
             ],

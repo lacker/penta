@@ -117,8 +117,8 @@ pub(in crate::card::sets) static BLOODLINE_NECROMANCER: CardRecord = CardRecord:
                     object: ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
                         ObjectPredicateDef::AnyOf(&[
-                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Vampire")),
-                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Wizard")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::from_name("Vampire")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::from_name("Wizard")),
                         ]),
                     ]),
                     zones: &[ZoneKind::Graveyard],

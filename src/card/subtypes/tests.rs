@@ -4,7 +4,7 @@ use super::*;
 fn literal_subtypes_compile_to_distinct_sets_and_preserve_printed_order() {
     const RULES: super::super::CardRules =
         super::super::CardRules::new_land(&["Forest", "Island", "Forest"]);
-    const PREDICATE: super::super::SubtypeDef = super::super::SubtypeDef::literal("Dragon");
+    const PREDICATE: super::super::SubtypeDef = super::super::SubtypeDef::from_name("Dragon");
     assert_eq!(RULES.subtypes(), &["Forest", "Island", "Forest"]);
     assert_eq!(RULES.subtype_set().len(), 2);
     assert!(RULES.subtype_set().contains(Subtype::Island));

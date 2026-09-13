@@ -977,10 +977,10 @@ pub(in crate::card::sets) static REALMBREAKER_THE_INVASION_TREE: CardRecord = Ca
                 EffectDef::SearchZone {
                     player: EffectRecipientDef::Controller,
                     source: ZoneKind::Library,
-                    object: ObjectPredicateDef::Subtype(SubtypeDef::literal("Praetor")),
+                    object: ObjectPredicateDef::Subtype(SubtypeDef::from_name("Praetor")),
                     minimum: 0,
                     maximum: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Praetor")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::from_name("Praetor")),
                         &[ZoneKind::Library],
                         PlayerRelation::You,
                     )),

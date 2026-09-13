@@ -743,7 +743,7 @@ pub(in crate::card::sets) static GORO_GORO_DISCIPLE_OF_RYUSEI: CardRecord = Card
                 TriggerConditionDef::ObjectCount {
                     query: ObjectQueryDef::matching(
                         ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Aura")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::from_name("Aura")),
                             ObjectPredicateDef::AttachedTo(&ObjectPredicateDef::All(&[
                                 ObjectPredicateDef::HasType(CardType::Creature),
                                 ObjectPredicateDef::Attacking,
@@ -759,7 +759,7 @@ pub(in crate::card::sets) static GORO_GORO_DISCIPLE_OF_RYUSEI: CardRecord = Card
                 TriggerConditionDef::ObjectCount {
                     query: ObjectQueryDef::matching(
                         ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Equipment")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::from_name("Equipment")),
                             ObjectPredicateDef::AttachedTo(&ObjectPredicateDef::All(&[
                                 ObjectPredicateDef::HasType(CardType::Creature),
                                 ObjectPredicateDef::Attacking,

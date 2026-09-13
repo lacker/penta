@@ -46,9 +46,9 @@ pub(in crate::card::sets) static FILI_AND_KILI_JOYOUS: CardRecord = CardRecord::
                         .with_amount(2)
                         .with_restrictions(&[ManaRestrictionDef::CastSpell(
                             ObjectPredicateDef::AnyOf(&[
-                                ObjectPredicateDef::Subtype(SubtypeDef::literal("Dwarf")),
-                                ObjectPredicateDef::Subtype(SubtypeDef::literal("Equipment")),
-                                ObjectPredicateDef::Subtype(SubtypeDef::literal("Saga")),
+                                ObjectPredicateDef::Subtype(SubtypeDef::from_name("Dwarf")),
+                                ObjectPredicateDef::Subtype(SubtypeDef::from_name("Equipment")),
+                                ObjectPredicateDef::Subtype(SubtypeDef::from_name("Saga")),
                             ]),
                         )]),
                 ),

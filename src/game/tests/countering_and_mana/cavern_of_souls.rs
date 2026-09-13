@@ -587,7 +587,7 @@ fn cavern_bound_subtype_restrictions_use_each_producers_labeled_choice() {
         true,
     ));
     assert!(game.trigger_object_matches(
-        ObjectPredicateDef::Subtype(crate::SubtypeDef::literal("Soldier")),
+        ObjectPredicateDef::Subtype(crate::SubtypeDef::from_name("Soldier")),
         &object,
         angel_cavern,
         true,

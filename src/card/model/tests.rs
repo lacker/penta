@@ -311,7 +311,7 @@ fn semantic_target_labels_are_derived_from_predicates() {
             [
                 ObjectPredicateDef::HasType(CardType::Creature),
                 ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(
-                    crate::card::SubtypeDef::literal("Demon"),
+                    crate::card::SubtypeDef::from_name("Demon"),
                 )),
             ]
         },

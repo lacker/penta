@@ -255,7 +255,7 @@ pub(in crate::card::sets) static ARMORY_GUARD: CardRecord = CardRecord::new(
             EffectDef::ConditionalStatic(ConditionalStaticEffectDef {
                 condition: ObjectSetCountConditionDef {
                     objects: &ObjectSetDef::Query(ObjectQueryDef::matching(
-                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Gate")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::from_name("Gate")),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::You,
                     )),
@@ -1774,7 +1774,7 @@ pub(in crate::card::sets) static OGRE_JAILBREAKER: CardRecord = CardRecord::new(
             EffectDef::ConditionalStatic(ConditionalStaticEffectDef {
                 condition: ObjectSetCountConditionDef {
                     objects: &ObjectSetDef::Query(ObjectQueryDef::matching(
-                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Gate")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::from_name("Gate")),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::You,
                     )),
@@ -1797,7 +1797,7 @@ pub(in crate::card::sets) static OGRE_JAILBREAKER: CardRecord = CardRecord::new(
 
 // RTR 73 — Pack Rat
 static RATS_YOU_CONTROL: ValueDef = ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-    ObjectPredicateDef::Subtype(SubtypeDef::literal("Rat")),
+    ObjectPredicateDef::Subtype(SubtypeDef::from_name("Rat")),
     &[ZoneKind::Battlefield],
     PlayerRelation::You,
 ));
@@ -2720,7 +2720,7 @@ pub(in crate::card::sets) static UTVARA_HELLKITE: CardRecord = CardRecord::new(
             "Whenever a Dragon you control attacks, create a 6/6 red \
              Dragon creature token with flying.",
             TriggerEventDef::attacks(ObjectPredicateDef::All(&[
-                ObjectPredicateDef::Subtype(SubtypeDef::literal("Dragon")),
+                ObjectPredicateDef::Subtype(SubtypeDef::from_name("Dragon")),
                 ObjectPredicateDef::ControlledBy(PlayerRelation::You),
             ])),
             EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
@@ -3036,7 +3036,7 @@ pub(in crate::card::sets) static GATECREEPER_VINE: CardRecord = CardRecord::new(
                             ObjectPredicateDef::HasType(CardType::Land),
                             ObjectPredicateDef::Supertype(CardSupertype::Basic),
                         ]),
-                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Gate")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::from_name("Gate")),
                     ]),
                     minimum: 0,
                     maximum: ValueDef::Constant(1),

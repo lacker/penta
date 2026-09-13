@@ -134,7 +134,7 @@ pub(in crate::card::sets) static NAJEELA_THE_BLADE_BLOSSOM: CardRecord = CardRec
                 "Whenever a Warrior attacks, you may have its controller \
                  create a 1/1 white Warrior creature token that’s tapped and \
                  attacking.",
-                TriggerEventDef::attacks(ObjectPredicateDef::Subtype(SubtypeDef::literal(
+                TriggerEventDef::attacks(ObjectPredicateDef::Subtype(SubtypeDef::from_name(
                     "Warrior",
                 ))),
                 EffectDef::May {

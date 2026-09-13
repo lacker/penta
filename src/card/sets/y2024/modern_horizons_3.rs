@@ -1789,7 +1789,7 @@ pub(in crate::card::sets) static ELDRAZI_LINEBREAKER: CardRecord = CardRecord::n
                     AppliedEffectDef::add_ability(&abilities::haste()),
                     AppliedEffectDef::modify_power_toughness(
                         ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Eldrazi")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::from_name("Eldrazi")),
                             &[ZoneKind::Battlefield],
                             PlayerRelation::You,
                         )),
@@ -2228,7 +2228,7 @@ pub(in crate::card::sets) static HORRIFIC_ASSAULT: CardRecord = CardRecord::new(
                 // damage may itself be the Eldrazi being counted.
                 condition: &TriggerConditionDef::ObjectCount {
                     query: ObjectQueryDef::matching(
-                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Eldrazi")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::from_name("Eldrazi")),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::You,
                     ),
@@ -2686,7 +2686,7 @@ pub(in crate::card::sets) static OBSTINATE_GARGOYLE: CardRecord = CardRecord::ne
                         TriggerConditionDef::ValueComparison(&ValueComparisonDef {
                             left: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
                                 ObjectPredicateDef::All(&[
-                                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Equipment")),
+                                    ObjectPredicateDef::Subtype(SubtypeDef::from_name("Equipment")),
                                     ObjectPredicateDef::AttachedTo(&ObjectPredicateDef::Source),
                                 ]),
                                 &[ZoneKind::Battlefield],
@@ -2698,7 +2698,7 @@ pub(in crate::card::sets) static OBSTINATE_GARGOYLE: CardRecord = CardRecord::ne
                         TriggerConditionDef::ValueComparison(&ValueComparisonDef {
                             left: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
                                 ObjectPredicateDef::All(&[
-                                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Aura")),
+                                    ObjectPredicateDef::Subtype(SubtypeDef::from_name("Aura")),
                                     ObjectPredicateDef::AttachedTo(&ObjectPredicateDef::Source),
                                 ]),
                                 &[ZoneKind::Battlefield],
@@ -2877,7 +2877,7 @@ pub(in crate::card::sets) static WRITHING_CHRYSALIS: CardRecord = CardRecord::ne
                 "Whenever you sacrifice another Eldrazi, put a +1/+1 counter on this creature.",
                 TriggerEventDef::Sacrificed {
                     object: ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Eldrazi")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::from_name("Eldrazi")),
                         ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                     ]),
                     player: PlayerRelation::You,
@@ -3443,7 +3443,7 @@ pub(in crate::card::sets) static AJANI_NACATL_PARIAH: CardRecord = CardRecord::n
                                         // The Cats that matter are the other ones: Ajani dying alongside them does
                                         // not turn him over, and neither does his own death.
                                         ObjectPredicateDef::All(&const { [
-                                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Cat")),
+                                            ObjectPredicateDef::Subtype(SubtypeDef::from_name("Cat")),
                                             ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                                             ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                                         ] }),
@@ -3493,7 +3493,7 @@ pub(in crate::card::sets) static AJANI_NACATL_PARIAH: CardRecord = CardRecord::n
                                     EffectDef::AddCounters {
                                         object: EffectRecipientDef::objects(ObjectSetDef::Query(
                                             ObjectQueryDef::matching(
-                                                ObjectPredicateDef::Subtype(SubtypeDef::literal(
+                                                ObjectPredicateDef::Subtype(SubtypeDef::from_name(
                                                     "Cat",
                                                 )),
                                                 &[ZoneKind::Battlefield],

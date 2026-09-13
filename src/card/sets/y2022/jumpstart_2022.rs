@@ -73,7 +73,7 @@ pub(in crate::card::sets) static INGENIOUS_LEONIN: CardRecord = CardRecord::new(
                 EffectDef::IfCondition {
                     condition: &TriggerConditionDef::TargetMatches {
                         slot: TargetIndex::PRIMARY,
-                        object: ObjectPredicateDef::Subtype(SubtypeDef::literal("Cat")),
+                        object: ObjectPredicateDef::Subtype(SubtypeDef::from_name("Cat")),
                     },
                     then: &EffectDef::Apply {
                         recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -114,7 +114,7 @@ pub(in crate::card::sets) static DEADLY_PLOT: CardRecord = CardRecord::new(
                     AbilityTargetPredicate::Object {
                         object: ObjectPredicateDef::All(&[
                             ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Zombie")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::from_name("Zombie")),
                         ]),
                         zones: &[ZoneKind::Graveyard],
                         controller: None,

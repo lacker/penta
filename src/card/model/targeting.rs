@@ -672,10 +672,12 @@ pub enum SubtypeDef {
 }
 
 impl SubtypeDef {
+    /// Resolve a rules-defined subtype name into a fixed predicate value.
+    ///
     /// # Panics
     /// Panics on an unknown name; static declarations fail compilation.
     #[must_use]
-    pub const fn literal(name: &str) -> Self {
+    pub const fn from_name(name: &str) -> Self {
         Self::Fixed(crate::card::Subtype::named(name))
     }
 }

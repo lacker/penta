@@ -436,7 +436,7 @@ pub(in crate::card::sets) static BEYOND_THE_QUIET: CardRecord = CardRecord::new(
             EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::matching(
                 ObjectPredicateDef::AnyOf(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Spacecraft")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::from_name("Spacecraft")),
                 ]),
                 &[ZoneKind::Battlefield],
                 PlayerRelation::Any,
@@ -787,7 +787,7 @@ pub(in crate::card::sets) static FOCUS_FIRE: CardRecord = CardRecord::new(
                     // to match each permanent once rather than twice.
                     ObjectPredicateDef::AnyOf(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Spacecraft")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::from_name("Spacecraft")),
                     ]),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::You,
@@ -869,7 +869,7 @@ pub(in crate::card::sets) static HONORED_KNIGHT_CAPTAIN: CardRecord = CardRecord
                 EffectDef::SearchZone {
                     player: EffectRecipientDef::Controller,
                     source: ZoneKind::Library,
-                    object: ObjectPredicateDef::Subtype(SubtypeDef::literal("Equipment")),
+                    object: ObjectPredicateDef::Subtype(SubtypeDef::from_name("Equipment")),
                     minimum: 0,
                     maximum: ValueDef::Constant(1),
                     reveal: true,
@@ -1028,7 +1028,7 @@ pub(in crate::card::sets) static PULSAR_SQUADRON_ACE: CardRecord = CardRecord::n
                 },
                 actor: PlayerRefDef::EffectController,
                 inspection: CollectionInspectionDef::Look,
-                object: ObjectPredicateDef::Subtype(SubtypeDef::literal("Spacecraft")),
+                object: ObjectPredicateDef::Subtype(SubtypeDef::from_name("Spacecraft")),
                 minimum: 0,
                 maximum: 1,
                 chosen: crate::Binding!("chosen"),
@@ -2489,9 +2489,9 @@ pub(in crate::card::sets) static SPECIMEN_FREIGHTER: CardRecord = CardRecord::ne
                 AbilityTargetPredicate::Object {
                     object: ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::literal(
-                            "Spacecraft",
-                        ))),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(
+                            SubtypeDef::from_name("Spacecraft"),
+                        )),
                     ]),
                     zones: &[ZoneKind::Battlefield],
                     controller: None,
@@ -2728,7 +2728,7 @@ pub(in crate::card::sets) static TRACTOR_BEAM: CardRecord = CardRecord::new(
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::AnyOf(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Spacecraft")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::from_name("Spacecraft")),
                     ]),
                 )],
             ),
@@ -3129,7 +3129,7 @@ pub(in crate::card::sets) static EMBRACE_OBLIVION: CardRecord = CardRecord::new(
         &[AbilityTargetDef::exactly_one_permanent(
             ObjectPredicateDef::AnyOf(&[
                 ObjectPredicateDef::HasType(CardType::Creature),
-                ObjectPredicateDef::Subtype(SubtypeDef::literal("Spacecraft")),
+                ObjectPredicateDef::Subtype(SubtypeDef::from_name("Spacecraft")),
             ]),
         )],
         EffectDef::Destroy {
@@ -3218,7 +3218,7 @@ pub(in crate::card::sets) static FELL_GRAVSHIP: CardRecord = CardRecord::new(
                     candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
                         ObjectPredicateDef::AnyOf(&[
                             ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Spacecraft")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::from_name("Spacecraft")),
                         ]),
                         &[ZoneKind::Graveyard],
                         PlayerRelation::You,
@@ -3310,7 +3310,7 @@ pub(in crate::card::sets) static GRAVKILL: CardRecord = CardRecord::new(
         &[AbilityTargetDef::exactly_one_permanent(
             ObjectPredicateDef::AnyOf(&[
                 ObjectPredicateDef::HasType(CardType::Creature),
-                ObjectPredicateDef::Subtype(SubtypeDef::literal("Spacecraft")),
+                ObjectPredicateDef::Subtype(SubtypeDef::from_name("Spacecraft")),
             ]),
         )],
         EffectDef::move_to_zone(
@@ -3560,7 +3560,7 @@ pub(in crate::card::sets) static SCROUNGE_FOR_ETERNITY: CardRecord = CardRecord:
                 object: ObjectPredicateDef::All(&[
                     ObjectPredicateDef::AnyOf(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Spacecraft")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::from_name("Spacecraft")),
                     ]),
                     ObjectPredicateDef::ManaValueAtMost(5),
                 ]),
@@ -4165,8 +4165,8 @@ pub(in crate::card::sets) static DRILL_TOO_DEEP: CardRecord = CardRecord::new(
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Object {
                         object: ObjectPredicateDef::AnyOf(&[
-                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Spacecraft")),
-                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Planet")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::from_name("Spacecraft")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::from_name("Planet")),
                         ]),
                         zones: &[ZoneKind::Battlefield],
                         controller: Some(PlayerRelation::You),
@@ -4286,7 +4286,7 @@ pub(in crate::card::sets) static INVASIVE_MANEUVERS: CardRecord = CardRecord::ne
         EffectDef::IfElseCondition {
             condition: &TriggerConditionDef::ObjectCount {
                 query: ObjectQueryDef::matching(
-                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Spacecraft")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::from_name("Spacecraft")),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::You,
                 ),
@@ -4891,7 +4891,7 @@ pub(in crate::card::sets) static SYSTEMS_OVERRIDE: CardRecord = CardRecord::new(
             EffectDef::IfCondition {
                 condition: &TriggerConditionDef::TargetMatches {
                     slot: TargetIndex::PRIMARY,
-                    object: ObjectPredicateDef::Subtype(SubtypeDef::literal("Spacecraft")),
+                    object: ObjectPredicateDef::Subtype(SubtypeDef::from_name("Spacecraft")),
                 },
                 then: &EffectDef::BindObjects(BindObjectsDef {
                     source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::LegalTargets(
@@ -5787,7 +5787,7 @@ pub(in crate::card::sets) static LARVAL_SCOUTLANDER: CardRecord = CardRecord::ne
             EffectDef::PayOr(PayOrDef::optional(
                 &[CostDef::sacrifice_permanent(ObjectPredicateDef::AnyOf(&[
                     ObjectPredicateDef::HasType(CardType::Land),
-                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Lander")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::from_name("Lander")),
                 ]))],
                 &EffectDef::SearchZone {
                     player: EffectRecipientDef::Controller,
@@ -6813,9 +6813,9 @@ pub(in crate::card::sets) static RAGOST_DEFT_GASTRONAUT: CardRecord = CardRecord
                 &[
                     CostDef::Mana(mana_cost!("{1}")),
                     CostDef::TapSource,
-                    CostDef::sacrifice_permanent(ObjectPredicateDef::Subtype(SubtypeDef::literal(
-                        "Food",
-                    ))),
+                    CostDef::sacrifice_permanent(ObjectPredicateDef::Subtype(
+                        SubtypeDef::from_name("Food"),
+                    )),
                 ],
                 EffectDef::damage(EffectRecipientDef::Opponent, ValueDef::Constant(3)),
             ),
@@ -6928,7 +6928,7 @@ pub(in crate::card::sets) static SEEDSHIP_BROODTENDER: CardRecord = CardRecord::
                 AbilityTargetPredicate::Object {
                     object: ObjectPredicateDef::AnyOf(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Spacecraft")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::from_name("Spacecraft")),
                     ]),
                     zones: &[ZoneKind::Graveyard],
                     controller: None,
@@ -7615,7 +7615,7 @@ pub(in crate::card::sets) static THRUMMING_HIVEPOOL: CardRecord = CardRecord::ne
             "Affinity for Slivers (This spell costs {1} less to cast for \
              each Sliver you control.)",
             ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-                ObjectPredicateDef::Subtype(SubtypeDef::literal("Sliver")),
+                ObjectPredicateDef::Subtype(SubtypeDef::from_name("Sliver")),
                 &[ZoneKind::Battlefield],
                 PlayerRelation::You,
             )),
@@ -7625,7 +7625,7 @@ pub(in crate::card::sets) static THRUMMING_HIVEPOOL: CardRecord = CardRecord::ne
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
                     ObjectQueryDef::matching(
-                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Sliver")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::from_name("Sliver")),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::You,
                     ),

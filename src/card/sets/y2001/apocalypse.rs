@@ -208,7 +208,7 @@ pub(in crate::card::sets) static ENLISTMENT_OFFICER: CardRecord = CardRecord::ne
              order.",
             abilities::reveal_top_cards_put_matching_in_hand_rest_bottom(
                 ValueDef::Constant(4),
-                ObjectPredicateDef::Subtype(SubtypeDef::literal("Soldier")),
+                ObjectPredicateDef::Subtype(SubtypeDef::from_name("Soldier")),
             ),
         ),
     ]),
@@ -427,7 +427,7 @@ pub(in crate::card::sets) static COASTAL_DRAKE: CardRecord = CardRecord::new(
             "{1}{U}, {T}: Return target Kavu to its owner's hand.",
             &[CostDef::Mana(mana_cost!("{1}{U}")), CostDef::TapSource],
             &[AbilityTargetDef::exactly_one_permanent(
-                ObjectPredicateDef::Subtype(SubtypeDef::literal("Kavu")),
+                ObjectPredicateDef::Subtype(SubtypeDef::from_name("Kavu")),
             )],
             EffectDef::move_to_zone(
                 EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -684,7 +684,7 @@ pub(in crate::card::sets) static GRAVE_DEFILER: CardRecord = CardRecord::new(
              order.",
             abilities::reveal_top_cards_put_matching_in_hand_rest_bottom(
                 ValueDef::Constant(4),
-                ObjectPredicateDef::Subtype(SubtypeDef::literal("Zombie")),
+                ObjectPredicateDef::Subtype(SubtypeDef::from_name("Zombie")),
             ),
         ),
         abilities::regenerate_self(
@@ -1146,7 +1146,7 @@ pub(in crate::card::sets) static GOBLIN_RINGLEADER: CardRecord = CardRecord::new
              order.",
             abilities::reveal_top_cards_put_matching_in_hand_rest_bottom(
                 ValueDef::Constant(4),
-                ObjectPredicateDef::Subtype(SubtypeDef::literal("Goblin")),
+                ObjectPredicateDef::Subtype(SubtypeDef::from_name("Goblin")),
             ),
         ),
     ]),
@@ -1660,7 +1660,7 @@ pub(in crate::card::sets) static STRENGTH_OF_NIGHT: CardRecord = CardRecord::new
                     condition: &TriggerConditionDef::SourceCastWith(AlternativeCastKindDef::Kicked),
                     then: &EffectDef::Apply {
                         recipient: EffectRecipientDef::matching_objects(
-                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Zombie")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::from_name("Zombie")),
                             &[ZoneKind::Battlefield],
                             PlayerRelation::You,
                         ),

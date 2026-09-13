@@ -116,7 +116,7 @@ pub(in crate::card::sets) static SWIFT_RECONFIGURATION: CardRecord = CardRecord:
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::AnyOf(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Vehicle")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::from_name("Vehicle")),
                     ]),
                 )],
             ),

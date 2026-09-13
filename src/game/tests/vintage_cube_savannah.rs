@@ -508,7 +508,7 @@ fn a_dual_keeps_its_types_in_every_zone() {
     drain_pending(&mut game);
     let is = |game: &Game, card: &CardInstance, zone, subtype| {
         game.card_object_matches(
-            ObjectPredicateDef::Subtype(crate::card::SubtypeDef::literal(subtype)),
+            ObjectPredicateDef::Subtype(crate::card::SubtypeDef::from_name(subtype)),
             card,
             zone,
             source,

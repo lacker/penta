@@ -148,9 +148,9 @@ fn the_inquisitor_carries_one_combined_protection_ability() {
         KeywordAbility::ProtectionFrom(
             &const {
                 ObjectPredicateDef::AnyOf(&[
-                    ObjectPredicateDef::Subtype(crate::card::SubtypeDef::literal("Vampire")),
-                    ObjectPredicateDef::Subtype(crate::card::SubtypeDef::literal("Werewolf")),
-                    ObjectPredicateDef::Subtype(crate::card::SubtypeDef::literal("Zombie")),
+                    ObjectPredicateDef::Subtype(crate::card::SubtypeDef::from_name("Vampire")),
+                    ObjectPredicateDef::Subtype(crate::card::SubtypeDef::from_name("Werewolf")),
+                    ObjectPredicateDef::Subtype(crate::card::SubtypeDef::from_name("Zombie")),
                 ])
             }
         ),

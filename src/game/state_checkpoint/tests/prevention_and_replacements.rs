@@ -47,20 +47,20 @@ fn every_runtime_keyword_has_a_stable_checkpoint_round_trip() {
     );
     keywords.extend([
         KeywordAbility::ProtectionFrom(
-            &const { ObjectPredicateDef::Subtype(crate::card::SubtypeDef::literal("Zombie")) },
+            &const { ObjectPredicateDef::Subtype(crate::card::SubtypeDef::from_name("Zombie")) },
         ),
         KeywordAbility::ProtectionFrom(
-            &const { ObjectPredicateDef::Subtype(crate::card::SubtypeDef::literal("Vampire")) },
+            &const { ObjectPredicateDef::Subtype(crate::card::SubtypeDef::from_name("Vampire")) },
         ),
         KeywordAbility::ProtectionFrom(
-            &const { ObjectPredicateDef::Subtype(crate::card::SubtypeDef::literal("Werewolf")) },
+            &const { ObjectPredicateDef::Subtype(crate::card::SubtypeDef::from_name("Werewolf")) },
         ),
         KeywordAbility::ProtectionFrom(
             &const {
                 ObjectPredicateDef::AnyOf(&[
-                    ObjectPredicateDef::Subtype(crate::card::SubtypeDef::literal("Vampire")),
-                    ObjectPredicateDef::Subtype(crate::card::SubtypeDef::literal("Werewolf")),
-                    ObjectPredicateDef::Subtype(crate::card::SubtypeDef::literal("Zombie")),
+                    ObjectPredicateDef::Subtype(crate::card::SubtypeDef::from_name("Vampire")),
+                    ObjectPredicateDef::Subtype(crate::card::SubtypeDef::from_name("Werewolf")),
+                    ObjectPredicateDef::Subtype(crate::card::SubtypeDef::from_name("Zombie")),
                 ])
             },
         ),
@@ -76,7 +76,7 @@ fn every_runtime_keyword_has_a_stable_checkpoint_round_trip() {
                 ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(crate::card::CardType::Creature),
                     ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(
-                        crate::card::SubtypeDef::literal("Human"),
+                        crate::card::SubtypeDef::from_name("Human"),
                     )),
                 ])
             },

@@ -3170,7 +3170,7 @@ pub(in crate::card::sets) static THOPTER_ASSEMBLY: CardRecord = CardRecord::new(
             &TriggerConditionDef::ObjectCount {
                 query: ObjectQueryDef::matching(
                     ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Thopter")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::from_name("Thopter")),
                         ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                     ]),
                     &[ZoneKind::Battlefield],
@@ -3242,7 +3242,7 @@ pub(in crate::card::sets) static TRAINING_DRONE: CardRecord = CardRecord::new(
                     query: ObjectQueryDef::matching(
                         ObjectPredicateDef::All(&[
                             ObjectPredicateDef::HasType(CardType::Artifact),
-                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Equipment")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::from_name("Equipment")),
                             ObjectPredicateDef::AttachedToSource,
                         ]),
                         &[ZoneKind::Battlefield],

@@ -447,7 +447,7 @@ pub(in crate::card::sets) static CIRCUITOUS_ROUTE: CardRecord = CardRecord::new(
                     ObjectPredicateDef::HasType(CardType::Land),
                     ObjectPredicateDef::Supertype(CardSupertype::Basic),
                 ]),
-                ObjectPredicateDef::Subtype(SubtypeDef::literal("Gate")),
+                ObjectPredicateDef::Subtype(SubtypeDef::from_name("Gate")),
             ]),
             minimum: 0,
             maximum: ValueDef::Constant(2),

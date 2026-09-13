@@ -55,18 +55,18 @@ use crate::mana_cost;
 
 static URZAS_MINE_TYPE: ObjectPredicateDef = ObjectPredicateDef::All(&[
     ObjectPredicateDef::HasType(CardType::Land),
-    ObjectPredicateDef::Subtype(SubtypeDef::literal("Urza's")),
-    ObjectPredicateDef::Subtype(SubtypeDef::literal("Mine")),
+    ObjectPredicateDef::Subtype(SubtypeDef::from_name("Urza's")),
+    ObjectPredicateDef::Subtype(SubtypeDef::from_name("Mine")),
 ]);
 static URZAS_POWER_PLANT_TYPE: ObjectPredicateDef = ObjectPredicateDef::All(&[
     ObjectPredicateDef::HasType(CardType::Land),
-    ObjectPredicateDef::Subtype(SubtypeDef::literal("Urza's")),
-    ObjectPredicateDef::Subtype(SubtypeDef::literal("Power-Plant")),
+    ObjectPredicateDef::Subtype(SubtypeDef::from_name("Urza's")),
+    ObjectPredicateDef::Subtype(SubtypeDef::from_name("Power-Plant")),
 ]);
 static URZAS_TOWER_TYPE: ObjectPredicateDef = ObjectPredicateDef::All(&[
     ObjectPredicateDef::HasType(CardType::Land),
-    ObjectPredicateDef::Subtype(SubtypeDef::literal("Urza's")),
-    ObjectPredicateDef::Subtype(SubtypeDef::literal("Tower")),
+    ObjectPredicateDef::Subtype(SubtypeDef::from_name("Urza's")),
+    ObjectPredicateDef::Subtype(SubtypeDef::from_name("Tower")),
 ]);
 
 /// One of the two-part Urza land types the mana abilities ask for. Both
@@ -987,7 +987,7 @@ pub(in crate::card::sets) static BATTERING_RAM: CardRecord = CardRecord::new(
             "Whenever this creature becomes blocked by a Wall, destroy that Wall at end of \
              combat.",
             TriggerEventDef::BecomesBlockedBy {
-                blocker: ObjectPredicateDef::Subtype(SubtypeDef::literal("Wall")),
+                blocker: ObjectPredicateDef::Subtype(SubtypeDef::from_name("Wall")),
             },
             abilities::destroy_triggering_object_at_end_of_combat(),
         ),
@@ -1842,7 +1842,7 @@ pub(in crate::card::sets) static MISHRA_S_FACTORY: CardRecord = CardRecord::new(
                 AbilityTargetPredicate::Object {
                     object: ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Assembly-Worker")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::from_name("Assembly-Worker")),
                     ]),
                     zones: &[ZoneKind::Battlefield],
                     controller: None,

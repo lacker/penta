@@ -953,7 +953,7 @@ pub(in crate::card::sets) static LOYAL_WARHOUND: CardRecord = CardRecord::new(
                 object: ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Land),
                     ObjectPredicateDef::Supertype(CardSupertype::Basic),
-                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Plains")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::from_name("Plains")),
                 ]),
                 minimum: 0,
                 maximum: ValueDef::Constant(1),

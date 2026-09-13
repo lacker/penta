@@ -69,7 +69,7 @@ pub(in crate::card::sets) static ARBAAZ_MIR: CardRecord = CardRecord::new(
                         ObjectPredicateDef::AnyOf(&[
                             ObjectPredicateDef::HasType(CardType::Artifact),
                             ObjectPredicateDef::Supertype(CardSupertype::Legendary),
-                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Saga")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::from_name("Saga")),
                         ]),
                     ]),
                 ]),
@@ -178,7 +178,7 @@ pub(in crate::card::sets) static ABSTERGO_ENTERTAINMENT: CardRecord = CardRecord
                         object: ObjectPredicateDef::AnyOf(&[
                             ObjectPredicateDef::HasType(CardType::Artifact),
                             ObjectPredicateDef::Supertype(CardSupertype::Legendary),
-                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Saga")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::from_name("Saga")),
                         ]),
                         zones: &[ZoneKind::Graveyard],
                         controller: None,
@@ -233,7 +233,7 @@ pub(in crate::card::sets) static BASIM_IBN_ISHAQ: CardRecord = CardRecord::new(
                     ObjectPredicateDef::AnyOf(&[
                         ObjectPredicateDef::HasType(CardType::Artifact),
                         ObjectPredicateDef::Supertype(CardSupertype::Legendary),
-                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Saga")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::from_name("Saga")),
                     ]),
                     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                 ])),
@@ -287,7 +287,7 @@ pub(in crate::card::sets) static CRYSTAL_SKULL_ISU_SPYGLASS: CardRecord = CardRe
                             ObjectPredicateDef::AnyOf(&[
                                 ObjectPredicateDef::HasType(CardType::Artifact),
                                 ObjectPredicateDef::Supertype(CardSupertype::Legendary),
-                                ObjectPredicateDef::Subtype(SubtypeDef::literal("Saga")),
+                                ObjectPredicateDef::Subtype(SubtypeDef::from_name("Saga")),
                             ]),
                         ),
                         cost: TopOfLibraryCostDef::Printed,
@@ -343,7 +343,7 @@ pub(in crate::card::sets) static BAYEK_OF_SIWA: CardRecord = CardRecord::new(
                                 ObjectPredicateDef::AnyOf(&[
                                     ObjectPredicateDef::HasType(CardType::Artifact),
                                     ObjectPredicateDef::Supertype(CardSupertype::Legendary),
-                                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Saga")),
+                                    ObjectPredicateDef::Subtype(SubtypeDef::from_name("Saga")),
                                 ]),
                             ]),
                             &[ZoneKind::Battlefield],

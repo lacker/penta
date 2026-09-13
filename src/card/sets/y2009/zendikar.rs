@@ -893,7 +893,7 @@ pub(in crate::card::sets) static WARREN_INSTIGATOR: CardRecord = CardRecord::new
                     candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
                         ObjectPredicateDef::All(&[
                             ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Goblin")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::from_name("Goblin")),
                         ]),
                         &[ZoneKind::Hand],
                         PlayerRelation::You,
@@ -1070,8 +1070,8 @@ pub(in crate::card::sets) static BLAZING_TORCH: CardRecord = CardRecord::new(
                     recipient: EffectRecipientDef::AttachedPermanent,
                     effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
                         ObjectPredicateDef::AnyOf(&[
-                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Vampire")),
-                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Zombie")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::from_name("Vampire")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::from_name("Zombie")),
                         ]),
                     )),
                 },

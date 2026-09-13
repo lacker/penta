@@ -59,7 +59,7 @@ pub(in crate::card::sets) static REGAL_CARACAL: CardRecord = CardRecord::new(
                     ObjectQueryDef::matching(
                         ObjectPredicateDef::All(&[
                             ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Cat")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::from_name("Cat")),
                         ]),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::You,
@@ -198,9 +198,9 @@ pub(in crate::card::sets) static GLORYBRINGER: CardRecord = CardRecord::new(
                 AbilityTargetPredicate::Object {
                     object: ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::literal(
-                            "Dragon",
-                        ))),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(
+                            SubtypeDef::from_name("Dragon"),
+                        )),
                     ]),
                     zones: &[ZoneKind::Battlefield],
                     controller: Some(PlayerRelation::Opponent),

@@ -113,7 +113,7 @@ static ALL_CREATURES: ObjectQueryDef = ObjectQueryDef::matching(
 static EQUIPMENT_ATTACHED_TO_SOURCE: ObjectQueryDef = ObjectQueryDef::matching(
     ObjectPredicateDef::All(&[
         ObjectPredicateDef::HasType(CardType::Artifact),
-        ObjectPredicateDef::Subtype(SubtypeDef::literal("Equipment")),
+        ObjectPredicateDef::Subtype(SubtypeDef::from_name("Equipment")),
         ObjectPredicateDef::AttachedToSource,
     ]),
     &[ZoneKind::Battlefield],
@@ -2660,7 +2660,7 @@ pub(in crate::card::sets) static ACID_WEB_SPIDER: CardRecord = CardRecord::new(
         abilities::enters_trigger_with_targets(
             "When this creature enters, you may destroy target Equipment.",
             &[AbilityTargetDef::exactly_one_permanent(
-                ObjectPredicateDef::Subtype(SubtypeDef::literal("Equipment")),
+                ObjectPredicateDef::Subtype(SubtypeDef::from_name("Equipment")),
             )],
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
@@ -2880,7 +2880,7 @@ pub(in crate::card::sets) static EZURI_RENEGADE_LEADER: CardRecord = CardRecord:
                 &[
                     AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Elf")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::from_name("Elf")),
                     ]))
                     .excluding_source(),
                 ],
@@ -2896,7 +2896,7 @@ pub(in crate::card::sets) static EZURI_RENEGADE_LEADER: CardRecord = CardRecord:
                     recipient: EffectRecipientDef::matching_objects(
                         ObjectPredicateDef::All(&[
                             ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Elf")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::from_name("Elf")),
                         ]),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::You,
@@ -4508,7 +4508,7 @@ pub(in crate::card::sets) static MYR_BATTLESPHERE: CardRecord = CardRecord::new(
                     // something untapped it.
                     candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
                         ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::Subtype(SubtypeDef::literal("Myr")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::from_name("Myr")),
                             ObjectPredicateDef::Not(&ObjectPredicateDef::Tapped),
                         ]),
                         &[ZoneKind::Battlefield],
@@ -4559,7 +4559,7 @@ pub(in crate::card::sets) static MYR_GALVANIZER: CardRecord = CardRecord::new(
                 recipient: EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Myr")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::from_name("Myr")),
                         ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                     ]),
                     &[ZoneKind::Battlefield],
@@ -4577,7 +4577,7 @@ pub(in crate::card::sets) static MYR_GALVANIZER: CardRecord = CardRecord::new(
             EffectDef::Untap {
                 object: EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Myr")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::from_name("Myr")),
                         ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                     ]),
                     &[ZoneKind::Battlefield],
@@ -5754,7 +5754,7 @@ pub(in crate::card::sets) static GLIMMERPOST: CardRecord = CardRecord::new(
             EffectDef::GainLife {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Locus")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::from_name("Locus")),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Any,
                 )),

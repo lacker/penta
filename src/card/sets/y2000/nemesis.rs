@@ -264,7 +264,7 @@ pub(in crate::card::sets) static DEFIANT_FALCON: CardRecord = CardRecord::new(
                 player: EffectRecipientDef::Controller,
                 source: ZoneKind::Library,
                 object: ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Rebel")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::from_name("Rebel")),
                     ObjectPredicateDef::AnyOf(&[
                         ObjectPredicateDef::HasType(CardType::Artifact),
                         ObjectPredicateDef::HasType(CardType::Creature),
@@ -435,7 +435,7 @@ pub(in crate::card::sets) static LIN_SIVVI_DEFIANT_HERO: CardRecord = CardRecord
                     actor: PlayerRefDef::EffectController,
                     inspection: CollectionInspectionDef::Look,
                     object: ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Rebel")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::from_name("Rebel")),
                         ObjectPredicateDef::AnyOf(&[
                             ObjectPredicateDef::HasType(CardType::Artifact),
                             ObjectPredicateDef::HasType(CardType::Creature),
@@ -469,7 +469,7 @@ pub(in crate::card::sets) static LIN_SIVVI_DEFIANT_HERO: CardRecord = CardRecord
                 &[CostDef::Mana(mana_cost!("{3}"))],
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Object {
-                        object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Rebel")),
+                        object: ObjectPredicateDef::Subtype(SubtypeDef::from_name("Rebel")),
                         zones: &[ZoneKind::Graveyard],
                         controller: None,
                         owner: Some(PlayerRelation::You),
@@ -1242,7 +1242,7 @@ pub(in crate::card::sets) static SEAHUNTER: CardRecord = CardRecord::new(
                 player: EffectRecipientDef::Controller,
                 source: ZoneKind::Library,
                 object: ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Merfolk")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::from_name("Merfolk")),
                     ObjectPredicateDef::AnyOf(&[
                         ObjectPredicateDef::HasType(CardType::Artifact),
                         ObjectPredicateDef::HasType(CardType::Creature),
@@ -2068,7 +2068,7 @@ pub(in crate::card::sets) static PHYREXIAN_DRIVER: CardRecord = CardRecord::new(
             recipient: EffectRecipientDef::matching_objects(
                 ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Mercenary")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::from_name("Mercenary")),
                     ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                 ]),
                 &[ZoneKind::Battlefield],
@@ -2179,7 +2179,7 @@ pub(in crate::card::sets) static RATHI_ASSASSIN: CardRecord = CardRecord::new(
                 player: EffectRecipientDef::Controller,
                 source: ZoneKind::Library,
                 object: ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Mercenary")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::from_name("Mercenary")),
                     ObjectPredicateDef::AnyOf(&[
                         ObjectPredicateDef::HasType(CardType::Artifact),
                         ObjectPredicateDef::HasType(CardType::Creature),
@@ -2237,7 +2237,7 @@ pub(in crate::card::sets) static RATHI_FIEND: CardRecord = CardRecord::new(
                 player: EffectRecipientDef::Controller,
                 source: ZoneKind::Library,
                 object: ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Mercenary")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::from_name("Mercenary")),
                     ObjectPredicateDef::AnyOf(&[
                         ObjectPredicateDef::HasType(CardType::Artifact),
                         ObjectPredicateDef::HasType(CardType::Creature),
@@ -2284,7 +2284,7 @@ pub(in crate::card::sets) static RATHI_INTIMIDATOR: CardRecord = CardRecord::new
                 player: EffectRecipientDef::Controller,
                 source: ZoneKind::Library,
                 object: ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Mercenary")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::from_name("Mercenary")),
                     ObjectPredicateDef::AnyOf(&[
                         ObjectPredicateDef::HasType(CardType::Artifact),
                         ObjectPredicateDef::HasType(CardType::Creature),
@@ -3076,7 +3076,7 @@ pub(in crate::card::sets) static MOGGCATCHER: CardRecord = CardRecord::new(
                 player: EffectRecipientDef::Controller,
                 source: ZoneKind::Library,
                 object: ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::from_name("Goblin")),
                     ObjectPredicateDef::AnyOf(&[
                         ObjectPredicateDef::HasType(CardType::Artifact),
                         ObjectPredicateDef::HasType(CardType::Creature),
@@ -3694,7 +3694,7 @@ pub(in crate::card::sets) static SKYSHROUD_CLAIM: CardRecord = CardRecord::new(
         EffectDef::SearchZone {
             player: EffectRecipientDef::Controller,
             source: ZoneKind::Library,
-            object: ObjectPredicateDef::Subtype(SubtypeDef::literal("Forest")),
+            object: ObjectPredicateDef::Subtype(SubtypeDef::from_name("Forest")),
             minimum: 0,
             maximum: ValueDef::Constant(2),
             reveal: false,
@@ -3750,7 +3750,7 @@ pub(in crate::card::sets) static SKYSHROUD_POACHER: CardRecord = CardRecord::new
                 player: EffectRecipientDef::Controller,
                 source: ZoneKind::Library,
                 object: ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Elf")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::from_name("Elf")),
                     ObjectPredicateDef::AnyOf(&[
                         ObjectPredicateDef::HasType(CardType::Artifact),
                         ObjectPredicateDef::HasType(CardType::Creature),

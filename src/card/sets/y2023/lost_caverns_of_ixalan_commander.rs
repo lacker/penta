@@ -200,7 +200,7 @@ pub(in crate::card::sets) static WRATHFUL_RAPTORS: CardRecord = CardRecord::new(
              that much damage to any target that isn't a Dinosaur.",
             TriggerEventDef::DamageDealt(DamageEventMatcherDef {
                 recipient: DamageRecipientMatcherDef::MatchingObject(ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Dinosaur")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::from_name("Dinosaur")),
                     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                 ])),
                 ..DamageEventMatcherDef::ANY
@@ -215,7 +215,7 @@ pub(in crate::card::sets) static WRATHFUL_RAPTORS: CardRecord = CardRecord::new(
                                 ObjectPredicateDef::HasType(CardType::Planeswalker),
                             ]),
                             ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(
-                                SubtypeDef::literal("Dinosaur"),
+                                SubtypeDef::from_name("Dinosaur"),
                             )),
                         ]),
                         zones: &[ZoneKind::Battlefield],

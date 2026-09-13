@@ -81,7 +81,7 @@ pub(in crate::card::sets) static ARCHWAY_ANGEL: CardRecord = CardRecord::new(
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Scaled(&ScaledValueDef {
                     value: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-                        ObjectPredicateDef::Subtype(SubtypeDef::literal("Gate")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::from_name("Gate")),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::You,
                     )),
@@ -126,7 +126,7 @@ pub(in crate::card::sets) static GATEWAY_SNEAK: CardRecord = CardRecord::new(
              blocked this turn.",
             TriggerEventDef::zone_changed(
                 ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Gate")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::from_name("Gate")),
                     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                 ]),
                 None,
@@ -564,7 +564,7 @@ pub(in crate::card::sets) static GATE_COLOSSUS: CardRecord = CardRecord::new(
             "Affinity for Gates (This spell costs {1} less to cast for \
              each Gate you control.)",
             ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-                ObjectPredicateDef::Subtype(SubtypeDef::literal("Gate")),
+                ObjectPredicateDef::Subtype(SubtypeDef::from_name("Gate")),
                 &[ZoneKind::Battlefield],
                 PlayerRelation::You,
             )),
@@ -583,7 +583,7 @@ pub(in crate::card::sets) static GATE_COLOSSUS: CardRecord = CardRecord::new(
              from your graveyard on top of your library.",
             TriggerEventDef::zone_changed(
                 ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::Subtype(SubtypeDef::literal("Gate")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::from_name("Gate")),
                     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                 ]),
                 None,

@@ -666,7 +666,7 @@ pub(in crate::card::sets) static PHYLACTERY_LICH: CardRecord = CardRecord::new(
 // M11 111 — Quag Sickness
 static QUAG_SICKNESS_PENALTY: ValueDef = ValueDef::Scaled(&ScaledValueDef::new(
     ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-        ObjectPredicateDef::Subtype(SubtypeDef::literal("Swamp")),
+        ObjectPredicateDef::Subtype(SubtypeDef::from_name("Swamp")),
         &[ZoneKind::Battlefield],
         PlayerRelation::You,
     )),

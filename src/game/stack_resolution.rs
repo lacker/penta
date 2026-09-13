@@ -422,7 +422,7 @@ impl Game {
         let exile_replaces_move = object
             .cast
             .as_ref()
-            .is_some_and(|cast| cast.exiles_on_leaving_stack());
+            .is_some_and(super::cast_context::CastContext::exiles_on_leaving_stack);
         let graveyard_move_is_replaced = object
             .cast
             .as_ref()

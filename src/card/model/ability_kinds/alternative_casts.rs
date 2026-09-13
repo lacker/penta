@@ -402,6 +402,18 @@ impl AlternativeCastAbilityDef {
         None
     }
 
+    fn harmonize_rules_text(mana_cost: AlternativeCastManaCostDef) -> String {
+        let header = match mana_cost {
+            AlternativeCastManaCostDef::Fixed(cost) => format!("Harmonize {cost}"),
+            AlternativeCastManaCostDef::ThisCardManaCost => {
+                "Harmonize—its harmonize cost is equal to its mana cost.".into()
+            }
+        };
+        format!(
+            "{header} (You may cast this card from your graveyard for its harmonize cost. You may tap a creature you control to reduce that cost by an amount of generic mana equal to its power. Then exile this spell.)"
+        )
+    }
+
     #[must_use]
     pub fn rules_text(self) -> String {
         if let Some(text) = self.fixed_rules_text() {
@@ -411,11 +423,7 @@ impl AlternativeCastAbilityDef {
             return text;
         }
         match (self.kind, self.mana_cost_source()) {
-            (AlternativeCastKindDef::Harmonize, AlternativeCastManaCostDef::Fixed(mana_cost)) => {
-                format!("Harmonize {mana_cost} (You may cast this card from your graveyard for its harmonize cost. You may tap a creature you control to reduce that cost by an amount of generic mana equal to its power. Then exile this spell.)")
-            }
-            (AlternativeCastKindDef::Harmonize, AlternativeCastManaCostDef::ThisCardManaCost) =>
-                "Harmonize—its harmonize cost is equal to its mana cost. (You may cast this card from your graveyard for its harmonize cost. You may tap a creature you control to reduce that cost by an amount of generic mana equal to its power. Then exile this spell.)".into(),
+            (AlternativeCastKindDef::Harmonize, mana_cost) => Self::harmonize_rules_text(mana_cost),
             (AlternativeCastKindDef::Flashback, AlternativeCastManaCostDef::Fixed(mana_cost)) => {
                 format!(
                     "Flashback {mana_cost} (You may cast this card from your graveyard for its flashback cost. Then exile it.)",

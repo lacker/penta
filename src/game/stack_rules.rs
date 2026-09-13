@@ -420,7 +420,7 @@ impl Game {
             && !proposed
                 .cast
                 .as_ref()
-                .is_some_and(|cast| cast.exiles_on_leaving_stack())
+                .is_some_and(super::cast_context::CastContext::exiles_on_leaving_stack)
             && let Some((destination, placement)) = requested
         {
             let Some(destination) = self.commander_hidden_move_destination(

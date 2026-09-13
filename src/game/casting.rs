@@ -471,12 +471,10 @@ impl Game {
             cost,
             x,
             &payment_purpose,
-            super::mana_planning::ManaPaymentReservations {
-                objects: sacrifices,
-                tap_cost_payer: object_payments
-                    .iter()
-                    .find_map(|(id, cost)| matches!(cost, CostDef::Tap { .. }).then_some(*id)),
-            },
+            super::mana_planning::ManaPaymentReservations::with_object_costs(
+                sacrifices,
+                &object_payments,
+            ),
             includes_mana_payment,
         );
         self.continue_spell_mana_payment(

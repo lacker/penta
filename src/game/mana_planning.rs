@@ -24,6 +24,20 @@ pub(in crate::game) struct ManaPaymentReservations<'a> {
     pub(in crate::game) tap_cost_payer: Option<GameObjectId>,
 }
 
+impl<'a> ManaPaymentReservations<'a> {
+    pub(in crate::game) fn with_object_costs(
+        objects: &'a [GameObjectId],
+        costs: &[(GameObjectId, CostDef)],
+    ) -> Self {
+        Self {
+            objects,
+            tap_cost_payer: costs
+                .iter()
+                .find_map(|(id, cost)| matches!(cost, CostDef::Tap { .. }).then_some(*id)),
+        }
+    }
+}
+
 #[derive(Clone, Copy)]
 struct AbilityManaRequest<'a> {
     player: PlayerId,

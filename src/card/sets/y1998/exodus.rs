@@ -2244,6 +2244,12 @@ pub(in crate::card::sets) static PRICE_OF_PROGRESS: CardRecord = CardRecord::new
     "Richard Kane Ferguson",
     CardRules::new_instant(mana_cost!("{1}{R}")).with_ability(AbilityDef::spell(
         "Price of Progress deals damage to each player equal to twice the number of nonbasic lands that player controls.",
+        // This two-player expansion is equivalent today, but does not model
+        // the card's per-player binding. Each assignment evaluates its amount
+        // once: expanding Opponent to multiple players would give every opponent
+        // damage based on their combined nonbasic-land count, not their own.
+        // Multiplayer needs per-player assignment generation before committing
+        // the simultaneous damage event.
         EffectDef::damage_simultaneously(&[
             DamageAssignmentDef::from_effect(
                 EffectRecipientDef::Controller,

@@ -342,7 +342,9 @@ are affected. `cause` matches a zone-change event; `permanent: Some(predicate)`
 requires an ability of a matching permanent, while `None` also reaches delayed
 abilities and abilities in other zones. `kind` either suppresses the occurrence
 or adds one occurrence. Suppression wins, additional occurrences add together,
-and per-turn trigger limits still apply.
+and per-turn trigger limits still apply. A failed intervening-if check at the
+event does not spend a per-turn allowance; failing that check at resolution
+does not refund an allowance already spent.
 
 The event matcher chooses the entering object's characteristics after entry or
 the departing object's last-known characteristics. Modifier sources are frozen

@@ -44,6 +44,7 @@ the bot-wire epoch.
   Traveling Chocobo uses the same model. Suppression takes precedence,
   additional occurrences add together, and simultaneous events preserve the
   appropriate pre-move or post-move characteristics and modifier sources.
+  Failed intervening-if conditions no longer spend per-turn trigger allowances.
   Entry replacements remain unaffected. Strict Proctor observes each original
   occurrence and uses ordinary counter/payment effects, with a second APNAP
   placement pass. Additive pending-trigger checkpoint fields `objectId` and

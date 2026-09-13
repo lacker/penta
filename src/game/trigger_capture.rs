@@ -698,19 +698,6 @@ impl Game {
                 ) else {
                     continue;
                 };
-                if let Some(limit) = listener.trigger_limit {
-                    let source = listener.capture.source;
-                    let already = self.triggers_this_turn(source);
-                    let in_batch = limited.iter().filter(|counted| **counted == source).count();
-                    if usize::from(already).saturating_add(in_batch) >= usize::from(limit) {
-                        continue;
-                    }
-                    occurrences = occurrences.min(
-                        usize::from(limit)
-                            .saturating_sub(usize::from(already).saturating_add(in_batch)),
-                    );
-                    limited.extend(std::iter::repeat_n(source, occurrences));
-                }
                 if let Some(id) = listener.installed
                     && self
                         .installed_triggers
@@ -736,6 +723,21 @@ impl Game {
                     capture.context.trigger.object_controller = Some(object.controller);
                 }
                 let condition_holds = self.trigger_capture_condition_holds(&capture);
+                // A false intervening-if means the ability never triggered
+                // (CR 603.4), so it cannot spend a per-turn allowance.
+                if condition_holds && let Some(limit) = listener.trigger_limit {
+                    let source = listener.capture.source;
+                    let already = self.triggers_this_turn(source);
+                    let in_batch = limited.iter().filter(|counted| **counted == source).count();
+                    if usize::from(already).saturating_add(in_batch) >= usize::from(limit) {
+                        continue;
+                    }
+                    occurrences = occurrences.min(
+                        usize::from(limit)
+                            .saturating_sub(usize::from(already).saturating_add(in_batch)),
+                    );
+                    limited.extend(std::iter::repeat_n(source, occurrences));
+                }
                 // "That ability triggers an additional time" is not a second
                 // ability but the same one again, so the extra instances are
                 // exact copies of this match and are ordered beside it.
@@ -819,6 +821,8 @@ include!("trigger_capture/damage_matching.rs");
 include!("trigger_capture/triggered_mana.rs");
 include!("trigger_capture/object_matching.rs");
 include!("trigger_capture/procedure.rs");
+include!("trigger_capture/modifications.rs");
+include!("trigger_capture/observers.rs");
 
 #[cfg(test)]
 mod emblem_trigger_limit_tests {
@@ -849,7 +853,3 @@ mod emblem_trigger_limit_tests {
         assert_eq!(game.triggers_this_turn(source), 1);
     }
 }
-
-include!("trigger_capture/modifications.rs");
-
-include!("trigger_capture/observers.rs");

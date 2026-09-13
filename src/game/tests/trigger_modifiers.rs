@@ -496,3 +496,95 @@ fn proctor_observation_survives_its_source_leaving_before_placement() {
     drain_pending(&mut game);
     assert_eq!(game.players[1].hand.len(), hand);
 }
+
+#[test]
+fn false_intervening_if_preserves_per_turn_allowances_with_additional_occurrences() {
+    const CONDITIONAL: AbilityDef = AbilityDef::triggered_if(
+        "Whenever another creature enters, if you have 10 or less life, you gain 1 life.",
+        TriggerEventDef::zone_changed(
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+            ]),
+            None,
+            Some(ZoneKind::Battlefield),
+        ),
+        &TriggerConditionDef::ControllerLifeAtMost(10),
+        EffectDef::GainLife {
+            recipient: EffectRecipientDef::Controller,
+            amount: ValueDef::Constant(1),
+        },
+    );
+    const ONCE: &[AbilityDef] = &[CONDITIONAL.triggering_at_most(1)];
+    const THRICE: &[AbilityDef] = &[CONDITIONAL.triggering_at_most(3)];
+    for prepared in [false, true] {
+        for (abilities, limit) in [(ONCE, 1_u8), (THRICE, 3)] {
+            for condition_at_resolution in [false, true] {
+                let mut game = ready_game();
+                game.set_prepared_engine_enabled(prepared);
+                put(
+                    &mut game,
+                    PlayerId::One,
+                    cards::ELESH_NORN_MOTHER_OF_MACHINES_416,
+                );
+                let watcher = game.create_token_from(
+                    PlayerId::One,
+                    crate::card::TokenCharacteristics::creature(&[], &[], 1, 1)
+                        .with_abilities(abilities),
+                    None,
+                );
+                let source = game
+                    .battlefield_trigger_listeners()
+                    .into_iter()
+                    .find(|listener| listener.capture.source.object == watcher)
+                    .unwrap()
+                    .capture
+                    .source;
+
+                put(&mut game, PlayerId::One, cards::GRIZZLY_BEARS);
+                assert_eq!(counts(&game, watcher), 0);
+                assert_eq!(
+                    game.triggers_this_turn(source),
+                    0,
+                    "a false condition cannot spend the allowance"
+                );
+
+                game.players[0].life = 5;
+                game.entering_together(|game| {
+                    put(game, PlayerId::One, cards::GRIZZLY_BEARS);
+                    put(game, PlayerId::One, cards::GRIZZLY_BEARS);
+                });
+                assert_eq!(
+                    counts(&game, watcher),
+                    usize::from(limit),
+                    "extra occurrences and later events share the same allowance"
+                );
+                assert_eq!(
+                    game.triggers_this_turn(source),
+                    limit,
+                    "the allowance is spent when the ability triggers"
+                );
+
+                let life = if condition_at_resolution { 5 } else { 20 };
+                game.players[0].life = life;
+                drain_pending(&mut game);
+                assert_eq!(
+                    game.players[0].life,
+                    life + if condition_at_resolution {
+                        i16::from(limit)
+                    } else {
+                        0
+                    }
+                );
+                assert!(game.stack.is_empty() && game.pending_triggers.is_empty());
+                game.players[0].life = 5;
+                put(&mut game, PlayerId::One, cards::GRIZZLY_BEARS);
+                assert_eq!(
+                    counts(&game, watcher),
+                    0,
+                    "a false condition at resolution does not refund the allowance"
+                );
+            }
+        }
+    }
+}

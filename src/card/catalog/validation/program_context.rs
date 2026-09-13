@@ -934,13 +934,6 @@ fn static_damage_object_reference_supported(reference: ObjectRefDef) -> bool {
     )
 }
 
-include!("program_context/effect_operation_names.rs");
-include!("program_context/static_conditions.rs");
-include!("program_context/static_predicates.rs");
-include!("program_context/static_values.rs");
-
-include!("program_context/cost_programs.rs");
-
 fn trigger_modification_cause_supported(event: crate::card::TriggerEventDef) -> bool {
     match event {
         crate::card::TriggerEventDef::ZoneChanged(matcher) => {
@@ -954,3 +947,10 @@ fn trigger_modification_cause_supported(event: crate::card::TriggerEventDef) -> 
         _ => false,
     }
 }
+
+include!("program_context/effect_operation_names.rs");
+include!("program_context/static_conditions.rs");
+include!("program_context/static_predicates.rs");
+include!("program_context/static_values.rs");
+
+include!("program_context/cost_programs.rs");

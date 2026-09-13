@@ -194,6 +194,13 @@ fn plot_exile_free_cast_handles_absent_mana_costs_and_zero_x() {
 fn plot_exile_origin_taxes_and_discounts_apply_to_total_cast_cost_only() {
     for prepared in [false, true] {
         let mut game = setup(prepared);
+        let option = game
+            .catalog
+            .get(cards::GRIZZLY_BEARS)
+            .unwrap()
+            .play_option(PlayOptionId::DEFAULT)
+            .unwrap()
+            .clone();
         let aven = game
             .put_onto_battlefield(PlayerId::Two, cards::AVEN_INTERRUPTER)
             .unwrap();
@@ -211,7 +218,8 @@ fn plot_exile_origin_taxes_and_discounts_apply_to_total_cast_cost_only() {
                 _ => unreachable!(),
             }
             assert_eq!(
-                game.spell_cost_increase(PlayerId::One, id, &[]).generic,
+                game.spell_cost_increase(&option, PlayerId::One, id, &[])
+                    .generic,
                 if zone == ZoneKind::Hand { 0 } else { 2 }
             );
         }
@@ -230,13 +238,17 @@ fn plot_exile_origin_taxes_and_discounts_apply_to_total_cast_cost_only() {
             (ZoneKind::Exile, exiled),
         ] {
             assert_eq!(
-                game.spell_cost_reduction(cards::GRIZZLY_BEARS, PlayerId::One, id, &[])
+                game.spell_cost_reduction(&option, PlayerId::One, id, &[])
                     .generic(),
                 if zone == ZoneKind::Hand { 0 } else { 2 }
             );
-            assert_eq!(game.spell_cost_increase(PlayerId::Two, id, &[]).generic, 0);
             assert_eq!(
-                game.spell_cost_reduction(cards::GRIZZLY_BEARS, PlayerId::Two, id, &[])
+                game.spell_cost_increase(&option, PlayerId::Two, id, &[])
+                    .generic,
+                0
+            );
+            assert_eq!(
+                game.spell_cost_reduction(&option, PlayerId::Two, id, &[])
                     .generic(),
                 0
             );
@@ -314,6 +326,13 @@ fn plot_exile_checkpoint_preserves_designation_timing_and_rejects_bad_references
 #[test]
 fn plot_exile_doc_discounts_any_exile_but_only_the_casters_graveyard() {
     let mut game = setup(true);
+    let option = game
+        .catalog
+        .get(cards::GRIZZLY_BEARS)
+        .unwrap()
+        .play_option(PlayOptionId::DEFAULT)
+        .unwrap()
+        .clone();
     game.put_onto_battlefield(PlayerId::One, cards::DOC_AURLOCK_GRIZZLED_GENIUS)
         .unwrap();
     let foreign = game
@@ -323,14 +342,14 @@ fn plot_exile_doc_discounts_any_exile_but_only_the_casters_graveyard() {
     let id = foreign.id;
     game.players[1].graveyard.push(foreign);
     assert_eq!(
-        game.spell_cost_reduction(cards::GRIZZLY_BEARS, PlayerId::One, id, &[])
+        game.spell_cost_reduction(&option, PlayerId::One, id, &[])
             .generic(),
         0
     );
     let foreign = game.players[1].graveyard.remove(0);
     game.players[1].exile.push(foreign);
     assert_eq!(
-        game.spell_cost_reduction(cards::GRIZZLY_BEARS, PlayerId::One, id, &[])
+        game.spell_cost_reduction(&option, PlayerId::One, id, &[])
             .generic(),
         2
     );
@@ -358,4 +377,88 @@ fn plot_exile_does_not_grant_a_land_play_or_hide_an_independent_land_permission(
             .iter()
             .any(|action| matches!(action, Action::PlayLand { card, .. } if *card == id))
     );
+}
+
+#[test]
+fn plot_exile_special_action_executes_the_authored_program_without_the_stack() {
+    // A continuation supplied by the declaration must run too: the plot label
+    // selects payment and timing, not a hidden exile implementation.
+    const PLOT: AbilityDef = abilities::plot(&[CostDef::PayLife(2)]);
+    const RULES: CardRules = CardRules::new_sorcery(mana_cost!("{9}")).with_ability(AbilityDef {
+        effect: crate::card::AbilityEffectDef::declarative(EffectDef::Sequence(&[
+            PLOT.declarative_effect().unwrap(),
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(3),
+            },
+        ])),
+        ..PLOT
+    });
+    for prepared in [false, true] {
+        let (mut game, id) = cost_lists::game_with_cost_rules(&RULES);
+        game.prepared_engine = PreparedEngine::compile(&game.catalog);
+        game.set_prepared_engine_enabled(prepared);
+        game.apply(PlayerId::One, Action::Plot { card: id })
+            .unwrap();
+        assert_eq!(
+            game.players[0].life, 21,
+            "pay two, then run the whole program"
+        );
+        assert!(game.players[0].hand.is_empty());
+        let exiled = game.players[0].exile[0].id;
+        assert_ne!(exiled, id);
+        assert!(game.plotted_cards.contains_key(&exiled));
+        assert!(game.stack.is_empty(), "plot remains a special action");
+    }
+}
+
+#[test]
+fn plot_exile_payment_choice_reconstructs_before_running_the_declared_program() {
+    let rules = CardRules::new_sorcery(mana_cost!("{9}"))
+        .with_ability(abilities::plot(&[CostDef::DiscardCards(1)]));
+    for prepared in [false, true] {
+        let (mut game, id) = cost_lists::game_with_cost_rules(&rules);
+        game.prepared_engine = PreparedEngine::compile(&game.catalog);
+        game.set_prepared_engine_enabled(prepared);
+        let fodder = game
+            .build_zone(PlayerId::One, &[cards::FOREST, cards::ISLAND])
+            .unwrap();
+        game.players[0].hand.extend(fodder);
+        game.apply(PlayerId::One, Action::Plot { card: id })
+            .unwrap();
+        assert_eq!(game.pending_decisions.len(), 1);
+        assert!(game.players[0].exile.is_empty());
+        let (wire, hidden) = checkpoint_fixture(&game, PlayerId::One);
+        let mut rebuilt = Game::from_observation_checkpoint(
+            game.catalog.clone(),
+            game.format,
+            &wire,
+            &hidden,
+            55,
+        )
+        .unwrap();
+        rebuilt.set_prepared_engine_enabled(prepared);
+        for candidate in [&mut game, &mut rebuilt] {
+            let decision = candidate.pending_decisions[0].observation.clone();
+            candidate
+                .apply(
+                    PlayerId::One,
+                    Action::ChooseDecision {
+                        decision: decision.id,
+                        options: vec![decision.options[0].id],
+                    },
+                )
+                .unwrap();
+            assert!(candidate.pending_decisions.is_empty());
+            assert!(candidate.stack.is_empty());
+            assert_eq!(candidate.players[0].graveyard.len(), 1);
+            let exiled = candidate.players[0].exile[0].id;
+            assert_ne!(exiled, id);
+            assert_eq!(candidate.plotted_cards.len(), 1);
+            assert!(candidate.plotted_cards.contains_key(&exiled));
+            next_main(candidate, PlayerId::Two);
+            next_main(candidate, PlayerId::One);
+            assert!(!casts(candidate, PlayerId::One, exiled).is_empty());
+        }
+    }
 }

@@ -243,30 +243,53 @@ pub(in crate::card::sets) static AVEN_INTERRUPTER: CardRecord = CardRecord::new(
     "Aven Interrupter",
     "d3ca43a4-d194-440f-8099-f1fa103a108d",
     "Daniel Romanovsky",
-    CardRules::new_creature(mana_cost!("{1}{W}{W}"), &["Bird", "Rogue"], 2, 2)
-        .with_abilities(&[
-            abilities::flash(),
-            abilities::flying(),
-            AbilityDef::triggered_with_targets(
-                "When this creature enters, exile target spell. It becomes plotted. (Its owner may cast it as a sorcery on a later turn without paying its mana cost.)",
-                TriggerEventDef::zone_changed(ObjectPredicateDef::Source, None, Some(ZoneKind::Battlefield)),
-                &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object { object: ObjectPredicateDef::Spell, zones: &[ZoneKind::Stack], controller: None, owner: None })],
-                EffectDef::WithZoneMoveResult {
-                    effect: &EffectDef::move_to_zone(EffectRecipientDef::Target(TargetIndex::PRIMARY), ZoneKind::Exile, ZonePlacement::Top),
-                    binding: crate::Binding!("exiled_spell"),
-                    then: &EffectDef::BecomePlotted { object: EffectRecipientDef::binding_zone_change_successors(crate::Binding!("exiled_spell")) },
+    CardRules::new_creature(mana_cost!("{1}{W}{W}"), &["Bird", "Rogue"], 2, 2).with_abilities(&[
+        abilities::flash(),
+        abilities::flying(),
+        AbilityDef::triggered_with_targets(
+            "When this creature enters, exile target spell. It becomes plotted. \
+                 (Its owner may cast it as a sorcery on a later turn \
+                 without paying its mana cost.)",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Spell,
+                    zones: &[ZoneKind::Stack],
+                    controller: None,
+                    owner: None,
                 },
-            ),
-            AbilityDef::static_ability(
-                "Spells your opponents cast from graveyards or from exile cost {2} more to cast.",
-                EffectDef::ModifyCost(CostModificationDef::Spell(SpellCostModificationDef {
-                    spell: ObjectPredicateDef::Any,
-                    caster: PlayerRelation::Opponent,
-                    condition: SpellCostConditionDef::CastFrom { zones: &[ZoneKind::Graveyard, ZoneKind::Exile], owner: PlayerRelation::Any },
-                    adjustment: CostAdjustmentDef::Add(CostAmountDef::Mana(mana_cost!("{2}"))),
-                })),
-            ),
-        ]),
+            )],
+            EffectDef::WithZoneMoveResult {
+                effect: &EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Exile,
+                    ZonePlacement::Top,
+                ),
+                binding: crate::Binding!("exiled_spell"),
+                then: &EffectDef::BecomePlotted {
+                    object: EffectRecipientDef::binding_zone_change_successors(crate::Binding!(
+                        "exiled_spell"
+                    )),
+                },
+            },
+        ),
+        AbilityDef::static_ability(
+            "Spells your opponents cast from graveyards or from exile cost {2} more to cast.",
+            EffectDef::ModifyCost(CostModificationDef::Spell(SpellCostModificationDef {
+                spell: ObjectPredicateDef::Any,
+                caster: PlayerRelation::Opponent,
+                condition: SpellCostConditionDef::CastFrom {
+                    zones: &[ZoneKind::Graveyard, ZoneKind::Exile],
+                    owner: PlayerRelation::Any,
+                },
+                adjustment: CostAdjustmentDef::Add(CostAmountDef::Mana(mana_cost!("{2}"))),
+            })),
+        ),
+    ]),
 );
 
 // OTJ 5 — Bounding Felidar

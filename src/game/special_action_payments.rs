@@ -43,7 +43,13 @@ impl Game {
                 let printed = self.catalog.get(card.definition)?.rules.mana_cost();
                 match action {
                     PaidSpecialAction::Plot => {
-                        (self.card_plot_cost(card.definition)?.to_vec(), 0, printed)
+                        let effective = self.card_plot_ability(card)?;
+                        let super::DeclarativeAbilityDef::AlternativeCast(definition) =
+                            effective.ability.definition
+                        else {
+                            unreachable!("plot lookup returns a plot clause")
+                        };
+                        (definition.costs.to_vec(), 0, printed)
                     }
                     PaidSpecialAction::Suspend { ability, x } => {
                         let (_, SuspendAbilityDef::Hand { time, costs }) =

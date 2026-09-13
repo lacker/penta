@@ -139,8 +139,8 @@ pub enum AlternativeCastKindDef {
     /// Plot (CR 702.170a). Unlike every other kind here, this is not a way to
     /// cast the card at all: the cost is paid to the plot special action,
     /// which exiles the card, and the cast that follows on a later turn is
-    /// free. The clause is written as an alternative so that the cost has
-    /// somewhere printed to live, and nothing offers it as a cast.
+    /// free. The clause carries the cost and its immediate effect program;
+    /// nothing offers it as a cast.
     Plot,
     /// Splice onto Arcane (CR 702.47a). Like plot this is not a way to cast
     /// the card at all: the card stays in hand and what is cast is somebody

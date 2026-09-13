@@ -804,9 +804,6 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
             // Rebound's free cast, which like the others above only says
             // what the cast costs and where it is taken from.
             | AlternativeCastKindDef::Rebound
-            // Plot is not a cast at all: the clause exists so the plot cost
-            // has somewhere printed to live.
-            | AlternativeCastKindDef::Plot
             // Splice is not a cast either: the card stays in hand and its
             // clause is added to somebody else's spell.
             | AlternativeCastKindDef::Splice
@@ -824,6 +821,8 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
             | AlternativeCastKindDef::Miracle
             | AlternativeCastKindDef::AlternativeCost
             | AlternativeCastKindDef::FaceDown { .. } => effect == EffectDef::None,
+            // Plot executes its authored program immediately after payment.
+            AlternativeCastKindDef::Plot => shared_stack_effect(effect),
             // Overload carries the instructions the modified spell resolves
             // with, so it has to be an effect the shared runtime can execute.
             // Overload and bestow both carry the instructions the modified

@@ -441,11 +441,32 @@ pub const fn splice_onto_arcane(costs: &'static [CostDef]) -> AbilityDef {
 
 /// Plot (CR 702.170a): a cost paid to a special action rather than to a
 /// cast. What it buys is a card sitting in exile that its owner may cast for
-/// nothing on a later turn, which is why the clause carries the cost and
-/// nothing offers it as a way to cast the card now.
+/// nothing on a later turn. The clause supplies both the payment and the
+/// ordinary exile/designation program, without offering a cast now.
 #[must_use]
 pub const fn plot(costs: &'static [CostDef]) -> AbilityDef {
-    AbilityDef::alternative_cast(costs, AlternativeCastKindDef::Plot, None, EffectDef::None)
+    AbilityDef::alternative_cast(
+        costs,
+        AlternativeCastKindDef::Plot,
+        None,
+        EffectDef::WithZoneMoveResult {
+            effect: &const {
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Source,
+                    ZoneKind::Exile,
+                    ZonePlacement::Top,
+                )
+            },
+            binding: crate::Binding!("plotted_card"),
+            then: &const {
+                EffectDef::BecomePlotted {
+                    object: EffectRecipientDef::binding_zone_change_successors(crate::Binding!(
+                        "plotted_card"
+                    )),
+                }
+            },
+        },
+    )
 }
 
 const REBOUND_TEXT: &str = "Rebound (If you cast this spell from your hand, exile it as it resolves. At the beginning of your next upkeep, you may cast this card from exile without paying its mana cost.)";

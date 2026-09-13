@@ -26,7 +26,8 @@ the bot-wire epoch.
   `plottedCards` entries; protocol and checkpoint epochs are unchanged. Cast
   adjustments can filter origin zones and ownership, and special-action
   reductions price plotting independently. Free exile casting supports absent
-  mana costs and fixes X at zero.
+  mana costs and fixes X at zero. The plot constructor composes ordinary exile
+  and `BecomePlotted`; payment completion executes that declared program.
 
 - Implement Duskmourn's five Enduring enchantment creatures. Their death
   triggers return the exact graveyard object under its owner's control with a

@@ -22,6 +22,7 @@ pub(crate) const fn effect_kind(value: crate::EffectDef) -> &'static str {
         crate::EffectDef::Unattach { .. } => "Unattach",
         crate::EffectDef::PhaseOut { .. } => "PhaseOut",
         crate::EffectDef::BecomeCopyOf { .. } => "BecomeCopyOf",
+        crate::EffectDef::BecomePlotted { .. } => "BecomePlotted",
         crate::EffectDef::CannotAttackUnless(..) => "CannotAttackUnless",
         crate::EffectDef::CannotAttackIf(..) => "CannotAttackIf",
         crate::EffectDef::CannotBeForcedToSacrifice => "CannotBeForcedToSacrifice",

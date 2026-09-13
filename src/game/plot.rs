@@ -7,25 +7,22 @@
 
 use crate::ids::GameObjectId;
 
-use super::{Action, AlternativeCastKindDef, DeclarativeAbilityDef, Game, PlayerId};
+use super::{
+    Action, AlternativeCastKindDef, CardInstance, CharacteristicContext, DeclarativeAbilityDef,
+    EffectResolutionContext, EffectiveAbility, Game, ObjectCharacteristics, PlayerId, ScopedEffect,
+    StackAbilityPayload, StackAbilityResolver, StackObject, StackObjectKind, TriggerContext,
+};
 
 impl Game {
-    /// The plot cost this card prints, which is what makes the special
-    /// action available for it at all.
-    pub(in crate::game) fn card_plot_cost(
+    /// The hand clause supplies both the special-action cost and its program.
+    pub(in crate::game) fn card_plot_ability(
         &self,
-        definition: crate::ids::CardDefinitionId,
-    ) -> Option<&'static [crate::CostDef]> {
-        self.catalog.get(definition).and_then(|card| {
-            card.parts.iter().find_map(|part| {
-                part.rules.ability_clauses().iter().find_map(|ability| {
-                    let DeclarativeAbilityDef::AlternativeCast(alternative) = ability.definition
-                    else {
-                        return None;
-                    };
-                    (alternative.kind == AlternativeCastKindDef::Plot).then_some(alternative.costs)
-                })
-            })
+        card: &CardInstance,
+    ) -> Option<EffectiveAbility> {
+        self.find_printed_card_ability(card, &CharacteristicContext::Hand, |effective| {
+            matches!(effective.ability.definition,
+                DeclarativeAbilityDef::AlternativeCast(alternative)
+                    if alternative.kind == AlternativeCastKindDef::Plot)
         })
     }
 
@@ -59,23 +56,60 @@ impl Game {
     }
 
     pub(in crate::game) fn finish_plot(&mut self, player: PlayerId, card: GameObjectId) {
-        let Some(index) = self.players[player.index()]
+        let Some(source_card) = self.players[player.index()]
             .hand
             .iter()
-            .position(|candidate| candidate.id == card)
+            .find(|candidate| candidate.id == card)
+            .cloned()
         else {
             return;
         };
-        let moved = self.players[player.index()].hand.remove(index);
-        let owner = moved.owner;
-        // A zone change mints a new object, and the permission has to name
-        // the card that ended up in exile rather than the one that left the
-        // hand.
-        let (moved, _zone_change) = self.zone_change_card(moved);
-        let exiled = moved.id;
-        self.players[owner.index()].exile.push(moved.clone());
-        self.capture_cards_exiled(std::slice::from_ref(&moved), crate::card::ZoneKind::Hand);
-        self.make_plotted(exiled);
+        let Some(effective) = self.card_plot_ability(&source_card) else {
+            return;
+        };
+        let Some(effect) = effective.ability.declarative_effect() else {
+            return;
+        };
+        let scoped = ScopedEffect::primary(effect);
+        let context = EffectResolutionContext::new(TriggerContext::empty());
+        let presentation = Self::ability_presentation(
+            effective.origin,
+            ObjectCharacteristics::card(source_card.definition, crate::CardPartId::PRIMARY),
+        );
+        let resolution = self.unbacked_ability_object(presentation, player);
+        // This is an interpreter frame, never an object placed on the stack.
+        // Retain the authored clause and origin for any suspended continuation.
+        let object = StackObject {
+            id: resolution.id,
+            kind: StackObjectKind::TriggeredAbility,
+            card: resolution,
+            source: Some(card),
+            ability: Some(StackAbilityPayload {
+                origin: effective.origin,
+                definition: Some(Box::new(effective.ability)),
+                presentation,
+                text: Some(effective.ability.text),
+                target_defs: Vec::new(),
+                targets: Vec::new(),
+                context: context.clone(),
+                resolver: StackAbilityResolver::Declarative(scoped),
+                condition: None,
+                mode_effects: Vec::new(),
+                resolution_destination: None,
+                x: 0,
+                sacrificed_mana_value: 0,
+            }),
+            controller: player,
+            signature: None,
+            chosen_permanents: Vec::new(),
+            applied_effects: Vec::new(),
+            text_changes: Vec::new(),
+            colors: None,
+            cast: None,
+            face_down: None,
+            is_copy: false,
+        };
+        self.resolve_effect_def(scoped, &object, context);
     }
 }
 

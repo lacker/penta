@@ -111,12 +111,13 @@ preserve choices, events, identities, and continuation boundaries.
 Moving an object to exile creates an ordinary card object there. Printed
 abilities, object-local state, and permission to cast that object are separate:
 
-- Plot's hand ability pays for a special action. That action and
-  `EffectDef::BecomePlotted` both record a plotted designation against the current
-  exile identity, including the actual turn on which it became plotted.
-  `WithZoneMoveResult` composes movement with this effect by following the moved
-  object's successor. Aven Interrupter uses this composition to exile a spell
-  without countering it and then make the resulting card plotted.
+- `abilities::plot` declares the special-action cost and an ordinary
+  `WithZoneMoveResult` program: move the source to exile, then apply
+  `EffectDef::BecomePlotted` to the successor. Payment completion runs that
+  declared program immediately, without putting an ability on the stack.
+  Aven Interrupter uses the same movement/designation composition on its target
+  spell. Only `BecomePlotted` records the designation against the current exile
+  identity, including the actual turn on which it became plotted.
 - CR 702.170d derives a cast-only, free permission from the designation. Only
   the owner may use it, on a later turn, during their main phase with an empty
   stack. Flash does not expand that permission. No plot ability is needed in

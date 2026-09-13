@@ -889,17 +889,9 @@ fn validate_applied_effect_shapes(
             }
             Ok(())
         }
-        AppliedEffectDef::Rule(AppliedRuleDef::PlayerRule(
-            crate::card::PlayerRuleDef::ApplyToNextSpell { object, effect },
-        )) => {
-            if static_effect || !next_spell_effect_supported(*effect) {
-                return Err(GrantedAbilityValidationError::UnsupportedResolvingAppliedEffect);
-            }
-            validate_predicated_player_rule_shape(recipient, object, targets)
+        AppliedEffectDef::Rule(AppliedRuleDef::PlayerRule(rule)) => {
+            validate_player_rule_shape(recipient, rule, targets, static_effect)
         }
-        AppliedEffectDef::Rule(AppliedRuleDef::PlayerRule(
-            crate::card::PlayerRuleDef::LegendRuleDoesNotApplyTo(predicate),
-        )) => validate_predicated_player_rule_shape(recipient, *predicate, targets),
         // Each names a player and carries nothing else.
         AppliedEffectDef::Rule(
             AppliedRuleDef::Ascend
@@ -911,7 +903,6 @@ fn validate_applied_effect_shapes(
             | AppliedRuleDef::CannotDrawMoreThanEachTurn(_)
             | AppliedRuleDef::RevealsDrawnCards
             | AppliedRuleDef::CannotGainLife
-            | AppliedRuleDef::PlayerRule(_)
             | AppliedRuleDef::DoublesTokensCreated,
         ) => validate_recipient_shape(recipient, targets, RecipientExpectation::Player),
         // The cap names the players it applies to; the predicate picks out

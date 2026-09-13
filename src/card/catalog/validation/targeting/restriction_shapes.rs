@@ -1,3 +1,23 @@
+fn validate_player_rule_shape(
+    recipient: EffectRecipientDef,
+    rule: crate::card::PlayerRuleDef,
+    targets: &[AbilityTargetDef],
+    static_effect: bool,
+) -> Result<(), GrantedAbilityValidationError> {
+    match rule {
+        crate::card::PlayerRuleDef::ApplyToNextSpell { object, effect } => {
+            if static_effect || !next_spell_effect_supported(*effect) {
+                return Err(GrantedAbilityValidationError::UnsupportedResolvingAppliedEffect);
+            }
+            validate_predicated_player_rule_shape(recipient, object, targets)
+        }
+        crate::card::PlayerRuleDef::LegendRuleDoesNotApplyTo(predicate) => {
+            validate_predicated_player_rule_shape(recipient, *predicate, targets)
+        }
+        _ => validate_recipient_shape(recipient, targets, RecipientExpectation::Player),
+    }
+}
+
 fn validate_predicated_player_rule_shape(
     recipient: EffectRecipientDef,
     predicate: ObjectPredicateDef,

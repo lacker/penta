@@ -4540,24 +4540,14 @@ pub(in crate::card::sets) static ILL_TIMED_EXPLOSION: CardRecord = CardRecord::n
             },
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
-                effect: &EffectDef::Choose(ChooseDef {
-                    binding: ObjectChoiceBindingDef::Objects(crate::Binding!("discarded")),
-                    unchosen: None,
-                    chooser: PlayerRefDef::EffectController,
-                    candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
-                        ObjectPredicateDef::Any,
-                        &[ZoneKind::Hand],
-                        PlayerSetDef::Related(PlayerRelation::You),
-                    )),
-                    exclude: None,
-                    minimum: 2,
-                    maximum: 2,
-                    visibility: ChoiceVisibilityDef::Private,
-                    then: &EffectDef::Sequence(&[
-                        EffectDef::discard_cards(EffectRecipientDef::objects(
-                            ObjectSetDef::Binding(crate::Binding!("discarded")),
-                        )),
-                        EffectDef::ReflexiveTrigger(&AbilityDef::triggered(
+                effect: &EffectDef::Discard {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(2),
+                    selection: DiscardSelectionDef::RecipientChooses,
+                    then: Some(crate::card::DiscardFollowUpDef {
+                        counted: ObjectPredicateDef::Any,
+                        bound: Some(crate::Binding!("discarded")),
+                        effect: &EffectDef::ReflexiveTrigger(&AbilityDef::triggered(
                             "When you do, Ill-Timed Explosion deals X damage to each \
                          creature, where X is the greatest mana value among cards \
                          discarded this way.",
@@ -4577,8 +4567,8 @@ pub(in crate::card::sets) static ILL_TIMED_EXPLOSION: CardRecord = CardRecord::n
                                 }),
                             ),
                         )),
-                    ]),
-                }),
+                    }),
+                },
             },
         ]),
     )),

@@ -144,10 +144,10 @@ offers private. An empty library still permits an optional draw, as specified
 by the same rule. Later instructions execute in order rather than being tested
 against the state before earlier instructions have resolved.
 
-For "you may discard ... When you do," place the discard and
-`EffectDef::ReflexiveTrigger` in the selection's continuation under `May`.
-The selected objects remain bound across discard replacements and the separate
-trigger. See [reflexive triggers](implementing-cards.md#reflexive-triggers).
+For "you may discard ... When you do," use `EffectDef::Discard` under `May`,
+with `EffectDef::ReflexiveTrigger` in its `DiscardFollowUpDef`. The discard
+effect owns the choice, and the follow-up can bind the discarded cards for the
+separate trigger. See [reflexive triggers](implementing-cards.md#reflexive-triggers).
 
 ## Initial payment boundary
 

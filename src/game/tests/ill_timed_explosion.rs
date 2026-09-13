@@ -98,7 +98,7 @@ fn ill_timed_explosion_draws_then_discards_and_leaves_a_response_window() {
         assert_eq!(game.stack[0].source, Some(source));
         assert!(
             game.installed_triggers.is_empty(),
-            "the listener fired exactly once"
+            "a reflexive trigger does not install a future listener"
         );
         assert_eq!(damage(&game, cards::GRIZZLY_BEARS), 0);
         assert_eq!(damage(&game, cards::SHIVAN_DRAGON), 0);
@@ -153,7 +153,7 @@ fn ill_timed_explosion_draws_then_discards_and_leaves_a_response_window() {
 }
 
 #[test]
-fn ill_timed_explosion_decline_keeps_the_draws_and_installs_no_listener() {
+fn ill_timed_explosion_decline_keeps_the_draws_and_creates_no_trigger() {
     let mut game = staged([cards::JUGGERNAUT, cards::LIGHTNING_BOLT]);
     cast_explosion(&mut game);
     choose_decision_by_label(&mut game, PlayerId::One, "Decline");

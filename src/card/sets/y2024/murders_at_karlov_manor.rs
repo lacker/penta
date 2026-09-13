@@ -4553,11 +4553,11 @@ pub(in crate::card::sets) static ILL_TIMED_EXPLOSION: CardRecord = CardRecord::n
                 .with_amount(ValueDef::Constant(2))
                 .with_visibility(ChoiceVisibilityDef::Private)
                 .as_cost()],
-                &EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
+                &EffectDef::ReflexiveTrigger(&AbilityDef::triggered(
                     "When you do, Ill-Timed Explosion deals X damage to each \
                          creature, where X is the greatest mana value among cards \
                          discarded this way.",
-                    TriggerEventDef::OptionalEffectTaken(ObjectPredicateDef::Source),
+                    TriggerEventDef::Reflexive,
                     EffectDef::damage(
                         EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::matching(
                             ObjectPredicateDef::HasType(CardType::Creature),
@@ -4570,7 +4570,7 @@ pub(in crate::card::sets) static ILL_TIMED_EXPLOSION: CardRecord = CardRecord::n
                             operation: AggregateOperationDef::Maximum,
                         }),
                     ),
-                ))),
+                )),
             )),
         ]),
     )),

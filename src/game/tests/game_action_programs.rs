@@ -30,14 +30,14 @@ static PAYMENT_OUTPUTS: [AbilityDef; 1] = [AbilityDef::triggered(
             ),
             CostDef::repeated(&[CostDef::DrawCards(1)], &ValueDef::Constant(1)),
         ],
-        &EffectDef::InstallTrigger(crate::InstalledTriggerDef::once(&AbilityDef::triggered(
+        &EffectDef::ReflexiveTrigger(&AbilityDef::triggered(
             "When you do, gain life for each creature sacrificed.",
-            TriggerEventDef::OptionalEffectTaken(ObjectPredicateDef::Source),
+            TriggerEventDef::Reflexive,
             EffectDef::GainLife {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::CountObjects(&ObjectSetDef::Binding(Binding!("paid_creatures"))),
             },
-        ))),
+        )),
     )),
 )];
 

@@ -122,14 +122,17 @@ impl Game {
     /// it goes on the stack by itself, names its own targets, and either
     /// player may respond to it.
     pub(super) fn capture_optional_effect_taken(&mut self, object: &super::StackObject) {
-        let source = object.source.unwrap_or(object.id);
-        let Some(mut event_object) = self
-            .damage_source_event_object(source)
-            .or_else(|| self.stack_object_event_object(object))
+        let Some(event_object) = object
+            .source
+            .and_then(|source| {
+                self.battlefield
+                    .iter()
+                    .find(|permanent| permanent.card.id == source)
+            })
+            .map(|permanent| self.trigger_event_object(permanent))
         else {
             return;
         };
-        event_object.id = source;
         self.capture_battlefield_triggers(&CommittedTriggerEvent::OptionalEffectTaken {
             object: event_object,
         });

@@ -137,10 +137,10 @@ destination. Repetitions combine their selections under the same binding.
 The committed continuation stores these bindings in its ordinary resolution
 context, including while replacement choices suspend the payment.
 
-A paid branch can install a one-use `OptionalEffectTaken(Source)` trigger for
-"when you do." Payment completion publishes that notification after the branch
-installs its listener, retaining the resolving spell or ability source even
-after it leaves the battlefield.
+A paid branch can use `EffectDef::ReflexiveTrigger` for "when you do." It queues
+an ordinary triggered ability with the payment's selections and the resolving
+source, preserving the response window after the payment finishes. See
+[reflexive triggers](implementing-cards.md#reflexive-triggers).
 
 This follows CR 118.11 and 118.12: payment is not a postcondition such as
 "three cards are now in the graveyard." The action must be legally payable

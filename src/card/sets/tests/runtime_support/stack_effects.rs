@@ -874,7 +874,6 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         EffectDef::None | EffectDef::ConditionalStatic(_) | EffectDef::StaticApply { .. }
         | EffectDef::CannotBeForcedToSacrifice
             | EffectDef::CannotBeForcedToDiscard
-        | EffectDef::ReduceGenericCostBy(_)
         | EffectDef::ModifyCost(_)
         | EffectDef::LandwalkCanBeBlocked(_)
         | EffectDef::CannotAttackUnless(_)

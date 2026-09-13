@@ -368,18 +368,15 @@ pub(in crate::card::sets) static CLAWS_OUT: CardRecord = CardRecord::new(
     "4396049c-b976-4b7f-8ecd-564e24ebd631",
     "Warren Mahy",
     CardRules::new_instant(mana_cost!("{3}{W}{W}")).with_abilities(&[
-        AbilityDef::static_ability(
+        abilities::this_spell_cost_reduction(
             "Affinity for Cats (This spell costs {1} less to cast for each \
              Cat you control.)",
-            EffectDef::ReduceGenericCostBy(ValueDef::CountMatchingObjects(
-                &ObjectQueryDef::matching(
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Cat")),
-                    &[ZoneKind::Battlefield],
-                    PlayerRelation::You,
-                ),
+            ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Cat")),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
             )),
-        )
-        .with_source_zones(&[ZoneKind::Hand]),
+        ),
         AbilityDef::spell(
             "Creatures you control get +2/+2 until end of turn.",
             EffectDef::Apply {
@@ -916,9 +913,9 @@ pub(in crate::card::sets) static ARCANE_EPIPHANY: CardRecord = CardRecord::new(
     "06431793-5dfe-4cbf-990b-4bcc960d1f31",
     "Andrew Mar",
     CardRules::new_instant(mana_cost!("{3}{U}{U}")).with_abilities(&[
-        AbilityDef::static_ability(
+        abilities::this_spell_cost_reduction(
             "This spell costs {1} less to cast if you control a Wizard.",
-            EffectDef::ReduceGenericCostBy(ValueDef::IfMatchingObjectCount(&CountConditionDef {
+            ValueDef::IfMatchingObjectCount(&CountConditionDef {
                 query: ObjectQueryDef::matching(
                     ObjectPredicateDef::Subtype(SubtypeDef::Literal("Wizard")),
                     &[ZoneKind::Battlefield],
@@ -928,9 +925,8 @@ pub(in crate::card::sets) static ARCANE_EPIPHANY: CardRecord = CardRecord::new(
                 amount: 1,
                 then: ValueDef::Constant(1),
                 otherwise: ValueDef::Constant(0),
-            })),
-        )
-        .with_source_zones(&[ZoneKind::Hand]),
+            }),
+        ),
         AbilityDef::spell(
             "Draw three cards.",
             abilities::draw_cards(ValueDef::Constant(3)),

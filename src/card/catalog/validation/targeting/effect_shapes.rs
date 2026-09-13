@@ -552,8 +552,7 @@ fn validate_effect_target_shapes(
                 None => Ok(()),
             }
         }
-        EffectDef::ReduceGenericCostBy(count)
-        | EffectDef::ModifyCost(CostModificationDef::Spell(SpellCostModificationDef {
+        EffectDef::ModifyCost(CostModificationDef::Spell(SpellCostModificationDef {
             adjustment:
                 CostAdjustmentDef::Add(CostAmountDef::Generic(count))
                 | CostAdjustmentDef::Subtract(CostAmountDef::Generic(count)),

@@ -304,7 +304,7 @@ impl Game {
                                 } else if cost.variable_x {
                                     let increased = add_mana_cost(
                                         cost,
-                                        self.spell_cost_increase(player, card.id, &[]),
+                                        self.spell_cost_increase(option, player, card.id, &[]),
                                     );
                                     Some(
                                         Self::mana_payment_choices(increased)
@@ -342,7 +342,7 @@ impl Game {
                                                     Self::apply_spell_cost_reduction(
                                                         locked,
                                                         self.spell_cost_reduction(
-                                                            definition.id,
+                                                            option,
                                                             player,
                                                             card.id,
                                                             &[],
@@ -501,7 +501,9 @@ impl Game {
                                                 .saturating_add(additional_payment.life);
                                             let increased_cost = add_mana_cost(
                                                 add_mana_cost(cost, additional_payment.mana),
-                                                self.spell_cost_increase(player, card.id, targets),
+                                                self.spell_cost_increase(
+                                                    option, player, card.id, targets,
+                                                ),
                                             );
                                             for mana_payment in
                                                 Self::mana_payment_choices(increased_cost)
@@ -518,10 +520,7 @@ impl Game {
                                                 let payable_cost = Self::apply_spell_cost_reduction(
                                                     Self::apply_harmonize_reduction(locked_cost, x, additional_payment.generic_reduction),
                                                     self.spell_cost_reduction(
-                                                        definition.id,
-                                                        player,
-                                                        card.id,
-                                                        targets,
+                                                        option, player, card.id, targets,
                                                     ),
                                                 );
                                                 let Some(life_available) = self

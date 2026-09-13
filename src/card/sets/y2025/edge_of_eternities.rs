@@ -5658,10 +5658,10 @@ pub(in crate::card::sets) static LASHWHIP_PREDATOR: CardRecord = CardRecord::new
     "24553e98-29a9-47e3-91c7-9add708d9ad1",
     "Brian Valeza",
     CardRules::new_creature(mana_cost!("{4}{G}{G}"), &["Plant", "Beast"], 5, 7).with_abilities(&[
-        AbilityDef::static_ability(
+        abilities::this_spell_cost_reduction(
             "This spell costs {2} less to cast if your opponents control \
              three or more creatures.",
-            EffectDef::ReduceGenericCostBy(ValueDef::IfMatchingObjectCount(&CountConditionDef {
+            ValueDef::IfMatchingObjectCount(&CountConditionDef {
                 query: ObjectQueryDef::matching(
                     ObjectPredicateDef::HasType(CardType::Creature),
                     &[ZoneKind::Battlefield],
@@ -5671,9 +5671,8 @@ pub(in crate::card::sets) static LASHWHIP_PREDATOR: CardRecord = CardRecord::new
                 amount: 3,
                 then: ValueDef::Constant(2),
                 otherwise: ValueDef::Constant(0),
-            })),
-        )
-        .with_source_zones(&[ZoneKind::Hand]),
+            }),
+        ),
         abilities::reach(),
     ]),
 );
@@ -7405,18 +7404,15 @@ pub(in crate::card::sets) static THRUMMING_HIVEPOOL: CardRecord = CardRecord::ne
     "85caf659-7b43-462e-a342-34703d46eb57",
     "Rob Rey",
     CardRules::new_artifact(mana_cost!("{6}")).with_abilities(&[
-        AbilityDef::static_ability(
+        abilities::this_spell_cost_reduction(
             "Affinity for Slivers (This spell costs {1} less to cast for \
              each Sliver you control.)",
-            EffectDef::ReduceGenericCostBy(ValueDef::CountMatchingObjects(
-                &ObjectQueryDef::matching(
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Sliver")),
-                    &[ZoneKind::Battlefield],
-                    PlayerRelation::You,
-                ),
+            ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Sliver")),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
             )),
-        )
-        .with_source_zones(&[ZoneKind::Hand]),
+        ),
         AbilityDef::static_ability(
             "Slivers you control have double strike and haste.",
             EffectDef::StaticApply {

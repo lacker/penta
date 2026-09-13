@@ -1179,18 +1179,15 @@ pub(in crate::card::sets) static KRANG_MASTER_MIND: CardRecord = CardRecord::new
     CardRules::new_artifact_creature(mana_cost!("{6}{U}{U}"), &["Utrom", "Warrior"], 1, 4)
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
-            AbilityDef::static_ability(
+            abilities::this_spell_cost_reduction(
                 "Affinity for artifacts (This spell costs {1} less to cast for \
                  each artifact you control.)",
-                EffectDef::ReduceGenericCostBy(ValueDef::CountMatchingObjects(
-                    &ObjectQueryDef::matching(
-                        ObjectPredicateDef::HasType(CardType::Artifact),
-                        &[ZoneKind::Battlefield],
-                        PlayerRelation::You,
-                    ),
+                ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
                 )),
-            )
-            .with_source_zones(&[ZoneKind::Hand]),
+            ),
             abilities::enters_trigger(
                 "When Krang enters, if you have fewer than four cards in hand, \
                  draw cards equal to the difference.",
@@ -3575,9 +3572,9 @@ pub(in crate::card::sets) static SAVED_BY_THE_SHELL: CardRecord = CardRecord::ne
     "f6314c7f-41dc-4bbd-99db-3a8a1d2977b2",
     "Leonardo Santanna",
     CardRules::new_instant(mana_cost!("{1}{G}")).with_abilities(&[
-        AbilityDef::static_ability(
+        abilities::this_spell_cost_reduction(
             "This spell costs {1} less to cast if you control a Turtle.",
-            EffectDef::ReduceGenericCostBy(ValueDef::IfMatchingObjectCount(&CountConditionDef {
+            ValueDef::IfMatchingObjectCount(&CountConditionDef {
                 query: ObjectQueryDef::matching(
                     ObjectPredicateDef::Subtype(SubtypeDef::Literal("Turtle")),
                     &[ZoneKind::Battlefield],
@@ -3587,9 +3584,8 @@ pub(in crate::card::sets) static SAVED_BY_THE_SHELL: CardRecord = CardRecord::ne
                 amount: 1,
                 then: ValueDef::Constant(1),
                 otherwise: ValueDef::Constant(0),
-            })),
-        )
-        .with_source_zones(&[ZoneKind::Hand]),
+            }),
+        ),
         AbilityDef::spell_with_targets(
             "Put a +1/+1 counter on target creature you control. It gains \
              trample, hexproof, and indestructible until end of turn.",

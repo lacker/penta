@@ -4070,18 +4070,15 @@ pub(in crate::card::sets) static ALLIES_AT_LAST: CardRecord = CardRecord::new(
     "11a77897-2aba-4a9b-bbe6-1768ca9f12cb",
     "Evan Shipard",
     CardRules::new_instant(mana_cost!("{2}{G}")).with_abilities(&[
-        AbilityDef::static_ability(
+        abilities::this_spell_cost_reduction(
             "Affinity for Allies (This spell costs {1} less to cast for \
              each Ally you control.)",
-            EffectDef::ReduceGenericCostBy(ValueDef::CountMatchingObjects(
-                &ObjectQueryDef::matching(
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Ally")),
-                    &[ZoneKind::Battlefield],
-                    PlayerRelation::You,
-                ),
+            ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Ally")),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
             )),
-        )
-        .with_source_zones(&[ZoneKind::Hand]),
+        ),
         AbilityDef::spell_with_targets(
             "Up to two target creatures you control each deal damage equal \
              to their power to target creature an opponent controls.",

@@ -2272,16 +2272,13 @@ pub(in crate::card::sets) static DREADED_BAT_CLOUD: CardRecord = CardRecord::new
     "67d52db5-597e-46d5-af39-c3a2de107d30",
     "Andreia Ugrai",
     CardRules::new_creature(mana_cost!("{4}{B}"), &["Bat"], 4, 2).with_abilities(&[
-        AbilityDef::static_ability(
+        abilities::this_spell_cost_reduction(
             "This spell costs {3} less to cast if a creature died this turn.",
-            EffectDef::ReduceGenericCostBy(ValueDef::IfCreatureDiedThisTurn(
-                &ConditionalValueDef {
-                    then: ValueDef::Constant(3),
-                    otherwise: ValueDef::Constant(0),
-                },
-            )),
-        )
-        .with_source_zones(&[ZoneKind::Hand]),
+            ValueDef::IfCreatureDiedThisTurn(&ConditionalValueDef {
+                then: ValueDef::Constant(3),
+                otherwise: ValueDef::Constant(0),
+            }),
+        ),
         abilities::flying(),
         abilities::deathtouch(),
     ]),
@@ -4349,18 +4346,15 @@ pub(in crate::card::sets) static CANTANKEROUS_KEEPERS: CardRecord = CardRecord::
     "fae46a70-a6d3-4584-859d-6c7425fb1508",
     "Ramza Psyru",
     CardRules::new_creature(mana_cost!("{5}{G}"), &["Elf", "Soldier"], 4, 3).with_abilities(&[
-        AbilityDef::static_ability(
+        abilities::this_spell_cost_reduction(
             "Affinity for Elves (This spell costs {1} less to cast for \
              each Elf you control.)",
-            EffectDef::ReduceGenericCostBy(ValueDef::CountMatchingObjects(
-                &ObjectQueryDef::matching(
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Elf")),
-                    &[ZoneKind::Battlefield],
-                    PlayerRelation::You,
-                ),
+            ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Elf")),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
             )),
-        )
-        .with_source_zones(&[ZoneKind::Hand]),
+        ),
         abilities::enters_trigger(
             "When this creature enters, mill four cards, then put all Elf \
              cards from among them into your hand.",

@@ -165,18 +165,6 @@ fn validate_static_effect(
         {
             Ok(())
         }
-        EffectDef::ReduceGenericCostBy(value)
-            if position == StaticPosition::Root
-                && source_zones == [ZoneKind::Hand]
-                && static_cost_reduction_value_supported(value) =>
-        {
-            Ok(())
-        }
-        // The battlefield mirror: read off a permanent rather than the card
-        // discounting itself, so it names the spells and their caster.
-        // The increase carries a whole mana cost rather than a value, so
-        // there is nothing here to check beyond the predicate and the player
-        // relation the discount beside it also checks.
         EffectDef::ModifyCost(modification)
             if static_ability_increase_supported(modification, source_zones, position) =>
         {
@@ -736,7 +724,6 @@ fn validate_resolving_effect(
         | EffectDef::StaticApply { .. }
         | EffectDef::CannotBeForcedToSacrifice
         | EffectDef::CannotBeForcedToDiscard
-        | EffectDef::ReduceGenericCostBy(_)
         | EffectDef::ModifyCost(_)
         | EffectDef::CannotAttackUnless(_)
         | EffectDef::CannotAttackIf(_)

@@ -182,7 +182,7 @@ pub(in crate::card::sets) static THOUGHTCAST_54: CardRecord = CardRecord::new(
     "efb965a7-877a-4302-b507-25b0a9e32d9b",
     "Greg Hildebrandt",
     CardRules::new_sorcery(mana_cost!("{4}{U}")).with_abilities(&[
-AbilityDef::static_ability("Affinity for artifacts (This spell costs {1} less to cast for each artifact you control.)", EffectDef::ReduceGenericCostBy(ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(ObjectPredicateDef::HasType(CardType::Artifact), &[ZoneKind::Battlefield], PlayerRelation::You)))).with_source_zones(&[ZoneKind::Hand]),
+abilities::this_spell_cost_reduction("Affinity for artifacts (This spell costs {1} less to cast for each artifact you control.)", ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(ObjectPredicateDef::HasType(CardType::Artifact), &[ZoneKind::Battlefield], PlayerRelation::You))),
 AbilityDef::spell("Draw two cards.", abilities::draw_cards(ValueDef::Constant(2)))
 ]),
 );

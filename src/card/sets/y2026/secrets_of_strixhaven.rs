@@ -152,21 +152,18 @@ pub(in crate::card::sets) static THE_DAWNING_ARCHAIC: CardRecord = CardRecord::n
     CardRules::new_creature(mana_cost!("{10}"), &["Avatar"], 7, 7)
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
-            AbilityDef::static_ability(
+            abilities::this_spell_cost_reduction(
                 "This spell costs {1} less to cast for each instant and \
                  sorcery card in your graveyard.",
-                EffectDef::ReduceGenericCostBy(ValueDef::CountMatchingObjects(
-                    &ObjectQueryDef::matching(
-                        ObjectPredicateDef::AnyOf(&[
-                            ObjectPredicateDef::HasType(CardType::Instant),
-                            ObjectPredicateDef::HasType(CardType::Sorcery),
-                        ]),
-                        &[ZoneKind::Graveyard],
-                        PlayerRelation::You,
-                    ),
+                ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Instant),
+                        ObjectPredicateDef::HasType(CardType::Sorcery),
+                    ]),
+                    &[ZoneKind::Graveyard],
+                    PlayerRelation::You,
                 )),
-            )
-            .with_source_zones(&[ZoneKind::Hand]),
+            ),
             abilities::reach(),
             AbilityDef::triggered_with_targets(
                 "Whenever The Dawning Archaic attacks, you may cast target \
@@ -6160,18 +6157,15 @@ pub(in crate::card::sets) static WITHERBLOOM_THE_BALANCER: CardRecord = CardReco
     CardRules::new_creature(mana_cost!("{6}{B}{G}"), &["Elder", "Dragon"], 5, 5)
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
-            AbilityDef::static_ability(
+            abilities::this_spell_cost_reduction(
                 "Affinity for creatures (This spell costs {1} less to cast for \
                  each creature you control.)",
-                EffectDef::ReduceGenericCostBy(ValueDef::CountMatchingObjects(
-                    &ObjectQueryDef::matching(
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                        &[ZoneKind::Battlefield],
-                        PlayerRelation::You,
-                    ),
+                ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
                 )),
-            )
-            .with_source_zones(&[ZoneKind::Hand]),
+            ),
             abilities::flying(),
             abilities::deathtouch(),
             abilities::spell_cost_reduction(

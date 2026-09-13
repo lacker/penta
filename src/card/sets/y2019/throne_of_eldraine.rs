@@ -1848,18 +1848,15 @@ pub(in crate::card::sets) static EMRY_LURKER_OF_THE_LOCH: CardRecord = CardRecor
     CardRules::new_creature(mana_cost!("{2}{U}"), &["Merfolk", "Wizard"], 1, 2)
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
-            // Affinity is a discount the card prints about itself, read from hand
-            // where the spell is being paid for rather than off the battlefield.
-            AbilityDef::static_ability(
+            abilities::this_spell_cost_reduction(
                 "Affinity for artifacts (This spell costs {1} less to cast for each artifact you \
                  control.)",
-                EffectDef::ReduceGenericCostBy(ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
                     ObjectPredicateDef::HasType(CardType::Artifact),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::You,
-                ))),
-            )
-            .with_source_zones(&[ZoneKind::Hand]),
+                )),
+            ),
             abilities::enters_trigger(
                 "When Emry enters, mill four cards.",
                 EffectDef::Mill {

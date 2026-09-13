@@ -624,7 +624,6 @@ impl HandcraftedPolicy {
             | EffectDef::ReflexiveTrigger(_)
             | EffectDef::IfCondition { .. }
             | EffectDef::IfElseCondition { .. }
-            | EffectDef::ReduceGenericCostBy(_)
             | EffectDef::ModifyCost(_)
             | EffectDef::LandwalkCanBeBlocked(_)
             | EffectDef::CannotAttackUnless(_)

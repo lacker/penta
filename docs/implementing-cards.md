@@ -515,6 +515,23 @@ payment remains all-or-nothing. Use `PayOrDef::optional`, `optional_or`, or
 `unless` to choose the continuation, with `.labeled(...)` when observers or
 mana restrictions care about the payment's purpose.
 
+## Spell-cost modifiers
+
+Use `abilities::this_spell_cost_reduction(text, amount)` for a spell's own
+variable generic discount, such as affinity or Eddymurk Crab's graveyard count.
+Use `abilities::this_spell_cost_adjustment(text, adjustment)` when the clause
+adds mana or removes specific symbols. Both author an ordinary
+`CostModificationDef::Spell` matching `ObjectPredicateDef::Source`, with its
+static ability active on the stack (CR 113.6d). Do not mark these abilities as
+hand-only: the same modifier applies when another rule or effect permits the
+card to be cast from a graveyard, exile, library, or command zone.
+
+`abilities::spell_cost_reduction` and the other filtered spell-cost constructors
+instead default to battlefield sources, such as Goblin Electromancer. The
+shared pricing passes combine all applicable increases before reductions.
+Pricing reads the announced spell's selected parts and excludes that card from
+counts in its old zone. A discount does not itself grant casting permission.
+
 ## Pool-dependent mana amounts
 
 Use `AddManaEffectDef::one(color).with_variable_amount(value)` to add a computed

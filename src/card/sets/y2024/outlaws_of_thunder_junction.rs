@@ -3964,25 +3964,22 @@ pub(in crate::card::sets) static HELLSPUR_BRUTE: CardRecord = CardRecord::new(
     "Caio Monteiro",
     CardRules::new_creature(mana_cost!("{4}{R}"), &["Minotaur", "Mercenary"], 5, 4).with_abilities(
         &[
-            AbilityDef::static_ability(
+            abilities::this_spell_cost_reduction(
                 "Affinity for outlaws (This spell costs {1} less to cast for \
                  each Assassin, Mercenary, Pirate, Rogue, and/or Warlock you \
                  control.)",
-                EffectDef::ReduceGenericCostBy(ValueDef::CountMatchingObjects(
-                    &ObjectQueryDef::matching(
-                        ObjectPredicateDef::AnyOf(&[
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Assassin")),
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Mercenary")),
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Pirate")),
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Rogue")),
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Warlock")),
-                        ]),
-                        &[ZoneKind::Battlefield],
-                        PlayerRelation::You,
-                    ),
+                ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Assassin")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Mercenary")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Pirate")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Rogue")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Warlock")),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
                 )),
-            )
-            .with_source_zones(&[ZoneKind::Hand]),
+            ),
             abilities::trample(),
         ],
     ),
@@ -4844,9 +4841,9 @@ pub(in crate::card::sets) static CACTARANTULA: CardRecord = CardRecord::new(
     "2e0e27f9-dc2c-4366-b810-3e8d0bdff8c3",
     "Filip Burburan",
     CardRules::new_creature(mana_cost!("{4}{G}{G}"), &["Plant", "Spider"], 6, 5).with_abilities(&[
-        AbilityDef::static_ability(
+        abilities::this_spell_cost_reduction(
             "This spell costs {1} less to cast if you control a Desert.",
-            EffectDef::ReduceGenericCostBy(ValueDef::IfMatchingObjectCount(&CountConditionDef {
+            ValueDef::IfMatchingObjectCount(&CountConditionDef {
                 query: ObjectQueryDef::matching(
                     ObjectPredicateDef::Subtype(SubtypeDef::Literal("Desert")),
                     &[ZoneKind::Battlefield],
@@ -4856,9 +4853,8 @@ pub(in crate::card::sets) static CACTARANTULA: CardRecord = CardRecord::new(
                 amount: 1,
                 then: ValueDef::Constant(1),
                 otherwise: ValueDef::Constant(0),
-            })),
-        )
-        .with_source_zones(&[ZoneKind::Hand]),
+            }),
+        ),
         abilities::reach(),
         AbilityDef::triggered(
             "Whenever this creature becomes the target of a spell or \

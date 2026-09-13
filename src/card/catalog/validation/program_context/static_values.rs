@@ -126,12 +126,17 @@ fn static_power_toughness_value_supported(value: ValueDef) -> bool {
     }
 }
 
+// Cost preview removes the announced card from its old zone but does not
+// materialize it in stack queries. Keep those queries outside this boundary.
 fn static_cost_reduction_value_supported(value: ValueDef) -> bool {
     match value {
         ValueDef::Constant(_) => true,
-        ValueDef::CountMatchingObjects(query) => static_query_supported(*query),
+        ValueDef::CountMatchingObjects(query) => {
+            !query.zones.contains(&ZoneKind::Stack) && static_query_supported(*query)
+        }
         ValueDef::IfMatchingObjectCount(condition) => {
-            static_query_supported(condition.query)
+            !condition.query.zones.contains(&ZoneKind::Stack)
+                && static_query_supported(condition.query)
                 && static_cost_reduction_value_supported(condition.then)
                 && static_cost_reduction_value_supported(condition.otherwise)
         }
@@ -143,7 +148,7 @@ fn static_cost_reduction_value_supported(value: ValueDef) -> bool {
                 && static_cost_reduction_value_supported(sum.right)
         }
         // Morbid. The turn-scoped flag behind it is maintained for
-        // resolution-time clauses already, so pricing a spell from hand asks
+        // resolution-time clauses already, so pricing a spell asks
         // the same question at a different moment.
         ValueDef::IfCreatureDiedThisTurn(branches) => {
             static_cost_reduction_value_supported(branches.then)
@@ -235,8 +240,10 @@ fn static_spell_cost_modification_supported(
             let source_supported = match source_zones {
                 [ZoneKind::Battlefield] => true,
                 [ZoneKind::Stack] => {
-                    modification.condition == SpellCostConditionDef::TargetsSource
-                        && matches!(modification.adjustment, CostAdjustmentDef::Add(_))
+                    (modification.spell == ObjectPredicateDef::Source
+                        && modification.condition == SpellCostConditionDef::Always)
+                        || (modification.condition == SpellCostConditionDef::TargetsSource
+                            && matches!(modification.adjustment, CostAdjustmentDef::Add(_)))
                 }
                 _ => false,
             };

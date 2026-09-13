@@ -1133,13 +1133,12 @@ pub(in crate::card::sets) static STOIC_REBUTTAL: CardRecord = CardRecord::new(
     "f2805239-f30a-4eca-a10b-41673daaa287",
     "Chris Rahn",
 CardRules::new_instant(mana_cost!("{1}{U}{U}")).with_abilities(&[
-        AbilityDef::static_ability(
+        abilities::this_spell_cost_reduction(
             "Metalcraft — This spell costs {1} less to cast if you control three or more artifacts.",
-            EffectDef::ReduceGenericCostBy(ValueDef::IfMatchingObjectCount(&metalcraft_value(
+            ValueDef::IfMatchingObjectCount(&metalcraft_value(
                 1, 0,
-            ))),
-        )
-        .with_source_zones(&[ZoneKind::Hand]),
+            )),
+        ),
         AbilityDef::spell_with_targets(
             "Counter target spell.",
             &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {

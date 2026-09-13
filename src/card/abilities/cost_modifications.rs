@@ -99,3 +99,29 @@ pub const fn spell_cost_adjustment(
         })),
     )
 }
+
+/// A static ability modifying this spell's own total cost on the stack
+/// (CR 113.6d), independent of the zone it is cast from.
+#[must_use]
+pub const fn this_spell_cost_adjustment(
+    text: &'static str,
+    adjustment: CostAdjustmentDef,
+) -> AbilityDef {
+    spell_cost_adjustment(
+        text,
+        ObjectPredicateDef::Source,
+        PlayerRelation::You,
+        SpellCostConditionDef::Always,
+        adjustment,
+    )
+    .with_source_zones(&[ZoneKind::Stack])
+}
+
+/// A live generic reduction of this spell's own total cost.
+#[must_use]
+pub const fn this_spell_cost_reduction(text: &'static str, amount: ValueDef) -> AbilityDef {
+    this_spell_cost_adjustment(
+        text,
+        CostAdjustmentDef::Subtract(CostAmountDef::Generic(amount)),
+    )
+}

@@ -8,12 +8,12 @@ use crate::card::{
 
 use super::{
     AbilityOrigin, AbilityProcedureDef, Action, ActivatedAbilityDef, AppliedEffectDef,
-    CardDefinitionId, CardInstance, CardType, CharacteristicContext, CharacteristicOperationDef,
-    CostConfiguration, CostDef, DeclarativeAbilityDef, EffectDef, EffectRecipientDef,
-    FlexibleManaSource, Game, GameObjectId, HybridPair, KeywordAbility, ManaAbilityActivation,
-    ManaActivationChoices, ManaColor, ManaContributionKind, ManaCost, ManaPaymentPurpose,
-    ManaPlanOptions, ManaPool, ManaSourceOutput, ManaSourceOutputs, ObjectRefDef, PaymentCapacity,
-    Permanent, PlannedManaActivation, PlannedPaymentKind, PlayActionKind, PlayOptionDef, PlayerId,
+    CardInstance, CardType, CharacteristicContext, CharacteristicOperationDef, CostConfiguration,
+    CostDef, DeclarativeAbilityDef, EffectDef, EffectRecipientDef, FlexibleManaSource, Game,
+    GameObjectId, HybridPair, KeywordAbility, ManaAbilityActivation, ManaActivationChoices,
+    ManaColor, ManaContributionKind, ManaCost, ManaPaymentPurpose, ManaPlanOptions, ManaPool,
+    ManaSourceOutput, ManaSourceOutputs, ObjectRefDef, PaymentCapacity, Permanent,
+    PlannedManaActivation, PlannedPaymentKind, PlayActionKind, PlayOptionDef, PlayerId,
     SetOperationDef, Target, TargetSelection, TargetSlotId, TriggerContext, ValueDef, ZoneKind,
 };
 
@@ -124,7 +124,7 @@ impl Game {
                 let (additional_mana, additional_life) = (payment.mana, payment.life);
                 let increased = add_mana_cost(
                     add_mana_cost(cost, additional_mana),
-                    self.spell_cost_increase(player, *card, choices.targets()),
+                    self.spell_cost_increase(option, player, *card, choices.targets()),
                 );
                 let (locked, phyrexian_life) = Self::locked_mana_payment(
                     increased,
@@ -170,12 +170,7 @@ impl Game {
                                 choices.x(),
                                 payment.generic_reduction,
                             ),
-                            self.spell_cost_reduction(
-                                definition.id,
-                                player,
-                                *card,
-                                choices.targets(),
-                            ),
+                            self.spell_cost_reduction(option, player, *card, choices.targets()),
                         ),
                         emerge,
                     ),

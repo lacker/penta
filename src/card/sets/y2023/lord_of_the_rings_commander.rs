@@ -119,7 +119,7 @@ pub(in crate::card::sets) static CAVERN_HOARD_DRAGON_114: CardRecord = CardRecor
     "31540dde-7cea-4eb1-896e-27e21b56f00a",
     "Antonio José Manzanedo",
     CardRules::new_creature(mana_cost!("{7}{R}{R}"), &["Dragon"], 6, 6).with_abilities(&[
-abilities::spell_cost_reduction("This spell costs {X} less to cast, where X is the greatest number of artifacts an opponent controls.", ObjectPredicateDef::Source, PlayerRelation::You, ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(ObjectPredicateDef::HasType(CardType::Artifact), &[ZoneKind::Battlefield], PlayerRelation::Opponent))),
+abilities::this_spell_cost_reduction("This spell costs {X} less to cast, where X is the greatest number of artifacts an opponent controls.", ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(ObjectPredicateDef::HasType(CardType::Artifact), &[ZoneKind::Battlefield], PlayerRelation::Opponent))),
 abilities::flying(),
 abilities::trample(),
 abilities::haste(),

@@ -118,12 +118,11 @@ pub(in crate::card::sets) static LEYLINE_BINDING: CardRecord = CardRecord::new(
     // at instant speed: the whole card is the mana base it asks for.
     CardRules::new_enchantment(mana_cost!("{5}{W}")).with_abilities(&[
         abilities::flash(),
-        AbilityDef::static_ability(
+        abilities::this_spell_cost_reduction(
             "Domain — This spell costs {1} less to cast for each basic land type among lands you \
              control.",
-            EffectDef::ReduceGenericCostBy(ValueDef::BasicLandTypesControlled(PlayerRelation::You)),
-        )
-        .with_source_zones(&[ZoneKind::Hand]),
+            ValueDef::BasicLandTypesControlled(PlayerRelation::You),
+        ),
         abilities::enters_trigger_with_targets(
             "When this enchantment enters, exile target nonland permanent an opponent controls \
              until this enchantment leaves the battlefield.",
@@ -326,9 +325,9 @@ pub(in crate::card::sets) static TOLARIAN_TERROR: CardRecord = CardRecord::new(
 // Seven mana on paper and two in practice, which is what makes ward the
     // relevant half: the deck that casts it cheaply is holding up counters.
     CardRules::new_creature(mana_cost!("{6}{U}"), &["Serpent"], 5, 5).with_abilities(&[
-        AbilityDef::static_ability(
+        abilities::this_spell_cost_reduction(
             "This spell costs {1} less to cast for each instant and sorcery card in your graveyard.",
-            EffectDef::ReduceGenericCostBy(ValueDef::CountMatchingObjects(
+            ValueDef::CountMatchingObjects(
                 &ObjectQueryDef::matching(
                     ObjectPredicateDef::AnyOf(&[
                         ObjectPredicateDef::HasType(CardType::Instant),
@@ -337,11 +336,8 @@ pub(in crate::card::sets) static TOLARIAN_TERROR: CardRecord = CardRecord::new(
                     &[ZoneKind::Graveyard],
                     PlayerRelation::You,
                 ),
-            )),
-        )
-        // Read from hand, where the cost is paid, rather than from the
-        // battlefield the creature is heading to.
-        .with_source_zones(&[ZoneKind::Hand]),
+            ),
+        ),
         abilities::ward(
             &[crate::CostDef::Mana(crate::ManaCost::new(2, 0))],
             "Ward {2} (Whenever this creature becomes the target of a spell or ability an opponent controls, counter it unless that player pays {2}.)",

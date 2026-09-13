@@ -3447,18 +3447,15 @@ pub(in crate::card::sets) static BLASPHEMOUS_ACT: CardRecord = CardRecord::new(
     "509ce648-fb76-486d-8b39-183e368b7cb7",
     "Daarken",
     CardRules::new_sorcery(mana_cost!("{8}{R}")).with_abilities(&[
-        AbilityDef::static_ability(
+        abilities::this_spell_cost_reduction(
             "This spell costs {1} less to cast for each creature on the battlefield.",
             // Every creature anyone controls, which is what the reduction counts.
-            EffectDef::ReduceGenericCostBy(ValueDef::CountMatchingObjects(
-                &ObjectQueryDef::matching(
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                    &[ZoneKind::Battlefield],
-                    PlayerRelation::Any,
-                ),
+            ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
             )),
-        )
-        .with_source_zones(&[ZoneKind::Hand]),
+        ),
         AbilityDef::spell(
             "Blasphemous Act deals 13 damage to each creature.",
             EffectDef::damage(

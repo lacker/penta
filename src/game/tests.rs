@@ -414,6 +414,7 @@ mod scavenge;
 mod search_and_reveal;
 mod second_spell_each_turn;
 mod self_bounce_and_untap;
+mod self_spell_costs;
 mod self_watching_creatures;
 mod sentinel;
 mod shroud_grants;

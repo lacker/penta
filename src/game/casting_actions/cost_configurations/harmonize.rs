@@ -61,10 +61,23 @@ impl Game {
             .unwrap_or(0);
         let other_reductions = match purpose {
             ManaPaymentPurpose::Spell {
-                object, definition, ..
+                object,
+                definition,
+                form,
+                ..
             } => self
-                .spell_cost_reduction(*definition, player, *object, &[])
-                .generic(),
+                .catalog
+                .get(*definition)
+                .and_then(|definition| {
+                    definition
+                        .play_options
+                        .iter()
+                        .find(|option| option.form == *form)
+                })
+                .map_or(0, |option| {
+                    self.spell_cost_reduction(option, player, *object, &[])
+                        .generic()
+                }),
             _ => 0,
         };
         self.available_mana_ceiling(player, purpose)

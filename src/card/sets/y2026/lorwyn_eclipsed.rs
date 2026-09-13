@@ -1642,10 +1642,10 @@ pub(in crate::card::sets) static RIME_CHILL: CardRecord = CardRecord::new(
     "a9a425f4-2103-4f96-88a0-91fe554037d7",
     "Igor Krstic",
     CardRules::new_instant(mana_cost!("{6}{U}")).with_abilities(&[
-        AbilityDef::static_ability(
+        abilities::this_spell_cost_reduction(
             "Vivid — This spell costs {1} less to cast for each color \
              among permanents you control.",
-            EffectDef::ReduceGenericCostBy(ValueDef::Sum(&SumValueDef {
+            ValueDef::Sum(&SumValueDef {
                 left: ValueDef::Sum(&SumValueDef {
                     left: ValueDef::Sum(&SumValueDef {
                         left: ValueDef::Sum(&SumValueDef {
@@ -1707,9 +1707,8 @@ pub(in crate::card::sets) static RIME_CHILL: CardRecord = CardRecord::new(
                     then: ValueDef::Constant(1),
                     otherwise: ValueDef::Constant(0),
                 }),
-            })),
-        )
-        .with_source_zones(&[ZoneKind::Hand]),
+            }),
+        ),
         AbilityDef::spell_with_targets(
             "Tap up to two target creatures. Put a stun counter on each of \
              them. (If a permanent with a stun counter would become \
@@ -4611,9 +4610,9 @@ pub(in crate::card::sets) static MISTMEADOW_COUNCIL: CardRecord = CardRecord::ne
     "d4a7c9bc-81c8-4c31-96a9-eb6ba7715e7f",
     "Jim Pavelec",
     CardRules::new_creature(mana_cost!("{4}{G}"), &["Kithkin", "Advisor"], 4, 3).with_abilities(&[
-        AbilityDef::static_ability(
+        abilities::this_spell_cost_reduction(
             "This spell costs {1} less to cast if you control a Kithkin.",
-            EffectDef::ReduceGenericCostBy(ValueDef::IfMatchingObjectCount(&CountConditionDef {
+            ValueDef::IfMatchingObjectCount(&CountConditionDef {
                 query: ObjectQueryDef::matching(
                     ObjectPredicateDef::Subtype(SubtypeDef::Literal("Kithkin")),
                     &[ZoneKind::Battlefield],
@@ -4623,9 +4622,8 @@ pub(in crate::card::sets) static MISTMEADOW_COUNCIL: CardRecord = CardRecord::ne
                 amount: 0,
                 then: ValueDef::Constant(1),
                 otherwise: ValueDef::Constant(0),
-            })),
-        )
-        .with_source_zones(&[ZoneKind::Hand]),
+            }),
+        ),
         abilities::enters_trigger(
             "When this creature enters, draw a card.",
             abilities::draw_cards(ValueDef::Constant(1)),
@@ -4884,18 +4882,15 @@ pub(in crate::card::sets) static SAPLING_NURSERY: CardRecord = CardRecord::new(
     "3199bea9-fef7-45fe-8777-2103d84a9347",
     "Vincent Christiaens",
     CardRules::new_enchantment(mana_cost!("{6}{G}{G}")).with_abilities(&[
-        AbilityDef::static_ability(
+        abilities::this_spell_cost_reduction(
             "Affinity for Forests (This spell costs {1} less to cast for \
              each Forest you control.)",
-            EffectDef::ReduceGenericCostBy(ValueDef::CountMatchingObjects(
-                &ObjectQueryDef::matching(
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Forest")),
-                    &[ZoneKind::Battlefield],
-                    PlayerRelation::You,
-                ),
+            ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Forest")),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
             )),
-        )
-        .with_source_zones(&[ZoneKind::Hand]),
+        ),
         AbilityDef::triggered(
             "Landfall — Whenever a land you control enters, create a 3/4 \
              green Treefolk creature token with reach.",
@@ -5298,10 +5293,10 @@ pub(in crate::card::sets) static WILDVINE_PUMMELER: CardRecord = CardRecord::new
     "11bad5c7-fe9a-4d89-a531-8d4f03d5a0e4",
     "Kev Walker",
     CardRules::new_creature(mana_cost!("{6}{G}"), &["Giant", "Berserker"], 6, 5).with_abilities(&[
-        AbilityDef::static_ability(
+        abilities::this_spell_cost_reduction(
             "Vivid — This spell costs {1} less to cast for each color \
              among permanents you control.",
-            EffectDef::ReduceGenericCostBy(ValueDef::Sum(&SumValueDef {
+            ValueDef::Sum(&SumValueDef {
                 left: ValueDef::Sum(&SumValueDef {
                     left: ValueDef::Sum(&SumValueDef {
                         left: ValueDef::Sum(&SumValueDef {
@@ -5363,9 +5358,8 @@ pub(in crate::card::sets) static WILDVINE_PUMMELER: CardRecord = CardRecord::new
                     then: ValueDef::Constant(1),
                     otherwise: ValueDef::Constant(0),
                 }),
-            })),
-        )
-        .with_source_zones(&[ZoneKind::Hand]),
+            }),
+        ),
         abilities::reach(),
         abilities::trample(),
     ]),

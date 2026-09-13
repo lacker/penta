@@ -1768,7 +1768,7 @@ pub(in crate::card::sets) static THOUGHT_MONITOR_341: CardRecord = CardRecord::n
     "55c98ef7-be05-4bcf-be4b-62a437297330",
     "Martina Pilcerova",
     CardRules::new_artifact_creature(mana_cost!("{6}{U}"), &["Construct"], 2, 2).with_abilities(&[
-        AbilityDef::static_ability("Affinity for artifacts (This spell costs {1} less to cast for each artifact you control.)", EffectDef::ReduceGenericCostBy(ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(ObjectPredicateDef::HasType(CardType::Artifact), &[ZoneKind::Battlefield], PlayerRelation::You)))).with_source_zones(&[ZoneKind::Hand]),
+        abilities::this_spell_cost_reduction("Affinity for artifacts (This spell costs {1} less to cast for each artifact you control.)", ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(ObjectPredicateDef::HasType(CardType::Artifact), &[ZoneKind::Battlefield], PlayerRelation::You))),
         abilities::flying(),
         abilities::enters_trigger("When this creature enters, draw two cards.", EffectDef::DrawCards { recipient: EffectRecipientDef::Controller, amount: ValueDef::Constant(2) }),
     ]),

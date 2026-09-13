@@ -759,7 +759,7 @@ pub(in crate::card::sets) static PETRIFY: CardRecord = CardRecord::new(
 );
 
 // LCI 31 — Quicksand Whirlpool
-// Audit: unsupported — Needs a self spell-cost reduction evaluated against the chosen target's tapped state; ReduceGenericCostBy does not receive target selections.
+// Audit: unsupported — Needs a self spell-cost reduction evaluated against the chosen target's tapped state; spell-cost values do not inspect selected targets' characteristics.
 pub(in crate::card::sets) static QUICKSAND_WHIRLPOOL: CardRecord = CardRecord::new(
     "Quicksand Whirlpool",
     "a74ddccb-ebbd-4fad-a9b6-6b9e9bafae31",
@@ -1503,7 +1503,7 @@ pub(in crate::card::sets) static ORAZCA_PUZZLE_DOOR: CardRecord = CardRecord::ne
 );
 
 // LCI 69 — Out of Air
-// Audit: unsupported — Needs a self spell-cost reduction evaluated against the chosen target spell's creature type; ReduceGenericCostBy does not receive target selections.
+// Audit: unsupported — Needs a self spell-cost reduction evaluated against the chosen target spell's creature type; spell-cost values do not inspect selected targets' characteristics.
 pub(in crate::card::sets) static OUT_OF_AIR: CardRecord = CardRecord::new(
     "Out of Air",
     "c263db55-fcac-4b49-b626-7c8092accfcd",
@@ -2416,10 +2416,10 @@ pub(in crate::card::sets) static GARGANTUAN_LEECH: CardRecord = CardRecord::new(
     "94724efb-4785-4751-9fe1-07f243dd6008",
     "Piotr Foksowicz",
     CardRules::new_creature(mana_cost!("{7}{B}"), &["Leech"], 5, 5).with_abilities(&[
-        AbilityDef::static_ability(
+        abilities::this_spell_cost_reduction(
             "This spell costs {1} less to cast for each Cave you control \
              and each Cave card in your graveyard.",
-            EffectDef::ReduceGenericCostBy(ValueDef::Sum(&SumValueDef::new(
+            ValueDef::Sum(&SumValueDef::new(
                 ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
                     ObjectPredicateDef::Subtype(SubtypeDef::Literal("Cave")),
                     &[ZoneKind::Battlefield],
@@ -2430,9 +2430,8 @@ pub(in crate::card::sets) static GARGANTUAN_LEECH: CardRecord = CardRecord::new(
                     &[ZoneKind::Graveyard],
                     PlayerRelation::You,
                 )),
-            ))),
-        )
-        .with_source_zones(&[ZoneKind::Hand]),
+            )),
+        ),
         abilities::lifelink(),
     ]),
 );

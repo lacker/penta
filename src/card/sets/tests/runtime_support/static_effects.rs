@@ -59,8 +59,10 @@ fn shared_cost_modification(source_zones: &[ZoneKind], modification: CostModific
             let source_supported = match source_zones {
                 [ZoneKind::Battlefield] => true,
                 [ZoneKind::Stack] => {
-                    modification.condition == SpellCostConditionDef::TargetsSource
-                        && allow_nonactive
+                    (modification.spell == ObjectPredicateDef::Source
+                        && modification.condition == SpellCostConditionDef::Always)
+                        || (modification.condition == SpellCostConditionDef::TargetsSource
+                            && allow_nonactive)
                 }
                 _ => false,
             };
@@ -99,44 +101,30 @@ fn shared_cost_modification(source_zones: &[ZoneKind], modification: CostModific
 fn shared_spell_cost_value(value: ValueDef) -> bool {
     match value {
         ValueDef::Constant(_) | ValueDef::DistinctTargets => true,
-        ValueDef::CountMatchingObjects(query) => shared_static_query(*query),
+        ValueDef::CountMatchingObjects(query) => {
+            !query.zones.contains(&ZoneKind::Stack)
+                && shared_static_query(*query)
+                && shared_object_predicate(query.object)
+        }
         // Battlefield spell discounts use the same conditional count
         // evaluator as a card's own discount.
         ValueDef::IfMatchingObjectCount(condition) => {
-            shared_static_query(condition.query)
+            !condition.query.zones.contains(&ZoneKind::Stack)
+                && shared_static_query(condition.query)
                 && shared_object_predicate(condition.query.object)
                 && shared_spell_cost_value(condition.then)
                 && shared_spell_cost_value(condition.otherwise)
+        }
+        ValueDef::IfCreatureDiedThisTurn(branches) => {
+            shared_spell_cost_value(branches.then) && shared_spell_cost_value(branches.otherwise)
+        }
+        ValueDef::Sum(sum) => {
+            shared_spell_cost_value(sum.left) && shared_spell_cost_value(sum.right)
         }
         ValueDef::CountSpellsCastThisTurn(query) => {
             shared_object_predicate(query.spell) && shared_cost_modifier_caster(query.player, true)
         }
         ValueDef::BasicLandTypesControlled(relation) => shared_cost_modifier_caster(relation, true),
-        _ => false,
-    }
-}
-
-fn shared_source_cost_reduction_value(value: ValueDef) -> bool {
-    match value {
-        ValueDef::Constant(_) => true,
-        ValueDef::CountMatchingObjects(query) => {
-            shared_static_query(*query) && shared_object_predicate(query.object)
-        }
-        ValueDef::IfMatchingObjectCount(condition) => {
-            shared_static_query(condition.query)
-                && shared_object_predicate(condition.query.object)
-                && shared_source_cost_reduction_value(condition.then)
-                && shared_source_cost_reduction_value(condition.otherwise)
-        }
-        ValueDef::IfCreatureDiedThisTurn(branches) => {
-            shared_source_cost_reduction_value(branches.then)
-                && shared_source_cost_reduction_value(branches.otherwise)
-        }
-        ValueDef::BasicLandTypesControlled(relation) => shared_cost_modifier_caster(relation, true),
-        ValueDef::Sum(sum) => {
-            shared_source_cost_reduction_value(sum.left)
-                && shared_source_cost_reduction_value(sum.right)
-        }
         _ => false,
     }
 }
@@ -178,9 +166,6 @@ pub(in super::super) fn shared_static_non_apply_effect(
                 && shared_static_query(*query)
         }
         EffectDef::ModifyCost(modification) => shared_cost_modification(source_zones, modification),
-        EffectDef::ReduceGenericCostBy(value) => {
-            source_zones == [ZoneKind::Hand] && shared_source_cost_reduction_value(value)
-        }
         EffectDef::Sequence(effects) => {
             !effects.is_empty()
                 && effects
@@ -204,7 +189,6 @@ fn shared_static_effect_at(source_zones: &[ZoneKind], effect: EffectDef, root: b
         | EffectDef::CannotBeForcedToDiscard
         | EffectDef::GainClassLevel { .. }
         | EffectDef::SubstituteBasicLandTypeUntilEndOfTurn { .. }
-        | EffectDef::ReduceGenericCostBy(_)
         | EffectDef::ModifyCost(_)
         | EffectDef::LandwalkCanBeBlocked(_)
         | EffectDef::CannotAttackUnless(_)

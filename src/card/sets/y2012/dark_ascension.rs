@@ -2652,17 +2652,14 @@ pub(in crate::card::sets) static GHOULTREE: CardRecord = CardRecord::new(
     "a413c65e-5965-429b-8c25-11f8b73cba03",
     "Volkan Baǵa",
     CardRules::new_creature(mana_cost!("{7}{G}"), &["Zombie", "Treefolk"], 10, 10).with_ability(
-        AbilityDef::static_ability(
+        abilities::this_spell_cost_reduction(
             "This spell costs {1} less to cast for each creature card in your graveyard.",
-            EffectDef::ReduceGenericCostBy(ValueDef::CountMatchingObjects(
-                &ObjectQueryDef::matching(
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                    &[ZoneKind::Graveyard],
-                    PlayerRelation::You,
-                ),
+            ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                &[ZoneKind::Graveyard],
+                PlayerRelation::You,
             )),
-        )
-        .with_source_zones(&[ZoneKind::Hand]),
+        ),
     ),
 );
 

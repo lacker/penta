@@ -411,9 +411,9 @@ pub(in crate::card::sets) static BOLT_BEND: CardRecord = CardRecord::new(
     "39b35408-3728-4e1b-9f58-b0775df914d6",
     "Svetlin Velinov",
     CardRules::new_instant(mana_cost!("{3}{R}")).with_abilities(&[
-        AbilityDef::static_ability(
+        abilities::this_spell_cost_reduction(
             "This spell costs {3} less to cast if you control a creature with power 4 or greater.",
-            EffectDef::ReduceGenericCostBy(ValueDef::IfMatchingObjectCount(&CountConditionDef {
+            ValueDef::IfMatchingObjectCount(&CountConditionDef {
                 query: ObjectQueryDef::matching(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
@@ -426,9 +426,8 @@ pub(in crate::card::sets) static BOLT_BEND: CardRecord = CardRecord::new(
                 amount: 1,
                 then: ValueDef::Constant(3),
                 otherwise: ValueDef::Constant(0),
-            })),
-        )
-        .with_source_zones(&[ZoneKind::Hand]),
+            }),
+        ),
         AbilityDef::spell_with_targets(
             "Change the target of target spell or ability with a single target.",
             &[AbilityTargetDef::exactly_one(

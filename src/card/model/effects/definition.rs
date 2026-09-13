@@ -663,17 +663,9 @@ pub enum EffectDef {
         on_win: &'static EffectDef,
         on_loss: &'static EffectDef,
     },
-    /// This card costs that much less generic mana to cast. A static ability
-    /// that works from the hand, where casting reads it.
-    ReduceGenericCostBy(ValueDef),
-    /// A permanent on the battlefield changing what a spell or an activated
-    /// ability costs, which is the difference from
-    /// [`Self::ReduceGenericCostBy`]: that one is a card in hand cutting its
-    /// own cost and names nothing, while this has to say which spells and
-    /// cast by whom. The related spellings live together in
-    /// [`CostModificationDef`] because every consumer takes them together:
-    /// the mana planner prices a spell against all of them at once, and
-    /// every clause that is not about cost passes over the whole family.
+    /// A static modification to a spell or activated ability's total cost.
+    /// The ability's source zones say where it functions; a spell modifying
+    /// its own cost uses the stack, regardless of the zone it is cast from.
     ModifyCost(CostModificationDef),
     /// Creates a regeneration shield (CR 701.15). The shield is not the
     /// regeneration: it waits, and the next destruction this turn is replaced

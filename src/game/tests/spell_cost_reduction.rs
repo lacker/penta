@@ -1,6 +1,6 @@
 //! "Spells you cast cost less to cast."
 //!
-//! Read off a permanent rather than the card in hand, so unlike a card
+//! Read off a permanent rather than the announced spell, so unlike a card
 //! discounting itself the clause has to say which spells and whose. Several
 //! stack, and none of them can take a cost below its coloured requirements.
 
@@ -26,8 +26,17 @@ fn cost_of(
 }
 
 fn reduction(game: &Game, spell: CardDefinitionId, card: GameObjectId) -> u16 {
-    game.spell_cost_reduction(spell, PlayerId::One, card, &[])
-        .generic()
+    game.spell_cost_reduction(
+        game.catalog
+            .get(spell)
+            .unwrap()
+            .play_option(PlayOptionId::DEFAULT)
+            .unwrap(),
+        PlayerId::One,
+        card,
+        &[],
+    )
+    .generic()
 }
 
 #[test]
@@ -148,7 +157,7 @@ fn a_discount_cannot_reach_the_coloured_cost() {
     assert!(!castable, "and five colourless does not");
 }
 
-/// Morbid pricing: Bone Picker discounts itself from hand, and the condition
+/// Morbid pricing: Bone Picker discounts itself on the stack, and the condition
 /// is a turn-scoped fact rather than anything on the battlefield. Before the
 /// planner learned to read it the reduction silently came back as zero, so
 /// both branches are worth pinning.

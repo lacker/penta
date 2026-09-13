@@ -135,11 +135,10 @@ fn catalog_accepts_each_supported_static_program_lane() {
             },
         )
         .with_source_zones(&[ZoneKind::Stack]),
-        AbilityDef::static_ability(
+        abilities::this_spell_cost_reduction(
             "This spell costs {1} less for each creature card in your graveyard.",
-            EffectDef::ReduceGenericCostBy(ValueDef::CountMatchingObjects(&GRAVEYARD_CREATURES)),
-        )
-        .with_source_zones(&[ZoneKind::Hand]),
+            ValueDef::CountMatchingObjects(&GRAVEYARD_CREATURES),
+        ),
         AbilityDef::static_ability(
             "Forests are 1/1 creatures that are still lands.",
             EffectDef::StaticApply {

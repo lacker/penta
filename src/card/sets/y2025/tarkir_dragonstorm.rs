@@ -955,18 +955,15 @@ pub(in crate::card::sets) static SALT_ROAD_PACKBEAST: CardRecord = CardRecord::n
     "98d548c9-42bc-4155-8211-0aea801c3724",
     "Ben Wootten",
     CardRules::new_creature(mana_cost!("{5}{W}"), &["Beast"], 4, 3).with_abilities(&[
-        AbilityDef::static_ability(
+        abilities::this_spell_cost_reduction(
             "Affinity for creatures (This spell costs {1} less to cast for \
              each creature you control.)",
-            EffectDef::ReduceGenericCostBy(ValueDef::CountMatchingObjects(
-                &ObjectQueryDef::matching(
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                    &[ZoneKind::Battlefield],
-                    PlayerRelation::You,
-                ),
+            ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
             )),
-        )
-        .with_source_zones(&[ZoneKind::Hand]),
+        ),
         abilities::enters_trigger(
             "When this creature enters, draw a card.",
             abilities::draw_cards(ValueDef::Constant(1)),
@@ -2283,21 +2280,18 @@ pub(in crate::card::sets) static SPECTRAL_DENIAL: CardRecord = CardRecord::new(
     "ee4e732a-1ffd-463d-92c2-26187659cfc3",
     "Xabi Gaztelua",
     CardRules::new_instant(mana_cost!("{X}{U}")).with_abilities(&[
-        AbilityDef::static_ability(
+        abilities::this_spell_cost_reduction(
             "This spell costs {1} less to cast for each creature you \
              control with power 4 or greater.",
-            EffectDef::ReduceGenericCostBy(ValueDef::CountMatchingObjects(
-                &ObjectQueryDef::matching(
-                    ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::PowerAtLeast(4),
-                    ]),
-                    &[ZoneKind::Battlefield],
-                    PlayerRelation::You,
-                ),
+            ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::PowerAtLeast(4),
+                ]),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
             )),
-        )
-        .with_source_zones(&[ZoneKind::Hand]),
+        ),
         AbilityDef::spell_with_targets(
             "Counter target spell unless its controller pays {X}.",
             &[AbilityTargetDef::exactly_one(

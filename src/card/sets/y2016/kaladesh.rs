@@ -146,18 +146,15 @@ pub(in crate::card::sets) static GEARSEEKER_SERPENT: CardRecord = CardRecord::ne
     "d32d8327-6ec2-4d43-b254-b04407612715",
     "Filip Burburan",
     CardRules::new_creature(mana_cost!("{5}{U}{U}"), &["Serpent"], 5, 6).with_abilities(&[
-        AbilityDef::static_ability(
+        abilities::this_spell_cost_reduction(
             "Affinity for artifacts (This spell costs {1} less to cast for \
              each artifact you control.)",
-            EffectDef::ReduceGenericCostBy(ValueDef::CountMatchingObjects(
-                &ObjectQueryDef::matching(
-                    ObjectPredicateDef::HasType(CardType::Artifact),
-                    &[ZoneKind::Battlefield],
-                    PlayerRelation::You,
-                ),
+            ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                ObjectPredicateDef::HasType(CardType::Artifact),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
             )),
-        )
-        .with_source_zones(&[ZoneKind::Hand]),
+        ),
         AbilityDef::activated(
             "{5}{U}: This creature can't be blocked this turn.",
             &[CostDef::Mana(mana_cost!("{5}{U}"))],

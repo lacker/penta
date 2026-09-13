@@ -381,7 +381,7 @@ impl Game {
         }
         cost = add_mana_cost(
             cost,
-            self.spell_cost_increase(player, card_id, choices.targets()),
+            self.spell_cost_increase(option, player, card_id, choices.targets()),
         );
         let (cost, phyrexian_life) = Self::locked_mana_payment(
             cost,
@@ -395,7 +395,7 @@ impl Game {
                     choices.x(),
                     additional_payment.generic_reduction,
                 ),
-                self.spell_cost_reduction(definition.id, player, card_id, choices.targets()),
+                self.spell_cost_reduction(option, player, card_id, choices.targets()),
             ),
             self.emerge_generic_reduction(alternative_kind, sacrifices),
         );

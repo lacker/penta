@@ -2786,9 +2786,9 @@ pub(in crate::card::sets) static VISIONS_OF_VILLAINY: CardRecord = CardRecord::n
     "f8f1e4f9-7415-437f-b694-ecbdd76db114",
     "Pavel Kolomeyets",
     CardRules::new_instant(mana_cost!("{2}{B}")).with_abilities(&[
-        AbilityDef::static_ability(
+        abilities::this_spell_cost_reduction(
             "This spell costs {1} less to cast if you control a Villain.",
-            EffectDef::ReduceGenericCostBy(ValueDef::IfMatchingObjectCount(&CountConditionDef {
+            ValueDef::IfMatchingObjectCount(&CountConditionDef {
                 query: ObjectQueryDef::matching(
                     ObjectPredicateDef::Subtype(SubtypeDef::Literal("Villain")),
                     &[ZoneKind::Battlefield],
@@ -2798,9 +2798,8 @@ pub(in crate::card::sets) static VISIONS_OF_VILLAINY: CardRecord = CardRecord::n
                 amount: 0,
                 then: ValueDef::Constant(1),
                 otherwise: ValueDef::Constant(0),
-            })),
-        )
-        .with_source_zones(&[ZoneKind::Hand]),
+            }),
+        ),
         AbilityDef::spell(
             "You draw two cards and lose 2 life.",
             EffectDef::Sequence(&[
@@ -3496,9 +3495,9 @@ pub(in crate::card::sets) static TRUCK_TOSS: CardRecord = CardRecord::new(
     "60f02fbf-1416-48a3-bf94-f27509f6983a",
     "Alexander Skripnikov",
     CardRules::new_instant(mana_cost!("{2}{R}{R}")).with_abilities(&[
-        AbilityDef::static_ability(
+        abilities::this_spell_cost_reduction(
             "This spell costs {2} less to cast if you control a Vehicle.",
-            EffectDef::ReduceGenericCostBy(ValueDef::IfMatchingObjectCount(&CountConditionDef {
+            ValueDef::IfMatchingObjectCount(&CountConditionDef {
                 query: ObjectQueryDef::matching(
                     ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vehicle")),
                     &[ZoneKind::Battlefield],
@@ -3508,9 +3507,8 @@ pub(in crate::card::sets) static TRUCK_TOSS: CardRecord = CardRecord::new(
                 amount: 0,
                 then: ValueDef::Constant(2),
                 otherwise: ValueDef::Constant(0),
-            })),
-        )
-        .with_source_zones(&[ZoneKind::Hand]),
+            }),
+        ),
         AbilityDef::spell_with_targets(
             "Truck Toss deals 4 damage to any target.",
             &[AbilityTargetDef::exactly_one(
@@ -4038,10 +4036,10 @@ pub(in crate::card::sets) static PUNISHING_PUNCH: CardRecord = CardRecord::new(
     "a33a4cb4-1b57-47ca-8e5e-58ff46a6e0ce",
     "Bachzim",
     CardRules::new_instant(mana_cost!("{2}{G}")).with_abilities(&[
-        AbilityDef::static_ability(
+        abilities::this_spell_cost_reduction(
             "This spell costs {2} less to cast if there are two or more \
              creature cards in your graveyard.",
-            EffectDef::ReduceGenericCostBy(ValueDef::IfMatchingObjectCount(&CountConditionDef {
+            ValueDef::IfMatchingObjectCount(&CountConditionDef {
                 query: ObjectQueryDef::matching(
                     ObjectPredicateDef::HasType(CardType::Creature),
                     &[ZoneKind::Graveyard],
@@ -4051,9 +4049,8 @@ pub(in crate::card::sets) static PUNISHING_PUNCH: CardRecord = CardRecord::new(
                 amount: 2,
                 then: ValueDef::Constant(2),
                 otherwise: ValueDef::Constant(0),
-            })),
-        )
-        .with_source_zones(&[ZoneKind::Hand]),
+            }),
+        ),
         AbilityDef::spell_with_targets(
             "Target creature you control deals damage equal to twice its \
              power to target creature an opponent controls.",

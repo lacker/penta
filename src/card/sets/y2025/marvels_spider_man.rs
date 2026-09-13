@@ -2386,9 +2386,9 @@ pub(in crate::card::sets) static VENOM_S_HUNGER: CardRecord = CardRecord::new(
     "01d276cd-e4ad-488f-8447-004aefad1ebb",
     "Dave DeVries",
     CardRules::new_sorcery(mana_cost!("{4}{B}")).with_abilities(&[
-        AbilityDef::static_ability(
+        abilities::this_spell_cost_reduction(
             "This spell costs {2} less to cast if you control a Villain.",
-            EffectDef::ReduceGenericCostBy(ValueDef::IfMatchingObjectCount(&CountConditionDef {
+            ValueDef::IfMatchingObjectCount(&CountConditionDef {
                 query: ObjectQueryDef::matching(
                     ObjectPredicateDef::Subtype(SubtypeDef::Literal("Villain")),
                     &[ZoneKind::Battlefield],
@@ -2398,9 +2398,8 @@ pub(in crate::card::sets) static VENOM_S_HUNGER: CardRecord = CardRecord::new(
                 amount: 0,
                 then: ValueDef::Constant(2),
                 otherwise: ValueDef::Constant(0),
-            })),
-        )
-        .with_source_zones(&[ZoneKind::Hand]),
+            }),
+        ),
         AbilityDef::spell_with_targets(
             "Destroy target creature. You gain 2 life.",
             &[AbilityTargetDef::exactly_one_permanent(
@@ -3687,10 +3686,10 @@ pub(in crate::card::sets) static TERRIFIC_TEAM_UP: CardRecord = CardRecord::new(
     "f3c587b0-66b9-46bf-90ee-a6163c006c9e",
     "InHyuk Lee",
     CardRules::new_instant(mana_cost!("{3}{G}")).with_abilities(&[
-        AbilityDef::static_ability(
+        abilities::this_spell_cost_reduction(
             "This spell costs {2} less to cast if you control a permanent \
              with mana value 4 or greater.",
-            EffectDef::ReduceGenericCostBy(ValueDef::IfMatchingObjectCount(&CountConditionDef {
+            ValueDef::IfMatchingObjectCount(&CountConditionDef {
                 query: ObjectQueryDef::matching(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::AnyOf(&[
@@ -3709,9 +3708,8 @@ pub(in crate::card::sets) static TERRIFIC_TEAM_UP: CardRecord = CardRecord::new(
                 amount: 0,
                 then: ValueDef::Constant(2),
                 otherwise: ValueDef::Constant(0),
-            })),
-        )
-        .with_source_zones(&[ZoneKind::Hand]),
+            }),
+        ),
         AbilityDef::spell_with_targets(
             "One or two target creatures you control each get +1/+0 until \
              end of turn. They each deal damage equal to their power to \

@@ -403,18 +403,15 @@ pub(in crate::card::sets) static GATE_COLOSSUS: CardRecord = CardRecord::new(
     "99767e2f-a558-4d63-b9b6-923d15b433e1",
     "Izzy",
     CardRules::new_artifact_creature(mana_cost!("{8}"), &["Construct"], 8, 8).with_abilities(&[
-        AbilityDef::static_ability(
+        abilities::this_spell_cost_reduction(
             "Affinity for Gates (This spell costs {1} less to cast for \
              each Gate you control.)",
-            EffectDef::ReduceGenericCostBy(ValueDef::CountMatchingObjects(
-                &ObjectQueryDef::matching(
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Gate")),
-                    &[ZoneKind::Battlefield],
-                    PlayerRelation::You,
-                ),
+            ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Gate")),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
             )),
-        )
-        .with_source_zones(&[ZoneKind::Hand]),
+        ),
         AbilityDef::static_ability(
             "This creature can't be blocked by creatures with power 2 or less.",
             EffectDef::StaticApply {

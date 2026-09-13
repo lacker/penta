@@ -1312,18 +1312,15 @@ pub(in crate::card::sets) static MEMORY_GUARDIAN: CardRecord = CardRecord::new(
     "Hardy Fowler",
     CardRules::new_artifact_creature(mana_cost!("{4}{U}"), &["Robot", "Artificer"], 3, 4)
         .with_abilities(&[
-            AbilityDef::static_ability(
+            abilities::this_spell_cost_reduction(
                 "Affinity for artifacts (This spell costs {1} less to cast for \
                  each artifact you control.)",
-                EffectDef::ReduceGenericCostBy(ValueDef::CountMatchingObjects(
-                    &ObjectQueryDef::matching(
-                        ObjectPredicateDef::HasType(CardType::Artifact),
-                        &[ZoneKind::Battlefield],
-                        PlayerRelation::You,
-                    ),
+                ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
                 )),
-            )
-            .with_source_zones(&[ZoneKind::Hand]),
+            ),
             abilities::flying(),
         ]),
 );
@@ -1993,9 +1990,9 @@ pub(in crate::card::sets) static CHITIN_GRAVESTALKER: CardRecord = CardRecord::n
 // Cycling is what makes the discount reachable: the card fills the
     // graveyard it later reads, including with copies of itself.
     CardRules::new_creature(mana_cost!("{5}{B}"), &["Insect", "Warrior"], 5, 4).with_abilities(&[
-        AbilityDef::static_ability(
+        abilities::this_spell_cost_reduction(
             "This spell costs {1} less to cast for each artifact and/or creature card in your graveyard.",
-            EffectDef::ReduceGenericCostBy(ValueDef::CountMatchingObjects(
+            ValueDef::CountMatchingObjects(
                 &ObjectQueryDef::matching(
                     ObjectPredicateDef::AnyOf(&[
                         ObjectPredicateDef::HasType(CardType::Artifact),
@@ -2004,10 +2001,8 @@ pub(in crate::card::sets) static CHITIN_GRAVESTALKER: CardRecord = CardRecord::n
                     &[ZoneKind::Graveyard],
                     PlayerRelation::You,
                 ),
-            )),
-        )
-        // Read from hand, where the cost is paid.
-        .with_source_zones(&[ZoneKind::Hand]),
+            ),
+        ),
         abilities::cycling!(
             "Cycling {2} ({2}, Discard this card: Draw a card.)",
             &[CostDef::Mana(mana_cost!("{2}"))],
@@ -5894,18 +5889,15 @@ pub(in crate::card::sets) static VOYAGE_HOME: CardRecord = CardRecord::new(
     "4ba835da-0247-4716-9079-1b605297f6d5",
     "Hardy Fowler",
     CardRules::new_sorcery(mana_cost!("{5}{W}{U}")).with_abilities(&[
-        AbilityDef::static_ability(
+        abilities::this_spell_cost_reduction(
             "Affinity for artifacts (This spell costs {1} less to cast for \
              each artifact you control.)",
-            EffectDef::ReduceGenericCostBy(ValueDef::CountMatchingObjects(
-                &ObjectQueryDef::matching(
-                    ObjectPredicateDef::HasType(CardType::Artifact),
-                    &[ZoneKind::Battlefield],
-                    PlayerRelation::You,
-                ),
+            ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                ObjectPredicateDef::HasType(CardType::Artifact),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
             )),
-        )
-        .with_source_zones(&[ZoneKind::Hand]),
+        ),
         AbilityDef::spell(
             "You draw three cards and gain 3 life.",
             EffectDef::Sequence(&[

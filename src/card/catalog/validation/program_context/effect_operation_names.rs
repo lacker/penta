@@ -144,7 +144,6 @@ const fn effect_operation_name(effect: EffectDef) -> &'static str {
         EffectDef::SubstituteBasicLandTypeUntilEndOfTurn { .. } => {
             "SubstituteBasicLandTypeUntilEndOfTurn"
         }
-        EffectDef::ReduceGenericCostBy(_) => "ReduceGenericCostBy",
         EffectDef::ModifyCost(_) => "ModifyCost",
         EffectDef::CannotAttackUnless(_) => "CannotAttackUnless",
         EffectDef::CannotAttackIf(_) => "CannotAttackIf",

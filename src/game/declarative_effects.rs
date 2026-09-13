@@ -870,7 +870,6 @@ impl Game {
             | EffectDef::CreateMyriadTokens
             | EffectDef::CannotBeForcedToSacrifice
             | EffectDef::CannotBeForcedToDiscard
-            | EffectDef::ReduceGenericCostBy(_)
             | EffectDef::ModifyCost(_)
             | EffectDef::LandwalkCanBeBlocked(_)
             | EffectDef::CannotAttackUnless(_)

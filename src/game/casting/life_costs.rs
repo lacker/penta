@@ -316,7 +316,7 @@ impl Game {
                 signature.costs(),
                 offer,
             )
-            || self.spell_cost_increase(player, card_id, signature.targets())
+            || self.spell_cost_increase(option, player, card_id, signature.targets())
                 != ManaCost::default();
         (payment.objects, life, includes_mana)
     }

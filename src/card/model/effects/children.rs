@@ -199,7 +199,6 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         | EffectDef::None
         | EffectDef::DamageCannotBePreventedThisTurn
         | EffectDef::PreventDamage { .. }
-        | EffectDef::ReduceGenericCostBy(_)
         | EffectDef::ModifyCost(_)
         | EffectDef::Regenerate { .. }
         | EffectDef::DoubleCounters { .. }

@@ -2743,18 +2743,15 @@ pub(in crate::card::sets) static TRAVEL_THE_OVERWORLD: CardRecord = CardRecord::
     "aa5086e0-e2f2-498f-9035-1b31e1d21e0a",
     "Ben Wootten",
     CardRules::new_sorcery(mana_cost!("{5}{U}{U}")).with_abilities(&[
-        AbilityDef::static_ability(
+        abilities::this_spell_cost_reduction(
             "Affinity for Towns (This spell costs {1} less to cast for \
              each Town you control.)",
-            EffectDef::ReduceGenericCostBy(ValueDef::CountMatchingObjects(
-                &ObjectQueryDef::matching(
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Town")),
-                    &[ZoneKind::Battlefield],
-                    PlayerRelation::You,
-                ),
+            ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Town")),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
             )),
-        )
-        .with_source_zones(&[ZoneKind::Hand]),
+        ),
         AbilityDef::spell(
             "Draw four cards.",
             abilities::draw_cards(ValueDef::Constant(4)),
@@ -2778,18 +2775,15 @@ pub(in crate::card::sets) static VALKYRIE_AERIAL_UNIT: CardRecord = CardRecord::
     "hippo",
     CardRules::new_artifact_creature(mana_cost!("{5}{U}{U}"), &["Construct"], 5, 4).with_abilities(
         &[
-            AbilityDef::static_ability(
+            abilities::this_spell_cost_reduction(
                 "Affinity for artifacts (This spell costs {1} less to cast for \
                  each artifact you control.)",
-                EffectDef::ReduceGenericCostBy(ValueDef::CountMatchingObjects(
-                    &ObjectQueryDef::matching(
-                        ObjectPredicateDef::HasType(CardType::Artifact),
-                        &[ZoneKind::Battlefield],
-                        PlayerRelation::You,
-                    ),
+                ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
                 )),
-            )
-            .with_source_zones(&[ZoneKind::Hand]),
+            ),
             abilities::flying(),
             abilities::enters_trigger(
                 "When this creature enters, surveil 2. (Look at the top two \
@@ -5591,24 +5585,21 @@ pub(in crate::card::sets) static DIAMOND_WEAPON: CardRecord = CardRecord::new(
     CardRules::new_artifact_creature(mana_cost!("{7}{G}{G}"), &["Elemental"], 8, 8)
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
-            AbilityDef::static_ability(
+            abilities::this_spell_cost_reduction(
                 "This spell costs {1} less to cast for each permanent card in \
                  your graveyard.",
-                EffectDef::ReduceGenericCostBy(ValueDef::CountMatchingObjects(
-                    &ObjectQueryDef::matching(
-                        ObjectPredicateDef::AnyOf(&[
-                            ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::HasType(CardType::Artifact),
-                            ObjectPredicateDef::HasType(CardType::Enchantment),
-                            ObjectPredicateDef::HasType(CardType::Land),
-                            ObjectPredicateDef::HasType(CardType::Planeswalker),
-                        ]),
-                        &[ZoneKind::Graveyard],
-                        PlayerRelation::You,
-                    ),
+                ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        ObjectPredicateDef::HasType(CardType::Enchantment),
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::HasType(CardType::Planeswalker),
+                    ]),
+                    &[ZoneKind::Graveyard],
+                    PlayerRelation::You,
                 )),
-            )
-            .with_source_zones(&[ZoneKind::Hand]),
+            ),
             abilities::reach(),
             AbilityDef::static_ability(
                 "Immune — Prevent all combat damage that would be dealt to \

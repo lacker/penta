@@ -438,16 +438,10 @@ impl Game {
                                                 &additional_cost_payments,
                                             ),
                                         )
-                                    } else if let Some((_, ability)) =
-                                        Self::spell_ability(definition, option)
+                                    } else if Self::spell_ability(definition, option).is_some()
                                     {
-                                        let DeclarativeAbilityDef::Spell(spell) =
-                                            ability.definition
-                                        else {
-                                            unreachable!("spell_ability returns a spell clause")
-                                        };
-                                        let Some(plan) = Self::selected_spell_plan(
-                                            spell,
+                                        let Some(plan) = Self::selected_card_spell_plan(
+                                            definition, option,
                                             &modes,
                                             &splice_clauses,
                                         ) else {
@@ -662,29 +656,35 @@ impl Game {
         definition: &CardDefinition,
         option: &PlayOptionDef,
     ) -> Option<(AbilityOrigin, AbilityDef)> {
-        let crate::card::SpellForm::Part(part_id) = &option.form else {
-            return None;
+        Self::spell_clauses(definition, option).next()
+    }
+
+    pub(super) fn spell_clauses<'a>(
+        definition: &'a CardDefinition,
+        option: &PlayOptionDef,
+    ) -> impl Iterator<Item = (AbilityOrigin, AbilityDef)> + 'a {
+        let part_id = match option.form {
+            SpellForm::Part(part) => Some(part),
+            SpellForm::Combined(_) => None,
         };
-        let part_id = *part_id;
-        let part = definition.part(part_id)?;
-        part.rules
-            .indexed_abilities()
-            .find(|attached| {
-                matches!(
-                    attached.definition.definition,
-                    DeclarativeAbilityDef::Spell(_)
-                )
+        part_id.into_iter().flat_map(move |part_id| {
+            definition.part(part_id).into_iter().flat_map(move |part| {
+                part.rules.indexed_abilities().filter_map(move |attached| {
+                    matches!(
+                        attached.definition.definition,
+                        DeclarativeAbilityDef::Spell(_)
+                    )
+                    .then_some((
+                        AbilityOrigin::Printed {
+                            definition: definition.id,
+                            part: part_id,
+                            ability: attached.id,
+                        },
+                        attached.definition,
+                    ))
+                })
             })
-            .map(|attached| {
-                (
-                    AbilityOrigin::Printed {
-                        definition: definition.id,
-                        part: part_id,
-                        ability: attached.id,
-                    },
-                    attached.definition,
-                )
-            })
+        })
     }
 
     /// How many modes a spell may choose here. "If you control a Wizard as

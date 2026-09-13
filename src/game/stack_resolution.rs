@@ -286,7 +286,7 @@ impl Game {
 
     pub(super) fn finish_stack_resolution(&mut self, object: &StackObject, resolved: bool) {
         if resolved {
-            self.capture_resolved_gift(object);
+            self.capture_resolution_completion(object);
         }
         let presentation = object.presentation();
         match object.kind {
@@ -591,10 +591,9 @@ impl Game {
                 )
             })
             .expect("ability stack objects freeze their complete payload");
-        let gift = self.spell_gift_effect(object);
         match resolver {
             StackAbilityResolver::Prepared { reference, effect }
-                if self.prepared_engine.enabled() && mode_effects.is_empty() && gift.is_none() =>
+                if self.prepared_engine.enabled() && mode_effects.is_empty() =>
             {
                 crate::prepared_engine::execute_effect(
                     effect,
@@ -619,14 +618,11 @@ impl Game {
                     "reference",
                     if !self.prepared_engine.enabled() {
                         "engine_disabled"
-                    } else if gift.is_some() {
-                        "gift_effect"
                     } else {
                         "mode_effects"
                     },
                 );
                 let mut effects = Vec::with_capacity(mode_effects.len() + 1);
-                effects.extend(gift);
                 effects.push(reference);
                 effects.extend_from_slice(mode_effects);
                 self.resolve_effects_in_order(effects, object, context);
@@ -634,7 +630,6 @@ impl Game {
             StackAbilityResolver::Declarative(effect)
             | StackAbilityResolver::DeclarativeIgnoringTargetFizzle(effect) => {
                 let mut effects = Vec::with_capacity(mode_effects.len() + 1);
-                effects.extend(gift);
                 effects.push(effect);
                 effects.extend_from_slice(mode_effects);
                 self.resolve_effects_in_order(effects, object, context);

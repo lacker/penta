@@ -38,13 +38,14 @@ the bot-wire epoch.
   the effect and its original ability source; wire and checkpoint epochs are
   unchanged.
 
-- Implement Bloomburrow Gift promises as optional additional costs, retaining
+- Implement Bloomburrow Gift through named optional casting-time opponent
+  choices and ordered declarative spell clauses, retaining
   the chosen opponent through spell copies, battlefield arrival, control
   changes, and checkpoints. Gifts resolve before an instant or sorcery's other
   effects or through a permanent's enters trigger; successful resolution
   publishes the gift event used by Jolly Gerbils. Implement 21 Gift-blocked
   identities, including Dawn's Truce, and update the remaining Dewdrop Cure and
-  Cruelclaw's Heist audits. Checkpoints add optional `giftRecipient` state;
+  Cruelclaw's Heist audits. Checkpoints add an optional `castPlayerBindings` map;
   ordinary action vocabulary and protocol/artifact versions are unchanged.
 
 - Implement Firemind Vessel, Guild Globe, and Component Pouch. A shared

@@ -76,7 +76,21 @@ pub(in crate::card::catalog) fn validate_semantic_spell_presentation(
                 option: option.id,
             });
         }
-        return validate_nonmodal_spell_targets(definition, option, spell.targets());
+        let targets: Vec<_> = part
+            .rules
+            .ability_clauses()
+            .iter()
+            .filter_map(|ability| {
+                if let DeclarativeAbilityDef::Spell(spell) = ability.definition {
+                    Some(spell.targets())
+                } else {
+                    None
+                }
+            })
+            .flatten()
+            .copied()
+            .collect();
+        return validate_nonmodal_spell_targets(definition, option, &targets);
     };
     if !option.targets.is_empty() {
         return Err(CatalogError::UnexpectedModalSpellTargets {

@@ -43,7 +43,13 @@ fn gift_dawns_truce_promises_before_resolution_and_protects_permanents() {
         cast_gift(&mut game, spell, promised);
         assert_eq!(game.players[1].hand.len(), hand);
         assert_eq!(
-            game.stack[0].cast.as_ref().unwrap().gift_recipient,
+            game.stack[0]
+                .cast
+                .as_ref()
+                .unwrap()
+                .player_bindings
+                .get("gift")
+                .copied(),
             promised.then_some(PlayerId::Two)
         );
         game.resolve_stack_top();
@@ -76,7 +82,9 @@ fn gift_spell_copy_keeps_the_chosen_opponent_after_controller_changes_and_checkp
             .cast
             .as_ref()
             .unwrap()
-            .gift_recipient,
+            .player_bindings
+            .get("gift")
+            .copied(),
         Some(PlayerId::Two)
     );
     let hands = [game.players[0].hand.len(), game.players[1].hand.len()];
@@ -196,7 +204,13 @@ fn gift_permanent_uses_an_enters_trigger_and_uncast_arrivals_have_no_promise() {
     assert_eq!(game.stack.len(), 1, "the gift trigger uses the stack");
     let mut game = rebuild(&game);
     assert_eq!(
-        game.battlefield[0].cast.as_ref().unwrap().gift_recipient,
+        game.battlefield[0]
+            .cast
+            .as_ref()
+            .unwrap()
+            .player_bindings
+            .get("gift")
+            .copied(),
         Some(PlayerId::Two)
     );
     pass_priority_pair(&mut game);
@@ -451,5 +465,212 @@ fn gift_prepared_and_reference_resolution_have_identical_results() {
         assert_eq!(prepared.events, reference.events);
         assert_eq!(prepared.pending_events, reference.pending_events);
         assert_eq!(prepared.pending_procedures, reference.pending_procedures);
+    }
+}
+
+fn with_spell_clauses(clauses: &'static [AbilityDef]) -> (Game, GameObjectId) {
+    let (mut game, spell) = gift_game(cards::DAWN_S_TRUCE);
+    let mut definition = game.catalog.get(cards::DAWN_S_TRUCE).unwrap().clone();
+    definition.rules = CardRules::new_instant(mana_cost!("{0}")).with_abilities(clauses);
+    synchronize_single_part_definition(&mut definition);
+    game.catalog = CardCatalog::new(game.catalog.definitions().into_iter().map(|card| {
+        if card.id == definition.id {
+            definition.clone()
+        } else {
+            card.clone()
+        }
+    }))
+    .unwrap();
+    game.prepared_engine = crate::prepared_engine::PreparedEngine::compile(&game.catalog);
+    (game, spell)
+}
+
+#[test]
+fn gift_foundation_composes_target_scopes_and_costs_without_keyword_specific_effects() {
+    static CLAUSES: [AbilityDef; 2] = [
+        AbilityDef::spell_with_targets(
+            "Set your life to ten.",
+            &[AbilityTargetDef::exactly_one(
+                crate::card::AbilityTargetPredicate::Player(PlayerRelation::You),
+            )],
+            EffectDef::SetLifeTotal {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                total: ValueDef::Constant(10),
+            },
+        ),
+        AbilityDef::spell_with_additional_cost(
+            "Pay two life; opponent gains three life.",
+            &[AbilityTargetDef::exactly_one(
+                crate::card::AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+            )],
+            CostDef::PayLife(2),
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(3),
+            },
+        ),
+    ];
+    for prepared in [false, true] {
+        let (mut game, spell) = with_spell_clauses(&CLAUSES);
+        game.set_prepared_engine_enabled(prepared);
+        let life = [game.players[0].life, game.players[1].life];
+        cast_gift(&mut game, spell, false);
+        assert_eq!(
+            game.players[0].life,
+            life[0] - 2,
+            "later clauses still impose casting costs"
+        );
+        assert_eq!(game.stack[0].ability.as_ref().unwrap().target_defs.len(), 2);
+        let mut game = rebuild(&game);
+        game.set_prepared_engine_enabled(prepared);
+        game.resolve_stack_top();
+        assert_eq!(game.players[0].life, 10);
+        assert_eq!(
+            game.players[1].life,
+            life[1] + 3,
+            "the second clause uses its own target zero"
+        );
+    }
+}
+
+#[test]
+fn gift_foundation_keeps_independent_named_opponent_choices_on_a_copy() {
+    const fn choice(binding: crate::Binding) -> AbilityDef {
+        AbilityDef::optional_additional_cost(
+            "Choose an opponent.",
+            crate::card::OptionalAdditionalCostAbilityDef {
+                kind: crate::card::OptionalAdditionalCostKindDef::ChooseOpponent(binding),
+                label: "Choose opponent",
+                costs: &[],
+                resolution_destination: crate::card::SpellResolutionDestinationDef::Graveyard,
+            },
+        )
+    }
+    static CLAUSES: [AbilityDef; 4] = [
+        choice(crate::Binding!("beneficiary")),
+        choice(crate::Binding!("partner")),
+        AbilityDef::spell(
+            "Beneficiary gains two life.",
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::player(PlayerRefDef::CastBinding(crate::Binding!(
+                    "beneficiary"
+                ))),
+                amount: ValueDef::Constant(2),
+            },
+        ),
+        AbilityDef::spell(
+            "Partner gains three life.",
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::player(PlayerRefDef::CastBinding(crate::Binding!(
+                    "partner"
+                ))),
+                amount: ValueDef::Constant(3),
+            },
+        ),
+    ];
+    for count in 0..=2 {
+        let (mut game, spell) = with_spell_clauses(&CLAUSES);
+        let action = game.legal_actions(PlayerId::One).into_iter().find(|action| {
+            matches!(action, Action::CastSpell { card, choices, .. } if *card == spell && choices.costs().additional().len() == count)
+        }).unwrap();
+        game.apply(PlayerId::One, action).unwrap();
+        let bindings = game.stack[0].cast.as_ref().unwrap().player_bindings.clone();
+        assert_eq!(bindings.len(), count);
+        game.push_copy(game.stack[0].clone(), PlayerId::Two, Vec::new());
+        let mut game = rebuild(&game);
+        assert_eq!(
+            game.stack
+                .last()
+                .unwrap()
+                .cast
+                .as_ref()
+                .unwrap()
+                .player_bindings,
+            bindings
+        );
+        let life = [game.players[0].life, game.players[1].life];
+        game.resolve_stack_top();
+        assert_eq!(game.players[0].life, life[0]);
+        let gain = i16::from(bindings.contains_key("beneficiary")) * 2
+            + i16::from(bindings.contains_key("partner")) * 3;
+        assert_eq!(game.players[1].life, life[1] + gain);
+    }
+}
+
+#[test]
+fn gift_foundation_rejects_undeclared_and_duplicate_player_bindings() {
+    static UNDECLARED: [AbilityDef; 1] = [AbilityDef::spell(
+        "Read an undeclared choice.",
+        EffectDef::DrawCards {
+            recipient: EffectRecipientDef::player(PlayerRefDef::CastBinding(crate::Binding!(
+                "missing"
+            ))),
+            amount: ValueDef::Constant(1),
+        },
+    )];
+    const CHOICE: AbilityDef = AbilityDef::optional_additional_cost(
+        "Choose opponent.",
+        crate::card::OptionalAdditionalCostAbilityDef {
+            kind: crate::card::OptionalAdditionalCostKindDef::ChooseOpponent(crate::Binding!(
+                "duplicate"
+            )),
+            label: "Choose opponent",
+            costs: &[],
+            resolution_destination: crate::card::SpellResolutionDestinationDef::Graveyard,
+        },
+    );
+    static DUPLICATE: [AbilityDef; 2] = [CHOICE, CHOICE];
+    for clauses in [&UNDECLARED[..], &DUPLICATE[..]] {
+        let card = CardDefinition::new(
+            CardDefinitionId::from_uuid("00000000-0000-0000-0000-00000000299f"),
+            "Invalid casting choice",
+            crate::card::sets::alpha::SET,
+            CardRules::new_instant(mana_cost!("{0}")).with_abilities(clauses),
+        );
+        assert!(CardCatalog::new(vec![card]).is_err());
+    }
+}
+
+#[test]
+fn gift_completion_is_seen_by_gerbils_returned_by_the_same_spell() {
+    let (mut game, spell) = gift_game(cards::COILING_REBIRTH);
+    game.players[0]
+        .graveyard
+        .push(card(182_001, cards::JOLLY_GERBILS, PlayerId::One));
+    cast_gift(&mut game, spell, true);
+    let hand = game.players[0].hand.len();
+    drain_pending(&mut game);
+    assert_eq!(
+        game.battlefield.len(),
+        2,
+        "Gerbils and its token copy entered"
+    );
+    assert_eq!(
+        game.players[0].hand.len(),
+        hand + 2,
+        "both Gerbils see completion after the reanimation and copy clauses"
+    );
+}
+
+#[test]
+fn gift_checkpoint_rejects_undeclared_names_and_invalid_players() {
+    let (mut game, spell) = gift_game(cards::DAWN_S_TRUCE);
+    cast_gift(&mut game, spell, true);
+    for bindings in [
+        serde_json::json!({"misspelled": 1}),
+        serde_json::json!({"gift": 2}),
+    ] {
+        let (mut wire, hidden) = checkpoint_fixture(&game, PlayerId::One);
+        wire["checkpoint"]["stack"][0]["castPlayerBindings"] = bindings;
+        assert!(
+            Game::from_observation_checkpoint(
+                game.catalog.clone(),
+                game.format,
+                &wire,
+                &hidden,
+                900_000
+            )
+            .is_err()
+        );
     }
 }

@@ -184,19 +184,28 @@ fn validate_abilities_with_created_virtuals(
             count: abilities.len(),
         });
     }
-    let spell_count = abilities
+    let spells: Vec<_> = abilities
         .iter()
         .filter(|ability| matches!(ability.definition, DeclarativeAbilityDef::Spell(_)))
-        .count();
-    if spell_count > 1 {
+        .collect();
+    if spells.iter().skip(1).any(|ability| {
+        let DeclarativeAbilityDef::Spell(spell) = ability.definition else {
+            return false;
+        };
+        spell.modal().is_some()
+            || ability.resolution_event.is_some()
+            || spell.resolution_destination()
+                != crate::card::SpellResolutionDestinationDef::Graveyard
+    }) {
         return Err(CatalogError::MultipleSpellAbilities {
             definition: definition.id,
             part,
-            count: spell_count,
+            count: spells.len(),
         });
     }
 
     let cost_bindings = validate_alternative_cost_bindings(definition, part, abilities)?;
+    let cast_player_bindings = validate_cast_player_bindings(definition, part, abilities)?;
     for (index, ability) in abilities.iter().enumerate() {
         let ability_id = AbilityId::from_index(index)
             .expect("the ability count was validated before assigning positional IDs");
@@ -206,6 +215,7 @@ fn validate_abilities_with_created_virtuals(
             ability_id,
             ability,
             &cost_bindings,
+            &cast_player_bindings,
             created,
         )?;
     }
@@ -218,9 +228,11 @@ fn validate_attached_ability(
     ability_id: AbilityId,
     ability: &AbilityDef,
     cost_bindings: &[crate::Binding],
+    cast_player_bindings: &[crate::Binding],
     created: &mut CreatedVirtualObjects,
 ) -> Result<(), CatalogError> {
-    if let Err(problem) = validate_ability_definition(ability, cost_bindings) {
+    if let Err(problem) = validate_ability_definition(ability, cost_bindings, cast_player_bindings)
+    {
         return Err(top_level_ability_error(
             definition, part, ability_id, &problem,
         ));
@@ -287,7 +299,9 @@ fn validate_attached_ability(
                     mode: mode_id,
                 });
             }
-            if let Err(problem) = validate_ability_definition(mode, cost_bindings) {
+            if let Err(problem) =
+                validate_ability_definition(mode, cost_bindings, cast_player_bindings)
+            {
                 return Err(CatalogError::InvalidSpellMode {
                     definition: definition.id,
                     part,
@@ -338,7 +352,7 @@ fn validate_granted_abilities(
                 problem: Box::new(GrantedAbilityValidationError::ExecutableStaticAbility),
             });
         }
-        if let Err(problem) = validate_ability_definition(granted, &[]) {
+        if let Err(problem) = validate_ability_definition(granted, &[], &[]) {
             return Err(CatalogError::InvalidGrantedAbility {
                 definition: definition.id,
                 part,
@@ -878,7 +892,7 @@ mod virtual_object_tests {
             "Invalid emblem",
             &[
                 AbilityDef::spell("First spell.", EffectDef::None),
-                AbilityDef::spell("Second spell.", EffectDef::None),
+                AbilityDef::modal_spell("Second spell.", &[]),
             ],
         );
 

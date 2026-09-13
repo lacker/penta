@@ -233,12 +233,9 @@ impl Game {
             .map(|ability| ability.target_defs.clone())
             .filter(|slots| !slots.is_empty())
             .or_else(|| {
-                Self::spell_ability(definition, option).and_then(|(_, ability)| {
-                    let DeclarativeAbilityDef::Spell(spell) = ability.definition else {
-                        return None;
-                    };
+                Self::spell_ability(definition, option).and_then(|_| {
                     let spliced = self.spliced_clauses_of(signature.spliced())?;
-                    Self::selected_spell_plan(spell, signature.modes(), &spliced)
+                    Self::selected_card_spell_plan(definition, option, signature.modes(), &spliced)
                         .map(|plan| plan.target_defs)
                         .filter(|targets| !targets.is_empty())
                 })

@@ -334,9 +334,9 @@ impl Game {
         scoped: ScopedEffect,
     ) -> Option<PlayerId> {
         match reference {
-            PlayerRefDef::GiftRecipient => self
+            PlayerRefDef::CastBinding(binding) => self
                 .cast_context_for(object.source.unwrap_or(object.id), Some(object))
-                .and_then(|cast| cast.gift_recipient),
+                .and_then(|cast| cast.player_bindings.get(binding.label()?).copied()),
             PlayerRefDef::EffectController => Some(object.controller),
             PlayerRefDef::EnchantedPlayer => object
                 .source

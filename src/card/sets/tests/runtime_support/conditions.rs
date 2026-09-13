@@ -112,6 +112,7 @@ pub(in super::super) fn shared_trigger_condition(condition: TriggerConditionDef)
         | TriggerConditionDef::ActivePlayer(_)
         | TriggerConditionDef::SourceCastWith(_)
         | TriggerConditionDef::SourcePaidAlternativeCost(_)
+        | TriggerConditionDef::SourceHasCastPlayerBinding(_)
         | TriggerConditionDef::SourcePaidAdditionalCost(_)
         | TriggerConditionDef::SourceCastFrom(_)
         | TriggerConditionDef::SourceWasCast
@@ -210,6 +211,7 @@ pub(in super::super) fn shared_static_trigger_condition(condition: TriggerCondit
             | TriggerConditionDef::SourceWasCast
             | TriggerConditionDef::SourceCastWith(_)
             | TriggerConditionDef::SourcePaidAlternativeCost(_)
+        | TriggerConditionDef::SourceHasCastPlayerBinding(_)
             | TriggerConditionDef::SourcePaidAdditionalCost(_)
     )
 }

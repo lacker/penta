@@ -606,12 +606,8 @@ impl Game {
             cast_via_flashback,
             exile_if_put_into_graveyard,
         );
-        if self
-            .selected_gift_ability(card.definition, &signature)
-            .is_some()
-        {
-            cast.gift_recipient = Some(player.opponent());
-        }
+        cast.player_bindings =
+            self.selected_cast_player_bindings(card.definition, &signature, player);
         StackObject {
             id,
             kind: StackObjectKind::Spell,

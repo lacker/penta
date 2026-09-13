@@ -156,6 +156,8 @@ impl StackAbilityResolver {
 struct ScopedEffect {
     effect: EffectDef,
     target_base: usize,
+    /// The authored instruction clause when it differs from the stack root.
+    clause_origin: Option<AbilityOrigin>,
     local_rules: EffectLocalRules,
     cost_parameter: Option<&'static [crate::card::CostDef]>,
 }
@@ -190,6 +192,7 @@ impl ScopedEffect {
         Self {
             effect,
             target_base,
+            clause_origin: None,
             local_rules: EffectLocalRules(0),
             cost_parameter: None,
         }
@@ -199,6 +202,7 @@ impl ScopedEffect {
         Self {
             effect,
             target_base: self.target_base,
+            clause_origin: self.clause_origin,
             local_rules: self.local_rules,
             cost_parameter: self.cost_parameter,
         }
@@ -208,6 +212,7 @@ impl ScopedEffect {
         Self {
             effect: self.effect,
             target_base: self.target_base,
+            clause_origin: self.clause_origin,
             local_rules: self.local_rules.with(rule),
             cost_parameter: self.cost_parameter,
         }

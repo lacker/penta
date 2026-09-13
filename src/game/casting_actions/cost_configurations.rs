@@ -196,9 +196,10 @@ impl Game {
         }
         // An alternative replaces only the spell's mana cost. Every mandatory
         // additional cost printed by the spell still applies (CR 118.9d).
-        if let Some((_, ability)) = Self::spell_ability(definition, option)
-            && let DeclarativeAbilityDef::Spell(spell) = ability.definition
-        {
+        for (_, ability) in Self::spell_clauses(definition, option) {
+            let DeclarativeAbilityDef::Spell(spell) = ability.definition else {
+                continue;
+            };
             let cost = match spell {
                 crate::card::SpellAbilityDef::Nonmodal {
                     additional_cost, ..

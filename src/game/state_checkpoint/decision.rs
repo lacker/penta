@@ -37,7 +37,7 @@ use super::procedure::{
 use super::semantics::{
     ability_locator, ability_locator_for_origin, ability_target_defs, catalog_ability,
     catalog_replacement_effect, catalog_scoped_effect, replacement_effect_locator_matches_source,
-    replacement_effects, resolved_replacement_effect_locator, scoped_effect_snapshot,
+    replacement_effects, resolved_replacement_effect_locator, scoped_effect_snapshot_in_catalog,
 };
 use super::stack::{binding_snapshot, parse_binding_snapshot};
 use super::stack::{
@@ -585,7 +585,7 @@ fn continuation_snapshot(
                 object: detached_stack_snapshot_allowing(game, viewer, object, visible_rebindings)?,
                 ability,
                 context: effect_resolution_context_snapshot(context),
-                definition: scoped_effect_snapshot(&definition, *scoped)?,
+                definition: scoped_effect_snapshot_in_catalog(&game.catalog, &definition, *scoped)?,
             }
         }
         DecisionContinuation::BattlefieldEntryPayment {

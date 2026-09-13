@@ -471,10 +471,10 @@ fn ability_ids_follow_clause_order_within_each_card_part() {
 }
 
 #[test]
-fn one_card_part_cannot_define_multiple_spell_abilities() {
+fn one_card_part_cannot_define_a_second_modal_header() {
     static ABILITIES: [AbilityDef; 2] = [
         AbilityDef::spell("first", EffectDef::None),
-        AbilityDef::spell("second", EffectDef::None),
+        AbilityDef::modal_spell("second", &[]),
     ];
     let mut card = definition(1, "Test Card", sets::alpha::SET);
     let rules = card.rules.with_abilities(&ABILITIES);

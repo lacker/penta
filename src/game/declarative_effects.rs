@@ -42,6 +42,8 @@ impl Game {
         object: &StackObject,
         context: impl Into<EffectResolutionContext>,
     ) {
+        let local_object = self.object_for_effect_clause(scoped, object);
+        let object = local_object.as_ref();
         let context = context.into();
         #[cfg(feature = "engine-profiling")]
         crate::engine_profiling::record(

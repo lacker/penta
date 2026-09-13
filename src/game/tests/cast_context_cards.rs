@@ -5,7 +5,7 @@ use super::*;
 #[test]
 fn a_spell_copy_keeps_choices_and_payment_objects_but_not_actual_payment_facts() {
     let original = CastContext {
-        gift_recipient: None,
+        player_bindings: std::collections::BTreeMap::new(),
         source_zone: Some(CastSourceZone::Graveyard),
         alternative: Some(AlternativeCastKindDef::Escape),
         alternative_cost_binding: Some("evoke".to_owned()),

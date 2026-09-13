@@ -34,3 +34,39 @@ fn validate_alternative_cost_bindings(
     }
     Ok(bindings)
 }
+
+fn validate_cast_player_bindings(
+    definition: &CardDefinition,
+    part: CardPartId,
+    abilities: &[AbilityDef],
+) -> Result<Vec<crate::Binding>, CatalogError> {
+    let mut bindings = Vec::new();
+    for (index, ability) in abilities.iter().enumerate() {
+        let DeclarativeAbilityDef::OptionalAdditionalCost(cost) = ability.definition else {
+            continue;
+        };
+        let crate::card::OptionalAdditionalCostKindDef::ChooseOpponent(binding) = cost.kind else {
+            continue;
+        };
+        let reason = if binding.label().is_none() {
+            Some("a casting player choice must have a durable name")
+        } else if bindings.contains(&binding) {
+            Some("more than one casting player choice declares this name")
+        } else {
+            None
+        };
+        if let Some(reason) = reason {
+            return Err(top_level_ability_error(
+                definition,
+                part,
+                AbilityId::from_index(index).expect("ability count was validated"),
+                &GrantedAbilityValidationError::UnsupportedEffectProgramContext {
+                    context: "casting player choice",
+                    operation: reason,
+                },
+            ));
+        }
+        bindings.push(binding);
+    }
+    Ok(bindings)
+}

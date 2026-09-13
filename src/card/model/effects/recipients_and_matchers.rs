@@ -63,8 +63,9 @@ pub enum ObjectRefDef {
 /// A player reference evaluated in the resolving effect's context.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum PlayerRefDef {
-    /// The opponent chosen for this source's gift cost, retained through copies and control changes.
-    GiftRecipient,
+    /// A named casting-time player choice, retained through spell copies and
+    /// entry independently of later control changes.
+    CastBinding(Binding),
     /// The controller captured by the resolving spell or ability.
     EffectController,
     /// The player the resolving ability's source Aura enchants.

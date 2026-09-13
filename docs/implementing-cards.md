@@ -660,21 +660,34 @@ for an actual ability grant. Keep such cards wholly unsupported until their
 readers can evaluate the granted clauses, and identify that gap in the inline
 audit.
 
-## Gift promises
+## Casting player choices and ordered spell clauses
 
-Bloomburrow owns the `gift` and `gift_arrival` constructors and the `GIFT`
-completion identity. Under CR 702.174, choosing an opponent is an optional
-additional cost. The two-player cast procedure freezes the sole opponent in
-`CastContext`; `PlayerRefDef::GiftRecipient` reads that choice independently of
-the source's current controller. It survives spell copies and the stack-to-
-battlefield transition, but is not a copiable permanent characteristic.
+`OptionalAdditionalCostKindDef::ChooseOpponent(binding)` makes an optional,
+non-targeting opponent choice while casting. In the two-player engine the
+selected cost chooses the sole opponent. `PlayerRefDef::CastBinding(binding)`
+reads the saved player; `SourceHasCastPlayerBinding(binding)` asks whether the
+choice was made. Catalog validation requires a declared, unique player name.
+This namespace is separate from named alternative costs and resolution-local
+output bindings. The choice survives spell copies, entry, control changes,
+last-known information, and checkpoints; copying a permanent does not copy it.
 
-For an instant or sorcery, the Gift cost clause carries the gift's ordinary
-draw or token effect. The shared resolver runs it before the spell's effects,
-after checking target legality, and resumes through normal continuations.
-For a permanent, the cost clause carries `EffectDef::None` and `gift_arrival`
-supplies the separate, labeled enters trigger. Capture the gift completion
-only when the spell or that trigger finishes resolving, even if its draw or
-token creation was replaced. The remaining card clauses use the existing
-additional-cost conditions, target predicates, and computed target counts;
-Gift is the first optional additional cost in these declarations.
+A card may declare multiple spell clauses in its abilities list. They resolve
+in printed order as one spell, with each clause's local target indices rebased
+into the full target list. All mandatory costs apply, and the complete target
+list determines whether the spell fails to resolve. A modal header, resolution
+destination, or `on_resolution_completed` event belongs on the first spell
+clause; later clauses are nonmodal instructions. Spliced instructions follow
+the printed clauses. Each instruction retains its authored origin for granted
+effects, nested triggers, and checkpoints. Resolution suspension preserves the
+remaining order and restores the current clause without changing the original
+spell's completion event.
+
+Bloomburrow's Gift helper declares the optional opponent binding, followed by
+an ordinary conditional spell clause for instants and sorceries or a separate
+conditional enters trigger for permanents. Gift effects are ordinary draw and
+token operations. The first spell clause or Gift trigger publishes `mtg:gift`
+only when the whole stack object finishes resolving, even if a replacement
+changed the gift effect. Other enters triggers retain normal ordering choices.
+Target counts and restrictions use the existing optional-cost selection,
+which is available before payment; the promise is the first optional cost in
+these cards. No core resolver recognizes Gift or a Bloomburrow card identity.

@@ -444,7 +444,7 @@ pub(super) fn effect_continuation_snapshot(
         object,
         ability,
         context: effect_resolution_context_snapshot(context),
-        effect: scoped_effect_snapshot(&definition, effect)?,
+        effect: scoped_effect_snapshot_in_catalog(&game.catalog, &definition, effect)?,
         // Set by the sacrifice sites, which are the only continuations that
         // read a characteristic off what was sacrificed.
         reads_toughness: false,

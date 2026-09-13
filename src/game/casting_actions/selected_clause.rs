@@ -435,13 +435,10 @@ impl Game {
             });
         }
         let (origin, ability) = spell_clause?;
-        let DeclarativeAbilityDef::Spell(spell) = ability.definition else {
-            unreachable!("spell_ability returns a spell clause")
-        };
         let spliced = self
             .spliced_clauses_of(signature.spliced())
             .expect("validated splices name cards that print a clause to add");
-        let plan = Self::selected_spell_plan(spell, signature.modes(), &spliced)
+        let plan = Self::selected_card_spell_plan(definition, option, signature.modes(), &spliced)
             .expect("validated modes select declared spell targets and branches");
         Some(StackAbilityPayload {
             origin,

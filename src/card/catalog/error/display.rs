@@ -91,7 +91,7 @@ impl fmt::Display for CatalogError {
                 count,
             } => write!(
                 formatter,
-                "part {part:?} of card definition {definition:?} defines {count} spell abilities, but one castable card part must have at most one"
+                "part {part:?} of card definition {definition:?} defines {count} spell clauses with a modal header, completion event, or resolution destination after the first clause"
             ),
             Self::InvalidModalSpellParent {
                 definition,

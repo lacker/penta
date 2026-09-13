@@ -3,6 +3,7 @@
 fn validate_ability_definition(
     ability: &AbilityDef,
     cost_bindings: &[crate::Binding],
+    cast_player_bindings: &[crate::Binding],
 ) -> Result<(), GrantedAbilityValidationError> {
     let mut grant_sites = program_ability_grant_sites(ability.effect.definition);
     if let Some(modal) = ability.modal() {
@@ -72,13 +73,14 @@ fn validate_ability_definition(
             },
         );
     }
-    validate_ability_definition_references(ability, targets, cost_bindings)
+    validate_ability_definition_references(ability, targets, cost_bindings, cast_player_bindings)
 }
 
 fn validate_ability_definition_references(
     ability: &AbilityDef,
     targets: &[crate::card::AbilityTargetDef],
     cost_bindings: &[crate::Binding],
+    cast_player_bindings: &[crate::Binding],
 ) -> Result<(), GrantedAbilityValidationError> {
     let trigger_event = match ability.definition {
         DeclarativeAbilityDef::TriggeredMana(definition)
@@ -122,8 +124,32 @@ fn validate_ability_definition_references(
         trigger_event,
         replacement_event,
         chosen_cost_card_binding,
-        cost_bindings,
+        (cost_bindings, cast_player_bindings),
         condition,
     )?;
+    if let Some((_, completion_condition)) = ability.resolution_event {
+        if !matches!(
+            ability.definition,
+            DeclarativeAbilityDef::Spell(_)
+                | DeclarativeAbilityDef::Triggered(_)
+                | DeclarativeAbilityDef::Activated(_)
+        ) {
+            return Err(
+                GrantedAbilityValidationError::UnsupportedEffectProgramContext {
+                    context: "resolution completion",
+                    operation: "a clause that does not resolve on the stack",
+                },
+            );
+        }
+        validate_ability_program_targets(
+            &[],
+            crate::card::AbilityProgramDef::Effects(EffectDef::None),
+            trigger_event,
+            None,
+            None,
+            (cost_bindings, cast_player_bindings),
+            completion_condition,
+        )?;
+    }
     Ok(())
 }

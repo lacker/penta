@@ -48,7 +48,11 @@ pub(super) fn deferred_begin_turn_effect_snapshot(
     let replacement = begin_turn_replacement_snapshot(game, &deferred.replacement)?;
     let ability = catalog_ability(&game.catalog, &replacement.effect.ability)?;
     Some(DeferredBeginTurnEffectSnapshot {
-        effect: scoped_effect_snapshot(&ability, ScopedEffect::primary(deferred.effect))?,
+        effect: scoped_effect_snapshot_in_catalog(
+            &game.catalog,
+            &ability,
+            ScopedEffect::primary(deferred.effect),
+        )?,
         replacement,
     })
 }

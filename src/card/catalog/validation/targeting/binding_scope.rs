@@ -13,6 +13,7 @@ struct BindingRegistry {
 #[derive(Clone, Copy)]
 struct BindingScope<'registry> {
     cost_bindings: &'registry [Binding],
+    cast_player_bindings: &'registry [Binding],
     objects: u64,
     object_sets: u64,
     card_names: u64,
@@ -23,9 +24,26 @@ struct BindingScope<'registry> {
 }
 
 impl<'registry> BindingScope<'registry> {
+    fn validate_cast_player_binding(
+        self,
+        binding: Binding,
+    ) -> Result<(), GrantedAbilityValidationError> {
+        if binding.label().is_some() && self.cast_player_bindings.contains(&binding) {
+            Ok(())
+        } else {
+            Err(
+                GrantedAbilityValidationError::UnsupportedEffectProgramContext {
+                    context: "casting player binding",
+                    operation: "a reference without a declared player choice",
+                },
+            )
+        }
+    }
+
     fn empty(bindings: &'registry BindingRegistry) -> Self {
         Self {
             cost_bindings: &[],
+            cast_player_bindings: &[],
             objects: 0,
             object_sets: 0,
             card_names: 0,

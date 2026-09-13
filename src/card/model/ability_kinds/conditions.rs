@@ -89,6 +89,8 @@ pub enum TriggerConditionDef {
     /// Spell copies retain this choice (CR 707.10); external alternatives such
     /// as Omniscience have no cost binding on the source card.
     SourcePaidAlternativeCost(crate::Binding),
+    /// Whether a player was chosen under this name while casting the source.
+    SourceHasCastPlayerBinding(crate::Binding),
     /// Whether one particular optional additional cost was paid for the
     /// source spell. This distinguishes cards with two independent kickers.
     SourcePaidAdditionalCost(crate::AdditionalCostIndex),

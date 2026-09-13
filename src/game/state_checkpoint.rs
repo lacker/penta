@@ -34,6 +34,7 @@ use crate::{
     ObjectCharacteristics, PlayOptionId, Target, TargetSlotId,
 };
 
+mod cast_bindings;
 mod counter;
 mod decision;
 mod emblem;

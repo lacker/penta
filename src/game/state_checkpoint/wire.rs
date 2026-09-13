@@ -724,74 +724,7 @@ fn parse_permanent(
         .reconfigured_timestamp
         .map(super::super::ContinuousEffectTimestamp);
     permanent.chosen_player = state.chosen_player.map(player_from_index).transpose()?;
-    if state.cast_tags.iter().any(|tag| tag != "escaped") {
-        return Err("checkpoint contains an unknown retired cast tag".into());
-    }
-    let source_zone = state
-        .cast_from_zone
-        .as_deref()
-        .and_then(cast_source_zone_from_label);
-    let alternative = state
-        .cast_alternative
-        .as_deref()
-        .map(|label| {
-            crate::card::AlternativeCastKindDef::from_label(label)
-                .ok_or_else(|| format!("unknown alternative cast kind {label}"))
-        })
-        .transpose()?
-        .or_else(|| {
-            state
-                .cast_tags
-                .iter()
-                .any(|tag| tag == "escaped")
-                .then_some(crate::card::AlternativeCastKindDef::Escape)
-        });
-    let colors_of_mana_spent = if state.cast_colors_of_mana_spent.iter().any(|spent| *spent) {
-        stack::color_set_from_flags(state.cast_colors_of_mana_spent)
-    } else {
-        color_set_from_count(state.cast_colors)
-    };
-    let has_cast_context = source_zone.is_some()
-        || alternative.is_some()
-        || state.gift_recipient.is_some()
-        || state.cast_alternative_cost_binding.is_some()
-        || state.cast_x > 0
-        || state.cast_kicks > 0
-        || !state.cast_additional_costs.is_empty()
-        || state.cast_colors > 0
-        || state.cast_phyrexian_symbols_paid_with_life > 0
-        || !state.cast_exiled_payment_cards.is_empty()
-        || state.cast_via_flashback
-        || state.cast_exile_if_put_into_graveyard
-        || state.cast_via_suspend
-        || state.cast_at_instant_speed;
-    let alternative_cost_binding = restore_alternative_cost_binding(
-        state.cast_alternative_cost_binding.as_deref(),
-        permanent.card.definition.card_definition(),
-        catalog,
-    )?;
-    let gift_recipient = state.gift_recipient.map(player_from_index).transpose()?;
-    permanent.cast = has_cast_context.then(|| CastContext {
-        source_zone,
-        alternative,
-        alternative_cost_binding,
-        gift_recipient,
-        at_instant_speed: state.cast_at_instant_speed,
-        x: state.cast_x,
-        repeatable_additional_costs: state.cast_kicks,
-        additional_costs: state.cast_additional_costs.clone(),
-        colors_of_mana_spent,
-        phyrexian_symbols_paid_with_life: state.cast_phyrexian_symbols_paid_with_life,
-        exiled_payment_cards: state
-            .cast_exiled_payment_cards
-            .iter()
-            .copied()
-            .map(GameObjectId)
-            .collect(),
-        via_flashback: state.cast_via_flashback,
-        exile_if_put_into_graveyard: state.cast_exile_if_put_into_graveyard,
-        via_suspend: state.cast_via_suspend,
-    });
+    restore_permanent_cast_context(&mut permanent, state, catalog)?;
     permanent.chosen_creature_type = shown.chosen_creature_type;
     permanent
         .chosen_creature_type_binding
@@ -998,3 +931,5 @@ include!("wire_copy.rs");
 
 mod natural_keys;
 pub(super) use natural_keys::restore_alternative_cost_binding;
+
+include!("wire/permanent_cast_context.rs");

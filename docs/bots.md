@@ -1924,17 +1924,22 @@ Runtime keyword checkpoints may contain `hexproofFromMonocolored` for a
 selective hexproof grant. Like other checkpoint keyword tags, it is read only
 under the matching simulation fingerprint; older checkpoints remain readable.
 
-Gift promises use the existing optional `additionalCostIds` selection in a cast's
-cost configuration. Choosing that cost promises the gift to the other seat in
-this two-player engine; it does not draw or create tokens while paying. The
-optional checkpoint `giftRecipient` member on stack, detached-stack, and
-permanent states retains the chosen seat as an index (0 or 1). Its absence
-means no gift was promised. Spell copies preserve that recipient, including
-when another player controls the copy; copying a battlefield permanent does
-not copy its promise. Deferred gift effects and enters triggers reconstruct
-through the ordinary effect and trigger continuations. Existing protocol,
-checkpoint, and replay versions are unchanged; fingerprint matching continues
-to guard exact reconstruction.
+Named casting-time opponent choices use the existing optional
+`additionalCostIds` selection in a cast's cost configuration. Choosing that
+cost saves the other seat in this two-player engine without targeting or
+performing a resolution effect. The optional checkpoint `castPlayerBindings`
+map on stack, detached-stack, and permanent states stores authored names and
+seat indices (0 or 1). An absent map means no player choices. Names must match
+declarations on the card. Spell copies preserve these choices even if another
+player controls the copy; copying a battlefield permanent does not copy them.
+Gift uses this representation and ordinary ordered spell clauses or enters
+triggers. Suspended composed instructions add optional `clauseAbility` and
+`clauseOrigin` locators; detached spell continuations retain the optional
+`resolvingClauseOrigin`. These preserve each instruction's authored source
+while the original spell still owns resolution completion. Ordinary single
+clause checkpoints omit these fields.
+Protocol, checkpoint, and replay versions are unchanged; fingerprint matching
+continues to guard exact reconstruction.
 
 Entry-time creature-type choices retain their authored label in the optional
 `chosenCreatureTypeBinding` member of each checkpoint permanent's state. This

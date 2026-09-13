@@ -621,9 +621,6 @@ impl CardRules {
         });
         let (_ability, spell) = spell_abilities.next()?;
         let modal = spell.modal()?;
-        if spell_abilities.next().is_some() {
-            return None;
-        }
         let modes = modal
             .modes
             .iter()

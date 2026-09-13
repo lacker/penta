@@ -60,8 +60,9 @@ pub(in crate::game::state_checkpoint) struct StackSnapshot {
     /// Name of the chosen alternative cost; absent for unlabeled or external costs.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub(in crate::game::state_checkpoint) cast_alternative_cost_binding: Option<String>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub(in crate::game::state_checkpoint) gift_recipient: Option<usize>,
+    #[serde(default, skip_serializing_if = "std::collections::BTreeMap::is_empty")]
+    pub(in crate::game::state_checkpoint) cast_player_bindings:
+        std::collections::BTreeMap<String, usize>,
     #[serde(default, skip_serializing_if = "super::is_zero_u16")]
     pub(in crate::game::state_checkpoint) cast_x: u16,
     #[serde(default, skip_serializing_if = "super::is_zero_u16")]
@@ -132,6 +133,9 @@ pub(in crate::game::state_checkpoint) struct StackAbilitySnapshot {
 #[serde(rename_all = "camelCase")]
 #[allow(clippy::struct_excessive_bools)]
 pub(in crate::game::state_checkpoint) struct DetachedStackSnapshot {
+    /// The currently interpreted clause of a composed spell continuation.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(in crate::game::state_checkpoint) resolving_clause_origin: Option<AbilityOriginSnapshot>,
     pub(in crate::game::state_checkpoint) object_id: u32,
     pub(in crate::game::state_checkpoint) kind: StackObjectKindSnapshot,
     pub(in crate::game::state_checkpoint) object_kind: ObjectKindSnapshot,
@@ -175,8 +179,9 @@ pub(in crate::game::state_checkpoint) struct DetachedStackSnapshot {
     /// Name of the chosen alternative cost; absent for unlabeled or external costs.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub(in crate::game::state_checkpoint) cast_alternative_cost_binding: Option<String>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub(in crate::game::state_checkpoint) gift_recipient: Option<usize>,
+    #[serde(default, skip_serializing_if = "std::collections::BTreeMap::is_empty")]
+    pub(in crate::game::state_checkpoint) cast_player_bindings:
+        std::collections::BTreeMap<String, usize>,
     #[serde(default, skip_serializing_if = "super::is_zero_u16")]
     pub(in crate::game::state_checkpoint) cast_x: u16,
     #[serde(default, skip_serializing_if = "super::is_zero_u16")]
@@ -262,6 +267,11 @@ pub(in crate::game::state_checkpoint) struct ManaCostSnapshot {
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub(in crate::game::state_checkpoint) struct ScopedEffectSnapshot {
+    /// Composed printed instructions can live outside the root ability tree.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(in crate::game::state_checkpoint) clause_ability: Option<AbilityLocator>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(in crate::game::state_checkpoint) clause_origin: Option<AbilityOriginSnapshot>,
     /// Modal effects live beneath child abilities rather than the root program.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub(in crate::game::state_checkpoint) ability_path: Vec<usize>,

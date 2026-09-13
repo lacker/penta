@@ -11,6 +11,8 @@ impl Game {
         object: &StackObject,
         mut context: EffectResolutionContext,
     ) -> EffectResolutionContext {
+        let local_object = self.object_for_effect_clause(scoped, object);
+        let object = local_object.as_ref();
         let EffectDef::BindOutput { effect, binding } = scoped.effect else {
             unreachable!("resolve_bound_output_effect called for another effect")
         };

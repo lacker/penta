@@ -7,6 +7,28 @@
 // here are that module's.
 
 impl Game {
+    /// Compose the printed spell instructions before adding spliced text.
+    /// Every clause keeps its own target indices; the plan assigns slot bases
+    /// after composition. A modal header, when present, is the first clause.
+    pub(super) fn selected_card_spell_plan(
+        definition: &CardDefinition,
+        option: &PlayOptionDef,
+        selected_modes: &[ModeId],
+        spliced: &[AbilityDef],
+    ) -> Option<SelectedSpellPlan> {
+        let mut clauses = Self::spell_clauses(definition, option);
+        let (_, first) = clauses.next()?;
+        let DeclarativeAbilityDef::Spell(spell) = first.definition else {
+            return None;
+        };
+        let mut plan = Self::selected_spell_plan(spell, selected_modes, &[])?;
+        for (origin, clause) in clauses {
+            plan = Self::extend_plan_with_splices(plan.target_defs, plan.mode_effects, std::slice::from_ref(&clause))?;
+            plan.mode_effects.last_mut()?.clause_origin = Some(origin);
+        }
+        Self::extend_plan_with_splices(plan.target_defs, plan.mode_effects, spliced)
+    }
+
     /// The clauses the cards spliced onto a spell contribute, in the order
     /// they were announced (CR 702.47a). A card is a legal splice only while
     /// it is in the caster's hand and prints both a splice cost and a spell
@@ -44,8 +66,11 @@ impl Game {
             let definition = self.catalog.get(instance.definition)?;
             Self::splice_cost(definition)?;
             let option = definition.play_options.first()?;
-            let (_, ability) = Self::spell_ability(definition, option)?;
-            clauses.push(ability);
+            let printed: Vec<_> = Self::spell_clauses(definition, option).collect();
+            if printed.is_empty() {
+                return None;
+            }
+            clauses.extend(printed.into_iter().map(|(_, ability)| ability));
         }
         Some(clauses)
     }

@@ -768,7 +768,7 @@ fn static_player_set_supported(players: PlayerSetDef) -> bool {
         PlayerSetDef::Related(relation) => static_player_relation_supported(relation),
         PlayerSetDef::LegalTargets(_)
         | PlayerSetDef::One(
-            PlayerRefDef::GiftRecipient
+            PlayerRefDef::CastBinding(_)
             | PlayerRefDef::EventPlayer
             | PlayerRefDef::Target(_)
             | PlayerRefDef::ControllerOf(_)

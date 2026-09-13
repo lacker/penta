@@ -428,13 +428,13 @@ impl CardComposition {
                 .iter()
                 .try_fold(Vec::new(), |mut targets, part_id| {
                     let part = self.parts.iter().find(|part| part.id == *part_id)?;
-                    let spell = part.rules.ability_clauses().iter().find_map(|ability| {
+                    let spells = part.rules.ability_clauses().iter().filter_map(|ability| {
                         let DeclarativeAbilityDef::Spell(spell) = ability.definition else {
                             return None;
                         };
                         spell.modal().is_none().then_some(spell)
-                    })?;
-                    for target in spell.targets() {
+                    });
+                    for target in spells.flat_map(|spell| spell.targets()) {
                         let id = TargetSlotId::from_index(targets.len())?;
                         targets.push(target.presentation(id)?);
                     }

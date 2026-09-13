@@ -53,6 +53,7 @@ fn static_trigger_condition_supported(condition: TriggerConditionDef) -> bool {
         | TriggerConditionDef::SourceCounters { .. }
         | TriggerConditionDef::SourceCastWith(_)
         | TriggerConditionDef::SourcePaidAlternativeCost(_)
+        | TriggerConditionDef::SourceHasCastPlayerBinding(_)
         | TriggerConditionDef::SourcePaidAdditionalCost(_)
         | TriggerConditionDef::SourceCastFrom(_)
         | TriggerConditionDef::SourceWasCast

@@ -7,7 +7,7 @@ use super::model::{
 };
 use super::semantics::{
     ability_locator_for_origin, applied_effect_locator, catalog_applied_effect,
-    catalog_scoped_effect, scoped_effect_snapshot,
+    catalog_scoped_effect, scoped_effect_snapshot_in_catalog,
 };
 use super::{
     AbilityId, AbilityOrigin, AbilitySourceRef, AdditionalCostId, AlternativeCostId,
@@ -113,11 +113,14 @@ fn stack_ability_snapshot_with(
     })?;
     let target_definition_locator = ability_locator(&game.catalog, |candidate| {
         ability_target_defs(candidate) == payload.target_defs
-    })?;
+    });
+    if object.kind != StackObjectKind::Spell && target_definition_locator.is_none() {
+        return None;
+    }
     let ability = catalog_ability(&game.catalog, &locator)?;
     Some(StackAbilitySnapshot {
         ability_locator: Some(locator),
-        target_definition_locator: Some(target_definition_locator),
+        target_definition_locator,
         origin: ability_origin_snapshot(payload.origin),
         presentation: object_characteristics_snapshot(&game.catalog, payload.presentation)?,
         target_selections: payload
@@ -131,7 +134,7 @@ fn stack_ability_snapshot_with(
             .mode_effects
             .iter()
             .copied()
-            .map(|effect| scoped_effect_snapshot(&ability, effect))
+            .map(|effect| scoped_effect_snapshot_in_catalog(&game.catalog, &ability, effect))
             .collect::<Option<Vec<_>>>()?,
         x: payload.x,
         sacrificed_mana_value: payload.sacrificed_mana_value,
@@ -167,7 +170,19 @@ pub(super) fn detached_stack_snapshot_allowing(
     if object.face_down.is_some() && face_down.is_none() {
         return None;
     }
+    let resolving_clause_origin = object
+        .ability
+        .as_ref()
+        .filter(|payload| {
+            object.kind == StackObjectKind::Spell
+                && payload
+                    .mode_effects
+                    .iter()
+                    .any(|effect| effect.clause_origin == Some(payload.origin))
+        })
+        .map(|payload| ability_origin_snapshot(payload.origin));
     Some(DetachedStackSnapshot {
+        resolving_clause_origin,
         object_id: object.id.0,
         kind: kind_snapshot(object.kind),
         object_kind: object_kind_snapshot(object.card.definition),
@@ -214,11 +229,11 @@ pub(super) fn detached_stack_snapshot_allowing(
             .as_ref()
             .and_then(|cast| cast.alternative)
             .map(|kind| kind.label().to_owned()),
-        gift_recipient: object
+        cast_player_bindings: object
             .cast
             .as_ref()
-            .and_then(|cast| cast.gift_recipient)
-            .map(crate::PlayerId::index),
+            .map(super::cast_bindings::snapshot_player_bindings)
+            .unwrap_or_default(),
         cast_alternative_cost_binding: object
             .cast
             .as_ref()
@@ -612,7 +627,7 @@ pub(super) fn parse_detached_stack(
         }
     };
     let cast = detached_cast_context(state, game, id, &stack_card, signature.as_ref())?;
-    Ok(StackObject {
+    let object = StackObject {
         id,
         kind,
         card: stack_card,
@@ -632,7 +647,26 @@ pub(super) fn parse_detached_stack(
         cast,
         face_down: state.face_down.map(face_down_characteristics_from_snapshot),
         is_copy: state.is_copy,
-    })
+    };
+    if let Some(origin) = state
+        .resolving_clause_origin
+        .map(ability_origin_from_snapshot)
+    {
+        let clause = object
+            .ability
+            .as_ref()
+            .and_then(|payload| {
+                payload
+                    .mode_effects
+                    .iter()
+                    .find(|effect| effect.clause_origin == Some(origin))
+            })
+            .copied()
+            .filter(|_| object.kind == StackObjectKind::Spell)
+            .ok_or("detached resolving clause is not part of this spell")?;
+        return Ok(game.object_for_effect_clause(clause, &object).into_owned());
+    }
+    Ok(object)
 }
 
 fn ability_object(

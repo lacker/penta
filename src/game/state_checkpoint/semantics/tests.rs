@@ -156,3 +156,50 @@ fn conditional_mana_riders_are_locatable_in_their_producing_ability() {
         }
     }
 }
+
+#[test]
+fn gift_clause_locator_cannot_select_another_cards_spell() {
+    use crate::card::{CardDefinition, CardRules, sets};
+    const GAIN: EffectDef = EffectDef::GainLife {
+        recipient: EffectRecipientDef::Controller,
+        amount: ValueDef::Constant(1),
+    };
+    static CLAUSES: [AbilityDef; 2] = [
+        AbilityDef::spell("First instruction.", EffectDef::None),
+        AbilityDef::spell("Second instruction.", GAIN),
+    ];
+    let ids = [
+        crate::CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000002991"),
+        crate::CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000002992"),
+    ];
+    let catalog = CardCatalog::new(ids.map(|id| {
+        CardDefinition::new(
+            id,
+            id.to_string(),
+            sets::alpha::SET,
+            CardRules::new_instant(crate::ManaCost::new(0, 0)).with_abilities(&CLAUSES),
+        )
+    }))
+    .unwrap();
+    let origin = AbilityOrigin::Printed {
+        definition: ids[0],
+        part: crate::CardPartId::PRIMARY,
+        ability: crate::AbilityId(1),
+    };
+    let effect = ScopedEffect {
+        clause_origin: Some(origin),
+        ..ScopedEffect::primary(GAIN)
+    };
+    let snapshot = scoped_effect_snapshot_in_catalog(&catalog, &CLAUSES[0], effect).unwrap();
+    let root = |definition| AbilityLocator::Card {
+        definition,
+        part_id: 0,
+        ability_id: 0,
+        nested: Vec::new(),
+    };
+    assert_eq!(
+        catalog_scoped_effect(&catalog, &root(ids[0]), &snapshot),
+        Some(effect)
+    );
+    assert!(catalog_scoped_effect(&catalog, &root(ids[1]), &snapshot).is_none());
+}

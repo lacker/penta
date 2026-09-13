@@ -10,9 +10,9 @@ use super::super::ManaPaymentPurpose;
 use super::super::mana_planning::reduce_generic;
 use super::super::{
     AbilityTargetDef, AlternativeCastKindDef, CardEffectStatus, CastChoices, CastCostContext,
-    CastSignature, CastSourceZone, ControlFlow, DeclarativeAbilityDef, Game, GameObjectId,
-    ManaCost, PlayActionKind, PlayOptionDef, PlayRestriction, PlayerId, Target, TargetPredicate,
-    TargetSlotDef, TargetSlotId, TriggerContext, ZoneKind, add_mana_cost,
+    CastSignature, CastSourceZone, ControlFlow, Game, GameObjectId, ManaCost, PlayActionKind,
+    PlayOptionDef, PlayRestriction, PlayerId, Target, TargetPredicate, TargetSlotDef, TargetSlotId,
+    TriggerContext, ZoneKind, add_mana_cost,
 };
 use crate::game::casting_actions::{CastScale, SpellAdditionalCostRequest};
 
@@ -361,12 +361,10 @@ impl Game {
             if !self.spell_target_selection_is_valid(option, kicked, choices, player, card_id) {
                 return None;
             }
-        } else if let Some((_, ability)) = Self::spell_ability(definition, option) {
-            let DeclarativeAbilityDef::Spell(spell) = ability.definition else {
-                unreachable!("spell_ability returns a spell clause")
-            };
+        } else if Self::spell_ability(definition, option).is_some() {
             let spliced = self.spliced_spell_clauses(player, choices.spliced())?;
-            let plan = Self::selected_spell_plan(spell, choices.modes(), &spliced)?;
+            let plan =
+                Self::selected_card_spell_plan(definition, option, choices.modes(), &spliced)?;
             if !self.spell_target_selection_is_valid(
                 option,
                 &plan.target_defs,

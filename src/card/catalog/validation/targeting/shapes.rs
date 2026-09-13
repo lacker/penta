@@ -167,7 +167,7 @@ fn validate_player_reference_shape(
         | PlayerRefDef::OpponentOf(reference)
         | PlayerRefDef::OwnerOf(reference) => validate_object_reference_shape(reference, targets),
         PlayerRefDef::EffectController
-        | PlayerRefDef::GiftRecipient
+        | PlayerRefDef::CastBinding(_)
         | PlayerRefDef::EnchantedPlayer
         | PlayerRefDef::EventPlayer
         | PlayerRefDef::Opponent => Ok(()),
@@ -549,6 +549,7 @@ fn validate_trigger_condition_shape(
         | TriggerConditionDef::SpellsCastLastTurn { .. }
         | TriggerConditionDef::SourceCastWith(_)
         | TriggerConditionDef::SourcePaidAlternativeCost(_)
+        | TriggerConditionDef::SourceHasCastPlayerBinding(_)
         | TriggerConditionDef::SourcePaidAdditionalCost(_)
         | TriggerConditionDef::SourceCastFrom(_)
         | TriggerConditionDef::SourceWasCast

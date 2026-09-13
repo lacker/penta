@@ -2,7 +2,7 @@
 
 use super::model::{EffectContinuationSnapshot, ScopedEffectSnapshot};
 use super::model_procedure::{DrawReplacementSnapshot, PendingProcedureSnapshot};
-use super::semantics::{catalog_scoped_effect, scoped_effect_snapshot};
+use super::semantics::{catalog_scoped_effect, scoped_effect_snapshot_in_catalog};
 use super::stack::{
     binding_snapshot, detached_stack_snapshot_allowing, effect_resolution_context_snapshot,
     parse_binding_snapshot, parse_effect_resolution_context,
@@ -122,7 +122,7 @@ pub(super) fn pending_procedure_snapshot(
             let effects = effects
                 .iter()
                 .copied()
-                .map(|effect| scoped_effect_snapshot(&definition, effect))
+                .map(|effect| scoped_effect_snapshot_in_catalog(&game.catalog, &definition, effect))
                 .collect::<Option<Vec<ScopedEffectSnapshot>>>()?;
             PendingProcedureSnapshot::ResolveEffects {
                 effects,
@@ -383,7 +383,7 @@ fn effect_continuation_snapshot(
         object: detached_stack_snapshot_allowing(game, viewer, object, visible_rebindings)?,
         ability,
         context: effect_resolution_context_snapshot(context),
-        effect: scoped_effect_snapshot(&definition, effect)?,
+        effect: scoped_effect_snapshot_in_catalog(&game.catalog, &definition, effect)?,
         // A draw replacement never sacrificed anything to read.
         reads_toughness: false,
     })

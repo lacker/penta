@@ -31,9 +31,10 @@ pub(super) struct CastContext {
     pub(super) x: u16,
     pub(super) repeatable_additional_costs: u16,
     pub(super) additional_costs: Vec<u16>,
-    /// Gift's chosen opponent is a copied cast choice, independent of the
-    /// source's owner and its later controller.
-    pub(super) gift_recipient: Option<super::PlayerId>,
+    /// Named player choices survive spell copies and entry, independently of
+    /// the source's owner and later controller. Resolution-local bindings
+    /// have a separate lifetime and cannot overwrite these casting choices.
+    pub(super) player_bindings: std::collections::BTreeMap<String, super::PlayerId>,
     /// Mana and life actually spent on this object. A spell copy resets these
     /// because it paid no costs of its own.
     pub(super) colors_of_mana_spent: ColorSet,
@@ -78,7 +79,7 @@ impl CastContext {
                 signature.costs(),
             ),
             additional_costs: Game::additional_cost_payment_counts_for(option, signature.costs()),
-            gift_recipient: None,
+            player_bindings: std::collections::BTreeMap::new(),
             colors_of_mana_spent: ColorSet::empty(),
             phyrexian_symbols_paid_with_life: 0,
             exiled_payment_cards: Vec::new(),

@@ -25,11 +25,25 @@ pub struct AbilityDef {
     pub text: &'static str,
     /// Semantic identity travels with this complete clause when it is granted or copied.
     pub label: Option<super::AbilityLabel>,
+    /// Publish a named action only when this entire stack object finishes
+    /// resolving successfully. Replacement of an individual effect does not
+    /// suppress completion. The optional condition reads copied cast choices.
+    pub resolution_event: Option<(super::MechanicId, Option<&'static TriggerConditionDef>)>,
     pub definition: DeclarativeAbilityDef,
     pub effect: AbilityEffectDef,
 }
 
 impl AbilityDef {
+    #[must_use]
+    pub const fn on_resolution_completed(
+        mut self,
+        mechanic: super::MechanicId,
+        condition: Option<&'static TriggerConditionDef>,
+    ) -> Self {
+        self.resolution_event = Some((mechanic, condition));
+        self
+    }
+
     #[must_use]
     pub const fn labeled(mut self, label: super::AbilityLabel) -> Self {
         self.label = Some(label);
@@ -424,6 +438,7 @@ impl AbilityDef {
         Self {
             text,
             label: None,
+            resolution_event: None,
             definition: DeclarativeAbilityDef::Static(StaticAbilityDef::new()),
             effect: AbilityEffectDef::declarative(EffectDef::None),
         }
@@ -449,6 +464,7 @@ impl AbilityDef {
         Self {
             text,
             label: None,
+            resolution_event: None,
             definition: DeclarativeAbilityDef::DeckConstruction(permission),
             effect: AbilityEffectDef::declarative(EffectDef::None),
         }
@@ -479,6 +495,7 @@ impl AbilityDef {
         Self {
             text,
             label: None,
+            resolution_event: None,
             definition: DeclarativeAbilityDef::Replacement(definition),
             effect: AbilityEffectDef::replacement_program(effect),
         }
@@ -546,6 +563,7 @@ impl AbilityDef {
         Self {
             text,
             label: None,
+            resolution_event: None,
             definition,
             effect: AbilityEffectDef::declarative(effect),
         }

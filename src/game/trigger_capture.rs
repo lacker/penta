@@ -228,6 +228,7 @@ impl Game {
                 return;
             }
             listeners.push(BattlefieldTriggerListener {
+                modifications: Vec::new(),
                 event: definition.event,
                 uses_stack: true,
                 trigger_limit: definition.trigger_limit,
@@ -302,6 +303,7 @@ impl Game {
                 return;
             }
             listeners.push(BattlefieldTriggerListener {
+                modifications: Vec::new(),
                 event: definition.event,
                 uses_stack: true,
                 trigger_limit: definition.trigger_limit,
@@ -445,6 +447,7 @@ impl Game {
                     ability: effective.origin,
                 };
                 listeners.push(BattlefieldTriggerListener {
+                    modifications: Vec::new(),
                     event: definition.event,
                     uses_stack,
                     trigger_limit: definition.trigger_limit,
@@ -477,6 +480,7 @@ impl Game {
         // relative order they had before any existed.
         listeners.extend(self.installed_triggers.iter().map(|installed| {
             BattlefieldTriggerListener {
+                modifications: Vec::new(),
                 trigger_limit: None,
                 event: installed.event,
                 uses_stack: true,
@@ -484,6 +488,9 @@ impl Game {
                 capture: installed.capture.clone(),
             }
         }));
+        for listener in &mut listeners {
+            listener.modifications = self.trigger_modifications_for_listener(listener);
+        }
         listeners
     }
 
@@ -678,6 +685,10 @@ impl Game {
                 ) {
                     continue;
                 }
+                let mut occurrences = self.modified_trigger_occurrences(listener, event);
+                if occurrences == 0 {
+                    continue;
+                }
                 let Some(trigger_context) = self.batch_trigger_context(
                     listener,
                     event,
@@ -694,7 +705,11 @@ impl Game {
                     if usize::from(already).saturating_add(in_batch) >= usize::from(limit) {
                         continue;
                     }
-                    limited.push(source);
+                    occurrences = occurrences.min(
+                        usize::from(limit)
+                            .saturating_sub(usize::from(already).saturating_add(in_batch)),
+                    );
+                    limited.extend(std::iter::repeat_n(source, occurrences));
                 }
                 if let Some(id) = listener.installed
                     && self
@@ -724,10 +739,10 @@ impl Game {
                 // "That ability triggers an additional time" is not a second
                 // ability but the same one again, so the extra instances are
                 // exact copies of this match and are ordered beside it.
-                for _ in 0..self.additional_trigger_copies(event, &capture) {
-                    matched.push((listener.uses_stack, capture.clone(), condition_holds));
+                for _ in 1..occurrences {
+                    matched.push((listener.uses_stack, capture.clone(), condition_holds, event));
                 }
-                matched.push((listener.uses_stack, capture, condition_holds));
+                matched.push((listener.uses_stack, capture, condition_holds, event));
             }
         }
 
@@ -740,71 +755,16 @@ impl Game {
         // Record ordinary triggers first, using the precomputed condition.
         // Any triggers caused while a triggered-mana ability resolves are
         // therefore later in the pending stream than the event that caused it.
-        for (uses_stack, capture, condition_holds) in &matched {
+        for (uses_stack, capture, condition_holds, event) in &matched {
             if *uses_stack && *condition_holds {
-                self.capture_trigger_prechecked(capture);
+                self.capture_trigger_and_observers(listeners, event, capture);
             }
         }
-        for (uses_stack, capture, condition_holds) in matched {
+        for (uses_stack, capture, condition_holds, _) in matched {
             if !uses_stack && condition_holds {
                 resolve_mana(self, capture);
             }
         }
-    }
-
-    /// How many extra times this match triggers, under every
-    /// "triggers an additional time" rule its controller has.
-    ///
-    /// Only an arrival on the battlefield is doubled; every printed clause
-    /// of this shape names one. Each rule counts once, so two of them are
-    /// two extra triggers rather than four.
-    fn additional_trigger_copies(
-        &self,
-        event: &CommittedTriggerEvent,
-        capture: &TriggerCapture,
-    ) -> u8 {
-        let CommittedTriggerEvent::ZoneChanged {
-            after: Some(object),
-            to: ZoneKind::Battlefield,
-            ..
-        } = event
-        else {
-            return 0;
-        };
-        // A trigger whose source has left the battlefield -- or never was a
-        // permanent -- is nobody's "triggered ability of a permanent you
-        // control", however the event reads.
-        let Some(source) = self
-            .battlefield
-            .iter()
-            .find(|permanent| permanent.card.id == capture.source.object)
-        else {
-            return 0;
-        };
-        let source_object = self.trigger_event_object(source);
-        let controller = capture.controller;
-        let mut copies = 0_u8;
-        self.visit_player_static_rules(controller, |rule| {
-            let crate::card::AppliedRuleDef::TriggersAnAdditionalTime(doubling) = rule else {
-                return;
-            };
-            if self.trigger_object_matches_for_controller(
-                doubling.entering,
-                object,
-                capture.source.object,
-                false,
-                Some(controller),
-            ) && self.trigger_object_matches_for_controller(
-                doubling.permanent,
-                &source_object,
-                capture.source.object,
-                false,
-                Some(controller),
-            ) {
-                copies = copies.saturating_add(1);
-            }
-        });
-        copies
     }
 
     // Long only because every event definition pairs with its committed event.
@@ -889,3 +849,7 @@ mod emblem_trigger_limit_tests {
         assert_eq!(game.triggers_this_turn(source), 1);
     }
 }
+
+include!("trigger_capture/modifications.rs");
+
+include!("trigger_capture/observers.rs");

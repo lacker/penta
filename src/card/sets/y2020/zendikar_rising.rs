@@ -656,6 +656,48 @@ pub(in crate::card::sets) static VALAKUT_AWAKENING_VALAKUT_STONEFORGE_174: CardR
     "Campbell White",
     &[("Valakut Awakening", CardRules::new_instant(mana_cost!("{2}{R}")).with_ability(AbilityDef::spell("Put any number of cards from your hand on the bottom of your library, then draw that many cards plus one.", EffectDef::Choose(ChooseDef { chooser: PlayerRefDef::EffectController, candidates: ObjectSetDef::Query(ObjectQueryDef::matching(ObjectPredicateDef::Any, &[ZoneKind::Hand], PlayerRelation::You)), exclude: None, minimum: 0, maximum: 255, binding: ObjectChoiceBindingDef::OrderedObjects(Binding!("awakening_hand")), unchosen: None, visibility: ChoiceVisibilityDef::Private, then: &EffectDef::Sequence(&[EffectDef::move_to_zone(EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!("awakening_hand"))), ZoneKind::Library, ZonePlacement::Bottom), abilities::draw_cards(ValueDef::Sum(&SumValueDef { left: ValueDef::BoundObjectCount(Binding!("awakening_hand")), right: ValueDef::Constant(1) }))]) })))), ("Valakut Stoneforge", CardRules::new_land(&[]).with_abilities(&[abilities::enters_tapped(CardType::Land), abilities::tap_for(ManaColor::Red)]))]);
 
+// ZNR 178 — Ancient Greenwarden
+pub(in crate::card::sets) static ANCIENT_GREENWARDEN: CardRecord = CardRecord::new(
+    "Ancient Greenwarden",
+    "dfe08e59-fdc4-436f-b05c-6ad386c46310",
+    "Grzegorz Rutkowski",
+    CardRules::new_creature(mana_cost!("{4}{G}{G}"), &["Elemental"], 5, 7).with_abilities(&[
+        abilities::reach(),
+        AbilityDef::static_ability(
+            "You may play lands from your graveyard.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Controller,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlayFromGraveyard(
+                    crate::card::GraveyardPlayPermissionDef::unlimited(
+                        crate::card::PlayRestrictionDef::new(
+                            crate::card::PlayActionMatcherDef::PlayLand,
+                            ObjectPredicateDef::HasType(CardType::Land),
+                        ),
+                    ),
+                )),
+            },
+        ),
+        AbilityDef::static_ability(
+            "If a land entering causes a triggered ability of a permanent you control to \
+                 trigger, that ability triggers an additional time.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Controller,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::ModifyTriggers(
+                    &crate::card::TriggerModificationDef {
+                        cause: TriggerEventDef::zone_changed(
+                            ObjectPredicateDef::HasType(CardType::Land),
+                            None,
+                            Some(ZoneKind::Battlefield),
+                        ),
+                        permanent: Some(ObjectPredicateDef::Any),
+                        kind: crate::card::TriggerModificationKindDef::Additional,
+                    },
+                )),
+            },
+        ),
+    ]),
+);
+
 // ZNR 179 — Ashaya, Soul of the Wild
 pub(in crate::card::sets) static ASHAYA_SOUL_OF_THE_WILD_179: CardRecord = CardRecord::new(
     "Ashaya, Soul of the Wild",
@@ -1132,6 +1174,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &SPIKEFIELD_HAZARD_SPIKEFIELD_CAVE_166,
     &SPITFIRE_LAGAC,
     &VALAKUT_AWAKENING_VALAKUT_STONEFORGE_174,
+    &ANCIENT_GREENWARDEN,
     &ASHAYA_SOUL_OF_THE_WILD_179,
     &BROKEN_WINGS,
     &GNARLID_COLONY,

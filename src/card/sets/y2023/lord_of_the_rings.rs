@@ -900,12 +900,59 @@ AbilityDef::activated("{5}{B}{R}, {T}, Sacrifice Mount Doom and a legendary arti
 );
 
 // LTR 305 — Gandalf the White
-// Audit: unsupported — AdditionalTriggerDef can double entry-caused triggers but has no leaving-battlefield half, so it cannot double the required death and other departure triggers.
 pub(in crate::card::sets) static GANDALF_THE_WHITE_305: CardRecord = CardRecord::new(
     "Gandalf the White",
     "2c9dc67a-5c26-4044-82b6-d5b6e195ae64",
     "Dominik Mayer",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{W}{W}"), &["Avatar", "Wizard"], 4, 5)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::flash(),
+            AbilityDef::static_ability(
+                "You may cast legendary spells and artifact spells as though they had flash.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Controller,
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::MayCastAsThoughItHadFlash(
+                        crate::card::CastTimingPermissionDef::new(ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::Supertype(CardSupertype::Legendary),
+                            ObjectPredicateDef::HasType(CardType::Artifact),
+                        ])),
+                    )),
+                },
+            ),
+            AbilityDef::static_ability(
+                "If a legendary permanent or an artifact entering or leaving the battlefield \
+                 causes a triggered ability of a permanent you control to trigger, that \
+                 ability triggers an additional time.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Controller,
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::ModifyTriggers(
+                        &crate::card::TriggerModificationDef {
+                            cause: TriggerEventDef::AnyOf(&[
+                                TriggerEventDef::zone_changed(
+                                    ObjectPredicateDef::AnyOf(&[
+                                        ObjectPredicateDef::Supertype(CardSupertype::Legendary),
+                                        ObjectPredicateDef::HasType(CardType::Artifact),
+                                    ]),
+                                    None,
+                                    Some(ZoneKind::Battlefield),
+                                ),
+                                TriggerEventDef::zone_changed(
+                                    ObjectPredicateDef::AnyOf(&[
+                                        ObjectPredicateDef::Supertype(CardSupertype::Legendary),
+                                        ObjectPredicateDef::HasType(CardType::Artifact),
+                                    ]),
+                                    Some(ZoneKind::Battlefield),
+                                    None,
+                                ),
+                            ]),
+                            permanent: Some(ObjectPredicateDef::Any),
+                            kind: crate::card::TriggerModificationKindDef::Additional,
+                        },
+                    )),
+                },
+            ),
+        ]),
 );
 
 // LTR 344 — Rivendell

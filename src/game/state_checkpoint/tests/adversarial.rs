@@ -439,6 +439,8 @@ fn retained_trigger_state_never_serializes_unrebindable_hidden_object_ids() {
     let mut hidden_context = EffectResolutionContext::empty();
     hidden_context.bind_single_object(Binding!("object"), Some(Target::Card(secret)));
     game.pending_triggers.push(crate::game::PendingTrigger {
+        stack_object: None,
+        observes_trigger: false,
         id: 0,
         source,
         presentation: capture.presentation,

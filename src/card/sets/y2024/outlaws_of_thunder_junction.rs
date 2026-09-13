@@ -6065,7 +6065,7 @@ pub(in crate::card::sets) static ANNIE_FLASH_THE_VETERAN: CardRecord = CardRecor
 );
 
 // OTJ 191 — Annie Joins Up
-// Audit: unsupported — Needs additional occurrences of arbitrary legendary-creature triggered abilities; current trigger doubling only supports enters triggers.
+// Audit: unsupported — Needs additional occurrences of arbitrary legendary-creature triggered abilities; current trigger modifiers only support zone-change causes.
 pub(in crate::card::sets) static ANNIE_JOINS_UP: CardRecord = CardRecord::new(
     "Annie Joins Up",
     "1624a5f4-f5bc-47c9-85de-c5520ee234ce",

@@ -385,11 +385,10 @@ fn static_player_applied_effect_supported(effect: AppliedEffectDef) -> bool {
                     DamageRecipientMatcherDef::Any | DamageRecipientMatcherDef::AffectedObject
                 )
         }
-        // Both predicates are read against an object the trigger walk
-        // already has in hand: what arrived, and what carries the ability.
-        AppliedEffectDef::Rule(AppliedRuleDef::TriggersAnAdditionalTime(doubling)) => {
-            static_object_predicate_supported(doubling.entering)
-                && static_object_predicate_supported(doubling.permanent)
+        // The event and optional permanent filter read committed snapshots.
+        AppliedEffectDef::Rule(AppliedRuleDef::ModifyTriggers(modification)) => {
+            trigger_modification_cause_supported(modification.cause)
+                && modification.permanent.is_none_or(static_object_predicate_supported)
         }
         // Read where a graveyard cast is enumerated, by the same walk that
         // answers the permissions above.
@@ -581,9 +580,8 @@ fn static_object_rule_supported(recipient: EffectRecipientDef, rule: AppliedRule
         | AppliedRuleDef::Ascend
         | AppliedRuleDef::MayLookAtTopOfLibrary
         | AppliedRuleDef::PlaysWithTopOfLibraryRevealed
-        // A doubled trigger belongs to a player as well: what it reads is
-        // who controls the permanent and who controls what arrived.
-        | AppliedRuleDef::TriggersAnAdditionalTime(_)
+        // Trigger modification applies to abilities controlled by a player.
+        | AppliedRuleDef::ModifyTriggers(_)
         | AppliedRuleDef::MaySpendManaAsAnyColorForCreatureAbilities
         | AppliedRuleDef::MayPlayAdditionalLands(_)
         | AppliedRuleDef::MayPlayAnyNumberOfLands
@@ -942,3 +940,17 @@ include!("program_context/static_predicates.rs");
 include!("program_context/static_values.rs");
 
 include!("program_context/cost_programs.rs");
+
+fn trigger_modification_cause_supported(event: crate::card::TriggerEventDef) -> bool {
+    match event {
+        crate::card::TriggerEventDef::ZoneChanged(matcher) => {
+            static_object_predicate_supported(matcher.object)
+                && matcher.previously_damaged_by.is_none()
+        }
+        crate::card::TriggerEventDef::AnyOf(events) => events
+            .iter()
+            .copied()
+            .all(trigger_modification_cause_supported),
+        _ => false,
+    }
+}

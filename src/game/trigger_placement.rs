@@ -14,17 +14,25 @@ impl Game {
         }
         let triggers = std::mem::take(&mut self.pending_triggers);
         let mut batches = Vec::new();
-        for controller in [self.active_player, self.active_player.opponent()] {
-            let controlled = triggers
-                .iter()
-                .filter(|trigger| trigger.controller == controller)
-                .cloned()
-                .collect::<Vec<_>>();
-            if !controlled.is_empty() {
-                batches.push(TriggerPlacementBatch {
-                    controller,
-                    triggers: controlled,
-                });
+        // CR 603.3b: first place ordinary triggers in APNAP order, then
+        // repeat APNAP for abilities whose trigger condition is another
+        // ability triggering. These cannot be ordered below their cause.
+        for observes_trigger in [false, true] {
+            for controller in [self.active_player, self.active_player.opponent()] {
+                let controlled = triggers
+                    .iter()
+                    .filter(|trigger| {
+                        trigger.controller == controller
+                            && trigger.observes_trigger == observes_trigger
+                    })
+                    .cloned()
+                    .collect::<Vec<_>>();
+                if !controlled.is_empty() {
+                    batches.push(TriggerPlacementBatch {
+                        controller,
+                        triggers: controlled,
+                    });
+                }
             }
         }
         self.continue_trigger_placement(batches);
@@ -471,7 +479,10 @@ impl Game {
     }
 
     pub(super) fn put_trigger_on_stack(&mut self, trigger: PendingTrigger) {
-        let card = self.unbacked_ability_object(trigger.presentation, trigger.owner);
+        let id = trigger
+            .stack_object
+            .unwrap_or_else(|| self.allocate_object_id());
+        let card = Self::unbacked_ability_object_with_id(trigger.presentation, trigger.owner, id);
         let object = card.id;
         let text_changes = self.frozen_text_changes_for_source(trigger.source.object);
         self.stack.push(StackObject {

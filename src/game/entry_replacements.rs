@@ -778,10 +778,22 @@ impl Game {
         }
         self.entry_event_batch = Some(Vec::new());
         enter(self);
-        let batch = self.entry_event_batch.take().unwrap_or_default();
-        for event in batch {
-            self.capture_battlefield_triggers(&event);
+        let mut batch = self.entry_event_batch.take().unwrap_or_default();
+        // All entrants and their continuous effects exist when this atomic
+        // arrival is observed, including effects from the last entrant.
+        for event in &mut batch {
+            if let CommittedTriggerEvent::ZoneChanged {
+                after: Some(after),
+                to: ZoneKind::Battlefield,
+                ..
+            } = event
+                && let Some(permanent) = self.battlefield.iter().find(|p| p.card.id == after.id)
+            {
+                *after = self.targeting_event_object(permanent);
+            }
         }
+        let listeners = self.battlefield_trigger_listeners();
+        self.capture_battlefield_trigger_batch_from_snapshot(&listeners, &batch);
     }
 
     #[allow(clippy::too_many_lines)]

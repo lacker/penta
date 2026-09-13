@@ -22,6 +22,11 @@ pub(super) enum CommittedStackObjectEvent {
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub(super) enum CommittedTriggerEvent {
+    AbilityTriggered {
+        object: GameObjectId,
+        controller: PlayerId,
+        cause: Box<CommittedTriggerEvent>,
+    },
     MechanicPerformed {
         mechanic: crate::card::MechanicId,
         player: PlayerId,
@@ -274,6 +279,10 @@ impl CommittedTriggerEvent {
     #[allow(clippy::too_many_lines)]
     pub(super) fn context(&self) -> TriggerContext {
         match self {
+            Self::AbilityTriggered { object, controller, .. } => TriggerContext {
+                object: Some(*object), object_controller: Some(*controller),
+                event_player: Some(*controller), ..TriggerContext::empty()
+            },
             Self::PaymentPaid {
                 object,
                 player,

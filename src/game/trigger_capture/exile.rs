@@ -23,6 +23,7 @@ impl Game {
         };
         let effect = ability.declarative_effect().unwrap_or(EffectDef::None);
         listeners.push(BattlefieldTriggerListener {
+            modifications: Vec::new(),
             event: definition.event,
             uses_stack: true,
             trigger_limit: definition.trigger_limit,
@@ -69,6 +70,7 @@ impl Game {
                             return;
                         }
                         listeners.push(BattlefieldTriggerListener {
+                            modifications: Vec::new(),
                             event: definition.event,
                             uses_stack: true,
                             trigger_limit: definition.trigger_limit,

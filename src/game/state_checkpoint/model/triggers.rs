@@ -10,6 +10,10 @@ use super::{
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub(in crate::game::state_checkpoint) struct PendingTriggerSnapshot {
+    #[serde(default, rename = "objectId", skip_serializing_if = "Option::is_none")]
+    pub(in crate::game::state_checkpoint) stack_object: Option<u32>,
+    #[serde(default)]
+    pub(in crate::game::state_checkpoint) observes_trigger: bool,
     pub(in crate::game::state_checkpoint) id: u32,
     pub(in crate::game::state_checkpoint) source: AbilitySourceSnapshot,
     pub(in crate::game::state_checkpoint) ability: AbilityLocator,

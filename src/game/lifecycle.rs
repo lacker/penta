@@ -1,10 +1,10 @@
 use super::{
     BTreeMap, CardCatalog, CardDefinitionId, CardInstance, CharacteristicSource, CombatDamageStage,
     ContinuousEffectTimestamp, CounterKind, DamageSourceGroupDef, Deck, EnumeratedActions, Format,
-    Game, GameError, GameEvent, GameObjectId, GameStack, ManaPool, ObjectBacking,
-    ObjectCharacteristics, ObjectInstance, ObjectKind, Permanent, PermanentLastKnownInformation,
-    PhysicalCard, PhysicalCardId, PlayerId, PlayerState, Pregame, ReplayRng, RetiredObject,
-    StackObject, Step, Target, TriggerContext, ValueDef, VecDeque, ZoneChangeOutcome, remove_card,
+    Game, GameError, GameEvent, GameObjectId, GameStack, ManaPool, ObjectBacking, ObjectInstance,
+    ObjectKind, Permanent, PermanentLastKnownInformation, PhysicalCard, PhysicalCardId, PlayerId,
+    PlayerState, Pregame, ReplayRng, RetiredObject, StackObject, Step, Target, TriggerContext,
+    ValueDef, VecDeque, ZoneChangeOutcome, remove_card,
 };
 use crate::card::{PlayerRelation, ZoneKind};
 
@@ -876,31 +876,6 @@ impl Game {
         CardInstance {
             id: self.allocate_object_id(),
             definition,
-            owner,
-            backing: ObjectBacking::None,
-            characteristics,
-            counters: crate::game::counters::Counters::new(),
-        }
-    }
-
-    pub(super) fn unbacked_ability_object(
-        &mut self,
-        presentation: ObjectCharacteristics,
-        owner: PlayerId,
-    ) -> ObjectInstance {
-        let characteristics = match presentation {
-            ObjectCharacteristics::Card { definition, .. } => {
-                CharacteristicSource::Ability(definition)
-            }
-            ObjectCharacteristics::Token { token, .. } => CharacteristicSource::Token(token),
-            ObjectCharacteristics::Emblem { emblem } => CharacteristicSource::Emblem(emblem),
-            ObjectCharacteristics::FaceDown { face_down } => {
-                CharacteristicSource::FaceDown(face_down)
-            }
-        };
-        ObjectInstance {
-            id: self.allocate_object_id(),
-            definition: ObjectKind::Ability,
             owner,
             backing: ObjectBacking::None,
             characteristics,

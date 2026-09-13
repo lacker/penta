@@ -287,16 +287,9 @@ pub enum AppliedRuleDef {
     /// card to nobody but its controller, and Courser of Kruphix shows it to
     /// the table.
     PlaysWithTopOfLibraryRevealed,
-    /// "If a land or Bird you control entering the battlefield causes a
-    /// triggered ability of a permanent you control to trigger, that ability
-    /// triggers an additional time." A player rule: nothing about the
-    /// doubled permanent is changed, and what decides the doubling is who
-    /// controls both it and the arriving object.
-    ///
-    /// Only an entry to the battlefield is watched. Every printed card of
-    /// this shape says "entering the battlefield", and reading a wider set
-    /// of events would double abilities their text does not reach.
-    TriggersAnAdditionalTime(&'static AdditionalTriggerDef),
+    /// Modify occurrences caused by matching events. Suppression takes
+    /// precedence over every additional occurrence.
+    ModifyTriggers(&'static TriggerModificationDef),
     /// "You may play an additional land on each of your turns." A player
     /// rule found the way the hand-size one is found, and counted rather
     /// than merely present: two of them are two extra lands, which is what
@@ -583,17 +576,20 @@ pub enum TopOfLibraryCostDef {
     LifeEqualToManaValue,
 }
 
-/// One "that ability triggers an additional time" clause: which arrival
-/// does the causing, and whose triggered ability is doubled.
+/// A continuous rule about events causing abilities to trigger. Predicates
+/// are read from the affected player's perspective. `permanent: None` also
+/// reaches abilities in other zones and delayed triggered abilities.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub struct AdditionalTriggerDef {
-    /// What has to be entering the battlefield. Read from the affected
-    /// player's perspective, so "you control" means they do.
-    pub entering: ObjectPredicateDef,
-    /// The permanent whose triggered ability is doubled, read from the same
-    /// perspective. A trigger whose source is not a permanent on the
-    /// battlefield matches nothing here.
-    pub permanent: ObjectPredicateDef,
+pub struct TriggerModificationDef {
+    pub cause: super::TriggerEventDef,
+    pub permanent: Option<ObjectPredicateDef>,
+    pub kind: TriggerModificationKindDef,
+}
+
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum TriggerModificationKindDef {
+    Suppress,
+    Additional,
 }
 
 /// A permission to play cards out of a graveyard, and what bounds it.

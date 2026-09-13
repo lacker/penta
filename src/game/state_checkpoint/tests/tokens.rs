@@ -437,6 +437,8 @@ fn checkpoint_round_trips_a_pending_token_trigger() {
         ability: AbilityId::PRIMARY,
     };
     game.pending_triggers.push(PendingTrigger {
+        stack_object: None,
+        observes_trigger: false,
         id: 0,
         source: AbilitySourceRef {
             object: source_object,

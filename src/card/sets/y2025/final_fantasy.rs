@@ -11,7 +11,6 @@ use crate::card::AbilityTargetPredicate;
 use crate::card::ActivationTimingDef;
 use crate::card::AddManaEffectDef;
 use crate::card::AdditionalCostValueDef;
-use crate::card::AdditionalTriggerDef;
 use crate::card::AggregateOperationDef;
 use crate::card::AlternativeCastKindDef;
 use crate::card::AppliedEffectDef;
@@ -106,6 +105,7 @@ use crate::card::ValueDef;
 use crate::card::ZoneKind;
 use crate::card::ZonePlacement;
 use crate::card::abilities;
+use crate::card::{TriggerModificationDef, TriggerModificationKindDef};
 use crate::mana_cost;
 
 use crate::card::sets::y1993::alpha as catalog_lea;
@@ -11361,24 +11361,26 @@ pub(in crate::card::sets) static TRAVELING_CHOCOBO: CardRecord = CardRecord::new
                     ]),
                 },
             ),
-            // The Chocobo itself is a Bird, so a second one doubles the first one's
-            // arrival trigger -- and two of them double everything twice.
             AbilityDef::static_ability(
                 "If a land or Bird you control entering the battlefield causes a triggered ability of a \
                  permanent you control to trigger, that ability triggers an additional time.",
                 EffectDef::StaticApply {
-                    recipient: EffectRecipientDef::players(PlayerSetDef::Related(PlayerRelation::You)),
-                    effect: AppliedEffectDef::Rule(AppliedRuleDef::TriggersAnAdditionalTime(
-                        &AdditionalTriggerDef {
-                            // A land or a Bird, and yours either way.
-                            entering: ObjectPredicateDef::All(&[
-                                ObjectPredicateDef::AnyOf(&[
-                                    ObjectPredicateDef::HasType(CardType::Land),
-                                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Bird")),
+                    recipient: EffectRecipientDef::Controller,
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::ModifyTriggers(
+                        &TriggerModificationDef {
+                            cause: TriggerEventDef::zone_changed(
+                                ObjectPredicateDef::All(&[
+                                    ObjectPredicateDef::AnyOf(&[
+                                        ObjectPredicateDef::HasType(CardType::Land),
+                                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Bird")),
+                                    ]),
+                                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                                 ]),
-                                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                            ]),
-                            permanent: ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                                None,
+                                Some(ZoneKind::Battlefield),
+                            ),
+                            permanent: Some(ObjectPredicateDef::Any),
+                            kind: TriggerModificationKindDef::Additional,
                         },
                     )),
                 },

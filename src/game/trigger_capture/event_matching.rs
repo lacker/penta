@@ -127,6 +127,9 @@ impl Game {
         controller: Option<PlayerId>,
     ) -> bool {
         match (definition, event) {
+            (TriggerEventDef::AbilityTriggeredBy(expected), CommittedTriggerEvent::AbilityTriggered { cause, .. }) => {
+                self.trigger_event_matches_for_controller(*expected, cause, source, controller)
+            }
             (
                 TriggerEventDef::MechanicPerformed { mechanic, player: relation },
                 CommittedTriggerEvent::MechanicPerformed { mechanic: actual, player },

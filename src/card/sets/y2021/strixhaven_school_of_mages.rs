@@ -136,6 +136,36 @@ pub(in crate::card::sets) static ELITE_SPELLBINDER: CardRecord = CardRecord::new
         ]),
 );
 
+// STX 33 — Strict Proctor
+pub(in crate::card::sets) static STRICT_PROCTOR: CardRecord = CardRecord::new(
+    "Strict Proctor",
+    "95f1e36a-6838-49de-b7dc-697cbcd1e892",
+    "Jokubas Uogintas",
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Spirit", "Cleric"], 1, 3).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::triggered(
+            "Whenever a permanent entering causes a triggered ability to trigger, \
+                 counter that ability unless its controller pays {2}.",
+            TriggerEventDef::AbilityTriggeredBy(&TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Any,
+                None,
+                Some(ZoneKind::Battlefield),
+            )),
+            EffectDef::PayOr(
+                crate::card::PayOrDef::unless(
+                    &[crate::card::CostDef::Mana(mana_cost!("{2}"))],
+                    &EffectDef::Counter {
+                        object: EffectRecipientDef::TriggeringObject,
+                        zone: ZoneKind::Graveyard,
+                        placement: crate::card::ZonePlacement::Top,
+                    },
+                )
+                .with_payer(PlayerSetDef::One(crate::card::PlayerRefDef::EventPlayer)),
+            ),
+        ),
+    ]),
+);
+
 // STX 38 — Burrog Befuddler
 pub(in crate::card::sets) static BURROG_BEFUDDLER: CardRecord = CardRecord::new(
     "Burrog Befuddler",
@@ -652,6 +682,7 @@ AbilityDef::spell("Destroy each nonland permanent with mana value 2 or less. Add
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &WANDERING_ARCHAIC_EXPLORE_THE_VASTLANDS_6,
     &ELITE_SPELLBINDER,
+    &STRICT_PROCTOR,
     &BURROG_BEFUDDLER,
     &FROST_TRICKSTER,
     &RESCULPT_51,

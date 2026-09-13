@@ -3840,12 +3840,27 @@ CardRules::new_artifact(mana_cost!("{3}"))
 );
 
 // NPH 162 — Torpor Orb
-// Audit: unsupported — Needs suppression of triggers caused by creature entries across all listener types; trigger doubling exists, but no declarative rule suppresses the matching entry-caused triggers.
 pub(in crate::card::sets) static TORPOR_ORB: CardRecord = CardRecord::new(
     "Torpor Orb",
     "953610f6-ea96-4e71-969f-50ecac09c091",
     "Svetlin Velinov",
-    CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{2}")).with_ability(AbilityDef::static_ability(
+        "Creatures entering don't cause abilities to trigger.",
+        EffectDef::StaticApply {
+            recipient: EffectRecipientDef::players(PlayerSetDef::All),
+            effect: AppliedEffectDef::Rule(AppliedRuleDef::ModifyTriggers(
+                &crate::card::TriggerModificationDef {
+                    cause: TriggerEventDef::zone_changed(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        None,
+                        Some(ZoneKind::Battlefield),
+                    ),
+                    permanent: None,
+                    kind: crate::card::TriggerModificationKindDef::Suppress,
+                },
+            )),
+        },
+    )),
 );
 
 // NPH 163 — Trespassing Souleater

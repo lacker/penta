@@ -3528,7 +3528,7 @@ const PRIEST_OF_TITANIA_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // MH3 320 — Echoes of Eternity
-// Audit: unsupported — AdditionalTriggerDef only doubles triggers caused by battlefield entry. It cannot double arbitrary triggers of colorless spells or permanents, including spell-cast and upkeep triggers.
+// Audit: unsupported — TriggerModificationDef supports zone-change causes. It cannot double arbitrary triggers of colorless spells or permanents, including spell-cast and upkeep triggers.
 pub(in crate::card::sets) static ECHOES_OF_ETERNITY_320: CardRecord = CardRecord::new(
     "Echoes of Eternity",
     "ae70f03f-cf60-418b-98e3-bc868e739656",

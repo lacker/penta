@@ -63,6 +63,7 @@ use crate::card::PlayOptionDef;
 use crate::card::PlayRestrictionDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
+use crate::card::PlayerSetDef;
 use crate::card::ReplacementChoiceDef;
 use crate::card::ReplacementEffectDef;
 use crate::card::ResolvedEffectDurationDef;
@@ -401,12 +402,38 @@ pub(in crate::card::sets) static GLASS_CASKET: CardRecord = CardRecord::new(
 );
 
 // ELD 18 — Hushbringer
-// Audit: unsupported — Needs a continuous rule that suppresses triggered abilities by their triggering event (creature enters or dies). Existing trigger predicates select this card's triggers; they cannot prevent other abilities from triggering.
 pub(in crate::card::sets) static HUSHBRINGER_18: CardRecord = CardRecord::new(
     "Hushbringer",
     "663b3e6f-1099-4de8-a0a7-6f1919c38010",
     "Bastien L. Deharme",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Faerie"], 1, 2).with_abilities(&[
+        abilities::flying(),
+        abilities::lifelink(),
+        AbilityDef::static_ability(
+            "Creatures entering or dying don't cause abilities to trigger.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::players(PlayerSetDef::All),
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::ModifyTriggers(
+                    &crate::card::TriggerModificationDef {
+                        cause: TriggerEventDef::AnyOf(&[
+                            TriggerEventDef::zone_changed(
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                None,
+                                Some(ZoneKind::Battlefield),
+                            ),
+                            TriggerEventDef::zone_changed(
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                Some(ZoneKind::Battlefield),
+                                Some(ZoneKind::Graveyard),
+                            ),
+                        ]),
+                        permanent: None,
+                        kind: crate::card::TriggerModificationKindDef::Suppress,
+                    },
+                )),
+            },
+        ),
+    ]),
 );
 
 // ELD 20 — Linden, the Steadfast Queen

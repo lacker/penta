@@ -8,6 +8,10 @@ pub struct RollDieDef {
 
 impl RollDieDef {
     /// Construct a complete, ordered partition of the die's faces.
+    ///
+    /// # Panics
+    /// Panics if there are no faces, or the ranges are unordered, out of bounds,
+    /// or do not cover every face.
     #[must_use]
     pub const fn new(sides: u16, outcomes: &'static [(u16, EffectDef)]) -> Self {
         assert!(sides > 0, "a die must have at least one face");
@@ -36,6 +40,10 @@ impl RollDieDef {
         self.outcomes
     }
 
+    /// Return the effect for a one-based die result.
+    ///
+    /// # Panics
+    /// Panics if the result is outside `1..=self.sides()`.
     #[must_use]
     pub fn outcome(self, result: u16) -> EffectDef {
         assert!(

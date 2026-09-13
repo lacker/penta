@@ -290,10 +290,8 @@ impl WebGame {
                 sides,
                 result,
             } => Some(format!(
-                "{} rolled a d{}: {}",
-                self.player_name(*player),
-                sides,
-                result
+                "{} rolled a d{sides}: {result}",
+                self.player_name(*player)
             )),
             GameEvent::CardRevealed {
                 player, definition, ..

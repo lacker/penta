@@ -294,12 +294,34 @@ pub(in crate::card::sets) static DELNEY_STREETWISE_LOOKOUT: CardRecord = CardRec
 );
 
 // MKM 13 — Doorkeeper Thrull
-// Audit: unsupported — Needs suppression of triggered abilities caused by artifact or creature entry, including triggers on other permanents.
 pub(in crate::card::sets) static DOORKEEPER_THRULL: CardRecord = CardRecord::new(
     "Doorkeeper Thrull",
     "80a1cd28-d2a5-4d1a-aa03-a6a5958ae432",
     "Camille Alquier",
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Thrull"], 1, 2).with_abilities(&[
+        abilities::flash(),
+        abilities::flying(),
+        AbilityDef::static_ability(
+            "Artifacts and creatures entering don't cause abilities to trigger.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::players(PlayerSetDef::All),
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::ModifyTriggers(
+                    &crate::card::TriggerModificationDef {
+                        cause: TriggerEventDef::zone_changed(
+                            ObjectPredicateDef::AnyOf(&[
+                                ObjectPredicateDef::HasType(CardType::Artifact),
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                            ]),
+                            None,
+                            Some(ZoneKind::Battlefield),
+                        ),
+                        permanent: None,
+                        kind: crate::card::TriggerModificationKindDef::Suppress,
+                    },
+                )),
+            },
+        ),
+    ]),
 );
 
 // MKM 14 — Due Diligence

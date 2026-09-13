@@ -334,6 +334,32 @@ an acquired linked ability. Bound declarations are not copiable values; a new
 object chooses anew. `ChooseEffect { player, choices }` remains the separate
 instruction for an immediate player choice between effects.
 
+### Modifying trigger occurrences
+
+Use `AppliedRuleDef::ModifyTriggers(&TriggerModificationDef { cause, permanent,
+kind })` in a player-facing static ability. The recipient selects whose abilities
+are affected. `cause` matches a zone-change event; `permanent: Some(predicate)`
+requires an ability of a matching permanent, while `None` also reaches delayed
+abilities and abilities in other zones. `kind` either suppresses the occurrence
+or adds one occurrence. Suppression wins, additional occurrences add together,
+and per-turn trigger limits still apply. A failed intervening-if check at the
+event does not spend a per-turn allowance; failing that check at resolution
+does not refund an allowance already spent.
+
+The event matcher chooses the entering object's characteristics after entry or
+the departing object's last-known characteristics. Modifier sources are frozen
+with look-back listeners, so simultaneous deaths retain the rules that applied
+before the move. From-anywhere graveyard triggers instead use the post-move
+battlefield. Entry replacements remain `ReplacementEffectDef` programs: counters,
+tapped status, copy choices, and as-enters choices are neither suppressed nor
+multiplied by trigger modifiers.
+
+`TriggerEventDef::AbilityTriggeredBy(&cause)` observes another ability triggering.
+Its `TriggeringObject` identifies that specific ability and `EventPlayer` identifies
+its controller. Compose an ordinary `PayOrDef::unless` with `Counter` for a trigger
+tax. The engine freezes these observers at the event and places them in the second
+APNAP pass required by CR 603.3b, after the abilities that caused them to trigger.
+
 ### Temporary self effects
 
 Use `abilities::apply_to_self_until_end_of_turn` for activated stat changes,

@@ -40,7 +40,7 @@ fn trigger_event_object_zone(event: TriggerEventDef) -> Option<ZoneKind> {
         | TriggerEventDef::Transforms(_) => Some(ZoneKind::Battlefield),
         // The named object is the spell or ability rather than what it
         // points at.
-        TriggerEventDef::StackObject(_) => Some(ZoneKind::Stack),
+        TriggerEventDef::StackObject(_) | TriggerEventDef::AbilityTriggeredBy(_) => Some(ZoneKind::Stack),
         // The cycled card is in the graveyard by the time the trigger goes
         // on the stack, but nothing reads it as an object, so it names no
         // zone at all.

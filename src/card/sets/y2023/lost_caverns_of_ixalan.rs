@@ -6619,7 +6619,7 @@ pub(in crate::card::sets) static THE_MILLENNIUM_CALENDAR: CardRecord = CardRecor
 );
 
 // LCI 258 — Roaming Throne
-// Audit: unsupported — Needs duplication of all matching creatures' triggered abilities, not only enters-the-battlefield triggers; the existing additional-trigger rule is limited to entry events.
+// Audit: unsupported — Needs duplication of all matching creatures' triggered abilities, not only enters-the-battlefield triggers; the existing trigger modifiers are limited to zone-change causes.
 pub(in crate::card::sets) static ROAMING_THRONE: CardRecord = CardRecord::new(
     "Roaming Throne",
     "32fd8b7c-baf3-4d3d-be6f-044a917b11a0",

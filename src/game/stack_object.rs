@@ -362,3 +362,39 @@ impl StackObject {
             .map_or(0, CastContext::colors_spent_count)
     }
 }
+
+impl Game {
+    fn unbacked_ability_object(
+        &mut self,
+        presentation: ObjectCharacteristics,
+        owner: PlayerId,
+    ) -> ObjectInstance {
+        let id = self.allocate_object_id();
+        Self::unbacked_ability_object_with_id(presentation, owner, id)
+    }
+
+    fn unbacked_ability_object_with_id(
+        presentation: ObjectCharacteristics,
+        owner: PlayerId,
+        id: GameObjectId,
+    ) -> ObjectInstance {
+        let characteristics = match presentation {
+            ObjectCharacteristics::Card { definition, .. } => {
+                CharacteristicSource::Ability(definition)
+            }
+            ObjectCharacteristics::Token { token, .. } => CharacteristicSource::Token(token),
+            ObjectCharacteristics::Emblem { emblem } => CharacteristicSource::Emblem(emblem),
+            ObjectCharacteristics::FaceDown { face_down } => {
+                CharacteristicSource::FaceDown(face_down)
+            }
+        };
+        ObjectInstance {
+            id,
+            definition: ObjectKind::Ability,
+            owner,
+            backing: ObjectBacking::None,
+            characteristics,
+            counters: crate::game::counters::Counters::new(),
+        }
+    }
+}

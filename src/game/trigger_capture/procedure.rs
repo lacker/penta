@@ -178,6 +178,8 @@ impl Game {
         let id = self.next_trigger_id;
         self.next_trigger_id = self.next_trigger_id.saturating_add(1);
         self.pending_triggers.push(PendingTrigger {
+            stack_object: None,
+            observes_trigger: false,
             id,
             source: capture.source,
             presentation: capture.presentation,

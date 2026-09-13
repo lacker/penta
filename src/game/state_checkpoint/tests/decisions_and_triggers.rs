@@ -398,11 +398,7 @@ fn an_arranged_group_round_trips_and_resumes() {
         crate::game::tests::card(81_102, crate::card::cards::LIGHTNING_BOLT, PlayerId::One),
         crate::game::tests::card(81_101, crate::card::cards::SAVANNAH_LIONS, PlayerId::One),
     ];
-    let augur = crate::game::tests::card(
-        81_100,
-        crate::card::cards::AUGUR_OF_BOLAS,
-        PlayerId::One,
-    );
+    let augur = crate::game::tests::card(81_100, crate::card::cards::AUGUR_OF_BOLAS, PlayerId::One);
     game.players[0].hand.push(augur.clone());
     game.players[0].mana_pool.blue = 1;
     game.players[0].mana_pool.colorless = 1;
@@ -441,15 +437,21 @@ fn an_arranged_group_round_trips_and_resumes() {
         order.order_semantics,
         Some(DecisionOrderSemantics::Resolution)
     );
-    let answer = order.options.iter().map(|option| option.id).collect::<Vec<_>>();
+    let answer = order
+        .options
+        .iter()
+        .map(|option| option.id)
+        .collect::<Vec<_>>();
     rebuilt.choose_decision(PlayerId::One, order.id, &answer);
 
     assert!(rebuilt.pending_decisions.is_empty());
     assert_eq!(rebuilt.players[0].library.len(), 3);
-    assert!(rebuilt.players[0]
-        .hand
-        .iter()
-        .any(|card| card.definition == crate::card::cards::LIGHTNING_BOLT));
+    assert!(
+        rebuilt.players[0]
+            .hand
+            .iter()
+            .any(|card| card.definition == crate::card::cards::LIGHTNING_BOLT)
+    );
 }
 
 /// Each decision in a multi-stage distribution carries the remaining effect
@@ -576,4 +578,55 @@ fn a_choose_one_of_each_group_round_trips_and_resumes() {
         2,
         "and the two cards nobody took went back",
     );
+}
+
+#[test]
+fn trigger_modifiers_checkpoint_preserves_observer_order_links_and_payments() {
+    use crate::card::cards;
+    use crate::game::tests::{drain_pending, ready_game};
+    let mut game = ready_game();
+    game.put_onto_battlefield(PlayerId::One, cards::STRICT_PROCTOR)
+        .unwrap();
+    game.put_onto_battlefield(PlayerId::Two, cards::ELESH_NORN_MOTHER_OF_MACHINES_416)
+        .unwrap();
+    game.put_onto_battlefield(PlayerId::Two, cards::BALEFUL_STRIX)
+        .unwrap();
+    game.add_unrestricted_mana(PlayerId::Two, crate::ManaColor::Colorless, 2);
+    let (_, mut game) = rebuild_current_checkpoint(&game, PlayerId::One, 501);
+    game.begin_trigger_placement();
+    assert!(!game.pending_decisions.is_empty());
+    let (_, mut game) = rebuild_current_checkpoint(&game, PlayerId::Two, 502);
+    for _ in 0..20 {
+        if let Some(pending) = game.pending_decisions.first() {
+            if matches!(pending.continuation, DecisionContinuation::PayOr { .. }) {
+                break;
+            }
+            let decision = pending.observation.clone();
+            game.choose_decision(
+                decision.player,
+                decision.id,
+                &decision.options.iter().map(|o| o.id).collect::<Vec<_>>(),
+            );
+        } else {
+            let player = game.priority;
+            game.apply(player, crate::Action::PassPriority).unwrap();
+        }
+    }
+    assert!(matches!(
+        game.pending_decisions[0].continuation,
+        DecisionContinuation::PayOr { .. }
+    ));
+    let (_, mut game) = rebuild_current_checkpoint(&game, PlayerId::Two, 503);
+    let hand = game.players[1].hand.len();
+    let decision = game.pending_decisions[0].observation.clone();
+    let pay = decision
+        .options
+        .iter()
+        .find(|o| o.label.starts_with("Pay "))
+        .unwrap()
+        .id;
+    game.choose_decision(decision.player, decision.id, &[pay]);
+    drain_pending(&mut game);
+    assert_eq!(game.players[1].hand.len(), hand + 1);
+    assert!(game.stack.is_empty());
 }

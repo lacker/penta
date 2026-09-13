@@ -793,13 +793,51 @@ pub(in crate::card::sets) static THE_MYCOSYNTH_GARDENS_402: CardRecord = CardRec
 );
 
 // ONE 416 — Elesh Norn, Mother of Machines
-// Audit: unsupported — Needs a trigger replacement that suppresses opponents' permanent triggers
-// caused by entrants, alongside the existing controller-side additional-trigger rule.
 pub(in crate::card::sets) static ELESH_NORN_MOTHER_OF_MACHINES_416: CardRecord = CardRecord::new(
     "Elesh Norn, Mother of Machines",
     "649be99a-fa52-469e-85df-11ecc576ea39",
     "Richard Whitters",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{W}"), &["Phyrexian", "Praetor"], 4, 7)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::vigilance(),
+            AbilityDef::static_ability(
+                "If a permanent entering causes a triggered ability of a permanent you \
+                 control to trigger, that ability triggers an additional time.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Controller,
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::ModifyTriggers(
+                        &crate::card::TriggerModificationDef {
+                            cause: TriggerEventDef::zone_changed(
+                                ObjectPredicateDef::Any,
+                                None,
+                                Some(ZoneKind::Battlefield),
+                            ),
+                            permanent: Some(ObjectPredicateDef::Any),
+                            kind: crate::card::TriggerModificationKindDef::Additional,
+                        },
+                    )),
+                },
+            ),
+            AbilityDef::static_ability(
+                "Permanents entering don't cause abilities of permanents your opponents \
+                 control to trigger.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Opponent,
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::ModifyTriggers(
+                        &crate::card::TriggerModificationDef {
+                            cause: TriggerEventDef::zone_changed(
+                                ObjectPredicateDef::Any,
+                                None,
+                                Some(ZoneKind::Battlefield),
+                            ),
+                            permanent: Some(ObjectPredicateDef::Any),
+                            kind: crate::card::TriggerModificationKindDef::Suppress,
+                        },
+                    )),
+                },
+            ),
+        ]),
 );
 
 // ONE 427 — Skrelv, Defector Mite

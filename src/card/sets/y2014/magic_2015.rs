@@ -8,6 +8,7 @@ use crate::card::AbilityTargetDef;
 use crate::card::AbilityTargetPredicate;
 use crate::card::AddManaEffectDef;
 use crate::card::AppliedEffectDef;
+use crate::card::AppliedRuleDef;
 use crate::card::CardArt;
 use crate::card::CardRules;
 use crate::card::CardType;
@@ -22,6 +23,7 @@ use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
 use crate::card::ObjectSetDef;
 use crate::card::PlayerRelation;
+use crate::card::PlayerSetDef;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::SubtypeDef;
 use crate::card::TokenCharacteristics;
@@ -80,12 +82,31 @@ pub(in crate::card::sets) static HELIOD_S_PILGRIM: CardRecord = CardRecord::new(
 );
 
 // M15 15 — Hushwing Gryff
-// Audit: unsupported — The trigger pipeline has no continuous rule suppressing triggered abilities caused by creatures entering the battlefield.
 pub(in crate::card::sets) static HUSHWING_GRYFF_15: CardRecord = CardRecord::new(
     "Hushwing Gryff",
     "7b44eb0d-5a3a-4624-aee4-11d6978fb4b0",
     "John Severin Brassell",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Hippogriff"], 2, 1).with_abilities(&[
+        abilities::flash(),
+        abilities::flying(),
+        AbilityDef::static_ability(
+            "Creatures entering don't cause abilities to trigger.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::players(PlayerSetDef::All),
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::ModifyTriggers(
+                    &crate::card::TriggerModificationDef {
+                        cause: TriggerEventDef::zone_changed(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            None,
+                            Some(ZoneKind::Battlefield),
+                        ),
+                        permanent: None,
+                        kind: crate::card::TriggerModificationKindDef::Suppress,
+                    },
+                )),
+            },
+        ),
+    ]),
 );
 
 // M15 40 — Triplicate Spirits

@@ -932,7 +932,7 @@ pub(in crate::card::sets) static GALVANIC_RELAY_127: CardRecord = CardRecord::ne
 );
 
 // MH2 132 — Harmonic Prodigy
-// Audit: unsupported — AdditionalTriggerDef only doubles entry-caused triggers. It cannot double arbitrary triggered abilities of Shamans and other Wizards, including prowess itself.
+// Audit: unsupported — TriggerModificationDef supports zone-change causes. It cannot double arbitrary triggered abilities of Shamans and other Wizards, including prowess itself.
 pub(in crate::card::sets) static HARMONIC_PRODIGY_132: CardRecord = CardRecord::new(
     "Harmonic Prodigy",
     "22579ac0-ad3f-4000-a65a-46a17a7f1aa5",

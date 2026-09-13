@@ -1229,6 +1229,16 @@ colorless hybrid (`C/W`). Treat the string as an open display value. Cast
 actions can also include the optional `choices.manaPayment` array described
 above. Replay version 2 is unchanged.
 
+### Trigger observers in checkpoint format 18
+
+Pending triggers may carry an optional `objectId` reserved for their eventual
+stack object and an `observesTrigger` flag (default `false`). These preserve the
+identity referenced by a trigger such as Strict Proctor's and its second APNAP
+placement pass across trigger-order, mode, target, and payment decisions. An
+ordinary trigger need not reserve an object ID. These fields are additive;
+reconstruction still requires the exact simulation fingerprint. Public actions,
+protocol, replay, and checkpoint format versions are unchanged.
+
 ### Migrating checkpoint format 17 to 18
 
 The ordinary bot protocol and replay format remain in place. Checkpoint format

@@ -460,6 +460,7 @@ mod tribal_damage_taxes;
 mod tribal_lords;
 mod tribal_tap_costs;
 mod trigger_event_matchers;
+mod trigger_modifiers;
 mod triggers_and_stack;
 mod triumphs;
 mod turn_and_loyalty;

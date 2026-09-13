@@ -6,6 +6,9 @@ pub(super) struct AbilitySourceRef {
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub(super) struct PendingTrigger {
+    /// Reserved only when another trigger already refers to this ability.
+    pub(super) stack_object: Option<GameObjectId>,
+    pub(super) observes_trigger: bool,
     pub(super) id: u32,
     pub(super) source: AbilitySourceRef,
     pub(super) presentation: ObjectCharacteristics,
@@ -83,6 +86,8 @@ pub(super) struct InstalledTrigger {
 /// incrementally-mutated battlefield.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub(super) struct BattlefieldTriggerListener {
+    /// Applicable rules frozen before a look-back event removes their sources.
+    pub(super) modifications: Vec<(GameObjectId, crate::card::TriggerModificationDef)>,
     pub(super) event: TriggerEventDef,
     pub(super) uses_stack: bool,
     /// "This ability triggers only once each turn", carried from the

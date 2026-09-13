@@ -13,7 +13,6 @@ use crate::card::AbilityTargetPredicate;
 use crate::card::ActivationTimingDef;
 use crate::card::AddManaEffectDef;
 use crate::card::AdditionalCostValueDef;
-use crate::card::AdditionalTriggerDef;
 use crate::card::AlternateSpellKind;
 use crate::card::AppliedEffectDef;
 use crate::card::AppliedRuleDef;
@@ -105,6 +104,7 @@ use crate::card::ValueDef;
 use crate::card::ZoneKind;
 use crate::card::ZonePlacement;
 use crate::card::abilities;
+use crate::card::{TriggerModificationDef, TriggerModificationKindDef};
 use crate::ids::TargetIndex;
 use crate::mana_cost;
 
@@ -2770,21 +2770,26 @@ permanent you control to trigger, that ability triggers an \
 additional time.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::Controller,
-                    effect: AppliedEffectDef::Rule(AppliedRuleDef::TriggersAnAdditionalTime(
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::ModifyTriggers(
                         &const {
-                            AdditionalTriggerDef {
-                                entering: ObjectPredicateDef::AnyOf(
-                                    &const {
-                                        [
-                                            ObjectPredicateDef::HasType(CardType::Creature),
-                                            ObjectPredicateDef::HasType(CardType::Artifact),
-                                            ObjectPredicateDef::HasType(CardType::Enchantment),
-                                            ObjectPredicateDef::HasType(CardType::Land),
-                                            ObjectPredicateDef::HasType(CardType::Planeswalker),
-                                        ]
-                                    },
+                            TriggerModificationDef {
+                                kind: TriggerModificationKindDef::Additional,
+                                cause: TriggerEventDef::zone_changed(
+                                    ObjectPredicateDef::AnyOf(
+                                        &const {
+                                            [
+                                                ObjectPredicateDef::HasType(CardType::Creature),
+                                                ObjectPredicateDef::HasType(CardType::Artifact),
+                                                ObjectPredicateDef::HasType(CardType::Enchantment),
+                                                ObjectPredicateDef::HasType(CardType::Land),
+                                                ObjectPredicateDef::HasType(CardType::Planeswalker),
+                                            ]
+                                        },
+                                    ),
+                                    None,
+                                    Some(ZoneKind::Battlefield),
                                 ),
-                                permanent: ObjectPredicateDef::All(
+                                permanent: Some(ObjectPredicateDef::All(
                                     &const {
                                         [
                                             ObjectPredicateDef::AnyOf(
@@ -2809,7 +2814,7 @@ additional time.",
                                             ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                                         ]
                                     },
-                                ),
+                                )),
                             }
                         },
                     )),

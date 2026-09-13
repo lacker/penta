@@ -37,6 +37,20 @@ the bot-wire epoch.
   tag and existing catalog ability locators; protocol and checkpoint epochs
   are unchanged.
 
+- Declarative trigger modifiers now suppress or add occurrences caused by
+  battlefield entries, deaths, and other departures. Ancient Greenwarden,
+  Doorkeeper Thrull, Elesh Norn, Mother of Machines, Gandalf the White,
+  Hushbringer, Hushwing Gryff, Strict Proctor, and Torpor Orb are implemented;
+  Traveling Chocobo uses the same model. Suppression takes precedence,
+  additional occurrences add together, and simultaneous events preserve the
+  appropriate pre-move or post-move characteristics and modifier sources.
+  Failed intervening-if conditions no longer spend per-turn trigger allowances.
+  Entry replacements remain unaffected. Strict Proctor observes each original
+  occurrence and uses ordinary counter/payment effects, with a second APNAP
+  placement pass. Additive pending-trigger checkpoint fields `objectId` and
+  `observesTrigger` preserve these links and ordering through decisions; the
+  protocol, replay, and checkpoint versions are unchanged.
+
 - Protocol 32 replaces numeric card-definition references with canonical
   printing UUID strings in catalogs, observations, decks, ability origins,
   match registrations, and Python/JSON hidden-world inputs. Checkpoint format

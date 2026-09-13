@@ -43,6 +43,8 @@ pub(in crate::game::state_checkpoint) fn pending_trigger_snapshot(
         ability_target_defs(ability) == trigger.target_defs
     })?;
     Some(PendingTriggerSnapshot {
+        stack_object: trigger.stack_object.map(|object| object.0),
+        observes_trigger: trigger.observes_trigger,
         id: trigger.id,
         source: AbilitySourceSnapshot {
             object: trigger.source.object.0,
@@ -107,6 +109,8 @@ pub(in crate::game::state_checkpoint) fn parse_pending_trigger(
     let presentation = object_characteristics_from_snapshot(&game.catalog, &snapshot.presentation)
         .ok_or("pending trigger presentation locator is absent from this catalog")?;
     Ok(PendingTrigger {
+        stack_object: snapshot.stack_object.map(GameObjectId),
+        observes_trigger: snapshot.observes_trigger,
         id: snapshot.id,
         source,
         presentation,

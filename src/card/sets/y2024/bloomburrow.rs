@@ -27,6 +27,7 @@ use crate::card::ChoiceVisibilityDef;
 use crate::card::ChooseDef;
 use crate::card::ChooseOneOfEachDef;
 use crate::card::ComparisonDef;
+use crate::card::ConditionDef;
 use crate::card::ControlDurationDef;
 use crate::card::CopyExceptionsDef;
 use crate::card::CopyStackObjectDef;
@@ -1258,12 +1259,53 @@ pub(in crate::card::sets) static DOUR_PORT_MAGE: CardRecord = CardRecord::new(
 );
 
 // BLB 48 — Eddymurk Crab
-// Audit: unsupported — Needs a prospective-entry replacement condition for whether it is its controller's turn; the battlefield-entry condition vocabulary does not expose the active player.
 pub(in crate::card::sets) static EDDYMURK_CRAB: CardRecord = CardRecord::new(
     "Eddymurk Crab",
     "e6d45abe-4962-47d9-a54e-7e623ea8647c",
     "PINDURSKI",
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{5}{U}{U}"), &["Elemental", "Crab"], 5, 5)
+        .with_abilities(&[
+            abilities::flash(),
+            AbilityDef::static_ability(
+                "This spell costs {1} less to cast for each instant and sorcery card in your graveyard.",
+                EffectDef::ReduceGenericCostBy(ValueDef::CountMatchingObjects(
+                    &ObjectQueryDef::matching(
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Instant),
+                            ObjectPredicateDef::HasType(CardType::Sorcery),
+                        ]),
+                        &[ZoneKind::Graveyard],
+                        PlayerRelation::You,
+                    ),
+                )),
+            )
+            .with_source_zones(&[ZoneKind::Hand]),
+            AbilityDef::as_enters(
+                "This creature enters tapped if it's not your turn.",
+                ReplacementEffectDef::Conditional {
+                    condition: ConditionDef::ActivePlayer(PlayerRelation::You),
+                    if_true: &[],
+                    if_false: &[ReplacementEffectDef::ModifyBattlefieldEntry(
+                        BattlefieldEntryModificationDef::Tapped,
+                    )],
+                },
+            ),
+            abilities::enters_trigger_with_targets(
+                "When this creature enters, tap up to two target creatures.",
+                &[AbilityTargetDef::up_to(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: None,
+                        owner: None,
+                    },
+                    2,
+                )],
+                EffectDef::Tap {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                },
+            ),
+        ]),
 );
 
 // BLB 49 — Eluge, the Shoreless Sea

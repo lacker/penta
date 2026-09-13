@@ -182,6 +182,7 @@ mod divine_reckoning;
 mod dka_declarative_cards;
 mod dka_stale_audits;
 mod each_upkeep;
+mod eddymurk_crab;
 mod elder_spawn;
 mod empty_library_wins;
 mod emrakul;

@@ -3,7 +3,7 @@
 
 use super::{
     AppliedEffectDef, ComparisonDef, EffectRecipientDef, ObjectPredicateDef, ObjectQueryDef,
-    ObjectSetDef, ObjectSetFilterDef, ZoneKind,
+    ObjectSetDef, ObjectSetFilterDef, PlayerRelation, ZoneKind,
 };
 
 /// One place an effect may choose an owned card from.
@@ -38,6 +38,8 @@ pub enum ConditionDef {
     /// the turns you have taken rather than the turn number: on the draw,
     /// your third turn is the game's sixth.
     ControllerTurnsTakenAtMost(u8),
+    /// The active player matches this relation to the condition's controller.
+    ActivePlayer(PlayerRelation),
 }
 
 /// The parts of a counting condition. Split out of [`ConditionDef`] so the

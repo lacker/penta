@@ -486,7 +486,7 @@ fn validate_condition_shape(
     match condition {
         ConditionDef::Exists(query) => validate_query_shape(query, targets),
         ConditionDef::ObjectCount(counting) => validate_query_shape(counting.query, targets),
-        ConditionDef::ControllerTurnsTakenAtMost(_) => Ok(()),
+        ConditionDef::ControllerTurnsTakenAtMost(_) | ConditionDef::ActivePlayer(_) => Ok(()),
         ConditionDef::All(conditions) => conditions
             .iter()
             .try_for_each(|condition| validate_condition_shape(*condition, targets)),

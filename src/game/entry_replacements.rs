@@ -418,6 +418,12 @@ impl Game {
     ) -> bool {
         let ReplaceableEvent::BattlefieldEntry(entry) = &pending.event;
         match condition {
+            ConditionDef::ActivePlayer(relation) => self.player_relation_matches(
+                self.active_player,
+                relation,
+                context.controller,
+                Self::pending_event_context(pending),
+            ),
             ConditionDef::All(conditions) => conditions
                 .iter()
                 .all(|condition| self.condition_holds(pending, context, *condition)),

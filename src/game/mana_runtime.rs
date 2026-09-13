@@ -123,6 +123,12 @@ impl Game {
         source: GameObjectId,
     ) -> bool {
         match condition {
+            ConditionDef::ActivePlayer(relation) => self.player_relation_matches(
+                self.active_player,
+                relation,
+                controller,
+                TriggerContext::empty(),
+            ),
             ConditionDef::Exists(query) => self.any_object_matches_query_with_prospective(
                 query,
                 controller,

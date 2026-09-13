@@ -248,6 +248,7 @@ mod holy_nimbus;
 mod hopping_automaton;
 mod howling_mine;
 mod identity_and_mana;
+mod ill_timed_explosion;
 mod instill_energy;
 mod into_the_wilds;
 mod isd_bloodline_keeper;

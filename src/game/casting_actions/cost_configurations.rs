@@ -869,14 +869,18 @@ impl Game {
         let battlefield_alternative = configuration.alternative().and_then(|selected| {
             self.battlefield_spell_alternative_cost_for_id(player, card, option, selected)
         });
+        let cost_replaced = self.card_mana_cost_is_replaced(card, player);
         let mut cost = battlefield_alternative
             .and_then(|costs| crate::card::costs::mana_cost(costs, option.mana_cost))
             .or_else(|| granted_alternative.map(|(_, _, mana_cost)| mana_cost))
-            .or_else(|| configured_base_mana_cost(option, configuration))?;
+            .or_else(|| configured_base_mana_cost(option, configuration))
+            .or_else(|| cost_replaced.then(ManaCost::default))?;
         // "Without paying its mana cost" and "rather than paying its mana
         // cost" replace the base or alternative cost, not optional
         // additional costs (CR 118.9d).
-        if self.card_mana_cost_is_replaced(card) || self.library_top_cost_is_life(card, option) {
+        if cost_replaced {
+            cost = ManaCost::default();
+        } else if self.library_top_cost_is_life(card, option) {
             cost = ManaCost {
                 variable_x: cost.variable_x,
                 x_multiplier: cost.x_multiplier,
@@ -942,14 +946,14 @@ impl Game {
     /// Whether whoever is playing this card pays something other than its
     /// mana cost -- nothing at all, or energy. Read off the exile
     /// permissions, which is the only source today.
-    fn card_mana_cost_is_replaced(&self, card: GameObjectId) -> bool {
-        self.exile_play_permissions.iter().any(|permission| {
-            permission.card == card
-                && matches!(
+    fn card_mana_cost_is_replaced(&self, card: GameObjectId, player: PlayerId) -> bool {
+        self.exile_play_permission(card, player)
+            .is_some_and(|permission| {
+                matches!(
                     permission.cost,
                     ExilePlayCost::Free | ExilePlayCost::EnergyEqualToManaValue
                 )
-        })
+            })
     }
 }
 

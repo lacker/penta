@@ -74,6 +74,9 @@ pub(in crate::game::state_checkpoint) struct GameSnapshot {
     /// creature half may be played.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub(in crate::game::state_checkpoint) exile_play_permissions: Vec<ExilePlayPermissionSnapshot>,
+    /// Current exile object, active player when plotted, and that player's turn count.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub(in crate::game::state_checkpoint) plotted_cards: Vec<(u32, usize, u32)>,
     /// Additive: a checkpoint written before the monarch existed restores
     /// with nobody wearing the crown, which is how every game starts.
     #[serde(default, skip_serializing_if = "Option::is_none")]

@@ -76,8 +76,10 @@ impl Game {
     }
 
     fn exile_permission_reaches_lands(&self, card: GameObjectId, player: PlayerId) -> bool {
-        self.exile_play_permission(card, player)
-            .is_some_and(|permission| permission.lands_may_be_played)
+        self.matching_exile_play_permission(card, player, |permission| {
+            permission.lands_may_be_played
+        })
+        .is_some()
     }
 
     /// Whether this player has a land drop left to spend.

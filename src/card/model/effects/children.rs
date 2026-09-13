@@ -184,6 +184,7 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         | EffectDef::LandwalkCanBeBlocked(_)
         | EffectDef::LookAtHand { .. }
         | EffectDef::ExileOneFromEachZone { .. }
+        | EffectDef::BecomePlotted { .. }
         | EffectDef::PermitCastFromGraveyardThisTurn { .. }
         | EffectDef::LookAtRandomCardInHand { .. }
         | EffectDef::ChooseCardName { .. }

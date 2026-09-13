@@ -190,6 +190,7 @@ impl Game {
                 if !self.card_object_matches(modification.spell, card, zone, permanent.card.id)
                     || !spell_cost_condition_matches(
                         modification.condition,
+                        zone, card.owner, player,
                         Target::Permanent(permanent.card.id),
                         targets,
                     )
@@ -286,6 +287,7 @@ impl Game {
                 if !self.card_object_matches(modification.spell, card, zone, permanent.card.id)
                     || !spell_cost_condition_matches(
                         modification.condition,
+                        zone, card.owner, player,
                         Target::Permanent(permanent.card.id),
                         targets,
                     )
@@ -366,6 +368,7 @@ impl Game {
                     ) && self.card_object_matches(modification.spell, card, zone, stack.id)
                         && spell_cost_condition_matches(
                             modification.condition,
+                            zone, card.owner, player,
                             Target::Spell(stack.id),
                             targets,
                         )
@@ -858,11 +861,36 @@ impl Game {
 
 fn spell_cost_condition_matches(
     condition: SpellCostConditionDef,
+    origin: ZoneKind,
+    owner: PlayerId,
+    caster: PlayerId,
     modifier_source: Target,
     targets: &[TargetSelection],
 ) -> bool {
     match condition {
         SpellCostConditionDef::Always => true,
+        SpellCostConditionDef::CastFrom {
+            zones,
+            owner: relation,
+        } => {
+            zones.contains(&origin)
+                && match relation {
+                    PlayerRelation::Any => true,
+                    PlayerRelation::You => owner == caster,
+                    PlayerRelation::Opponent => owner != caster,
+                    _ => false,
+                }
+        }
+        SpellCostConditionDef::AnyOf(conditions) => conditions.iter().any(|condition| {
+            spell_cost_condition_matches(
+                *condition,
+                origin,
+                owner,
+                caster,
+                modifier_source,
+                targets,
+            )
+        }),
         SpellCostConditionDef::TargetsSource => targets
             .iter()
             .flat_map(TargetSelection::targets)

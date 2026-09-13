@@ -616,6 +616,13 @@ impl Game {
             | EffectDef::ReturnLinkedExiles { .. } => {
                 self.resolve_linked_exile_effect(scoped, object, &context);
             }
+            EffectDef::BecomePlotted { object: recipient } => {
+                for target in self.effect_recipients(recipient, object, &context, scoped) {
+                    if let Target::Card(card) = target {
+                        self.make_plotted(card);
+                    }
+                }
+            }
             EffectDef::PermitCastFromGraveyardThisTurn { object: recipient } => {
                 let controller = object.controller;
                 for target in self.effect_recipients(recipient, object, &context, scoped) {

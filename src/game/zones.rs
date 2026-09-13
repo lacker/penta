@@ -34,8 +34,10 @@ impl Game {
         placement: ZonePlacement,
     ) -> Option<GameObjectId> {
         if let Target::Spell(id) = target {
-            if zone == ZoneKind::Hand {
-                self.return_spell_to_hand(id);
+            match zone {
+                ZoneKind::Hand => self.return_spell_to_hand(id),
+                ZoneKind::Exile => self.exile_spell(id),
+                _ => {}
             }
             return None;
         }

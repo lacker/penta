@@ -268,10 +268,13 @@ fn static_spell_cost_modification_supported(
                         && amount.x_multiplier == 0
                 }
             };
-            source_supported
+            static_spell_cost_condition(modification.condition) && source_supported
                 && static_object_predicate_supported(modification.spell)
                 && static_player_relation_supported(modification.caster)
                 && amount_supported
+        }
+        CostModificationDef::SpecialActionReduction { player, zones, .. } => {
+            source_zones == [ZoneKind::Battlefield] && !zones.is_empty() && static_player_relation_supported(player)
         }
         CostModificationDef::SpellAlternative {
             spell,
@@ -292,5 +295,24 @@ fn static_spell_cost_modification_supported(
         CostModificationDef::AbilityIncrease { .. }
         | CostModificationDef::SourceAbilityIncrease { .. }
         | CostModificationDef::AbilityReduction { .. } => false,
+    }
+}
+
+fn static_spell_cost_condition(condition: SpellCostConditionDef) -> bool {
+    match condition {
+        SpellCostConditionDef::Always | SpellCostConditionDef::TargetsSource => true,
+        SpellCostConditionDef::CastFrom { zones, owner } => {
+            !zones.is_empty()
+                && matches!(
+                    owner,
+                    PlayerRelation::Any | PlayerRelation::You | PlayerRelation::Opponent
+                )
+        }
+        SpellCostConditionDef::AnyOf(conditions) => {
+            !conditions.is_empty()
+                && conditions
+                    .iter()
+                    .all(|condition| static_spell_cost_condition(*condition))
+        }
     }
 }

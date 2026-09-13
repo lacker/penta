@@ -187,6 +187,13 @@ pub enum SpellCostConditionDef {
     Always,
     /// The spell being priced has chosen the ability's source as a target.
     TargetsSource,
+    /// The zone the prospective spell is being cast from, not its characteristics.
+    CastFrom {
+        zones: &'static [ZoneKind],
+        /// Zone ownership relative to the caster; exile may contain other players' cards.
+        owner: PlayerRelation,
+    },
+    AnyOf(&'static [Self]),
 }
 
 /// A filtered adjustment to a spell's total cost.
@@ -198,9 +205,22 @@ pub struct SpellCostModificationDef {
     pub adjustment: CostAdjustmentDef,
 }
 
+/// A special action whose payment can be modified independently of spell costs.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum SpecialActionKindDef {
+    Plot,
+}
+
 /// One static modification to what something costs.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum CostModificationDef {
+    /// Reduces generic mana in the total payment for a matching special action.
+    SpecialActionReduction {
+        action: SpecialActionKindDef,
+        player: PlayerRelation,
+        zones: &'static [ZoneKind],
+        amount: u16,
+    },
     /// A permanent making the activated abilities of matching permanents
     /// cost more. Like the spell increase beside it the amount is a whole
     /// mana cost, and like it the effect is read off the battlefield rather

@@ -689,6 +689,9 @@ pub struct Game {
     /// an entry is dropped when the card is played and cannot otherwise be
     /// mistaken for a later object.
     exile_play_permissions: Vec<ExilePlayPermission>,
+    /// Plotted designations keyed by the current exile object, with the turn
+    /// they became plotted. Casting permissions are derived from this state.
+    plotted_cards: BTreeMap<GameObjectId, (PlayerId, u32)>,
     /// Whether "damage can't be prevented this turn" is in force. Stomp
     /// prints it, and it is a rule about the whole turn rather than about
     /// any one damage event, so it is read where damage is dealt rather

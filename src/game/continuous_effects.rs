@@ -684,6 +684,7 @@ impl Game {
                 | EffectDef::ExileGrantingOwnerPlay { .. }
                 | EffectDef::ExileTopAndMayCast { .. }
                 | EffectDef::MayCastTargetWithoutPaying { .. }
+                | EffectDef::BecomePlotted { .. }
                 | EffectDef::PermitCastFromGraveyardThisTurn { .. }
                 | EffectDef::Special(_)
         )

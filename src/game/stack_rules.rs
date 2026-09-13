@@ -207,6 +207,7 @@ impl Game {
             | EffectDef::SearchZone { then: None, .. }
             | EffectDef::LookAtHand { .. }
             | EffectDef::ExileOneFromEachZone(_)
+            | EffectDef::BecomePlotted { .. }
             | EffectDef::PermitCastFromGraveyardThisTurn { .. }
             | EffectDef::MillWhileMatching(_)
             | EffectDef::LookAtRandomCardInHand { .. }
@@ -397,6 +398,16 @@ impl Game {
         self.remove_spell_from_stack(index, CounteredSpellZone::Library(placement));
     }
 
+    pub(super) fn exile_spell(&mut self, id: GameObjectId) {
+        if let Some(index) = self
+            .stack
+            .iter()
+            .position(|object| object.id == id && object.kind == StackObjectKind::Spell)
+        {
+            self.remove_spell_from_stack(index, CounteredSpellZone::Exile);
+        }
+    }
+
     pub(super) fn return_spell_to_hand(&mut self, id: GameObjectId) {
         let Some(index) = self.stack.iter().position(|object| object.id == id) else {
             return;
@@ -461,7 +472,8 @@ impl Game {
                 }
                 CounteredSpellZone::Exile => {
                     let (card, _zone_change) = self.zone_change_card(card);
-                    self.players[owner.index()].exile.push(card);
+                    self.players[owner.index()].exile.push(card.clone());
+                    self.capture_cards_exiled(std::slice::from_ref(&card), ZoneKind::Stack);
                 }
                 CounteredSpellZone::Hand => {
                     let (card, _zone_change) = self.zone_change_card(card);

@@ -601,6 +601,8 @@ pub enum EffectDef {
     /// timing rules still apply: the graveyard is merely a legal place to
     /// cast the named card from, until the turn ends.
     PermitCastFromGraveyardThisTurn { object: EffectRecipientDef },
+    /// Marks current exile objects as plotted, regardless of their abilities.
+    BecomePlotted { object: EffectRecipientDef },
     /// "Look at a card at random in target player's hand." Private to the
     /// looker rather than published, and one card rather than the hand.
     LookAtRandomCardInHand {

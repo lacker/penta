@@ -263,6 +263,13 @@ impl Game {
             // Never live across a checkpoint: it is read and consumed
             // inside one activation, which cannot be interrupted.
             ninjutsu_returned_defender: None,
+            plotted_cards: checkpoint
+                .plotted_cards
+                .iter()
+                .map(|(id, player, turn)| {
+                    Ok((GameObjectId(*id), (player_from_index(*player)?, *turn)))
+                })
+                .collect::<Result<_, String>>()?,
             exile_play_permissions: checkpoint
                 .exile_play_permissions
                 .iter()
@@ -442,6 +449,16 @@ impl Game {
                 "checkpoint next installed trigger id does not follow its installed triggers"
                     .into(),
             );
+        }
+        if game.plotted_cards.len() != checkpoint.plotted_cards.len()
+            || game.plotted_cards.iter().any(|(id, (player, turn))| {
+                !game.players.iter().any(|state| {
+                    state.exile.iter().any(|card| card.id == *id)
+                })
+                    || *turn > game.turns_started[player.index()]
+            })
+        {
+            return Err("invalid plotted exile object or turn".into());
         }
         game.restore_physical_cards();
         game.restore_commanders(&checkpoint.commanders, &checkpoint.commander_considered)?;

@@ -95,6 +95,7 @@ const fn effect_operation_name(effect: EffectDef) -> &'static str {
         EffectDef::LookAtHand { .. } => "LookAtHand",
         EffectDef::ExileOneFromEachZone(_) => "ExileOneFromEachZone",
         EffectDef::MillWhileMatching(_) => "MillWhileMatching",
+        EffectDef::BecomePlotted { .. } => "BecomePlotted",
         EffectDef::PermitCastFromGraveyardThisTurn { .. } => "PermitCastFromGraveyardThisTurn",
         EffectDef::LookAtRandomCardInHand { .. } => "LookAtRandomCardInHand",
         EffectDef::RevealHand { .. } => "RevealHand",

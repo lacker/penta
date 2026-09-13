@@ -635,6 +635,7 @@ fn validate_effect_references(
             | GameActionDef::GainControl { object, .. }
             | GameActionDef::MoveToZone { object, .. },
         )
+        | EffectDef::BecomePlotted { object }
         | EffectDef::PermitCastFromGraveyardThisTurn { object }
         | EffectDef::ChangeText { object, .. }
         | EffectDef::ChooseColor { object, .. }

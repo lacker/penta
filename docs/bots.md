@@ -1907,6 +1907,13 @@ random stream when its effect resolves; choosing a mana payment never rolls it.
 
 ## Determinism and versioning
 
+The optional checkpoint `plottedCards` array contains triples of current exile
+object ID, the active player's zero-based seat when it became plotted, and that
+player's turn count. These designations are independent of printed plot
+abilities and stored casting permissions. Reconstruction validates the exile
+objects and restores the same later-turn casting window. Ordinary actions and
+protocol/checkpoint epochs are unchanged.
+
 Battlefield observations expose the optional `classLevel` designation separately
 from counters. Null or absent means the permanent has no designation and is
 treated as level 1. Checkpoint permanent state preserves the additive

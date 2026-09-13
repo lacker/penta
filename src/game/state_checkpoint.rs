@@ -569,6 +569,11 @@ impl Game {
                 .map(|(source, uses)| [source.0, u32::from(*uses)])
                 .collect(),
             damage_cannot_be_prevented_this_turn: self.damage_cannot_be_prevented_this_turn,
+            plotted_cards: self
+                .plotted_cards
+                .iter()
+                .map(|(id, (player, turn))| (id.0, player.index(), *turn))
+                .collect(),
             exile_play_permissions: self
                 .exile_play_permissions
                 .iter()

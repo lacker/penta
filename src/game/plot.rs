@@ -1,15 +1,9 @@
 //! Plot (CR 702.170a).
 //!
-//! Two halves that meet in exile, the same shape foretell has and the mirror
-//! of its economics: the plot cost is paid up front to a special action, and
-//! what it buys is a free cast on a later turn. The card lies face up in
-//! exile, so both players can see what is coming.
-//!
-//! Only the first half lives here. The second is an ordinary free permission
-//! to cast from exile, which is why nothing in the casting path knows the
-//! word "plot" at all. The permission does not carry a sorcery-speed
-//! restriction of its own: every card that prints the keyword so far is a
-//! sorcery, and its type already says so.
+//! The hand action and effects both mark an ordinary exile object as plotted.
+//! That designation, independent of its printed abilities, supplies CR 702.170d's
+//! cast permission. Suspend instead derives its status from exile, time counters,
+//! and the suspend ability; rebound retains an object-linked delayed trigger.
 
 use crate::ids::GameObjectId;
 
@@ -79,7 +73,63 @@ impl Game {
         // hand.
         let (moved, _zone_change) = self.zone_change_card(moved);
         let exiled = moved.id;
-        self.players[owner.index()].exile.push(moved);
-        self.permit_plotted_cast(exiled, player);
+        self.players[owner.index()].exile.push(moved.clone());
+        self.capture_cards_exiled(std::slice::from_ref(&moved), crate::card::ZoneKind::Hand);
+        self.make_plotted(exiled);
+    }
+}
+
+impl Game {
+    /// Becoming plotted is not performing the plot special action (CR 702.170e).
+    pub(super) fn make_plotted(&mut self, card: GameObjectId) {
+        if self
+            .players
+            .iter()
+            .any(|state| state.exile.iter().any(|exiled| exiled.id == card))
+        {
+            self.plotted_cards.insert(
+                card,
+                (
+                    self.active_player,
+                    self.turns_started[self.active_player.index()],
+                ),
+            );
+        }
+    }
+
+    pub(super) fn plotted_cast_permission(
+        &self,
+        card: GameObjectId,
+        player: PlayerId,
+    ) -> Option<super::ExilePlayPermission> {
+        let &(active, turn) = self.plotted_cards.get(&card)?;
+        if !self.sorcery_speed_window(player)
+            || (self.active_player == active && self.turns_started[active.index()] == turn)
+            || !self.players[player.index()]
+                .exile
+                .iter()
+                .any(|exiled| exiled.id == card && exiled.owner == player)
+        {
+            return None;
+        }
+        Some(super::ExilePlayPermission {
+            card,
+            player,
+            cost: super::ExilePlayCost::Free,
+            until_end_of_turn: None,
+            adventure_return_only: false,
+            surcharge: crate::card::ManaCost::default(),
+            not_before_turn: None,
+            face_down: false,
+            lands_may_be_played: false,
+            hidden_from_owner: false,
+            spend_any_color: false,
+            condition: None,
+            hidden_only: false,
+            until_holder_end_step: None,
+            zone: crate::card::ZoneKind::Exile,
+            group: None,
+            grants_haste: false,
+        })
     }
 }

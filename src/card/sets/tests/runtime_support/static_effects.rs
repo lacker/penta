@@ -90,10 +90,16 @@ fn shared_cost_modification(source_zones: &[ZoneKind], modification: CostModific
                         && amount.x_multiplier == 0
                 }
             };
-            source_supported
+            shared_spell_cost_condition(modification.condition)
+                && source_supported
                 && shared_object_predicate(modification.spell)
                 && shared_cost_modifier_caster(modification.caster, allow_nonactive)
                 && amount_supported
+        }
+        CostModificationDef::SpecialActionReduction { player, zones, .. } => {
+            source_zones == [ZoneKind::Battlefield]
+                && !zones.is_empty()
+                && shared_cost_modifier_caster(player, false)
         }
         CostModificationDef::SpellAlternative {
             spell,
@@ -370,6 +376,7 @@ fn shared_static_effect_at(source_zones: &[ZoneKind], effect: EffectDef, root: b
         | EffectDef::MayPlayWithoutPaying { .. }
         | EffectDef::ExileGrantingOwnerPlay { .. }
         | EffectDef::ExileGrantingControllerPlayThisTurn { .. }
+        | EffectDef::BecomePlotted { .. }
         | EffectDef::PermitCastFromGraveyardThisTurn { .. }
         | EffectDef::ReturnLinkedExiles { .. }
         | EffectDef::Detain { .. }
@@ -828,5 +835,24 @@ fn static_stat_value(value: crate::card::ValueDef) -> bool {
             static_stat_value(sum.left) && static_stat_value(sum.right)
         }
         _ => false,
+    }
+}
+
+fn shared_spell_cost_condition(condition: SpellCostConditionDef) -> bool {
+    match condition {
+        SpellCostConditionDef::Always | SpellCostConditionDef::TargetsSource => true,
+        SpellCostConditionDef::CastFrom { zones, owner } => {
+            !zones.is_empty()
+                && matches!(
+                    owner,
+                    PlayerRelation::Any | PlayerRelation::You | PlayerRelation::Opponent
+                )
+        }
+        SpellCostConditionDef::AnyOf(conditions) => {
+            !conditions.is_empty()
+                && conditions
+                    .iter()
+                    .all(|condition| shared_spell_cost_condition(*condition))
+        }
     }
 }

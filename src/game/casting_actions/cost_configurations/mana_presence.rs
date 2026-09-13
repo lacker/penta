@@ -10,7 +10,7 @@ impl Game {
         configuration: &CostConfiguration,
         offer: Option<CastOfferCost>,
     ) -> bool {
-        let base = if self.card_mana_cost_is_replaced(card)
+        let base = if self.card_mana_cost_is_replaced(card, player)
             || self.library_top_cost_is_life(card, option)
         {
             false

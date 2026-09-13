@@ -580,6 +580,7 @@ impl HandcraftedPolicy {
             | EffectDef::Explore { .. }
             | EffectDef::LookAtHand { .. }
             | EffectDef::ExileOneFromEachZone(_)
+            | EffectDef::BecomePlotted { .. }
             | EffectDef::PermitCastFromGraveyardThisTurn { .. }
             | EffectDef::MillWhileMatching(_)
             | EffectDef::LookAtRandomCardInHand { .. }

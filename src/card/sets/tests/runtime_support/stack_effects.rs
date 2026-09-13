@@ -669,6 +669,7 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         | EffectDef::ExileLinkedToSource { object, .. }
         | EffectDef::ExileGrantingOwnerPlay { object, .. }
         | EffectDef::ExileGrantingControllerPlayThisTurn { object }
+        | EffectDef::BecomePlotted { object }
         | EffectDef::PermitCastFromGraveyardThisTurn { object }
         | EffectDef::Detain { object }
         | EffectDef::AddCounters { object, .. }

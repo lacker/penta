@@ -2,7 +2,7 @@ use std::{collections::BTreeMap, ops::ControlFlow};
 
 use crate::ManaPaymentChoice;
 use crate::card::{
-    CostAdjustmentDef, CostAmountDef, CostModificationDef, FlexibleManaSymbol,
+    CostAdjustmentDef, CostAmountDef, CostModificationDef, FlexibleManaSymbol, PlayerRelation,
     SpellCostConditionDef,
 };
 

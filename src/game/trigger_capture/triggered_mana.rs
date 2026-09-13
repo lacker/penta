@@ -127,6 +127,7 @@ impl Game {
             | EffectDef::LookAtHand { .. }
             | EffectDef::LookAtRandomCardInHand { .. }
             | EffectDef::ExileOneFromEachZone(_)
+            | EffectDef::BecomePlotted { .. }
             | EffectDef::PermitCastFromGraveyardThisTurn { .. }
             | EffectDef::MillWhileMatching(_)
             | EffectDef::RevealAtRandomFromHand { .. }

@@ -149,11 +149,20 @@ impl Game {
         card: GameObjectId,
         player: PlayerId,
     ) -> Option<ExilePlayPermission> {
-        self.exile_play_permissions
-            .iter()
-            .copied()
+        self.matching_exile_play_permission(card, player, |_| true)
+    }
+
+    pub(super) fn matching_exile_play_permission(
+        &self,
+        card: GameObjectId,
+        player: PlayerId,
+        accepts: impl Fn(ExilePlayPermission) -> bool,
+    ) -> Option<ExilePlayPermission> {
+        self.plotted_cast_permission(card, player)
+            .into_iter()
+            .chain(self.exile_play_permissions.iter().copied())
             .find(|permission| {
-                permission.card == card
+                accepts(*permission) && permission.card == card
                     && permission.player == player
                     && permission.zone == ZoneKind::Exile
                     // A look is not a permission to play.
@@ -561,33 +570,6 @@ impl Game {
             surcharge: ManaCost::default(),
             not_before_turn: Some((owner, turn)),
             face_down: true,
-            hidden_only: false,
-            spend_any_color: false,
-            condition: None,
-            until_holder_end_step: None,
-            zone: ZoneKind::Exile,
-            group: None,
-            hidden_from_owner: false,
-            lands_may_be_played: true,
-            grants_haste: false,
-        });
-    }
-
-    /// "Exile this card from your hand. Cast it as a sorcery on a later turn
-    /// without paying its mana cost." The plot cost was paid to get it here,
-    /// so what remains is a free cast that has to wait for another turn. The
-    /// card lies face up: everybody can see what is coming.
-    pub(super) fn permit_plotted_cast(&mut self, card: GameObjectId, owner: PlayerId) {
-        let turn = self.turns_started[owner.index()];
-        self.exile_play_permissions.push(ExilePlayPermission {
-            card,
-            player: owner,
-            cost: ExilePlayCost::Free,
-            until_end_of_turn: None,
-            adventure_return_only: false,
-            surcharge: ManaCost::default(),
-            not_before_turn: Some((owner, turn)),
-            face_down: false,
             hidden_only: false,
             spend_any_color: false,
             condition: None,

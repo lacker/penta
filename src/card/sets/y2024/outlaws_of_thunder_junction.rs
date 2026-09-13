@@ -239,14 +239,34 @@ pub(in crate::card::sets) static ARMORED_ARMADILLO: CardRecord = CardRecord::new
 );
 
 // OTJ 4 — Aven Interrupter
-// Audit: unsupported — Needs an effect or external permission that makes other cards plotted,
-// including its later-turn, sorcery-only free cast permission; existing plot only supports the
-// card's own hand special action.
 pub(in crate::card::sets) static AVEN_INTERRUPTER: CardRecord = CardRecord::new(
     "Aven Interrupter",
     "d3ca43a4-d194-440f-8099-f1fa103a108d",
     "Daniel Romanovsky",
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{W}{W}"), &["Bird", "Rogue"], 2, 2)
+        .with_abilities(&[
+            abilities::flash(),
+            abilities::flying(),
+            AbilityDef::triggered_with_targets(
+                "When this creature enters, exile target spell. It becomes plotted. (Its owner may cast it as a sorcery on a later turn without paying its mana cost.)",
+                TriggerEventDef::zone_changed(ObjectPredicateDef::Source, None, Some(ZoneKind::Battlefield)),
+                &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object { object: ObjectPredicateDef::Spell, zones: &[ZoneKind::Stack], controller: None, owner: None })],
+                EffectDef::WithZoneMoveResult {
+                    effect: &EffectDef::move_to_zone(EffectRecipientDef::Target(TargetIndex::PRIMARY), ZoneKind::Exile, ZonePlacement::Top),
+                    binding: crate::Binding!("exiled_spell"),
+                    then: &EffectDef::BecomePlotted { object: EffectRecipientDef::binding_zone_change_successors(crate::Binding!("exiled_spell")) },
+                },
+            ),
+            AbilityDef::static_ability(
+                "Spells your opponents cast from graveyards or from exile cost {2} more to cast.",
+                EffectDef::ModifyCost(CostModificationDef::Spell(SpellCostModificationDef {
+                    spell: ObjectPredicateDef::Any,
+                    caster: PlayerRelation::Opponent,
+                    condition: SpellCostConditionDef::CastFrom { zones: &[ZoneKind::Graveyard, ZoneKind::Exile], owner: PlayerRelation::Any },
+                    adjustment: CostAdjustmentDef::Add(CostAmountDef::Mana(mana_cost!("{2}"))),
+                })),
+            ),
+        ]),
 );
 
 // OTJ 5 — Bounding Felidar
@@ -1579,9 +1599,7 @@ pub(in crate::card::sets) static FAILED_FORDING: CardRecord = CardRecord::new(
 );
 
 // OTJ 48 — Fblthp, Lost on the Range
-// Audit: unsupported — Needs an effect or external permission that makes other cards plotted,
-// including its later-turn, sorcery-only free cast permission; existing plot only supports the
-// card's own hand special action.
+// Audit: unsupported — The card's external-plotting composition and remaining clauses have not been implemented.
 pub(in crate::card::sets) static FBLTHP_LOST_ON_THE_RANGE: CardRecord = CardRecord::new(
     "Fblthp, Lost on the Range",
     "01d3e6ea-4791-4948-af22-c1bd04c34c1e",
@@ -6595,14 +6613,43 @@ pub(in crate::card::sets) static CONGREGATION_GRYFF: CardRecord = CardRecord::ne
 );
 
 // OTJ 201 — Doc Aurlock, Grizzled Genius
-// Audit: unsupported — Needs discounts for plotting special actions and spell-cost filtering by
-// the casting-origin zone; existing cost adjustments price spells and abilities without those
-// filters.
 pub(in crate::card::sets) static DOC_AURLOCK_GRIZZLED_GENIUS: CardRecord = CardRecord::new(
     "Doc Aurlock, Grizzled Genius",
     "6fc27b30-8c8e-434c-a72c-e1d409efc1ae",
     "Jesper Ejsing",
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{G}{U}"), &["Bear", "Druid"], 2, 3)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Spells you cast from your graveyard or from exile cost {2} less to cast.",
+                EffectDef::ModifyCost(CostModificationDef::Spell(SpellCostModificationDef {
+                    spell: ObjectPredicateDef::Any,
+                    caster: PlayerRelation::You,
+                    condition: SpellCostConditionDef::AnyOf(&[
+                        SpellCostConditionDef::CastFrom {
+                            zones: &[ZoneKind::Graveyard],
+                            owner: PlayerRelation::You,
+                        },
+                        SpellCostConditionDef::CastFrom {
+                            zones: &[ZoneKind::Exile],
+                            owner: PlayerRelation::Any,
+                        },
+                    ]),
+                    adjustment: CostAdjustmentDef::Subtract(CostAmountDef::Generic(
+                        ValueDef::Constant(2),
+                    )),
+                })),
+            ),
+            AbilityDef::static_ability(
+                "Plotting cards from your hand costs {2} less.",
+                EffectDef::ModifyCost(CostModificationDef::SpecialActionReduction {
+                    action: crate::card::SpecialActionKindDef::Plot,
+                    player: PlayerRelation::You,
+                    zones: &[ZoneKind::Hand],
+                    amount: 2,
+                }),
+            ),
+        ]),
 );
 
 // OTJ 202 — Eriette, the Beguiler
@@ -6849,9 +6896,7 @@ pub(in crate::card::sets) static KAMBAL_PROFITEERING_MAYOR: CardRecord = CardRec
 );
 
 // OTJ 212 — Kellan Joins Up
-// Audit: unsupported — Needs an effect or external permission that makes other cards plotted,
-// including its later-turn, sorcery-only free cast permission; existing plot only supports the
-// card's own hand special action.
+// Audit: unsupported — The card's external-plotting composition and remaining clauses have not been implemented.
 pub(in crate::card::sets) static KELLAN_JOINS_UP: CardRecord = CardRecord::new(
     "Kellan Joins Up",
     "2e7f95d5-b279-4469-9c89-1e02630d61e6",
@@ -7046,9 +7091,7 @@ pub(in crate::card::sets) static LAZAV_FAMILIAR_STRANGER: CardRecord = CardRecor
 );
 
 // OTJ 217 — Lilah, Undefeated Slickshot
-// Audit: unsupported — Needs an effect or external permission that makes other cards plotted,
-// including its later-turn, sorcery-only free cast permission; existing plot only supports the
-// card's own hand special action.
+// Audit: unsupported — The card's external-plotting composition and remaining clauses have not been implemented.
 pub(in crate::card::sets) static LILAH_UNDEFEATED_SLICKSHOT: CardRecord = CardRecord::new(
     "Lilah, Undefeated Slickshot",
     "e21f90ea-5934-4757-8515-38ef116afac1",
@@ -7057,9 +7100,7 @@ pub(in crate::card::sets) static LILAH_UNDEFEATED_SLICKSHOT: CardRecord = CardRe
 );
 
 // OTJ 218 — Make Your Own Luck
-// Audit: unsupported — Needs an effect or external permission that makes other cards plotted,
-// including its later-turn, sorcery-only free cast permission; existing plot only supports the
-// card's own hand special action.
+// Audit: unsupported — The card's external-plotting composition and remaining clauses have not been implemented.
 pub(in crate::card::sets) static MAKE_YOUR_OWN_LUCK: CardRecord = CardRecord::new(
     "Make Your Own Luck",
     "0557b0a3-2b48-408f-a508-9f4da2ab1cd1",
@@ -8489,9 +8530,7 @@ const SPIREBLUFF_CANAL_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // OTJ 271 — Jace Reawakened
-// Audit: unsupported — Needs an effect or external permission that makes other cards plotted,
-// including its later-turn, sorcery-only free cast permission; existing plot only supports the
-// card's own hand special action.
+// Audit: unsupported — The card's external-plotting composition and remaining clauses have not been implemented.
 pub(in crate::card::sets) static JACE_REAWAKENED: CardRecord = CardRecord::new(
     "Jace Reawakened",
     "fd17e8d4-499e-4005-ae3c-bc9c44dc5a67",

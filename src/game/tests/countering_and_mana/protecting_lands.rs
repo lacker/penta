@@ -263,7 +263,7 @@ fn next_spell_rule_filters_cast_characteristics_and_ignores_failed_casts() {
         activate_protection(&mut game, source);
         pass_priority_pair(&mut game);
         // Exercise the shared predicate independently of Village's any-spell clause.
-        game.resolved_player_rules[0].rule = crate::card::PlayerRuleDef::ApplyToNextSpell {
+        game.resolved_player_rules[0].rule = crate::card::PlayerRuleDef::ApplyToMatchingSpell {
             object: ObjectPredicateDef::HasType(CardType::Instant),
             effect: &AppliedEffectDef::Rule(AppliedRuleDef::CannotBeCountered),
         };
@@ -317,4 +317,127 @@ fn village_protection_does_not_prevent_a_spell_with_illegal_targets_from_fizzlin
             .iter()
             .any(|card| card.definition == cards::LIGHTNING_BOLT)
     );
+}
+
+fn quicken_and_village_game(prepared: bool) -> Game {
+    let mut game = ready_game();
+    game.set_prepared_engine_enabled(prepared);
+    for id in [130_050, 130_051] {
+        let quicken = card(id, cards::QUICKEN, PlayerId::One);
+        game.players[0].hand.push(quicken.clone());
+        game.add_unrestricted_mana(PlayerId::One, ManaColor::Blue, 1);
+        game.apply(PlayerId::One, cast_action(quicken.id, vec![], vec![], 0))
+            .unwrap();
+        pass_priority_pair(&mut game);
+    }
+    let source = village(&mut game);
+    activate_protection(&mut game, source);
+    pass_priority_pair(&mut game);
+    let mut game = rebuild(&game);
+    game.set_prepared_engine_enabled(prepared);
+    assert_eq!(game.resolved_play_permissions.len(), 2);
+    assert_eq!(game.resolved_player_rules.len(), 1);
+    game
+}
+
+#[test]
+fn matching_cast_rules_share_consumption_at_normal_and_instant_timing() {
+    for prepared in [false, true] {
+        for instant_timing in [false, true] {
+            let mut game = quicken_and_village_game(prepared);
+            if instant_timing {
+                game.active_player = PlayerId::Two;
+            }
+            game.priority = PlayerId::One;
+            let twist = card(130_052, cards::MIND_TWIST, PlayerId::One);
+            game.players[0].hand.push(twist.clone());
+            let cast = cast_action(twist.id, vec![Target::Player(PlayerId::Two)], vec![], 0);
+            assert!(game.apply(PlayerId::One, cast.clone()).is_err());
+            assert_eq!(game.resolved_play_permissions.len(), 2);
+            assert_eq!(game.resolved_player_rules.len(), 1);
+            game.add_unrestricted_mana(PlayerId::One, ManaColor::Black, 1);
+            assert!(game.legal_actions(PlayerId::One).contains(&cast));
+            assert_eq!(game.resolved_play_permissions.len(), 2);
+            assert_eq!(game.resolved_player_rules.len(), 1);
+            game.apply(PlayerId::One, cast).unwrap();
+            assert!(game.resolved_play_permissions.is_empty());
+            assert!(game.resolved_player_rules.is_empty());
+            assert!(!game.can_be_countered(game.stack.last().unwrap()));
+            let game = rebuild(&game);
+            assert!(!game.can_be_countered(game.stack.last().unwrap()));
+        }
+    }
+}
+
+#[test]
+fn matching_cast_rules_keep_independent_spell_predicates() {
+    for prepared in [false, true] {
+        let mut game = quicken_and_village_game(prepared);
+        game.apply(PlayerId::One, Action::PassPriority).unwrap();
+        cast_bolt(&mut game, PlayerId::Two, 130_053);
+        assert_eq!(game.resolved_play_permissions.len(), 2);
+        assert_eq!(game.resolved_player_rules.len(), 1);
+        pass_priority_pair(&mut game);
+        cast_bolt(&mut game, PlayerId::One, 130_054);
+        assert!(!game.can_be_countered(game.stack.last().unwrap()));
+        assert!(game.resolved_player_rules.is_empty());
+        assert_eq!(game.resolved_play_permissions.len(), 2);
+        pass_priority_pair(&mut game);
+        let twist = card(130_055, cards::MIND_TWIST, PlayerId::One);
+        game.players[0].hand.push(twist.clone());
+        game.add_unrestricted_mana(PlayerId::One, ManaColor::Black, 1);
+        game.apply(
+            PlayerId::One,
+            cast_action(twist.id, vec![Target::Player(PlayerId::Two)], vec![], 0),
+        )
+        .unwrap();
+        assert!(game.resolved_play_permissions.is_empty());
+        assert!(game.can_be_countered(game.stack.last().unwrap()));
+    }
+}
+
+#[test]
+fn matching_spell_grants_take_their_use_limit_from_the_duration() {
+    for prepared in [false, true] {
+        for duration in [
+            ResolvedEffectDurationDef::Permanent,
+            ResolvedEffectDurationDef::UntilEndOfTurn,
+            ResolvedEffectDurationDef::UntilNextMatchingCast,
+        ] {
+            let mut game = ready_game();
+            game.set_prepared_engine_enabled(prepared);
+            let source = spell(130_056, cards::MISTRISE_VILLAGE, PlayerId::One, 0);
+            game.resolve_effect_def(
+                ScopedEffect::primary(EffectDef::Apply {
+                    recipient: EffectRecipientDef::Controller,
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::PlayerRule(
+                        crate::card::PlayerRuleDef::ApplyToMatchingSpell {
+                            object: ObjectPredicateDef::Any,
+                            effect: &AppliedEffectDef::Rule(AppliedRuleDef::CannotBeCountered),
+                        },
+                    )),
+                    duration,
+                }),
+                &source,
+                TriggerContext::empty(),
+            );
+            if duration == ResolvedEffectDurationDef::UntilNextMatchingCast {
+                game.finish_cleanup();
+                assert_eq!(game.resolved_player_rules.len(), 1);
+            }
+            cast_bolt(&mut game, PlayerId::One, 130_057);
+            assert!(!game.can_be_countered(game.stack.last().unwrap()));
+            pass_priority_pair(&mut game);
+            cast_bolt(&mut game, PlayerId::One, 130_058);
+            assert_eq!(
+                game.can_be_countered(game.stack.last().unwrap()),
+                duration == ResolvedEffectDurationDef::UntilNextMatchingCast,
+            );
+            game.finish_cleanup();
+            assert_eq!(
+                game.resolved_player_rules.len(),
+                usize::from(duration == ResolvedEffectDurationDef::Permanent),
+            );
+        }
+    }
 }

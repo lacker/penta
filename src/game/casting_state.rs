@@ -19,40 +19,72 @@ impl Game {
         u16::try_from(index).unwrap_or(u16::MAX)
     }
 
-    /// Move every matching one-shot player rule onto the completed spell.
-    /// Copies never enter this path, and querying legal casts consumes nothing.
-    pub(super) fn apply_next_spell_effects(&mut self, spell: &mut super::StackObject) {
-        if self.resolved_player_rules.is_empty() {
+    /// Apply spell riders and consume every matching next-cast duration at
+    /// the same completed-cast boundary. Timing permissions remain available
+    /// while checking legality; queries, suspend, and uncast copies never enter
+    /// this path. Attached riders outlive the waiting rule that grants them.
+    pub(super) fn apply_matching_cast_rules(&mut self, spell: &mut super::StackObject) {
+        if self.resolved_player_rules.is_empty() && self.resolved_play_permissions.is_empty() {
             return;
         }
         let Some(event) = self.stack_trigger_event_object(spell) else {
             return;
         };
-        let consumed = self
+        let matches = |player,
+                       source: super::AbilitySourceRef,
+                       expiration,
+                       rule: crate::card::AppliedRuleDef| {
+            player == spell.controller
+                && self.continuous_effect_expiration_is_active(expiration, source.object)
+                && rule.matching_cast_object().is_some_and(|object| {
+                    self.trigger_object_matches(object, &event, source.object, true)
+                })
+        };
+        let grants = self
             .resolved_player_rules
             .iter()
             .enumerate()
             .filter_map(|(index, resolved)| {
-                let crate::card::PlayerRuleDef::ApplyToNextSpell { object, effect } = resolved.rule
+                let crate::card::PlayerRuleDef::ApplyToMatchingSpell { effect, .. } = resolved.rule
                 else {
                     return None;
                 };
-                (resolved.affected_player == spell.controller
-                    && self.continuous_effect_expiration_is_active(
-                        resolved.expiration,
-                        resolved.source.object,
-                    )
-                    && self.trigger_object_matches(object, &event, resolved.source.object, true))
-                .then_some((index, resolved.source, *effect))
+                matches(
+                    resolved.affected_player,
+                    resolved.source,
+                    resolved.expiration,
+                    crate::card::AppliedRuleDef::PlayerRule(resolved.rule),
+                )
+                .then_some((index, resolved.source, *effect, resolved.expiration))
             })
             .collect::<Vec<_>>();
-        for (index, source, effect) in consumed.into_iter().rev() {
-            self.resolved_player_rules.remove(index);
+        let permissions = self
+            .resolved_play_permissions
+            .iter()
+            .enumerate()
+            .filter_map(|(index, resolved)| {
+                (resolved.expiration.expires_on_next_matching_cast()
+                    && matches(
+                        resolved.affected_player,
+                        resolved.source,
+                        resolved.expiration,
+                        resolved.rule,
+                    ))
+                .then_some(index)
+            })
+            .collect::<Vec<_>>();
+        for (index, source, effect, expiration) in grants.into_iter().rev() {
             spell.applied_effects.push(super::AppliedStackEffect {
                 source: None,
                 granting: Some(source),
                 effect,
             });
+            if expiration.expires_on_next_matching_cast() {
+                self.resolved_player_rules.remove(index);
+            }
+        }
+        for index in permissions.into_iter().rev() {
+            self.resolved_play_permissions.remove(index);
         }
     }
 

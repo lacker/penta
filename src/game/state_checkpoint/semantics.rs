@@ -495,7 +495,7 @@ fn collect_applied_effect(effect: AppliedEffectDef, found: &mut Vec<AppliedEffec
             }
         }
         AppliedEffectDef::Rule(AppliedRuleDef::PlayerRule(
-            crate::card::PlayerRuleDef::ApplyToNextSpell { effect, .. },
+            crate::card::PlayerRuleDef::ApplyToMatchingSpell { effect, .. },
         )) => collect_applied_effect(*effect, found),
         // "If you do, it gains ...": what a graveyard permission hands to
         // the permanent it allowed is a rider like any other, and the

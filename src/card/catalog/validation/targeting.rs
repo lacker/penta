@@ -45,7 +45,7 @@ fn duration_is_valid_for_applied_effect(
     !duration.contains(ResolvedEffectDurationDef::UntilNextMatchingCast)
         || matches!(
             effect,
-            AppliedEffectDef::Rule(AppliedRuleDef::MayCastAsThoughItHadFlash(_))
+            AppliedEffectDef::Rule(rule) if rule.matching_cast_object().is_some()
         )
 }
 

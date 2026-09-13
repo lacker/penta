@@ -583,9 +583,6 @@ impl Game {
             .get(card.definition)
             .and_then(|definition| definition.play_option(signature.play_option()))
             .cloned();
-        if let Some(option) = timing_option.as_ref() {
-            self.expire_cast_timing_permissions_for_cast(&card, player, option);
-        }
         // A spell is first proposed on the stack, then mana abilities may be
         // activated and costs are paid. The operation cannot fail after the
         // validated signature above, so keeping the provisional object local
@@ -908,7 +905,7 @@ impl Game {
     }
 
     fn complete_spell_cast(&mut self, mut stack_object: StackObject, targets: Vec<Target>) {
-        self.apply_next_spell_effects(&mut stack_object);
+        self.apply_matching_cast_rules(&mut stack_object);
         let face_down = stack_object.face_down.is_some();
         let player = stack_object.controller;
         let stack_id = stack_object.id;

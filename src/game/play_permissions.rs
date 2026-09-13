@@ -130,50 +130,6 @@ impl Game {
         .is_break()
     }
 
-    /// Ends every resolving timing permission whose duration includes the
-    /// next matching cast and whose predicate names the spell actually cast.
-    /// Merely asking whether a cast could begin -- suspend's special action
-    /// does exactly that -- expires nothing.
-    pub(super) fn expire_cast_timing_permissions_for_cast(
-        &mut self,
-        card: &CardInstance,
-        player: PlayerId,
-        option: &PlayOptionDef,
-    ) {
-        let context = CharacteristicContext::Stack {
-            form: option.form.clone(),
-        };
-        let Some(object) =
-            self.printed_trigger_event_object(card.id, card.definition, player, &context)
-        else {
-            return;
-        };
-        let expiring = self
-            .resolved_play_permissions
-            .iter()
-            .filter_map(|resolved| {
-                let AppliedRuleDef::MayCastAsThoughItHadFlash(permission) = resolved.rule else {
-                    return None;
-                };
-                (resolved.affected_player == player
-                    && resolved.expiration.expires_on_next_matching_cast()
-                    && self.continuous_effect_expiration_is_active(
-                        resolved.expiration,
-                        resolved.source.object,
-                    )
-                    && self.trigger_object_matches(
-                        permission.object,
-                        &object,
-                        resolved.source.object,
-                        true,
-                    ))
-                .then_some((resolved.source, resolved.definition))
-            })
-            .collect::<Vec<_>>();
-        self.resolved_play_permissions
-            .retain(|resolved| !expiring.contains(&(resolved.source, resolved.definition)));
-    }
-
     /// Whether this player may play this card out of a graveyard right now.
     pub(super) fn graveyard_play_is_permitted(
         &self,

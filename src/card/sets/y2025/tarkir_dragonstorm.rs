@@ -8835,12 +8835,13 @@ pub(in crate::card::sets) static MISTRISE_VILLAGE: CardRecord = CardRecord::new(
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Controller,
                 effect: AppliedEffectDef::Rule(AppliedRuleDef::PlayerRule(
-                    crate::card::PlayerRuleDef::ApplyToNextSpell {
+                    crate::card::PlayerRuleDef::ApplyToMatchingSpell {
                         object: ObjectPredicateDef::Any,
                         effect: &AppliedEffectDef::Rule(AppliedRuleDef::CannotBeCountered),
                     },
                 )),
-                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn
+                    .or(ResolvedEffectDurationDef::UntilNextMatchingCast),
             },
         ),
     ]),

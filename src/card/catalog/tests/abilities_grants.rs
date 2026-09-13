@@ -934,13 +934,13 @@ fn face_up_in_exile_rejects_trigger_and_static_contexts() {
 include!("abilities_grants/static_power_toughness.rs");
 
 #[test]
-fn next_spell_grants_reject_static_use_and_non_stack_payloads() {
+fn matching_spell_grants_reject_static_use_and_non_stack_payloads() {
     for payload in [
         &AppliedEffectDef::Rule(AppliedRuleDef::CannotBeCountered),
         &AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
     ] {
         let effect = AppliedEffectDef::Rule(AppliedRuleDef::PlayerRule(
-            crate::card::PlayerRuleDef::ApplyToNextSpell {
+            crate::card::PlayerRuleDef::ApplyToMatchingSpell {
                 object: ObjectPredicateDef::Any,
                 effect: payload,
             },
@@ -950,7 +950,8 @@ fn next_spell_grants_reject_static_use_and_non_stack_payloads() {
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Controller,
                 effect,
-                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn
+                    .or(ResolvedEffectDurationDef::UntilNextMatchingCast),
             },
         );
         assert_eq!(
@@ -973,7 +974,8 @@ fn next_spell_grants_reject_static_use_and_non_stack_payloads() {
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::Source,
                     effect,
-                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn
+                        .or(ResolvedEffectDurationDef::UntilNextMatchingCast),
                 }
             )
             .is_err()

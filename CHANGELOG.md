@@ -44,7 +44,8 @@ the bot-wire epoch.
   cards from BLB, AFR, and CLB against their specific outstanding mechanics.
 
 - Implement Mistrise Village with a resolving player rule that applies a
-  counterability effect to the next matching spell during casting. Unused
+  counterability effect to matching spells during casting. Village and Quicken
+  share next-matching-cast consumption and composable duration handling. Unused
   grants expire at turn end; copies do not inherit the protection. Extend
   Boseiju, Who Shelters All regression coverage and checkpoint lookup for
   conditional mana riders. Existing protocol and checkpoint epochs are unchanged.

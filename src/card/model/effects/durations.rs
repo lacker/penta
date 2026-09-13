@@ -10,7 +10,7 @@ pub enum ResolvedEffectDurationDef {
     Permanent,
     UntilEndOfTurn,
     /// Until the affected player next casts a spell matching the applied
-    /// permission's object predicate.
+    /// rule's spell predicate.
     UntilNextMatchingCast,
     /// Until the beginning of the resolving ability's controller's next
     /// upkeep, which outlives the cleanup that ends an until-end-of-turn

@@ -676,7 +676,7 @@ fn validate_applied_effect_target_references(
             validate_value_target_references(toughness, target_count, scope)
         }
         AppliedEffectDef::Rule(AppliedRuleDef::PlayerRule(
-            crate::card::PlayerRuleDef::ApplyToNextSpell { object, effect },
+            crate::card::PlayerRuleDef::ApplyToMatchingSpell { object, effect },
         )) => {
             validate_object_predicate_references(object, target_count, scope)?;
             validate_applied_effect_target_references(*effect, target_count, scope)

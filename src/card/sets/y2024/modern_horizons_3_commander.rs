@@ -175,7 +175,8 @@ pub(in crate::card::sets) static ELDRITCH_IMMUNITY: CardRecord = CardRecord::new
     "Eldritch Immunity",
     "64a63b90-dbd6-4b66-8031-a3e230ada5b9",
     "Carlos Palma Cruchaga",
-    CardRules::new_instant(mana_cost!("{C}")).with_type(CardType::Kindred)
+    CardRules::new_instant(mana_cost!("{C}"))
+        .with_type(CardType::Kindred)
         .with_subtypes(&["Eldrazi"])
         .with_abilities(&[
             AbilityDef::spell_with_targets(

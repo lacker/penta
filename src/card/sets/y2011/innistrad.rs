@@ -3437,11 +3437,15 @@ pub(in crate::card::sets) static VICTIM_OF_NIGHT: CardRecord = CardRecord::new(
         "Destroy target non-Vampire, non-Werewolf, non-Zombie creature.",
         &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
             ObjectPredicateDef::HasType(CardType::Creature),
-            ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::from_name("Vampire"))),
+            ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::from_name(
+                "Vampire",
+            ))),
             ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::from_name(
                 "Werewolf",
             ))),
-            ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::from_name("Zombie"))),
+            ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::from_name(
+                "Zombie",
+            ))),
         ])),
     )),
 );
@@ -5323,13 +5327,19 @@ pub(in crate::card::sets) static MAYOR_OF_AVABRUCK: CardRecord = CardRecord::new
                                 "Other Human creatures you control get +1/+1.",
                                 EffectDef::StaticApply {
                                     recipient: EffectRecipientDef::matching_objects(
-                                        ObjectPredicateDef::All(&const { [
-                                            ObjectPredicateDef::HasType(CardType::Creature),
-                                            ObjectPredicateDef::Subtype(SubtypeDef::from_name(
-                                                "Human",
-                                            )),
-                                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-                                        ] }),
+                                        ObjectPredicateDef::All(
+                                            &const {
+                                                [
+                                                    ObjectPredicateDef::HasType(CardType::Creature),
+                                                    ObjectPredicateDef::Subtype(
+                                                        SubtypeDef::from_name("Human"),
+                                                    ),
+                                                    ObjectPredicateDef::Not(
+                                                        &ObjectPredicateDef::Source,
+                                                    ),
+                                                ]
+                                            },
+                                        ),
                                         &[ZoneKind::Battlefield],
                                         PlayerRelation::You,
                                     ),

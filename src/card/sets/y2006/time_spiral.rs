@@ -3110,9 +3110,9 @@ pub(in crate::card::sets) static EVIL_EYE_OF_URBORG: CardRecord = CardRecord::ne
                 recipient: EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::from_name(
-                            "Eye",
-                        ))),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(
+                            SubtypeDef::from_name("Eye"),
+                        )),
                     ]),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::You,

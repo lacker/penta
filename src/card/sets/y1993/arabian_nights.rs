@@ -1111,9 +1111,9 @@ pub(in crate::card::sets) static ERHNAM_DJINN: CardRecord = CardRecord::new(
                 AbilityTargetPredicate::Object {
                     object: ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::from_name(
-                            "Wall",
-                        ))),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(
+                            SubtypeDef::from_name("Wall"),
+                        )),
                     ]),
                     zones: &[ZoneKind::Battlefield],
                     controller: Some(PlayerRelation::Opponent),

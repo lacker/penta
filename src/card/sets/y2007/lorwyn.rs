@@ -310,7 +310,9 @@ pub(in crate::card::sets) static WINGS_OF_VELIS_VEL: CardRecord = CardRecord::ne
                     recipient: EffectRecipientDef::Source,
                     effect: AppliedEffectDef::Characteristic(
                         crate::card::CharacteristicOperationDef::Subtypes(
-                            crate::card::SetOperationDef::Add(crate::card::SubtypeSet::from_names(crate::card::CREATURE_TYPES)),
+                            crate::card::SetOperationDef::Add(crate::card::SubtypeSet::from_names(
+                                crate::card::CREATURE_TYPES,
+                            )),
                         ),
                     ),
                 },
@@ -398,7 +400,9 @@ pub(in crate::card::sets) static BLADES_OF_VELIS_VEL: CardRecord = CardRecord::n
                     recipient: EffectRecipientDef::Source,
                     effect: AppliedEffectDef::Characteristic(
                         crate::card::CharacteristicOperationDef::Subtypes(
-                            crate::card::SetOperationDef::Add(crate::card::SubtypeSet::from_names(crate::card::CREATURE_TYPES)),
+                            crate::card::SetOperationDef::Add(crate::card::SubtypeSet::from_names(
+                                crate::card::CREATURE_TYPES,
+                            )),
                         ),
                     ),
                 },

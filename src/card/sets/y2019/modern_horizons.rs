@@ -723,9 +723,9 @@ pub(in crate::card::sets) static YAWGMOTH_THRAN_PHYSICIAN: CardRecord = CardReco
         .with_abilities(&[
             AbilityDef::keyword(
                 "Protection from Humans",
-                KeywordAbility::ProtectionFrom(&ObjectPredicateDef::Subtype(SubtypeDef::from_name(
-                    "Human",
-                ))),
+                KeywordAbility::ProtectionFrom(&ObjectPredicateDef::Subtype(
+                    SubtypeDef::from_name("Human"),
+                )),
             ),
             AbilityDef::activated_with_targets(
                 "Pay 1 life, Sacrifice another creature: Put a -1/-1 counter \

@@ -896,9 +896,9 @@ pub(in crate::card::sets) static RESTORATION_ANGEL: CardRecord = CardRecord::new
                 AbilityTargetPredicate::Object {
                     object: ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::from_name(
-                            "Angel",
-                        ))),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(
+                            SubtypeDef::from_name("Angel"),
+                        )),
                     ]),
                     zones: &[ZoneKind::Battlefield],
                     controller: Some(PlayerRelation::You),

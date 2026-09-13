@@ -444,9 +444,9 @@ pub(in crate::card::sets) static OPALESCENCE: CardRecord = CardRecord::new(
                 ObjectQueryDef::matching(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Enchantment),
-                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::from_name(
-                            "Aura",
-                        ))),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(
+                            SubtypeDef::from_name("Aura"),
+                        )),
                         ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                     ]),
                     &[ZoneKind::Battlefield],

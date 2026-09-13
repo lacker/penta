@@ -149,9 +149,9 @@ pub(in crate::card::sets) static KARN_LIBERATED: CardRecord = CardRecord::new(
                             ObjectPredicateDef::HasType(CardType::Land),
                             ObjectPredicateDef::HasType(CardType::Planeswalker),
                         ]),
-                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::from_name(
-                            "Aura",
-                        ))),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(
+                            SubtypeDef::from_name("Aura"),
+                        )),
                     ]),
                 }),
             ),

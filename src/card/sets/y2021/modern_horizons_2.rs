@@ -1573,22 +1573,25 @@ pub(in crate::card::sets) static GRIST_THE_HUNGER_TIDE: CardRecord = CardRecord:
                  Insect creature in addition to its other types.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::Source,
-                    effect: // "A 1/1 Insect creature in addition to its other types": a creature card
-                        // with an Insect subtype and a body, added to what the card already is
-                        // rather than replacing it.
-                        AppliedEffectDef::Composite(&[
-                            AppliedEffectDef::Characteristic(CharacteristicOperationDef::CardTypes(SetOperationDef::Add(
-                                CardTypeSet::single(CardType::Creature),
-                            ))),
-                            AppliedEffectDef::Characteristic(CharacteristicOperationDef::Subtypes(SetOperationDef::Add(crate::card::SubtypeSet::from_names(&["Insect"]),
-                            ))),
-                            AppliedEffectDef::Characteristic(CharacteristicOperationDef::PowerToughness(
+                    // "A 1/1 Insect creature in addition to its other types": a creature card
+                    // with an Insect subtype and a body, added to what the card already is
+                    // rather than replacing it.
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::Characteristic(CharacteristicOperationDef::CardTypes(
+                            SetOperationDef::Add(CardTypeSet::single(CardType::Creature)),
+                        )),
+                        AppliedEffectDef::Characteristic(CharacteristicOperationDef::Subtypes(
+                            SetOperationDef::Add(crate::card::SubtypeSet::from_names(&["Insect"])),
+                        )),
+                        AppliedEffectDef::Characteristic(
+                            CharacteristicOperationDef::PowerToughness(
                                 PowerToughnessOperationDef::SetBase {
                                     power: ValueDef::Constant(1),
                                     toughness: ValueDef::Constant(1),
                                 },
-                            )),
-                        ]),
+                            ),
+                        ),
+                    ]),
                 },
             )
             // "As long as Grist isn't on the battlefield": every zone but that one,
@@ -1613,7 +1616,12 @@ pub(in crate::card::sets) static GRIST_THE_HUNGER_TIDE: CardRecord = CardRecord:
                 EffectDef::MillWhileMatching(&MillLoopDef {
                     player: EffectRecipientDef::Controller,
                     body: &EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
-                        TokenCharacteristics::creature(&["Insect"], &[ManaColor::Black, ManaColor::Green], 1, 1),
+                        TokenCharacteristics::creature(
+                            &["Insect"],
+                            &[ManaColor::Black, ManaColor::Green],
+                            1,
+                            1,
+                        ),
                     ))),
                     // An Insect card in the library keeps the process going -- and a Grist on
                     // top is one, which is what his own first clause is for.
@@ -1639,7 +1647,9 @@ pub(in crate::card::sets) static GRIST_THE_HUNGER_TIDE: CardRecord = CardRecord:
             AbilityDef::triggered_with_targets(
                 "When you do, destroy target creature or planeswalker.",
                 TriggerEventDef::OptionalEffectTaken(ObjectPredicateDef::Source),
-                &[AbilityTargetDef::exactly_one_permanent(A_CREATURE_OR_PLANESWALKER)],
+                &[AbilityTargetDef::exactly_one_permanent(
+                    A_CREATURE_OR_PLANESWALKER,
+                )],
                 EffectDef::Destroy {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     then: None,

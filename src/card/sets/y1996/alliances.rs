@@ -1970,9 +1970,9 @@ pub(in crate::card::sets) static VARCHILD_S_CRUSADER: CardRecord = CardRecord::n
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::Source,
                     effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
-                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::from_name(
-                            "Wall",
-                        ))),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(
+                            SubtypeDef::from_name("Wall"),
+                        )),
                     )),
                     duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                 },

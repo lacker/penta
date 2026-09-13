@@ -7260,9 +7260,9 @@ pub(in crate::card::sets) static GRETA_SWEETTOOTH_SCOURGE: CardRecord = CardReco
                  creature. Activate only as a sorcery.",
                 &[
                     CostDef::Mana(mana_cost!("{G}")),
-                    CostDef::sacrifice_permanent(ObjectPredicateDef::Subtype(SubtypeDef::from_name(
-                        "Food",
-                    ))),
+                    CostDef::sacrifice_permanent(ObjectPredicateDef::Subtype(
+                        SubtypeDef::from_name("Food"),
+                    )),
                 ],
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Creature),
@@ -7278,9 +7278,9 @@ pub(in crate::card::sets) static GRETA_SWEETTOOTH_SCOURGE: CardRecord = CardReco
                 "{1}{B}, Sacrifice a Food: You draw a card and you lose 1 life.",
                 &[
                     CostDef::Mana(mana_cost!("{1}{B}")),
-                    CostDef::sacrifice_permanent(ObjectPredicateDef::Subtype(SubtypeDef::from_name(
-                        "Food",
-                    ))),
+                    CostDef::sacrifice_permanent(ObjectPredicateDef::Subtype(
+                        SubtypeDef::from_name("Food"),
+                    )),
                 ],
                 EffectDef::Sequence(&[
                     abilities::draw_cards(ValueDef::Constant(1)),
@@ -8179,7 +8179,9 @@ pub(in crate::card::sets) static KELLAN_THE_FAE_BLOODED: CardRecord = CardRecord
                                                             &const {
                                                                 [
                                                                     ObjectPredicateDef::Subtype(
-                                                                        SubtypeDef::from_name("Aura"),
+                                                                        SubtypeDef::from_name(
+                                                                            "Aura",
+                                                                        ),
                                                                     ),
                                                                     ObjectPredicateDef::Subtype(
                                                                         SubtypeDef::from_name(

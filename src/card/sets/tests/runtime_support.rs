@@ -433,6 +433,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                                 // ability the same way spending the source
                                 // does.
                                 | CostDef::SacrificePermanent { .. }
+                                | CostDef::TapPermanents { count: 1, .. }
                                 | CostDef::ExileCardFromHand(_)
                         )
                     })
@@ -457,6 +458,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
             (battlefield || hand || command)
                 && definition.procedure == AbilityProcedureDef::Shared
                 && !definition.costs.is_empty()
+                && crate::game::Game::mana_ability_object_costs_are_supported(&definition)
                 && definition.costs.iter().all(|cost| {
                     if hand || command {
                         return true;
@@ -489,7 +491,8 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                             // asks that question where it pays.
                             | CostDef::Loyalty(_)
                             | CostDef::PayLife(_)
-                    ) || matches!(
+                    ) || matches!(cost, CostDef::TapPermanents { object, count: 1, .. }
+                        if shared_object_predicate(*object)) || matches!(
                         cost,
                         // Mana is paid out of the pool, so the ability also
                         // has to be bounded some other way; flexible mana

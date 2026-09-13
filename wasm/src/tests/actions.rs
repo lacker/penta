@@ -821,3 +821,44 @@ fn emblem_ability_actions_expose_their_stable_origins() {
         }))
     );
 }
+
+#[test]
+fn springleaf_drum_labels_the_chosen_creature_as_a_tap_cost() {
+    let mut game = WebGame::new(
+        "The Deck",
+        "Robots",
+        "Handcrafted",
+        true,
+        2,
+        Some("old-school-93-94".into()),
+    )
+    .unwrap();
+    let drum = game
+        .session
+        .engine_mut()
+        .put_onto_battlefield(game.human, penta::card::cards::SPRINGLEAF_DRUM)
+        .unwrap();
+    let helper = game
+        .session
+        .engine_mut()
+        .put_onto_battlefield(game.human, penta::card::cards::ORNITHOPTER)
+        .unwrap();
+    let observation = game.session.engine_mut().observe(game.human);
+    let action = Action::ActivateManaAbility {
+        source: drum,
+        ability: AbilityOrigin::Printed {
+            definition: penta::card::cards::SPRINGLEAF_DRUM,
+            part: penta::CardPartId::PRIMARY,
+            ability: penta::AbilityId(0),
+        },
+        color: penta::ManaColor::Blue,
+        counters_removed: None,
+        cost_object: Some(helper),
+        combination: None,
+        triggered_mana: None,
+    };
+    assert_eq!(
+        game.action_label(&observation, &action),
+        "Tap Ornithopter for Blue mana"
+    );
+}

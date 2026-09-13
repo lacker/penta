@@ -738,6 +738,11 @@ which objects they name. Targets and that object are chosen before the
 activated ability becomes an independent stack object. `ActivateManaAbility`
 uses the same source and origin vocabulary, adds the selected `color`, and
 resolves immediately because mana abilities never use the stack. It also
+carries optional `costObject` for a chosen sacrifice, hand-exile, or
+single-permanent tap payment. For Springleaf Drum, it names the untapped
+creature to tap; it is a cost payer, not a target. Each payer and color pair
+is a separate legal action, with the creature allowed to have summoning sickness.
+The existing action shape and protocol epoch are unchanged. The action also
 carries an optional `countersRemoved` when, and only when, the ability's cost
 removes an open-ended number of counters: source, origin, and colour name the
 storage lands' ability once per size it could be paid at, so that number is

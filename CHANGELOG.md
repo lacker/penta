@@ -26,6 +26,13 @@ the bot-wire epoch.
   existing mechanics or explicit whole-card unsupported rules. See
   [Legacy and Vintage](docs/legacy-vintage.md). Existing protocol shapes and
   epochs are unchanged.
+
+- Implement Springleaf Drum with shared immediate mana payments that choose
+  one untapped permanent. Mana planning distinguishes tap costs from object
+  consumption, prevents double taps, and orders taps before sacrifices.
+  The chosen payer uses the existing `ActivateManaAbility.costObject` field;
+  protocol and checkpoint formats are unchanged.
+
 - Protocol 32 replaces numeric card-definition references with canonical
   printing UUID strings in catalogs, observations, decks, ability origins,
   match registrations, and Python/JSON hidden-world inputs. Checkpoint format

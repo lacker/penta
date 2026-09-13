@@ -146,11 +146,11 @@ pub enum Action {
         /// part of the action rather than something chosen afterwards.
         /// `None` for every ability whose cost has only one size.
         counters_removed: Option<u16>,
-        /// The object a selected cost consumes. Source, ability, and colour
-        /// do not distinguish one Goblin sacrificed or one hand card exiled
-        /// from another, so which one is part of the action: a mana ability
+        /// The object chosen for a sacrifice, hand-exile, or tap cost.
+        /// Source, ability, and colour do not distinguish one payer from
+        /// another, so which one is part of the action: a mana ability
         /// resolves without ever holding priority, and has no window in which
-        /// to ask afterwards. `None` when no separate object is consumed.
+        /// to ask afterwards. `None` when the cost has no chosen object.
         cost_object: Option<GameObjectId>,
         /// How the amount is divided, for an ability that adds mana "in any
         /// combination of" more than one type. Source, ability, and colour

@@ -178,7 +178,7 @@ fn boseiju_enters_tapped_and_requires_two_payable_life() {
     for life in [1, 2, 3] {
         let mut game = ready_game();
         let id = game
-            .put_onto_battlefield(PlayerId::One, cards::BOSEIJU_WHO_SHELTERS_ALL_273)
+            .put_onto_battlefield(PlayerId::One, cards::BOSEIJU_WHO_SHELTERS_ALL)
             .unwrap();
         assert!(
             game.battlefield
@@ -213,7 +213,7 @@ fn boseiju_floating_mana_and_paid_instant_survive_checkpoints_but_copies_are_cou
         let mut game = ready_game();
         game.set_prepared_engine_enabled(prepared);
         let source = game
-            .put_onto_battlefield(PlayerId::One, cards::BOSEIJU_WHO_SHELTERS_ALL_273)
+            .put_onto_battlefield(PlayerId::One, cards::BOSEIJU_WHO_SHELTERS_ALL)
             .unwrap();
         game.battlefield
             .iter_mut()

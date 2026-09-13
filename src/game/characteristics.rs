@@ -335,6 +335,18 @@ impl Game {
         Some(faces)
     }
 
+    pub(super) fn presentation_has_adventure(&self, presentation: ObjectCharacteristics) -> bool {
+        match presentation {
+            ObjectCharacteristics::Card { definition, part } => self
+                .catalog
+                .get(definition)
+                .is_some_and(|definition| definition.structure.part_has_adventure(part)),
+            ObjectCharacteristics::Token { .. }
+            | ObjectCharacteristics::Emblem { .. }
+            | ObjectCharacteristics::FaceDown { .. } => false,
+        }
+    }
+
     pub(super) fn trigger_event_object(&self, permanent: &Permanent) -> TriggerEventObject {
         let rules = self
             .effective_rules(permanent)
@@ -343,6 +355,7 @@ impl Game {
         TriggerEventObject {
             id: permanent.card.id,
             token: permanent.card.definition.is_token(),
+            has_adventure: self.presentation_has_adventure(Self::effective_rules_source(permanent)),
             types: self
                 .permanent_types(permanent)
                 .expect("a battlefield object has effective types"),
@@ -399,6 +412,7 @@ impl Game {
         TriggerEventObject {
             id: permanent.card.id,
             token: permanent.card.definition.is_token(),
+            has_adventure: self.presentation_has_adventure(Self::effective_rules_source(permanent)),
             types: self
                 .permanent_types(permanent)
                 .expect("a battlefield object has effective types"),

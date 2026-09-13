@@ -27,6 +27,7 @@ fn static_animation_predicate_supported(predicate: ObjectPredicateDef, creature:
         | ObjectPredicateDef::Source
         | ObjectPredicateDef::Commander
         | ObjectPredicateDef::Token
+        | ObjectPredicateDef::HasAdventure
         | ObjectPredicateDef::AttachedToSource
         | ObjectPredicateDef::HasSourcesChosenScalar(_)
         | ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Binding(_))
@@ -82,6 +83,7 @@ fn static_object_predicate_supported(predicate: ObjectPredicateDef) -> bool {
         | ObjectPredicateDef::Commander
         | ObjectPredicateDef::Source
         | ObjectPredicateDef::Token
+        | ObjectPredicateDef::HasAdventure
         | ObjectPredicateDef::Tapped
         | ObjectPredicateDef::WasDealtDamageThisTurn
         | ObjectPredicateDef::DealtDamageThisTurn

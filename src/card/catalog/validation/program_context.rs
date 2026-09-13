@@ -165,9 +165,11 @@ fn validate_static_effect(
         {
             Ok(())
         }
+        // Self reductions are read from the selected spell during casting.
+        // Retain Hand for existing declarations using the older source label.
         EffectDef::ReduceGenericCostBy(value)
             if position == StaticPosition::Root
-                && source_zones == [ZoneKind::Hand]
+                && (source_zones == [ZoneKind::Stack] || source_zones == [ZoneKind::Hand])
                 && static_cost_reduction_value_supported(value) =>
         {
             Ok(())

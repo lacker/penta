@@ -26,8 +26,14 @@ fn cost_of(
 }
 
 fn reduction(game: &Game, spell: CardDefinitionId, card: GameObjectId) -> u16 {
-    game.spell_cost_reduction(spell, PlayerId::One, card, &[])
-        .generic()
+    game.spell_cost_reduction(
+        spell,
+        &SpellForm::Part(CardPartId::PRIMARY),
+        PlayerId::One,
+        card,
+        &[],
+    )
+    .generic()
 }
 
 #[test]

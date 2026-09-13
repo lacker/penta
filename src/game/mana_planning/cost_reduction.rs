@@ -62,11 +62,12 @@ impl Game {
         alternatives
     }
 
-    /// How much generic mana this card's own static clauses take off its
-    /// cost. Read from the hand, which is where casting reads it.
+    /// How much mana the selected spell's own static clauses and battlefield
+    /// effects take off its cost, regardless of the zone it is cast from.
     pub(super) fn spell_cost_reduction(
         &self,
         definition: CardDefinitionId,
+        form: &crate::SpellForm,
         player: PlayerId,
         source: GameObjectId,
         targets: &[TargetSelection],
@@ -74,10 +75,14 @@ impl Game {
         let Some(card) = self.catalog.get(definition) else {
             return SpellCostReduction::default();
         };
-        let generic = card
-            .rules
-            .ability_clauses()
+        let context = CharacteristicContext::Stack { form: form.clone() };
+        let Ok(parts) = crate::card::applicable_part_ids_ref(card, &context) else {
+            return SpellCostReduction::default();
+        };
+        let generic = parts
             .iter()
+            .filter_map(|part| card.part(*part))
+            .flat_map(|part| part.rules.ability_clauses())
             .filter_map(|ability| match ability.declarative_effect()? {
                 EffectDef::ReduceGenericCostBy(value) => Some(value),
                 _ => None,

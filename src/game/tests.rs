@@ -11,6 +11,7 @@ use crate::card::{
 use crate::mana_cost;
 pub(super) mod cost_lists;
 pub(super) mod game_action_programs;
+mod hearth_elemental;
 mod intrinsic_costs;
 mod named_game_action_programs;
 use crate::poc::{self, cards};

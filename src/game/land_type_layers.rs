@@ -542,6 +542,9 @@ impl Game {
             ObjectPredicateDef::Source => source.card.id == affected.card.id,
             ObjectPredicateDef::Commander => self.is_commander(affected.card.id),
             ObjectPredicateDef::Token => affected.card.definition.is_token(),
+            ObjectPredicateDef::HasAdventure => {
+                self.presentation_has_adventure(Self::effective_rules_source(affected))
+            }
             ObjectPredicateDef::HasType(CardType::Land) => self
                 .permanent_types_below_static_effects(affected)
                 .is_some_and(|types| types.contains(CardType::Land)),

@@ -47,6 +47,7 @@ impl Game {
         super::TriggerEventObject {
             id,
             token: false,
+            has_adventure: false,
             types: super::CardTypeSet::empty(),
             controller: owner,
             colors: [false; 5],

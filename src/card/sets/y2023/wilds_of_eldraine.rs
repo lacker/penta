@@ -4747,7 +4747,7 @@ control.",
 );
 
 // WOE 130 — Frantic Firebolt
-// Audit: unsupported — Needs an object predicate for a card having an Adventure, independently of its currently presented face; the model exposes no Adventure-composition predicate.
+// Audit: unsupported — Card rules have not been implemented using the shared Adventure predicate.
 pub(in crate::card::sets) static FRANTIC_FIREBOLT: CardRecord = CardRecord::new(
     "Frantic Firebolt",
     "efd85f5a-258b-4ced-bf9e-3abe7fe72395",
@@ -4889,13 +4889,63 @@ token with \"This token can't block.\"",
 );
 
 // WOE 136 — Hearth Elemental // Stoke Genius
-// Audit: unsupported — Needs an object predicate for a card having an Adventure, independently of its currently presented face; the model exposes no Adventure-composition predicate.
 pub(in crate::card::sets) static HEARTH_ELEMENTAL: CardRecord = CardRecord::new(
     "Hearth Elemental // Stoke Genius",
     "a8f5f102-cc75-4cee-a117-4bdaaf86c2e9",
     "Nicholas Gregory",
-    CardRules::unsupported(),
-);
+    CardRules::new_creature(mana_cost!("{5}{R}"), &["Elemental"], 4, 5).with_ability(
+        AbilityDef::static_ability(
+            "This spell costs {X} less to cast, where X is the number of cards in your graveyard \
+             that are instant cards, sorcery cards, and/or have an Adventure.",
+            EffectDef::ReduceGenericCostBy(ValueDef::CountMatchingObjects(
+                &ObjectQueryDef::matching(
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Instant),
+                        ObjectPredicateDef::HasType(CardType::Sorcery),
+                        ObjectPredicateDef::HasAdventure,
+                    ]),
+                    &[ZoneKind::Graveyard],
+                    PlayerRelation::You,
+                ),
+            )),
+        )
+        .with_source_zones(&[ZoneKind::Stack]),
+    ),
+)
+.with_composition(|| {
+    adventure(
+        &HEARTH_ELEMENTAL,
+        "Stoke Genius",
+        &CardRules::new_sorcery(mana_cost!("{1}{R}"))
+            .with_subtypes(&["Adventure"])
+            .with_ability(
+                AbilityDef::spell(
+                    "Discard your hand, then draw two cards. (Then exile this card. You may cast \
+                     the creature later from exile.)",
+                    EffectDef::Sequence(
+                        &const {
+                            [
+                                EffectDef::Discard {
+                                    recipient: EffectRecipientDef::Controller,
+                                    amount: ValueDef::CountMatchingObjects(
+                                        &ObjectQueryDef::matching(
+                                            ObjectPredicateDef::Any,
+                                            &[ZoneKind::Hand],
+                                            PlayerRelation::You,
+                                        ),
+                                    ),
+                                    selection: DiscardSelectionDef::RecipientChooses,
+                                    then: None,
+                                },
+                                abilities::draw_cards(ValueDef::Constant(2)),
+                            ]
+                        },
+                    ),
+                )
+                .with_resolution_destination(SpellResolutionDestinationDef::ExileOnAdventure),
+            ),
+    )
+});
 
 // WOE 137 — Imodane, the Pyrohammer
 // Audit: unsupported — Needs a damage-event matcher that relates the source spell's complete target set to the damaged creature and verifies that it was the spell's sole target.
@@ -6164,7 +6214,7 @@ creature later from exile.)",
 });
 
 // WOE 175 — Howling Galefang
-// Audit: unsupported — Needs an object predicate for a card having an Adventure, independently of its currently presented face; the model exposes no Adventure-composition predicate.
+// Audit: unsupported — Card rules have not been implemented using the shared Adventure predicate.
 pub(in crate::card::sets) static HOWLING_GALEFANG: CardRecord = CardRecord::new(
     "Howling Galefang",
     "86311523-d0eb-4db3-b586-8349de9c2d37",
@@ -6495,7 +6545,7 @@ Enchanted creature gets +1/+1 and has ward {1}.)",
 );
 
 // WOE 184 — Sentinel of Lost Lore
-// Audit: unsupported — Needs an object predicate for a card having an Adventure, independently of its currently presented face; the model exposes no Adventure-composition predicate.
+// Audit: unsupported — Card rules have not been implemented using the shared Adventure predicate.
 pub(in crate::card::sets) static SENTINEL_OF_LOST_LORE: CardRecord = CardRecord::new(
     "Sentinel of Lost Lore",
     "f109a5bf-1472-4b87-b3d3-70db0e123693",
@@ -7618,7 +7668,7 @@ a sorcery.",
 );
 
 // WOE 220 — Beluna Grandsquall // Seek Thrills
-// Audit: unsupported — Needs an object predicate for a card having an Adventure, independently of its currently presented face; the model exposes no Adventure-composition predicate.
+// Audit: unsupported — Card rules have not been implemented using the shared Adventure predicate.
 pub(in crate::card::sets) static BELUNA_GRANDSQUALL: CardRecord = CardRecord::new(
     "Beluna Grandsquall // Seek Thrills",
     "3f5acc0d-33a6-476f-95ca-a1ad788334dd",
@@ -9029,7 +9079,7 @@ const CRYSTAL_GROTTO_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // WOE 255 — Edgewall Inn
-// Audit: unsupported — Needs an object predicate for a card having an Adventure, independently of its currently presented face; the model exposes no Adventure-composition predicate.
+// Audit: unsupported — Card rules have not been implemented using the shared Adventure predicate.
 pub(in crate::card::sets) static EDGEWALL_INN: CardRecord = CardRecord::new(
     "Edgewall Inn",
     "ec435e54-628a-43bd-8804-cbc37e375bce",

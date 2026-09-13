@@ -100,6 +100,9 @@ pub enum ObjectPredicateDef {
     /// controller matches as readily as one that connected in combat.
     DealtDamageThisTurn,
     HasType(CardType),
+    /// The object's presented characteristics have an Adventure. The permanent
+    /// face qualifies in any zone; the Adventure spell itself does not.
+    HasAdventure,
     /// A land with at least one of the listed effective basic land subtypes.
     ///
     /// This uses the object's prospective/effective type line, so continuous

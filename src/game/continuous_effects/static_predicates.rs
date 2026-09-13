@@ -125,6 +125,9 @@ impl Game {
         match predicate {
             ObjectPredicateDef::HasAnyBasicLandType(land_types) => self
                 .static_basic_land_type_matches(land_types, affected, prospective, text_words),
+            ObjectPredicateDef::HasAdventure => Some(
+                self.presentation_has_adventure(Self::effective_rules_source(affected)),
+            ),
             ObjectPredicateDef::HasType(card_type) => self
                 .permanent_types(affected)
                 .map(|types| types.contains(card_type)),
@@ -176,6 +179,7 @@ impl Game {
             predicate
                 @ (ObjectPredicateDef::HasAnyBasicLandType(_)
                 | ObjectPredicateDef::HasType(_)
+                | ObjectPredicateDef::HasAdventure
                 | ObjectPredicateDef::Color(_)
                 | ObjectPredicateDef::ColorCount(_)
                 | ObjectPredicateDef::Subtype(_)

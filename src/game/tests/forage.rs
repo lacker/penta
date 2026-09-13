@@ -238,7 +238,7 @@ fn combat_forage_selects_exactly_three_with_linear_options_and_a_separate_counte
 }
 
 #[test]
-fn optional_forage_can_be_declined_and_never_spends_an_incomplete_payment() {
+fn optional_forage_can_be_declined_and_requires_a_complete_alternative() {
     for count in [0, 2, 3] {
         let (mut game, cultivator, _) = staged(count);
         game.create_token(PlayerId::Two, tokens::food());
@@ -246,7 +246,7 @@ fn optional_forage_can_be_declined_and_never_spends_an_incomplete_payment() {
         let choices = &game.pending_decisions[0].observation.options;
         assert_eq!(
             choices.iter().map(|option| option.id).collect::<Vec<_>>(),
-            vec![0, 1]
+            if count >= 3 { vec![0, 1] } else { vec![0] }
         );
         choose(&mut game, vec![0]);
         drain_pending(&mut game);
@@ -258,6 +258,7 @@ fn optional_forage_can_be_declined_and_never_spends_an_incomplete_payment() {
 #[test]
 fn only_the_active_controllers_cultivator_offers_combat_forage() {
     let (mut game, cultivator, opponent) = staged(3);
+    game.create_token(PlayerId::Two, tokens::food());
     game.active_player = PlayerId::Two;
     game.priority = PlayerId::Two;
     begin_combat(&mut game);
@@ -419,11 +420,22 @@ fn food_forage_waits_for_exit_replacements_before_publishing_its_event() {
 }
 
 #[test]
-fn accepting_optional_forage_without_a_complete_alternative_moves_nothing() {
+fn optional_forage_rejects_acceptance_without_a_complete_alternative() {
     for count in [0, 2] {
         let (mut game, cultivator, _) = staged(count);
         begin_combat(&mut game);
-        choose(&mut game, vec![1]);
+        let decision = game.pending_decisions[0].observation.clone();
+        assert!(
+            game.apply(
+                decision.player,
+                Action::ChooseDecision {
+                    decision: decision.id,
+                    options: vec![1],
+                },
+            )
+            .is_err()
+        );
+        choose(&mut game, vec![0]);
         drain_pending(&mut game);
         assert!(game.pending_decisions.is_empty());
         assert_eq!(game.players[0].graveyard.len(), count as usize);

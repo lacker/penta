@@ -29,34 +29,36 @@ fn cast_explosion(game: &mut Game) -> GameObjectId {
     source
 }
 
-fn pay_discard(game: &mut Game, cards: [CardDefinitionId; 2]) {
+fn choose_discard(game: &mut Game, cards: [CardDefinitionId; 2]) {
     let decision = game.observe(PlayerId::One).decision.unwrap();
-    assert_eq!((decision.minimum, decision.maximum), (1, 1));
-    assert!(
-        decision
-            .options
-            .iter()
-            .filter(|option| option.id != 0)
-            .all(|option| option.members.len() == 2)
-    );
-    let option = decision
+    assert_eq!((decision.minimum, decision.maximum), (2, 2));
+    let selected = decision
         .options
         .iter()
-        .find(|option| {
-            option.members.len() == 2
-                && cards.iter().all(|definition| {
-                    option
-                        .members
-                        .iter()
-                        .any(|(_, card)| card.card_definition() == Some(*definition))
-                })
+        .filter_map(|option| {
+            let (_, card) = option.card?;
+            cards
+                .contains(&card.card_definition()?)
+                .then_some(option.id)
         })
-        .expect("the complete discard payment is offered");
+        .collect::<Vec<_>>();
+    assert_eq!(selected.len(), 2, "the newly drawn cards are selectable");
+    assert!(
+        game.apply(
+            PlayerId::One,
+            Action::ChooseDecision {
+                decision: decision.id,
+                options: vec![selected[0]],
+            }
+        )
+        .is_err(),
+        "accepting the optional action does not allow a partial discard",
+    );
     game.apply(
         PlayerId::One,
         Action::ChooseDecision {
             decision: decision.id,
-            options: vec![option.id],
+            options: selected,
         },
     )
     .unwrap();
@@ -92,7 +94,10 @@ fn ill_timed_explosion_draws_then_discards_and_leaves_a_response_window() {
         );
         game = restore(&game);
         game.set_prepared_engine_enabled(prepared);
-        pay_discard(&mut game, [cards::JUGGERNAUT, cards::LIGHTNING_BOLT]);
+        choose_decision_by_label(&mut game, PlayerId::One, "Do it");
+        game = restore(&game);
+        game.set_prepared_engine_enabled(prepared);
+        choose_discard(&mut game, [cards::JUGGERNAUT, cards::LIGHTNING_BOLT]);
         assert_eq!(game.stack.len(), 1);
         assert_eq!(game.stack[0].kind, StackObjectKind::TriggeredAbility);
         assert_eq!(game.stack[0].source, Some(source));
@@ -198,7 +203,7 @@ fn ill_timed_explosion_cannot_discard_a_short_hand_after_restricted_draws() {
         assert_eq!(
             decision.options.len(),
             1,
-            "an incomplete payment cannot be offered"
+            "an impossible optional discard cannot be offered"
         );
         choose_decision_by_label(&mut game, PlayerId::One, "Decline");
         assert!(game.stack.is_empty());
@@ -214,7 +219,7 @@ fn ill_timed_explosion_replaced_discards_still_trigger_once() {
         .unwrap();
     super::delayed_triggers::drain_pending(&mut game);
     cast_explosion(&mut game);
-    pay_discard(&mut game, [cards::JUGGERNAUT, cards::LIGHTNING_BOLT]);
+    choose_decision_by_label(&mut game, PlayerId::One, "Do it");
     assert_eq!(game.players[0].exile.len(), 3);
     assert!(game.players[0].graveyard.is_empty());
     assert_eq!(game.stack.len(), 1);
@@ -237,7 +242,7 @@ fn ill_timed_explosion_uses_zero_for_x_and_for_lands() {
     ] {
         let mut game = staged(drawn);
         cast_explosion(&mut game);
-        pay_discard(&mut game, drawn);
+        choose_decision_by_label(&mut game, PlayerId::One, "Do it");
         assert_eq!(
             game.stack.len(),
             1,

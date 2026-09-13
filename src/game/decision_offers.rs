@@ -850,11 +850,12 @@ impl Game {
         context: EffectResolutionContext,
         effect: ScopedEffect,
     ) {
+        let (available, visibility) = self.optional_effect_availability(object, &context, effect);
         self.queue_decision(
             player,
             object.ability_text().unwrap_or("Use this optional effect?"),
-            DecisionVisibility::Public,
-            DecisionPreference::PreferOption(1),
+            visibility,
+            DecisionPreference::PreferOption(u32::from(available)),
             1..=1,
             false,
             vec![
@@ -874,7 +875,10 @@ impl Game {
                     ability_text: None,
                     zone: DecisionZone::None,
                 },
-            ],
+            ]
+            .into_iter()
+            .filter(|option| option.id == 0 || available)
+            .collect(),
             DecisionContinuation::OptionalEffect {
                 object: Box::new(object.clone()),
                 context,
@@ -932,3 +936,4 @@ include!("decision_offers/payment_options.rs");
 include!("decision_offers/pay_or.rs");
 
 include!("decision_offers/cost_lists.rs");
+include!("decision_offers/optional_effects.rs");

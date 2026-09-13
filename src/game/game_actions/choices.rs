@@ -2,7 +2,7 @@
 use super::super::{
     DecisionContinuation, DecisionObservation, DecisionOption, DecisionPreference,
     DecisionVisibility, DecisionZone, EffectResolutionContext, Game, PendingProcedure, PlayerId,
-    ResolvedEffectPayment, ScopedEffect, StackObject,
+    ResolvedEffectPayment, ScopedEffect, SettledEffectPayment, StackObject,
 };
 use crate::card::EffectDef;
 
@@ -116,7 +116,7 @@ impl Game {
             branch,
             definition,
             object,
-            mut context,
+            context,
         } = continuation
         else {
             unreachable!("action choice continuation")
@@ -158,7 +158,7 @@ impl Game {
         let mut later = std::mem::take(&mut self.pending_procedures);
         let paid = self
             .settle_action_payment(player, payment, &cards)
-            .map(|payment| payment.into_receipt(&mut context));
+            .then_some(SettledEffectPayment::without_mana(0));
         if matches!(definition.effect, EffectDef::PayOr(_)) {
             self.pending_procedures
                 .push_back(PendingProcedure::CompletePayment {

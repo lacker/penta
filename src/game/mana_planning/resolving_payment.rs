@@ -50,7 +50,6 @@ impl Game {
         Some(super::SettledEffectPayment {
             paid_amount: 0,
             mana_spent: self.pay_player_cost_for(player, cost, 0, purpose),
-            object_bindings: Vec::new(),
         })
     }
 }

@@ -9,7 +9,8 @@ impl Game {
         let members = selected_payment_members(chosen, options);
         match *payment {
             ResolvedEffectPayment::Action(ref action) => self
-                .settle_action_payment(player, action, &members),
+                .settle_action_payment(player, action, &members)
+                .then_some(SettledEffectPayment::without_mana(0)),
             ResolvedEffectPayment::DiscardCards(amount) => (members.len() == usize::from(amount)
                 && members.iter().all(|card| {
                     self.players[player.index()]
@@ -156,7 +157,6 @@ impl Game {
         Some(SettledEffectPayment {
             paid_amount: 0,
             mana_spent,
-            object_bindings: Vec::new(),
         })
     }
 

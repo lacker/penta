@@ -321,7 +321,7 @@ impl Game {
                 payment_provenance,
                 definition,
                 object,
-                mut context,
+                context,
                 if_paid,
                 otherwise,
             } => {
@@ -344,9 +344,7 @@ impl Game {
                     return;
                 }
                 let mut later = std::mem::take(&mut self.pending_procedures);
-                let paid = self
-                    .settle_payment_decision(player, payment, options, &pending_options)
-                    .map(|payment| payment.into_receipt(&mut context));
+                let paid = self.settle_payment_decision(player, payment, options, &pending_options);
                 self.pending_procedures
                     .push_back(super::PendingProcedure::CompletePayment {
                         player,

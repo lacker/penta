@@ -299,6 +299,7 @@ mod mana_triggers;
 mod mana_vault;
 mod mass_shrink;
 mod maximum_blockers;
+mod may_effects;
 mod meekstone;
 mod menace;
 mod mentor_of_the_meek;

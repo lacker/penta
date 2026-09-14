@@ -12,6 +12,11 @@ pub(super) struct SpellCostReduction {
 }
 
 impl SpellCostReduction {
+    pub(super) fn with_generic(mut self, amount: u16) -> Self {
+        self.generic = self.generic.saturating_add(amount);
+        self
+    }
+
     pub(super) const fn generic(self) -> u16 {
         self.generic
     }
@@ -227,45 +232,6 @@ impl Game {
             }
         }
         reduction
-    }
-
-    pub(super) fn apply_spell_cost_reduction(
-        mut cost: ManaCost,
-        reduction: SpellCostReduction,
-        x: u16,
-    ) -> ManaCost {
-        // Chosen X is part of the total generic cost before reductions.
-        cost.generic = cost
-            .generic
-            .saturating_add(x.saturating_mul(cost.x_multiplier));
-        cost.variable_x = false;
-        cost.x_multiplier = 0;
-        reduce_generic(
-            reduce_mana_symbols(cost, reduction.symbols),
-            reduction.generic,
-        )
-    }
-
-    pub(super) fn maximum_spell_x_for(
-        &self,
-        player: PlayerId,
-        cost: ManaCost,
-        reduction: SpellCostReduction,
-        purpose: &ManaPaymentPurpose,
-    ) -> u16 {
-        if self.payment_query.unfunded() {
-            return u16::MAX;
-        }
-        let maximum = self
-            .available_mana_ceiling(player, purpose)
-            .saturating_add(reduction.generic);
-        (0..=maximum)
-            .rev()
-            .find(|x| {
-                let payable = Self::apply_spell_cost_reduction(cost, reduction, *x);
-                self.can_pay_cost_for(player, payable, 0, purpose)
-            })
-            .unwrap_or(0)
     }
 
     /// What permanents on the battlefield add to this spell's cost. Read the

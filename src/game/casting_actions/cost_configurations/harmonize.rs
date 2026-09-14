@@ -78,21 +78,4 @@ impl Game {
             .saturating_add(other_reductions)
     }
 
-    /// Fold announced X into generic mana before reducing the total cost.
-    /// Leave the signature's X intact for the spell's effects and mana value.
-    pub(in crate::game) fn apply_harmonize_reduction(
-        mut cost: ManaCost,
-        x: u16,
-        reduction: Option<u16>,
-    ) -> ManaCost {
-        if let Some(reduction) = reduction {
-            cost.generic = cost
-                .generic
-                .saturating_add(x.saturating_mul(cost.x_multiplier));
-            cost.variable_x = false;
-            cost.x_multiplier = 0;
-            cost.generic = cost.generic.saturating_sub(reduction);
-        }
-        cost
-    }
 }

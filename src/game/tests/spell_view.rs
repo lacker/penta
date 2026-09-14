@@ -334,3 +334,46 @@ fn payment_locks_discount_but_rechecks_the_source_of_storm() {
         assert_eq!(game.stack[0].kind, StackObjectKind::Spell);
     }
 }
+
+#[test]
+fn discounts_reduce_restricted_x_without_relaxing_its_payment() {
+    for prepared in [false, true] {
+        let (mut game, id) = setup(prepared, cards::DRAIN_LIFE, cards::GOBLIN_ELECTROMANCER);
+        let mut sources = Vec::new();
+        for definition in [cards::SWAMP, cards::SWAMP, cards::SWAMP, cards::FOREST] {
+            sources.push(
+                game.put_onto_battlefield(PlayerId::One, definition)
+                    .unwrap(),
+            );
+        }
+        let actions: Vec<_> = game.legal_actions(PlayerId::One).into_iter()
+            .filter(|action| matches!(action, Action::CastSpell { card, choices, .. }
+                if *card == id && choices.iter_targets().copied().eq([Target::Player(PlayerId::Two)])))
+            .collect();
+        let announced: Vec<_> = actions
+            .iter()
+            .map(|action| match action {
+                Action::CastSpell { choices, .. } => choices.x(),
+                _ => unreachable!(),
+            })
+            .collect();
+        assert_eq!(announced, vec![0, 1, 2, 3]);
+        let action = actions.last().unwrap().clone();
+        let preview = game.mana_sources_for_action(PlayerId::One, &action);
+        assert_eq!(preview.len(), 4);
+        assert!(sources.iter().all(|source| preview.contains(source)));
+        game.apply(PlayerId::One, action).unwrap();
+        let spell = game
+            .stack
+            .iter()
+            .find(|object| object.kind == StackObjectKind::Spell)
+            .unwrap();
+        assert_eq!(game.stack_spell_mana_value(spell), 5);
+        assert_eq!(game.players[0].mana_pool, ManaPool::default());
+        drain_pending(&mut game);
+        assert_eq!(
+            game.players[1].life, 17,
+            "the discount does not reduce damage"
+        );
+    }
+}

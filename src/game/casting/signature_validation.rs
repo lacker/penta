@@ -7,7 +7,6 @@
 //! card actually prints.
 
 use super::super::ManaPaymentPurpose;
-use super::super::mana_planning::reduce_generic;
 use super::super::{
     AbilityTargetDef, AlternativeCastKindDef, CardEffectStatus, CastChoices, CastCostContext,
     CastSignature, CastSourceZone, ControlFlow, DeclarativeAbilityDef, Game, GameObjectId,
@@ -387,17 +386,12 @@ impl Game {
             choices.mana_payment(),
             self.card_mana_is_any_color(card_id),
         )?;
-        let cost = reduce_generic(
-            Self::apply_spell_cost_reduction(
-                Self::apply_harmonize_reduction(
-                    cost,
-                    choices.x(),
-                    additional_payment.generic_reduction,
-                ),
-                self.spell_cost_reduction(spell, choices.targets()),
-                choices.x(),
-            ),
-            self.emerge_generic_reduction(alternative_kind, sacrifices),
+        let cost = self.apply_spell_cost_reduction(
+            cost,
+            self.spell_cost_reduction(spell, choices.targets())
+                .with_generic(additional_payment.generic_reduction.unwrap_or(0))
+                .with_generic(self.emerge_generic_reduction(alternative_kind, sacrifices)),
+            spell,
         );
         let total_life = cast_life
             .saturating_add(library_life)

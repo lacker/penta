@@ -12,7 +12,6 @@ use super::{
 };
 
 use crate::card::{AlternateSpellKind, CardStructure, ModeSetDef, SpellForm};
-use crate::game::mana_planning::reduce_generic;
 
 mod cost_configurations;
 mod land_actions;
@@ -341,7 +340,7 @@ impl Game {
                                                     reserved_life_payment: total_life,
                                                 };
                                                 let maximum = self.maximum_spell_x_for(
-                                                    player,
+                                                    spell,
                                                     locked,
                                                     self.spell_cost_reduction_ceiling(spell),
                                                     &exact_purpose,
@@ -512,11 +511,6 @@ impl Game {
                                                 else {
                                                     continue;
                                                 };
-                                                let payable_cost = Self::apply_spell_cost_reduction(
-                                                    Self::apply_harmonize_reduction(locked_cost, x, additional_payment.generic_reduction),
-                                                    self.spell_cost_reduction(spell, targets),
-                                                    x,
-                                                );
                                                 let Some(life_available) = self
                                                     .life_available_after_payment(
                                                         player,
@@ -542,12 +536,14 @@ impl Game {
                                                 // whose cost the sacrifice
                                                 // settles, so the reduction is
                                                 // read per way of paying it.
-                                                let payable_cost = reduce_generic(
-                                                    payable_cost,
-                                                    self.emerge_generic_reduction(
-                                                        alternative_kind,
-                                                        &sacrifices,
-                                                    ),
+                                                let payable_cost = self.apply_spell_cost_reduction(
+                                                    locked_cost,
+                                                    self.spell_cost_reduction(spell, targets)
+                                                        .with_generic(additional_payment.generic_reduction.unwrap_or(0))
+                                                        .with_generic(self.emerge_generic_reduction(
+                                                            alternative_kind, &sacrifices,
+                                                        )),
+                                                    spell,
                                                 );
                                                 if !self.can_pay_cost_for_reserving_with_life(
                                                     player,

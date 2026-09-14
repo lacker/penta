@@ -831,6 +831,7 @@ include!("mana_planning/convoke.rs");
 include!("mana_planning/source_assignment.rs");
 include!("mana_planning/payment_order.rs");
 include!("mana_planning/cost_reduction.rs");
+include!("mana_planning/spell_pricing.rs");
 include!("mana_planning/activation_characteristics.rs");
 
 include!("mana_planning/resolving_payment.rs");

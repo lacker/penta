@@ -129,17 +129,12 @@ impl Game {
                     sacrifices,
                 );
                 Some((
-                    reduce_generic(
-                        Self::apply_spell_cost_reduction(
-                            Self::apply_harmonize_reduction(
-                                locked,
-                                choices.x(),
-                                payment.generic_reduction,
-                            ),
-                            self.spell_cost_reduction(spell, choices.targets()),
-                            choices.x(),
-                        ),
-                        emerge,
+                    self.apply_spell_cost_reduction(
+                        locked,
+                        self.spell_cost_reduction(spell, choices.targets())
+                            .with_generic(payment.generic_reduction.unwrap_or(0))
+                            .with_generic(emerge),
+                        spell,
                     ),
                     choices.x(),
                     ManaPlanOptions {

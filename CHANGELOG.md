@@ -36,9 +36,9 @@ the bot-wire epoch.
   Implement Fblthp, Lost on the Range, Conspicuous Snoop, Augur of Autumn,
   Benjamin Sisko, Besieged, Experimental Frenzy, Future Sight, Isu the Abominable,
   Magus of the Future, Mikey & Don, Party Planners, Mul Daya Channelers, Oracle
-  of Mul Daya, The Fourth Doctor and Verge Rangers alongside the existing
-  Citadel, Courser, Crystal Skull, Glarb, Reality Chip, Chocobo and Mystic Forge
-  paths. Observations add `knownCards` for current knowledge in hidden zones;
+  of Mul Daya, The Fourth Doctor, Verge Rangers and Vampire Nocturnus alongside
+  the existing Citadel, Courser, Crystal Skull, Glarb, Reality Chip, Chocobo and
+  Mystic Forge paths. Observations add `knownCards` for current knowledge in hidden zones;
   existing library-top fields remain compatibility projections. Cast choices
   preserve `permissionSource`, and overlapping land permissions use ordinary
   decisions. Checkpoints retain selected permissions, entry counters, known

@@ -13,6 +13,7 @@ use crate::CardRules;
 use crate::CardSupertype;
 use crate::CardType;
 use crate::ColorSet;
+use crate::ComparisonDef;
 use crate::ControlDurationDef;
 use crate::CreatureTypeSetDef;
 use crate::DamageEventMatcherDef;
@@ -24,6 +25,7 @@ use crate::ObjectPredicateDef;
 use crate::ObjectQueryDef;
 use crate::PlayerRefDef;
 use crate::PlayerRelation;
+use crate::PlayerSetDef;
 use crate::ResolvedEffectDurationDef;
 use crate::TargetIndex;
 use crate::TriggerEventDef;
@@ -42,6 +44,7 @@ use crate::card::SubtypeDef;
 use crate::card::TokenCharacteristics;
 use crate::card::TokenDef;
 use crate::card::TriggerConditionDef;
+use crate::card::ZonePositionDef;
 use crate::card::abilities;
 use crate::mana_cost;
 
@@ -671,13 +674,58 @@ pub(in crate::card::sets) static SIGN_IN_BLOOD: CardRecord = CardRecord::new(
 );
 
 // M10 118 — Vampire Nocturnus
-// Audit: unsupported — Not yet declared and verified with queried top-card knowledge,
-// a color condition, and the conditional Vampire power/toughness and flying grants.
 pub(in crate::card::sets) static VAMPIRE_NOCTURNUS: CardRecord = CardRecord::new(
     "Vampire Nocturnus",
     "9df4f1ea-dbaa-456c-884c-97f03b64fa17",
     "Raymond Swanland",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{B}{B}{B}"), &["Vampire"], 3, 3).with_abilities(&[
+        abilities::cards_known_to(
+            "Play with the top card of your library revealed.",
+            ObjectQueryDef::matching(
+                ObjectPredicateDef::Any,
+                &[ZoneKind::Library],
+                PlayerRelation::You,
+            )
+            .at(ZonePositionDef::FromTop(0)),
+            PlayerSetDef::Related(PlayerRelation::Any),
+        ),
+        AbilityDef::static_ability(
+            "As long as the top card of your library is black, this creature and other Vampire \
+             creatures you control get +2/+1 and have flying.",
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::ObjectCount {
+                    query: ObjectQueryDef::matching(
+                        ObjectPredicateDef::Color(ManaColor::Black),
+                        &[ZoneKind::Library],
+                        PlayerRelation::You,
+                    )
+                    .at(ZonePositionDef::FromTop(0)),
+                    comparison: ComparisonDef::Greater,
+                    amount: 0,
+                },
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::Source,
+                            ObjectPredicateDef::All(&[
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                ObjectPredicateDef::Subtype(SubtypeDef::from_name("Vampire")),
+                            ]),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(2),
+                            ValueDef::Constant(1),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::flying()),
+                    ]),
+                },
+            },
+        ),
+    ]),
 );
 
 // M10 120 — Warpath Ghoul

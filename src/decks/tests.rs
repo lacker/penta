@@ -181,7 +181,7 @@ fn duel_commander_seed_decks_resolve_the_published_top_eight() {
 #[test]
 fn eternal_event_lists_preserve_published_sizes_and_format_membership() {
     let catalog = card::catalog().unwrap();
-    for (format, expected) in [(Format::Legacy, 16), (Format::Vintage, 8)] {
+    for (format, expected) in [(Format::Legacy, 16), (Format::Vintage, 9)] {
         let lists: Vec<_> = BUILTIN_DECKS
             .iter()
             .filter(|source| source.format == Some(format))

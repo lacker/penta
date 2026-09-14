@@ -578,6 +578,7 @@ fn a_checkpoint_missing_any_required_field_is_rejected_by_name() {
     // The damage accumulators default to zero, which is what a checkpoint
     // taken before they existed means: no damage recorded this turn.
     const ADDITIVE: &[&str] = &[
+        "cardsDiscardedThisTurn",
         "startingPlayer",
         "restartCount",
         "matchState",

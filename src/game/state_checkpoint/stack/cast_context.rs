@@ -1,5 +1,7 @@
 //! Reconstruction of the cast facts carried by a detached spell.
 
+use super::super::wire::player_from_index;
+
 use super::{
     AlternativeCastKindDef, CastContext, CastSignature, DetachedStackSnapshot, Game, GameObjectId,
     ObjectInstance, StackObjectKind, StackObjectKindSnapshot, StackSnapshot,
@@ -56,10 +58,7 @@ pub(super) fn stack_cast_context(
                 .and_then(crate::Binding::label)
                 .map(str::to_owned)
         });
-    let caster = state
-        .cast_by
-        .map(super::super::wire::player_from_index)
-        .transpose()?;
+    let caster = state.cast_by.map(player_from_index).transpose()?;
     let player_bindings = super::super::cast_bindings::restore_player_bindings(
         &state.cast_player_bindings,
         card.definition.card_definition(),
@@ -164,10 +163,7 @@ pub(super) fn detached_cast_context(
                 .and_then(crate::Binding::label)
                 .map(str::to_owned)
         });
-    let caster = state
-        .cast_by
-        .map(super::super::wire::player_from_index)
-        .transpose()?;
+    let caster = state.cast_by.map(player_from_index).transpose()?;
     let player_bindings = super::super::cast_bindings::restore_player_bindings(
         &state.cast_player_bindings,
         card.definition.card_definition(),

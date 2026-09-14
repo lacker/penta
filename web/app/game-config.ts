@@ -98,7 +98,7 @@ export const formatConfigs: Record<FormatId, FormatConfig> = {
     name: "Vintage",
     shortName: "VINTAGE",
     cardBackMark: "VI",
-    description: "God of Vintage · September 3, 2026 · restricted cards · some card effects unavailable",
+    description: "Tournament decks · restricted cards · some card effects unavailable",
     deckNotes: vintageDeckNotes,
   },
 };

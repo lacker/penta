@@ -124,7 +124,7 @@ fn format_deck_registries_resolve_without_cross_format_leakage() {
     assert_eq!(deck_names_for_format(Format::OldSchool9394).len(), 15);
     assert_eq!(deck_names_for_format(Format::IsdM14Standard).len(), 10);
     assert_eq!(deck_names_for_format(Format::Legacy).len(), 16);
-    assert_eq!(deck_names_for_format(Format::Vintage).len(), 8);
+    assert_eq!(deck_names_for_format(Format::Vintage).len(), 9);
 
     for format in [
         Format::OldSchool9394,

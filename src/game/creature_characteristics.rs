@@ -455,32 +455,29 @@ impl Game {
             ValueDef::BasicLandTypesControlled(_) => self.player_readable_value(value, controller),
             // A tally the turn keeps, read the same way: the creature
             // resizes as its controller draws.
-            ValueDef::CardsDrawnThisTurn(relation) => [PlayerId::One, PlayerId::Two]
-                .into_iter()
-                .filter(|player| {
-                    self.player_relation_matches(
-                        *player,
-                        relation,
-                        controller,
-                        TriggerContext::empty(),
-                    )
-                })
-                .map(|player| i32::from(self.cards_drawn_this_turn[player.index()]))
-                .sum(),
-            ValueDef::CardsDiscardedThisTurn(relation) => [PlayerId::One, PlayerId::Two]
-                .into_iter()
-                .filter(|player| {
-                    self.player_relation_matches(
-                        *player,
-                        relation,
-                        controller,
-                        TriggerContext::empty(),
-                    )
-                })
-                .map(|player| i32::from(self.cards_discarded_this_turn[player.index()]))
-                .sum(),
+            ValueDef::CardsDrawnThisTurn(relation) => {
+                self.static_turn_tally(self.cards_drawn_this_turn, relation, controller)
+            }
+            ValueDef::CardsDiscardedThisTurn(relation) => {
+                self.static_turn_tally(self.cards_discarded_this_turn, relation, controller)
+            }
             _ => 0,
         }
+    }
+
+    fn static_turn_tally(
+        &self,
+        tally: [u16; 2],
+        relation: crate::card::PlayerRelation,
+        controller: PlayerId,
+    ) -> i32 {
+        [PlayerId::One, PlayerId::Two]
+            .into_iter()
+            .filter(|player| {
+                self.player_relation_matches(*player, relation, controller, TriggerContext::empty())
+            })
+            .map(|player| i32::from(tally[player.index()]))
+            .sum()
     }
 
     /// Whether a value-producing clause's own source currently matches a

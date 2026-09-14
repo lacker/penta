@@ -42,7 +42,8 @@ fn validate_mana_restrictions(
             }
             crate::card::ManaRestrictionDef::CastSpell(predicate)
             | crate::card::ManaRestrictionDef::CannotCastSpell(predicate)
-            | crate::card::ManaRestrictionDef::ActivateAbility(predicate) => {
+            | crate::card::ManaRestrictionDef::ActivateAbility(predicate)
+            | crate::card::ManaRestrictionDef::ActivatePermanentAbility(predicate) => {
                 validate_object_predicate_references(*predicate, target_count, scope)?;
             }
             _ => {}

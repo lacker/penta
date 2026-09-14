@@ -122,11 +122,18 @@ impl Game {
                             true,
                         )
                 }),
-            ManaRestrictionDef::ActivateAbility(predicate) => self
+            ManaRestrictionDef::ActivateAbility(predicate)
+            | ManaRestrictionDef::ActivatePermanentAbility(predicate) => self
                 .payment_object(purpose)
                 .is_some_and(|(object, is_spell)| {
                     matches!(purpose, ManaPaymentPurpose::Ability { .. })
                         && !is_spell
+                        && (!matches!(restriction, ManaRestrictionDef::ActivatePermanentAbility(_))
+                            || self.battlefield.iter().any(|p| p.card.id == object.id)
+                            || matches!(
+                                self.retired_objects.get(&object.id),
+                                Some(RetiredObject::Permanent { .. })
+                            ))
                         && self.trigger_object_matches(
                             *predicate,
                             &object,

@@ -640,3 +640,222 @@ fn kindred_permanents_and_copy_added_changeling_keep_creature_types() {
             .contains(crate::card::Subtype::named("Sliver"))
     );
 }
+
+fn tap_temple(game: &mut Game, temple: GameObjectId, ability: u8) {
+    let action = game
+        .legal_actions(PlayerId::One)
+        .into_iter()
+        .find(|action| {
+            matches!(action, Action::ActivateManaAbility {
+                source, ability: AbilityOrigin::Printed { ability: id, .. }, .. }
+                if *source == temple && *id == AbilityId(ability))
+        })
+        .expect("Temple mana ability is offered");
+    game.apply(PlayerId::One, action).unwrap();
+}
+
+#[test]
+fn temple_restrictions_check_color_subtype_payment_kind_and_source_zone() {
+    let mut game = ready_game();
+    let colored_eldrazi = add_fixture(
+        &mut game,
+        &CardRules::new_creature(mana_cost!("{R}"), &["Eldrazi"], 1, 1),
+    );
+    let temple = put(&mut game, cards::ELDRAZI_TEMPLE);
+    tap_temple(&mut game, temple, 1);
+    assert_eq!(game.players[0].mana_pool.colorless, 2);
+    assert!(game.stack.is_empty());
+    for mana in game.players[0].mana.clone() {
+        for (definition, allowed) in [
+            (cards::ULAMOG_S_CRUSHER, true),
+            (cards::ALL_IS_DUST, true), // Kindred spells need not be creatures.
+            (cards::ELDRAZI_SKYSPAWNER, true), // Devoid changes spell color.
+            (colored_eldrazi, false),
+            (cards::ORNITHOPTER, false), // Colorless, but not an Eldrazi.
+            (cards::SOL_RING, false),
+        ] {
+            assert_eq!(
+                game.mana_can_pay_for(mana, &cast_purpose(definition)),
+                allowed,
+                "{}",
+                game.catalog.get(definition).unwrap().name,
+            );
+        }
+        let eldrazi = put(&mut game, cards::ULAMOG_S_CRUSHER);
+        assert!(game.mana_can_pay_for(mana, &ability_purpose(eldrazi)));
+        for source in [temple, put(&mut game, colored_eldrazi)] {
+            assert!(!game.mana_can_pay_for(mana, &ability_purpose(source)));
+        }
+        assert!(!game.mana_can_pay_for(mana, &ManaPaymentPurpose::Other));
+        assert!(!game.mana_can_pay_for(
+            mana,
+            &ManaPaymentPurpose::Payment {
+                source: eldrazi,
+                label: None,
+                snow: false
+            },
+        ));
+        apply_to(
+            &mut game,
+            eldrazi,
+            AppliedEffectDef::set_colors(ColorSet::from_colors(&[ManaColor::Red])),
+        );
+        assert!(!game.mana_can_pay_for(mana, &ability_purpose(eldrazi)));
+        for zone in [
+            ZoneKind::Hand,
+            ZoneKind::Graveyard,
+            ZoneKind::Exile,
+            ZoneKind::Command,
+        ] {
+            let source = card(900_030, cards::ULAMOG_S_CRUSHER, PlayerId::One);
+            let cards = match zone {
+                ZoneKind::Hand => &mut game.players[0].hand,
+                ZoneKind::Graveyard => &mut game.players[0].graveyard,
+                ZoneKind::Exile => &mut game.players[0].exile,
+                ZoneKind::Command => &mut game.players[0].command,
+                _ => unreachable!(),
+            };
+            cards.push(source.clone());
+            assert!(
+                !game.mana_can_pay_for(mana, &ability_purpose(source.id)),
+                "{zone:?}"
+            );
+            game.players[0].hand.clear();
+            game.players[0].graveyard.clear();
+            game.players[0].exile.clear();
+            game.players[0].command.clear();
+        }
+    }
+}
+
+#[test]
+fn temple_plans_casts_and_keeps_leftover_mana_restricted_across_checkpoint() {
+    for prepared in [false, true] {
+        let mut game = ready_game();
+        game.set_prepared_engine_enabled(prepared);
+        let temple = put(&mut game, cards::ELDRAZI_TEMPLE);
+        let eldrazi = card(900_031, cards::ELDRAZI_SKYSPAWNER, PlayerId::One);
+        let ring = card(900_032, cards::SOL_RING, PlayerId::One);
+        game.players[0].hand.extend([eldrazi.clone(), ring.clone()]);
+        game.add_unrestricted_mana(PlayerId::One, ManaColor::Blue, 1);
+        cast(&mut game, eldrazi.id);
+        drain_pending(&mut game);
+        assert_eq!(game.players[0].mana_pool.total(), 0);
+        let scion = game
+            .battlefield
+            .iter()
+            .find(|p| p.card.definition.is_token())
+            .unwrap()
+            .card
+            .id;
+        game.destroy_permanent_without_regeneration(scion);
+        game.battlefield
+            .iter_mut()
+            .find(|p| p.card.id == temple)
+            .unwrap()
+            .tapped = false;
+        tap_temple(&mut game, temple, 1);
+        game.return_permanent_to_hand(temple);
+        let (wire, hidden) = checkpoint_fixture(&game, PlayerId::One);
+        let mut rebuilt = Game::from_observation_checkpoint(
+            game.catalog.clone(),
+            game.format,
+            &wire,
+            &hidden,
+            42,
+        )
+        .unwrap();
+        assert_eq!(rebuilt.players[0].mana, game.players[0].mana);
+        assert!(
+            !rebuilt
+                .legal_actions(PlayerId::One)
+                .iter()
+                .any(|action| matches!(action, Action::CastSpell { card, .. } if *card == ring.id))
+        );
+        let temple = put(&mut rebuilt, cards::ELDRAZI_TEMPLE);
+        tap_temple(&mut rebuilt, temple, 0);
+        cast(&mut rebuilt, ring.id);
+        assert_eq!(rebuilt.players[0].mana_pool.colorless, 2);
+    }
+}
+
+#[test]
+fn temple_plans_permanent_activations_including_sacrifice_but_not_hand_abilities() {
+    for prepared in [false, true] {
+        for sacrifice in [false, true] {
+            let mut game = ready_game();
+            let fixture = add_fixture(
+                &mut game,
+                &CardRules::new_creature(mana_cost!("{2}"), &["Eldrazi"], 1, 1).with_ability(
+                    AbilityDef::activated(
+                        "{C}{C}: You gain 1 life.",
+                        if sacrifice {
+                            &[
+                                CostDef::Mana(mana_cost!("{C}{C}")),
+                                CostDef::SacrificeSource,
+                            ]
+                        } else {
+                            &[CostDef::Mana(mana_cost!("{C}{C}"))]
+                        },
+                        EffectDef::GainLife {
+                            recipient: EffectRecipientDef::Controller,
+                            amount: ValueDef::Constant(1),
+                        },
+                    )
+                    .with_source_zones(&[ZoneKind::Battlefield, ZoneKind::Hand]),
+                ),
+            );
+            game.set_prepared_engine_enabled(prepared);
+            put(&mut game, cards::ELDRAZI_TEMPLE);
+            let source = card(900_033, fixture, PlayerId::One);
+            game.players[0].hand.push(source.clone());
+            assert!(!game.legal_actions(PlayerId::One).iter().any(
+                |action| matches!(action, Action::ActivateAbility { source: id, .. } if *id == source.id)
+            ));
+            let permanent = put(&mut game, fixture);
+            activate(&mut game, permanent);
+            drain_pending(&mut game);
+            assert_eq!(game.players[0].life, 21);
+            assert_eq!(game.players[0].mana_pool.total(), 0);
+            assert_eq!(
+                game.players[0]
+                    .graveyard
+                    .iter()
+                    .any(|c| c.definition == fixture),
+                sacrifice
+            );
+        }
+    }
+}
+
+#[test]
+fn temple_explicit_payment_uses_permanent_last_known_information() {
+    use super::super::payment::BoundManaPayment;
+
+    let mut game = ready_game();
+    let temple = put(&mut game, cards::ELDRAZI_TEMPLE);
+    tap_temple(&mut game, temple, 1);
+    let eldrazi = put(&mut game, cards::ULAMOG_S_CRUSHER);
+    game.return_permanent_to_hand(eldrazi);
+    let successor = game.players[0].hand.last().unwrap().id;
+    let selected = BoundManaPayment { units: vec![0, 1] };
+    let forbidden = game.mana_payment_obligation(
+        PlayerId::One,
+        mana_cost!("{C}{C}"),
+        0,
+        &ability_purpose(successor),
+    );
+    assert!(game.commit_mana_payment(&forbidden, &selected).is_none());
+    assert_eq!(game.players[0].mana_pool.colorless, 2);
+    let allowed = game.mana_payment_obligation(
+        PlayerId::One,
+        mana_cost!("{C}{C}"),
+        0,
+        &ability_purpose(eldrazi),
+    );
+    assert_eq!(
+        game.commit_mana_payment(&allowed, &selected).unwrap().len(),
+        2
+    );
+    assert_eq!(game.players[0].mana_pool.total(), 0);
+}

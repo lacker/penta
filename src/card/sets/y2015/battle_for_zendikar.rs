@@ -154,16 +154,18 @@ pub(in crate::card::sets) static ELDRAZI_SKYSPAWNER: CardRecord = CardRecord::ne
     "Chase Stone",
     // Three mana for two bodies and a ritual: the Scion is what turns the
     // flier into a fourth-turn six-drop.
-    CardRules::new_creature(mana_cost!("{2}{U}"), &["Eldrazi", "Drone"], 2, 1).with_abilities(&[
-        abilities::devoid(),
-        abilities::flying(),
-        abilities::enters_trigger(
-            "When this creature enters, create a 1/1 colorless Eldrazi \
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Eldrazi", "Drone"], 2, 1)
+        .printed_colors(&[])
+        .with_abilities(&[
+            abilities::devoid(),
+            abilities::flying(),
+            abilities::enters_trigger(
+                "When this creature enters, create a 1/1 colorless Eldrazi \
              Scion creature token. It has \"Sacrifice this token: Add \
              {C}.\"",
-            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(ELDRAZI_SCION_TOKEN))),
-        ),
-    ]),
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(ELDRAZI_SCION_TOKEN))),
+            ),
+        ]),
 );
 
 // BFZ 106 — Carrier Thrall

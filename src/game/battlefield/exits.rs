@@ -850,6 +850,9 @@ impl Game {
             }
         }
         self.capture_battlefield_trigger_batch_from_snapshot(&listeners, &events);
+        // State triggers can see the state between instructions of a resolving
+        // spell, including the empty battlefield halfway through a blink.
+        self.capture_state_triggers();
 
         if let Some(completion) = completion {
             self.resume_battlefield_exit_completion(*completion, &moved);

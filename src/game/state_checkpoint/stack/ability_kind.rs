@@ -14,7 +14,7 @@ pub(super) fn stack_ability_condition(
             StackAbilityCondition::Supported(None)
         }
         (StackObjectKind::TriggeredAbility, DeclarativeAbilityDef::Triggered(triggered)) => {
-            StackAbilityCondition::Supported(triggered.condition)
+            StackAbilityCondition::Supported(triggered.resolution_condition())
         }
         (
             StackObjectKind::TriggeredAbility,
@@ -34,7 +34,7 @@ pub(super) fn stack_payload_matches(
         return definition == candidate;
     }
     let condition = match candidate.definition {
-        DeclarativeAbilityDef::Triggered(triggered) => triggered.condition,
+        DeclarativeAbilityDef::Triggered(triggered) => triggered.resolution_condition(),
         DeclarativeAbilityDef::Replacement(_) => {
             return payload.text == Some(candidate.text) && payload.condition.is_none();
         }

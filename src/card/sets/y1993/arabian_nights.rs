@@ -6,6 +6,7 @@ use crate::card::AbilityTargetDef;
 use crate::card::AbilityTargetPredicate;
 use crate::card::ActivationTimingDef;
 use crate::card::AddManaEffectDef;
+use crate::card::AggregateOperationDef;
 use crate::card::AppliedEffectDef;
 use crate::card::AppliedRuleDef;
 use crate::card::BasicLandType;
@@ -14,6 +15,7 @@ use crate::card::CardChoiceSourceDef;
 use crate::card::CardRules;
 use crate::card::CardType;
 use crate::card::ChoiceVisibilityDef;
+use crate::card::ChooseDef;
 use crate::card::ComparisonDef;
 use crate::card::ControlDurationDef;
 use crate::card::CostDef;
@@ -31,9 +33,13 @@ use crate::card::EffectRecipientDef;
 use crate::card::InstalledTriggerDef;
 use crate::card::KeywordAbility;
 use crate::card::ManaColor;
+use crate::card::ObjectChoiceBindingDef;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
 use crate::card::ObjectRefDef;
+use crate::card::ObjectSetDef;
+use crate::card::ObjectValueAggregateDef;
+use crate::card::ObjectValueDef;
 use crate::card::PayOrDef;
 use crate::card::PlayActionMatcherDef;
 use crate::card::PlayRestrictionDef;
@@ -1080,14 +1086,74 @@ pub(in crate::card::sets) static DESERT_TWISTER: CardRecord = CardRecord::new(
 );
 
 // ARN 47 — Drop of Honey
-// Audit: unsupported — Needs least-power selection. AppliedRuleDef::CannotRegenerate covers the
-// regeneration clause; picking "the creature with the least power" is the
-// aggregate-in-a-predicate gap Desecrator Hag names.
 pub(in crate::card::sets) static DROP_OF_HONEY: CardRecord = CardRecord::new(
     "Drop of Honey",
     "26e090d4-e7fe-403c-9aca-05c1b45ed238",
     "Anson Maddocks",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{G}")).with_abilities(&[
+        AbilityDef::triggered(
+            "At the beginning of your upkeep, destroy the creature with the least power. \
+             It can't be regenerated. If two or more creatures are tied for least power, \
+             you choose one of them.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
+            },
+            EffectDef::Choose(ChooseDef {
+                binding: ObjectChoiceBindingDef::Objects(Binding!("least_power")),
+                unchosen: None,
+                chooser: PlayerRefDef::EffectController,
+                candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::HasKeyword(
+                            KeywordAbility::Indestructible,
+                        )),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::PowerGreaterThan(
+                            ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
+                                objects: ObjectSetDef::Query(ObjectQueryDef::matching(
+                                    ObjectPredicateDef::HasType(CardType::Creature),
+                                    &[ZoneKind::Battlefield],
+                                    PlayerRelation::Any,
+                                )),
+                                select: ObjectValueDef::Power,
+                                operation: AggregateOperationDef::Minimum,
+                            }),
+                        )),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                )),
+                exclude: None,
+                minimum: 1,
+                maximum: 1,
+                visibility: ChoiceVisibilityDef::Public,
+                then: &EffectDef::WithRule {
+                    rule: AppliedRuleDef::CannotRegenerate,
+                    effect: &EffectDef::Destroy {
+                        object: EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!(
+                            "least_power"
+                        ))),
+                        then: None,
+                    },
+                },
+            }),
+        ),
+        AbilityDef::triggered_if(
+            "When there are no creatures on the battlefield, sacrifice this enchantment.",
+            TriggerEventDef::StateCondition,
+            &TriggerConditionDef::ObjectCount {
+                query: ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                comparison: ComparisonDef::Equal,
+                amount: 0,
+            },
+            EffectDef::sacrifice(EffectRecipientDef::Source),
+        ),
+    ]),
 );
 
 // ARN 48 — Erhnam Djinn

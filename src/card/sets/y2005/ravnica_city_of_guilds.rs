@@ -891,6 +891,36 @@ pub(in crate::card::sets) static GOLGARI_GRAVE_TROLL: CardRecord = CardRecord::n
     ]),
 );
 
+// RAV 172 — Life from the Loam
+pub(in crate::card::sets) static LIFE_FROM_THE_LOAM: CardRecord = CardRecord::new(
+    "Life from the Loam",
+    "7ac16d09-8bc7-407c-a757-666f4707bc90",
+    "Terese Nielsen",
+    CardRules::new_sorcery(mana_cost!("{1}{G}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Return up to three target land cards from your graveyard to your hand.",
+            &[AbilityTargetDef::up_to(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Land),
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: Some(PlayerRelation::You),
+                },
+                3,
+            )],
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
+        ),
+        dredge::<3>(
+            "Dredge 3 (If you would draw a card, you may mill three cards instead. If you do, \
+             return this card from your graveyard to your hand.)",
+        ),
+    ]),
+);
+
 // RAV 184 — Stone-Seeder Hierophant
 pub(in crate::card::sets) static STONE_SEEDER_HIEROPHANT: CardRecord = CardRecord::new(
     "Stone-Seeder Hierophant",
@@ -1305,6 +1335,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &DOUBLING_SEASON,
     &FARSEEK,
     &GOLGARI_GRAVE_TROLL,
+    &LIFE_FROM_THE_LOAM,
     &STONE_SEEDER_HIEROPHANT,
     &CONGREGATION_AT_DAWN,
     &DIMIR_INFILTRATOR,

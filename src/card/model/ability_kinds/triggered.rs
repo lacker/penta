@@ -13,6 +13,17 @@ impl TriggeredAbilityDef {
         }
     }
 
+    /// State conditions identify an occurrence, rather than an intervening if
+    /// that must remain true when the captured ability resolves.
+    #[must_use]
+    pub const fn resolution_condition(&self) -> Option<&'static TriggerConditionDef> {
+        if matches!(self.event, TriggerEventDef::StateCondition) {
+            None
+        } else {
+            self.condition
+        }
+    }
+
     /// "Choose one --", for a trigger that prints modes.
     #[must_use]
     pub const fn with_modes(mut self, modes: ModalSpellDef) -> Self {

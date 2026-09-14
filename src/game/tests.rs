@@ -72,6 +72,7 @@ mod blaze_of_glory;
 mod blessing_and_flame;
 mod explicit_payment;
 mod harmonize;
+mod legacy_lands;
 mod nemesis_audit;
 mod temporary_self_effects;
 pub(super) use fixtures::*;

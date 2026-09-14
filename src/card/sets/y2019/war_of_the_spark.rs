@@ -13,6 +13,7 @@ use crate::card::AlternativeCastKindDef;
 use crate::card::AppliedEffectDef;
 use crate::card::AppliedRuleDef;
 use crate::card::BasicLandType;
+use crate::card::BattlefieldEntryModificationDef;
 use crate::card::CardArt;
 use crate::card::CardChoiceSourceDef;
 use crate::card::CardRules;
@@ -51,6 +52,7 @@ use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
 use crate::card::PlayerRuleDef;
 use crate::card::PlayerSetDef;
+use crate::card::ReplacementEffectDef;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::SpellCostConditionDef;
 use crate::card::SpellCostModificationDef;
@@ -1343,13 +1345,53 @@ pub(in crate::card::sets) static PRISMITE: CardRecord = CardRecord::new(
 );
 
 // WAR 244 — Blast Zone
-// Audit: unsupported — The activated-cost planner supports a single X symbol only; it cannot
-// enumerate and pay the doubled variable mana cost {X}{X}.
 pub(in crate::card::sets) static BLAST_ZONE: CardRecord = CardRecord::new(
     "Blast Zone",
     "ea6bc7d5-e8f6-4103-920c-9f7ec5cd6c28",
     "Chris Ostrowski",
-    CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        AbilityDef::as_enters(
+            "This land enters with a charge counter on it.",
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCounters {
+                    kind: CounterKind::named("charge"),
+                    amount: 1,
+                },
+            ),
+        ),
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated(
+            "{X}{X}, {T}: Put X charge counters on this land.",
+            &[CostDef::Mana(mana_cost!("{X}{X}")), CostDef::TapSource],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::named("charge"),
+                amount: ValueDef::ChosenX,
+            },
+        ),
+        AbilityDef::activated(
+            "{3}, {T}, Sacrifice this land: Destroy each nonland permanent with mana value equal \
+             to the number of charge counters on this land.",
+            &[
+                CostDef::Mana(mana_cost!("{3}")),
+                CostDef::TapSource,
+                CostDef::SacrificeSource,
+            ],
+            EffectDef::Destroy {
+                object: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                        ObjectPredicateDef::ManaValueEqualTo(ValueDef::CountersOnSource(
+                            CounterKind::named("charge"),
+                        )),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // WAR 245 — Emergence Zone

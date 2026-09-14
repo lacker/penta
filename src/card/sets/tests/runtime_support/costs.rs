@@ -116,8 +116,8 @@ pub(in super::super) fn shared_activated_costs(zones: &[ZoneKind], costs: &[Cost
         && linked_card_mana_costs_supported(battlefield, costs)
         && costs.iter().all(|cost| match cost {
             // A variable X is offered one activation per affordable value.
-            // More than one is not: nothing enumerates a cost charging X twice.
-            CostDef::Mana(cost) => cost.x_multiplier <= 1,
+            // Repeated X symbols share that announcement and scale its mana bill.
+            CostDef::Mana(_) => true,
             CostDef::ManaValueOfTarget { multiplier, .. } => {
                 battlefield && *multiplier > 0
             }

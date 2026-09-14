@@ -577,7 +577,7 @@ test("every deck the picker offers is one the engine can build", async () => {
 test("Legacy and Vintage expose and build every imported event deck", async () => {
   await initializeWasm();
   const options = JSON.parse(WebGame.sessionOptionsJson());
-  for (const [format, count] of [["legacy", 16], ["vintage", 9]]) {
+  for (const [format, count] of [["legacy", 17], ["vintage", 9]]) {
     const notes = JSON.parse(await readFile(new URL(`../app/${format}-decks.json`, import.meta.url), "utf8"));
     const names = Object.keys(notes).sort();
     assert.equal(names.length, count);

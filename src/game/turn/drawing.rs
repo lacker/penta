@@ -5,10 +5,10 @@
 
 use super::super::{
     AbilityDef, AbilityOrigin, AbilitySourceRef, AlternativeCastKindDef, CardDefinitionId,
-    CardPartId, CommittedTriggerEvent, DecisionContinuation, DecisionOption, DecisionPreference,
-    DecisionVisibility, DecisionZone, DeclarativeAbilityDef, EffectDef, Game, GameEvent,
-    GameObjectId, ObjectCharacteristics, PendingProcedure, Permanent, PlayerId,
-    ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef, ScopedEffect,
+    CardPartId, CharacteristicContext, CommittedTriggerEvent, DecisionContinuation, DecisionOption,
+    DecisionPreference, DecisionVisibility, DecisionZone, DeclarativeAbilityDef, EffectDef, Game,
+    GameEvent, GameObjectId, ObjectCharacteristics, ObjectInstance, PendingProcedure, Permanent,
+    PlayerId, ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef, ScopedEffect,
     StackAbilityPayload, StackAbilityResolver, StackObject, StackObjectKind, Step, TriggerCapture,
     TriggerContext, ZoneKind,
 };
@@ -244,7 +244,7 @@ impl Game {
                     Self::effective_rules_source(permanent),
                 );
                 replacements.push(Self::static_draw_replacement(
-                    &permanent.card,
+                    permanent.card.clone(),
                     permanent.controller,
                     effective.origin,
                     presentation,
@@ -272,7 +272,7 @@ impl Game {
             for card in &self.players[owner.index()].graveyard {
                 self.for_each_printed_card_ability(
                     card,
-                    &crate::CharacteristicContext::Graveyard,
+                    &CharacteristicContext::Graveyard,
                     |effective| {
                         let ability = effective.ability;
                         let DeclarativeAbilityDef::Replacement(definition) = ability.definition
@@ -287,28 +287,16 @@ impl Game {
                         else {
                             return;
                         };
-                        let origin = effective.origin;
                         let source = AbilitySourceRef {
                             object: card.id,
-                            ability: origin,
+                            ability: effective.origin,
                         };
                         let context = TriggerContext {
                             event_player: Some(player),
                             ..TriggerContext::empty()
                         };
-                        let condition_matches = match definition.condition {
-                            None => true,
-                            Some(ReplacementConditionDef::ControllerLibraryAtLeast(minimum)) => {
-                                self.players[owner.index()].library.len() >= usize::from(minimum)
-                            }
-                            Some(ReplacementConditionDef::ControllerLibraryEmpty) => {
-                                self.players[owner.index()].library.is_empty()
-                            }
-                            _ => false,
-                        };
                         if !definition.source_zones.contains(&ZoneKind::Graveyard)
                             || applied.contains(&source)
-                            || !condition_matches
                             || !self.player_relation_matches(player, relation, owner, context)
                             || (during_own_draw_step
                                 && (self.step != Step::Draw || self.active_player != player))
@@ -316,6 +304,10 @@ impl Game {
                                 && self.step == Step::Draw
                                 && self.active_player == player
                                 && !self.draw_step_draw_taken[player.index()])
+                            || !self.draw_replacement_library_condition_matches(
+                                owner,
+                                definition.condition,
+                            )
                         {
                             return;
                         }
@@ -326,11 +318,11 @@ impl Game {
                             return;
                         };
                         replacements.push(Self::static_draw_replacement(
-                            &card.clone().into(),
+                            card.clone().into(),
                             owner,
-                            origin,
+                            effective.origin,
                             Self::ability_presentation(
-                                origin,
+                                effective.origin,
                                 ObjectCharacteristics::card(card.definition, CardPartId::PRIMARY),
                             ),
                             ability.text,
@@ -345,9 +337,26 @@ impl Game {
         replacements
     }
 
+    fn draw_replacement_library_condition_matches(
+        &self,
+        controller: PlayerId,
+        condition: Option<ReplacementConditionDef>,
+    ) -> bool {
+        match condition {
+            None => true,
+            Some(ReplacementConditionDef::ControllerLibraryEmpty) => {
+                self.players[controller.index()].library.is_empty()
+            }
+            Some(ReplacementConditionDef::ControllerLibraryAtLeast(amount)) => {
+                self.players[controller.index()].library.len() >= usize::from(amount)
+            }
+            Some(_) => false,
+        }
+    }
+
     #[allow(clippy::too_many_arguments)]
     fn static_draw_replacement(
-        card: &super::super::ObjectInstance,
+        card: ObjectInstance,
         controller: PlayerId,
         origin: AbilityOrigin,
         presentation: ObjectCharacteristics,
@@ -360,8 +369,8 @@ impl Game {
         let object = StackObject {
             id: card.id,
             kind: StackObjectKind::TriggeredAbility,
-            card: card.clone(),
             source: Some(card.id),
+            card,
             ability: Some(StackAbilityPayload {
                 origin,
                 definition: None,
@@ -407,13 +416,9 @@ impl Game {
         match condition {
             ReplacementConditionDef::SourceTapped => permanent.tapped,
             ReplacementConditionDef::CreatureDiedThisTurn => self.creature_died_this_turn,
-            ReplacementConditionDef::ControllerLibraryAtLeast(minimum) => {
-                self.players[permanent.controller.index()].library.len() >= usize::from(minimum)
-            }
-            ReplacementConditionDef::ControllerLibraryEmpty => self.players
-                [permanent.controller.index()]
-            .library
-            .is_empty(),
+            ReplacementConditionDef::ControllerLibraryEmpty
+            | ReplacementConditionDef::ControllerLibraryAtLeast(_) => self
+                .draw_replacement_library_condition_matches(permanent.controller, Some(condition)),
             ReplacementConditionDef::SourceCastWith(_)
             | ReplacementConditionDef::SourcePaidAdditionalCost(_)
             | ReplacementConditionDef::SourceNotCastFrom(_)

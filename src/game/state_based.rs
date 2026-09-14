@@ -297,7 +297,13 @@ impl Game {
             })
             .collect::<Vec<_>>();
         for listener in listeners {
-            self.capture_trigger(&listener.capture);
+            // A state trigger's condition describes its triggering event, not
+            // an intervening if. Once captured, it resolves even if the state changes.
+            let mut capture = listener.capture;
+            if self.trigger_capture_condition_holds(&capture) {
+                capture.condition = None;
+                self.capture_trigger(&capture);
+            }
         }
     }
 

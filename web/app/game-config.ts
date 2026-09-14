@@ -91,7 +91,7 @@ export const formatConfigs: Record<FormatId, FormatConfig> = {
     name: "Legacy",
     shortName: "LEGACY",
     cardBackMark: "LE",
-    description: "MTGO Challenge 32 · September 8, 2026 · some card effects unavailable",
+    description: "Tournament decklists · some card effects unavailable",
     deckNotes: legacyDeckNotes,
   },
   vintage: {

@@ -21,7 +21,7 @@ pub(in crate::game::state_checkpoint) fn pending_trigger_snapshot(
     }
     let ability = ability_locator_for_origin(&game.catalog, trigger.source.ability, |ability| {
         let condition = match ability.definition {
-            DeclarativeAbilityDef::Triggered(definition) => definition.condition,
+            DeclarativeAbilityDef::Triggered(definition) => definition.resolution_condition(),
             // A modal trigger that has chosen its mode carries that mode's
             // own program, and a mode is an ordinary spell ability nested
             // under the trigger. It states no intervening-if of its own,
@@ -87,7 +87,7 @@ pub(in crate::game::state_checkpoint) fn parse_pending_trigger(
     let ability = catalog_ability(&game.catalog, &snapshot.ability)
         .ok_or("pending trigger ability locator is absent from this catalog")?;
     let condition = match ability.definition {
-        DeclarativeAbilityDef::Triggered(triggered) => triggered.condition,
+        DeclarativeAbilityDef::Triggered(triggered) => triggered.resolution_condition(),
         // The chosen mode of a modal trigger, as above.
         DeclarativeAbilityDef::Spell(_) => None,
         DeclarativeAbilityDef::AlternativeCast(alternative)

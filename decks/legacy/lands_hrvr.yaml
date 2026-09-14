@@ -1,0 +1,37 @@
+# Source: https://www.mtggoldfish.com/deck/7953767#paper
+# Finish: 5-0; player: hrvr; Legacy League 2026-09-14.
+# Published main deck: 60; sideboard: 15.
+name: "Lands — hrvr"
+description: "5-0 — hrvr; MTGGoldfish Legacy League 2026-09-14."
+main:
+  "Ancient Tomb": 2
+  "Blast Zone": 1
+  "Bojuka Bog": 1
+  "Boseiju, Who Endures": 3
+  "Crop Rotation": 4
+  "Dark Depths": 3
+  "Expedition Map": 1
+  "Exploration": 4
+  "Ghost Quarter": 2
+  "Karakas": 1
+  "Life from the Loam": 4
+  "Malevolent Rumble": 4
+  "Maze of Ith": 1
+  "Mox Diamond": 4
+  "Pithing Needle": 1
+  "Skateboard": 1
+  "Snow-Covered Forest": 2
+  "Soul-Guide Lantern": 1
+  "Sphere of Resistance": 4
+  "The Tabernacle at Pendrell Vale": 1
+  "Thespian's Stage": 3
+  "Urza's Saga": 4
+  "Wasteland": 4
+  "Yavimaya, Cradle of Growth": 4
+sideboard:
+  "Choke": 3
+  "Dismember": 2
+  "Disruptor Flute": 3
+  "Drop of Honey": 1
+  "Endurance": 3
+  "Force of Vigor": 3

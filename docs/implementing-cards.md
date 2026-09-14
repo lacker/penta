@@ -682,10 +682,12 @@ effects, nested triggers, and checkpoints. Resolution suspension preserves the
 remaining order and restores the current clause without changing the original
 spell's completion event.
 
-Bloomburrow's Gift helper declares the optional opponent binding, followed by
-an ordinary conditional spell clause for instants and sorceries or a separate
-conditional enters trigger for permanents. Gift effects are ordinary draw and
-token operations. The first spell clause or Gift trigger publishes `mtg:gift`
+Declare Gift once inside `ability_list!`, for example
+`gift(CardType::Instant, "Gift a card", &GIFT_CARD)`. The helper returns both
+the optional opponent binding and its delivery clause together. The supplied
+card type selects an ordinary conditional spell clause for instants and
+sorceries or a separate conditional enters trigger for permanents. Gift effects
+are ordinary draw and token operations. The first spell clause or Gift trigger publishes `mtg:gift`
 only when the whole stack object finishes resolving, even if a replacement
 changed the gift effect. Other enters triggers retain normal ordering choices.
 Target counts and restrictions use the existing optional-cost selection,

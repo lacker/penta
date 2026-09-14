@@ -136,48 +136,53 @@ pub(crate) const GIFT: crate::card::MechanicId = crate::card::MechanicId::from_n
 const GIFT_PROMISED: TriggerConditionDef =
     TriggerConditionDef::SourceHasCastPlayerBinding(crate::Binding!("gift"));
 
-/// Promising is an optional opponent choice; giving is a separate clause.
-const fn gift(text: &'static str) -> AbilityDef {
-    AbilityDef::optional_additional_cost(
-        text,
-        OptionalAdditionalCostAbilityDef {
-            kind: OptionalAdditionalCostKindDef::ChooseOpponent(crate::Binding!("gift")),
-            label: text,
-            costs: &[],
-            resolution_destination: SpellResolutionDestinationDef::Graveyard,
-        },
-    )
-}
-
-const fn give_gift(effect: &'static EffectDef) -> AbilityDef {
-    AbilityDef::spell(
-        "If the gift was promised, give the chosen opponent the gift.",
-        EffectDef::IfCondition {
-            condition: &GIFT_PROMISED,
-            then: effect,
-        },
-    )
-    .on_resolution_completed(&crate::card::ResolutionEventDef {
-        mechanic: GIFT,
-        condition: Some(&GIFT_PROMISED),
-    })
-}
-
-const fn gift_arrival(effect: EffectDef) -> AbilityDef {
-    AbilityDef::triggered_if(
-        "When this permanent enters, if the gift was promised, give the chosen opponent the gift.",
-        TriggerEventDef::zone_changed(
-            ObjectPredicateDef::Source,
-            None,
-            Some(ZoneKind::Battlefield),
+/// Expand the entire keyword together so a card cannot omit gift delivery.
+/// The card type selects the keyword's spell clause or separate enters trigger.
+const fn gift(
+    card_type: CardType,
+    text: &'static str,
+    effect: &'static EffectDef,
+) -> [AbilityDef; 2] {
+    let delivery = if matches!(card_type, CardType::Instant | CardType::Sorcery) {
+        AbilityDef::spell(
+            "If the gift was promised, give the chosen opponent the gift.",
+            EffectDef::IfCondition {
+                condition: &GIFT_PROMISED,
+                then: effect,
+            },
+        )
+        .on_resolution_completed(&crate::card::ResolutionEventDef {
+            mechanic: GIFT,
+            condition: Some(&GIFT_PROMISED),
+        })
+    } else {
+        AbilityDef::triggered_if(
+            "When this permanent enters, if the gift was promised, give the chosen opponent the gift.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            &GIFT_PROMISED,
+            *effect,
+        )
+        .on_resolution_completed(&crate::card::ResolutionEventDef {
+            mechanic: GIFT,
+            condition: None,
+        })
+    };
+    [
+        AbilityDef::optional_additional_cost(
+            text,
+            OptionalAdditionalCostAbilityDef {
+                kind: OptionalAdditionalCostKindDef::ChooseOpponent(crate::Binding!("gift")),
+                label: text,
+                costs: &[],
+                resolution_destination: SpellResolutionDestinationDef::Graveyard,
+            },
         ),
-        &GIFT_PROMISED,
-        effect,
-    )
-    .on_resolution_completed(&crate::card::ResolutionEventDef {
-        mechanic: GIFT,
-        condition: None,
-    })
+        delivery,
+    ]
 }
 
 const GIFT_CARD: EffectDef = EffectDef::DrawCards {
@@ -517,10 +522,9 @@ pub(in crate::card::sets) static CRUMB_AND_GET_IT: CardRecord = CardRecord::new(
     "Crumb and Get It",
     "3c7b3b25-d4b3-4451-9f5c-6eb369541175",
     "Justyna Dura",
-    CardRules::new_instant(mana_cost!("{W}")).with_abilities(&[
-        gift("Gift a Food"),
-        give_gift(&GIFT_FOOD),
-        AbilityDef::spell_with_targets(
+    CardRules::new_instant(mana_cost!("{W}")).with_abilities(&crate::ability_list![
+        gift(CardType::Instant, "Gift a Food", &GIFT_FOOD),
+        [AbilityDef::spell_with_targets(
             "Target creature you control gets +2/+2 until end of turn. If the gift was \
             promised, that creature also gains indestructible until end of turn.",
             &[AbilityTargetDef::exactly_one(
@@ -549,7 +553,7 @@ pub(in crate::card::sets) static CRUMB_AND_GET_IT: CardRecord = CardRecord::new(
                     },
                 },
             ]),
-        ),
+        )],
     ]),
 );
 
@@ -558,10 +562,9 @@ pub(in crate::card::sets) static DAWN_S_TRUCE: CardRecord = CardRecord::new(
     "Dawn's Truce",
     "8f72bfa0-efef-48ce-aff8-d5818ed71ba6",
     "Justin Gerard",
-    CardRules::new_instant(mana_cost!("{1}{W}")).with_abilities(&[
-        gift("Gift a card"),
-        give_gift(&GIFT_CARD),
-        AbilityDef::spell(
+    CardRules::new_instant(mana_cost!("{1}{W}")).with_abilities(&crate::ability_list![
+        gift(CardType::Instant, "Gift a card", &GIFT_CARD),
+        [AbilityDef::spell(
             "You and permanents you control gain hexproof until end of turn. If the gift was \
             promised, permanents you control also gain indestructible until end of turn.",
             EffectDef::Sequence(&[
@@ -598,7 +601,7 @@ pub(in crate::card::sets) static DAWN_S_TRUCE: CardRecord = CardRecord::new(
                     },
                 },
             ]),
-        ),
+        )],
     ]),
 );
 
@@ -871,10 +874,9 @@ pub(in crate::card::sets) static PARTING_GUST: CardRecord = CardRecord::new(
     "Parting Gust",
     "1086e826-94b8-4398-8a38-d8eacca56a43",
     "Nils Hamm",
-    CardRules::new_instant(mana_cost!("{W}{W}")).with_abilities(&[
-        gift("Gift a tapped Fish"),
-        give_gift(&GIFT_FISH),
-        AbilityDef::spell_with_targets(
+    CardRules::new_instant(mana_cost!("{W}{W}")).with_abilities(&crate::ability_list![
+        gift(CardType::Instant, "Gift a tapped Fish", &GIFT_FISH),
+        [AbilityDef::spell_with_targets(
             "Exile target nontoken creature. If the gift wasn't promised, \
              return that card to the battlefield under its owner's control \
              with a +1/+1 counter on it at the beginning of the next end step.",
@@ -919,7 +921,7 @@ pub(in crate::card::sets) static PARTING_GUST: CardRecord = CardRecord::new(
                     )),
                 }),
             },
-        ),
+        )],
     ]),
 );
 
@@ -1204,10 +1206,9 @@ pub(in crate::card::sets) static STARFALL_INVOCATION: CardRecord = CardRecord::n
     "Starfall Invocation",
     "2aea38e6-ec58-4091-b27c-2761bdd12b13",
     "Rob Rey",
-    CardRules::new_sorcery(mana_cost!("{3}{W}{W}")).with_abilities(&[
-        gift("Gift a card"),
-        give_gift(&GIFT_CARD),
-        AbilityDef::spell_with_targets(
+    CardRules::new_sorcery(mana_cost!("{3}{W}{W}")).with_abilities(&crate::ability_list![
+        gift(CardType::Sorcery, "Gift a card", &GIFT_CARD),
+        [AbilityDef::spell_with_targets(
             "Destroy all creatures. If the gift was promised, return a creature card put into \
             your graveyard this way to the battlefield under your control.",
             &[],
@@ -1250,7 +1251,7 @@ pub(in crate::card::sets) static STARFALL_INVOCATION: CardRecord = CardRecord::n
                     },
                 }),
             },
-        ),
+        )],
     ]),
 );
 
@@ -1794,10 +1795,9 @@ pub(in crate::card::sets) static INTO_THE_FLOOD_MAW: CardRecord = CardRecord::ne
     "Into the Flood Maw",
     "50b9575a-53d9-4df7-b86c-cda021107d3f",
     "Danny Schwartz",
-    CardRules::new_instant(mana_cost!("{U}")).with_abilities(&[
-        gift("Gift a tapped Fish"),
-        give_gift(&GIFT_FISH),
-        AbilityDef::spell_with_targets(
+    CardRules::new_instant(mana_cost!("{U}")).with_abilities(&crate::ability_list![
+        gift(CardType::Instant, "Gift a tapped Fish", &GIFT_FISH),
+        [AbilityDef::spell_with_targets(
             "Return target creature an opponent controls to its owner's hand. If the gift was \
             promised, instead return target nonland permanent an opponent controls to its \
             owner's hand.",
@@ -1825,7 +1825,7 @@ pub(in crate::card::sets) static INTO_THE_FLOOD_MAW: CardRecord = CardRecord::ne
                 ZoneKind::Hand,
                 ZonePlacement::Top,
             ),
-        ),
+        )],
     ]),
 );
 
@@ -1836,11 +1836,10 @@ pub(in crate::card::sets) static KITNAP: CardRecord = CardRecord::new(
     "Irina Nordsol",
     CardRules::new_enchantment(mana_cost!("{2}{U}{U}"))
         .with_subtypes(&["Aura"])
-        .with_abilities(&[
-            gift("Gift a card"),
-            gift_arrival(GIFT_CARD),
-            abilities::enchant_creature(),
-            abilities::enters_trigger(
+        .with_abilities(&crate::ability_list![
+            gift(CardType::Enchantment, "Gift a card", &GIFT_CARD),
+            [abilities::enchant_creature()],
+            [abilities::enters_trigger(
                 "When this Aura enters, tap enchanted creature. If the gift wasn't promised, put \
             three stun counters on it.",
                 EffectDef::Sequence(&[
@@ -1856,8 +1855,8 @@ pub(in crate::card::sets) static KITNAP: CardRecord = CardRecord::new(
                         },
                     },
                 ]),
-            ),
-            AbilityDef::static_ability(
+            )],
+            [AbilityDef::static_ability(
                 "You control enchanted creature.",
                 EffectDef::gain_control(
                     EffectRecipientDef::AttachedPermanent,
@@ -1866,7 +1865,7 @@ pub(in crate::card::sets) static KITNAP: CardRecord = CardRecord::new(
                         while_tapped: false,
                     },
                 ),
-            ),
+            )],
         ]),
 );
 
@@ -2000,10 +1999,9 @@ pub(in crate::card::sets) static LONG_RIVER_S_PULL: CardRecord = CardRecord::new
     "Long River's Pull",
     "1c81d0fa-81a1-4f9b-a5fd-5a648fd01dea",
     "Raph Lomotan",
-    CardRules::new_instant(mana_cost!("{U}{U}")).with_abilities(&[
-        gift("Gift a card"),
-        give_gift(&GIFT_CARD),
-        AbilityDef::spell_with_targets(
+    CardRules::new_instant(mana_cost!("{U}{U}")).with_abilities(&crate::ability_list![
+        gift(CardType::Instant, "Gift a card", &GIFT_CARD),
+        [AbilityDef::spell_with_targets(
             "Counter target creature spell. If the gift was promised, \
             instead counter target spell.",
             &[AbilityTargetDef::exactly_one(
@@ -2027,7 +2025,7 @@ pub(in crate::card::sets) static LONG_RIVER_S_PULL: CardRecord = CardRecord::new
                 },
             )],
             EffectDef::counter_target(TargetIndex::PRIMARY),
-        ),
+        )],
     ]),
 );
 
@@ -2036,10 +2034,9 @@ pub(in crate::card::sets) static MIND_SPIRAL: CardRecord = CardRecord::new(
     "Mind Spiral",
     "7e24fe6a-607b-49b8-9fca-cecb1e40de7f",
     "Filip Burburan",
-    CardRules::new_sorcery(mana_cost!("{4}{U}")).with_abilities(&[
-        gift("Gift a tapped Fish"),
-        give_gift(&GIFT_FISH),
-        AbilityDef::spell_with_targets(
+    CardRules::new_sorcery(mana_cost!("{4}{U}")).with_abilities(&crate::ability_list![
+        gift(CardType::Sorcery, "Gift a tapped Fish", &GIFT_FISH),
+        [AbilityDef::spell_with_targets(
             "Target player draws three cards. If the gift was promised, tap target creature an \
             opponent controls and put a stun counter on it. (If a permanent with a stun \
             counter would become untapped, remove one from it instead.)",
@@ -2078,7 +2075,7 @@ pub(in crate::card::sets) static MIND_SPIRAL: CardRecord = CardRecord::new(
                     ]),
                 },
             ]),
-        ),
+        )],
     ]),
 );
 
@@ -2968,10 +2965,9 @@ pub(in crate::card::sets) static COILING_REBIRTH: CardRecord = CardRecord::new(
     "Coiling Rebirth",
     "96d5de3e-0440-4dd1-899c-ab40c0752343",
     "Rovina Cai",
-    CardRules::new_sorcery(mana_cost!("{3}{B}{B}")).with_abilities(&[
-        gift("Gift a card"),
-        give_gift(&GIFT_CARD),
-        AbilityDef::spell_with_targets(
+    CardRules::new_sorcery(mana_cost!("{3}{B}{B}")).with_abilities(&crate::ability_list![
+        gift(CardType::Sorcery, "Gift a card", &GIFT_CARD),
+        [AbilityDef::spell_with_targets(
             "Return target creature card from your graveyard to the battlefield. Then if the \
             gift was promised and that creature isn't legendary, create a token that's a copy \
             of that creature, except it's 1/1.",
@@ -3002,7 +2998,7 @@ pub(in crate::card::sets) static COILING_REBIRTH: CardRecord = CardRecord::new(
                     ))),
                 },
             },
-        ),
+        )],
     ]),
 );
 
@@ -3011,10 +3007,9 @@ pub(in crate::card::sets) static CONSUMED_BY_GREED: CardRecord = CardRecord::new
     "Consumed by Greed",
     "e50acc41-3517-42db-b1d3-1bdfd7294d84",
     "Mathias Kollros",
-    CardRules::new_instant(mana_cost!("{1}{B}{B}")).with_abilities(&[
-        gift("Gift a card"),
-        give_gift(&GIFT_CARD),
-        AbilityDef::spell_with_targets(
+    CardRules::new_instant(mana_cost!("{1}{B}{B}")).with_abilities(&crate::ability_list![
+        gift(CardType::Instant, "Gift a card", &GIFT_CARD),
+        [AbilityDef::spell_with_targets(
             "Target opponent sacrifices a creature with the greatest power among creatures \
             they control. If the gift was promised, return target creature card from your \
             graveyard to your hand.",
@@ -3068,7 +3063,7 @@ pub(in crate::card::sets) static CONSUMED_BY_GREED: CardRecord = CardRecord::new
                     ),
                 },
             ]),
-        ),
+        )],
     ]),
 );
 
@@ -3491,10 +3486,9 @@ pub(in crate::card::sets) static NOCTURNAL_HUNGER: CardRecord = CardRecord::new(
     "Nocturnal Hunger",
     "742c0409-9abd-4559-b52e-932cc90c531a",
     "Sam Guay",
-    CardRules::new_instant(mana_cost!("{2}{B}")).with_abilities(&[
-        gift("Gift a Food"),
-        give_gift(&GIFT_FOOD),
-        AbilityDef::spell_with_targets(
+    CardRules::new_instant(mana_cost!("{2}{B}")).with_abilities(&crate::ability_list![
+        gift(CardType::Instant, "Gift a Food", &GIFT_FOOD),
+        [AbilityDef::spell_with_targets(
             "Destroy target creature. If the gift wasn't promised, you lose 2 life.",
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Object {
@@ -3517,7 +3511,7 @@ pub(in crate::card::sets) static NOCTURNAL_HUNGER: CardRecord = CardRecord::new(
                     },
                 },
             ]),
-        ),
+        )],
     ]),
 );
 
@@ -4243,10 +4237,9 @@ pub(in crate::card::sets) static BLOOMING_BLAST: CardRecord = CardRecord::new(
     "Blooming Blast",
     "0cd92a83-cec3-4085-a929-3f204e3e0140",
     "Jakob Eirich",
-    CardRules::new_instant(mana_cost!("{1}{R}")).with_abilities(&[
-        gift("Gift a Treasure"),
-        give_gift(&GIFT_TREASURE),
-        AbilityDef::spell_with_targets(
+    CardRules::new_instant(mana_cost!("{1}{R}")).with_abilities(&crate::ability_list![
+        gift(CardType::Instant, "Gift a Treasure", &GIFT_TREASURE),
+        [AbilityDef::spell_with_targets(
             "Blooming Blast deals 2 damage to target creature. If the gift was promised, \
             Blooming Blast also deals 3 damage to that creature's controller.",
             &[AbilityTargetDef::exactly_one(
@@ -4273,7 +4266,7 @@ pub(in crate::card::sets) static BLOOMING_BLAST: CardRecord = CardRecord::new(
                     )),
                 ),
             ]),
-        ),
+        )],
     ]),
 );
 
@@ -4901,10 +4894,9 @@ pub(in crate::card::sets) static SAZACAP_S_BREW: CardRecord = CardRecord::new(
     "Sazacap's Brew",
     "6d963080-b3ec-467d-82f7-39db6ecd6bbc",
     "Sam Guay",
-    CardRules::new_instant(mana_cost!("{1}{R}")).with_abilities(&[
-        gift("Gift a tapped Fish"),
-        give_gift(&GIFT_FISH),
-        AbilityDef::spell_with_targets(
+    CardRules::new_instant(mana_cost!("{1}{R}")).with_abilities(&crate::ability_list![
+        gift(CardType::Instant, "Gift a tapped Fish", &GIFT_FISH),
+        [AbilityDef::spell_with_targets(
             "As an additional cost to cast this spell, discard a card.\nTarget player draws \
             two cards. If the gift was promised, target creature you control gets +2/+0 until \
             end of turn.",
@@ -4942,7 +4934,7 @@ pub(in crate::card::sets) static SAZACAP_S_BREW: CardRecord = CardRecord::new(
                 },
             ]),
         )
-        .with_spell_additional_cost(&CostDef::DiscardCards(1)),
+        .with_spell_additional_cost(&CostDef::DiscardCards(1))],
     ]),
 );
 
@@ -5155,10 +5147,9 @@ pub(in crate::card::sets) static VALLEY_RALLY: CardRecord = CardRecord::new(
     "Valley Rally",
     "b6178258-1ad6-4122-a56f-6eb7d0611e84",
     "Sidharth Chaturvedi",
-    CardRules::new_instant(mana_cost!("{2}{R}")).with_abilities(&[
-        gift("Gift a Food"),
-        give_gift(&GIFT_FOOD),
-        AbilityDef::spell_with_targets(
+    CardRules::new_instant(mana_cost!("{2}{R}")).with_abilities(&crate::ability_list![
+        gift(CardType::Instant, "Gift a Food", &GIFT_FOOD),
+        [AbilityDef::spell_with_targets(
             "Creatures you control get +2/+0 until end of turn. If the gift was promised, \
             target creature you control gains first strike until end of turn.",
             &[AbilityTargetDef::exactly_value(
@@ -5198,7 +5189,7 @@ pub(in crate::card::sets) static VALLEY_RALLY: CardRecord = CardRecord::new(
                     },
                 },
             ]),
-        ),
+        )],
     ]),
 );
 
@@ -5260,10 +5251,9 @@ pub(in crate::card::sets) static WILDFIRE_HOWL: CardRecord = CardRecord::new(
     "Wildfire Howl",
     "7392d397-9836-4df2-944d-c930c9566811",
     "Manuel Castañón",
-    CardRules::new_sorcery(mana_cost!("{1}{R}{R}")).with_abilities(&[
-        gift("Gift a card"),
-        give_gift(&GIFT_CARD),
-        AbilityDef::spell_with_targets(
+    CardRules::new_sorcery(mana_cost!("{1}{R}{R}")).with_abilities(&crate::ability_list![
+        gift(CardType::Sorcery, "Gift a card", &GIFT_CARD),
+        [AbilityDef::spell_with_targets(
             "Wildfire Howl deals 2 damage to each creature. If the gift was promised, instead \
             Wildfire Howl deals 1 damage to any target and 2 damage to each creature.",
             &[AbilityTargetDef::exactly_value(
@@ -5292,7 +5282,7 @@ pub(in crate::card::sets) static WILDFIRE_HOWL: CardRecord = CardRecord::new(
                     ValueDef::Constant(2),
                 ),
             ]),
-        ),
+        )],
     ]),
 );
 
@@ -6086,10 +6076,9 @@ pub(in crate::card::sets) static LONGSTALK_BRAWL: CardRecord = CardRecord::new(
     "Longstalk Brawl",
     "c7ef748c-b5e5-4e7d-bf2e-d3e6c08edb42",
     "Serena Malyon",
-    CardRules::new_sorcery(mana_cost!("{G}")).with_abilities(&[
-        gift("Gift a tapped Fish"),
-        give_gift(&GIFT_FISH),
-        AbilityDef::spell_with_targets(
+    CardRules::new_sorcery(mana_cost!("{G}")).with_abilities(&crate::ability_list![
+        gift(CardType::Sorcery, "Gift a tapped Fish", &GIFT_FISH),
+        [AbilityDef::spell_with_targets(
             "Choose target creature you control and target creature you don't control. Put a \
             +1/+1 counter on the creature you control if the gift was promised. Then those \
             creatures fight each other.",
@@ -6122,7 +6111,7 @@ pub(in crate::card::sets) static LONGSTALK_BRAWL: CardRecord = CardRecord::new(
                     excess: None,
                 },
             ]),
-        ),
+        )],
     ]),
 );
 
@@ -6352,10 +6341,9 @@ pub(in crate::card::sets) static PEERLESS_RECYCLING: CardRecord = CardRecord::ne
     "Peerless Recycling",
     "5f72466c-505b-4371-9366-0fde525a37e6",
     "Jeff Miracola",
-    CardRules::new_instant(mana_cost!("{1}{G}")).with_abilities(&[
-        gift("Gift a card"),
-        give_gift(&GIFT_CARD),
-        AbilityDef::spell_with_targets(
+    CardRules::new_instant(mana_cost!("{1}{G}")).with_abilities(&crate::ability_list![
+        gift(CardType::Instant, "Gift a card", &GIFT_CARD),
+        [AbilityDef::spell_with_targets(
             "Return target permanent card from your graveyard to your hand. If the gift was \
             promised, instead return two target permanent cards from your graveyard to your \
             hand.",
@@ -6383,7 +6371,7 @@ pub(in crate::card::sets) static PEERLESS_RECYCLING: CardRecord = CardRecord::ne
                 ZoneKind::Hand,
                 ZonePlacement::Top,
             ),
-        ),
+        )],
     ]),
 );
 
@@ -6462,11 +6450,10 @@ pub(in crate::card::sets) static SCRAPSHOOTER: CardRecord = CardRecord::new(
     "c42ab407-e72d-4c48-9a9e-2055b5e71c69",
     "Chris Rahn",
     CardRules::new_creature(mana_cost!("{1}{G}{G}"), &["Raccoon", "Archer"], 4, 4).with_abilities(
-        &[
-            gift("Gift a card"),
-            gift_arrival(GIFT_CARD),
-            abilities::reach(),
-            AbilityDef::triggered_if_with_targets(
+        &crate::ability_list![
+            gift(CardType::Creature, "Gift a card", &GIFT_CARD),
+            [abilities::reach()],
+            [AbilityDef::triggered_if_with_targets(
                 "When this creature enters, if the gift was promised, destroy target artifact or \
             enchantment an opponent controls.",
                 TriggerEventDef::zone_changed(
@@ -6490,7 +6477,7 @@ pub(in crate::card::sets) static SCRAPSHOOTER: CardRecord = CardRecord::new(
                     object: EffectRecipientDef::Target(TargetIndex(0)),
                     then: None,
                 },
-            ),
+            )],
         ],
     ),
 );
@@ -6779,10 +6766,9 @@ pub(in crate::card::sets) static WEAR_DOWN: CardRecord = CardRecord::new(
     "Wear Down",
     "fded2b83-3b7d-4c8c-83c4-0624a1069628",
     "Iris Compiet",
-    CardRules::new_sorcery(mana_cost!("{1}{G}")).with_abilities(&[
-        gift("Gift a card"),
-        give_gift(&GIFT_CARD),
-        AbilityDef::spell_with_targets(
+    CardRules::new_sorcery(mana_cost!("{1}{G}")).with_abilities(&crate::ability_list![
+        gift(CardType::Sorcery, "Gift a card", &GIFT_CARD),
+        [AbilityDef::spell_with_targets(
             "Destroy target artifact or enchantment. If the gift was promised, instead destroy \
             two target artifacts and/or enchantments.",
             &[AbilityTargetDef::exactly_value(
@@ -6805,7 +6791,7 @@ pub(in crate::card::sets) static WEAR_DOWN: CardRecord = CardRecord::new(
                 object: EffectRecipientDef::Target(TargetIndex(0)),
                 then: None,
             },
-        ),
+        )],
     ]),
 );
 
@@ -7931,10 +7917,9 @@ pub(in crate::card::sets) static STARFORGED_SWORD: CardRecord = CardRecord::new(
     "Mark Poole",
     CardRules::new_artifact(mana_cost!("{4}"))
         .with_subtypes(&["Equipment"])
-        .with_abilities(&[
-            gift("Gift a tapped Fish"),
-            gift_arrival(GIFT_FISH),
-            AbilityDef::triggered_if_with_targets(
+        .with_abilities(&crate::ability_list![
+            gift(CardType::Artifact, "Gift a tapped Fish", &GIFT_FISH),
+            [AbilityDef::triggered_if_with_targets(
                 "When this Equipment enters, if the gift was promised, attach this Equipment to \
             target creature you control.",
                 TriggerEventDef::zone_changed(
@@ -7954,8 +7939,8 @@ pub(in crate::card::sets) static STARFORGED_SWORD: CardRecord = CardRecord::new(
                 EffectDef::Attach {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 },
-            ),
-            AbilityDef::static_ability(
+            )],
+            [AbilityDef::static_ability(
                 "Equipped creature gets +3/+3 and loses flying.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::AttachedPermanent,
@@ -7969,8 +7954,11 @@ pub(in crate::card::sets) static STARFORGED_SWORD: CardRecord = CardRecord::new(
                         )),
                     ]),
                 },
-            ),
-            abilities::equip(&[CostDef::Mana(mana_cost!("{3}"))], "Equip {3}"),
+            )],
+            [abilities::equip(
+                &[CostDef::Mana(mana_cost!("{3}"))],
+                "Equip {3}"
+            )],
         ]),
 );
 

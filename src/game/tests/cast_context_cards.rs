@@ -6,6 +6,7 @@ use super::*;
 fn a_spell_copy_keeps_choices_and_payment_objects_but_not_actual_payment_facts() {
     let original = CastContext {
         player_bindings: std::collections::BTreeMap::new(),
+        caster: Some(PlayerId::One),
         source_zone: Some(CastSourceZone::Graveyard),
         alternative: Some(AlternativeCastKindDef::Escape),
         alternative_cost_binding: Some("evoke".to_owned()),
@@ -26,6 +27,7 @@ fn a_spell_copy_keeps_choices_and_payment_objects_but_not_actual_payment_facts()
     let copied = original.for_spell_copy();
 
     assert_eq!(copied.source_zone, None);
+    assert_eq!(copied.caster, None);
     assert_eq!(copied.alternative, original.alternative);
     assert_eq!(
         copied.alternative_cost_binding,

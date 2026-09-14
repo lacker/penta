@@ -988,3 +988,8 @@ mod enduring_cycle;
 mod eternal_deck_cards;
 #[path = "tests/the_hobbit.rs"]
 mod the_hobbit;
+
+mod hollow_one;
+mod sickening_shoal;
+mod vintage_dredge;
+mod vintage_dredge_recursion;

@@ -121,6 +121,8 @@ pub(super) struct PermanentSnapshot {
     /// nothing, which is what a permanent nobody cast carries anyway.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub(super) cast_from_zone: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(super) cast_by: Option<usize>,
     pub(super) destroy_at_end: bool,
     pub(super) counters: Vec<CounterSnapshot>,
     pub(super) attached_to: Option<u32>,

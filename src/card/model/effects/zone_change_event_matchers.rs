@@ -18,6 +18,10 @@ pub struct ZoneChangeEventMatcherDef {
     pub from: Option<ZoneKind>,
     pub to: Option<ZoneKind>,
     pub observation: ZoneChangeObservationDef,
+    /// Restrict an arriving object to one actually cast from this zone.
+    pub cast_from: Option<ZoneKind>,
+    /// Restrict the original caster, independently of the object's current controller.
+    pub cast_by: Option<PlayerRelation>,
     pub previously_damaged_by: Option<ObjectRefDef>,
 }
 
@@ -41,8 +45,17 @@ impl ZoneChangeEventMatcherDef {
             } else {
                 ZoneChangeObservationDef::After
             },
+            cast_from: None,
+            cast_by: None,
             previously_damaged_by: None,
         }
+    }
+
+    #[must_use]
+    pub const fn cast_from(mut self, zone: ZoneKind, player: PlayerRelation) -> Self {
+        self.cast_from = Some(zone);
+        self.cast_by = Some(player);
+        self
     }
 
     #[must_use]

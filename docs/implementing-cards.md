@@ -470,6 +470,14 @@ its controller. Compose an ordinary `PayOrDef::unless` with `Counter` for a trig
 tax. The engine freezes these observers at the event and places them in the second
 APNAP pass required by CR 603.3b, after the abilities that caused them to trigger.
 
+### Dredge
+
+Use `sets::ravnica_city_of_guilds::dredge::<N>(text)` for the graveyard draw
+replacement. It checks that the library contains at least N cards before offering
+the choice, then composes milling and returning the source. The draw procedure
+rechecks replacements between individual draws, so a newly milled dredger can
+replace the next draw of the same instruction. Draw prohibitions apply first.
+
 ### Harmonize
 
 Use `sets::tarkir_dragonstorm::harmonize(costs)` for the complete graveyard

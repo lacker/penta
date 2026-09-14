@@ -1,5 +1,7 @@
 fn unsupported_trigger_event(event: TriggerEventDef) -> GrantedAbilityValidationError {
-    GrantedAbilityValidationError::UnsupportedTriggerEvent { event: Box::new(event) }
+    GrantedAbilityValidationError::UnsupportedTriggerEvent {
+        event: Box::new(event),
+    }
 }
 
 /// The values a stat comparison in a trigger predicate may read. A list
@@ -7,29 +9,30 @@ fn unsupported_trigger_event(event: TriggerEventDef) -> GrantedAbilityValidation
 fn trigger_stat_value_is_supported(value: ValueDef) -> bool {
     matches!(
         value,
-                ValueDef::CreaturesDiedThisTurn
-                    | ValueDef::CardTypesAmongGraveyards(_)
-                    | ValueDef::IfCardTypesAmongGraveyards(_)
-                    | ValueDef::Constant(_)
-                    | ValueDef::ChosenX
-                    | ValueDef::SourceCastX
-                    | ValueDef::SourcePower
-                    | ValueDef::AffectedManaValue
-                    | ValueDef::LifeTotal(_)
-                    | ValueDef::SourceToughness
-                    | ValueDef::CountersOnSource(_)
-                    | ValueDef::CardsDrawnThisTurn(_)
-                    | ValueDef::DevotionTo(_)
-        | ValueDef::BasicLandTypesControlled(_)
-                    | ValueDef::LibrarySize(_)
-        | ValueDef::SpellsCastThisGame(_)
-                    | ValueDef::ColorsOfManaSpent
-                    | ValueDef::PaidAmount
-                    | ValueDef::MatchedCount
-                    | ValueDef::MatchedCardTypes
-                    | ValueDef::MatchedManaValue
-                    | ValueDef::BoundObjectCount(_)
-                    | ValueDef::SpellsCastBeforeThisTurn
+        ValueDef::CreaturesDiedThisTurn
+            | ValueDef::CardTypesAmongGraveyards(_)
+            | ValueDef::IfCardTypesAmongGraveyards(_)
+            | ValueDef::Constant(_)
+            | ValueDef::ChosenX
+            | ValueDef::SourceCastX
+            | ValueDef::SourcePower
+            | ValueDef::AffectedManaValue
+            | ValueDef::LifeTotal(_)
+            | ValueDef::SourceToughness
+            | ValueDef::CountersOnSource(_)
+            | ValueDef::CardsDrawnThisTurn(_)
+            | ValueDef::CardsDiscardedThisTurn(_)
+            | ValueDef::DevotionTo(_)
+            | ValueDef::BasicLandTypesControlled(_)
+            | ValueDef::LibrarySize(_)
+            | ValueDef::SpellsCastThisGame(_)
+            | ValueDef::ColorsOfManaSpent
+            | ValueDef::PaidAmount
+            | ValueDef::MatchedCount
+            | ValueDef::MatchedCardTypes
+            | ValueDef::MatchedManaValue
+            | ValueDef::BoundObjectCount(_)
+            | ValueDef::SpellsCastBeforeThisTurn
     )
 }
 
@@ -187,7 +190,7 @@ fn trigger_predicate_requires_live_battlefield(predicate: ObjectPredicateDef) ->
         | ObjectPredicateDef::ToughnessGreaterThanItsPower
         | ObjectPredicateDef::HasCounter(_)
         | ObjectPredicateDef::HasAnyCounter
-            | ObjectPredicateDef::CounterCount { .. }
+        | ObjectPredicateDef::CounterCount { .. }
         | ObjectPredicateDef::ControlledBy(_)
         | ObjectPredicateDef::OwnedBy(_)
         | ObjectPredicateDef::Supertype(_)
@@ -474,8 +477,12 @@ fn validate_trigger_event_references(
         | TriggerEventDef::CountersPlaced {
             object: predicate, ..
         }
-        | TriggerEventDef::CountersRemoved { object: predicate, .. }
-        | TriggerEventDef::LastCounterRemoved { object: predicate, .. }
+        | TriggerEventDef::CountersRemoved {
+            object: predicate, ..
+        }
+        | TriggerEventDef::LastCounterRemoved {
+            object: predicate, ..
+        }
         | TriggerEventDef::Transforms(predicate) => {
             validate_trigger_object_predicate(predicate, event, target_count, scope)
         }
@@ -524,8 +531,8 @@ fn validate_stack_target_filter(
         | StackTargetFilterDef::Spell(predicate) => {
             validate_trigger_object_predicate(predicate, event, target_count, scope)
         }
-        StackTargetFilterDef::AnyOf(filters) => filters
-            .iter()
-            .try_for_each(|filter| validate_stack_target_filter(*filter, event, target_count, scope)),
+        StackTargetFilterDef::AnyOf(filters) => filters.iter().try_for_each(|filter| {
+            validate_stack_target_filter(*filter, event, target_count, scope)
+        }),
     }
 }

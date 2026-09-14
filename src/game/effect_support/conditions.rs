@@ -24,10 +24,8 @@
 ///
 /// Thread-local rather than a field, because `Game` stays `Send + Sync` for
 /// the Python binding and a `RefCell` field would cost that.
-type ConditionMemo = std::collections::HashMap<
-    (crate::card::ObjectSetCountConditionDef, GameObjectId),
-    bool,
->;
+type ConditionMemo =
+    std::collections::HashMap<(crate::card::ObjectSetCountConditionDef, GameObjectId), bool>;
 
 thread_local! {
     /// The memo and the address of the game that installed it.
@@ -103,9 +101,7 @@ impl Game {
         let count = condition.predicate.filter.map_or(objects.len(), |filter| {
             objects
                 .into_iter()
-                .filter(|target| {
-                    self.bound_object_matches(*target, filter.predicate(), source)
-                })
+                .filter(|target| self.bound_object_matches(*target, filter.predicate(), source))
                 .count()
         });
         compare(
@@ -177,16 +173,17 @@ impl Game {
                 } else {
                     self.successors.get(&id).copied().unwrap_or(id)
                 };
-                return self.card_in_nonbattlefield_zone(id).is_some_and(|(zone, card)| {
-                    self.card_object_matches(predicate, card, zone, source)
-                });
+                return self
+                    .card_in_nonbattlefield_zone(id)
+                    .is_some_and(|(zone, card)| {
+                        self.card_object_matches(predicate, card, zone, source)
+                    });
             }
             // A player has no characteristics to read.
             Target::Player(_) => None,
         };
-        matched.is_some_and(|matched| {
-            self.trigger_object_matches(predicate, &matched, source, false)
-        })
+        matched
+            .is_some_and(|matched| self.trigger_object_matches(predicate, &matched, source, false))
     }
 
     /// How many times this ability has been activated from this permanent so
@@ -223,13 +220,9 @@ impl Game {
             }
             crate::card::ValueDef::LifeTotal(relation) => [PlayerId::One, PlayerId::Two]
                 .into_iter()
-                .find(|player| {
-                    self.player_relation_matches(*player, relation, controller, context)
-                })
+                .find(|player| self.player_relation_matches(*player, relation, controller, context))
                 .map_or(0, |player| i32::from(self.players[player.index()].life)),
-            crate::card::ValueDef::StartingLifeTotal => {
-                i32::from(self.starting_life_total())
-            }
+            crate::card::ValueDef::StartingLifeTotal => i32::from(self.starting_life_total()),
             // "Activate only if this creature's power is 3 or greater": read
             // live off the source, so a pump that resolved in response is
             // part of the answer.
@@ -241,27 +234,26 @@ impl Game {
                 .map_or(0, i32::from),
             // Read live: an intervening-if asking whether this was the
             // first land is asked after the land drop was counted.
-            crate::card::ValueDef::LandsPlayedThisTurn(relation) => {
-                [PlayerId::One, PlayerId::Two]
-                    .into_iter()
-                    .filter(|player| {
-                        self.player_relation_matches(*player, relation, controller, context)
-                    })
-                    .map(|player| i32::from(self.players[player.index()].lands_played_this_turn))
-                    .sum()
-            }
+            crate::card::ValueDef::LandsPlayedThisTurn(relation) => [PlayerId::One, PlayerId::Two]
+                .into_iter()
+                .filter(|player| {
+                    self.player_relation_matches(*player, relation, controller, context)
+                })
+                .map(|player| i32::from(self.players[player.index()].lands_played_this_turn))
+                .sum(),
             crate::card::ValueDef::DevotionTo(_)
             | crate::card::ValueDef::LibrarySize(_)
             | crate::card::ValueDef::SpellsCastThisGame(_)
             | crate::card::ValueDef::BasicLandTypesControlled(_) => {
                 self.player_readable_value(value, controller)
             }
-            crate::card::ValueDef::CountObjects(objects) => i32::try_from(
-                self.source_object_set_targets(*objects, source).len(),
-            )
-            .unwrap_or(i32::MAX),
-            crate::card::ValueDef::CardTypesAmongObjects(objects) => self
-                .card_types_among_targets(&self.source_object_set_targets(*objects, source)),
+            crate::card::ValueDef::CountObjects(objects) => {
+                i32::try_from(self.source_object_set_targets(*objects, source).len())
+                    .unwrap_or(i32::MAX)
+            }
+            crate::card::ValueDef::CardTypesAmongObjects(objects) => {
+                self.card_types_among_targets(&self.source_object_set_targets(*objects, source))
+            }
             crate::card::ValueDef::CardTypesAmongGraveyards(player) => {
                 self.card_types_among_graveyards(player, controller)
             }
@@ -293,6 +285,15 @@ impl Game {
                 })
                 .map(|player| i32::from(self.cards_drawn_this_turn[player.index()]))
                 .sum(),
+            crate::card::ValueDef::CardsDiscardedThisTurn(relation) => {
+                [PlayerId::One, PlayerId::Two]
+                    .into_iter()
+                    .filter(|player| {
+                        self.player_relation_matches(*player, relation, controller, context)
+                    })
+                    .map(|player| i32::from(self.cards_discarded_this_turn[player.index()]))
+                    .sum()
+            }
             crate::card::ValueDef::Sum(sum) => self
                 .condition_value(sum.left, source, controller, context)
                 .saturating_add(self.condition_value(sum.right, source, controller, context)),
@@ -550,18 +551,16 @@ impl Game {
                 // to read what it last was (CR 603.10); finding nothing and
                 // answering no would be the wrong answer rather than a
                 // deliberate one.
-                TriggerConditionDef::ObjectSetCount(counting) => {
-                    object.map_or_else(
-                        || self.source_object_set_count_condition_holds(**counting, source),
-                        |(object, scoped, context)| {
-                            let objects =
-                                self.effect_objects(*counting.objects, object, context, *scoped);
-                            self.effect_object_set_count_condition_holds(
-                                **counting, objects, object, context, *scoped,
-                            )
-                        },
-                    )
-                }
+                TriggerConditionDef::ObjectSetCount(counting) => object.map_or_else(
+                    || self.source_object_set_count_condition_holds(**counting, source),
+                    |(object, scoped, context)| {
+                        let objects =
+                            self.effect_objects(*counting.objects, object, context, *scoped);
+                        self.effect_object_set_count_condition_holds(
+                            **counting, objects, object, context, *scoped,
+                        )
+                    },
+                ),
                 TriggerConditionDef::SourceMatches { object: predicate } => {
                     if let Some(permanent) = self
                         .battlefield
@@ -581,9 +580,10 @@ impl Game {
                             false,
                         )
                     } else {
-                        self.card_in_nonbattlefield_zone(source).is_some_and(|(zone, card)| {
-                            self.card_object_matches(*predicate, card, zone, source)
-                        })
+                        self.card_in_nonbattlefield_zone(source)
+                            .is_some_and(|(zone, card)| {
+                                self.card_object_matches(*predicate, card, zone, source)
+                            })
                     }
                 }
                 // Last-known by construction: the permanent this asks about
@@ -621,7 +621,9 @@ impl Game {
                         )
                     }),
                 TriggerConditionDef::SourceClassLevel { comparison, level } => compare(
-                    &self.current_or_last_known_class_level(source), *comparison, level,
+                    &self.current_or_last_known_class_level(source),
+                    *comparison,
+                    level,
                 ),
                 // Read live off the source, so a card whose counters change
                 // during a turn answers differently each time it is asked --
@@ -648,11 +650,10 @@ impl Game {
                 TriggerConditionDef::SourceCastAtInstantSpeed => self
                     .cast_context_for(source, object.map(|(resolving, _, _)| resolving))
                     .is_some_and(|cast| cast.at_instant_speed),
-                TriggerConditionDef::SourceCastFrom(zone) => {
-                    self.cast_context_for(source, object.map(|(resolving, _, _)| resolving))
-                        .and_then(|cast| cast.source_zone)
-                        .is_some_and(|from| from.zone() == *zone)
-                }
+                TriggerConditionDef::SourceCastFrom(zone) => self
+                    .cast_context_for(source, object.map(|(resolving, _, _)| resolving))
+                    .and_then(|cast| cast.source_zone)
+                    .is_some_and(|from| from.zone() == *zone),
                 // Any recorded cast zone means it was cast; nothing else
                 // sets one.
                 TriggerConditionDef::SourceWasCast => self

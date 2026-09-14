@@ -40,6 +40,7 @@ fn static_power_toughness_value_supported(value: ValueDef) -> bool {
         // A per-turn tally the game keeps and clears with the turn, read the
         // same way and just as live.
         | ValueDef::CardsDrawnThisTurn(_)
+        | ValueDef::CardsDiscardedThisTurn(_)
         | ValueDef::LandsPlayedThisTurn(_)
         | ValueDef::LifeGainedThisTurn(_)
         | ValueDef::CountSpellsCastThisTurn(_)
@@ -149,7 +150,8 @@ fn static_cost_reduction_value_supported(value: ValueDef) -> bool {
         }
         // Domain counts basic land types rather than permanents, which no
         // query can say. The planner reads it off the board the same way.
-        ValueDef::BasicLandTypesControlled(relation) => static_player_relation_supported(relation),
+        ValueDef::BasicLandTypesControlled(relation)
+        | ValueDef::CardsDiscardedThisTurn(relation) => static_player_relation_supported(relation),
         ValueDef::Sum(sum) => {
             static_cost_reduction_value_supported(sum.left)
                 && static_cost_reduction_value_supported(sum.right)
@@ -268,13 +270,16 @@ fn static_spell_cost_modification_supported(
                         && amount.x_multiplier == 0
                 }
             };
-            static_spell_cost_condition(modification.condition) && source_supported
+            static_spell_cost_condition(modification.condition)
+                && source_supported
                 && static_object_predicate_supported(modification.spell)
                 && static_player_relation_supported(modification.caster)
                 && amount_supported
         }
         CostModificationDef::SpecialActionReduction { player, zones, .. } => {
-            source_zones == [ZoneKind::Battlefield] && !zones.is_empty() && static_player_relation_supported(player)
+            source_zones == [ZoneKind::Battlefield]
+                && !zones.is_empty()
+                && static_player_relation_supported(player)
         }
         CostModificationDef::SpellAlternative {
             spell,

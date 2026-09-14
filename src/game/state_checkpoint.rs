@@ -599,6 +599,7 @@ impl Game {
             spells_cast_last_turn: self.spells_cast_last_turn,
             spell_cast_history_this_turn: object_ids_snapshot(&self.spell_cast_history_this_turn),
             cards_drawn_this_turn: self.cards_drawn_this_turn,
+            cards_discarded_this_turn: self.cards_discarded_this_turn,
             citys_blessing: self.citys_blessing,
             permanent_left_battlefield_this_turn: self.permanent_left_battlefield_this_turn,
             card_left_graveyard_this_turn: self.card_left_graveyard_this_turn,

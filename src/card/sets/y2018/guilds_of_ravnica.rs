@@ -130,6 +130,66 @@ pub(in crate::card::sets) static BURGLAR_RAT: CardRecord = CardRecord::new(
     ]),
 );
 
+// GRN 66 — Creeping Chill
+static CREEPING_CHILL_DRAIN: EffectDef = EffectDef::Sequence(&[
+    EffectDef::DealDamage(crate::card::DamageDef::new(
+        EffectRecipientDef::Opponent,
+        ValueDef::Constant(3),
+    )),
+    EffectDef::GainLife {
+        recipient: EffectRecipientDef::Controller,
+        amount: ValueDef::Constant(3),
+    },
+]);
+pub(in crate::card::sets) static CREEPING_CHILL: CardRecord = CardRecord::new(
+    "Creeping Chill",
+    "f5456173-7a08-4b5c-8450-7123375f4a86",
+    "Wisnu Tan",
+    CardRules::new_sorcery(mana_cost!("{3}{B}")).with_abilities(&[
+        AbilityDef::spell(
+            "Creeping Chill deals 3 damage to each opponent and you gain 3 life.",
+            CREEPING_CHILL_DRAIN,
+        ),
+        AbilityDef::triggered(
+            "When Creeping Chill is put into your graveyard from your library, you may exile it. \
+             If you do, Creeping Chill deals 3 damage to each opponent and you gain 3 life.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                Some(ZoneKind::Library),
+                Some(ZoneKind::Graveyard),
+            ),
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::SourceInZone(ZoneKind::Graveyard),
+                then: &EffectDef::May {
+                    player: EffectRecipientDef::Controller,
+                    effect: &EffectDef::WithZoneMoveResult {
+                        effect: &EffectDef::move_to_zone(
+                            EffectRecipientDef::Source,
+                            ZoneKind::Exile,
+                            ZonePlacement::Top,
+                        ),
+                        binding: crate::Binding!("exiled"),
+                        then: &EffectDef::IfCondition {
+                            condition: &TriggerConditionDef::ObjectSetCount(
+                                &crate::card::ObjectSetCountConditionDef {
+                                    objects: &ObjectSetDef::ZoneChangeSuccessorsOfBinding(
+                                        crate::Binding!("exiled"),
+                                    ),
+                                    predicate: crate::card::ObjectSetPredicateDef::contains(
+                                        &ObjectPredicateDef::Any,
+                                    ),
+                                },
+                            ),
+                            then: &CREEPING_CHILL_DRAIN,
+                        },
+                    },
+                },
+            },
+        )
+        .with_source_zones(&[ZoneKind::Graveyard]),
+    ]),
+);
+
 // GRN 75 — Mausoleum Secrets
 pub(in crate::card::sets) static MAUSOLEUM_SECRETS: CardRecord = CardRecord::new(
     "Mausoleum Secrets",
@@ -706,6 +766,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &HEALER_S_HAWK,
     &MURMURING_MYSTIC,
     &BURGLAR_RAT,
+    &CREEPING_CHILL,
     &MAUSOLEUM_SECRETS,
     &MIDNIGHT_REAPER,
     &ARCLIGHT_PHOENIX,

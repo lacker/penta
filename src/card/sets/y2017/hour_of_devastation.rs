@@ -244,6 +244,23 @@ pub(in crate::card::sets) static BLOODWATER_ENTITY: CardRecord = CardRecord::new
     ]),
 );
 
+// HOU 163 — Hollow One
+pub(in crate::card::sets) static HOLLOW_ONE: CardRecord = CardRecord::new(
+    "Hollow One",
+    "43fe9c6d-4fa2-4f9a-9025-1bf12fe7ed9f",
+    "Anthony Palumbo",
+    CardRules::new_artifact_creature(mana_cost!("{5}"), &["Golem"], 4, 4).with_abilities(&[
+        abilities::this_spell_cost_reduction(
+            "This spell costs {2} less to cast for each card you've cycled or discarded this turn.",
+            ValueDef::Sum(&crate::card::SumValueDef {
+                left: ValueDef::CardsDiscardedThisTurn(PlayerRelation::You),
+                right: ValueDef::CardsDiscardedThisTurn(PlayerRelation::You),
+            }),
+        ),
+        abilities::cycling!("Cycling {2}", &[CostDef::Mana(mana_cost!("{2}"))]),
+    ]),
+);
+
 // HOU 165 — Mirage Mirror
 pub(in crate::card::sets) static MIRAGE_MIRROR: CardRecord = CardRecord::new(
     "Mirage Mirror",
@@ -393,6 +410,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &FIREBRAND_ARCHER,
     &NEHEB_THE_ETERNAL,
     &BLOODWATER_ENTITY,
+    &HOLLOW_ONE,
     &MIRAGE_MIRROR,
     &DESERT_OF_THE_FERVENT,
     &IPNU_RIVULET,

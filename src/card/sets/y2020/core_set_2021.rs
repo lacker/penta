@@ -168,6 +168,54 @@ pub(in crate::card::sets) static SANGUINE_INDULGENCE: CardRecord = CardRecord::n
     CardRules::unsupported(),
 );
 
+// M21 122 — Silversmote Ghoul
+pub(in crate::card::sets) static SILVERSMOTE_GHOUL: CardRecord = CardRecord::new(
+    "Silversmote Ghoul",
+    "ff5444cb-0ecd-4482-a8d8-09332f382dbd",
+    "Bryan Sola",
+    CardRules::new_creature(mana_cost!("{2}{B}"), &["Zombie", "Vampire"], 3, 1).with_abilities(&[
+        AbilityDef::triggered_if(
+            "At the beginning of your end step, if you gained 3 or more life this turn, \
+                 return this card from your graveyard to the battlefield tapped.",
+            TriggerEventDef::StepBegins {
+                step: crate::card::TurnStepDef::End,
+                player: PlayerRelation::You,
+            },
+            &TriggerConditionDef::ValueComparison(&crate::card::ValueComparisonDef {
+                left: ValueDef::LifeGainedThisTurn(PlayerRelation::You),
+                comparison: ComparisonDef::GreaterOrEqual,
+                right: ValueDef::Constant(3),
+            }),
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::SourceInZone(ZoneKind::Graveyard),
+                then: &EffectDef::WithBattlefieldArrival {
+                    effect: &EffectDef::move_to_zone(
+                        EffectRecipientDef::Source,
+                        ZoneKind::Battlefield,
+                        ZonePlacement::Top,
+                    ),
+                    arrival: crate::card::BattlefieldArrivalDef {
+                        modifications: &[BattlefieldEntryModificationDef::Tapped],
+                        ..crate::card::BattlefieldArrivalDef::DEFAULT
+                    },
+                },
+            },
+        )
+        .with_source_zones(&[ZoneKind::Graveyard]),
+        AbilityDef::activated(
+            "{1}{B}, Sacrifice this creature: Draw a card.",
+            &[
+                CostDef::Mana(mana_cost!("{1}{B}")),
+                CostDef::SacrificeSource,
+            ],
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
+);
+
 // M21 126 — Village Rites
 pub(in crate::card::sets) static VILLAGE_RITES: CardRecord = CardRecord::new(
     "Village Rites",
@@ -556,6 +604,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &SHIPWRECK_DOWSER,
     &NECROMENTIA,
     &SANGUINE_INDULGENCE,
+    &SILVERSMOTE_GHOUL,
     &VILLAGE_RITES,
     &CONSPICUOUS_SNOOP,
     &HEARTFIRE_IMMOLATOR,

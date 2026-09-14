@@ -20,6 +20,7 @@ include!("cost_configurations/object_combinations.rs");
 include!("cost_configurations/additional_cost_payments.rs");
 include!("cost_configurations/mana_presence.rs");
 include!("cost_configurations/harmonize.rs");
+include!("cost_configurations/object_predicates.rs");
 
 /// The chosen quantities a cost can be counted from: the X the spell is cast
 /// for, how many modes it was cast with, and how many targets it names.
@@ -301,6 +302,17 @@ impl Game {
                 u16::try_from(self.additional_cost_candidates(cost, card, player).len())
                     .unwrap_or(u16::MAX),
             ),
+            CostDef::Exile {
+                object,
+                from: ZoneKind::Hand | ZoneKind::Graveyard,
+                quantity: crate::card::CostQuantityDef::Fixed(1),
+            } if Self::cost_predicate_bounds_x(object) => Some(
+                self.additional_cost_candidates_with_x(cost, card, player, None)
+                    .into_iter()
+                    .filter_map(|id| self.current_or_last_known_mana_value(id))
+                    .max()
+                    .unwrap_or(0),
+            ),
             CostDef::All(costs) => costs
                 .iter()
                 .filter_map(|cost| self.maximum_x_for_spell_additional_cost(*cost, card, player))
@@ -374,7 +386,7 @@ impl Game {
         player: PlayerId,
         scale: CastScale,
     ) -> Vec<SpellAdditionalCostPayment> {
-        let candidates = self.additional_cost_candidates(cost, card, player);
+        let candidates = self.additional_cost_candidates_with_x(cost, card, player, Some(scale.x));
         // One configuration per way of paying, so a cost naming more than one
         // object enumerates combinations rather than candidates. Order does
         // not matter -- exiling A then B is the same payment as B then A --
@@ -397,86 +409,7 @@ impl Game {
                 .quantity(quantity)
                 .expect("object thresholds are handled before scalar quantities"),
         );
-        self.spell_object_additional_cost_payments_for_count(cost, required, card, player)
-    }
-
-    fn spell_object_additional_cost_payments_for_count(
-        &self,
-        cost: CostDef,
-        required: usize,
-        card: &CardInstance,
-        player: PlayerId,
-    ) -> Vec<SpellAdditionalCostPayment> {
-        let candidates = self.additional_cost_candidates(cost, card, player);
-        Self::object_combinations(&candidates, required)
-            .into_iter()
-            .map(|objects| SpellAdditionalCostPayment {
-                objects: objects.into_iter().map(|object| (object, cost)).collect(),
-                mana: ManaCost::default(),
-                includes_mana_payment: false,
-                life: 0,
-                generic_reduction: None,
-            })
-            .collect()
-    }
-
-    fn additional_cost_candidates(
-        &self,
-        cost: CostDef,
-        card: &CardInstance,
-        player: PlayerId,
-    ) -> Vec<GameObjectId> {
-        let (object, from) = match cost {
-            CostDef::Sacrifice { object, .. } | CostDef::ReturnToHand { object, .. } => {
-                (object, ZoneKind::Battlefield)
-            }
-            CostDef::Tap { object, .. } => (object, ZoneKind::Battlefield),
-            CostDef::Discard { object, .. } => (object, ZoneKind::Hand),
-            CostDef::Exile { object, from, .. } => (object, from),
-            _ => return Vec::new(),
-        };
-        match from {
-            ZoneKind::Battlefield => self
-                .battlefield
-                .iter()
-                .filter(|permanent| {
-                    permanent.controller == player
-                        && (!matches!(cost, CostDef::Tap { .. }) || !permanent.tapped)
-                        && self.trigger_object_matches(
-                            object,
-                            &self.trigger_event_object(permanent),
-                            permanent.card.id,
-                            false,
-                        )
-                })
-                .map(|permanent| permanent.card.id)
-                .collect(),
-            // The same exclusion as hand below, for the same reason: escape
-            // and flashback are cast from the graveyard, so by the time the
-            // cost is paid the card is on the stack and not there to spend.
-            // This is what "exile five other cards" means.
-            ZoneKind::Graveyard => self.players[player.index()]
-                .graveyard
-                .iter()
-                .filter(|held| {
-                    held.id != card.id
-                        && self.card_object_matches(object, held, ZoneKind::Graveyard, held.id)
-                })
-                .map(|held| held.id)
-                .collect(),
-            // The card paying the cost cannot be the spell itself: it has
-            // already left hand by the time the cost is paid.
-            ZoneKind::Hand => self.players[player.index()]
-                .hand
-                .iter()
-                .filter(|held| {
-                    held.id != card.id
-                        && self.card_object_matches(object, held, ZoneKind::Hand, held.id)
-                })
-                .map(|held| held.id)
-                .collect(),
-            _ => Vec::new(),
-        }
+        self.spell_object_additional_cost_payments_for_count(cost, required, card, player, scale.x)
     }
 
     /// Whether the card's own printed cost is one of the ways to cast it

@@ -755,6 +755,7 @@ pub struct Game {
     /// How many cards each player has drawn this turn. Miracle asks whether a
     /// draw was the first one.
     cards_drawn_this_turn: [u16; 2],
+    cards_discarded_this_turn: [u16; 2],
     /// Whether each player has already taken the one draw their own draw
     /// step spares from Orcish Bowmasters. Reset as that step begins rather
     /// than at the turn's start, so "each of their draw steps" stays true of

@@ -194,6 +194,17 @@ impl Game {
             ) => {
                 matcher.from.is_none_or(|expected| expected == *actual_from)
                     && matcher.to.is_none_or(|expected| expected == *actual_to)
+                    && (matcher.cast_from.is_none() && matcher.cast_by.is_none()
+                        || after.as_ref().and_then(|object| self.cast_context_for(object.id, None))
+                            .is_some_and(|cast| {
+                                matcher.cast_from.is_none_or(|zone| {
+                                    cast.source_zone.is_some_and(|from| from.zone() == zone)
+                                }) && matcher.cast_by.is_none_or(|relation| {
+                                    cast.caster.zip(controller).is_some_and(|(caster, controller)| {
+                                        self.player_relation_matches(caster, relation, controller, event.context())
+                                    })
+                                })
+                            }))
                     && matcher.previously_damaged_by.is_none_or(|reference| {
                         self.trigger_event_object_reference(reference, source, event)
                             .is_some_and(|source| damage_sources.contains(&source))

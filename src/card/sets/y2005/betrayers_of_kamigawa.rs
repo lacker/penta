@@ -49,9 +49,7 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // BOK 33 — Disrupting Shoal
-// Audit: unsupported — The casting planner only chooses nonzero X from a variable mana payment
-// or an X-sized additional cost. It cannot derive X from the mana value of the single card
-// exiled for this alternative cost.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DISRUPTING_SHOAL: CardRecord = CardRecord::new(
     "Disrupting Shoal",
     "15589745-4c0a-4edf-ad45-3b7fa45e70c5",
@@ -125,10 +123,55 @@ pub(in crate::card::sets) static OKIBA_GANG_SHINOBI: CardRecord = CardRecord::ne
     ]),
 );
 
+// BOK 82 — Sickening Shoal
+pub(in crate::card::sets) static SICKENING_SHOAL: CardRecord = CardRecord::new(
+    "Sickening Shoal",
+    "d92f4129-19fc-4ee9-9e3d-77fcf1563e4b",
+    "Dan Murayama Scott",
+    CardRules::new_instant(mana_cost!("{X}{B}{B}"))
+        .with_subtypes(&["Arcane"])
+        .with_abilities(&[
+            AbilityDef::alternative_cast(
+                &[CostDef::exile(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Color(ManaColor::Black),
+                        ObjectPredicateDef::ManaValueEqualTo(ValueDef::ChosenX),
+                    ]),
+                    ZoneKind::Hand,
+                    crate::card::CostQuantityDef::Fixed(1),
+                )],
+                crate::card::AlternativeCastKindDef::AlternativeCost,
+                Some(
+                    "You may exile a black card with mana value X from your hand rather than \
+                     pay this spell's mana cost.",
+                ),
+                EffectDef::None,
+            ),
+            AbilityDef::spell_with_targets(
+                "Target creature gets -X/-X until end of turn.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Scaled(&crate::card::ScaledValueDef {
+                            value: ValueDef::ChosenX,
+                            factor: -1,
+                        }),
+                        ValueDef::Scaled(&crate::card::ScaledValueDef {
+                            value: ValueDef::ChosenX,
+                            factor: -1,
+                        }),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ]),
+);
+
 // BOK 96 — Blazing Shoal
-// Audit: unsupported — The casting planner only chooses nonzero X from a variable mana payment
-// or an X-sized additional cost. It cannot derive X from the mana value of the single card
-// exiled for this alternative cost.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BLAZING_SHOAL: CardRecord = CardRecord::new(
     "Blazing Shoal",
     "8b915daa-d239-4460-bd6b-e1327fdf7f51",
@@ -373,6 +416,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &NINJA_OF_THE_DEEP_HOURS,
     &GORYO_S_VENGEANCE,
     &OKIBA_GANG_SHINOBI,
+    &SICKENING_SHOAL,
     &BLAZING_SHOAL,
     &CRACK_THE_EARTH,
     &FUMIKO_THE_LOWBLOOD,

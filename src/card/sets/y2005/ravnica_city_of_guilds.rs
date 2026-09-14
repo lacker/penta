@@ -16,6 +16,7 @@ use crate::card::AddManaEffectDef;
 use crate::card::AggregateOperationDef;
 use crate::card::AppliedEffectDef;
 use crate::card::AppliedRuleDef;
+use crate::card::BattlefieldEntryModificationDef;
 use crate::card::BindObjectsDef;
 use crate::card::BlockRestrictionDef;
 use crate::card::CardRules;
@@ -24,6 +25,11 @@ use crate::card::ChooseDef;
 use crate::card::ChooseObjectOrderDef;
 use crate::card::CopyExceptionsDef;
 use crate::card::CostDef;
+use crate::card::CounterKind;
+use crate::card::DamageEventMatcherDef;
+use crate::card::DamageKindDef;
+use crate::card::DamageRecipientMatcherDef;
+use crate::card::DamageSourceMatcherDef;
 use crate::card::DiscardSelectionDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
@@ -41,7 +47,10 @@ use crate::card::ObjectValueDef;
 use crate::card::PayOrDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
+use crate::card::ReplacementAbilityDef;
+use crate::card::ReplacementConditionDef;
 use crate::card::ReplacementEffectDef;
+use crate::card::ReplacementEventDef;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::RevealObjectsDef;
 use crate::card::TriggerEventDef;
@@ -60,6 +69,41 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
+/// Dredge replaces one draw with milling exactly N cards and returning its source.
+/// Its library-size condition is checked before the optional replacement is offered.
+pub(crate) const fn dredge<const N: u16>(text: &'static str) -> AbilityDef {
+    AbilityDef::defined_replacement(
+        text,
+        ReplacementAbilityDef::new()
+            .with_source_zones(&[ZoneKind::Graveyard])
+            .with_event(ReplacementEventDef::WouldDraw {
+                player: PlayerRelation::You,
+                during_own_draw_step: false,
+                except_first_in_draw_step: false,
+            })
+            .with_condition(ReplacementConditionDef::ControllerLibraryAtLeast(N))
+            .optional(),
+        ReplacementEffectDef::Sequence(
+            &const {
+                [
+                    ReplacementEffectDef::ReplaceEventWithNothing,
+                    ReplacementEffectDef::Perform(&EffectDef::Sequence(&[
+                        EffectDef::Mill {
+                            player: EffectRecipientDef::Controller,
+                            amount: ValueDef::Constant(N as i32),
+                        },
+                        EffectDef::move_to_zone(
+                            EffectRecipientDef::Source,
+                            ZoneKind::Hand,
+                            ZonePlacement::Top,
+                        ),
+                    ])),
+                ]
+            },
+        ),
+    )
+}
 
 // RAV 16 — Faith's Fetters
 pub(in crate::card::sets) static FAITH_S_FETTERS: CardRecord = CardRecord::new(
@@ -568,6 +612,36 @@ pub(in crate::card::sets) static DIMIR_MACHINATIONS: CardRecord = CardRecord::ne
     ]),
 );
 
+// RAV 87 — Golgari Thug
+pub(in crate::card::sets) static GOLGARI_THUG: CardRecord = CardRecord::new(
+    "Golgari Thug",
+    "87c39e21-3e2f-4cbf-9f99-69e977924a73",
+    "Kev Walker",
+    CardRules::new_creature(mana_cost!("{1}{B}"), &["Human", "Warrior"], 1, 1).with_abilities(&[
+        abilities::dies_trigger_with_targets(
+            "When this creature dies, put target creature card from your graveyard \
+             on top of your library.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: Some(PlayerRelation::You),
+                },
+            )],
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Library,
+                ZonePlacement::Top,
+            ),
+        ),
+        dredge::<4>(
+            "Dredge 4 (If you would draw a card, you may mill four cards instead. \
+             If you do, return this card from your graveyard to your hand.)",
+        ),
+    ]),
+);
+
 // RAV 93 — Last Gasp
 pub(in crate::card::sets) static LAST_GASP: CardRecord = CardRecord::new(
     "Last Gasp",
@@ -587,6 +661,34 @@ pub(in crate::card::sets) static LAST_GASP: CardRecord = CardRecord::new(
             duration: ResolvedEffectDurationDef::UntilEndOfTurn,
         },
     )]),
+);
+
+// RAV 107 — Stinkweed Imp
+pub(in crate::card::sets) static STINKWEED_IMP: CardRecord = CardRecord::new(
+    "Stinkweed Imp",
+    "628903a0-6695-4643-80f3-9a6efc4d6a27",
+    "Edward P. Beard, Jr.",
+    CardRules::new_creature(mana_cost!("{2}{B}"), &["Imp"], 1, 2).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::triggered(
+            "Whenever this creature deals combat damage to a creature, destroy that creature.",
+            TriggerEventDef::DamageDealt(DamageEventMatcherDef {
+                kind: DamageKindDef::Combat,
+                source: DamageSourceMatcherDef::Object(ObjectRefDef::Source),
+                recipient: DamageRecipientMatcherDef::MatchingObject(ObjectPredicateDef::HasType(
+                    CardType::Creature,
+                )),
+            }),
+            EffectDef::Destroy {
+                object: EffectRecipientDef::DamagedObject,
+                then: None,
+            },
+        ),
+        dredge::<5>(
+            "Dredge 5 (If you would draw a card, you may mill five cards instead. \
+             If you do, return this card from your graveyard to your hand.)",
+        ),
+    ]),
 );
 
 // RAV 116 — Breath of Fury
@@ -749,6 +851,46 @@ pub(in crate::card::sets) static FARSEEK: CardRecord = CardRecord::new(
     )),
 );
 
+// RAV 167 — Golgari Grave-Troll
+pub(in crate::card::sets) static GOLGARI_GRAVE_TROLL: CardRecord = CardRecord::new(
+    "Golgari Grave-Troll",
+    "f61b50e6-2166-435d-bf48-c4a0cff9999c",
+    "Greg Hildebrandt",
+    CardRules::new_creature(mana_cost!("{4}{G}"), &["Troll", "Skeleton"], 0, 0).with_abilities(&[
+        AbilityDef::as_enters(
+            "This creature enters with a +1/+1 counter on it for each creature card \
+             in your graveyard.",
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCountersValue {
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Graveyard],
+                        PlayerRelation::You,
+                    )),
+                },
+            ),
+        ),
+        AbilityDef::activated(
+            "{1}, Remove a +1/+1 counter from this creature: Regenerate this creature.",
+            &[
+                CostDef::Mana(mana_cost!("{1}")),
+                CostDef::RemoveCountersFromSource {
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: 1,
+                },
+            ],
+            EffectDef::Regenerate {
+                object: EffectRecipientDef::Source,
+            },
+        ),
+        dredge::<6>(
+            "Dredge 6 (If you would draw a card, you may mill six cards instead. \
+             If you do, return this card from your graveyard to your hand.)",
+        ),
+    ]),
+);
+
 // RAV 184 — Stone-Seeder Hierophant
 pub(in crate::card::sets) static STONE_SEEDER_HIEROPHANT: CardRecord = CardRecord::new(
     "Stone-Seeder Hierophant",
@@ -901,6 +1043,31 @@ pub(in crate::card::sets) static PUTREFY: CardRecord = CardRecord::new(
             effect: &EffectDef::destroy_target(TargetIndex::PRIMARY),
         },
     )),
+);
+
+// RAV 230 — Shambling Shell
+pub(in crate::card::sets) static SHAMBLING_SHELL: CardRecord = CardRecord::new(
+    "Shambling Shell",
+    "4c93baa2-a23e-4e18-b4cd-779c992d2042",
+    "Joel Thomas",
+    CardRules::new_creature(mana_cost!("{1}{B}{G}"), &["Plant", "Zombie"], 3, 1).with_abilities(&[
+        AbilityDef::activated_with_targets(
+            "Sacrifice this creature: Put a +1/+1 counter on target creature.",
+            &[CostDef::SacrificeSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        dredge::<3>(
+            "Dredge 3 (If you would draw a card, you may mill three cards instead. \
+             If you do, return this card from your graveyard to your hand.)",
+        ),
+    ]),
 );
 
 // RAV 232 — Skyknight Legionnaire
@@ -1128,18 +1295,22 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &DARK_CONFIDANT,
     &DIMIR_HOUSE_GUARD,
     &DIMIR_MACHINATIONS,
+    &GOLGARI_THUG,
     &LAST_GASP,
+    &STINKWEED_IMP,
     &BREATH_OF_FURY,
     &FRENZIED_GOBLIN,
     &REROUTE,
     &CHORD_OF_CALLING,
     &DOUBLING_SEASON,
     &FARSEEK,
+    &GOLGARI_GRAVE_TROLL,
     &STONE_SEEDER_HIEROPHANT,
     &CONGREGATION_AT_DAWN,
     &DIMIR_INFILTRATOR,
     &LIGHTNING_HELIX,
     &PUTREFY,
+    &SHAMBLING_SHELL,
     &SKYKNIGHT_LEGIONNAIRE,
     &DIMIR_GUILDMAGE,
     &SHADOW_OF_DOUBT,

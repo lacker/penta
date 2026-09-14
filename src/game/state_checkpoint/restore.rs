@@ -64,7 +64,9 @@ impl Game {
 
         let command_zones = if let Some(zones) = observation.get("commandZones") {
             parse_two_public_zones(zones, &catalog)?
-        } else { [Vec::new(), Vec::new()] };
+        } else {
+            [Vec::new(), Vec::new()]
+        };
         let mut graveyards = parse_two_public_zones(field(observation, "graveyards")?, &catalog)?;
         let mut exiles = parse_two_public_zones(field(observation, "exiles")?, &catalog)?;
         let life = i16_pair(field(observation, "life")?)?;
@@ -143,8 +145,9 @@ impl Game {
             .map(|grant| {
                 Ok(NonbattlefieldAbilityGrant {
                     object: GameObjectId(grant.object),
-                    ability: catalog_ability(&catalog, &grant.ability)
-                        .ok_or("nonbattlefield ability grant locator is absent from this catalog")?,
+                    ability: catalog_ability(&catalog, &grant.ability).ok_or(
+                        "nonbattlefield ability grant locator is absent from this catalog",
+                    )?,
                     expiration: parse_expiration(&grant.expiration)?,
                     source: grant.source.map(ability_origin_from_snapshot),
                 })
@@ -313,6 +316,7 @@ impl Game {
             spells_cast_last_turn: checkpoint.spells_cast_last_turn,
             spell_cast_history_this_turn: ids(&checkpoint.spell_cast_history_this_turn),
             cards_drawn_this_turn: checkpoint.cards_drawn_this_turn,
+            cards_discarded_this_turn: checkpoint.cards_discarded_this_turn,
             citys_blessing: checkpoint.citys_blessing,
             permanent_left_battlefield_this_turn: checkpoint.permanent_left_battlefield_this_turn,
             card_left_graveyard_this_turn: checkpoint.card_left_graveyard_this_turn,
@@ -354,14 +358,28 @@ impl Game {
             result: checkpoint.current_game_result,
             events: vec![GameEvent::GameStarted { seed: rollout_seed }],
         };
-        game.restore_match_checkpoint(checkpoint.match_state.as_ref(), hidden, viewer, rollout_seed)?;
+        game.restore_match_checkpoint(
+            checkpoint.match_state.as_ref(),
+            hidden,
+            viewer,
+            rollout_seed,
+        )?;
         if let Some(value) = &checkpoint.restart_arrivals {
-            let retained: Vec<u32> = serde_json::from_value(value["retained"].clone()).map_err(|error| error.to_string())?;
+            let retained: Vec<u32> = serde_json::from_value(value["retained"].clone())
+                .map_err(|error| error.to_string())?;
             game.restart_arrivals = Some(super::restart::RestartArrivals {
-                controller: serde_json::from_value(value["controller"].clone()).map_err(|error| error.to_string())?,
+                controller: serde_json::from_value(value["controller"].clone())
+                    .map_err(|error| error.to_string())?,
                 retained: retained.into_iter().map(GameObjectId).collect(),
-                entering: value["entering"].as_bool().ok_or("restart entering flag must be boolean")?,
-                ready: parse_pending_events(&serde_json::from_value::<Vec<PendingEventSnapshot>>(value["ready"].clone()).map_err(|error| error.to_string())?, &game.catalog)?.into(),
+                entering: value["entering"]
+                    .as_bool()
+                    .ok_or("restart entering flag must be boolean")?,
+                ready: parse_pending_events(
+                    &serde_json::from_value::<Vec<PendingEventSnapshot>>(value["ready"].clone())
+                        .map_err(|error| error.to_string())?,
+                    &game.catalog,
+                )?
+                .into(),
             });
         }
         let (battlefield, phased_out) =
@@ -452,9 +470,10 @@ impl Game {
         }
         if game.plotted_cards.len() != checkpoint.plotted_cards.len()
             || game.plotted_cards.iter().any(|(id, (player, turn))| {
-                !game.players.iter().any(|state| {
-                    state.exile.iter().any(|card| card.id == *id)
-                })
+                !game
+                    .players
+                    .iter()
+                    .any(|state| state.exile.iter().any(|card| card.id == *id))
                     || *turn > game.turns_started[player.index()]
             })
         {

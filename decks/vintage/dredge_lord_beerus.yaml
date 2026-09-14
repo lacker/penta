@@ -1,0 +1,31 @@
+# Source: https://www.mtggoldfish.com/deck/7953861#paper
+# Finish: 5th (5-2); player: Lord_Beerus.
+# Published main deck: 60; sideboard: 15.
+name: "Dredge — Lord_Beerus"
+description: "5th (5-2) — Lord_Beerus; Vintage Challenge 32, 2026-09-13."
+main:
+  "Bazaar of Baghdad": 4
+  "Chalice of the Void": 1
+  "Creeping Chill": 4
+  "Force of Negation": 2
+  "Force of Will": 4
+  "Golgari Grave-Troll": 1
+  "Golgari Thug": 4
+  "Grief": 4
+  "Hollow One": 4
+  "Ichorid": 4
+  "Mental Misstep": 1
+  "Narcomoeba": 4
+  "Noxious Revival": 4
+  "Prized Amalgam": 4
+  "Serum Powder": 4
+  "Shambling Shell": 4
+  "Silversmote Ghoul": 3
+  "Stinkweed Imp": 4
+sideboard:
+  "Force of Negation": 1
+  "Force of Vigor": 4
+  "Leyline of the Void": 4
+  "Sickening Shoal": 4
+  "Strip Mine": 1
+  "Wasteland": 1

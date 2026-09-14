@@ -56,7 +56,9 @@ fn restore_permanent_cast_context(
         permanent.card.definition.card_definition(),
         catalog,
     )?;
+    let caster = state.cast_by.map(player_from_index).transpose()?;
     permanent.cast = has_cast_context.then(|| CastContext {
+        caster,
         source_zone,
         alternative,
         alternative_cost_binding,

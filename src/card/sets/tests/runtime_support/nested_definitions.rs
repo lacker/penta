@@ -394,8 +394,13 @@ pub(in super::super) fn shared_draw_replacement_program(
             matches!(condition, ReplacementConditionDef::ControllerHandAtMost(_))
         })
     } else {
-        condition
-            .is_none_or(|condition| condition == ReplacementConditionDef::ControllerLibraryEmpty)
+        condition.is_none_or(|condition| {
+            matches!(
+                condition,
+                ReplacementConditionDef::ControllerLibraryEmpty
+                    | ReplacementConditionDef::ControllerLibraryAtLeast(_)
+            )
+        })
     };
     condition_supported && shared_draw_replacement_effect(effect)
 }

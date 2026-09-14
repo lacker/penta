@@ -477,6 +477,8 @@ pub enum ValueDef {
     /// "The number of cards you've drawn this turn." Counts every draw,
     /// including the turn's own draw step, and resets when the turn does.
     CardsDrawnThisTurn(PlayerRelation),
+    /// Cards discarded this turn, including discards paid to cycle cards.
+    CardsDiscardedThisTurn(PlayerRelation),
     /// "The amount of life you gained this turn." A running total rather
     /// than a net change: losing it again afterwards does not take it back,
     /// and it resets when the turn does.

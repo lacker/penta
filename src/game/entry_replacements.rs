@@ -529,6 +529,7 @@ impl Game {
             // Hand and library sizes are facts about a draw, so nothing
             // about an entry asks them.
             ReplacementConditionDef::ControllerHandAtMost(_)
+            | ReplacementConditionDef::ControllerLibraryAtLeast(_)
             | ReplacementConditionDef::ControllerLibraryEmpty => false,
         }
     }
@@ -540,6 +541,18 @@ impl Game {
         source: AbilitySourceRef,
     ) {
         let ReplaceableEvent::BattlefieldEntry(entry) = &mut pending.event;
+        let modification = match modification {
+            BattlefieldEntryModificationDef::AddCountersValue { kind, amount } => {
+                let amount = entry_value(self, &entry.permanent, amount, Some(entry.from))
+                    .expect("catalog validation rejects unsupported entry values")
+                    .clamp(0, i32::from(u16::MAX));
+                BattlefieldEntryModificationDef::AddCounters {
+                    kind,
+                    amount: u16::try_from(amount).unwrap_or_default(),
+                }
+            }
+            other => other,
+        };
         self.modify_battlefield_entry_permanent(&mut entry.permanent, modification, Some(source));
     }
 
@@ -575,7 +588,7 @@ impl Game {
                 permanent.add_counters(kind, amount);
             }
             BattlefieldEntryModificationDef::AddCountersValue { kind, amount } => {
-                let amount = entry_value(self, permanent, amount)
+                let amount = entry_value(self, permanent, amount, None)
                     .expect("catalog validation rejects unsupported entry values")
                     .clamp(0, i32::from(u16::MAX));
                 permanent.add_counters(kind, u16::try_from(amount).unwrap_or_default());

@@ -121,6 +121,8 @@ pub enum ReplacementConditionDef {
     /// the draw would happen. Laboratory Maniac and Jace use this to replace
     /// only the otherwise-losing draw, not every draw while they are present.
     ControllerLibraryEmpty,
+    /// Minimum cards needed to carry out a draw replacement in full.
+    ControllerLibraryAtLeast(u16),
 }
 
 /// A typed modification to the permanent an object would become as it enters

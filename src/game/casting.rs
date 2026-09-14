@@ -606,6 +606,7 @@ impl Game {
             cast_via_flashback,
             exile_if_put_into_graveyard,
         );
+        cast.caster = Some(player);
         cast.player_bindings =
             self.selected_cast_player_bindings(card.definition, &signature, player);
         StackObject {

@@ -674,6 +674,7 @@ impl HandcraftedPolicy {
             | ValueDef::CountersOnSource(_)
             | ValueDef::CountersOnObject(_)
             | ValueDef::CardsDrawnThisTurn(_)
+            | ValueDef::CardsDiscardedThisTurn(_)
             | ValueDef::LandsPlayedThisTurn(_)
             | ValueDef::LifeGainedThisTurn(_)
             | ValueDef::DevotionTo(_)

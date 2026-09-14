@@ -121,6 +121,9 @@ pub(in crate::game::state_checkpoint) struct GameSnapshot {
     #[serde(default)]
     pub(in crate::game::state_checkpoint) spells_cast_this_game: [u16; 2],
     pub(in crate::game::state_checkpoint) cards_drawn_this_turn: [u16; 2],
+    /// Additive turn tally; older checkpoints restore no discards.
+    #[serde(default)]
+    pub(in crate::game::state_checkpoint) cards_discarded_this_turn: [u16; 2],
     pub(in crate::game::state_checkpoint) citys_blessing: [bool; 2],
     pub(in crate::game::state_checkpoint) permanent_left_battlefield_this_turn: [bool; 2],
     /// Additive: a checkpoint written before the turn tracked it restores

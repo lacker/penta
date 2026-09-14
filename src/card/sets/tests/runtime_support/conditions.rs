@@ -45,6 +45,7 @@ fn shared_condition_value(value: ValueDef, static_context: bool) -> bool {
         | ValueDef::CardTypesAmongGraveyards(_)
         // Static and triggered conditions read the same stored turn tally.
         | ValueDef::CardsDrawnThisTurn(_)
+        | ValueDef::CardsDiscardedThisTurn(_)
         | ValueDef::LifeGainedThisTurn(_) => true,
         ValueDef::Sum(sum) => {
             shared_condition_value(sum.left, static_context)

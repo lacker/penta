@@ -115,7 +115,9 @@ fn shared_cost_modification(source_zones: &[ZoneKind], modification: CostModific
 
 fn shared_spell_cost_value(value: ValueDef) -> bool {
     match value {
-        ValueDef::Constant(_) | ValueDef::DistinctTargets => true,
+        ValueDef::Constant(_) | ValueDef::DistinctTargets | ValueDef::CardsDiscardedThisTurn(_) => {
+            true
+        }
         ValueDef::ColorCount(reference) => matches!(
             reference,
             ObjectRefDef::Source | ObjectRefDef::CreatingSource | ObjectRefDef::AttachedToSource
@@ -830,6 +832,7 @@ fn static_stat_value(value: crate::card::ValueDef) -> bool {
         // A tally the game keeps for the turn, reachable from the layer walk
         // for the same reason.
         | crate::card::ValueDef::CardsDrawnThisTurn(_)
+        | crate::card::ValueDef::CardsDiscardedThisTurn(_)
         // Counters on the effect's own source: plain state the layer has.
         | crate::card::ValueDef::CountersOnSource(_)
         // Domain, read live off the lands on the battlefield the same way a

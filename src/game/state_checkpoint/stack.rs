@@ -220,6 +220,11 @@ pub(super) fn detached_stack_snapshot_allowing(
             .cast
             .as_ref()
             .is_some_and(|cast| cast.at_instant_speed),
+        cast_by: object
+            .cast
+            .as_ref()
+            .and_then(|cast| cast.caster)
+            .map(PlayerId::index),
         cast_from_zone: object
             .cast
             .as_ref()

@@ -90,6 +90,7 @@ impl Game {
                         | ReplacementConditionDef::SourceNotCastFrom(_)
                         | ReplacementConditionDef::OpponentWasDealtDamageThisTurn
                         | ReplacementConditionDef::ControllerHandAtMost(_)
+                        | ReplacementConditionDef::ControllerLibraryAtLeast(_)
                         | ReplacementConditionDef::ControllerLibraryEmpty,
                     ) => false,
                 };

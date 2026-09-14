@@ -1,9 +1,14 @@
 //! Values evaluated from a permanent's prospective battlefield entry.
 
 use super::super::{CastContext, Game, Permanent, Target, TriggerContext, ValueDef};
-use crate::card::ObjectSetDef;
+use crate::card::{ObjectSetDef, ZoneKind};
 
-pub(super) fn entry_value(game: &Game, permanent: &Permanent, value: ValueDef) -> Option<i32> {
+pub(super) fn entry_value(
+    game: &Game,
+    permanent: &Permanent,
+    value: ValueDef,
+    from: Option<ZoneKind>,
+) -> Option<i32> {
     match value {
         ValueDef::Constant(value) => Some(value),
         ValueDef::SourceCastX => Some(i32::from(permanent.cast.as_ref().map_or(0, |cast| cast.x))),
@@ -27,18 +32,32 @@ pub(super) fn entry_value(game: &Game, permanent: &Permanent, value: ValueDef) -
         ValueDef::CardTypesAmongObjects(objects) => {
             Some(game.card_types_among_targets(&entry_objects(game, permanent, *objects)?))
         }
-        ValueDef::CountMatchingObjects(query) => Some(
-            i32::try_from(
-                game.objects_matching_query(
-                    *query,
-                    permanent.controller,
-                    permanent.card.id,
-                    TriggerContext::empty(),
-                )
-                .len(),
-            )
-            .unwrap_or(i32::MAX),
-        ),
+        ValueDef::CountMatchingObjects(query) => {
+            let objects = game.objects_matching_query(
+                *query,
+                permanent.controller,
+                permanent.card.id,
+                TriggerContext::empty(),
+            );
+            // An entry is still prospective: the detached card remains part of
+            // its old zone for this count until the move commits (CR 614.12).
+            let include_arriving = from.is_some_and(|zone| {
+                query.zones.contains(&zone)
+                    && query.relative_position.is_none()
+                    && !objects.contains(&Target::Card(permanent.card.id))
+                    && permanent.card.clone().into_card().is_some_and(|card| {
+                        game.query_player_constraints_match(
+                            None,
+                            card.owner,
+                            *query,
+                            (permanent.controller, card.id),
+                            TriggerContext::empty(),
+                            None,
+                        ) && game.card_object_matches(query.object, &card, zone, card.id)
+                    })
+            });
+            Some(i32::try_from(objects.len() + usize::from(include_arriving)).unwrap_or(i32::MAX))
+        }
         ValueDef::IfAdditionalCostPaid(conditional) => {
             let paid = permanent
                 .cast
@@ -54,18 +73,21 @@ pub(super) fn entry_value(game: &Game, permanent: &Permanent, value: ValueDef) -
                 } else {
                     conditional.otherwise
                 },
+                from,
             )
         }
-        ValueDef::Negate(value) => entry_value(game, permanent, *value)?.checked_neg(),
+        ValueDef::Negate(value) => entry_value(game, permanent, *value, from)?.checked_neg(),
         ValueDef::Scaled(scaled) => {
-            entry_value(game, permanent, scaled.value)?.checked_mul(scaled.factor)
+            entry_value(game, permanent, scaled.value, from)?.checked_mul(scaled.factor)
         }
-        ValueDef::Sum(sum) => entry_value(game, permanent, sum.left)?
-            .checked_add(entry_value(game, permanent, sum.right)?),
-        ValueDef::Halved(halved) => Some(halved.apply(entry_value(game, permanent, halved.value)?)),
+        ValueDef::Sum(sum) => entry_value(game, permanent, sum.left, from)?
+            .checked_add(entry_value(game, permanent, sum.right, from)?),
+        ValueDef::Halved(halved) => {
+            Some(halved.apply(entry_value(game, permanent, halved.value, from)?))
+        }
         ValueDef::Quotient(quotient) => Some(quotient.apply(
-            entry_value(game, permanent, quotient.numerator)?,
-            entry_value(game, permanent, quotient.denominator)?,
+            entry_value(game, permanent, quotient.numerator, from)?,
+            entry_value(game, permanent, quotient.denominator, from)?,
         )),
         _ => None,
     }

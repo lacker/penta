@@ -127,6 +127,11 @@ pub(super) fn permanent_snapshot(
             .cast
             .as_ref()
             .map_or(0, |cast| cast.phyrexian_symbols_paid_with_life),
+        cast_by: permanent
+            .cast
+            .as_ref()
+            .and_then(|cast| cast.caster)
+            .map(PlayerId::index),
         cast_from_zone: permanent
             .cast
             .as_ref()

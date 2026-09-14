@@ -15,6 +15,8 @@ use crate::{AlternativeCastKindDef, CastSignature, ColorSet, PlayOptionDef};
 // from suspend in combinations the rules define separately.
 #[allow(clippy::struct_excessive_bools)]
 pub(super) struct CastContext {
+    /// The player who cast this spell, retained independently of later control changes.
+    pub(super) caster: Option<super::PlayerId>,
     /// The zone the spell was actually cast from. `None` means this object is
     /// a spell copy rather than a cast spell.
     pub(super) source_zone: Option<CastSourceZone>,
@@ -64,6 +66,7 @@ impl CastContext {
         exile_if_put_into_graveyard: bool,
     ) -> Self {
         Self {
+            caster: None,
             source_zone: Some(source_zone),
             alternative,
             alternative_cost_binding: Game::selected_alternative_cost_binding(
@@ -97,6 +100,7 @@ impl CastContext {
     pub(super) fn for_spell_copy(&self) -> Self {
         let mut copied = self.clone();
         copied.source_zone = None;
+        copied.caster = None;
         copied.at_instant_speed = false;
         copied.colors_of_mana_spent = ColorSet::empty();
         copied.phyrexian_symbols_paid_with_life = 0;

@@ -14,6 +14,7 @@ impl Game {
                 usize::from(amount),
                 card,
                 player,
+                scale.x,
             );
         }
         let cost = Self::canonical_spell_cost(cost);
@@ -229,6 +230,7 @@ impl Game {
                 usize::from(quantity.saturating_mul(repetitions)),
                 card,
                 player,
+                scale.x,
             );
         }
 

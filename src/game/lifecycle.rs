@@ -295,6 +295,7 @@ impl Game {
             spell_cast_history_this_turn: Vec::new(),
             total_spells_cast: [0; 2],
             cards_drawn_this_turn: [0; 2],
+            cards_discarded_this_turn: [0; 2],
             citys_blessing: [false; 2],
             permanent_left_battlefield_this_turn: [false; 2],
             card_left_graveyard_this_turn: [false; 2],

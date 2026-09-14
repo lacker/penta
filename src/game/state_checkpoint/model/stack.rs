@@ -51,6 +51,8 @@ pub(in crate::game::state_checkpoint) struct StackSnapshot {
     /// nothing, which is what a permanent nobody cast carries anyway.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub(in crate::game::state_checkpoint) cast_from_zone: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(in crate::game::state_checkpoint) cast_by: Option<usize>,
     /// Retired cast-tag wire field. Kept readable until the next checkpoint
     /// cleanup; newly written snapshots leave it empty.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -172,6 +174,8 @@ pub(in crate::game::state_checkpoint) struct DetachedStackSnapshot {
     /// nothing, which is what a permanent nobody cast carries anyway.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub(in crate::game::state_checkpoint) cast_from_zone: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(in crate::game::state_checkpoint) cast_by: Option<usize>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub(in crate::game::state_checkpoint) cast_tags: Vec<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]

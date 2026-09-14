@@ -383,7 +383,12 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     && shared_begin_turn_replacement_effect(effect)
             }
             ReplacementEventDef::WouldDraw { .. } => {
-                battlefield_only(definition.source_zones)
+                definition
+                    .source_zones
+                    .iter()
+                    .all(|zone| matches!(zone, ZoneKind::Battlefield | ZoneKind::Graveyard))
+                    && !(definition.source_zones.contains(&ZoneKind::Graveyard)
+                        && matches!(effect, ReplacementEffectDef::AddToEventAmount(_)))
                     && shared_draw_replacement_program(definition.condition, effect)
             }
             ReplacementEventDef::Special(_) => false,

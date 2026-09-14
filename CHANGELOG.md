@@ -20,6 +20,16 @@ the bot-wire epoch.
 
 ## Unreleased
 
+- Add Lord_Beerus's September 13 Vintage Challenge Dredge deck and implement
+  all nine missing identities: Creeping Chill, Golgari Grave-Troll, Golgari
+  Thug, Hollow One, Prized Amalgam, Shambling Shell, Sickening Shoal,
+  Silversmote Ghoul, and Stinkweed Imp. Dredge composes optional graveyard draw
+  replacements, full-library-size eligibility, milling, and source return.
+  Entry counts include the arriving card in its origin zone. Casting can
+  derive X from an exiled card's mana value. Additive checkpoint fields
+  `cardsDiscardedThisTurn` and `castBy` preserve discard counts and original
+  casting players; protocol and checkpoint epochs are unchanged.
+
 - Implement Aven Interrupter and Doc Aurlock, Grizzled Genius. Plotted status
   belongs to the current exile object independently of its abilities and grants
   its owner a free, later-turn, main-phase-only cast. Checkpoints add optional

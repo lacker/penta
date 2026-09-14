@@ -220,6 +220,20 @@ impl Game {
                     .map(|player| i32::from(self.total_spells_cast[player.index()]))
                     .sum()
             }
+            crate::card::ValueDef::CardsDiscardedThisTurn(relation) => {
+                [crate::ids::PlayerId::One, crate::ids::PlayerId::Two]
+                    .into_iter()
+                    .filter(|player| {
+                        self.player_relation_matches(
+                            *player,
+                            relation,
+                            controller,
+                            crate::game::TriggerContext::empty(),
+                        )
+                    })
+                    .map(|player| i32::from(self.cards_discarded_this_turn[player.index()]))
+                    .sum()
+            }
             crate::card::ValueDef::LibrarySize(relation) => {
                 [crate::ids::PlayerId::One, crate::ids::PlayerId::Two]
                     .into_iter()
@@ -425,6 +439,18 @@ impl Game {
                     )
                 })
                 .map(|player| i32::from(self.cards_drawn_this_turn[player.index()]))
+                .sum(),
+            ValueDef::CardsDiscardedThisTurn(relation) => [PlayerId::One, PlayerId::Two]
+                .into_iter()
+                .filter(|player| {
+                    self.player_relation_matches(
+                        *player,
+                        relation,
+                        object.controller,
+                        context.trigger,
+                    )
+                })
+                .map(|player| i32::from(self.cards_discarded_this_turn[player.index()]))
                 .sum(),
             // The same shape again, over the land drops a player has taken
             // this turn.

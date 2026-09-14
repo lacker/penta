@@ -139,6 +139,10 @@ impl Game {
     }
 
     pub(super) fn capture_battlefield_triggers(&mut self, event: &CommittedTriggerEvent) {
+        if let CommittedTriggerEvent::Discarded { player, .. } = event {
+            let discarded = &mut self.cards_discarded_this_turn[player.index()];
+            *discarded = discarded.saturating_add(1);
+        }
         let listeners = self.battlefield_trigger_listeners();
         self.capture_battlefield_triggers_from_snapshot(&listeners, event);
     }

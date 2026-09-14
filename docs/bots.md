@@ -1907,6 +1907,13 @@ random stream when its effect resolves; choosing a mana payment never rolls it.
 
 ## Determinism and versioning
 
+The additive checkpoint `cardsDiscardedThisTurn` pair records each seat's discard
+count, including cycling once per discarded card; absence defaults to zero.
+It resets each turn. Cast state on stack objects, detached continuations, and
+permanents can carry optional `castBy` (seat 0 or 1), preserving the original
+caster through control changes. Copies clear this fact. These fields support
+Hollow One and Prized Amalgam without changing protocol or checkpoint epochs.
+
 The optional checkpoint `plottedCards` array contains triples of current exile
 object ID, the active player's zero-based seat when it became plotted, and that
 player's turn count. These designations are independent of printed plot

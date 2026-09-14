@@ -421,6 +421,70 @@ pub(in crate::card::sets) static TIRELESS_TRACKER: CardRecord = CardRecord::new(
     ]),
 );
 
+// SOI 249 — Prized Amalgam
+pub(in crate::card::sets) static PRIZED_AMALGAM: CardRecord = CardRecord::new(
+    "Prized Amalgam",
+    "634cedb6-8b00-4f4b-8790-541188955295",
+    "Karl Kopinski",
+    CardRules::new_creature(mana_cost!("{1}{U}{B}"), &["Zombie"], 3, 3).with_ability(
+        AbilityDef::triggered(
+            "Whenever a creature enters, if it entered from your graveyard or you cast it \
+             from your graveyard, return this card from your graveyard to the battlefield \
+             tapped at the beginning of the next end step.",
+            TriggerEventDef::AnyOf(&[
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::OwnedBy(PlayerRelation::You),
+                    ]),
+                    Some(ZoneKind::Graveyard),
+                    Some(ZoneKind::Battlefield),
+                ),
+                TriggerEventDef::ZoneChanged(
+                    crate::card::ZoneChangeEventMatcherDef::new(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::OwnedBy(PlayerRelation::You),
+                        ]),
+                        Some(ZoneKind::Stack),
+                        Some(ZoneKind::Battlefield),
+                    )
+                    .cast_from(ZoneKind::Graveyard, PlayerRelation::You),
+                ),
+            ]),
+            EffectDef::InstallTrigger(crate::card::InstalledTriggerDef::once(
+                &AbilityDef::triggered(
+                    "At the beginning of the next end step, return this card from your graveyard \
+                     to the battlefield tapped.",
+                    TriggerEventDef::StepBegins {
+                        step: crate::card::TurnStepDef::End,
+                        player: PlayerRelation::Any,
+                    },
+                    EffectDef::IfCondition {
+                        condition: &crate::card::TriggerConditionDef::SourceInZone(
+                            ZoneKind::Graveyard,
+                        ),
+                        then: &EffectDef::WithBattlefieldArrival {
+                            effect: &EffectDef::move_to_zone(
+                                EffectRecipientDef::Source,
+                                ZoneKind::Battlefield,
+                                ZonePlacement::Top,
+                            ),
+                            arrival: crate::card::BattlefieldArrivalDef {
+                                modifications: &[
+                                    crate::card::BattlefieldEntryModificationDef::Tapped,
+                                ],
+                                ..crate::card::BattlefieldArrivalDef::DEFAULT
+                            },
+                        },
+                    },
+                ),
+            )),
+        )
+        .with_source_zones(&[ZoneKind::Graveyard]),
+    ),
+);
+
 // SOI 258 — Magnifying Glass
 pub(in crate::card::sets) static MAGNIFYING_GLASS: CardRecord = CardRecord::new(
     "Magnifying Glass",
@@ -469,6 +533,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &LOAM_DRYAD,
     &RABID_BITE,
     &TIRELESS_TRACKER,
+    &PRIZED_AMALGAM,
     &MAGNIFYING_GLASS,
     &FORTIFIED_VILLAGE,
 ];

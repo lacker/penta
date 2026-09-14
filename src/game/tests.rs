@@ -344,6 +344,7 @@ mod opposing_anthems;
 mod osai_vultures;
 mod paralyze;
 mod part_water;
+mod permanent_predicates;
 mod phantom_interference;
 mod play_from_hand;
 mod player_curses;

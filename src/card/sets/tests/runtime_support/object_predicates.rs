@@ -16,6 +16,7 @@ pub(in crate::card::sets::tests) fn shared_object_predicate(predicate: ObjectPre
         | ObjectPredicateDef::Source
         | ObjectPredicateDef::Commander
         | ObjectPredicateDef::Token
+        | ObjectPredicateDef::Permanent
         | ObjectPredicateDef::HasType(_)
         | ObjectPredicateDef::HasAnyBasicLandType(_)
         | ObjectPredicateDef::Spell

@@ -70,7 +70,7 @@ impl Game {
         affected: &Permanent,
     ) -> Option<bool> {
         match predicate {
-            ObjectPredicateDef::Any => Some(true),
+            ObjectPredicateDef::Any | ObjectPredicateDef::Permanent => Some(true),
             ObjectPredicateDef::Source => Some(source.card.id == affected.card.id),
             ObjectPredicateDef::Token => Some(affected.card.definition.is_token()),
             ObjectPredicateDef::Tapped => Some(affected.tapped),
@@ -246,6 +246,7 @@ impl Game {
             | ObjectPredicateDef::Source
             | ObjectPredicateDef::Commander
             | ObjectPredicateDef::Token
+            | ObjectPredicateDef::Permanent
             | ObjectPredicateDef::Tapped
             | ObjectPredicateDef::WasDealtDamageThisTurn
             | ObjectPredicateDef::DealtDamageThisTurn

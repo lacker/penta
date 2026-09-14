@@ -794,7 +794,8 @@ pub(in crate::card::sets) static ELDRAZI_TEMPLE: CardRecord = CardRecord::new(
                             ObjectPredicateDef::ColorCount(0),
                             ObjectPredicateDef::Subtype(SubtypeDef::from_name("Eldrazi")),
                         ])),
-                        ManaRestrictionDef::ActivatePermanentAbility(ObjectPredicateDef::All(&[
+                        ManaRestrictionDef::ActivateAbility(ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::Permanent,
                             ObjectPredicateDef::ColorCount(0),
                             ObjectPredicateDef::Subtype(SubtypeDef::from_name("Eldrazi")),
                         ])),

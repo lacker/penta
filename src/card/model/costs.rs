@@ -660,10 +660,6 @@ pub enum ManaRestrictionDef {
     /// Spend only to cast a commander designated for the player spending it.
     CastYourCommander,
     ActivateAbility(ObjectPredicateDef),
-    /// Spend only to activate an ability of a matching permanent, rather
-    /// than a source in another zone. Retain last-known information when
-    /// that permanent leaves the battlefield while paying the cost.
-    ActivatePermanentAbility(ObjectPredicateDef),
     /// This mana can be spent only on a payment with the named semantic purpose.
     Payment(super::AbilityLabel),
     Special(&'static str),

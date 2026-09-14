@@ -87,6 +87,10 @@ pub enum ObjectPredicateDef {
     /// Whether the object is a token rather than a card represented by a
     /// physical printing. Negate this for the common "nontoken" qualifier.
     Token,
+    /// A battlefield object, including its last-known identity after it
+    /// leaves. A permanent card or spell in another zone does not qualify;
+    /// zone changes give that card a distinct object identity.
+    Permanent,
     /// A card currently face up in exile (CR 406.3). This is not a
     /// permanent's face-up/face-down status (CR 110.5d), and permission
     /// to look at a face-down exiled card does not make it face up.

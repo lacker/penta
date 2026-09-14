@@ -766,6 +766,7 @@ impl Game {
             ObjectPredicateDef::FaceUpInExile => {
                 return zone == ZoneKind::Exile && !face_down;
             }
+            ObjectPredicateDef::Permanent => return zone == ZoneKind::Battlefield,
             ObjectPredicateDef::HasAnyCounter => {
                 return !card.counters.is_empty();
             }

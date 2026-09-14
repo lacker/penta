@@ -549,6 +549,13 @@ impl Game {
             ObjectPredicateDef::Source => object.id == source,
             ObjectPredicateDef::Commander => self.is_commander(object.id),
             ObjectPredicateDef::Token => object.token,
+            ObjectPredicateDef::Permanent => {
+                self.battlefield.iter().any(|p| p.card.id == object.id)
+                    || matches!(
+                        self.retired_objects.get(&object.id),
+                        Some(RetiredObject::Permanent { .. })
+                    )
+            }
             ObjectPredicateDef::Saddled => object.saddled,
             ObjectPredicateDef::HasType(card_type) => object.types.contains(card_type),
             ObjectPredicateDef::HasAnyBasicLandType(land_types) => {

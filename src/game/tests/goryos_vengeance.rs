@@ -213,12 +213,14 @@ fn splice_pays_its_cost_and_keeps_distinct_targets_and_delayed_bindings() {
 }
 
 #[test]
-fn a_redirected_arrival_is_not_exiled_again_at_the_end_step() {
+fn a_redirected_arrival_gets_neither_haste_nor_a_delayed_trigger() {
     let (mut game, spell, body) = staged();
     game.battlefield
         .push(creature(190_005, cards::CONTAINMENT_PRIEST, PlayerId::Two));
     cast(&mut game, spell, body);
     assert_eq!(game.players[0].exile.len(), 1);
+    assert!(game.nonbattlefield_ability_grants.is_empty());
+    assert!(game.installed_triggers.is_empty());
     let exiled = game.players[0].exile[0].id;
     next_end_step(&mut game);
     drain_pending(&mut game);

@@ -23,6 +23,7 @@ use crate::card::DiscardSelectionDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::HalvedValueDef;
+use crate::card::IfNoObjectsDef;
 use crate::card::InstalledTriggerDef;
 use crate::card::ManaColor;
 use crate::card::ObjectPredicateDef;
@@ -117,34 +118,40 @@ pub(in crate::card::sets) static GORYO_S_VENGEANCE: CardRecord = CardRecord::new
                         ZonePlacement::Top,
                     ),
                     binding: crate::Binding!("returned"),
-                    then: &EffectDef::Sequence(&[
-                        EffectDef::Apply {
-                            recipient: EffectRecipientDef::binding_zone_change_successors(
-                                crate::Binding!("returned"),
-                            ),
-                            effect: AppliedEffectDef::add_ability(&abilities::haste()),
-                            duration: ResolvedEffectDurationDef::Permanent,
+                    then: &EffectDef::IfNoObjects(IfNoObjectsDef {
+                        input: ObjectSetDef::InZone {
+                            objects: &ObjectSetDef::ZoneChangeSuccessorsOfBinding(crate::Binding!(
+                                "returned"
+                            )),
+                            zone: ZoneKind::Battlefield,
                         },
-                        EffectDef::InstallTrigger(InstalledTriggerDef::once(
-                            &AbilityDef::triggered(
-                                "At the beginning of the next end step, exile that creature.",
-                                TriggerEventDef::StepBegins {
-                                    step: TurnStepDef::End,
-                                    player: PlayerRelation::Any,
-                                },
-                                EffectDef::move_to_zone(
-                                    EffectRecipientDef::objects(ObjectSetDef::InZone {
-                                        objects: &ObjectSetDef::ZoneChangeSuccessorsOfBinding(
+                        if_empty: &EffectDef::None,
+                        otherwise: &EffectDef::Sequence(&[
+                            EffectDef::Apply {
+                                recipient: EffectRecipientDef::binding_zone_change_successors(
+                                    crate::Binding!("returned"),
+                                ),
+                                effect: AppliedEffectDef::add_ability(&abilities::haste()),
+                                duration: ResolvedEffectDurationDef::Permanent,
+                            },
+                            EffectDef::InstallTrigger(InstalledTriggerDef::once(
+                                &AbilityDef::triggered(
+                                    "At the beginning of the next end step, exile that creature.",
+                                    TriggerEventDef::StepBegins {
+                                        step: TurnStepDef::End,
+                                        player: PlayerRelation::Any,
+                                    },
+                                    EffectDef::move_to_zone(
+                                        EffectRecipientDef::binding_zone_change_successors(
                                             crate::Binding!("returned"),
                                         ),
-                                        zone: ZoneKind::Battlefield,
-                                    }),
-                                    ZoneKind::Exile,
-                                    ZonePlacement::Top,
+                                        ZoneKind::Exile,
+                                        ZonePlacement::Top,
+                                    ),
                                 ),
-                            ),
-                        )),
-                    ]),
+                            )),
+                        ]),
+                    }),
                 },
             ),
             abilities::splice_onto_arcane(&[CostDef::Mana(mana_cost!("{2}{B}"))]),

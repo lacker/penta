@@ -162,6 +162,11 @@ pub enum ObjectSetDef {
         binding: Binding,
         object: ObjectPredicateDef,
     },
+    /// The exact live members of a set that remain in the named zone.
+    InZone {
+        objects: &'static ObjectSetDef,
+        zone: ZoneKind,
+    },
     /// The members of any resolved object set that satisfy one more
     /// predicate. This is the compositional form used with labeled outputs.
     Matching {
@@ -337,6 +342,7 @@ impl EffectRecipientDef {
                 | ObjectSetDef::TokensCreatedBy(_)
                 | ObjectSetDef::MatchingBinding { .. }
                 | ObjectSetDef::Matching { .. }
+                | ObjectSetDef::InZone { .. }
                 | ObjectSetDef::PermanentsTargetedBy(_)
                 | ObjectSetDef::PlayerAttachments(_)
                 | ObjectSetDef::LegalAttachmentHosts(_)
@@ -367,6 +373,7 @@ impl EffectRecipientDef {
                 | ObjectSetDef::TokensCreatedBy(_)
                 | ObjectSetDef::MatchingBinding { .. }
                 | ObjectSetDef::Matching { .. }
+                | ObjectSetDef::InZone { .. }
                 | ObjectSetDef::PermanentsTargetedBy(_)
                 | ObjectSetDef::PlayerAttachments(_)
                 | ObjectSetDef::LegalAttachmentHosts(_)

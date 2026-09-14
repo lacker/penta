@@ -46,7 +46,7 @@ impl Game {
         installed: InstalledTriggerDef,
         scoped: ScopedEffect,
         object: &StackObject,
-        context: EffectResolutionContext,
+        context: &EffectResolutionContext,
         source_ability: AbilityOrigin,
     ) {
         let DeclarativeAbilityDef::Triggered(definition) = installed.ability.definition else {
@@ -103,7 +103,9 @@ impl Game {
                 targets: frozen.targets.clone(),
                 effect,
                 resolver: StackAbilityResolver::Declarative(scoped.with_effect(effect)),
-                context,
+                // Resolution branches share mutable bindings. A delayed trigger must
+                // retain the values at installation, before later instructions rebind them.
+                context: context.clone(),
                 condition: definition.condition,
                 // An installed trigger carries the effect it was installed
                 // with; nothing about it is modal.

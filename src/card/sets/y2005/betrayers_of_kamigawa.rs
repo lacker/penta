@@ -4,6 +4,7 @@ use super::CardRecord;
 use super::PrintingRecord;
 use crate::card::AbilityDef;
 use crate::card::AbilityTargetDef;
+use crate::card::AbilityTargetPredicate;
 use crate::card::AppliedEffectDef;
 use crate::card::AppliedRuleDef;
 use crate::card::BasicLandType;
@@ -22,6 +23,7 @@ use crate::card::DiscardSelectionDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::HalvedValueDef;
+use crate::card::InstalledTriggerDef;
 use crate::card::ManaColor;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectSetDef;
@@ -32,6 +34,7 @@ use crate::card::PlayerSetDef;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::RoundingDef;
 use crate::card::TriggerEventDef;
+use crate::card::TurnStepDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
 use crate::card::ZonePlacement;
@@ -86,13 +89,66 @@ pub(in crate::card::sets) static NINJA_OF_THE_DEEP_HOURS: CardRecord = CardRecor
 );
 
 // BOK 67 — Goryo's Vengeance
-// Audit: unsupported — Needs splice onto Arcane to append effects and targets to another spell
-// while retaining this card in hand.
 pub(in crate::card::sets) static GORYO_S_VENGEANCE: CardRecord = CardRecord::new(
     "Goryo's Vengeance",
     "3027e6c5-eed3-44e7-bb12-67569721af99",
     "Ittoku",
-    CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{B}"))
+        .with_subtypes(&["Arcane"])
+        .with_abilities(&[
+            AbilityDef::spell_with_targets(
+                "Return target legendary creature card from your graveyard to the battlefield. \
+                 That creature gains haste. Exile it at the beginning of the next end step.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::Supertype(CardSupertype::Legendary),
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                        ]),
+                        zones: &[ZoneKind::Graveyard],
+                        controller: None,
+                        owner: Some(PlayerRelation::You),
+                    },
+                )],
+                EffectDef::WithZoneMoveResult {
+                    effect: &EffectDef::move_to_zone(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ZoneKind::Battlefield,
+                        ZonePlacement::Top,
+                    ),
+                    binding: crate::Binding!("returned"),
+                    then: &EffectDef::Sequence(&[
+                        EffectDef::Apply {
+                            recipient: EffectRecipientDef::binding_zone_change_successors(
+                                crate::Binding!("returned"),
+                            ),
+                            effect: AppliedEffectDef::add_ability(&abilities::haste()),
+                            duration: ResolvedEffectDurationDef::Permanent,
+                        },
+                        EffectDef::InstallTrigger(InstalledTriggerDef::once(
+                            &AbilityDef::triggered(
+                                "At the beginning of the next end step, exile that creature.",
+                                TriggerEventDef::StepBegins {
+                                    step: TurnStepDef::End,
+                                    player: PlayerRelation::Any,
+                                },
+                                EffectDef::move_to_zone(
+                                    EffectRecipientDef::objects(ObjectSetDef::InZone {
+                                        objects: &ObjectSetDef::ZoneChangeSuccessorsOfBinding(
+                                            crate::Binding!("returned"),
+                                        ),
+                                        zone: ZoneKind::Battlefield,
+                                    }),
+                                    ZoneKind::Exile,
+                                    ZonePlacement::Top,
+                                ),
+                            ),
+                        )),
+                    ]),
+                },
+            ),
+            abilities::splice_onto_arcane(&[CostDef::Mana(mana_cost!("{2}{B}"))]),
+        ]),
 );
 
 // BOK 76 — Okiba-Gang Shinobi

@@ -683,7 +683,7 @@ impl Game {
                 else {
                     return;
                 };
-                self.install_trigger_from(installed, scoped, object, context, source_ability);
+                self.install_trigger_from(installed, scoped, object, &context, source_ability);
             }
             EffectDef::ChooseCardName { .. } => {
                 unreachable!("catalog validation rejected an unbound card-name choice")

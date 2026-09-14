@@ -280,6 +280,7 @@ fn shared_static_effect_at(source_zones: &[ZoneKind], effect: EffectDef, root: b
                     | ObjectSetDef::ZoneChangeSuccessorsOfBinding(_)
                     | ObjectSetDef::MatchingBinding { .. }
                     | ObjectSetDef::Matching { .. }
+                    | ObjectSetDef::InZone { .. }
                     | ObjectSetDef::LinkedExiles
                     | ObjectSetDef::CardsDrawnThisTurnInHand(_)
                     | ObjectSetDef::PermanentsControlledBy(_)

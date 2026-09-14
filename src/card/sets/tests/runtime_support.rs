@@ -28,6 +28,9 @@ use super::*;
 
 pub(super) fn shared_effect_recipient(recipient: EffectRecipientDef) -> bool {
     match recipient.0 {
+        EffectRecipientSetDef::Objects(ObjectSetDef::InZone { objects, .. }) => {
+            shared_effect_recipient(EffectRecipientDef::objects(*objects))
+        }
         EffectRecipientSetDef::Objects(ObjectSetDef::Union(sets)) => sets
             .iter()
             .copied()

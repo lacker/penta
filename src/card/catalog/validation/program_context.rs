@@ -848,7 +848,8 @@ fn static_object_set_supported(objects: ObjectSetDef) -> bool {
         | ObjectSetDef::TokensCreatedBy(_)
         | ObjectSetDef::BottomOfGraveyard(_)
         | ObjectSetDef::TopOfGraveyardMatching { .. }
-        | ObjectSetDef::ExceptObject { .. } => false,
+        | ObjectSetDef::ExceptObject { .. }
+        | ObjectSetDef::InZone { .. } => false,
         ObjectSetDef::Matching { objects, object } => {
             static_object_set_supported(*objects)
                 && static_object_predicate_supported(object.predicate())

@@ -508,6 +508,7 @@ impl HandcraftedPolicy {
             | crate::card::ObjectSetDef::ZoneChangeSuccessorsOfBinding(_)
             | crate::card::ObjectSetDef::MatchingBinding { .. }
             | crate::card::ObjectSetDef::Matching { .. }
+            | crate::card::ObjectSetDef::InZone { .. }
             | crate::card::ObjectSetDef::PermanentsTargetedBy(_)
             | crate::card::ObjectSetDef::LegalAttachmentHosts(_)
             | crate::card::ObjectSetDef::LinkedExiles

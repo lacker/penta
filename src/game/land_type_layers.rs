@@ -491,6 +491,7 @@ impl Game {
                 | ObjectSetDef::ZoneChangeSuccessorsOfBinding(_)
                 | ObjectSetDef::MatchingBinding { .. }
                 | ObjectSetDef::Matching { .. }
+                | ObjectSetDef::InZone { .. }
                 | ObjectSetDef::LegalTargets(_)
                 | ObjectSetDef::PermanentsTargetedBy(_)
                 | ObjectSetDef::PlayerAttachments(_)

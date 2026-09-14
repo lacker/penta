@@ -472,6 +472,9 @@ fn validate_object_set_target_references(
         | ObjectSetDef::MatchingBinding { binding, .. } => {
             scope.validate_object_set_reference(binding)
         }
+        ObjectSetDef::InZone { objects, .. } => {
+            validate_object_set_target_references(*objects, target_count, scope)
+        }
         ObjectSetDef::Matching { objects, object } => {
             validate_object_set_target_references(*objects, target_count, scope)?;
             validate_object_predicate_references(object.predicate(), target_count, scope)

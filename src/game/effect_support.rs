@@ -29,6 +29,22 @@ mod names;
 mod queries;
 
 impl Game {
+    fn effect_target_in_zone(&self, target: Target, zone: ZoneKind) -> bool {
+        let Some(id) = Self::target_object_id(target) else {
+            return false;
+        };
+        match zone {
+            ZoneKind::Battlefield => self
+                .battlefield
+                .iter()
+                .any(|permanent| permanent.card.id == id),
+            ZoneKind::Stack => self.stack.iter().any(|object| object.id == id),
+            _ => self
+                .card_in_nonbattlefield_zone(id)
+                .is_some_and(|(actual, _)| actual == zone),
+        }
+    }
+
     /// One protection ability per colour, so the chosen one has a static
     /// grant to point at. A granted ability is borrowed for the life of the
     /// game, which a colour picked at resolution cannot supply on its own.

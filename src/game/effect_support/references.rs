@@ -670,6 +670,11 @@ impl Game {
         source: GameObjectId,
     ) -> Vec<Target> {
         match objects {
+            ObjectSetDef::InZone { objects, zone } => self
+                .source_object_set_targets(*objects, source)
+                .into_iter()
+                .filter(|target| self.effect_target_in_zone(*target, zone))
+                .collect(),
             ObjectSetDef::Union(sets) => {
                 let mut union = Vec::new();
                 for objects in sets {
@@ -776,6 +781,11 @@ impl Game {
         scoped: ScopedEffect,
     ) -> Vec<Target> {
         match objects {
+            ObjectSetDef::InZone { objects, zone } => self
+                .effect_objects(*objects, object, context, scoped)
+                .into_iter()
+                .filter(|target| self.effect_target_in_zone(*target, zone))
+                .collect(),
             ObjectSetDef::Union(sets) => {
                 let mut union = Vec::new();
                 for objects in sets {

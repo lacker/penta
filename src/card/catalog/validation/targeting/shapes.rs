@@ -225,6 +225,7 @@ fn validate_object_set_shape(
             validate_object_reference_shape(reference, targets)
         }
         ObjectSetDef::Query(query) => validate_query_shape(query, targets),
+        ObjectSetDef::InZone { objects, .. } => validate_object_set_shape(*objects, targets),
         ObjectSetDef::Matching { objects, object } => {
             validate_object_set_shape(*objects, targets)?;
             validate_object_predicate_shape(object.predicate(), targets)
@@ -678,6 +679,9 @@ fn recipient_may_name_nonbattlefield_object(
     triggering_object_zone: Option<ZoneKind>,
 ) -> bool {
     match recipient.0 {
+        EffectRecipientSetDef::Objects(ObjectSetDef::InZone { zone, .. }) => {
+            zone != ZoneKind::Battlefield
+        }
         EffectRecipientSetDef::Objects(ObjectSetDef::Union(sets)) => sets.iter().copied().any(
             |objects| {
                 recipient_may_name_nonbattlefield_object(
@@ -754,6 +758,9 @@ fn recipient_nonbattlefield_zones_support_flashback(
     triggering_object_zone: Option<ZoneKind>,
 ) -> bool {
     match recipient.0 {
+        EffectRecipientSetDef::Objects(ObjectSetDef::InZone { zone, .. }) => {
+            matches!(zone, ZoneKind::Battlefield | ZoneKind::Graveyard)
+        }
         EffectRecipientSetDef::Objects(ObjectSetDef::Union(sets)) => sets.iter().copied().all(
             |objects| {
                 recipient_nonbattlefield_zones_support_flashback(

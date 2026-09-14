@@ -546,12 +546,11 @@ impl Game {
             .expect("a rebound spell retains its selected play option");
         let source_ability = Self::rebound_ability_origin(definition, option)
             .expect("a rebound destination comes from an executable rebound ability");
-        let context = object
+        let context = &object
             .ability
             .as_ref()
             .expect("a rebound spell retains its frozen ability")
-            .context
-            .clone();
+            .context;
         self.install_trigger_from(
             crate::card::abilities::REBOUND_DELAYED_TRIGGER,
             super::ScopedEffect::primary(crate::card::EffectDef::None),

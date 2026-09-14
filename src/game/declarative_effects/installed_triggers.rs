@@ -71,7 +71,7 @@ impl Game {
                 InstalledTriggerLifetime::ThisTurn { turn: self.turn }
             }
             InstalledTriggerLifetimeDef::UntilNextTurn(player) => {
-                let Some(player) = self.effect_player_reference(player, object, &context, scoped)
+                let Some(player) = self.effect_player_reference(player, object, context, scoped)
                 else {
                     return;
                 };

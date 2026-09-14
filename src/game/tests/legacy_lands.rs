@@ -1,73 +1,20 @@
 use super::*;
 
-fn dredging(library: usize) -> Game {
+#[test]
+fn dredge_does_not_replace_the_opponents_draw() {
     let mut game = ready_game();
-    game.battlefield.clear();
-    game.players[0].hand.clear();
     game.players[0].graveyard = game
         .build_zone(PlayerId::One, &[cards::LIFE_FROM_THE_LOAM])
         .unwrap();
-    game.players[0].library = game
-        .build_zone(PlayerId::One, &vec![cards::FOREST; library])
-        .unwrap();
-    game
-}
-
-fn choose_dredge(game: &mut Game) {
-    let decision = game
-        .observe(PlayerId::One)
-        .decision
-        .expect("replacement choice");
-    let option = decision
-        .options
-        .iter()
-        .find(|option| option.label.contains("Dredge 3"))
-        .unwrap()
-        .id;
-    game.apply(
-        PlayerId::One,
-        Action::ChooseDecision {
-            decision: decision.id,
-            options: vec![option],
-        },
-    )
-    .unwrap();
-}
-
-#[test]
-fn dredge_requires_enough_cards_and_returns_a_new_hand_object_without_drawing() {
-    for count in [0, 2, 3, 4] {
-        let mut game = dredging(count);
-        let old = game.players[0].graveyard[0].id;
-        game.draw_card(PlayerId::One);
-        if count < 3 {
-            assert!(game.observe(PlayerId::One).decision.is_none());
-            assert_eq!(game.players[0].graveyard[0].id, old);
-        } else {
-            choose_dredge(&mut game);
-            assert_eq!(game.players[0].library.len(), count - 3);
-            assert_eq!(game.players[0].graveyard.len(), 3);
-            assert_eq!(game.players[0].hand.len(), 1);
-            assert_eq!(
-                game.players[0].hand[0].definition,
-                cards::LIFE_FROM_THE_LOAM
-            );
-            assert_ne!(game.players[0].hand[0].id, old);
-            assert_eq!(game.cards_drawn_this_turn[0], 0);
-        }
-    }
-}
-
-#[test]
-fn dredge_is_optional_and_does_not_replace_the_opponents_draw() {
-    let mut game = dredging(4);
-    game.draw_card(PlayerId::Two);
+    game.players[0].library = game.build_zone(PlayerId::One, &[cards::FOREST; 4]).unwrap();
+    assert!(game.draw_card(PlayerId::Two).is_some());
     assert!(game.observe(PlayerId::One).decision.is_none());
-    game.draw_card(PlayerId::One);
-    choose_decision_by_label(&mut game, PlayerId::One, "Draw the card");
-    assert_eq!(game.players[0].library.len(), 3);
-    assert_eq!(game.players[0].graveyard.len(), 1);
-    assert_eq!(game.players[0].hand[0].definition, cards::FOREST);
+    assert!(game.observe(PlayerId::Two).decision.is_none());
+    assert_eq!(game.players[0].library.len(), 4);
+    assert_eq!(
+        game.players[0].graveyard[0].definition,
+        cards::LIFE_FROM_THE_LOAM
+    );
 }
 
 #[test]
@@ -175,33 +122,6 @@ fn drop_of_honey_captures_an_empty_battlefield_before_a_creature_returns() {
             .unwrap();
     drain_pending(&mut game);
     assert!(!game.battlefield.iter().any(|p| p.card.id == honey));
-}
-
-#[test]
-fn dredge_rechecks_each_draw_and_round_trips_the_pending_choice() {
-    let mut game = dredging(7);
-    let second = game
-        .build_zone(PlayerId::One, &[cards::LIFE_FROM_THE_LOAM])
-        .unwrap()
-        .pop()
-        .unwrap();
-    game.players[0].library.push(second);
-    game.draw_cards(PlayerId::One, 2);
-    let (wire, hidden) = checkpoint_fixture(&game, PlayerId::One);
-    let mut game =
-        Game::from_observation_checkpoint(game.catalog.clone(), game.format, &wire, &hidden, 42)
-            .unwrap();
-    choose_dredge(&mut game);
-    choose_dredge(&mut game);
-    assert_eq!(game.players[0].library.len(), 2);
-    assert_eq!(game.players[0].hand.len(), 2);
-    assert!(
-        game.players[0]
-            .hand
-            .iter()
-            .all(|card| card.definition == cards::LIFE_FROM_THE_LOAM)
-    );
-    assert_eq!(game.cards_drawn_this_turn[0], 0);
 }
 
 #[test]

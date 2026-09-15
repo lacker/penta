@@ -4421,7 +4421,7 @@ pub(in crate::card::sets) static NARSET_OF_THE_ANCIENT_WAY: CardRecord = CardRec
                 "+1: You gain 2 life. Add {U}, {R}, \
                  or {W}. Spend this mana only to \
                  cast a noncreature spell.",
-                &[CostDef::Loyalty(1)],
+                &[CostDef::Loyalty(ValueDef::Constant(1))],
                 EffectDef::Sequence(&[
                     EffectDef::GainLife {
                         recipient: EffectRecipientDef::Controller,
@@ -4446,7 +4446,7 @@ pub(in crate::card::sets) static NARSET_OF_THE_ANCIENT_WAY: CardRecord = CardRec
                  damage equal to that card's mana \
                  value to target creature or \
                  planeswalker.",
-                &[CostDef::Loyalty(-2)],
+                &[CostDef::Loyalty(ValueDef::Constant(-2))],
                 EffectDef::Sequence(&[
                     abilities::draw_cards(ValueDef::Constant(1)),
                     EffectDef::May {
@@ -4510,7 +4510,7 @@ pub(in crate::card::sets) static NARSET_OF_THE_ANCIENT_WAY: CardRecord = CardRec
                  \"Whenever you cast a noncreature \
                  spell, this emblem deals 2 damage \
                  to any target.\"",
-                &[CostDef::Loyalty(-6)],
+                &[CostDef::Loyalty(ValueDef::Constant(-6))],
                 EffectDef::CreateEmblem {
                     emblem: EmblemCharacteristics::new(
                         "Narset of the Ancient Way emblem",

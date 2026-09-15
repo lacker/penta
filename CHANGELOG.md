@@ -38,8 +38,11 @@ the bot-wire epoch.
   interactions with Consign to Memory, Humility, Eye of Ugin, and Ugin, Eye of
   the Storms. Spell color effects remain distinct from copiable color changes;
   retired objects retain last-known colors and revealed-card power/toughness.
-  Observations add `chosenColors`; checkpoints add optional color-effect,
-  last-known-color, and chosen-color-set fields. Existing protocol and artifact
+  Entry color choices use durable named bindings; observations add a
+  `chosenColors` binding map and checkpoints retain the individual sets.
+  Loyalty costs carry values directly, including −X with normal loyalty timing,
+  reservations, and payment. Checkpoints add optional color-effect and
+  last-known-color fields. Existing protocol and artifact
   epochs remain unchanged; simulation fingerprints identify the new rules.
 
 - Add Lord_Beerus's September 13 Vintage Challenge Dredge deck and implement

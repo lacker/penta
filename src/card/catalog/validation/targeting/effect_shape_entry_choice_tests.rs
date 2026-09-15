@@ -199,3 +199,22 @@ fn labeled_choices_reject_nondurable_token_bindings() {
         .is_err()
     );
 }
+
+#[test]
+fn color_choices_require_durable_bindings_and_distinct_nonempty_sets() {
+    const CHOICE: ReplacementEffectDef = ReplacementEffectDef::Choose(ReplacementChoiceDef::Colors(2));
+    assert!(validate_replacement_ability_targets(&[], CHOICE).is_err());
+    assert!(validate_replacement_ability_targets(&[], ReplacementEffectDef::BindOutput {
+        binding: Binding!("colors"), effect: &CHOICE,
+    }).is_ok());
+    assert!(validate_replacement_ability_targets(&[], ReplacementEffectDef::BindOutput {
+        binding: crate::ParentBinding, effect: &CHOICE,
+    }).is_err());
+    assert!(validate_replacement_ability_targets(&[], ReplacementEffectDef::BindOutput {
+        binding: Binding!("colors"),
+        effect: &ReplacementEffectDef::Choose(ReplacementChoiceDef::Colors(0)),
+    }).is_err());
+    assert!(validate_value_shape(ValueDef::ColorIntersectionCount(&[
+        crate::card::ColorSetDef::Binding(crate::ParentBinding),
+    ]), &[]).is_err());
+}

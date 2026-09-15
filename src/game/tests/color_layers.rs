@@ -1,6 +1,6 @@
 use super::*;
 
-fn cast_target(
+pub(super) fn cast_target(
     game: &mut Game,
     definition: CardDefinitionId,
     target: Option<Target>,
@@ -55,6 +55,7 @@ fn color_layers_devoid_and_ghostfire_define_colors_in_every_zone() {
             );
             assert!(rules.color_set().is_colorless());
             for context in [
+                CharacteristicContext::OutsideGame,
                 CharacteristicContext::Library,
                 CharacteristicContext::Hand,
                 CharacteristicContext::Graveyard,
@@ -158,7 +159,7 @@ fn color_layers_gnomes_changes_spell_targets_and_carries_onto_the_permanent() {
     }
 }
 
-fn put_with_colors(
+pub(super) fn put_with_colors(
     game: &mut Game,
     definition: CardDefinitionId,
     indices: [usize; 2],
@@ -249,7 +250,7 @@ fn color_layers_two_color_choices_survive_checkpoint_and_count_intersection() {
         .unwrap();
         assert_eq!(
             game.color_set_value(
-                crate::card::ColorSetDef::ChosenBy(ObjectRefDef::Source),
+                crate::card::ColorSetDef::Binding(crate::Binding!("guild_colors")),
                 |_| Some(tablet)
             )
             .count(),

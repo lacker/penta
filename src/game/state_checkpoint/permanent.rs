@@ -227,7 +227,11 @@ pub(super) fn permanent_snapshot(
             })
             .collect(),
         resolved_continuous_effects,
-        chosen_colors: permanent.chosen_colors.to_flags(),
+        chosen_colors: permanent
+            .chosen_colors
+            .iter()
+            .map(|(binding, colors)| (binding.clone(), colors.to_flags()))
+            .collect(),
         activations_this_turn: permanent
             .activations_this_turn
             .iter()

@@ -1369,7 +1369,7 @@ pub(in crate::card::sets) static KAITO_CUNNING_INFILTRATOR: CardRecord = CardRec
             AbilityDef::activated_with_targets(
                 "+1: Up to one target creature you control can't be blocked \
                  this turn. Draw a card, then discard a card.",
-                &[CostDef::Loyalty(1)],
+                &[CostDef::Loyalty(ValueDef::Constant(1))],
                 &[AbilityTargetDef::up_to(
                     AbilityTargetPredicate::Object {
                         object: ObjectPredicateDef::HasType(CardType::Creature),
@@ -1396,13 +1396,13 @@ pub(in crate::card::sets) static KAITO_CUNNING_INFILTRATOR: CardRecord = CardRec
             ),
             AbilityDef::activated(
                 "−2: Create a 2/1 blue Ninja creature token.",
-                &[CostDef::Loyalty(-2)],
+                &[CostDef::Loyalty(ValueDef::Constant(-2))],
                 EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(NINJA_TOKEN))),
             ),
             AbilityDef::activated(
                 "−9: You get an emblem with \"Whenever a player casts a spell, \
                  you create a 2/1 blue Ninja creature token.\"",
-                &[CostDef::Loyalty(-9)],
+                &[CostDef::Loyalty(ValueDef::Constant(-9))],
                 EffectDef::CreateEmblem {
                     emblem: EmblemCharacteristics::new(
                         "Kaito Emblem",

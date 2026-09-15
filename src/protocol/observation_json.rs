@@ -188,7 +188,9 @@ fn permanent_observation_json(
         "chosenCreatureType": permanent.chosen_creature_type.as_deref(),
         "chosenBasicLandType": permanent.chosen_basic_land_type.map(crate::card::BasicLandType::subtype),
         "chosenBasicLandTypeSubstitution": permanent.chosen_basic_land_type_substitution.map(|(from, to)| [from.subtype(), to.subtype()]),
-        "chosenColors": permanent.chosen_colors.iter().copied().map(super::json_common::mana_color_name).collect::<Vec<_>>(),
+        "chosenColors": permanent.chosen_colors.iter().map(|(binding, colors)|
+            (binding, colors.iter().copied().map(super::json_common::mana_color_name).collect::<Vec<_>>())
+        ).collect::<std::collections::BTreeMap<_, _>>(),
         "chosenColor": permanent.chosen_color.map(super::json_common::mana_color_name),
         "tapped": permanent.tapped,
         "power": permanent.power,

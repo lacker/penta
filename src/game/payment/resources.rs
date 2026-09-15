@@ -24,6 +24,7 @@ impl Game {
         origin: AbilityOrigin,
         costs: &[CostDef],
         chosen: &[GameObjectId],
+        x: u16,
     ) -> Vec<PaymentReservation> {
         let mut excluded = costs
             .iter()
@@ -63,7 +64,10 @@ impl Game {
                 }
                 CostDef::Loyalty(change) => {
                     reserved.push(PaymentReservation::Object(source));
-                    if change < 0 { reserved.push(PaymentReservation::Counters(source, CounterKind::Loyalty, u16::from(change.unsigned_abs()))); }
+                    if let Some(change) = crate::card::costs::loyalty_change(change, x).filter(|change| *change < 0) {
+                        reserved.push(PaymentReservation::Counters(source, CounterKind::Loyalty,
+                            u16::try_from(change.unsigned_abs()).expect("validated loyalty removal fits counters")));
+                    }
                 }
                 CostDef::DiscardCardsAtRandom(amount) => reserved.push(PaymentReservation::Hand(usize::from(amount))),
                 CostDef::MillCards(amount) | CostDef::ExileTopCards(amount) => reserved.push(PaymentReservation::Library(usize::from(amount))),

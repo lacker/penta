@@ -248,12 +248,12 @@ pub(in crate::card::sets) static AJANI_OUTLAND_CHAPERONE: CardRecord = CardRecor
         .with_abilities(&[
             AbilityDef::activated(
                 "+1: Create a 1/1 green and white Kithkin creature token.",
-                &[CostDef::Loyalty(1)],
+                &[CostDef::Loyalty(ValueDef::Constant(1))],
                 EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(KITHKIN_TOKEN))),
             ),
             AbilityDef::activated_with_targets(
                 "−2: Ajani deals 4 damage to target tapped creature.",
-                &[CostDef::Loyalty(-2)],
+                &[CostDef::Loyalty(ValueDef::Constant(-2))],
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
@@ -270,7 +270,7 @@ pub(in crate::card::sets) static AJANI_OUTLAND_CHAPERONE: CardRecord = CardRecor
                  life total. You may put any number of nonland permanent cards \
                  with mana value 3 or less from among them onto the \
                  battlefield. Then shuffle.",
-                &[CostDef::Loyalty(-8)],
+                &[CostDef::Loyalty(ValueDef::Constant(-8))],
                 EffectDef::ChooseCardsFromCollection(ChooseCardsFromCollectionDef {
                     source: ObjectCollectionSourceDef::TopCards {
                         player: PlayerRefDef::EffectController,

@@ -1,3 +1,11 @@
+fn validate_color_choice_binding(binding: crate::Binding) -> Result<(), GrantedAbilityValidationError> {
+    if binding == crate::ParentBinding {
+        Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
+            context: "color binding", operation: "requires a durable labeled binding",
+        })
+    } else { Ok(()) }
+}
+
 fn validate_choice_labels(
     choices: &[crate::card::TokenChoiceDef],
 ) -> Result<(), GrantedAbilityValidationError> {
@@ -28,6 +36,14 @@ fn validate_replacement_binding_target_shape(
                 operation: "BindOutput requires a durable labeled binding",
             },
         );
+    }
+    if let ReplacementEffectDef::Choose(ReplacementChoiceDef::Colors(count)) = *effect {
+        return if (1..=5).contains(&count) { Ok(()) } else {
+            Err(GrantedAbilityValidationError::InvalidScalarChoice {
+                list: ScalarChoiceListDef::Colors,
+                destination: BattlefieldEntryChoiceDestinationDef::Color,
+            })
+        };
     }
     let ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(choice)) = *effect else {
         return Err(
@@ -135,15 +151,9 @@ fn validate_replacement_effect_target_shapes(
                 })
             }
         }
-        ReplacementEffectDef::Choose(ReplacementChoiceDef::Colors(count))
-            if (1..=5).contains(&count) =>
-        {
-            Ok(())
-        }
         ReplacementEffectDef::Choose(ReplacementChoiceDef::Colors(_)) => {
-            Err(GrantedAbilityValidationError::InvalidScalarChoice {
-                list: ScalarChoiceListDef::Colors,
-                destination: BattlefieldEntryChoiceDestinationDef::Color,
+            Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
+                context: "color choice", operation: "requires a durable BindOutput",
             })
         }
         ReplacementEffectDef::ReplaceEventWithNothing

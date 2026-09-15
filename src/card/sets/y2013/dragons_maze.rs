@@ -2348,7 +2348,7 @@ pub(in crate::card::sets) static RAL_ZAREK: CardRecord = CardRecord::new(
         .with_abilities(&[
             AbilityDef::activated_with_targets(
                 "+1: Tap target permanent, then untap another target permanent.",
-                &[CostDef::Loyalty(1)],
+                &[CostDef::Loyalty(ValueDef::Constant(1))],
                 &[
                     AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Any),
                     AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Any).another(),
@@ -2364,7 +2364,7 @@ pub(in crate::card::sets) static RAL_ZAREK: CardRecord = CardRecord::new(
             ),
             AbilityDef::activated_with_targets(
                 "−2: Ral Zarek deals 3 damage to any target.",
-                &[CostDef::Loyalty(-2)],
+                &[CostDef::Loyalty(ValueDef::Constant(-2))],
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::AnyTarget,
                 )],
@@ -2376,7 +2376,7 @@ pub(in crate::card::sets) static RAL_ZAREK: CardRecord = CardRecord::new(
             AbilityDef::activated(
                 "−7: Flip five coins. Take an extra turn after this one for \
                  each coin that comes up heads.",
-                &[CostDef::Loyalty(-7)],
+                &[CostDef::Loyalty(ValueDef::Constant(-7))],
                 EffectDef::FlipCoin {
                     on_win: &EffectDef::Sequence(&[RAL_ZAREK_EXTRA_TURN, RAL_ZAREK_FLIP_FOUR]),
                     on_loss: &RAL_ZAREK_FLIP_FOUR,

@@ -398,7 +398,7 @@ pub(in crate::card::sets) static PROFESSOR_ONYX: CardRecord = CardRecord::new(
                 "+1: You lose 1 life. Look at the top three cards of your \
                  library. Put one of them into your hand and the rest into \
                  your graveyard.",
-                &[CostDef::Loyalty(1)],
+                &[CostDef::Loyalty(ValueDef::Constant(1))],
                 EffectDef::Sequence(&[
                     EffectDef::LoseLife {
                         recipient: EffectRecipientDef::Controller,
@@ -438,7 +438,7 @@ pub(in crate::card::sets) static PROFESSOR_ONYX: CardRecord = CardRecord::new(
             AbilityDef::activated(
                 "−3: Each opponent sacrifices a creature with the greatest \
                  power among creatures that player controls.",
-                &[CostDef::Loyalty(-3)],
+                &[CostDef::Loyalty(ValueDef::Constant(-3))],
                 EffectDef::SacrificeOfChoice {
                     player: EffectRecipientDef::Opponent,
                     object: ObjectPredicateDef::All(&[
@@ -465,7 +465,7 @@ pub(in crate::card::sets) static PROFESSOR_ONYX: CardRecord = CardRecord::new(
             AbilityDef::activated(
                 "−8: Each opponent may discard a card. If they don't, they \
                  lose 3 life. Repeat this process six more times.",
-                &[CostDef::Loyalty(-8)],
+                &[CostDef::Loyalty(ValueDef::Constant(-8))],
                 EffectDef::Sequence(
                     &[EffectDef::PayOr(
                         PayOrDef::unless(

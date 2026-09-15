@@ -2828,7 +2828,7 @@ pub(in crate::card::sets) static CHANDRA_SPARK_HUNTER: CardRecord = CardRecord::
             AbilityDef::activated(
                 "+2: You may sacrifice an artifact or discard a card. If you \
                  do, draw a card.",
-                &[CostDef::Loyalty(2)],
+                &[CostDef::Loyalty(ValueDef::Constant(2))],
                 EffectDef::ChooseEffect {
                     player: EffectRecipientDef::Controller,
                     choices: &[
@@ -2857,7 +2857,7 @@ pub(in crate::card::sets) static CHANDRA_SPARK_HUNTER: CardRecord = CardRecord::
             ),
             AbilityDef::activated(
                 "0: Create a 3/2 colorless Vehicle artifact token with crew 1.",
-                &[CostDef::Loyalty(0)],
+                &[CostDef::Loyalty(ValueDef::Constant(0))],
                 EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
                     TokenCharacteristics::new(
                         CardTypeSet::single(CardType::Artifact),
@@ -2874,7 +2874,7 @@ pub(in crate::card::sets) static CHANDRA_SPARK_HUNTER: CardRecord = CardRecord::
             AbilityDef::activated(
                 "−7: You get an emblem with \"Whenever an artifact you control \
                  enters, this emblem deals 3 damage to any target.\"",
-                &[CostDef::Loyalty(-7)],
+                &[CostDef::Loyalty(ValueDef::Constant(-7))],
                 EffectDef::CreateEmblem {
                     emblem: EmblemCharacteristics::new(
                         "Chandra Emblem",

@@ -1618,7 +1618,7 @@ pub(in crate::card::sets) static GRIST_THE_HUNGER_TIDE: CardRecord = CardRecord:
                 "+1: Create a 1/1 black and green Insect creature token, \
                  then mill a card. If an Insect card was milled this way, \
                  put a loyalty counter on Grist and repeat this process.",
-                &[CostDef::Loyalty(1)],
+                &[CostDef::Loyalty(ValueDef::Constant(1))],
                 // The library is what bounds this in practice; the limit is only there so
                 // a process with nothing to stop it still stops.
                 EffectDef::MillWhileMatching(&MillLoopDef {
@@ -1644,7 +1644,7 @@ pub(in crate::card::sets) static GRIST_THE_HUNGER_TIDE: CardRecord = CardRecord:
             ),
             AbilityDef::activated(
                 "\u{2212}2: You may sacrifice a creature.",
-                &[CostDef::Loyalty(-2)],
+                &[CostDef::Loyalty(ValueDef::Constant(-2))],
                 EffectDef::PayOr(PayOrDef::optional(
                     &[CostDef::sacrifice_permanent(ObjectPredicateDef::HasType(
                         CardType::Creature,
@@ -1666,7 +1666,7 @@ pub(in crate::card::sets) static GRIST_THE_HUNGER_TIDE: CardRecord = CardRecord:
             AbilityDef::activated(
                 "\u{2212}5: Each opponent loses life equal to the number of creature cards in your \
                  graveyard.",
-                &[CostDef::Loyalty(-5)],
+                &[CostDef::Loyalty(ValueDef::Constant(-5))],
                 EffectDef::LoseLife {
                     recipient: EffectRecipientDef::Opponent,
                     amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(

@@ -292,7 +292,7 @@ pub(in crate::card::sets) static THE_WANDERING_EMPEROR: CardRecord = CardRecord:
             AbilityDef::activated_with_targets(
                 "+1: Put a +1/+1 counter on up to one target creature. It \
                  gains first strike until end of turn.",
-                &[CostDef::Loyalty(1)],
+                &[CostDef::Loyalty(ValueDef::Constant(1))],
                 // "Up to one target creature", which is what keeps the plus activatable on
                 // an empty board.
                 &[AbilityTargetDef::up_to(
@@ -319,12 +319,12 @@ pub(in crate::card::sets) static THE_WANDERING_EMPEROR: CardRecord = CardRecord:
             ),
             AbilityDef::activated(
                 "−1: Create a 2/2 white Samurai creature token with vigilance.",
-                &[CostDef::Loyalty(-1)],
+                &[CostDef::Loyalty(ValueDef::Constant(-1))],
                 EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(SAMURAI_TOKEN))),
             ),
             AbilityDef::activated_with_targets(
                 "−2: Exile target tapped creature. You gain 2 life.",
-                &[CostDef::Loyalty(-2)],
+                &[CostDef::Loyalty(ValueDef::Constant(-2))],
                 // A tapped creature: the minus answers an attacker that has already
                 // committed, which is the half of removal flash was made for.
                 &[AbilityTargetDef::exactly_one_permanent(

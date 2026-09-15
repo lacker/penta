@@ -238,10 +238,15 @@ impl Game {
                     self.continue_pending_events();
                 }
             }
-            DecisionContinuation::BattlefieldEntryColorsChoice { .. } => {
+            DecisionContinuation::BattlefieldEntryColorsChoice {
+                authored_effect, ..
+            } => {
+                let ReplacementEffectDef::BindOutput { binding, .. } = authored_effect else {
+                    unreachable!("validated color choices have a durable binding");
+                };
                 if let Some(mut pending) = self.pending_events.pop_front() {
                     let ReplaceableEvent::BattlefieldEntry(entry) = &mut pending.event;
-                    entry.permanent.chosen_colors = options
+                    let colors = options
                         .iter()
                         .filter_map(|option| {
                             crate::card::ManaColor::COLORS
@@ -249,6 +254,10 @@ impl Game {
                                 .copied()
                         })
                         .fold(crate::card::ColorSet::empty(), crate::card::ColorSet::with);
+                    entry.permanent.chosen_colors.insert(
+                        binding.label().expect("a durable color binding").to_owned(),
+                        colors,
+                    );
                     self.pending_events.push_front(pending);
                     self.continue_pending_events();
                 }

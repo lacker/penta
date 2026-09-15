@@ -63,9 +63,9 @@ fn static_object_predicate_supported(predicate: ObjectPredicateDef) -> bool {
         }
         ObjectPredicateDef::NameEquals(name) => static_card_name_supported(name),
         ObjectPredicateDef::NameIn(names) => static_card_name_set_supported(*names),
-        ObjectPredicateDef::SharesColorWith(set) => matches!(set,
+        ObjectPredicateDef::SharesColorWith(set) => set != crate::card::ColorSetDef::Binding(crate::ParentBinding) && matches!(set,
             crate::card::ColorSetDef::Fixed(_) | crate::card::ColorSetDef::OfObject(ObjectRefDef::Source | ObjectRefDef::AttachedToSource | ObjectRefDef::CreatingSource)
-                | crate::card::ColorSetDef::ChosenBy(ObjectRefDef::Source | ObjectRefDef::AttachedToSource | ObjectRefDef::CreatingSource)),
+                | crate::card::ColorSetDef::Binding(_)),
         ObjectPredicateDef::ManaValueEqualTo(value)
         | ObjectPredicateDef::ManaValueAtMostValue(value)
         | ObjectPredicateDef::ToughnessLessThan(value)

@@ -813,9 +813,18 @@ impl Game {
             chosen_creature_type: permanent.chosen_creature_type.clone(),
             chosen_basic_land_type: permanent.chosen_basic_land_type,
             chosen_basic_land_type_substitution: permanent.chosen_basic_land_type_substitution,
-            chosen_colors: crate::card::ManaColor::COLORS
-                .into_iter()
-                .filter(|color| permanent.chosen_colors.contains(*color))
+            chosen_colors: permanent
+                .chosen_colors
+                .iter()
+                .map(|(binding, colors)| {
+                    (
+                        binding.clone(),
+                        crate::card::ManaColor::COLORS
+                            .into_iter()
+                            .filter(|color| colors.contains(*color))
+                            .collect(),
+                    )
+                })
                 .collect(),
             chosen_color: permanent.chosen_color,
             chosen_card_name: permanent.chosen_card_name.clone(),

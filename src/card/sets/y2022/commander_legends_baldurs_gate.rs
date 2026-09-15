@@ -743,7 +743,7 @@ pub(in crate::card::sets) static MINSC_BOO_TIMELESS_HEROES: CardRecord = CardRec
             ),
             AbilityDef::activated_with_targets(
                 "+1: Put three +1/+1 counters on up to one target creature with trample or haste.",
-                &[CostDef::Loyalty(1)],
+                &[CostDef::Loyalty(ValueDef::Constant(1))],
                 &[AbilityTargetDef::up_to(
                     AbilityTargetPredicate::Object {
                         object: ObjectPredicateDef::All(&[
@@ -767,7 +767,7 @@ pub(in crate::card::sets) static MINSC_BOO_TIMELESS_HEROES: CardRecord = CardRec
             ),
             AbilityDef::activated(
                 "\u{2212}2: Sacrifice a creature.",
-                &[CostDef::Loyalty(-2)],
+                &[CostDef::Loyalty(ValueDef::Constant(-2))],
                 EffectDef::SacrificeOfChoice {
                     player: EffectRecipientDef::Controller,
                     object: ObjectPredicateDef::HasType(CardType::Creature),

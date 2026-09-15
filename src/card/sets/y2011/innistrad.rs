@@ -2989,7 +2989,7 @@ pub(in crate::card::sets) static LILIANA_OF_THE_VEIL: CardRecord = CardRecord::n
         .with_abilities(&[
             AbilityDef::activated(
                 "+1: Each player discards a card.",
-                &[CostDef::Loyalty(1)],
+                &[CostDef::Loyalty(ValueDef::Constant(1))],
                 EffectDef::Discard {
                     recipient: EffectRecipientDef::EachPlayer,
                     amount: ValueDef::Constant(1),
@@ -2999,7 +2999,7 @@ pub(in crate::card::sets) static LILIANA_OF_THE_VEIL: CardRecord = CardRecord::n
             ),
             AbilityDef::activated_with_targets(
                 "−2: Target player sacrifices a creature.",
-                &[CostDef::Loyalty(-2)],
+                &[CostDef::Loyalty(ValueDef::Constant(-2))],
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Player(PlayerRelation::Any),
                 )],
@@ -3017,7 +3017,7 @@ pub(in crate::card::sets) static LILIANA_OF_THE_VEIL: CardRecord = CardRecord::n
                 "−6: Separate all permanents target player controls into two \
                  piles. That player sacrifices all permanents in the pile of \
                  their choice.",
-                &[CostDef::Loyalty(-6)],
+                &[CostDef::Loyalty(ValueDef::Constant(-6))],
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Player(PlayerRelation::Any),
                 )],
@@ -4926,7 +4926,7 @@ pub(in crate::card::sets) static GARRUK_RELENTLESS: CardRecord = CardRecord::new
                                 AbilityDef::activated_with_targets(
                                     "0: Garruk deals 3 damage to target creature. That creature \
                                      deals damage equal to its power to him.",
-                                    &[CostDef::Loyalty(0)],
+                                    &[CostDef::Loyalty(ValueDef::Constant(0))],
                                     &const {
                                         [AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
                                             CardType::Creature,
@@ -4952,7 +4952,7 @@ pub(in crate::card::sets) static GARRUK_RELENTLESS: CardRecord = CardRecord::new
                                 ),
                                 AbilityDef::activated(
                                     "0: Create a 2/2 green Wolf creature token.",
-                                    &[CostDef::Loyalty(0)],
+                                    &[CostDef::Loyalty(ValueDef::Constant(0))],
                                     EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(WOLF_TOKEN))),
                                 ),
                             ]
@@ -4971,7 +4971,7 @@ pub(in crate::card::sets) static GARRUK_RELENTLESS: CardRecord = CardRecord::new
                             [
                                 AbilityDef::activated(
                                     "+1: Create a 1/1 black Wolf creature token with deathtouch.",
-                                    &[CostDef::Loyalty(1)],
+                                    &[CostDef::Loyalty(ValueDef::Constant(1))],
                                     EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
                                         TokenCharacteristics::creature(
                                             &["Wolf"],
@@ -4992,7 +4992,7 @@ pub(in crate::card::sets) static GARRUK_RELENTLESS: CardRecord = CardRecord::new
                                     "−1: Sacrifice a creature. If you do, search your library \
                                      for a creature card, reveal it, put it into your hand, then \
                                      shuffle.",
-                                    &[CostDef::Loyalty(-1)],
+                                    &[CostDef::Loyalty(ValueDef::Constant(-1))],
                                     EffectDef::SacrificeOfChoice {
                                         count: ValueDef::Constant(1),
                                         player: EffectRecipientDef::Controller,
@@ -5021,7 +5021,7 @@ pub(in crate::card::sets) static GARRUK_RELENTLESS: CardRecord = CardRecord::new
                                     "−3: Creatures you control gain trample and get +X/+X until \
                                      end of turn, where X is the number of creature cards in \
                                      your graveyard.",
-                                    &[CostDef::Loyalty(-3)],
+                                    &[CostDef::Loyalty(ValueDef::Constant(-3))],
                                     EffectDef::Apply {
                                         recipient: EffectRecipientDef::matching_objects(
                                             ObjectPredicateDef::HasType(CardType::Creature),

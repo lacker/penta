@@ -605,7 +605,8 @@ fn validate_value_target_references(
         // same as any other object reference in the program.
         ValueDef::ColorIntersectionCount(sets) => sets.iter().try_for_each(|set| match set {
             crate::card::ColorSetDef::Fixed(_) => Ok(()),
-            crate::card::ColorSetDef::OfObject(reference) | crate::card::ColorSetDef::ChosenBy(reference) => validate_object_reference(*reference, target_count, scope),
+            crate::card::ColorSetDef::Binding(binding) => validate_color_choice_binding(*binding),
+            crate::card::ColorSetDef::OfObject(reference) => validate_object_reference(*reference, target_count, scope),
         }),
         ValueDef::ColorCount(reference)
         | ValueDef::ObjectPower(reference)
@@ -752,8 +753,8 @@ fn validate_object_predicate_references(
     match predicate {
         ObjectPredicateDef::SharesColorWith(set) => match set {
             crate::card::ColorSetDef::Fixed(_) => Ok(()),
-            crate::card::ColorSetDef::OfObject(reference)
-            | crate::card::ColorSetDef::ChosenBy(reference) => {
+            crate::card::ColorSetDef::Binding(binding) => validate_color_choice_binding(binding),
+            crate::card::ColorSetDef::OfObject(reference) => {
                 validate_object_reference(reference, target_count, scope)
             }
         },

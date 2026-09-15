@@ -69,7 +69,8 @@ impl Game {
                 // (CR 606.3), so it answers the same question every other
                 // one does.
                 CostDef::Loyalty(change) => {
-                    self.can_activate_loyalty(permanent, permanent.controller, *change)
+                    crate::card::costs::loyalty_change(*change, 0).is_some_and(|change|
+                        self.can_activate_loyalty(permanent, permanent.controller, change))
                 }
                 _ => false,
             })
@@ -142,11 +143,12 @@ impl Game {
             | CostDef::TapPermanents { count: 1, .. }
             | CostDef::ExileCardFromHand(_)
             | CostDef::SacrificePermanents { .. }
+            | CostDef::PayLife(_) => true,
             // A loyalty cost is bounded by the rule rather than by the
             // board: one loyalty ability per planeswalker per turn, and
             // that is what stops it looping.
-            | CostDef::Loyalty(_)
-            | CostDef::PayLife(_) => true,
+            CostDef::Loyalty(value) => !crate::card::costs::loyalty_uses_x(*value)
+                && crate::card::costs::loyalty_change(*value, 0).is_some(),
             CostDef::Mana(mana) => !mana.variable_x
                 && !crate::card::FlexibleManaSymbol::ALL.into_iter().any(|symbol|
                     symbol.is_phyrexian() && mana.flexible_count(symbol) > 0),

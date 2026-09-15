@@ -369,8 +369,8 @@ fn validate_value_shape(
         }
         ValueDef::ColorIntersectionCount(sets) => sets.iter().try_for_each(|set| match set {
             crate::card::ColorSetDef::Fixed(_) => Ok(()),
-            crate::card::ColorSetDef::OfObject(reference)
-            | crate::card::ColorSetDef::ChosenBy(reference) => {
+            crate::card::ColorSetDef::Binding(binding) => validate_color_choice_binding(*binding),
+            crate::card::ColorSetDef::OfObject(reference) => {
                 validate_object_reference_shape(*reference, targets)
             }
         }),
@@ -441,8 +441,8 @@ fn validate_object_predicate_shape(
     match predicate {
         ObjectPredicateDef::SharesColorWith(set) => match set {
             crate::card::ColorSetDef::Fixed(_) => Ok(()),
-            crate::card::ColorSetDef::OfObject(reference)
-            | crate::card::ColorSetDef::ChosenBy(reference) => {
+            crate::card::ColorSetDef::Binding(binding) => validate_color_choice_binding(binding),
+            crate::card::ColorSetDef::OfObject(reference) => {
                 validate_object_reference_shape(reference, targets)
             }
         },

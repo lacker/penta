@@ -7257,7 +7257,7 @@ pub(in crate::card::sets) static KAITO_BANE_OF_NIGHTMARES: CardRecord = CardReco
             ),
             AbilityDef::activated(
                 "+1: You get an emblem with \"Ninjas you control get +1/+1.\"",
-                &[CostDef::Loyalty(1)],
+                &[CostDef::Loyalty(ValueDef::Constant(1))],
                 EffectDef::CreateEmblem {
                     emblem: EmblemCharacteristics::new(
                         "Kaito, Bane of Nightmares emblem",
@@ -7282,7 +7282,7 @@ pub(in crate::card::sets) static KAITO_BANE_OF_NIGHTMARES: CardRecord = CardReco
             ),
             AbilityDef::activated(
                 "0: Surveil 2. Then draw a card for each opponent who lost life this turn.",
-                &[CostDef::Loyalty(0)],
+                &[CostDef::Loyalty(ValueDef::Constant(0))],
                 EffectDef::Sequence(&[
                     abilities::surveil(ValueDef::Constant(2)),
                     // "A card for each opponent who lost life this turn" is a count of players
@@ -7295,7 +7295,7 @@ pub(in crate::card::sets) static KAITO_BANE_OF_NIGHTMARES: CardRecord = CardReco
             ),
             AbilityDef::activated_with_targets(
                 "\u{2212}2: Tap target creature. Put two stun counters on it.",
-                &[CostDef::Loyalty(-2)],
+                &[CostDef::Loyalty(ValueDef::Constant(-2))],
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Creature),
                 )],

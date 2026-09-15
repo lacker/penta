@@ -704,6 +704,9 @@ fn validate_entry_replacement_program(effect: ReplacementEffectDef) -> Result<()
             )),
             binding,
         } if binding != crate::ParentBinding => Ok(()),
+        ReplacementEffectDef::BindOutput {
+            effect: &ReplacementEffectDef::Choose(ReplacementChoiceDef::Colors(count)), binding,
+        } if binding != crate::ParentBinding && (1..=5).contains(&count) => Ok(()),
         ReplacementEffectDef::BindOutput { .. } => Err("invalid BindOutput"),
         ReplacementEffectDef::ModifyBattlefieldEntry(
             BattlefieldEntryModificationDef::AddCountersValue { amount, .. },

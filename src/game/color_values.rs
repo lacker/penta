@@ -13,27 +13,23 @@ impl Game {
                 .map_or(ColorSet::empty(), |id| {
                     ColorSet::from_flags(self.object_colors(id))
                 }),
-            ColorSetDef::ChosenBy(reference) => resolve(reference)
-                .and_then(|id| {
-                    self.battlefield
-                        .iter()
-                        .find(|p| p.card.id == id)
-                        .or_else(|| match self.retired_objects.get(&id) {
-                            Some(RetiredObject::Permanent { permanent, .. }) => {
-                                Some(permanent.as_ref())
-                            }
-                            _ => None,
-                        })
+            ColorSetDef::Binding(binding) => binding
+                .label()
+                .and_then(|label| {
+                    resolve(ObjectRefDef::Source).and_then(|id| {
+                        self.battlefield
+                            .iter()
+                            .find(|p| p.card.id == id)
+                            .or_else(|| match self.retired_objects.get(&id) {
+                                Some(RetiredObject::Permanent { permanent, .. }) => {
+                                    Some(permanent.as_ref())
+                                }
+                                _ => None,
+                            })
+                            .and_then(|permanent| permanent.chosen_colors.get(label).copied())
+                    })
                 })
-                .map_or(ColorSet::empty(), |p| {
-                    if p.chosen_colors.is_colorless() {
-                        p.chosen_color
-                            .filter(|color| color.color_index().is_some())
-                            .map_or(ColorSet::empty(), |color| ColorSet::from_colors(&[color]))
-                    } else {
-                        p.chosen_colors
-                    }
-                }),
+                .unwrap_or_else(ColorSet::empty),
         }
     }
 

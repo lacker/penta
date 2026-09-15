@@ -2141,7 +2141,7 @@ pub(in crate::card::sets) static TEZZERET_AGENT_OF_BOLAS: CardRecord = CardRecor
                  reveal an artifact card from among them and put it into \
                  your hand. Put the rest on the bottom of your library in \
                  any order.",
-                &[CostDef::Loyalty(1)],
+                &[CostDef::Loyalty(ValueDef::Constant(1))],
                 abilities::look_at_top_cards_reveal_choice_to_hand_rest_bottom(
                     ValueDef::Constant(5),
                     ObjectPredicateDef::HasType(CardType::Artifact),
@@ -2152,7 +2152,7 @@ pub(in crate::card::sets) static TEZZERET_AGENT_OF_BOLAS: CardRecord = CardRecor
             AbilityDef::activated_with_targets(
                 "−1: Target artifact becomes an artifact creature with base \
                  power and toughness 5/5.",
-                &[CostDef::Loyalty(-1)],
+                &[CostDef::Loyalty(ValueDef::Constant(-1))],
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Artifact),
                 )],
@@ -2171,7 +2171,7 @@ pub(in crate::card::sets) static TEZZERET_AGENT_OF_BOLAS: CardRecord = CardRecor
             AbilityDef::activated_with_targets(
                 "−4: Target player loses X life and you gain X life, where X \
                  is twice the number of artifacts you control.",
-                &[CostDef::Loyalty(-4)],
+                &[CostDef::Loyalty(ValueDef::Constant(-4))],
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Player(PlayerRelation::Any),
                 )],

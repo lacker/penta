@@ -12,7 +12,8 @@ use super::{
 pub enum ColorSetDef {
     Fixed(super::ColorSet),
     OfObject(ObjectRefDef),
-    ChosenBy(ObjectRefDef),
+    /// A color choice stored on this ability's source by an entry `BindOutput`.
+    Binding(Binding),
 }
 
 /// One card name read from rules text, an object, or a recorded choice.

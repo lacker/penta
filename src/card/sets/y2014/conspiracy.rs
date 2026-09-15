@@ -109,7 +109,7 @@ pub(in crate::card::sets) static DACK_FAYDEN: CardRecord = CardRecord::new(
         .with_abilities(&[
             AbilityDef::activated_with_targets(
                 "+1: Target player draws two then discards two cards.",
-                &[CostDef::Loyalty(1)],
+                &[CostDef::Loyalty(ValueDef::Constant(1))],
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Player(PlayerRelation::Any),
                 )],
@@ -132,7 +132,7 @@ pub(in crate::card::sets) static DACK_FAYDEN: CardRecord = CardRecord::new(
             // with no stated duration lasts indefinitely (CR 611.2b).
             AbilityDef::activated_with_targets(
                 "−2: Gain control of target artifact.",
-                &[CostDef::Loyalty(-2)],
+                &[CostDef::Loyalty(ValueDef::Constant(-2))],
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Artifact),
                 )],
@@ -145,7 +145,7 @@ pub(in crate::card::sets) static DACK_FAYDEN: CardRecord = CardRecord::new(
             AbilityDef::activated(
                 "−6: You get an emblem with \"Whenever you cast a spell that targets one or more \
                  permanents, gain control of those permanents.\"",
-                &[CostDef::Loyalty(-6)],
+                &[CostDef::Loyalty(ValueDef::Constant(-6))],
                 EffectDef::create_emblem(
                     "Dack Fayden emblem",
                     &[AbilityDef::triggered(

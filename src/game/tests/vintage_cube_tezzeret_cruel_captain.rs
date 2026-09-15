@@ -80,7 +80,8 @@ fn loyalty_cost(game: &Game, tezzeret: GameObjectId, ability: AbilityOrigin) -> 
         .and_then(|effective| match effective.ability.definition {
             DeclarativeAbilityDef::Activated(definition) => {
                 definition.costs.iter().find_map(|cost| match cost {
-                    CostDef::Loyalty(change) => Some(*change),
+                    CostDef::Loyalty(change) => crate::card::costs::loyalty_change(*change, 0)
+                        .and_then(|change| i8::try_from(change).ok()),
                     _ => None,
                 })
             }

@@ -189,10 +189,13 @@ fn parse_battlefield_entry_continuation(
         } => {
             let context = parse_replacement_context(*context)?;
             validate_entry_decision_context(game, context, effect)?;
-            if catalog_replacement_effect(&game.catalog, effect)
-                != Some(ReplacementEffectDef::Choose(ReplacementChoiceDef::Colors(
-                    *count,
-                )))
+            let authored_effect = catalog_replacement_effect(&game.catalog, effect)
+                .ok_or("entry color choice locator is absent from this catalog")?;
+            if !matches!(authored_effect,
+                ReplacementEffectDef::BindOutput {
+                    effect: &ReplacementEffectDef::Choose(ReplacementChoiceDef::Colors(authored_count)),
+                    binding,
+                } if authored_count == *count && binding != crate::ParentBinding)
                 || !(1..=5).contains(count)
             {
                 return Err("entry color choice does not match its authored effect".into());
@@ -214,6 +217,7 @@ fn parse_battlefield_entry_continuation(
             )?;
             DecisionContinuation::BattlefieldEntryColorsChoice {
                 context,
+                authored_effect,
                 count: *count,
             }
         }

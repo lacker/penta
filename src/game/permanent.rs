@@ -108,8 +108,8 @@ struct Permanent {
     /// entered: find the first and replace it with the second.
     pub(super) chosen_basic_land_type_substitution:
         Option<(crate::card::BasicLandType, crate::card::BasicLandType)>,
-    /// The color this permanent's controller chose as it entered.
-    pub(super) chosen_colors: crate::card::ColorSet,
+    /// Entry-time color sets keyed by durable bindings, not copiable values.
+    pub(super) chosen_colors: std::collections::BTreeMap<String, crate::card::ColorSet>,
     pub(super) chosen_color: Option<crate::card::ManaColor>,
     /// The card name a permanent named as it entered, for Pithing Needle.
     chosen_card_name: Option<String>,
@@ -340,7 +340,7 @@ impl Permanent {
             chosen_creature_type_binding: None,
             chosen_basic_land_type: None,
             chosen_basic_land_type_substitution: None,
-            chosen_colors: crate::card::ColorSet::empty(),
+            chosen_colors: std::collections::BTreeMap::new(),
             chosen_color: None,
             chosen_card_name: None,
             chosen_tokens: std::collections::BTreeMap::new(),

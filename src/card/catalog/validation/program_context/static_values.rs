@@ -50,8 +50,8 @@ fn static_power_toughness_value_supported(value: ValueDef) -> bool {
         | ValueDef::DevotionTo(_)
         | ValueDef::BasicLandTypesControlled(_)
         | ValueDef::LibrarySize(_) => true,
-        ValueDef::ColorIntersectionCount(sets) => sets.iter().all(|set| matches!(set,
-            crate::card::ColorSetDef::Fixed(_) | crate::card::ColorSetDef::OfObject(ObjectRefDef::Source | ObjectRefDef::ResolvingObject | ObjectRefDef::AttachedToSource | ObjectRefDef::CreatingSource) | crate::card::ColorSetDef::ChosenBy(ObjectRefDef::Source | ObjectRefDef::AttachedToSource | ObjectRefDef::CreatingSource))),
+        ValueDef::ColorIntersectionCount(sets) => sets.iter().all(|set| *set != crate::card::ColorSetDef::Binding(crate::ParentBinding) && matches!(set,
+            crate::card::ColorSetDef::Fixed(_) | crate::card::ColorSetDef::OfObject(ObjectRefDef::Source | ObjectRefDef::ResolvingObject | ObjectRefDef::AttachedToSource | ObjectRefDef::CreatingSource) | crate::card::ColorSetDef::Binding(_))),
         ValueDef::ColorCount(reference) => matches!(
             reference,
             ObjectRefDef::Source | ObjectRefDef::CreatingSource | ObjectRefDef::AttachedToSource
@@ -139,7 +139,7 @@ fn static_cost_reduction_value_supported(value: ValueDef) -> bool {
     match value {
         ValueDef::Constant(_) => true,
         ValueDef::ColorIntersectionCount(sets) => sets.iter().all(|set| {
-            matches!(
+            *set != crate::card::ColorSetDef::Binding(crate::ParentBinding) && matches!(
                 set,
                 crate::card::ColorSetDef::Fixed(_)
                     | crate::card::ColorSetDef::OfObject(
@@ -148,11 +148,7 @@ fn static_cost_reduction_value_supported(value: ValueDef) -> bool {
                             | ObjectRefDef::AttachedToSource
                             | ObjectRefDef::CreatingSource
                     )
-                    | crate::card::ColorSetDef::ChosenBy(
-                        ObjectRefDef::Source
-                            | ObjectRefDef::AttachedToSource
-                            | ObjectRefDef::CreatingSource
-                    )
+                    | crate::card::ColorSetDef::Binding(_)
             )
         }),
         ValueDef::ColorCount(reference) => matches!(

@@ -217,8 +217,8 @@ pub struct PermanentObservation {
     /// substitution such as Illusionary Terrain's.
     pub chosen_basic_land_type_substitution:
         Option<(crate::card::BasicLandType, crate::card::BasicLandType)>,
-    /// Public color chosen for this permanent as it entered.
-    pub chosen_colors: Vec<crate::card::ManaColor>,
+    /// Public entry-time color sets keyed by their authored bindings.
+    pub chosen_colors: std::collections::BTreeMap<String, Vec<crate::card::ManaColor>>,
     pub chosen_color: Option<crate::card::ManaColor>,
     /// Public card name associated with permanents such as Pithing Needle.
     pub chosen_card_name: Option<String>,

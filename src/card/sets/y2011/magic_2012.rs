@@ -809,7 +809,7 @@ pub(in crate::card::sets) static JACE_MEMORY_ADEPT: CardRecord = CardRecord::new
         .with_abilities(&[
             AbilityDef::activated_with_targets(
                 "+1: Draw a card. Target player mills a card.",
-                &[CostDef::Loyalty(1)],
+                &[CostDef::Loyalty(ValueDef::Constant(1))],
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Player(PlayerRelation::Any),
                 )],
@@ -826,7 +826,7 @@ pub(in crate::card::sets) static JACE_MEMORY_ADEPT: CardRecord = CardRecord::new
             ),
             AbilityDef::activated_with_targets(
                 "0: Target player mills ten cards.",
-                &[CostDef::Loyalty(0)],
+                &[CostDef::Loyalty(ValueDef::Constant(0))],
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Player(PlayerRelation::Any),
                 )],
@@ -837,7 +837,7 @@ pub(in crate::card::sets) static JACE_MEMORY_ADEPT: CardRecord = CardRecord::new
             ),
             AbilityDef::activated_with_targets(
                 "−7: Any number of target players each draw twenty cards.",
-                &[CostDef::Loyalty(-7)],
+                &[CostDef::Loyalty(ValueDef::Constant(-7))],
                 // Two players means "any number" is up to two.
                 &[AbilityTargetDef::up_to(
                     AbilityTargetPredicate::Player(PlayerRelation::Any),
@@ -2339,7 +2339,7 @@ pub(in crate::card::sets) static GARRUK_PRIMAL_HUNTER: CardRecord = CardRecord::
         .with_abilities(&[
             AbilityDef::activated(
                 "+1: Create a 3/3 green Beast creature token.",
-                &[CostDef::Loyalty(1)],
+                &[CostDef::Loyalty(ValueDef::Constant(1))],
                 EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
                     TokenCharacteristics::creature(&["Beast"], &[ManaColor::Green], 3, 3).with_art(
                         CardArt::new("c94010f1-cd4b-4f65-8a0e-2df6eec058ec", "John Donahue"),
@@ -2348,7 +2348,7 @@ pub(in crate::card::sets) static GARRUK_PRIMAL_HUNTER: CardRecord = CardRecord::
             ),
             AbilityDef::activated(
                 "−3: Draw cards equal to the greatest power among creatures you control.",
-                &[CostDef::Loyalty(-3)],
+                &[CostDef::Loyalty(ValueDef::Constant(-3))],
                 EffectDef::DrawCards {
                     recipient: EffectRecipientDef::Controller,
                     amount: abilities::greatest_power_you_control(),
@@ -2356,7 +2356,7 @@ pub(in crate::card::sets) static GARRUK_PRIMAL_HUNTER: CardRecord = CardRecord::
             ),
             AbilityDef::activated(
                 "−6: Create a 6/6 green Wurm creature token for each land you control.",
-                &[CostDef::Loyalty(-6)],
+                &[CostDef::Loyalty(ValueDef::Constant(-6))],
                 EffectDef::CreateToken(
                     CreateTokenDef::new(TokenDef::Literal(
                         TokenCharacteristics::creature(&["Wurm"], &[ManaColor::Green], 6, 6)

@@ -23,6 +23,7 @@ impl Game {
         &mut self,
         player: PlayerId,
         context: ReplacementEffectContext,
+        authored_effect: crate::card::ReplacementEffectDef,
         count: u8,
     ) {
         let amount = usize::from(count);
@@ -34,7 +35,11 @@ impl Game {
             amount..=amount,
             false,
             Self::entry_color_options(),
-            DecisionContinuation::BattlefieldEntryColorsChoice { context, count },
+            DecisionContinuation::BattlefieldEntryColorsChoice {
+                context,
+                authored_effect,
+                count,
+            },
         );
     }
 }

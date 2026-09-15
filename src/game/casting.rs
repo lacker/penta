@@ -225,8 +225,13 @@ impl Game {
                 .reduce(super::add_mana_cost)
                 .unwrap_or_default();
             let chosen = activation.cost_object.into_iter().collect::<Vec<_>>();
-            let reserved =
-                Self::activation_payment_reservations(source, ability, &activation.costs, &chosen);
+            let reserved = Self::activation_payment_reservations(
+                source,
+                ability,
+                &activation.costs,
+                &chosen,
+                0,
+            );
             if self.capture_payment_probe(
                 player,
                 cost,

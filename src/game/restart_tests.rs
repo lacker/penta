@@ -80,7 +80,7 @@ fn activate(game: &mut Game, karn: GameObjectId, change: i8, target: Option<Targ
         if *source != karn || !target.is_none_or(|wanted| targets.iter().any(|s| s.targets().contains(&wanted))) { return false; }
         let permanent = game.battlefield.iter().find(|p| p.card.id == karn).unwrap();
         game.find_effective_ability(permanent, |effective| effective.origin == *ability).is_some_and(|effective| {
-            matches!(effective.ability.definition, DeclarativeAbilityDef::Activated(def) if def.costs.contains(&CostDef::Loyalty(change)))
+            matches!(effective.ability.definition, DeclarativeAbilityDef::Activated(def) if def.costs.contains(&CostDef::Loyalty(crate::card::ValueDef::Constant(i32::from(change)))))
         })
     }).expect("Karn's loyalty ability is legal");
     game.apply(PlayerId::One, action).unwrap();

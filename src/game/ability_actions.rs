@@ -339,7 +339,8 @@ impl Game {
                         // A loyalty ability is sorcery speed, once per turn,
                         // and only removes counters the permanent has.
                         CostDef::Loyalty(change) => {
-                            !self.can_activate_loyalty(permanent, player, *change)
+                            crate::card::costs::loyalty_change(*change, 0).is_none_or(|change|
+                                !self.can_activate_loyalty(permanent, player, change))
                         }
                         // Never reaches payability: enumeration has
                         // already replaced it with a sized removal.
@@ -569,7 +570,7 @@ impl Game {
                 let max_x = definition
                     .costs
                     .iter()
-                    .find_map(|cost| match cost {
+                    .filter_map(|cost| match cost {
                         CostDef::Mana(cost) if cost.variable_x => Some(self.maximum_x_for(
                             player,
                             self.minimum_activation_mana_cost(
@@ -582,8 +583,12 @@ impl Game {
                         CostDef::RemoveAnyNumberOfCountersFromSource(kind) => {
                             Some(permanent.counters(*kind))
                         }
+                        CostDef::Loyalty(value) if crate::card::costs::loyalty_uses_x(*value) => {
+                            Some(permanent.counters(super::CounterKind::Loyalty))
+                        }
                         _ => None,
                     })
+                    .min()
                     .unwrap_or(0);
                 // X is the outer loop because a slot may count or divide by
                 // it: "X target lands" offers a different set of declarations
@@ -594,6 +599,15 @@ impl Game {
                 // targets appended to the ability's own.
                 let mode_selections = Self::activated_mode_selections(&definition);
                 for x in self.payment_query.x_values(0, max_x) {
+                    if definition.costs.iter().any(|cost| match cost {
+                        CostDef::Loyalty(value) => crate::card::costs::loyalty_change(*value, x)
+                            .is_none_or(|change| {
+                                !self.can_activate_loyalty(permanent, player, change)
+                            }),
+                        _ => false,
+                    }) {
+                        continue;
+                    }
                     for selected_modes in &mode_selections {
                         let Some(plan) = Self::selected_activated_plan(&definition, selected_modes)
                         else {

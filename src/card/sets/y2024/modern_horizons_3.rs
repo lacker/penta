@@ -3487,7 +3487,7 @@ pub(in crate::card::sets) static AJANI_NACATL_PARIAH: CardRecord = CardRecord::n
                             [
                                 AbilityDef::activated(
                                     "+2: Put a +1/+1 counter on each Cat you control.",
-                                    &[CostDef::Loyalty(2)],
+                                    &[CostDef::Loyalty(ValueDef::Constant(2))],
                                     EffectDef::AddCounters {
                                         object: EffectRecipientDef::objects(ObjectSetDef::Query(
                                             ObjectQueryDef::matching(
@@ -3507,7 +3507,7 @@ pub(in crate::card::sets) static AJANI_NACATL_PARIAH: CardRecord = CardRecord::n
                                      do, if you control a red permanent other than Ajani, he \
                                      deals damage equal to the number of creatures you control \
                                      to any target.",
-                                    &[CostDef::Loyalty(0)],
+                                    &[CostDef::Loyalty(ValueDef::Constant(0))],
                                     &const {
                                         [AbilityTargetDef::exactly_one(
                                             AbilityTargetPredicate::AnyTarget,
@@ -3571,7 +3571,7 @@ pub(in crate::card::sets) static AJANI_NACATL_PARIAH: CardRecord = CardRecord::n
                                     "−4: Each opponent chooses an artifact, a creature, an \
                                      enchantment, and a planeswalker from among the nonland \
                                      permanents they control, then sacrifices the rest.",
-                                    &[CostDef::Loyalty(-4)],
+                                    &[CostDef::Loyalty(ValueDef::Constant(-4))],
                                     EffectDef::ChooseForEachPlayer(ChooseForEachPlayerDef {
                                         player: EffectRecipientDef::Opponent,
                                         candidates: ObjectPredicateDef::Not(
@@ -4835,7 +4835,7 @@ pub(in crate::card::sets) static TAMIYO_INQUISITIVE_STUDENT: CardRecord = CardRe
                                     "+2: Until your next turn, whenever a creature attacks you \
                                      or a planeswalker you control, it gets -1/-0 until end of \
                                      turn.",
-                                    &[CostDef::Loyalty(2)],
+                                    &[CostDef::Loyalty(ValueDef::Constant(2))],
                                     EffectDef::InstallTrigger(InstalledTriggerDef {
                                         // The attackers her plus ability shrinks. It is installed on resolution and
                                         // watches until her controller's next turn, so it catches the attack it was
@@ -4867,7 +4867,7 @@ pub(in crate::card::sets) static TAMIYO_INQUISITIVE_STUDENT: CardRecord = CardRe
                                     "−3: Return target instant or sorcery card from your \
                                      graveyard to your hand. If it's a green card, add one mana \
                                      of any color.",
-                                    &[CostDef::Loyalty(-3)],
+                                    &[CostDef::Loyalty(ValueDef::Constant(-3))],
                                     &const {
                                         [AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
                                             object: ObjectPredicateDef::AnyOf(&[
@@ -4912,7 +4912,7 @@ pub(in crate::card::sets) static TAMIYO_INQUISITIVE_STUDENT: CardRecord = CardRe
                                     "−7: Draw cards equal to half the number of cards in your \
                                      library, rounded up. You get an emblem with \"You have no \
                                      maximum hand size.\"",
-                                    &[CostDef::Loyalty(-7)],
+                                    &[CostDef::Loyalty(ValueDef::Constant(-7))],
                                     EffectDef::Sequence(
                                         &const {
                                             [
@@ -5026,7 +5026,7 @@ pub(in crate::card::sets) static SORIN_OF_HOUSE_MARKOV: CardRecord = CardRecord:
                                 abilities::extort(),
                                 AbilityDef::activated(
                                     "+2: Create a Food token.",
-                                    &[CostDef::Loyalty(2)],
+                                    &[CostDef::Loyalty(ValueDef::Constant(2))],
                                     EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
                                         FOOD_TOKEN,
                                     ))),
@@ -5036,7 +5036,7 @@ pub(in crate::card::sets) static SORIN_OF_HOUSE_MARKOV: CardRecord = CardRecord:
                                 AbilityDef::activated_with_targets(
                                     "\u{2212}1: Sorin deals damage equal to the amount of life \
                                      you gained this turn to any target.",
-                                    &[CostDef::Loyalty(-1)],
+                                    &[CostDef::Loyalty(ValueDef::Constant(-1))],
                                     &const {
                                         [AbilityTargetDef::exactly_one(
                                             AbilityTargetPredicate::AnyTarget,
@@ -5052,7 +5052,7 @@ pub(in crate::card::sets) static SORIN_OF_HOUSE_MARKOV: CardRecord = CardRecord:
                                      Vampire in addition to its other types. Put a lifelink \
                                      counter on it if you control a white permanent other than \
                                      that creature or Sorin.",
-                                    &[CostDef::Loyalty(-6)],
+                                    &[CostDef::Loyalty(ValueDef::Constant(-6))],
                                     &const {
                                         [AbilityTargetDef::exactly_one_permanent(
                                             ObjectPredicateDef::HasType(CardType::Creature),

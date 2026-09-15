@@ -1,5 +1,4 @@
 //! FRF card records required by supported formats.
-use crate::card::CounterKind;
 
 use super::CardRecord;
 use super::PrintingRecord;
@@ -63,7 +62,7 @@ pub(in crate::card::sets) static UGIN_THE_SPIRIT_DRAGON: CardRecord = CardRecord
         .with_abilities(&[
             AbilityDef::activated_with_targets(
                 "+2: Ugin deals 3 damage to any target.",
-                &[CostDef::Loyalty(2)],
+                &[CostDef::Loyalty(ValueDef::Constant(2))],
                 &[AbilityTargetDef::exactly_one(
                     crate::card::AbilityTargetPredicate::AnyTarget,
                 )],
@@ -74,10 +73,7 @@ pub(in crate::card::sets) static UGIN_THE_SPIRIT_DRAGON: CardRecord = CardRecord
             ),
             AbilityDef::activated(
                 "−X: Exile each permanent with mana value X or less that's one or more colors.",
-                &[
-                    CostDef::Loyalty(0),
-                    CostDef::RemoveAnyNumberOfCountersFromSource(CounterKind::Loyalty),
-                ],
+                &[CostDef::Loyalty(ValueDef::Negate(&ValueDef::ChosenX))],
                 EffectDef::move_to_zone(
                     EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::matching(
                         ObjectPredicateDef::All(&[
@@ -94,7 +90,7 @@ pub(in crate::card::sets) static UGIN_THE_SPIRIT_DRAGON: CardRecord = CardRecord
             AbilityDef::activated(
                 "−10: You gain 7 life, draw seven cards, then put up to seven permanent cards \
                  from your hand onto the battlefield.",
-                &[CostDef::Loyalty(-10)],
+                &[CostDef::Loyalty(ValueDef::Constant(-10))],
                 EffectDef::Sequence(&[
                     EffectDef::GainLife {
                         recipient: EffectRecipientDef::Controller,

@@ -150,7 +150,7 @@ pub(in crate::card::sets) static JACE_THE_MIND_SCULPTOR: CardRecord = CardRecord
             AbilityDef::activated_with_targets(
                 "+2: Look at the top card of target player's library. You \
                  may put that card on the bottom of that player's library.",
-                &[CostDef::Loyalty(2)],
+                &[CostDef::Loyalty(ValueDef::Constant(2))],
                 &A_PLAYER,
                 abilities::fateseal(
                     PlayerRefDef::Target(TargetIndex::PRIMARY),
@@ -160,12 +160,12 @@ pub(in crate::card::sets) static JACE_THE_MIND_SCULPTOR: CardRecord = CardRecord
             AbilityDef::activated(
                 "0: Draw three cards, then put two cards from your hand on \
                  top of your library in any order.",
-                &[CostDef::Loyalty(0)],
+                &[CostDef::Loyalty(ValueDef::Constant(0))],
                 abilities::brainstorm(),
             ),
             AbilityDef::activated_with_targets(
                 "−1: Return target creature to its owner's hand.",
-                &[CostDef::Loyalty(-1)],
+                &[CostDef::Loyalty(ValueDef::Constant(-1))],
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Creature),
                 )],
@@ -178,7 +178,7 @@ pub(in crate::card::sets) static JACE_THE_MIND_SCULPTOR: CardRecord = CardRecord
             AbilityDef::activated_with_targets(
                 "−12: Exile all cards from target player's library, then \
                  that player shuffles their hand into their library.",
-                &[CostDef::Loyalty(-12)],
+                &[CostDef::Loyalty(ValueDef::Constant(-12))],
                 &A_PLAYER,
                 EffectDef::Sequence(&[
                     EffectDef::move_to_zone(

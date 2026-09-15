@@ -7542,7 +7542,7 @@ pub(in crate::card::sets) static RAL_CRACKLING_WIT: CardRecord = CardRecord::new
             ),
             AbilityDef::activated(
                 "+1: Create a 1/1 blue and red Otter creature token with prowess.",
-                &[CostDef::Loyalty(1)],
+                &[CostDef::Loyalty(ValueDef::Constant(1))],
                 EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
                     TokenCharacteristics::creature(
                         &["Otter"],
@@ -7559,7 +7559,7 @@ pub(in crate::card::sets) static RAL_CRACKLING_WIT: CardRecord = CardRecord::new
             ),
             AbilityDef::activated(
                 "−3: Draw three cards, then discard two cards.",
-                &[CostDef::Loyalty(-3)],
+                &[CostDef::Loyalty(ValueDef::Constant(-3))],
                 EffectDef::Sequence(&[
                     abilities::draw_cards(ValueDef::Constant(3)),
                     EffectDef::Discard {
@@ -7573,7 +7573,7 @@ pub(in crate::card::sets) static RAL_CRACKLING_WIT: CardRecord = CardRecord::new
             AbilityDef::activated(
                 "−10: Draw three cards. You get an emblem with \"Instant and sorcery spells you cast have storm.\" \
                  (Whenever you cast an instant or sorcery spell, copy it for each spell cast before it this turn.)",
-                &[CostDef::Loyalty(-10)],
+                &[CostDef::Loyalty(ValueDef::Constant(-10))],
                 EffectDef::Sequence(&[
                     abilities::draw_cards(ValueDef::Constant(3)),
                     EffectDef::CreateEmblem {

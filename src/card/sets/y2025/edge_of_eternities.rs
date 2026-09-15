@@ -291,7 +291,7 @@ pub(in crate::card::sets) static TEZZERET_CRUEL_CAPTAIN: CardRecord = CardRecord
             AbilityDef::activated_with_targets(
                 "0: Untap target artifact or creature. If it\'s an artifact \
                  creature, put a +1/+1 counter on it.",
-                &[CostDef::Loyalty(0)],
+                &[CostDef::Loyalty(ValueDef::Constant(0))],
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::AnyOf(&[
                         ObjectPredicateDef::HasType(CardType::Artifact),
@@ -324,7 +324,7 @@ pub(in crate::card::sets) static TEZZERET_CRUEL_CAPTAIN: CardRecord = CardRecord
                 "−3: Search your library for an artifact card with mana \
                  value 1 or less, reveal it, put it into your hand, then \
                  shuffle.",
-                &[CostDef::Loyalty(-3)],
+                &[CostDef::Loyalty(ValueDef::Constant(-3))],
                 EffectDef::SearchZone {
                     player: EffectRecipientDef::Controller,
                     source: ZoneKind::Library,
@@ -350,7 +350,7 @@ pub(in crate::card::sets) static TEZZERET_CRUEL_CAPTAIN: CardRecord = CardRecord
                  your turn, put three +1/+1 counters on target artifact you \
                  control. If it\'s not a creature, it becomes a 0/0 Robot \
                  artifact creature.\"",
-                &[CostDef::Loyalty(-7)],
+                &[CostDef::Loyalty(ValueDef::Constant(-7))],
                 EffectDef::CreateEmblem {
                     emblem: EmblemCharacteristics::new(
                         "Tezzeret, Cruel Captain emblem",

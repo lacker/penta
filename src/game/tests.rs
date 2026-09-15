@@ -146,6 +146,7 @@ mod copy_effects;
 mod copy_transform;
 mod counted_bodies;
 
+mod bound_colors;
 mod color_layers;
 mod counted_rituals;
 mod counted_statics;
@@ -293,6 +294,7 @@ mod leyline_of_transformation;
 mod life_and_death_amounts;
 mod living_artifact;
 mod looking_at_another_library;
+mod loyalty_values;
 mod ludevics_test_subject;
 mod m13_more_stale;
 mod m13_stale_audits;

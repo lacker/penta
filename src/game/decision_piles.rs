@@ -320,7 +320,7 @@ impl Game {
         &self,
         permanent: &Permanent,
         player: PlayerId,
-        change: i8,
+        change: i32,
     ) -> bool {
         if permanent.controller != player || permanent.activated_loyalty_this_turn {
             return false;
@@ -335,7 +335,7 @@ impl Game {
         {
             return false;
         }
-        i32::from(permanent.counters(CounterKind::Loyalty)) + i32::from(change) >= 0
+        i32::from(permanent.counters(CounterKind::Loyalty)) + change >= 0
     }
 
     /// Turns a double-faced permanent over. The face is which part the

@@ -280,7 +280,10 @@ pub(in crate::card::sets) static SEAL_OF_THE_GUILDPACT: CardRecord = CardRecord:
     CardRules::new_artifact(mana_cost!("{5}")).with_abilities(&[
         AbilityDef::as_enters(
             "As this artifact enters, choose two colors.",
-            ReplacementEffectDef::Choose(crate::card::ReplacementChoiceDef::Colors(2)),
+            ReplacementEffectDef::BindOutput {
+                binding: crate::Binding!("guild_colors"),
+                effect: &ReplacementEffectDef::Choose(crate::card::ReplacementChoiceDef::Colors(2)),
+            },
         ),
         AbilityDef::static_ability(
             "Each spell you cast costs {1} less to cast for each of the chosen colors it is.",
@@ -289,7 +292,7 @@ pub(in crate::card::sets) static SEAL_OF_THE_GUILDPACT: CardRecord = CardRecord:
                 PlayerRelation::You,
                 ValueDef::ColorIntersectionCount(&[
                     crate::card::ColorSetDef::OfObject(crate::card::ObjectRefDef::ResolvingObject),
-                    crate::card::ColorSetDef::ChosenBy(crate::card::ObjectRefDef::Source),
+                    crate::card::ColorSetDef::Binding(crate::Binding!("guild_colors")),
                 ]),
             )),
         ),

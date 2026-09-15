@@ -456,7 +456,7 @@ pub(in crate::card::sets) static GIDEON_CHAMPION_OF_JUSTICE: CardRecord = CardRe
         .with_abilities(&[
             AbilityDef::activated_with_targets(
                 "+1: Put a loyalty counter on Gideon for each creature target opponent controls.",
-                &[CostDef::Loyalty(1)],
+                &[CostDef::Loyalty(ValueDef::Constant(1))],
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Player(PlayerRelation::Opponent),
                 )],
@@ -476,7 +476,7 @@ pub(in crate::card::sets) static GIDEON_CHAMPION_OF_JUSTICE: CardRecord = CardRe
                  of loyalty counters on him and gains indestructible. He's \
                  still a planeswalker. Prevent all damage that would be \
                  dealt to him this turn.",
-                &[CostDef::Loyalty(0)],
+                &[CostDef::Loyalty(ValueDef::Constant(0))],
                 EffectDef::Sequence(&[
                     EffectDef::Apply {
                         recipient: EffectRecipientDef::Source,
@@ -515,7 +515,7 @@ pub(in crate::card::sets) static GIDEON_CHAMPION_OF_JUSTICE: CardRecord = CardRe
             ),
             AbilityDef::activated(
                 "−15: Exile all other permanents.",
-                &[CostDef::Loyalty(-15)],
+                &[CostDef::Loyalty(ValueDef::Constant(-15))],
                 abilities::bind_objects_then(
                     ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Query(ObjectQueryDef::new(
                         ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
@@ -3959,7 +3959,7 @@ pub(in crate::card::sets) static DOMRI_RADE: CardRecord = CardRecord::new(
             AbilityDef::activated(
                 "+1: Look at the top card of your library. If it's a \
                  creature card, you may reveal it and put it into your hand.",
-                &[CostDef::Loyalty(1)],
+                &[CostDef::Loyalty(ValueDef::Constant(1))],
                 abilities::bind_top_cards_then(
                     PlayerRefDef::EffectController,
                     ValueDef::Constant(1),
@@ -4008,7 +4008,7 @@ pub(in crate::card::sets) static DOMRI_RADE: CardRecord = CardRecord::new(
             ),
             AbilityDef::activated_with_targets(
                 "−2: Target creature you control fights another target creature.",
-                &[CostDef::Loyalty(-2)],
+                &[CostDef::Loyalty(ValueDef::Constant(-2))],
                 &[
                     AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
                         object: ObjectPredicateDef::HasType(CardType::Creature),
@@ -4033,7 +4033,7 @@ pub(in crate::card::sets) static DOMRI_RADE: CardRecord = CardRecord::new(
             AbilityDef::activated(
                 "−7: You get an emblem with \"Creatures you control have \
                  double strike, trample, hexproof, and haste.\"",
-                &[CostDef::Loyalty(-7)],
+                &[CostDef::Loyalty(ValueDef::Constant(-7))],
                 EffectDef::create_emblem(
                     "Domri Rade emblem",
                     &[AbilityDef::static_ability(

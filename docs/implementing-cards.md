@@ -786,16 +786,23 @@ spell color effects carry onto the resulting permanent, but spell copies keep
 only copiable color exceptions. Retired objects retain last-known colors;
 retired cards also retain power and toughness for reveal costs.
 
-`ReplacementChoiceDef::Colors(n)` chooses distinct colors as a permanent enters.
-`ColorSetDef::ChosenBy`, `OfObject`, and `Fixed` provide sets for
-`SharesColorWith` and `ColorIntersectionCount`. Colorless is the empty set and
-is never one of the five selectable colors.
+Wrap `ReplacementChoiceDef::Colors(n)` in `ReplacementEffectDef::BindOutput`
+to store a named set of distinct colors as a permanent enters. Later clauses
+read it through `ColorSetDef::Binding(binding)` in the source's scope; `OfObject`
+and `Fixed` supply other sets for `SharesColorWith` and `ColorIntersectionCount`.
+Each binding survives with its source's last-known state, is not copiable, and
+is absent on a new object until that object chooses. A missing binding yields
+the empty set. Colorless is the empty set and is never a selectable color.
 
 Equipment abilities carry `AbilityKindDef::Equip`; target-dependent ability
 cost reductions use `AbilityReduction.target` and the announced targets.
-Variable loyalty costs compose `Loyalty(0)` with
-`RemoveAnyNumberOfCountersFromSource(Loyalty)`, preserving loyalty timing and
-usage limits while binding the chosen removal to X.
+Loyalty costs carry signed values: `CostDef::Loyalty(ValueDef::Constant(2))`
+adds two counters, while `CostDef::Loyalty(ValueDef::Negate(&ValueDef::ChosenX))`
+pays −X. Announcement, resource reservations, payment, and policy scoring use
+the same chosen X. X is bounded by available loyalty (and any mana X cost);
+even −0 consumes the loyalty activation. Fixed signed constants and −X are
+supported; other value expressions remain outside this cost support boundary.
+Loyalty abilities that produce mana still use the ordinary activated-ability stack.
 
 Installed zone-change triggers can use `ZoneChangeEventMatcherDef::among` to
 watch exact objects saved in an object-set binding. Matching happens before a

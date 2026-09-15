@@ -287,7 +287,7 @@ pub(in crate::card::sets) static NICOL_BOLAS_PLANESWALKER: CardRecord = CardReco
         .with_abilities(&[
             AbilityDef::activated_with_targets(
                 "+3: Destroy target noncreature permanent.",
-                &[CostDef::Loyalty(3)],
+                &[CostDef::Loyalty(ValueDef::Constant(3))],
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Object {
                         object: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(
@@ -305,7 +305,7 @@ pub(in crate::card::sets) static NICOL_BOLAS_PLANESWALKER: CardRecord = CardReco
             ),
             AbilityDef::activated_with_targets(
                 "−2: Gain control of target creature.",
-                &[CostDef::Loyalty(-2)],
+                &[CostDef::Loyalty(ValueDef::Constant(-2))],
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Creature),
                 )],
@@ -320,7 +320,7 @@ pub(in crate::card::sets) static NICOL_BOLAS_PLANESWALKER: CardRecord = CardReco
                  planeswalker. That player or that planeswalker's controller \
                  discards seven then sacrifices seven permanents of their \
                  choice.",
-                &[CostDef::Loyalty(-9)],
+                &[CostDef::Loyalty(ValueDef::Constant(-9))],
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
                 )],

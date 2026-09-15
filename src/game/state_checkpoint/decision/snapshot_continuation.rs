@@ -572,10 +572,10 @@ fn continuation_snapshot(
             )?,
             choices: choices.clone(),
         },
-        DecisionContinuation::BattlefieldEntryColorsChoice { context, count } => {
+        DecisionContinuation::BattlefieldEntryColorsChoice { context, authored_effect, count } => {
             DecisionContinuationSnapshot::BattlefieldEntryColorsChoice {
                 context: replacement_context_snapshot(*context),
-                effect: resolved_replacement_effect_locator(&game.catalog, context.source, ReplacementEffectDef::Choose(ReplacementChoiceDef::Colors(*count)))?,
+                effect: resolved_replacement_effect_locator(&game.catalog, context.source, *authored_effect)?,
                 count: *count,
             }
         }

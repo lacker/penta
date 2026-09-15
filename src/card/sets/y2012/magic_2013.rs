@@ -133,7 +133,7 @@ pub(in crate::card::sets) static AJANI_CALLER_OF_THE_PRIDE: CardRecord = CardRec
         .with_abilities(&[
             AbilityDef::activated_with_targets(
                 "+1: Put a +1/+1 counter on up to one target creature.",
-                &[CostDef::Loyalty(1)],
+                &[CostDef::Loyalty(ValueDef::Constant(1))],
                 &[AbilityTargetDef::up_to(
                     AbilityTargetPredicate::Object {
                         object: ObjectPredicateDef::HasType(CardType::Creature),
@@ -151,7 +151,7 @@ pub(in crate::card::sets) static AJANI_CALLER_OF_THE_PRIDE: CardRecord = CardRec
             ),
             AbilityDef::activated_with_targets(
                 "−3: Target creature gains flying and double strike until end of turn.",
-                &[CostDef::Loyalty(-3)],
+                &[CostDef::Loyalty(ValueDef::Constant(-3))],
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Creature),
                 )],
@@ -166,7 +166,7 @@ pub(in crate::card::sets) static AJANI_CALLER_OF_THE_PRIDE: CardRecord = CardRec
             ),
             AbilityDef::activated(
                 "−8: Create X 2/2 white Cat creature tokens, where X is your life total.",
-                &[CostDef::Loyalty(-8)],
+                &[CostDef::Loyalty(ValueDef::Constant(-8))],
                 EffectDef::CreateToken(
                     CreateTokenDef::new(TokenDef::Literal(
                         TokenCharacteristics::creature(&["Cat"], &[ManaColor::White], 2, 2)
@@ -1530,7 +1530,7 @@ pub(in crate::card::sets) static LILIANA_OF_THE_DARK_REALMS: CardRecord = CardRe
             AbilityDef::activated(
                 "+1: Search your library for a Swamp card, reveal it, put it \
                  into your hand, then shuffle.",
-                &[CostDef::Loyalty(1)],
+                &[CostDef::Loyalty(ValueDef::Constant(1))],
                 EffectDef::SearchZone {
                     player: EffectRecipientDef::Controller,
                     source: ZoneKind::Library,
@@ -1550,7 +1550,7 @@ pub(in crate::card::sets) static LILIANA_OF_THE_DARK_REALMS: CardRecord = CardRe
             AbilityDef::activated_with_targets(
                 "−3: Target creature gets +X/+X or -X/-X until end of turn, \
                  where X is the number of Swamps you control.",
-                &[CostDef::Loyalty(-3)],
+                &[CostDef::Loyalty(ValueDef::Constant(-3))],
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Creature),
                 )],
@@ -1584,7 +1584,7 @@ pub(in crate::card::sets) static LILIANA_OF_THE_DARK_REALMS: CardRecord = CardRe
             ),
             AbilityDef::activated(
                 "−6: You get an emblem with \"Swamps you control have '{T}: Add {B}{B}{B}{B}.'\"",
-                &[CostDef::Loyalty(-6)],
+                &[CostDef::Loyalty(ValueDef::Constant(-6))],
                 EffectDef::create_emblem(
                     "Liliana of the Dark Realms emblem",
                     &[AbilityDef::static_ability(

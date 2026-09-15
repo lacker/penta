@@ -400,7 +400,7 @@ pub(in crate::card::sets) static CHANDRA_TORCH_OF_DEFIANCE: CardRecord = CardRec
                 "+1: Exile the top card of your library. You may cast that \
                  card. If you don't, Chandra, Torch of Defiance deals 2 \
                  damage to each opponent.",
-                &[CostDef::Loyalty(1)],
+                &[CostDef::Loyalty(ValueDef::Constant(1))],
                 EffectDef::ExileTopAndMayCast {
                     player: EffectRecipientDef::Controller,
                     // "If you don't" is the whole of the first ability's tension: the exile
@@ -416,12 +416,12 @@ pub(in crate::card::sets) static CHANDRA_TORCH_OF_DEFIANCE: CardRecord = CardRec
             // the stack like the rest of her.
             AbilityDef::activated(
                 "+1: Add {R}{R}.",
-                &[CostDef::Loyalty(1)],
+                &[CostDef::Loyalty(ValueDef::Constant(1))],
                 EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Red).with_amount(2)),
             ),
             AbilityDef::activated_with_targets(
                 "−3: Chandra, Torch of Defiance deals 4 damage to target creature.",
-                &[CostDef::Loyalty(-3)],
+                &[CostDef::Loyalty(ValueDef::Constant(-3))],
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Creature),
                 )],
@@ -433,7 +433,7 @@ pub(in crate::card::sets) static CHANDRA_TORCH_OF_DEFIANCE: CardRecord = CardRec
             AbilityDef::activated(
                 "−7: You get an emblem with \"Whenever you cast a spell, \
                  this emblem deals 5 damage to any target.\"",
-                &[CostDef::Loyalty(-7)],
+                &[CostDef::Loyalty(ValueDef::Constant(-7))],
                 EffectDef::create_emblem(
                     "Chandra, Torch of Defiance emblem",
                     &[AbilityDef::triggered_with_targets(

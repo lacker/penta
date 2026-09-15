@@ -48,7 +48,7 @@ fn validate_trigger_object_predicate(
             validate_object_predicate_references(predicate, target_count, scope)?;
             if matches!(set,
                 crate::card::ColorSetDef::Fixed(_) | crate::card::ColorSetDef::OfObject(ObjectRefDef::Source | ObjectRefDef::AttachedToSource | ObjectRefDef::CreatingSource)
-                    | crate::card::ColorSetDef::ChosenBy(ObjectRefDef::Source | ObjectRefDef::AttachedToSource | ObjectRefDef::CreatingSource)) {
+                    | crate::card::ColorSetDef::Binding(_)) {
                 Ok(())
             } else { Err(unsupported_trigger_event(event)) }
         }

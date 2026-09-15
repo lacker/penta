@@ -734,7 +734,18 @@ fn parse_permanent(
     permanent.chosen_basic_land_type = shown.chosen_basic_land_type;
     permanent.chosen_basic_land_type_substitution = shown.chosen_basic_land_type_substitution;
     permanent.chosen_color = shown.chosen_color;
-    permanent.chosen_colors = crate::card::ColorSet::from_flags(state.chosen_colors);
+    permanent.chosen_colors = state
+        .chosen_colors
+        .iter()
+        .map(|(binding, colors)| (binding.clone(), crate::card::ColorSet::from_flags(*colors)))
+        .collect();
+    if permanent
+        .chosen_colors
+        .iter()
+        .any(|(binding, colors)| binding.trim().is_empty() || colors.is_colorless())
+    {
+        return Err("chosenColors requires named nonempty color sets".into());
+    }
     if permanent.chosen_colors != shown.chosen_colors {
         return Err("chosenColors disagrees with permanent checkpoint".into());
     }
@@ -906,7 +917,14 @@ pub(super) fn parse_detached_permanent(
                 .chosen_basic_land_type_substitution
                 .map(|[from, to]| (parse_basic_land_type(from), parse_basic_land_type(to))),
             chosen_color: snapshot.chosen_color.map(parse_mana_color),
-            chosen_colors: crate::card::ColorSet::from_flags(snapshot.state.chosen_colors),
+            chosen_colors: snapshot
+                .state
+                .chosen_colors
+                .iter()
+                .map(|(binding, colors)| {
+                    (binding.clone(), crate::card::ColorSet::from_flags(*colors))
+                })
+                .collect(),
             chosen_card_name: snapshot.chosen_card_name.clone(),
             chosen_card_name_binding: snapshot.chosen_card_name_binding.clone(),
         },

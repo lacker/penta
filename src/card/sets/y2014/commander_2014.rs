@@ -145,7 +145,7 @@ pub(in crate::card::sets) static TEFERI_TEMPORAL_ARCHMAGE: CardRecord = CardReco
                 "+1: Look at the top two cards of your library. Put one of \
                  them into your hand and the other on the bottom of your \
                  library.",
-                &[CostDef::Loyalty(1)],
+                &[CostDef::Loyalty(ValueDef::Constant(1))],
                 abilities::look_at_top_cards_choose_to_hand_rest_bottom(
                     ValueDef::Constant(2),
                     ObjectPredicateDef::Any,
@@ -155,7 +155,7 @@ pub(in crate::card::sets) static TEFERI_TEMPORAL_ARCHMAGE: CardRecord = CardReco
             ),
             AbilityDef::activated_with_targets(
                 "−1: Untap up to four target permanents.",
-                &[CostDef::Loyalty(-1)],
+                &[CostDef::Loyalty(ValueDef::Constant(-1))],
                 &[AbilityTargetDef::up_to(
                     AbilityTargetPredicate::Object {
                         object: ObjectPredicateDef::Any,
@@ -173,7 +173,7 @@ pub(in crate::card::sets) static TEFERI_TEMPORAL_ARCHMAGE: CardRecord = CardReco
                 "−10: You get an emblem with \"You may activate loyalty \
                  abilities of planeswalkers you control on any player's turn \
                  any time you could cast an instant.\"",
-                &[CostDef::Loyalty(-10)],
+                &[CostDef::Loyalty(ValueDef::Constant(-10))],
                 EffectDef::CreateEmblem {
                     emblem: EmblemCharacteristics::new(
                         "Teferi, Temporal Archmage emblem",
@@ -214,7 +214,7 @@ pub(in crate::card::sets) static DARETTI_SCRAP_SAVANT: CardRecord = CardRecord::
             AbilityDef::activated(
                 "+2: Discard up to two cards, then draw that \
                  many cards.",
-                &[CostDef::Loyalty(2)],
+                &[CostDef::Loyalty(ValueDef::Constant(2))],
                 EffectDef::Choose(ChooseDef {
                     binding: ObjectChoiceBindingDef::Objects(Binding!("daretti_discards")),
                     unchosen: None,
@@ -244,7 +244,7 @@ pub(in crate::card::sets) static DARETTI_SCRAP_SAVANT: CardRecord = CardRecord::
                 "−2: Sacrifice an artifact. If you do, return \
                  target artifact card from your graveyard to \
                  the battlefield.",
-                &[CostDef::Loyalty(-2)],
+                &[CostDef::Loyalty(ValueDef::Constant(-2))],
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Object {
                         object: ObjectPredicateDef::HasType(CardType::Artifact),
@@ -273,7 +273,7 @@ pub(in crate::card::sets) static DARETTI_SCRAP_SAVANT: CardRecord = CardRecord::
                  battlefield, return that card to the \
                  battlefield at the beginning of the next end \
                  step.\"",
-                &[CostDef::Loyalty(-10)],
+                &[CostDef::Loyalty(ValueDef::Constant(-10))],
                 EffectDef::CreateEmblem {
                     emblem: EmblemCharacteristics::new(
                         "Daretti, Scrap Savant emblem",

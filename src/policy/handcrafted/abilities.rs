@@ -85,7 +85,8 @@ impl HandcraftedPolicy {
         &self,
         source_definition: Option<CardDefinitionId>,
         ability: AbilityOrigin,
-    ) -> Option<i8> {
+        x: u16,
+    ) -> Option<i32> {
         source_definition.and_then(|definition| {
             let AbilityOrigin::Printed {
                 definition: origin_definition,
@@ -107,7 +108,7 @@ impl HandcraftedPolicy {
             match actual.definition {
                 DeclarativeAbilityDef::Activated(definition) => {
                     definition.costs.iter().find_map(|cost| match *cost {
-                        CostDef::Loyalty(change) => Some(change),
+                        CostDef::Loyalty(change) => crate::card::costs::loyalty_change(change, x),
                         _ => None,
                     })
                 }
@@ -125,7 +126,7 @@ impl HandcraftedPolicy {
         declarative: Option<DeclarativeSpellProfile>,
         structural_hint_score: i32,
         target_score: i32,
-        cost: i8,
+        cost: i32,
     ) -> i32 {
         let fight_score = targets
             .iter()
@@ -158,7 +159,7 @@ impl HandcraftedPolicy {
         } else {
             4_500 + target_score
         };
-        loyalty_score + i32::from(cost) * 100
+        loyalty_score + cost * 100
     }
 
     /// What one decision option is worth. An ordinary card option is worth
@@ -384,7 +385,7 @@ impl HandcraftedPolicy {
             .sum::<i32>();
         let discard_source_cost = self.discard_source_cost(source_definition, ability);
         let structural_hint_score = self.structural_hint_score(observation, ability, targets);
-        let loyalty_cost = self.loyalty_cost_of(source_definition, ability);
+        let loyalty_cost = self.loyalty_cost_of(source_definition, ability, x);
         if let Some(cost) = loyalty_cost {
             return Self::score_loyalty_ability(
                 observation,

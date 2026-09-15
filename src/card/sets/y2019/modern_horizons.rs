@@ -1475,7 +1475,7 @@ pub(in crate::card::sets) static WRENN_AND_SIX: CardRecord = CardRecord::new(
         .with_abilities(&[
             AbilityDef::activated_with_targets(
                 "+1: Return up to one target land card from your graveyard to your hand.",
-                &[CostDef::Loyalty(1)],
+                &[CostDef::Loyalty(ValueDef::Constant(1))],
                 // "Up to one target land card from your graveyard": a Wrenn with an empty
                 // graveyard still ticks up.
                 &[AbilityTargetDef::up_to(
@@ -1495,7 +1495,7 @@ pub(in crate::card::sets) static WRENN_AND_SIX: CardRecord = CardRecord::new(
             ),
             AbilityDef::activated_with_targets(
                 "−1: This planeswalker deals 1 damage to any target.",
-                &[CostDef::Loyalty(-1)],
+                &[CostDef::Loyalty(ValueDef::Constant(-1))],
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::AnyTarget,
                 )],
@@ -1509,7 +1509,7 @@ pub(in crate::card::sets) static WRENN_AND_SIX: CardRecord = CardRecord::new(
                  your graveyard have retrace.\" (You may cast instant and \
                  sorcery cards from your graveyard by discarding a land card \
                  in addition to paying their other costs.)",
-                &[CostDef::Loyalty(-7)],
+                &[CostDef::Loyalty(ValueDef::Constant(-7))],
                 EffectDef::CreateEmblem {
                     emblem: EmblemCharacteristics::new(
                         "Wrenn and Six emblem",

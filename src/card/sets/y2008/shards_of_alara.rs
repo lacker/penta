@@ -88,7 +88,7 @@ pub(in crate::card::sets) static ELSPETH_KNIGHT_ERRANT: CardRecord = CardRecord:
         .with_abilities(&[
             AbilityDef::activated(
                 "+1: Create a 1/1 white Soldier creature token.",
-                &[CostDef::Loyalty(1)],
+                &[CostDef::Loyalty(ValueDef::Constant(1))],
                 EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
                     TokenCharacteristics::creature(&["Soldier"], &[ManaColor::White], 1, 1),
                 ))),
@@ -97,7 +97,7 @@ pub(in crate::card::sets) static ELSPETH_KNIGHT_ERRANT: CardRecord = CardRecord:
             // creature, so the token she made last turn is a 4/4 flier this one.
             AbilityDef::activated_with_targets(
                 "+1: Target creature gets +3/+3 and gains flying until end of turn.",
-                &[CostDef::Loyalty(1)],
+                &[CostDef::Loyalty(ValueDef::Constant(1))],
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Object {
                         object: ObjectPredicateDef::HasType(CardType::Creature),
@@ -121,7 +121,7 @@ pub(in crate::card::sets) static ELSPETH_KNIGHT_ERRANT: CardRecord = CardRecord:
             AbilityDef::activated(
                 "\u{2212}8: You get an emblem with \"Artifacts, creatures, \
                  enchantments, and lands you control have indestructible.\"",
-                &[CostDef::Loyalty(-8)],
+                &[CostDef::Loyalty(ValueDef::Constant(-8))],
                 EffectDef::create_emblem(
                     "Elspeth, Knight-Errant emblem",
                     &[AbilityDef::static_ability(

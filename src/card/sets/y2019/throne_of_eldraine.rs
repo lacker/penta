@@ -1444,14 +1444,14 @@ pub(in crate::card::sets) static OKO_THIEF_OF_CROWNS: CardRecord = CardRecord::n
         .with_abilities(&[
             AbilityDef::activated(
                 "+2: Create a Food token.",
-                &[CostDef::Loyalty(2)],
+                &[CostDef::Loyalty(ValueDef::Constant(2))],
                 EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(FOOD_TOKEN))),
             ),
             AbilityDef::activated_with_targets(
                 "+1: Target artifact or creature loses all abilities and \
                  becomes a green Elk creature with base power and toughness \
                  3/3.",
-                &[CostDef::Loyalty(1)],
+                &[CostDef::Loyalty(ValueDef::Constant(1))],
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Object {
                         object: ObjectPredicateDef::AnyOf(&[
@@ -1490,7 +1490,7 @@ pub(in crate::card::sets) static OKO_THIEF_OF_CROWNS: CardRecord = CardRecord::n
                 "−5: Exchange control of target artifact or creature you \
                  control and target creature an opponent controls with power \
                  3 or less.",
-                &[CostDef::Loyalty(-5)],
+                &[CostDef::Loyalty(ValueDef::Constant(-5))],
                 // The exchange names one of each: something of yours, and something small
                 // of theirs. An Elk the +1 just made is exactly the kind of thing the
                 // first slot is for.

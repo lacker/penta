@@ -171,7 +171,7 @@ pub(super) struct PermanentSnapshot {
     pub(super) keywords_until_upkeep_of: Vec<UpkeepKeywordSnapshot>,
     pub(super) resolved_continuous_effects: Vec<ResolvedContinuousEffectSnapshot>,
     #[serde(default)]
-    pub(super) chosen_colors: [bool; 5],
+    pub(super) chosen_colors: std::collections::BTreeMap<String, [bool; 5]>,
     pub(super) activations_this_turn: Vec<AbilityActivationSnapshot>,
     /// Additive: a payload written before any ability capped its own
     /// triggering carries none, which is a turn in which none has.

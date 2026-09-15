@@ -769,6 +769,7 @@ impl StaticAbilityDef {
     #[must_use]
     pub const fn defining_colors(colors: super::ColorSet) -> Self {
         Self {
+            outside_game: true,
             defines_colors: Some(colors),
             source_zones: &[
                 ZoneKind::Library,

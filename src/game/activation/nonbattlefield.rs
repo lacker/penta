@@ -24,8 +24,13 @@ impl Game {
         }
         self.lose_life(player, crate::card::costs::life_cost(costs));
         let cost = self.announced_activation_cost(player, cost, announced.mana_payment);
-        let mut reserved =
-            Self::activation_payment_reservations(source, origin, costs, announced.cost_objects);
+        let mut reserved = Self::activation_payment_reservations(
+            source,
+            origin,
+            costs,
+            announced.cost_objects,
+            announced.x,
+        );
         reserved.retain(|resource| {
             !matches!(
                 resource,

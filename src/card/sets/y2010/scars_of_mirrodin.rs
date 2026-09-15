@@ -280,7 +280,7 @@ pub(in crate::card::sets) static ELSPETH_TIREL: CardRecord = CardRecord::new(
         .with_abilities(&[
             AbilityDef::activated(
                 "+2: You gain 1 life for each creature you control.",
-                &[CostDef::Loyalty(2)],
+                &[CostDef::Loyalty(ValueDef::Constant(2))],
                 EffectDef::GainLife {
                     recipient: EffectRecipientDef::Controller,
                     amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
@@ -292,7 +292,7 @@ pub(in crate::card::sets) static ELSPETH_TIREL: CardRecord = CardRecord::new(
             ),
             AbilityDef::activated(
                 "−2: Create three 1/1 white Soldier creature tokens.",
-                &[CostDef::Loyalty(-2)],
+                &[CostDef::Loyalty(ValueDef::Constant(-2))],
                 EffectDef::CreateToken(
                     CreateTokenDef::new(TokenDef::Literal(TokenCharacteristics::creature(
                         &["Soldier"],
@@ -305,7 +305,7 @@ pub(in crate::card::sets) static ELSPETH_TIREL: CardRecord = CardRecord::new(
             ),
             AbilityDef::activated(
                 "−5: Destroy all other permanents except for lands and tokens.",
-                &[CostDef::Loyalty(-5)],
+                &[CostDef::Loyalty(ValueDef::Constant(-5))],
                 EffectDef::Destroy {
                     object: EffectRecipientDef::matching_objects(
                         ObjectPredicateDef::All(&[
@@ -2358,7 +2358,7 @@ pub(in crate::card::sets) static KOTH_OF_THE_HAMMER: CardRecord = CardRecord::ne
             AbilityDef::activated_with_targets(
                 "+1: Untap target Mountain. It becomes a 4/4 red Elemental \
                  creature until end of turn. It's still a land.",
-                &[CostDef::Loyalty(1)],
+                &[CostDef::Loyalty(ValueDef::Constant(1))],
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Object {
                         object: ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
@@ -2392,7 +2392,7 @@ pub(in crate::card::sets) static KOTH_OF_THE_HAMMER: CardRecord = CardRecord::ne
             ),
             AbilityDef::activated(
                 "−2: Add {R} for each Mountain you control.",
-                &[CostDef::Loyalty(-2)],
+                &[CostDef::Loyalty(ValueDef::Constant(-2))],
                 EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Red).with_variable_amount(
                     ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
                         ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
@@ -2404,7 +2404,7 @@ pub(in crate::card::sets) static KOTH_OF_THE_HAMMER: CardRecord = CardRecord::ne
             AbilityDef::activated(
                 "−5: You get an emblem with “Mountains you control have \
                  ‘{T}: This land deals 1 damage to any target.’”",
-                &[CostDef::Loyalty(-5)],
+                &[CostDef::Loyalty(ValueDef::Constant(-5))],
                 EffectDef::create_emblem(
                     "Koth of the Hammer emblem",
                     &[AbilityDef::static_ability(
@@ -3291,7 +3291,7 @@ pub(in crate::card::sets) static VENSER_THE_SOJOURNER: CardRecord = CardRecord::
                 "+2: Exile target permanent you own. Return it to the \
                  battlefield under your control at the beginning of the next \
                  end step.",
-                &[CostDef::Loyalty(2)],
+                &[CostDef::Loyalty(ValueDef::Constant(2))],
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Object {
                         object: ObjectPredicateDef::Any,
@@ -3306,7 +3306,7 @@ pub(in crate::card::sets) static VENSER_THE_SOJOURNER: CardRecord = CardRecord::
             ),
             AbilityDef::activated(
                 "−1: Creatures you control can't be blocked this turn.",
-                &[CostDef::Loyalty(-1)],
+                &[CostDef::Loyalty(ValueDef::Constant(-1))],
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::matching_objects(
                         ObjectPredicateDef::HasType(CardType::Creature),
@@ -3319,7 +3319,7 @@ pub(in crate::card::sets) static VENSER_THE_SOJOURNER: CardRecord = CardRecord::
             ),
             AbilityDef::activated(
                 "−8: You get an emblem with “Whenever you cast a spell, exile target permanent.”",
-                &[CostDef::Loyalty(-8)],
+                &[CostDef::Loyalty(ValueDef::Constant(-8))],
                 EffectDef::create_emblem(
                     "Venser, the Sojourner emblem",
                     &[AbilityDef::triggered_with_targets(

@@ -141,19 +141,23 @@ impl Game {
                 self.suspend_for_entry_scalar_choice(pending, context, effect, choice)
             }
             ReplacementEffectDef::BindOutput {
-                effect: producer,
-                binding: _,
-            } => {
-                let ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(choice)) = *producer
-                else {
-                    return Some(pending);
-                };
-                self.suspend_for_entry_scalar_choice(pending, context, effect, choice)
-            }
+                effect: producer, ..
+            } => match *producer {
+                ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(choice)) => {
+                    self.suspend_for_entry_scalar_choice(pending, context, effect, choice)
+                }
+                ReplacementEffectDef::Choose(ReplacementChoiceDef::Colors(count)) => {
+                    let player = Self::pending_event_controller(&pending);
+                    self.pending_events.push_front(pending);
+                    self.queue_entry_colors_choice(player, context, effect, count);
+                    None
+                }
+                _ => Some(pending),
+            },
             ReplacementEffectDef::Choose(ReplacementChoiceDef::Colors(count)) => {
                 let player = Self::pending_event_controller(&pending);
                 self.pending_events.push_front(pending);
-                self.queue_entry_colors_choice(player, context, count);
+                self.queue_entry_colors_choice(player, context, effect, count);
                 None
             }
             ReplacementEffectDef::Choose(ReplacementChoiceDef::BasicLandTypePair) => {

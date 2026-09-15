@@ -306,7 +306,7 @@ pub(in crate::card::sets) static UGIN_EYE_OF_THE_STORMS: CardRecord = CardRecord
             ),
             AbilityDef::activated(
                 "+2: You gain 3 life and draw a card.",
-                &[CostDef::Loyalty(2)],
+                &[CostDef::Loyalty(ValueDef::Constant(2))],
                 EffectDef::Sequence(&[
                     EffectDef::GainLife {
                         recipient: EffectRecipientDef::Controller,
@@ -321,14 +321,14 @@ pub(in crate::card::sets) static UGIN_EYE_OF_THE_STORMS: CardRecord = CardRecord
             // Loyalty abilities use the stack, including those that add mana.
             AbilityDef::activated(
                 "0: Add {C}{C}{C}.",
-                &[CostDef::Loyalty(0)],
+                &[CostDef::Loyalty(ValueDef::Constant(0))],
                 EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless).with_amount(3)),
             ),
             AbilityDef::activated(
                 "\u{2212}11: Search your library for any number of colorless \
                  nonland cards, exile them, then shuffle. Until end of turn, \
                  you may cast those cards without paying their mana costs.",
-                &[CostDef::Loyalty(-11)],
+                &[CostDef::Loyalty(ValueDef::Constant(-11))],
                 // "Any number": the bound is the library, so the search offers everything
                 // that matches and takes as many as its controller wants.
                 EffectDef::SearchZone {
@@ -10007,7 +10007,7 @@ pub(in crate::card::sets) static ELSPETH_STORM_SLAYER: CardRecord = CardRecord::
             ),
             AbilityDef::activated(
                 "+1: Create a 1/1 white Soldier creature token.",
-                &[CostDef::Loyalty(1)],
+                &[CostDef::Loyalty(ValueDef::Constant(1))],
                 EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
                     TokenCharacteristics::creature(&["Soldier"], &[ManaColor::White], 1, 1),
                 ))),
@@ -10015,7 +10015,7 @@ pub(in crate::card::sets) static ELSPETH_STORM_SLAYER: CardRecord = CardRecord::
             AbilityDef::activated(
                 "0: Put a +1/+1 counter on each creature you control. Those \
                  creatures gain flying until your next turn.",
-                &[CostDef::Loyalty(0)],
+                &[CostDef::Loyalty(ValueDef::Constant(0))],
                 // "Those creatures" is the set the counters went on. Nothing can join or
                 // leave the battlefield between the two halves of one resolution, so
                 // naming the same query twice names the same creatures -- and unlike a
@@ -10037,7 +10037,7 @@ pub(in crate::card::sets) static ELSPETH_STORM_SLAYER: CardRecord = CardRecord::
             ),
             AbilityDef::activated_with_targets(
                 "−3: Destroy target creature an opponent controls with mana value 3 or greater.",
-                &[CostDef::Loyalty(-3)],
+                &[CostDef::Loyalty(ValueDef::Constant(-3))],
                 // "Mana value 3 or greater", which for a whole number is everything that is
                 // not two or less.
                 &[AbilityTargetDef::exactly_one(

@@ -133,4 +133,3 @@ fn validate_applied_effect_shapes(
         }
     }
 }
-

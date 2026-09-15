@@ -802,7 +802,7 @@ pub(in crate::card::sets) static VIVIEN_REID: CardRecord = CardRecord::new(
                  reveal a creature or land card from among them and put it \
                  into your hand. Put the rest on the bottom of your library in \
                  a random order.",
-                &[CostDef::Loyalty(1)],
+                &[CostDef::Loyalty(ValueDef::Constant(1))],
                 EffectDef::ChooseCardsFromCollection(ChooseCardsFromCollectionDef {
                     source: ObjectCollectionSourceDef::TopCards {
                         player: PlayerRefDef::EffectController,
@@ -847,7 +847,7 @@ pub(in crate::card::sets) static VIVIEN_REID: CardRecord = CardRecord::new(
             AbilityDef::activated_with_targets(
                 "−3: Destroy target artifact, enchantment, or creature with \
                  flying.",
-                &[CostDef::Loyalty(-3)],
+                &[CostDef::Loyalty(ValueDef::Constant(-3))],
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::AnyOf(&[
                         ObjectPredicateDef::HasType(CardType::Artifact),
@@ -866,7 +866,7 @@ pub(in crate::card::sets) static VIVIEN_REID: CardRecord = CardRecord::new(
             AbilityDef::activated(
                 "−8: You get an emblem with \"Creatures you control get +2/+2 \
                  and have vigilance, trample, and indestructible.\"",
-                &[CostDef::Loyalty(-8)],
+                &[CostDef::Loyalty(ValueDef::Constant(-8))],
                 EffectDef::CreateEmblem {
                     emblem: EmblemCharacteristics::new(
                         "Vivien Emblem",

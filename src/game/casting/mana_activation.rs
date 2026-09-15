@@ -72,7 +72,8 @@ impl Game {
                     self.discard_cards(player, &hand);
                 }
                 CostDef::Loyalty(change) => {
-                    self.pay_loyalty_cost(source, *change);
+                    self.pay_loyalty_cost(source, crate::card::costs::loyalty_change(*change, 0)
+                        .expect("a concrete mana activation has a fixed loyalty cost"));
                 }
                 CostDef::DiscardSource
                 | CostDef::ManaCostOf(_)

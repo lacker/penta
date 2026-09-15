@@ -5361,7 +5361,7 @@ pub(in crate::card::sets) static PROFESSOR_DELLIAN_FEL: CardRecord = CardRecord:
         .with_abilities(&[
             AbilityDef::activated(
                 "+2: You gain 3 life.",
-                &[CostDef::Loyalty(2)],
+                &[CostDef::Loyalty(ValueDef::Constant(2))],
                 EffectDef::GainLife {
                     recipient: EffectRecipientDef::Controller,
                     amount: ValueDef::Constant(3),
@@ -5369,7 +5369,7 @@ pub(in crate::card::sets) static PROFESSOR_DELLIAN_FEL: CardRecord = CardRecord:
             ),
             AbilityDef::activated(
                 "0: You draw a card and lose 1 life.",
-                &[CostDef::Loyalty(0)],
+                &[CostDef::Loyalty(ValueDef::Constant(0))],
                 EffectDef::Sequence(&[
                     abilities::draw_cards(ValueDef::Constant(1)),
                     EffectDef::LoseLife {
@@ -5380,7 +5380,7 @@ pub(in crate::card::sets) static PROFESSOR_DELLIAN_FEL: CardRecord = CardRecord:
             ),
             AbilityDef::activated_with_targets(
                 "−3: Destroy target creature.",
-                &[CostDef::Loyalty(-3)],
+                &[CostDef::Loyalty(ValueDef::Constant(-3))],
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Creature),
                 )],
@@ -5392,7 +5392,7 @@ pub(in crate::card::sets) static PROFESSOR_DELLIAN_FEL: CardRecord = CardRecord:
             AbilityDef::activated(
                 "−6: You get an emblem with \"Whenever you gain life, target \
                  opponent loses that much life.\"",
-                &[CostDef::Loyalty(-6)],
+                &[CostDef::Loyalty(ValueDef::Constant(-6))],
                 EffectDef::CreateEmblem {
                     emblem: EmblemCharacteristics::new(
                         "Dellian Emblem",

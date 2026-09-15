@@ -95,7 +95,7 @@ pub(in crate::card::sets) static KARN_LIBERATED: CardRecord = CardRecord::new(
         .with_abilities(&[
             AbilityDef::activated_with_targets(
                 "+4: Target player exiles a card from their hand.",
-                &[CostDef::Loyalty(4)],
+                &[CostDef::Loyalty(ValueDef::Constant(4))],
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Player(PlayerRelation::Any),
                 )],
@@ -119,7 +119,7 @@ pub(in crate::card::sets) static KARN_LIBERATED: CardRecord = CardRecord::new(
             ),
             AbilityDef::activated_with_targets(
                 "−3: Exile target permanent.",
-                &[CostDef::Loyalty(-3)],
+                &[CostDef::Loyalty(ValueDef::Constant(-3))],
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Object {
                         object: ObjectPredicateDef::Any,
@@ -139,7 +139,7 @@ pub(in crate::card::sets) static KARN_LIBERATED: CardRecord = CardRecord::new(
                 "−14: Restart the game, leaving in exile all non-Aura \
                  permanent cards exiled with Karn. Then put those cards onto \
                  the battlefield under your control.",
-                &[CostDef::Loyalty(-14)],
+                &[CostDef::Loyalty(ValueDef::Constant(-14))],
                 EffectDef::RestartGame(crate::card::RestartGameDef {
                     retained_exiles: ObjectPredicateDef::All(&[
                         ObjectPredicateDef::AnyOf(&[

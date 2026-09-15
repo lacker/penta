@@ -715,10 +715,20 @@ impl Game {
         );
     }
 
+    #[cfg(test)]
     pub(super) fn eligible_mana_pool(
         &self,
         player: PlayerId,
         purpose: &ManaPaymentPurpose,
+    ) -> ManaPool {
+        self.eligible_mana_pool_for_cost(player, purpose, ManaCost::default())
+    }
+
+    pub(super) fn eligible_mana_pool_for_cost(
+        &self,
+        player: PlayerId,
+        purpose: &ManaPaymentPurpose,
+        cost: ManaCost,
     ) -> ManaPool {
         let aggregate = self.players[player.index()].mana_pool;
         let mut eligible = ManaPool::default();
@@ -728,7 +738,7 @@ impl Game {
                 continue;
             }
             tracked.add_color(mana.color, 1);
-            if self.mana_can_pay_for(*mana, purpose) {
+            if self.mana_can_pay_for_cost(*mana, purpose, cost) {
                 eligible.add_color(mana.color, 1);
             }
         }
@@ -770,7 +780,7 @@ impl Game {
         let (cost, x) = (obligation.cost, obligation.x);
         self.reconcile_mana(player);
         self.activate_repeatable_life_mana_for_shortfall(player, cost, x, purpose);
-        let before = self.eligible_mana_pool(player, purpose);
+        let before = self.eligible_mana_pool_for_cost(player, purpose, cost);
         let after = self.mana_payment_remainder(player, before, cost, x, purpose);
         let available = self.payment_mana_units(player);
         let mut units = Vec::new();
@@ -783,7 +793,7 @@ impl Game {
                     .filter(|(index, mana)| {
                         !units.contains(index)
                             && mana.color == color
-                            && self.mana_can_pay_for(**mana, purpose)
+                            && self.mana_can_pay_for_cost(**mana, purpose, cost)
                     })
                     .max_by_key(|(_, mana)| {
                         (

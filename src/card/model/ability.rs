@@ -192,6 +192,20 @@ impl AbilityDef {
         self
     }
 
+    /// Marks an activated keyword, such as Equip.
+    ///
+    /// # Panics
+    /// Panics unless this is an ordinary activated ability.
+    #[must_use]
+    pub const fn with_activated_keyword(mut self, kind: super::AbilityKindDef) -> Self {
+        let DeclarativeAbilityDef::Activated(mut definition) = self.definition else {
+            panic!("only activated abilities have an activated keyword");
+        };
+        definition.keyword_kind = Some(kind);
+        self.definition = DeclarativeAbilityDef::Activated(definition);
+        self
+    }
+
     /// A cost paid as the whole spell is cast, on top of its mana.
     ///
     /// # Panics
@@ -430,6 +444,28 @@ impl AbilityDef {
             DeclarativeAbilityDef::Static(StaticAbilityDef::new()),
             effect,
         )
+    }
+
+    /// A color characteristic-defining ability, including a printed
+    /// statement such as "This card is colorless" (CR 604.3 and 613.3).
+    #[must_use]
+    pub const fn define_colors(text: &'static str, colors: super::ColorSet) -> Self {
+        Self::defined(
+            text,
+            DeclarativeAbilityDef::Static(StaticAbilityDef::defining_colors(colors)),
+            EffectDef::None,
+        )
+    }
+
+    #[must_use]
+    pub const fn color_definition(self) -> Option<super::ColorSet> {
+        match self.definition {
+            DeclarativeAbilityDef::Keyword(KeywordAbility::Devoid) => {
+                Some(super::ColorSet::empty())
+            }
+            DeclarativeAbilityDef::Static(definition) => definition.defines_colors,
+            _ => None,
+        }
     }
 
     /// A printed clause that shapes how the card is cast rather than what it

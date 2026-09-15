@@ -29,7 +29,7 @@ fn static_animation_predicate_supported(predicate: ObjectPredicateDef, creature:
         | ObjectPredicateDef::Source
         | ObjectPredicateDef::Commander
         | ObjectPredicateDef::Token
-        | ObjectPredicateDef::Permanent
+        | ObjectPredicateDef::InZone(_)
         | ObjectPredicateDef::AttachedToSource
         | ObjectPredicateDef::HasSourcesChosenScalar(_)
         | ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Binding(_))
@@ -63,6 +63,9 @@ fn static_object_predicate_supported(predicate: ObjectPredicateDef) -> bool {
         }
         ObjectPredicateDef::NameEquals(name) => static_card_name_supported(name),
         ObjectPredicateDef::NameIn(names) => static_card_name_set_supported(*names),
+        ObjectPredicateDef::SharesColorWith(set) => matches!(set,
+            crate::card::ColorSetDef::Fixed(_) | crate::card::ColorSetDef::OfObject(ObjectRefDef::Source | ObjectRefDef::AttachedToSource | ObjectRefDef::CreatingSource)
+                | crate::card::ColorSetDef::ChosenBy(ObjectRefDef::Source | ObjectRefDef::AttachedToSource | ObjectRefDef::CreatingSource)),
         ObjectPredicateDef::ManaValueEqualTo(value)
         | ObjectPredicateDef::ManaValueAtMostValue(value)
         | ObjectPredicateDef::ToughnessLessThan(value)
@@ -87,7 +90,7 @@ fn static_object_predicate_supported(predicate: ObjectPredicateDef) -> bool {
         | ObjectPredicateDef::Commander
         | ObjectPredicateDef::Source
         | ObjectPredicateDef::Token
-        | ObjectPredicateDef::Permanent
+        | ObjectPredicateDef::InZone(_)
         | ObjectPredicateDef::Tapped
         | ObjectPredicateDef::WasDealtDamageThisTurn
         | ObjectPredicateDef::DealtDamageThisTurn

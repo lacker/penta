@@ -445,8 +445,8 @@ impl Game {
         } else {
             false
         };
-        let object = self.stack.remove(index);
-        self.retire_stack_object(&object);
+        let mut object = self.stack.remove(index);
+        self.retire_stack_object(&mut object);
         if object.kind == StackObjectKind::Spell && !object.is_copy {
             let owner = object.card.owner;
             let card = object

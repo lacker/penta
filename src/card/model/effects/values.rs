@@ -580,6 +580,8 @@ pub enum ValueDef {
     /// last-known characteristics. Object selection is independent of the
     /// count: targets, sources, attachments, and bound objects share it.
     ColorCount(ObjectRefDef),
+    /// Number of colors common to every set. An empty list yields zero.
+    ColorIntersectionCount(&'static [super::super::ColorSetDef]),
     /// The power of one named object, wherever it is, using last-known
     /// information after it leaves its zone.
     ObjectPower(ObjectRefDef),

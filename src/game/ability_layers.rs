@@ -76,22 +76,51 @@ impl Game {
         }
     }
 
-    /// Whether one printed or copied ability remains after rules-text removal
-    /// and already-resolved layer-6 operations. Static layer-6 dependencies
-    /// still use the documented one-level model, but a resolved "loses all
-    /// abilities" effect must immediately stop this ability from supplying a
-    /// live static rule.
-    pub(super) fn ability_survives_resolved_operations(
+    pub(super) fn ability_is_present_after_layer_six(
         &self,
         permanent: &Permanent,
         origin: AbilityOrigin,
     ) -> bool {
-        let operations = self.resolved_ability_layer_operations(permanent);
-        if operations.is_empty() {
+        self.collect_effective_abilities(permanent, None)
+            .into_iter()
+            .any(|ability| ability.origin == origin)
+    }
+
+    /// Read an ability at the layer where its continuous effect begins.
+    /// Later ability removal cannot erase an already-applied color/type
+    /// change, or the remaining components of a compound effect.
+    pub(super) fn static_ability_survives_at_start(
+        &self,
+        permanent: &Permanent,
+        origin: AbilityOrigin,
+        effect: crate::card::EffectDef,
+        timestamp: super::ContinuousEffectTimestamp,
+    ) -> bool {
+        let layer = Self::static_effect_start_layer(effect);
+        if layer < 6 {
             return true;
         }
         let mut abilities = self.collect_base_effective_abilities(permanent, None);
+        if layer == 6 {
+            // A resolved removal is independent of this static ability;
+            // the ability depends on that removal, regardless of timestamps.
+            let mut resolved = abilities.clone();
+            for operation in self.resolved_ability_layer_operations(permanent) {
+                Self::apply_ability_layer_operation(&mut resolved, &operation);
+            }
+            if !resolved.iter().any(|ability| ability.origin == origin) {
+                return false;
+            }
+        }
+        let operations = self.collect_ability_layer_operations(permanent, None);
+        let removes_statics = Self::static_effect_can_remove_static_abilities(effect);
         for operation in operations {
+            // A grant depends on an effect that removes its generating
+            // ability (CR 613.8). Mutually removing statics instead retain
+            // timestamp order, and self-removal does not interrupt an effect.
+            if layer == 6 && removes_statics && operation.timestamp >= timestamp {
+                continue;
+            }
             Self::apply_ability_layer_operation(&mut abilities, &operation);
         }
         abilities
@@ -167,7 +196,7 @@ impl Game {
         ControlFlow::Continue(())
     }
 
-    fn collect_effective_abilities(
+    pub(super) fn collect_effective_abilities(
         &self,
         permanent: &Permanent,
         prospective: Option<&Permanent>,
@@ -208,6 +237,11 @@ impl Game {
                 }));
             }
             if let Some(copy) = characteristics.active_copy_values() {
+                // CR 707.9d: a copy exception that supplies colors also
+                // omits abilities defining that characteristic.
+                if copy.colors.is_some() {
+                    abilities.retain(|effective| effective.ability.color_definition().is_none());
+                }
                 for added in &copy.added_abilities {
                     abilities.push(EffectiveAbility {
                         origin: added.origin,
@@ -278,10 +312,10 @@ impl Game {
     }
 
     /// Builds the ordered layer-6 slice from resolved effects and static
-    /// abilities that survive the modeled layer-4 setters. It deliberately
-    /// does not feed layer-6 removals back into the set of static sources;
-    /// dependencies where one static ability removes its own or another
-    /// source's static ability still require the future fixed-point evaluator.
+    /// abilities that survive the modeled layer-4 setters. Grants wait for
+    /// independent removals of their generating static abilities. Mutually
+    /// removing static effects retain timestamp order; more general predicate
+    /// dependencies still use the conservative one-level model below.
     ///
     /// Gathering the static half is not re-entrant. A static source is matched
     /// against the characteristics of the permanent it might apply to, and one
@@ -387,6 +421,9 @@ impl Game {
         applied: &StaticAppliedEffect,
         operations: &mut Vec<AbilityLayerOperation>,
     ) {
+        if self.static_grant_is_suppressed(applied) {
+            return;
+        }
         if matches!(
             applied.effect,
             AppliedEffectDef::Characteristic(CharacteristicOperationDef::Abilities(
@@ -397,6 +434,46 @@ impl Game {
             return;
         }
         operations.extend(Self::static_ability_layer_operation(applied));
+    }
+
+    /// Layer-6 grants wait for independent removals of their generating
+    /// ability. Inspect removals directly while the gathering guard is held,
+    /// so this dependency check cannot recursively gather more grants.
+    fn static_grant_is_suppressed(&self, applied: &StaticAppliedEffect) -> bool {
+        let Some(source) = self
+            .battlefield
+            .iter()
+            .find(|p| p.card.id == applied.source)
+        else {
+            return false;
+        };
+        let Some(ability) = self
+            .collect_base_effective_abilities(source, None)
+            .into_iter()
+            .find(|ability| ability.origin == applied.source_origin)
+        else {
+            return false;
+        };
+        let Some(effect) = ability.ability.declarative_effect() else {
+            return false;
+        };
+        if Self::static_effect_start_layer(effect) != 6
+            || Self::static_effect_can_remove_static_abilities(effect)
+        {
+            return false;
+        }
+        let mut removed = false;
+        let _ =
+            self.visit_static_applied_effects(source, StaticEffectKind::Abilities, |candidate| {
+                if let AppliedEffectDef::Characteristic(CharacteristicOperationDef::Abilities(
+                    AbilityOperationDef::Remove(predicate),
+                )) = candidate.effect
+                {
+                    removed |= predicate.matches(&ability.ability);
+                }
+                ControlFlow::Continue(())
+            });
+        removed
     }
 
     /// Enumerate matching cards and their activated clauses in source order.

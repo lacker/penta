@@ -6,6 +6,15 @@ use super::{
     ObjectSetDef, PlayerRelation, TargetPredicate, ValueDef, ZoneKind,
 };
 
+/// A set of color characteristics, distinct from mana types. Colorless is
+/// the empty set and cannot be chosen as a color.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum ColorSetDef {
+    Fixed(super::ColorSet),
+    OfObject(ObjectRefDef),
+    ChosenBy(ObjectRefDef),
+}
+
 /// One card name read from rules text, an object, or a recorded choice.
 ///
 /// This is a value rather than a predicate: callers decide whether to compare
@@ -87,10 +96,10 @@ pub enum ObjectPredicateDef {
     /// Whether the object is a token rather than a card represented by a
     /// physical printing. Negate this for the common "nontoken" qualifier.
     Token,
-    /// A battlefield object, including its last-known identity after it
-    /// leaves. A permanent card or spell in another zone does not qualify;
-    /// zone changes give that card a distinct object identity.
-    Permanent,
+    /// The zone occupied by the object in the evaluated view. Event and
+    /// last-known snapshots retain their original zone across zone changes;
+    /// a proposed spell is evaluated on the stack.
+    InZone(ZoneKind),
     /// A card currently face up in exile (CR 406.3). This is not a
     /// permanent's face-up/face-down status (CR 110.5d), and permission
     /// to look at a face-down exiled card does not make it face up.
@@ -137,6 +146,8 @@ pub enum ObjectPredicateDef {
     /// Has exactly this many colors. Zero matches colorless objects and one
     /// matches monocolored objects.
     ColorCount(u8),
+    /// Has at least one color in common with the evaluated set.
+    SharesColorWith(ColorSetDef),
     /// Has the subtype resolved from this value in the ability source's scope.
     Subtype(SubtypeDef),
     /// Mana value at most this much, for "with mana value N or less".

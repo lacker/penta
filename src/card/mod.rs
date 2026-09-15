@@ -42,7 +42,7 @@ pub use model::{
     ChangeStackTargetsDef, CharacteristicOperationDef, ChoiceVisibilityDef,
     ChooseCardsFromCollectionDef, ChooseDef, ChooseExactDef, ChooseForEachPlayerDef,
     ChooseGroupDef, ChooseObjectOrderDef, ChooseOneOfEachDef, ClassifyObjectsDef,
-    CollectionInspectionDef, ColorChoiceOperationDef, ColorSet, CombineObjectsDef, CompanionDef,
+    CollectionInspectionDef, ColorChoiceOperationDef, ColorSet, ColorSetDef, CombineObjectsDef, CompanionDef,
     ComparisonDef, ConditionDef, ConditionValueDef, ConditionalStaticEffectDef,
     ConditionalValueDef, ControlDurationDef, CopyAbilityDef, CopyExceptionsDef, CopyStackObjectDef,
     CostAdjustmentDef, CostAmountDef, CostDef, CostModificationDef, CostQuantityDef,

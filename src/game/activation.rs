@@ -686,7 +686,6 @@ impl Game {
                     // The open-ended removal never reaches payment: mana
                     // enumeration replaced it with a sized one.
                     CostDef::Mana(_) | CostDef::ManaCostOf(_) | CostDef::ManaValueOfTarget { .. }
-                    | CostDef::RemoveAnyNumberOfCountersFromSource(_)
                     | CostDef::ReturnUnblockedAttackerToHand
                     | CostDef::TapPermanents { .. }
                     // Paid by decision after everything else, the way a
@@ -704,6 +703,10 @@ impl Game {
                         // permanent may itself produce mana first, and the
                         // source may still owe a tap or counter-removal cost
                         // before it leaves.
+                    }
+                    CostDef::RemoveAnyNumberOfCountersFromSource(kind) => {
+                        self.battlefield.iter_mut().find(|permanent| permanent.card.id == source)
+                            .expect("a legal activation has its source").remove_counters(*kind, x);
                     }
                     CostDef::RemoveCountersFromSource { kind, amount } => {
                         self.battlefield

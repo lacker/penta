@@ -463,6 +463,9 @@ pub enum ActivationPermissionDef {
 #[allow(clippy::struct_excessive_bools)]
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct ActivatedAbilityDef {
+    /// The keyword family of an expanded activated ability, such as Equip.
+    /// The ordinary costs, targets, and effect remain its executable body.
+    pub keyword_kind: Option<super::AbilityKindDef>,
     pub source_zones: &'static [ZoneKind],
     pub costs: &'static [CostDef],
     pub targets: &'static [AbilityTargetDef],
@@ -524,6 +527,7 @@ impl ActivatedAbilityDef {
     #[must_use]
     pub const fn new(costs: &'static [CostDef]) -> Self {
         Self {
+            keyword_kind: None,
             source_zones: &[ZoneKind::Battlefield],
             costs,
             targets: &[],
@@ -669,6 +673,10 @@ pub struct TriggeredAbilityDef {
 pub struct StaticAbilityDef {
     /// Explicit outside-game scope; outside the game is not a zone.
     pub outside_game: bool,
+    /// An intrinsic color definition (CR 604.3), evaluated in every zone and
+    /// outside the game before ordinary layer-5 effects. It is an ability,
+    /// not a color indicator or a replacement for the printed mana cost.
+    pub defines_colors: Option<super::ColorSet>,
     pub source_zones: &'static [ZoneKind],
 }
 
@@ -759,9 +767,26 @@ impl SpecialActionDef {
 
 impl StaticAbilityDef {
     #[must_use]
+    pub const fn defining_colors(colors: super::ColorSet) -> Self {
+        Self {
+            defines_colors: Some(colors),
+            source_zones: &[
+                ZoneKind::Library,
+                ZoneKind::Hand,
+                ZoneKind::Battlefield,
+                ZoneKind::Stack,
+                ZoneKind::Graveyard,
+                ZoneKind::Exile,
+                ZoneKind::Command,
+            ],
+        }
+    }
+
+    #[must_use]
     pub const fn new() -> Self {
         Self {
             outside_game: false,
+            defines_colors: None,
             source_zones: &[ZoneKind::Battlefield],
         }
     }

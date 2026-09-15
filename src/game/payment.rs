@@ -92,7 +92,8 @@ impl Game {
             let Some(mana) = available.get(index) else {
                 return false;
             };
-            if payment.units[..position].contains(&index) || !self.mana_can_pay_for(*mana, purpose)
+            if payment.units[..position].contains(&index)
+                || !self.mana_can_pay_for_cost(*mana, purpose, *cost)
             {
                 return false;
             }
@@ -113,14 +114,18 @@ impl Game {
                 return false;
             };
             if units[..position].contains(&index)
-                || !self.mana_can_pay_for(*mana, &obligation.purpose)
+                || !self.mana_can_pay_for_cost(*mana, &obligation.purpose, obligation.cost)
             {
                 return false;
             }
             selected.add_color(mana.color, 1);
         }
         super::mana_planning::payment_including_units(
-            self.eligible_mana_pool(obligation.player, &obligation.purpose),
+            self.eligible_mana_pool_for_cost(
+                obligation.player,
+                &obligation.purpose,
+                obligation.cost,
+            ),
             selected,
             obligation.cost,
             obligation.x,

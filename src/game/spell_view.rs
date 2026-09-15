@@ -27,10 +27,14 @@ impl Game {
     pub(super) fn for_each_stack_spell_ability(
         &self,
         object: &super::StackObject,
-        visitor: impl FnMut(super::EffectiveAbility),
+        mut visitor: impl FnMut(super::EffectiveAbility),
     ) {
         if let Some(spell) = self.stack_spell_view(object) {
-            self.for_each_spell_view_ability(spell, visitor);
+            self.for_each_spell_view_ability(spell, |ability| {
+                if object.colors.is_none() || ability.ability.color_definition().is_none() {
+                    visitor(ability);
+                }
+            });
         }
     }
 
@@ -113,12 +117,14 @@ impl Game {
         spell: SpellView<'_>,
     ) -> Option<TriggerEventObject> {
         if let Some(face_down) = spell.face_down {
-            return self.presentation_trigger_event_object(
+            let mut view = self.presentation_trigger_event_object(
                 spell.object,
                 ObjectCharacteristics::FaceDown { face_down },
                 spell.controller,
                 false,
-            );
+            )?;
+            self.apply_color_effects_to_object(&mut view);
+            return Some(view);
         }
         let mut view = self.printed_trigger_event_object(
             spell.object,

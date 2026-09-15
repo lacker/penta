@@ -191,7 +191,11 @@ fn a_private_effect_choice_is_not_serialized_for_the_other_seat() {
     let secret = GameObjectId(424_242);
     game.retired_objects.insert(
         secret,
-        RetiredObject::Card(card(secret.0, crate::card::cards::LIGHTNING_BOLT, chooser)),
+        RetiredObject::Card(crate::game::RetiredCard {
+            card: card(secret.0, crate::card::cards::LIGHTNING_BOLT, chooser),
+            stats: None,
+            colors: [false, false, false, true, false],
+        }),
     );
 
     let resolving = StackObject {
@@ -208,6 +212,8 @@ fn a_private_effect_choice_is_not_serialized_for_the_other_seat() {
         chosen_permanents: Vec::new(),
         applied_effects: Vec::new(),
         text_changes: Vec::new(),
+        resolved_continuous_effects: Vec::new(),
+        last_known_colors: None,
         colors: None,
         cast: None,
         face_down: None,
@@ -310,6 +316,8 @@ fn a_public_effect_choice_cannot_retain_an_unexposed_hidden_object_id() {
         chosen_permanents: Vec::new(),
         applied_effects: Vec::new(),
         text_changes: Vec::new(),
+        resolved_continuous_effects: Vec::new(),
+        last_known_colors: None,
         colors: None,
         cast: None,
         face_down: None,
@@ -493,6 +501,8 @@ fn retained_trigger_state_never_serializes_unrebindable_hidden_object_ids() {
         chosen_permanents: Vec::new(),
         applied_effects: Vec::new(),
         text_changes: Vec::new(),
+        resolved_continuous_effects: Vec::new(),
+        last_known_colors: None,
         colors: None,
         cast: None,
         face_down: None,
@@ -539,8 +549,14 @@ fn retained_trigger_state_never_serializes_unrebindable_hidden_object_ids() {
 
     let retired_secret = game.players[viewer.opponent().index()].library.remove(0);
     assert_eq!(retired_secret.id, secret);
-    game.retired_objects
-        .insert(secret, RetiredObject::Card(retired_secret));
+    game.retired_objects.insert(
+        secret,
+        RetiredObject::Card(crate::game::RetiredCard {
+            card: retired_secret,
+            stats: None,
+            colors: [false; 5],
+        }),
+    );
     game.installed_triggers.push(InstalledTrigger {
         id: 0,
         event: triggered.event,

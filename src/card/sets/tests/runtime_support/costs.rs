@@ -220,7 +220,8 @@ fn shared_spell_additional_cost_def(cost: CostDef) -> bool {
                 && super::stack_effects::shared_stack_effect(EffectDef::Perform(*program))
         }
         CostDef::Mana(_) | CostDef::PayLife(_) | CostDef::DiscardCards(_) => true,
-        CostDef::SacrificePermanent {
+        CostDef::RevealCardFromHand(object)
+        | CostDef::SacrificePermanent {
             object,
             controller: PlayerRelation::You,
         }

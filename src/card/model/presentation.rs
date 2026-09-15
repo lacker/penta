@@ -76,7 +76,7 @@ fn predicate_negates(predicate: ObjectPredicateDef, expected: ObjectPredicateDef
         | ObjectPredicateDef::Source
         | ObjectPredicateDef::Commander
         | ObjectPredicateDef::Token
-        | ObjectPredicateDef::Permanent
+        | ObjectPredicateDef::InZone(_)
         | ObjectPredicateDef::Tapped
         | ObjectPredicateDef::WasDealtDamageThisTurn
         | ObjectPredicateDef::DealtDamageThisTurn
@@ -107,6 +107,7 @@ fn predicate_negates(predicate: ObjectPredicateDef, expected: ObjectPredicateDef
         | ObjectPredicateDef::HasDeclaredPlayerTarget(_)
         | ObjectPredicateDef::NoncreatureSpell
         | ObjectPredicateDef::Color(_)
+        | ObjectPredicateDef::SharesColorWith(_)
         | ObjectPredicateDef::ColorCount(_)
         | ObjectPredicateDef::Subtype(_)
         | ObjectPredicateDef::ManaValueAtMost(_)

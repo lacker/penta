@@ -116,7 +116,9 @@ fn shared_mana_restriction(restriction: ManaRestrictionDef) -> bool {
         ManaRestrictionDef::CastSpell(object)
         | ManaRestrictionDef::CannotCastSpell(object)
         | ManaRestrictionDef::ActivateAbility(object) => shared_object_predicate(object),
-        ManaRestrictionDef::CastYourCommander | ManaRestrictionDef::Payment(_) => true,
+        ManaRestrictionDef::PayCostContaining(_)
+        | ManaRestrictionDef::CastYourCommander
+        | ManaRestrictionDef::Payment(_) => true,
         ManaRestrictionDef::Special(_) => false,
     }
 }

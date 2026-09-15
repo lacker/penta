@@ -249,6 +249,8 @@ pub enum ReplacementChoiceDef {
     /// the type that replaces it; keeping the pair typed lets a later static
     /// layer-4 operation read both without interpreting labels.
     BasicLandTypePair,
+    /// Choose exactly this many different colors as this permanent enters.
+    Colors(u8),
     Player(PlayerRelation),
     /// Any number of matching cards in the entering permanent's controller's
     /// graveyard, exiled and linked to it as it arrives. The link is the

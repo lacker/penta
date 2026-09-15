@@ -232,6 +232,8 @@ fn loyalty_activations_require_sorcery_timing_sufficient_loyalty_and_once_per_tu
         ability: None,
         controller: PlayerId::Two,
         signature: None,
+        resolved_continuous_effects: Vec::new(),
+        last_known_colors: None,
         colors: None,
         chosen_permanents: Vec::new(),
         applied_effects: Vec::new(),

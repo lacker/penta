@@ -21,6 +21,8 @@ pub(in crate::game::state_checkpoint) fn current_stack_snapshot(
         .face_down
         .and_then(face_down_characteristics_snapshot);
     let has_unlocated_face_down = object.face_down.is_some() && face_down.is_none();
+    let continuous = super::stack_continuous_effect_snapshots(game, object);
+    let has_unlocated_continuous = continuous.len() != object.resolved_continuous_effects.len();
     StackSnapshot {
         object_id: object.id.0,
         kind: super::kind_snapshot(object.kind),
@@ -30,13 +32,18 @@ pub(in crate::game::state_checkpoint) fn current_stack_snapshot(
         requires_retired_object: stack_object_requires_retired(game, object),
         has_runtime_overrides: has_unlocated_ability_payload
             || has_unlocated_applied_effect
-            || has_unlocated_face_down,
+            || has_unlocated_face_down
+            || has_unlocated_continuous,
         applied_effects,
         text_changes: object
             .text_changes
             .iter()
             .map(text_change_snapshot)
             .collect(),
+        resolved_continuous_effects: continuous,
+        last_known_colors: object
+            .last_known_colors
+            .map(crate::card::ColorSet::to_flags),
         colors: object.colors.map(crate::card::ColorSet::to_flags),
         colors_of_mana_spent: object
             .cast

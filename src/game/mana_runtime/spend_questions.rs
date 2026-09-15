@@ -16,14 +16,23 @@ impl Game {
                 definition,
                 controller,
                 form,
+                alternative,
+                x,
                 ..
             } => self
-                .printed_trigger_event_object(
-                    *object,
-                    *definition,
-                    *controller,
-                    &CharacteristicContext::Stack { form: form.clone() },
-                )
+                .spell_view_characteristics(super::SpellView {
+                    object: *object,
+                    definition: *definition,
+                    controller: *controller,
+                    owner: self
+                        .card_in_nonbattlefield_zone(*object)
+                        .map_or(*controller, |(_, card)| card.owner),
+                    form,
+                    source_zone: None,
+                    x: *x,
+                    face_down: alternative.and_then(crate::card::AlternativeCastKindDef::face_down),
+                    bestow: *alternative == Some(crate::card::AlternativeCastKindDef::Bestow),
+                })
                 .map(|object| (object, true)),
             ManaPaymentPurpose::Ability { source, .. } => self
                 .battlefield
@@ -63,10 +72,20 @@ impl Game {
         }
     }
 
+    #[cfg(test)]
     pub(super) fn mana_can_pay_for(&self, mana: Mana, purpose: &ManaPaymentPurpose) -> bool {
+        self.mana_can_pay_for_cost(mana, purpose, ManaCost::default())
+    }
+
+    pub(super) fn mana_can_pay_for_cost(
+        &self,
+        mana: Mana,
+        purpose: &ManaPaymentPurpose,
+        cost: ManaCost,
+    ) -> bool {
         mana.restrictions
             .iter()
-            .all(|restriction| self.mana_restriction_allows(mana, purpose, *restriction))
+            .all(|restriction| self.mana_restriction_allows(mana, purpose, cost, *restriction))
             && match purpose {
                 ManaPaymentPurpose::Payment { snow: true, .. } => mana
                     .source
@@ -91,12 +110,13 @@ impl Game {
         &self,
         mana: Mana,
         purpose: &ManaPaymentPurpose,
+        cost: ManaCost,
         restriction: ManaRestrictionDef,
     ) -> bool {
         match &restriction {
             ManaRestrictionDef::AnyOf(alternatives) => alternatives
                 .iter()
-                .any(|alternative| self.mana_restriction_allows(mana, purpose, *alternative)),
+                .any(|alternative| self.mana_restriction_allows(mana, purpose, cost, *alternative)),
             ManaRestrictionDef::CastSpell(predicate) => {
                 self.payment_object(purpose)
                     .is_some_and(|(object, is_spell)| {
@@ -145,6 +165,9 @@ impl Game {
                 } => *commander_owner == Some(*controller),
                 _ => false,
             },
+            ManaRestrictionDef::PayCostContaining(color) => {
+                super::mana_planning::mana_cost_amount(cost, *color) > 0
+            }
             ManaRestrictionDef::Special(_) => false,
         }
     }

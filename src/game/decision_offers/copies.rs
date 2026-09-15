@@ -35,12 +35,12 @@ impl Game {
                             .all(|(_, target)| self.target_matches(restriction, *target))
                     })
             }
-            crate::card::StackTargetChangeDef::ReplaceOneWith(_) => replacement.is_some_and(
-                |replacement| {
+            crate::card::StackTargetChangeDef::ReplaceOneWith(_) => {
+                replacement.is_some_and(|replacement| {
                     let differences = target_differences(&original, candidate);
                     differences.len() == 1 && differences[0].1 == replacement
-                },
-            ),
+                })
+            }
         });
         target_lists.sort_unstable_by_key(|targets| flatten_target_selections(targets));
         target_lists.dedup();
@@ -90,11 +90,18 @@ impl Game {
         object: GameObjectId,
         targets: &[TargetSelection],
     ) {
-        let Some(index) = self.stack.iter().position(|candidate| candidate.id == object) else {
+        let Some(index) = self
+            .stack
+            .iter()
+            .position(|candidate| candidate.id == object)
+        else {
             return;
         };
         let old_targets = self.stack[index].declared_targets();
-        if self.stack[index].replace_target_selections(targets).is_err() {
+        if self.stack[index]
+            .replace_target_selections(targets)
+            .is_err()
+        {
             return;
         }
         let new_targets = self.stack[index].declared_targets();
@@ -298,8 +305,7 @@ impl Game {
                 return vec![signature.targets().to_vec()];
             };
             let candidates = self.targets_matching(slot.predicate);
-            let replacements =
-                target_replacements_preserving_unchanged(original, &candidates, &[]);
+            let replacements = target_replacements_preserving_unchanged(original, &candidates, &[]);
             let mut combined = Vec::new();
             for prefix in &choices {
                 for replacement in &replacements {
@@ -390,7 +396,7 @@ impl Game {
         targets: Vec<TargetSelection>,
         colors: Option<ColorSet>,
     ) {
-        spell.colors = colors;
+        spell.colors = colors.or(spell.colors);
         let copied_source = spell.source;
         match spell.kind {
             crate::game::StackObjectKind::Spell => {
@@ -399,8 +405,11 @@ impl Game {
                     .definition
                     .card_definition()
                     .expect("a spell copy keeps its printed card definition");
-                let card =
-                    self.unbacked_object(definition, player, CharacteristicSource::Copy(definition));
+                let card = self.unbacked_object(
+                    definition,
+                    player,
+                    CharacteristicSource::Copy(definition),
+                );
                 spell.id = card.id;
                 spell.card = card.into();
                 spell.source = None;
@@ -428,6 +437,8 @@ impl Game {
         spell.applied_effects.clear();
         // Text-changing effects are not copiable values.
         spell.text_changes.clear();
+        spell.resolved_continuous_effects.clear();
+        spell.last_known_colors = None;
         // A copy was not cast and paid no costs. Keep copied casting choices
         // and payment-object references while clearing provenance and facts
         // about mana or life actually spent.
@@ -481,7 +492,8 @@ fn target_replacements_preserving_unchanged(
     let mut replacements = vec![Vec::new()];
     for original_target in original.targets() {
         let mut options = legal.to_vec();
-        if !legal_with_original_prefix.contains(original_target) || legal.contains(original_target) {
+        if !legal_with_original_prefix.contains(original_target) || legal.contains(original_target)
+        {
             options.push(*original_target);
         }
         options.sort_unstable();

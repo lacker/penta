@@ -44,8 +44,9 @@ impl PreparedPredicate {
                     .collect::<Option<_>>()?,
             ),
             ObjectPredicateDef::Not(predicate) => Self::Not(Box::new(Self::compile(*predicate)?)),
-            ObjectPredicateDef::Any | ObjectPredicateDef::Permanent => {
-                Self::Leaf(Leaf::Constant(true))
+            ObjectPredicateDef::Any => Self::Leaf(Leaf::Constant(true)),
+            ObjectPredicateDef::InZone(zone) => {
+                Self::Leaf(Leaf::Constant(zone == crate::ZoneKind::Battlefield))
             }
             ObjectPredicateDef::Spell | ObjectPredicateDef::NoncreatureSpell => {
                 Self::Leaf(Leaf::Constant(false))

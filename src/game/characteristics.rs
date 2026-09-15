@@ -4,7 +4,7 @@ use super::{
     BattlefieldExitSnapshot, CardPartId, CardRules, CardStructure, CardSupertype, CardType,
     CardTypeSet, CopiableCharacteristics, CounterKind, DeclarativeAbilityDef,
     DoubleFacedCopiableCharacteristics, Game, ObjectCharacteristics, ObjectKind, Permanent,
-    PermanentLastKnownInformation, Target, TriggerEventObject,
+    PermanentLastKnownInformation, Target, TriggerEventObject, ZoneKind,
 };
 
 impl Game {
@@ -341,6 +341,7 @@ impl Game {
             .expect("a battlefield object has effective rules");
         let supertypes = self.permanent_supertypes(permanent).unwrap_or_default();
         TriggerEventObject {
+            zone: ZoneKind::Battlefield,
             id: permanent.card.id,
             token: permanent.card.definition.is_token(),
             types: self
@@ -397,6 +398,7 @@ impl Game {
             .permanent_supertypes_with_prospective(permanent, prospective)
             .unwrap_or_default();
         TriggerEventObject {
+            zone: ZoneKind::Battlefield,
             id: permanent.card.id,
             token: permanent.card.definition.is_token(),
             types: self
@@ -449,6 +451,7 @@ impl Game {
             object: self.trigger_event_object(permanent),
             abilities,
             last_known: PermanentLastKnownInformation {
+                colors: self.permanent_colors(permanent),
                 power: self.power(permanent),
                 toughness: self.toughness(permanent),
                 mana_value: self.permanent_mana_value(permanent),

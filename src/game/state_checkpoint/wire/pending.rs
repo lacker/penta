@@ -11,14 +11,28 @@ pub(super) fn parse_retired_objects(
     snapshots
         .iter()
         .map(|snapshot| match snapshot {
-            RetiredObjectSnapshot::Card { card: snapshot } => {
+            RetiredObjectSnapshot::Card {
+                card: snapshot,
+                power,
+                toughness,
+                colors,
+            } => {
                 let parsed = card(
                     GameObjectId(snapshot.object_id),
                     snapshot.definition,
                     player_from_index(snapshot.owner)?,
                     &game.catalog,
                 )?;
-                Ok((parsed.id, RetiredObject::Card(parsed)))
+                Ok((
+                    parsed.id,
+                    RetiredObject::Card(crate::game::RetiredCard {
+                        card: parsed,
+                        stats: power
+                            .zip(*toughness)
+                            .map(|(power, toughness)| crate::CreatureStats { power, toughness }),
+                        colors: *colors,
+                    }),
+                ))
             }
             RetiredObjectSnapshot::Stack { object } => {
                 let parsed = parse_detached_stack(object, game)?;
@@ -26,6 +40,7 @@ pub(super) fn parse_retired_objects(
             }
             RetiredObjectSnapshot::Permanent {
                 permanent,
+                colors,
                 power,
                 toughness,
                 mana_value,
@@ -36,6 +51,7 @@ pub(super) fn parse_retired_objects(
                     parsed.card.id,
                     RetiredObject::Permanent {
                         permanent: Box::new(parsed),
+                        colors: *colors,
                         power: *power,
                         toughness: *toughness,
                         mana_value: *mana_value,

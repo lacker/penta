@@ -252,6 +252,12 @@ pub(super) struct CopiedFromSnapshot {
 pub(super) enum RetiredObjectSnapshot {
     Card {
         card: DetachedCardSnapshot,
+        #[serde(default)]
+        power: Option<i16>,
+        #[serde(default)]
+        toughness: Option<i16>,
+        #[serde(default)]
+        colors: [bool; 5],
     },
     Stack {
         object: Box<DetachedStackSnapshot>,
@@ -260,6 +266,8 @@ pub(super) enum RetiredObjectSnapshot {
     /// the enum is stored in a vector of every retired object.
     Permanent {
         permanent: Box<DetachedPermanentSnapshot>,
+        #[serde(default)]
+        colors: [bool; 5],
         power: Option<i16>,
         toughness: Option<i16>,
         mana_value: u16,

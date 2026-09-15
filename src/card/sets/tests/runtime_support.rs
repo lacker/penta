@@ -705,15 +705,15 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                 ) && definition.procedure == AbilityProcedureDef::Shared
                     && (!definition.once_per_object || battlefield_only(definition.source_zones))
                     && shared_activated_costs(definition.source_zones, definition.costs)
-                    // Only the mana path enumerates one activation per
-                    // removable count, so an open-ended removal outside it
-                    // would leave the size unanswered.
+                    // An ordinary variable removal binds X. Keep mixed
+                    // variable-resource costs outside this boundary until
+                    // their enumeration computes a joint resource bound.
                     && (!definition.costs.iter().any(|cost| {
-                        matches!(
-                            cost,
-                            CostDef::RemoveAnyNumberOfCountersFromSource(_)
-                        )
-                    }) || matches!(effect, EffectDef::AddMana(_)))
+                        matches!(cost, CostDef::RemoveAnyNumberOfCountersFromSource(_))
+                    }) || (definition.costs.iter().filter(|cost| matches!(cost,
+                        CostDef::RemoveAnyNumberOfCountersFromSource(_))).count() == 1
+                        && !definition.costs.iter().any(|cost| matches!(cost,
+                            CostDef::Mana(cost) if cost.variable_x))))
                     // Conservative rather than forced: activations now
                     // enumerate their targets per affordable X, so a divided
                     // slot would have somewhere to live. Nothing prints one

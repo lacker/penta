@@ -682,11 +682,12 @@ impl Game {
         let mut limited = Vec::new();
         for event in events {
             for listener in listeners {
-                if !self.trigger_event_matches_for_controller(
+                if !self.trigger_event_matches_with_bindings(
                     listener.event,
                     event,
                     listener.capture.source.object,
                     Some(listener.capture.controller),
+                    Some(&listener.capture.context),
                 ) {
                     continue;
                 }

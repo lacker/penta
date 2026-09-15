@@ -56,7 +56,7 @@ impl Game {
             | ObjectPredicateDef::Source
             | ObjectPredicateDef::Commander
             | ObjectPredicateDef::Token
-            | ObjectPredicateDef::Permanent
+            | ObjectPredicateDef::InZone(_)
             | ObjectPredicateDef::AttachedToSource
             | ObjectPredicateDef::HasSourcesChosenScalar(_)
             | ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Binding(_))

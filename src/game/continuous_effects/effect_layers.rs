@@ -29,3 +29,59 @@ impl Game {
         }
     }
 }
+
+impl Game {
+    /// The first layer in which this static effect applies. Once an effect
+    /// begins, its later components continue even if its ability is removed
+    /// in layer 6 (CR 613.6).
+    pub(in crate::game) fn static_effect_start_layer(effect: EffectDef) -> u8 {
+        fn applied_layer(effect: AppliedEffectDef) -> u8 {
+            match effect {
+                AppliedEffectDef::Composite(effects) => effects
+                    .iter()
+                    .copied()
+                    .map(applied_layer)
+                    .min()
+                    .unwrap_or(8),
+                AppliedEffectDef::Characteristic(operation) => match operation {
+                    CharacteristicOperationDef::Color(_)
+                    | CharacteristicOperationDef::Colors(_) => 5,
+                    CharacteristicOperationDef::Abilities(_) => 6,
+                    CharacteristicOperationDef::PowerToughness(_) => 7,
+                    _ => 4,
+                },
+                AppliedEffectDef::Rule(_) => 8,
+            }
+        }
+        match effect {
+            EffectDef::StaticApply { effect, .. } => applied_layer(effect),
+            EffectDef::ConditionalStatic(conditional) => applied_layer(conditional.then.effect),
+            _ => crate::card::child_effects(effect)
+                .into_iter()
+                .map(Self::static_effect_start_layer)
+                .min()
+                .unwrap_or(8),
+        }
+    }
+}
+
+impl Game {
+    pub(in crate::game) fn static_effect_can_remove_static_abilities(effect: EffectDef) -> bool {
+        fn removes(effect: AppliedEffectDef) -> bool {
+            match effect {
+                AppliedEffectDef::Composite(effects) => effects.iter().copied().any(removes),
+                AppliedEffectDef::Characteristic(CharacteristicOperationDef::Abilities(
+                    crate::card::AbilityOperationDef::Remove(
+                        crate::card::AbilityPredicateDef::Any | crate::card::AbilityPredicateDef::Label(_),
+                    ),
+                )) => true,
+                _ => false,
+            }
+        }
+        match effect {
+            EffectDef::StaticApply { effect, .. } => removes(effect),
+            EffectDef::ConditionalStatic(conditional) => removes(conditional.then.effect),
+            _ => crate::card::child_effects(effect).into_iter().any(Self::static_effect_can_remove_static_abilities),
+        }
+    }
+}

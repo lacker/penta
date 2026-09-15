@@ -753,6 +753,10 @@ pub(super) enum DecisionContinuation {
     },
     /// The ordered pair of different basic land types an entering permanent
     /// remembers for a persistent substitution effect.
+    BattlefieldEntryColorsChoice {
+        context: ReplacementEffectContext,
+        count: u8,
+    },
     BattlefieldEntryBasicLandTypePairChoice {
         context: ReplacementEffectContext,
     },

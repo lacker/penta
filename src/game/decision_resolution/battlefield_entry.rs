@@ -238,6 +238,21 @@ impl Game {
                     self.continue_pending_events();
                 }
             }
+            DecisionContinuation::BattlefieldEntryColorsChoice { .. } => {
+                if let Some(mut pending) = self.pending_events.pop_front() {
+                    let ReplaceableEvent::BattlefieldEntry(entry) = &mut pending.event;
+                    entry.permanent.chosen_colors = options
+                        .iter()
+                        .filter_map(|option| {
+                            crate::card::ManaColor::COLORS
+                                .get(*option as usize)
+                                .copied()
+                        })
+                        .fold(crate::card::ColorSet::empty(), crate::card::ColorSet::with);
+                    self.pending_events.push_front(pending);
+                    self.continue_pending_events();
+                }
+            }
             DecisionContinuation::BattlefieldEntryBasicLandTypePairChoice { .. } => {
                 let Some((from, to)) = options
                     .first()

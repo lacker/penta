@@ -38,7 +38,8 @@ impl Game {
                     self.effect_value(value, object, context, scoped),
                 )),
                 card,
-                ZoneKind::Library,
+                self.card_in_nonbattlefield_zone(card.id)
+                    .map_or(ZoneKind::Library, |(zone, _)| zone),
                 object.source.unwrap_or(object.id),
             ),
             ObjectPredicateDef::ManaValueEqualTo(value) => self.card_object_matches(
@@ -46,13 +47,15 @@ impl Game {
                     self.effect_value(value, object, context, scoped),
                 )),
                 card,
-                ZoneKind::Library,
+                self.card_in_nonbattlefield_zone(card.id)
+                    .map_or(ZoneKind::Library, |(zone, _)| zone),
                 object.source.unwrap_or(object.id),
             ),
             _ => self.card_object_matches(
                 predicate,
                 card,
-                ZoneKind::Library,
+                self.card_in_nonbattlefield_zone(card.id)
+                    .map_or(ZoneKind::Library, |(zone, _)| zone),
                 object.source.unwrap_or(object.id),
             ),
         }
@@ -91,8 +94,40 @@ impl Game {
                             .contains(actual.as_ref())
                     });
             }
+            ObjectPredicateDef::SharesColorWith(colors) => {
+                let expected = self.color_set_value(colors, |reference| {
+                    self.effect_object_reference_id(reference, object, context, scoped)
+                });
+                return Self::target_object_id(target).is_some_and(|id| {
+                    !crate::card::ColorSet::from_flags(self.object_colors(id))
+                        .intersection(expected)
+                        .is_colorless()
+                });
+            }
             _ => {}
         }
+        let value = |value| ValueDef::Constant(self.effect_value(value, object, context, scoped));
+        let predicate = match predicate {
+            ObjectPredicateDef::ManaValueEqualTo(amount) => {
+                ObjectPredicateDef::ManaValueEqualTo(value(amount))
+            }
+            ObjectPredicateDef::ManaValueAtMostValue(amount) => {
+                ObjectPredicateDef::ManaValueAtMostValue(value(amount))
+            }
+            ObjectPredicateDef::PowerLessThan(amount) => {
+                ObjectPredicateDef::PowerLessThan(value(amount))
+            }
+            ObjectPredicateDef::PowerGreaterThan(amount) => {
+                ObjectPredicateDef::PowerGreaterThan(value(amount))
+            }
+            ObjectPredicateDef::ToughnessLessThan(amount) => {
+                ObjectPredicateDef::ToughnessLessThan(value(amount))
+            }
+            ObjectPredicateDef::ToughnessGreaterThan(amount) => {
+                ObjectPredicateDef::ToughnessGreaterThan(value(amount))
+            }
+            predicate => predicate,
+        };
         let Target::Card(card) = target else {
             return self.bound_object_matches(
                 target,

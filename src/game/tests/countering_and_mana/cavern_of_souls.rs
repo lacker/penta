@@ -552,6 +552,8 @@ fn cavern_payment(definition: CardDefinitionId) -> ManaPaymentPurpose {
         definition,
         controller: PlayerId::One,
         form: SpellForm::Part(CardPartId::PRIMARY),
+        alternative: None,
+        x: 0,
         reserved_life_payment: 0,
     }
 }

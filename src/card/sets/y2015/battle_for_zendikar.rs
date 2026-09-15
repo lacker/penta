@@ -1,4 +1,6 @@
 //! BFZ card records required by supported formats.
+use crate::card::TriggerConditionDef;
+use crate::card::ValueComparisonDef;
 
 use super::CardRecord;
 use super::PrintingRecord;
@@ -62,6 +64,41 @@ const ELDRAZI_SCION_TOKEN: TokenCharacteristics =
             EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless)),
         )])
         .with_art(CardArt::new("b999a0fe-d2d0-4367-9abb-6ce5f3764f19", "Izzy"));
+
+// BFZ 14 — Titan's Presence
+pub(in crate::card::sets) static TITANS_PRESENCE: CardRecord = CardRecord::new(
+    "Titan's Presence",
+    "39d5e3ab-9719-4918-af4f-25bda5401191",
+    "Slawomir Maniak",
+    CardRules::new_instant(mana_cost!("{3}")).with_abilities(&[
+        AbilityDef::spell_with_additional_cost(
+            "As an additional cost to cast this spell, reveal a colorless creature card from \
+             your hand. Exile target creature if its power is less than or equal to the \
+             revealed card's power.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            CostDef::RevealCardFromHand(ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::ColorCount(0),
+            ])),
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                    left: ValueDef::ObjectPower(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+                    comparison: ComparisonDef::LessOrEqual,
+                    right: ValueDef::ObjectPower(ObjectRefDef::AdditionalCostObject(
+                        crate::AdditionalCostObjectIndex(0),
+                    )),
+                }),
+                then: &EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Exile,
+                    ZonePlacement::Top,
+                ),
+            },
+        ),
+    ]),
+);
 
 // BFZ 15 — Ulamog, the Ceaseless Hunger
 pub(in crate::card::sets) static ULAMOG_THE_CEASELESS_HUNGER: CardRecord = CardRecord::new(
@@ -154,18 +191,16 @@ pub(in crate::card::sets) static ELDRAZI_SKYSPAWNER: CardRecord = CardRecord::ne
     "Chase Stone",
     // Three mana for two bodies and a ritual: the Scion is what turns the
     // flier into a fourth-turn six-drop.
-    CardRules::new_creature(mana_cost!("{2}{U}"), &["Eldrazi", "Drone"], 2, 1)
-        .printed_colors(&[])
-        .with_abilities(&[
-            abilities::devoid(),
-            abilities::flying(),
-            abilities::enters_trigger(
-                "When this creature enters, create a 1/1 colorless Eldrazi \
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Eldrazi", "Drone"], 2, 1).with_abilities(&[
+        abilities::devoid(),
+        abilities::flying(),
+        abilities::enters_trigger(
+            "When this creature enters, create a 1/1 colorless Eldrazi \
              Scion creature token. It has \"Sacrifice this token: Add \
              {C}.\"",
-                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(ELDRAZI_SCION_TOKEN))),
-            ),
-        ]),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(ELDRAZI_SCION_TOKEN))),
+        ),
+    ]),
 );
 
 // BFZ 106 — Carrier Thrall
@@ -176,7 +211,6 @@ pub(in crate::card::sets) static CARRIER_THRALL: CardRecord = CardRecord::new(
     // Two mana that trades and still leaves a mana behind, which is why the
     // body is aggressive and the death trigger is not.
     CardRules::new_creature(mana_cost!("{1}{B}"), &["Vampire"], 2, 1).with_abilities(&[
-        abilities::devoid(),
         abilities::dies_trigger(
             "When this creature dies, create a 1/1 colorless Eldrazi \
              Scion creature token. It has \"Sacrifice this token: Add \
@@ -238,45 +272,68 @@ pub(in crate::card::sets) static UNNATURAL_AGGRESSION: CardRecord = CardRecord::
     "Unnatural Aggression",
     "8293c66d-9a9b-4817-9bc3-ffd57fda290c",
     "James Ryman",
-    CardRules::new_instant(mana_cost!("{2}{G}"))
-        .printed_colors(&[])
-        .with_abilities(&[
-            abilities::devoid(),
-            AbilityDef::spell_with_targets(
-                "Target creature you control fights target creature an \
+    CardRules::new_instant(mana_cost!("{2}{G}")).with_abilities(&[
+        abilities::devoid(),
+        AbilityDef::spell_with_targets(
+            "Target creature you control fights target creature an \
                  opponent controls. If the creature an opponent controls \
                  would die this turn, exile it instead.",
-                &[
-                    AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
-                        object: ObjectPredicateDef::HasType(CardType::Creature),
-                        zones: &[ZoneKind::Battlefield],
-                        controller: Some(PlayerRelation::You),
-                        owner: None,
-                    }),
-                    AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
-                        object: ObjectPredicateDef::HasType(CardType::Creature),
-                        zones: &[ZoneKind::Battlefield],
-                        controller: Some(PlayerRelation::Opponent),
-                        owner: None,
-                    }),
-                ],
-                EffectDef::Sequence(&[
-                    EffectDef::Fight {
-                        first: ObjectRefDef::Target(TargetIndex::PRIMARY),
-                        second: ObjectRefDef::Target(TargetIndex(1)),
-                        excess: None,
-                    },
-                    // This sentence is independent of whether the fight dealt damage. If the
-                    // opponent's creature remains a legal target, any way it would die later
-                    // this turn is replaced with exile.
-                    EffectDef::Apply {
-                        recipient: EffectRecipientDef::Target(TargetIndex(1)),
-                        effect: AppliedEffectDef::Rule(AppliedRuleDef::ExileInsteadOfDying),
-                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                    },
+            &[
+                AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                }),
+                AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::Opponent),
+                    owner: None,
+                }),
+            ],
+            EffectDef::Sequence(&[
+                EffectDef::Fight {
+                    first: ObjectRefDef::Target(TargetIndex::PRIMARY),
+                    second: ObjectRefDef::Target(TargetIndex(1)),
+                    excess: None,
+                },
+                // This sentence is independent of whether the fight dealt damage. If the
+                // opponent's creature remains a legal target, any way it would die later
+                // this turn is replaced with exile.
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex(1)),
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::ExileInsteadOfDying),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ]),
+        ),
+    ]),
+);
+
+// BFZ 204 — Forerunner of Slaughter
+pub(in crate::card::sets) static FORERUNNER_OF_SLAUGHTER: CardRecord = CardRecord::new(
+    "Forerunner of Slaughter",
+    "a38aba41-a83f-47ef-9fc9-ea3424fc6d64",
+    "James Zapata",
+    CardRules::new_creature(mana_cost!("{B}{R}"), &["Eldrazi", "Drone"], 3, 2).with_abilities(&[
+        abilities::devoid(),
+        AbilityDef::activated_with_targets(
+            "{1}: Target colorless creature gains haste until end of turn.",
+            &[CostDef::Mana(mana_cost!("{1}"))],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::ColorCount(0),
                 ]),
-            ),
-        ]),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::add_ability(&abilities::haste()),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // BFZ 209 — Bring to Light
@@ -417,6 +474,7 @@ pub(in crate::card::sets) static SUNKEN_HOLLOW: CardRecord = CardRecord::new(
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &TITANS_PRESENCE,
     &ULAMOG_THE_CEASELESS_HUNGER,
     &VOID_WINNOWER,
     &FELIDAR_CUB,
@@ -426,6 +484,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &VAMPIRIC_RITES,
     &SURE_STRIKE,
     &UNNATURAL_AGGRESSION,
+    &FORERUNNER_OF_SLAUGHTER,
     &BRING_TO_LIGHT,
     &HEDRON_ARCHIVE,
     &SANCTUM_OF_UGIN,

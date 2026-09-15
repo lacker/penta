@@ -36,6 +36,18 @@ impl Game {
                 stack_object.chosen_permanents.push(spent);
             }
             match cost {
+                CostDef::RevealCardFromHand(_) => {
+                    let card = self.players[stack_object.controller.index()]
+                        .hand
+                        .iter()
+                        .find(|card| card.id == spent)?;
+                    self.events.push(crate::game::GameEvent::CardRevealed {
+                        player: stack_object.controller,
+                        card: spent,
+                        definition: card.definition,
+                    });
+                    continue;
+                }
                 CostDef::Perform(program) => {
                     let context = super::TriggerContext::empty().into();
                     let scoped =

@@ -21,6 +21,8 @@ fn cast_purpose(definition: CardDefinitionId) -> ManaPaymentPurpose {
         controller: PlayerId::One,
         commander_owner: None,
         form: SpellForm::Part(CardPartId::PRIMARY),
+        alternative: None,
+        x: 0,
         reserved_life_payment: 0,
     }
 }

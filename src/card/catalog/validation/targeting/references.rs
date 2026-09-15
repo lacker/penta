@@ -603,6 +603,10 @@ fn validate_value_target_references(
         | ValueDef::TargetManaValue(target) => validate_target_index(target, target_count),
         // Whatever the amount reads has to be nameable where it is read, the
         // same as any other object reference in the program.
+        ValueDef::ColorIntersectionCount(sets) => sets.iter().try_for_each(|set| match set {
+            crate::card::ColorSetDef::Fixed(_) => Ok(()),
+            crate::card::ColorSetDef::OfObject(reference) | crate::card::ColorSetDef::ChosenBy(reference) => validate_object_reference(*reference, target_count, scope),
+        }),
         ValueDef::ColorCount(reference)
         | ValueDef::ObjectPower(reference)
         | ValueDef::ObjectManaValue(reference) => {
@@ -746,6 +750,13 @@ fn validate_object_predicate_references(
     scope: BindingScope<'_>,
 ) -> Result<(), GrantedAbilityValidationError> {
     match predicate {
+        ObjectPredicateDef::SharesColorWith(set) => match set {
+            crate::card::ColorSetDef::Fixed(_) => Ok(()),
+            crate::card::ColorSetDef::OfObject(reference)
+            | crate::card::ColorSetDef::ChosenBy(reference) => {
+                validate_object_reference(reference, target_count, scope)
+            }
+        },
         ObjectPredicateDef::All(predicates) | ObjectPredicateDef::AnyOf(predicates) => {
             for predicate in predicates {
                 validate_object_predicate_references(*predicate, target_count, scope)?;

@@ -272,6 +272,30 @@ pub(in crate::card::sets) static GREAT_OAK_GUARDIAN: CardRecord = CardRecord::ne
     ]),
 );
 
+// C15 54 — Seal of the Guildpact
+pub(in crate::card::sets) static SEAL_OF_THE_GUILDPACT: CardRecord = CardRecord::new(
+    "Seal of the Guildpact",
+    "b6188abb-2402-4ac8-96e9-d4ee8d52ef1b",
+    "Franz Vohwinkel",
+    CardRules::new_artifact(mana_cost!("{5}")).with_abilities(&[
+        AbilityDef::as_enters(
+            "As this artifact enters, choose two colors.",
+            ReplacementEffectDef::Choose(crate::card::ReplacementChoiceDef::Colors(2)),
+        ),
+        AbilityDef::static_ability(
+            "Each spell you cast costs {1} less to cast for each of the chosen colors it is.",
+            EffectDef::ModifyCost(crate::card::CostModificationDef::reduce_spell(
+                ObjectPredicateDef::Any,
+                PlayerRelation::You,
+                ValueDef::ColorIntersectionCount(&[
+                    crate::card::ColorSetDef::OfObject(crate::card::ObjectRefDef::ResolvingObject),
+                    crate::card::ColorSetDef::ChosenBy(crate::card::ObjectRefDef::Source),
+                ]),
+            )),
+        ),
+    ]),
+);
+
 // C15 55 — Thought Vessel
 pub(in crate::card::sets) static THOUGHT_VESSEL: CardRecord = CardRecord::new(
     "Thought Vessel",
@@ -345,6 +369,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &FIERY_CONFLUENCE,
     &CALLER_OF_THE_PACK,
     &GREAT_OAK_GUARDIAN,
+    &SEAL_OF_THE_GUILDPACT,
     &THOUGHT_VESSEL,
     &COMMAND_BEACON,
 ];

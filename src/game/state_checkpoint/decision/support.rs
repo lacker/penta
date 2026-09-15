@@ -335,6 +335,7 @@ pub(in crate::game::state_checkpoint) fn decision_referenced_object_ids(
         | DecisionContinuation::Vote { .. }
         | DecisionContinuation::BattlefieldEntryScalarChoice { .. }
         | DecisionContinuation::BattlefieldEntryBasicLandTypePairChoice { .. }
+        | DecisionContinuation::BattlefieldEntryColorsChoice { .. }
         | DecisionContinuation::BattlefieldEntryCopy { .. } => {}
     }
     ids

@@ -161,6 +161,8 @@ fn mana_pool_doubling_lotus_mana_cannot_cast_an_ordinary_spell_or_eligible_legen
             definition,
             controller: PlayerId::One,
             form: SpellForm::Part(CardPartId::PRIMARY),
+            alternative: None,
+            x: 0,
             reserved_life_payment: 0,
         };
         assert_eq!(game.eligible_mana_pool(PlayerId::One, &spell).total(), 0);
@@ -215,6 +217,8 @@ fn spell_payment(game: &Game, object: GameObjectId, controller: PlayerId) -> Man
         definition: card.definition,
         controller,
         form: SpellForm::Part(CardPartId::PRIMARY),
+        alternative: None,
+        x: 0,
         reserved_life_payment: 0,
     }
 }

@@ -18,7 +18,9 @@ impl Game {
         let x_reduction = reduction.generic.min(x_amount);
         cost.generic = cost.generic.saturating_sub(reduction.generic - x_reduction);
         let remaining_x = x_amount - x_reduction;
-        let restriction = self.catalog.get(view.definition)
+        let restriction = self
+            .catalog
+            .get(view.definition)
             .and_then(|definition| definition.rules.x_spend_restriction());
         if let Some(color) = restriction {
             cost.x_multiplier = 1;
@@ -50,9 +52,15 @@ impl Game {
             .rev()
             .find(|x| {
                 let payable = self.apply_spell_cost_reduction(
-                    cost, reduction, super::SpellView { x: *x, ..view },
+                    cost,
+                    reduction,
+                    super::SpellView { x: *x, ..view },
                 );
-                self.can_pay_cost_for(view.controller, payable, 0, purpose)
+                let mut purpose = purpose.clone();
+                if let ManaPaymentPurpose::Spell { x: chosen_x, .. } = &mut purpose {
+                    *chosen_x = *x;
+                }
+                self.can_pay_cost_for(view.controller, payable, 0, &purpose)
             })
             .unwrap_or(0)
     }

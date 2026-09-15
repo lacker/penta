@@ -148,6 +148,8 @@ impl Game {
             chosen_permanents,
             applied_effects: Vec::new(),
             text_changes,
+            resolved_continuous_effects: Vec::new(),
+            last_known_colors: None,
             colors: None,
             cast: None,
             face_down: None,
@@ -577,6 +579,9 @@ impl Game {
                             ),
                             &payment_purpose,
                         )),
+                        CostDef::RemoveAnyNumberOfCountersFromSource(kind) => {
+                            Some(permanent.counters(*kind))
+                        }
                         _ => None,
                     })
                     .unwrap_or(0);

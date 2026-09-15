@@ -279,6 +279,11 @@ pub(in crate::game::state_checkpoint) enum DecisionContinuationSnapshot {
         effect: ReplacementEffectLocator,
         choices: Vec<String>,
     },
+    BattlefieldEntryColorsChoice {
+        context: ReplacementEffectContextSnapshot,
+        effect: ReplacementEffectLocator,
+        count: u8,
+    },
     BattlefieldEntryBasicLandTypePairChoice {
         context: ReplacementEffectContextSnapshot,
         effect: ReplacementEffectLocator,

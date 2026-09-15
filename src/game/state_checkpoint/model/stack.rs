@@ -25,6 +25,11 @@ pub(in crate::game::state_checkpoint) struct StackSnapshot {
     pub(in crate::game::state_checkpoint) has_runtime_overrides: bool,
     pub(in crate::game::state_checkpoint) applied_effects: Vec<AppliedStackEffectSnapshot>,
     pub(in crate::game::state_checkpoint) text_changes: Vec<TextChangeSnapshot>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub(in crate::game::state_checkpoint) resolved_continuous_effects:
+        Vec<super::ResolvedContinuousEffectSnapshot>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(in crate::game::state_checkpoint) last_known_colors: Option<[bool; 5]>,
     pub(in crate::game::state_checkpoint) colors: Option<[bool; 5]>,
     /// Which colours paid for this spell, for converge. Additive: a payload
     /// written before converge existed carries none, and reconstructs as a
@@ -152,6 +157,11 @@ pub(in crate::game::state_checkpoint) struct DetachedStackSnapshot {
     pub(in crate::game::state_checkpoint) has_runtime_overrides: bool,
     pub(in crate::game::state_checkpoint) applied_effects: Vec<AppliedStackEffectSnapshot>,
     pub(in crate::game::state_checkpoint) text_changes: Vec<TextChangeSnapshot>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub(in crate::game::state_checkpoint) resolved_continuous_effects:
+        Vec<super::ResolvedContinuousEffectSnapshot>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(in crate::game::state_checkpoint) last_known_colors: Option<[bool; 5]>,
     pub(in crate::game::state_checkpoint) colors: Option<[bool; 5]>,
     /// Which colours paid for this spell, for converge. Additive: a payload
     /// written before converge existed carries none, and reconstructs as a

@@ -442,6 +442,7 @@ impl From<TriggerContext> for EffectResolutionContext {
 #[derive(Clone, Debug, Eq, PartialEq)]
 #[allow(clippy::struct_excessive_bools)]
 pub(super) struct TriggerEventObject {
+    pub(super) zone: ZoneKind,
     pub(super) id: GameObjectId,
     pub(super) token: bool,
     pub(super) types: CardTypeSet,

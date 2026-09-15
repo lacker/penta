@@ -129,6 +129,7 @@ impl Game {
             supertypes[supertype.index()] = rules.has_supertype(supertype);
         }
         Some(TriggerEventObject {
+            zone: ZoneKind::Stack,
             id,
             token,
             types: rules.types(),
@@ -267,6 +268,9 @@ impl Game {
             }
         }
         let mut object = TriggerEventObject {
+            zone: context
+                .self_characteristic_zone()
+                .unwrap_or(ZoneKind::Battlefield),
             id,
             token: false,
             types,
@@ -288,6 +292,7 @@ impl Game {
             saddled: false,
         };
         self.apply_static_subtype_effects_to_object(&mut object, context);
+        self.apply_color_effects_to_object(&mut object);
         Some(object)
     }
 

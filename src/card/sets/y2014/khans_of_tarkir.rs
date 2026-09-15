@@ -395,6 +395,39 @@ pub(in crate::card::sets) static BRIBER_S_PURSE: CardRecord = CardRecord::new(
     ]),
 );
 
+// KTK 220 — Ghostfire Blade
+pub(in crate::card::sets) static GHOSTFIRE_BLADE: CardRecord = CardRecord::new(
+    "Ghostfire Blade",
+    "711145d8-5178-4fdc-8494-4ab680f55b1a",
+    "Cyril Van Der Haegen",
+    CardRules::new_artifact(mana_cost!("{1}"))
+        .with_subtypes(&["Equipment"])
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Equipped creature gets +2/+2.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(2),
+                    ),
+                },
+            ),
+            abilities::equip(&[CostDef::Mana(mana_cost!("{3}"))], "Equip {3}"),
+            AbilityDef::static_ability(
+                "This Equipment's equip ability costs {2} less to activate if it targets a \
+             colorless creature.",
+                EffectDef::ModifyCost(crate::card::CostModificationDef::AbilityReduction {
+                    abilities: crate::card::AbilityKindDef::Equip,
+                    permanent: ObjectPredicateDef::Source,
+                    target: Some(ObjectPredicateDef::ColorCount(0)),
+                    amount: ValueDef::Constant(2),
+                    minimum: 0,
+                }),
+            ),
+        ]),
+);
+
 // KTK 227 — Ugin's Nexus
 pub(in crate::card::sets) static UGINS_NEXUS: CardRecord = CardRecord::new(
     "Ugin's Nexus",
@@ -792,6 +825,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &TEMUR_ASCENDANCY,
     &ALTAR_OF_THE_BROOD,
     &BRIBER_S_PURSE,
+    &GHOSTFIRE_BLADE,
     &UGINS_NEXUS,
     &BLOODFELL_CAVES,
     &BLOSSOMING_SANDS,

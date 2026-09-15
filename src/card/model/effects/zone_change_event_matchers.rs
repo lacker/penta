@@ -15,6 +15,8 @@ pub enum ZoneChangeObservationDef {
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct ZoneChangeEventMatcherDef {
     pub object: ObjectPredicateDef,
+    /// Restrict the event to exact objects captured by the installing resolution.
+    pub bound_objects: Option<crate::Binding>,
     pub from: Option<ZoneKind>,
     pub to: Option<ZoneKind>,
     pub observation: ZoneChangeObservationDef,
@@ -48,6 +50,7 @@ impl ZoneChangeEventMatcherDef {
             cast_from: None,
             cast_by: None,
             previously_damaged_by: None,
+            bound_objects: None,
         }
     }
 
@@ -55,6 +58,12 @@ impl ZoneChangeEventMatcherDef {
     pub const fn cast_from(mut self, zone: ZoneKind, player: PlayerRelation) -> Self {
         self.cast_from = Some(zone);
         self.cast_by = Some(player);
+        self
+    }
+
+    #[must_use]
+    pub const fn among(mut self, binding: crate::Binding) -> Self {
+        self.bound_objects = Some(binding);
         self
     }
 

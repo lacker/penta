@@ -146,6 +146,7 @@ mod copy_effects;
 mod copy_transform;
 mod counted_bodies;
 
+mod color_layers;
 mod counted_rituals;
 mod counted_statics;
 mod counter_conditions;

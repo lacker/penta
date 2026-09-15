@@ -520,6 +520,7 @@ pub(super) fn parse_battlefield(
                         parse_observed_basic_land_type_substitution(
                             shown.get("chosenBasicLandTypeSubstitution"),
                         ),
+                    chosen_colors: parse_observed_chosen_colors(shown.get("chosenColors"))?,
                     chosen_color: shown
                         .get("chosenColor")
                         .and_then(Value::as_str)
@@ -733,6 +734,10 @@ fn parse_permanent(
     permanent.chosen_basic_land_type = shown.chosen_basic_land_type;
     permanent.chosen_basic_land_type_substitution = shown.chosen_basic_land_type_substitution;
     permanent.chosen_color = shown.chosen_color;
+    permanent.chosen_colors = crate::card::ColorSet::from_flags(state.chosen_colors);
+    if permanent.chosen_colors != shown.chosen_colors {
+        return Err("chosenColors disagrees with permanent checkpoint".into());
+    }
     permanent.chosen_card_name = shown.chosen_card_name;
     permanent.chosen_tokens = state
         .chosen_tokens
@@ -901,6 +906,7 @@ pub(super) fn parse_detached_permanent(
                 .chosen_basic_land_type_substitution
                 .map(|[from, to]| (parse_basic_land_type(from), parse_basic_land_type(to))),
             chosen_color: snapshot.chosen_color.map(parse_mana_color),
+            chosen_colors: crate::card::ColorSet::from_flags(snapshot.state.chosen_colors),
             chosen_card_name: snapshot.chosen_card_name.clone(),
             chosen_card_name_binding: snapshot.chosen_card_name_binding.clone(),
         },

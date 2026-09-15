@@ -636,6 +636,8 @@ pub(in crate::game) fn spell(
         chosen_permanents: Vec::new(),
         applied_effects: Vec::new(),
         text_changes: Vec::new(),
+        resolved_continuous_effects: Vec::new(),
+        last_known_colors: None,
         colors: None,
         cast: None,
         face_down: None,

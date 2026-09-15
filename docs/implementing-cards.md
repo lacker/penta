@@ -769,3 +769,35 @@ A self-directed static characteristic clause that also applies outside the game
 uses `.with_outside_game()`, in addition to any `.with_source_zones(...)` list.
 Listing every game zone does not imply outside-game scope. Deck requirements
 and runtime characteristic queries share discovery of these clauses.
+
+## Colors, zones, and restricted mana
+
+Use `ObjectPredicateDef::InZone` for zone membership. A permanent is an object
+on the battlefield, so combine `InZone(Battlefield)` with characteristic
+predicates when a restriction also needs a color or subtype. Mana restrictions
+compose `CastSpell`, `ActivateAbility`, and `AnyOf`; `PayCostContaining` tests
+the fixed mana symbols in the total cost being paid.
+
+Devoid and `AbilityDef::define_colors` define intrinsic colors in every zone.
+`printed_color_set` retains the colors supplied by the mana cost or indicator;
+`color_set` includes intrinsic definitions. External color changes apply in
+layer 5. Removing abilities in layer 6 does not reverse those changes. Resolved
+spell color effects carry onto the resulting permanent, but spell copies keep
+only copiable color exceptions. Retired objects retain last-known colors;
+retired cards also retain power and toughness for reveal costs.
+
+`ReplacementChoiceDef::Colors(n)` chooses distinct colors as a permanent enters.
+`ColorSetDef::ChosenBy`, `OfObject`, and `Fixed` provide sets for
+`SharesColorWith` and `ColorIntersectionCount`. Colorless is the empty set and
+is never one of the five selectable colors.
+
+Equipment abilities carry `AbilityKindDef::Equip`; target-dependent ability
+cost reductions use `AbilityReduction.target` and the announced targets.
+Variable loyalty costs compose `Loyalty(0)` with
+`RemoveAnyNumberOfCountersFromSource(Loyalty)`, preserving loyalty timing and
+usage limits while binding the chosen removal to X.
+
+Installed zone-change triggers can use `ZoneChangeEventMatcherDef::among` to
+watch exact objects saved in an object-set binding. Matching happens before a
+once-only listener is consumed, and the installing resolution's bindings remain
+available after its source leaves the battlefield.

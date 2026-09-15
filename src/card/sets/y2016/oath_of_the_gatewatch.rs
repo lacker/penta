@@ -270,6 +270,37 @@ pub(in crate::card::sets) static MAKE_A_STAND: CardRecord = CardRecord::new(
     )]),
 );
 
+// OGW 42 — Cultivator Drone
+pub(in crate::card::sets) static CULTIVATOR_DRONE: CardRecord = CardRecord::new(
+    "Cultivator Drone",
+    "bbe4bb6f-bec6-49d2-99d7-e3750a0ea03f",
+    "Slawomir Maniak",
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Eldrazi", "Drone"], 2, 3).with_abilities(&[
+        abilities::devoid(),
+        AbilityDef::activated_mana(
+            "{T}: Add {C}. Spend this mana only to cast a colorless spell, activate an ability \
+             of a colorless permanent, or pay a cost that contains {C}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(
+                AddManaEffectDef::one(ManaColor::Colorless).with_restrictions(&[
+                    crate::card::ManaRestrictionDef::AnyOf(&[
+                        crate::card::ManaRestrictionDef::CastSpell(ObjectPredicateDef::ColorCount(
+                            0,
+                        )),
+                        crate::card::ManaRestrictionDef::ActivateAbility(ObjectPredicateDef::All(
+                            &[
+                                ObjectPredicateDef::InZone(ZoneKind::Battlefield),
+                                ObjectPredicateDef::ColorCount(0),
+                            ],
+                        )),
+                        crate::card::ManaRestrictionDef::PayCostContaining(ManaColor::Colorless),
+                    ]),
+                ]),
+            ),
+        ),
+    ]),
+);
+
 // OGW 44 — Dimensional Infiltrator
 pub(in crate::card::sets) static DIMENSIONAL_INFILTRATOR: CardRecord = CardRecord::new(
     "Dimensional Infiltrator",
@@ -586,6 +617,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &THOUGHT_KNOT_SEER,
     &WARPING_WAIL,
     &MAKE_A_STAND,
+    &CULTIVATOR_DRONE,
     &DIMENSIONAL_INFILTRATOR,
     &SPHINX_OF_THE_FINAL_WORD,
     &CORPSE_CHURN,

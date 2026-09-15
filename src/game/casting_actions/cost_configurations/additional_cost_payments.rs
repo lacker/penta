@@ -66,6 +66,9 @@ impl Game {
                     .into_iter()
                     .collect()
             }
+            CostDef::RevealCardFromHand(_) => {
+                self.spell_object_additional_cost_payments_for_count(cost, 1, card, player, scale.x)
+            }
             CostDef::Perform(program) => self.spell_action_cost_payments(program, card, player),
             CostDef::Choice(costs) => costs
                 .iter()

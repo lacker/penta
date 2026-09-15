@@ -65,7 +65,7 @@ impl Game {
                 if !matches!(
                     attached.definition.definition,
                     DeclarativeAbilityDef::Static(_)
-                ) || !self.ability_survives_resolved_operations(
+                ) || !self.ability_is_present_after_layer_six(
                     source,
                     Self::authored_ability_origin(source_presentation, attached.id),
                 ) {
@@ -251,7 +251,7 @@ impl Game {
                 ) {
                     continue;
                 }
-                if !self.ability_survives_resolved_operations(
+                if !self.ability_is_present_after_layer_six(
                     source,
                     Self::authored_ability_origin(source_presentation, attached.id),
                 ) {
@@ -308,7 +308,7 @@ impl Game {
                 ) {
                     continue;
                 }
-                if !self.ability_survives_resolved_operations(
+                if !self.ability_is_present_after_layer_six(
                     source,
                     Self::authored_ability_origin(source_presentation, attached.id),
                 ) {
@@ -590,7 +590,7 @@ impl Game {
                 {
                     continue;
                 }
-                if !self.ability_survives_resolved_operations(
+                if !self.ability_is_present_after_layer_six(
                     source,
                     Self::authored_ability_origin(source_presentation, attached.id),
                 ) {

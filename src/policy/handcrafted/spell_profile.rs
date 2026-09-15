@@ -699,6 +699,7 @@ impl HandcraftedPolicy {
             | ValueDef::TargetLibrarySize(_)
             | ValueDef::LifeTotal(_)
             | ValueDef::StartingLifeTotal
+            | ValueDef::ColorIntersectionCount(_)
             | ValueDef::ColorCount(_)
             | ValueDef::TargetManaValue(_)
             | ValueDef::IfCreatureDiedThisTurn(_)

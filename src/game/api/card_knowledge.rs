@@ -16,7 +16,7 @@ impl Game {
             ZoneKind::Library => false,
             ZoneKind::Exile => {
                 !self.exiled_card_is_face_down(card.id)
-                    || (card.owner == viewer && !self.exiled_card_is_hidden_from_owner(card.id))
+                    || self.may_look_at_face_down_exile(card.id, viewer)
             }
             _ => true,
         };

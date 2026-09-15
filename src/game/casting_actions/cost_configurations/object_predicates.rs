@@ -83,7 +83,7 @@ impl Game {
                 (object, ZoneKind::Battlefield)
             }
             CostDef::Tap { object, .. } => (object, ZoneKind::Battlefield),
-            CostDef::Discard { object, .. } => (object, ZoneKind::Hand),
+            CostDef::Discard { object, .. } | CostDef::RevealCardFromHand(object) => (object, ZoneKind::Hand),
             CostDef::Exile { object, from, .. } => (object, from),
             _ => return Vec::new(),
         };

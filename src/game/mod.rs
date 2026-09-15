@@ -66,6 +66,7 @@ mod casting_actions;
 mod casting_state;
 mod characteristic_state;
 mod characteristics;
+mod color_values;
 mod combat;
 mod combat_state;
 mod commander;
@@ -368,14 +369,30 @@ impl ObjectInstance {
     }
 }
 
+/// Characteristics frozen when a nonbattlefield card leaves its zone.
+#[derive(Clone, Debug, Eq, PartialEq)]
+struct RetiredCard {
+    card: CardInstance,
+    stats: Option<crate::CreatureStats>,
+    colors: [bool; 5],
+}
+
+impl std::ops::Deref for RetiredCard {
+    type Target = CardInstance;
+    fn deref(&self) -> &Self::Target {
+        &self.card
+    }
+}
+
 /// A retired object incarnation retained for last-known-information queries.
 /// Zone changes still create a new [`GameObjectId`]; this record deliberately
 /// never follows the physical card into its new zone.
 #[derive(Clone, Debug, Eq, PartialEq)]
 enum RetiredObject {
-    Card(CardInstance),
+    Card(RetiredCard),
     Permanent {
         permanent: Box<Permanent>,
+        colors: [bool; 5],
         power: Option<i16>,
         toughness: Option<i16>,
         mana_value: u16,

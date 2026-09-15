@@ -118,7 +118,11 @@ impl Game {
         &self,
         obligation: &ManaPaymentObligation,
     ) -> bool {
-        let pool = self.eligible_mana_pool(obligation.player, &obligation.purpose);
+        let pool = self.eligible_mana_pool_for_cost(
+            obligation.player,
+            &obligation.purpose,
+            obligation.cost,
+        );
         super::super::mana_planning::payment_remainder(
             pool,
             obligation.cost,

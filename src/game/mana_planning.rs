@@ -285,7 +285,7 @@ impl Game {
         purpose: &ManaPaymentPurpose,
     ) -> bool {
         let (cost, x) = self.restrict_x(cost, 0, purpose);
-        let mut spare = self.eligible_mana_pool(player, purpose);
+        let mut spare = self.eligible_mana_pool_for_cost(player, purpose, cost);
         spare.add_color(
             ManaColor::Colorless,
             self.repeatable_life_mana_available(player),
@@ -694,12 +694,13 @@ impl Game {
             return (cost, x);
         }
         let (mut residual, restricted_x) = self.restrict_x(cost, x, purpose);
-        let mut actual = self.eligible_mana_pool(
+        let mut actual = self.eligible_mana_pool_for_cost(
             match purpose {
                 ManaPaymentPurpose::Spell { controller, .. } => *controller,
                 _ => unreachable!("only spell payments use direct contributions"),
             },
             purpose,
+            cost,
         );
         let mut convoke = ManaPool::default();
         let mut generic_only = 0_u16;
@@ -777,7 +778,7 @@ impl Game {
              \n  pool {:?}, eligible for this purpose {:?}, repeatable life mana {}",
             self.can_pay_cost_for(player, cost, x, purpose),
             self.players[player.index()].mana_pool,
-            self.eligible_mana_pool(player, purpose),
+            self.eligible_mana_pool_for_cost(player, purpose, cost),
             self.repeatable_life_mana_available(player),
         );
         for permanent in self

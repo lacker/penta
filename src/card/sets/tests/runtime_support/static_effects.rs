@@ -46,6 +46,7 @@ fn shared_cost_modification(source_zones: &[ZoneKind], modification: CostModific
         CostModificationDef::AbilityReduction {
             abilities,
             permanent,
+            target,
             amount,
             ..
         } => {
@@ -55,8 +56,10 @@ fn shared_cost_modification(source_zones: &[ZoneKind], modification: CostModific
                     crate::card::AbilityKindDef::Activated
                         | crate::card::AbilityKindDef::ActivatedMana
                         | crate::card::AbilityKindDef::NonManaActivated
+                        | crate::card::AbilityKindDef::Equip
                 )
                 && shared_object_predicate(permanent)
+                && target.is_none_or(shared_object_predicate)
                 && matches!(
                     amount,
                     crate::card::ValueDef::Constant(_)
@@ -115,9 +118,10 @@ fn shared_cost_modification(source_zones: &[ZoneKind], modification: CostModific
 
 fn shared_spell_cost_value(value: ValueDef) -> bool {
     match value {
-        ValueDef::Constant(_) | ValueDef::DistinctTargets | ValueDef::CardsDiscardedThisTurn(_) => {
-            true
-        }
+        ValueDef::CardsDiscardedThisTurn(_)
+        | ValueDef::Constant(_)
+        | ValueDef::DistinctTargets
+        | ValueDef::ColorIntersectionCount(_) => true,
         ValueDef::ColorCount(reference) => matches!(
             reference,
             ObjectRefDef::Source | ObjectRefDef::CreatingSource | ObjectRefDef::AttachedToSource
@@ -848,7 +852,8 @@ fn static_stat_value(value: crate::card::ValueDef) -> bool {
         | crate::card::ValueDef::CountersOnSource(_)
         // Domain, read live off the lands on the battlefield the same way a
         // battlefield count is.
-        | crate::card::ValueDef::BasicLandTypesControlled(_) => true,
+        | crate::card::ValueDef::BasicLandTypesControlled(_)
+        | crate::card::ValueDef::ColorIntersectionCount(_) => true,
         crate::card::ValueDef::ColorCount(reference) => matches!(
             reference,
             ObjectRefDef::Source | ObjectRefDef::CreatingSource | ObjectRefDef::AttachedToSource

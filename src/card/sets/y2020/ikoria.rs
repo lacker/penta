@@ -5453,6 +5453,7 @@ pub(in crate::card::sets) static ZIRDA_THE_DAWNWAKER: CardRecord = CardRecord::n
                 "Abilities you activate that aren't mana abilities cost {2} less to activate. \
                  This effect can't reduce the mana in that cost to less than one mana.",
                 EffectDef::ModifyCost(CostModificationDef::AbilityReduction {
+                    target: None,
                     abilities: crate::card::AbilityKindDef::NonManaActivated,
                     // "Abilities you activate", which is wider than the permanents you
                     // control: cycling and the rest of what a card in a hand or a

@@ -411,6 +411,7 @@ fn unlocated_battlefield_pending_and_retired_continuous_effects_mark_checkpoints
         retired_id,
         RetiredObject::Permanent {
             permanent: Box::new(retired_permanent),
+            colors: [true, false, false, false, false],
             power: Some(2),
             toughness: Some(1),
             mana_value: 1,
@@ -484,6 +485,7 @@ fn pending_and_retired_permanents_round_trip_resolved_continuous_effects() {
         retired_id,
         RetiredObject::Permanent {
             permanent: Box::new(retired_permanent),
+            colors: [true, false, false, false, false],
             power: Some(2),
             toughness: Some(1),
             mana_value: 1,

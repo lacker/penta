@@ -552,6 +552,7 @@ impl Game {
         }
     }
 
+    #[allow(clippy::too_many_lines)] // Keep the vocabulary dispatcher together.
     fn apply_characteristic_component(
         &mut self,
         target: Target,
@@ -620,14 +621,28 @@ impl Game {
         if let (Target::Spell(target), CharacteristicOperationDef::Colors(operation)) =
             (target, operation)
         {
-            let current = ManaColor::COLORS
-                .into_iter()
-                .zip(self.object_colors(target))
-                .filter_map(|(color, present)| present.then_some(color))
-                .fold(ColorSet::empty(), ColorSet::with);
-            let colors = Self::apply_color_operation(current, operation);
+            let effect = ResolvedContinuousEffect {
+                definition,
+                source: AbilitySourceRef {
+                    object: resolution.object.source.unwrap_or(resolution.object.id),
+                    ability: resolution.object.ability_origin().unwrap_or_else(|| {
+                        Self::authored_ability_origin(
+                            resolution.object.presentation(),
+                            AbilityId::PRIMARY,
+                        )
+                    }),
+                },
+                timestamp: resolution.timestamp,
+                component_order: resolution.component_order,
+                expiration: Self::continuous_effect_expiration(
+                    resolution.duration,
+                    resolution.object.controller,
+                    self.turns_started[resolution.object.controller.index()],
+                ),
+                kind: ResolvedContinuousEffectKind::Colors(operation),
+            };
             if let Some(spell) = self.stack.iter_mut().find(|spell| spell.id == target) {
-                spell.colors = Some(colors);
+                spell.resolved_continuous_effects.push(effect);
             }
             return;
         }

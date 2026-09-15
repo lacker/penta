@@ -153,6 +153,7 @@ pub(super) struct EffectiveAbility {
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub(super) struct PermanentLastKnownInformation {
+    pub(super) colors: [bool; 5],
     pub(super) power: Option<i16>,
     pub(super) toughness: Option<i16>,
     pub(super) mana_value: u16,

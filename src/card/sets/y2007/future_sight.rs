@@ -626,6 +626,26 @@ pub(in crate::card::sets) static BLOODSHOT_TRAINEE: CardRecord = CardRecord::new
     ),
 );
 
+// FUT 115 — Ghostfire
+pub(in crate::card::sets) static GHOSTFIRE: CardRecord = CardRecord::new(
+    "Ghostfire",
+    "a60475e5-0d37-4af0-b717-da4c8dea45ac",
+    "Cyril Van Der Haegen",
+    CardRules::new_instant(mana_cost!("{2}{R}")).with_abilities(&[
+        AbilityDef::define_colors("Ghostfire is colorless.", crate::card::ColorSet::empty()),
+        AbilityDef::spell_with_targets(
+            "Ghostfire deals 3 damage to any target.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(3),
+            ),
+        ),
+    ]),
+);
+
 // FUT 116 — Grinning Ignus
 // Audit: unsupported — Mana-ability eligibility recognizes ReturnSourceToHand, but
 // pay_moving_mana_activation_costs never executes that cost. The offered activation therefore
@@ -1107,6 +1127,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &HAZE_OF_RAGE,
     &MAGUS_OF_THE_MOON,
     &BLOODSHOT_TRAINEE,
+    &GHOSTFIRE,
     &GRINNING_IGNUS,
     &RITES_OF_FLOURISHING,
     &SPROUT_SWARM,

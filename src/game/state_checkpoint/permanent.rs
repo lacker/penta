@@ -227,6 +227,7 @@ pub(super) fn permanent_snapshot(
             })
             .collect(),
         resolved_continuous_effects,
+        chosen_colors: permanent.chosen_colors.to_flags(),
         activations_this_turn: permanent
             .activations_this_turn
             .iter()
@@ -319,7 +320,7 @@ fn copiable_characteristics_snapshot(
     ))
 }
 
-fn resolved_continuous_effect_snapshot(
+pub(super) fn resolved_continuous_effect_snapshot(
     catalog: &CardCatalog,
     effect: &ResolvedContinuousEffect,
 ) -> Option<ResolvedContinuousEffectSnapshot> {

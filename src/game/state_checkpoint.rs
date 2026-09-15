@@ -315,18 +315,23 @@ impl Game {
             .filter_map(|id| match self.retired_objects.get(&id)? {
                 RetiredObject::Permanent {
                     permanent,
+                    colors,
                     power,
                     toughness,
                     mana_value,
                     keywords,
                 } => Some(RetiredObjectSnapshot::Permanent {
                     permanent: Box::new(detached_permanent_snapshot(&self.catalog, permanent)),
+                    colors: *colors,
                     power: *power,
                     toughness: *toughness,
                     mana_value: *mana_value,
                     keywords: keywords.iter().copied().map(keyword_snapshot).collect(),
                 }),
                 RetiredObject::Card(card) => Some(RetiredObjectSnapshot::Card {
+                    power: card.stats.map(|stats| stats.power),
+                    toughness: card.stats.map(|stats| stats.toughness),
+                    colors: card.colors,
                     card: DetachedCardSnapshot {
                         object_id: card.id.0,
                         definition: card.definition,

@@ -50,6 +50,8 @@ fn static_power_toughness_value_supported(value: ValueDef) -> bool {
         | ValueDef::DevotionTo(_)
         | ValueDef::BasicLandTypesControlled(_)
         | ValueDef::LibrarySize(_) => true,
+        ValueDef::ColorIntersectionCount(sets) => sets.iter().all(|set| matches!(set,
+            crate::card::ColorSetDef::Fixed(_) | crate::card::ColorSetDef::OfObject(ObjectRefDef::Source | ObjectRefDef::ResolvingObject | ObjectRefDef::AttachedToSource | ObjectRefDef::CreatingSource) | crate::card::ColorSetDef::ChosenBy(ObjectRefDef::Source | ObjectRefDef::AttachedToSource | ObjectRefDef::CreatingSource))),
         ValueDef::ColorCount(reference) => matches!(
             reference,
             ObjectRefDef::Source | ObjectRefDef::CreatingSource | ObjectRefDef::AttachedToSource
@@ -132,9 +134,27 @@ fn static_power_toughness_value_supported(value: ValueDef) -> bool {
 
 // Cost preview removes the announced card from its old zone but does not
 // materialize it in stack queries. Keep those queries outside this boundary.
+#[allow(clippy::too_many_lines)] // Keep the vocabulary dispatcher together.
 fn static_cost_reduction_value_supported(value: ValueDef) -> bool {
     match value {
         ValueDef::Constant(_) => true,
+        ValueDef::ColorIntersectionCount(sets) => sets.iter().all(|set| {
+            matches!(
+                set,
+                crate::card::ColorSetDef::Fixed(_)
+                    | crate::card::ColorSetDef::OfObject(
+                        ObjectRefDef::Source
+                            | ObjectRefDef::ResolvingObject
+                            | ObjectRefDef::AttachedToSource
+                            | ObjectRefDef::CreatingSource
+                    )
+                    | crate::card::ColorSetDef::ChosenBy(
+                        ObjectRefDef::Source
+                            | ObjectRefDef::AttachedToSource
+                            | ObjectRefDef::CreatingSource
+                    )
+            )
+        }),
         ValueDef::ColorCount(reference) => matches!(
             reference,
             ObjectRefDef::Source | ObjectRefDef::CreatingSource | ObjectRefDef::AttachedToSource
@@ -191,8 +211,8 @@ fn static_cost_reduction_value_supported(value: ValueDef) -> bool {
         | ValueDef::Quotient(_)
         | ValueDef::IfControllerLifeAtMost(_)
         | ValueDef::IfCondition(_)
-        | ValueDef::IfSourceMatches(_)
         | ValueDef::IfTargetMatches(_)
+        | ValueDef::IfSourceMatches(_)
         | ValueDef::CountersOnSource(_)
         | ValueDef::CountersOnObject(_)
         | ValueDef::CardsDrawnThisTurn(_)

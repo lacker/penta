@@ -6845,6 +6845,7 @@ pub(in crate::card::sets) static THE_LONELY_MOUNTAIN: CardRecord = CardRecord::n
             "This ability costs {1} less to activate for each Equipment \
              you control.",
             EffectDef::ModifyCost(CostModificationDef::AbilityReduction {
+                target: None,
                 abilities: crate::card::AbilityKindDef::Activated,
                 permanent: ObjectPredicateDef::Source,
                 amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(

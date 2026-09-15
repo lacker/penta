@@ -12,6 +12,7 @@ use super::{
 };
 use crate::{BattlefieldEntryScalarChoiceDef, CharacteristicContext};
 
+mod color_choices;
 mod discovery;
 mod entry_copy;
 mod entry_exile;
@@ -128,6 +129,7 @@ impl Game {
         }
     }
 
+    #[allow(clippy::too_many_lines)] // Keep the vocabulary dispatcher together.
     pub(super) fn apply_pending_replacement_effect(
         &mut self,
         mut pending: PendingEvent,
@@ -147,6 +149,12 @@ impl Game {
                     return Some(pending);
                 };
                 self.suspend_for_entry_scalar_choice(pending, context, effect, choice)
+            }
+            ReplacementEffectDef::Choose(ReplacementChoiceDef::Colors(count)) => {
+                let player = Self::pending_event_controller(&pending);
+                self.pending_events.push_front(pending);
+                self.queue_entry_colors_choice(player, context, count);
+                None
             }
             ReplacementEffectDef::Choose(ReplacementChoiceDef::BasicLandTypePair) => {
                 self.suspend_for_basic_land_type_pair_choice(pending, context)
@@ -359,6 +367,8 @@ impl Game {
             chosen_permanents: Vec::new(),
             applied_effects: Vec::new(),
             text_changes: Vec::new(),
+            resolved_continuous_effects: Vec::new(),
+            last_known_colors: None,
             colors: None,
             cast: None,
             face_down: None,

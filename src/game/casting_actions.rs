@@ -286,7 +286,9 @@ impl Game {
                                     Some(self.harmonize_x_ceiling(player, &ManaPaymentPurpose::Spell {
                                         object: card.id, commander_owner: self.commander_owner(card.id),
                                         definition: definition.id, controller: player, form: option.form.clone(),
-                                        reserved_life_payment: 0,
+                                        alternative: alternative_kind,
+        x: 0,
+        reserved_life_payment: 0,
                                     }))
                                 } else if cost.variable_x {
                                     let increased = add_mana_cost(
@@ -322,7 +324,9 @@ impl Game {
                                                     definition: card.definition,
                                                     controller: player,
                                                     form: option.form.clone(),
-                                                    reserved_life_payment: total_life,
+                                                    alternative: alternative_kind,
+        x: 0,
+        reserved_life_payment: total_life,
                                                 };
                                                 let maximum = self.maximum_spell_x_for(
                                                     spell,
@@ -508,7 +512,9 @@ impl Game {
                                                     definition: card.definition,
                                                     controller: player,
                                                     form: option.form.clone(),
-                                                    reserved_life_payment: cast_life
+                                                    alternative: alternative_kind,
+        x,
+        reserved_life_payment: cast_life
                                                         .saturating_add(permission_life)
                                                         .saturating_add(phyrexian_life),
                                                 };

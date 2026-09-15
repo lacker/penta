@@ -12,10 +12,9 @@ impl Game {
         let mut activated_index = 0;
         self.find_effective_ability(permanent, |effective| {
             if !matches!(
-                    effective.ability.definition,
-                    DeclarativeAbilityDef::Activated(_)
-                )
-            {
+                effective.ability.definition,
+                DeclarativeAbilityDef::Activated(_)
+            ) {
                 return false;
             }
             let matches = activated_index == index;
@@ -75,8 +74,7 @@ impl Game {
         // no window in which anything could see a creature.
         if permanent.cast.as_ref().is_some_and(|cast| {
             cast.alternative == Some(crate::card::AlternativeCastKindDef::Impending)
-        })
-            && permanent.counters(crate::card::CounterKind::named("time")) > 0
+        }) && permanent.counters(crate::card::CounterKind::named("time")) > 0
         {
             operations.push((
                 permanent.timestamp,
@@ -99,9 +97,9 @@ impl Game {
                 permanent,
                 StaticEffectKind::CardTypes,
                 |applied| {
-                    let AppliedEffectDef::Characteristic(
-                        CharacteristicOperationDef::CardTypes(operation),
-                    ) = applied.effect
+                    let AppliedEffectDef::Characteristic(CharacteristicOperationDef::CardTypes(
+                        operation,
+                    )) = applied.effect
                     else {
                         unreachable!("the card-type filter admits only card-type operations");
                     };
@@ -152,10 +150,7 @@ impl Game {
     /// supertype operation itself is selecting its affected objects. Card-type
     /// predicates such as "nonland permanent" still see effective types on the
     /// outer walk.
-    pub(super) fn permanent_supertypes(
-        &self,
-        permanent: &Permanent,
-    ) -> Option<CardSupertypeSet> {
+    pub(super) fn permanent_supertypes(&self, permanent: &Permanent) -> Option<CardSupertypeSet> {
         self.permanent_supertypes_with_optional_prospective(permanent, None)
     }
 
@@ -206,9 +201,8 @@ impl Game {
             })
             .collect::<Vec<_>>();
         let mut collect = |applied: super::StaticAppliedEffect| {
-            let AppliedEffectDef::Characteristic(CharacteristicOperationDef::Supertypes(
-                operation,
-            )) = applied.effect
+            let AppliedEffectDef::Characteristic(CharacteristicOperationDef::Supertypes(operation)) =
+                applied.effect
             else {
                 unreachable!("the supertype filter admits only supertype operations");
             };
@@ -277,49 +271,14 @@ impl Game {
             })
             .collect::<Vec<_>>();
         if let Some(_pass) = StaticSetCharacteristicLayerGuard::enter() {
-            let result = self.visit_static_applied_effects(
-                permanent,
-                StaticEffectKind::Colors,
-                |applied| {
-                    let operation = match applied.effect {
-                        AppliedEffectDef::Characteristic(CharacteristicOperationDef::Colors(
-                            operation,
-                        )) => applied.text_words.color_operation(operation),
-                        AppliedEffectDef::Characteristic(CharacteristicOperationDef::Color(
-                            operation,
-                        )) => {
-                            let resolve = |kind| {
-                                self.mana_type_for_source(kind, applied.source)
-                                    .filter(|color| *color != ManaColor::Colorless)
-                                    .map(|color| ColorSet::from_colors(&[color]))
-                            };
-                            match operation {
-                                SetOperationDef::Add(kind) => {
-                                    let Some(colors) = resolve(kind) else {
-                                        return ControlFlow::Continue(());
-                                    };
-                                    SetOperationDef::Add(colors)
-                                }
-                                SetOperationDef::Remove(kind) => {
-                                    let Some(colors) = resolve(kind) else {
-                                        return ControlFlow::Continue(());
-                                    };
-                                    SetOperationDef::Remove(colors)
-                                }
-                                SetOperationDef::Set(kind) => {
-                                    let Some(colors) = resolve(kind) else {
-                                        return ControlFlow::Continue(());
-                                    };
-                                    SetOperationDef::Set(colors)
-                                }
-                            }
-                        }
-                        _ => unreachable!("the color filter admits only color operations"),
+            let result =
+                self.visit_static_applied_effects(permanent, StaticEffectKind::Colors, |applied| {
+                    let Some(operation) = self.static_color_operation(&applied) else {
+                        return ControlFlow::Continue(());
                     };
                     operations.push((applied.timestamp, applied.component_order, operation));
                     ControlFlow::Continue(())
-                },
-            );
+                });
             debug_assert!(result.is_continue());
         }
         operations.sort_by_key(|(timestamp, order, _)| (*timestamp, *order));
@@ -381,10 +340,8 @@ impl Game {
                 return false;
             };
             let controller = Some(permanent.controller);
-            let text_source = Self::text_source_for_ability_origin(
-                permanent.card.id,
-                effective.origin,
-            );
+            let text_source =
+                Self::text_source_for_ability_origin(permanent.card.id, effective.origin);
             self.trigger_object_matches_with_text_source(
                 *predicate,
                 source,
@@ -470,11 +427,7 @@ impl Game {
     ) -> bool {
         self.protection_source_characteristics(source)
             .is_some_and(|characteristics| {
-                self.is_protected_from_characteristics(
-                    permanent,
-                    &characteristics,
-                    source_is_spell,
-                )
+                self.is_protected_from_characteristics(permanent, &characteristics, source_is_spell)
             })
     }
 
@@ -731,36 +684,43 @@ impl Game {
             return self.permanent_colors(permanent);
         }
         if let Some(stack) = self.stack.iter().find(|stack| stack.id == object) {
-            return stack.colors.map_or_else(
-                || {
-                    self.stack_trigger_event_object(stack)
-                        .map_or([false; 5], |event| event.colors)
-                },
-                ColorSet::to_flags,
-            );
+            return self
+                .stack_trigger_event_object(stack)
+                .map_or([false; 5], |event| event.colors);
         }
         if let Some(retired) = self.retired_objects.get(&object) {
             return match retired {
-                RetiredObject::Permanent { permanent, .. } => self.permanent_colors(permanent),
-                RetiredObject::Stack(stack) => stack.colors.map_or_else(
-                    || self.stack_trigger_event_object(stack)
-                        .map_or([false; 5], |event| event.colors),
-                    ColorSet::to_flags,
-                ),
-                RetiredObject::Card(card) => self
-                    .catalog
-                    .get(card.definition)
-                    .map_or([false; 5], |definition| definition.rules.colors()),
+                RetiredObject::Permanent { colors, .. } => *colors,
+                RetiredObject::Stack(stack) => self
+                    .stack_trigger_event_object(stack)
+                    .map_or([false; 5], |event| event.colors),
+                RetiredObject::Card(card) => card.colors,
             };
         }
-        self.card_in_nonbattlefield_zone(object)
-            .map(|(_, card)| card)
-            .or_else(|| {
-                self.players
-                    .iter()
-                    .flat_map(|player| player.outside_game.iter())
-                    .find(|card| card.id == object)
-            })
+        if let Some((zone, card)) = self.card_in_nonbattlefield_zone(object) {
+            if zone == ZoneKind::Exile && self.exiled_card_is_face_down(object) {
+                return [false; 5];
+            }
+            return self
+                .printed_trigger_event_object(
+                    object,
+                    card.definition,
+                    card.owner,
+                    &match zone {
+                        ZoneKind::Library => CharacteristicContext::Library,
+                        ZoneKind::Hand => CharacteristicContext::Hand,
+                        ZoneKind::Graveyard => CharacteristicContext::Graveyard,
+                        ZoneKind::Exile => CharacteristicContext::Exile,
+                        ZoneKind::Command => CharacteristicContext::Command,
+                        ZoneKind::Battlefield | ZoneKind::Stack => return [false; 5],
+                    },
+                )
+                .map_or([false; 5], |object| object.colors);
+        }
+        self.players
+            .iter()
+            .flat_map(|player| player.outside_game.iter())
+            .find(|card| card.id == object)
             .and_then(|card| self.catalog.get(card.definition))
             .map_or([false; 5], |definition| definition.rules.colors())
     }

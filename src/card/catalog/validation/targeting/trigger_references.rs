@@ -36,6 +36,7 @@ fn trigger_stat_value_is_supported(value: ValueDef) -> bool {
     )
 }
 
+#[allow(clippy::too_many_lines)] // Keep the vocabulary dispatcher together.
 fn validate_trigger_object_predicate(
     predicate: ObjectPredicateDef,
     event: TriggerEventDef,
@@ -43,6 +44,14 @@ fn validate_trigger_object_predicate(
     scope: BindingScope<'_>,
 ) -> Result<(), GrantedAbilityValidationError> {
     match predicate {
+        ObjectPredicateDef::SharesColorWith(set) => {
+            validate_object_predicate_references(predicate, target_count, scope)?;
+            if matches!(set,
+                crate::card::ColorSetDef::Fixed(_) | crate::card::ColorSetDef::OfObject(ObjectRefDef::Source | ObjectRefDef::AttachedToSource | ObjectRefDef::CreatingSource)
+                    | crate::card::ColorSetDef::ChosenBy(ObjectRefDef::Source | ObjectRefDef::AttachedToSource | ObjectRefDef::CreatingSource)) {
+                Ok(())
+            } else { Err(unsupported_trigger_event(event)) }
+        }
         ObjectPredicateDef::All(predicates) | ObjectPredicateDef::AnyOf(predicates) => {
             for predicate in predicates {
                 validate_trigger_object_predicate(*predicate, event, target_count, scope)?;
@@ -98,7 +107,7 @@ fn validate_trigger_object_predicate(
         | ObjectPredicateDef::Source
         | ObjectPredicateDef::Commander
         | ObjectPredicateDef::Token
-        | ObjectPredicateDef::Permanent
+        | ObjectPredicateDef::InZone(_)
         | ObjectPredicateDef::Tapped
         | ObjectPredicateDef::WasDealtDamageThisTurn
         | ObjectPredicateDef::DealtDamageThisTurn
@@ -157,7 +166,7 @@ fn trigger_predicate_requires_live_battlefield(predicate: ObjectPredicateDef) ->
         | ObjectPredicateDef::Source
         | ObjectPredicateDef::Commander
         | ObjectPredicateDef::Token
-        | ObjectPredicateDef::Permanent
+        | ObjectPredicateDef::InZone(_)
         | ObjectPredicateDef::Tapped
         | ObjectPredicateDef::WasDealtDamageThisTurn
         | ObjectPredicateDef::DealtDamageThisTurn
@@ -172,6 +181,7 @@ fn trigger_predicate_requires_live_battlefield(predicate: ObjectPredicateDef) ->
         | ObjectPredicateDef::HasDeclaredPlayerTarget(_)
         | ObjectPredicateDef::NoncreatureSpell
         | ObjectPredicateDef::Color(_)
+        | ObjectPredicateDef::SharesColorWith(_)
         | ObjectPredicateDef::ColorCount(_)
         | ObjectPredicateDef::Subtype(_)
         | ObjectPredicateDef::NameEquals(_)
@@ -373,6 +383,9 @@ fn validate_zone_change_references(
     });
     if can_match_departure && trigger_predicate_requires_live_battlefield(matcher.object) {
         return Err(unsupported_trigger_event(event));
+    }
+    if let Some(binding) = matcher.bound_objects {
+        scope.validate_object_set_reference(binding)?;
     }
     validate_trigger_object_predicate(matcher.object, event, target_count, scope)?;
     if let Some(reference) = matcher.previously_damaged_by {

@@ -44,6 +44,7 @@ pub enum AbilityKindDef {
     ActivatedMana,
     /// An activated ability the engine classifies as not being a mana ability.
     NonManaActivated,
+    Equip,
     Flashback,
     Suspend,
     BandsWithOther,
@@ -72,6 +73,8 @@ impl AbilityPredicateDef {
                 AbilityKindDef::NonManaActivated => {
                     matches!(ability.definition, DeclarativeAbilityDef::Activated(_))
                 }
+                AbilityKindDef::Equip => matches!(ability.definition,
+                    DeclarativeAbilityDef::Activated(definition) if definition.keyword_kind == Some(AbilityKindDef::Equip)),
                 AbilityKindDef::Flashback => matches!(
                     ability.definition,
                     DeclarativeAbilityDef::AlternativeCast(alternative)
@@ -248,6 +251,9 @@ pub enum CostModificationDef {
         /// Which activated abilities receive the reduction.
         abilities: AbilityKindDef,
         permanent: ObjectPredicateDef,
+        /// When present, at least one announced target must match. This is
+        /// evaluated before paying costs, independently of source matching.
+        target: Option<ObjectPredicateDef>,
         amount: ValueDef,
         /// The least mana the cost may be left with. An ability whose cost
         /// already holds no more than this is untouched.

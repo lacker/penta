@@ -1,7 +1,7 @@
 use super::*;
 
 #[test]
-fn permanent_predicate_distinguishes_battlefield_identity_from_cards_and_spells() {
+fn zone_predicate_distinguishes_battlefield_identity_from_cards_and_spells() {
     let mut game = ready_game();
     let source = GameObjectId(910_000);
     for definition in [cards::ORNITHOPTER, cards::SOL_RING, cards::LIGHTNING_BOLT] {
@@ -13,9 +13,14 @@ fn permanent_predicate_distinguishes_battlefield_identity_from_cards_and_spells(
             ZoneKind::Exile,
             ZoneKind::Command,
         ] {
-            assert!(!game.card_object_matches(ObjectPredicateDef::Permanent, &card, zone, source));
+            assert!(!game.card_object_matches(
+                ObjectPredicateDef::InZone(ZoneKind::Battlefield),
+                &card,
+                zone,
+                source
+            ));
             assert!(game.card_object_matches(
-                ObjectPredicateDef::Not(&ObjectPredicateDef::Permanent),
+                ObjectPredicateDef::Not(&ObjectPredicateDef::InZone(ZoneKind::Battlefield)),
                 &card,
                 zone,
                 source
@@ -31,7 +36,12 @@ fn permanent_predicate_distinguishes_battlefield_identity_from_cards_and_spells(
                 },
             )
             .unwrap();
-        assert!(!game.trigger_object_matches(ObjectPredicateDef::Permanent, &spell, source, true));
+        assert!(!game.trigger_object_matches(
+            ObjectPredicateDef::InZone(ZoneKind::Battlefield),
+            &spell,
+            source,
+            true
+        ));
     }
     for definition in [cards::ORNITHOPTER, cards::FOREST] {
         let id = game
@@ -39,12 +49,22 @@ fn permanent_predicate_distinguishes_battlefield_identity_from_cards_and_spells(
             .unwrap();
         let object =
             game.trigger_event_object(game.battlefield.iter().find(|p| p.card.id == id).unwrap());
-        assert!(game.trigger_object_matches(ObjectPredicateDef::Permanent, &object, source, false));
+        assert!(game.trigger_object_matches(
+            ObjectPredicateDef::InZone(ZoneKind::Battlefield),
+            &object,
+            source,
+            false
+        ));
         game.return_permanent_to_hand(id);
-        assert!(game.trigger_object_matches(ObjectPredicateDef::Permanent, &object, source, false));
+        assert!(game.trigger_object_matches(
+            ObjectPredicateDef::InZone(ZoneKind::Battlefield),
+            &object,
+            source,
+            false
+        ));
         let successor = game.players[0].hand.last().unwrap();
         assert!(!game.card_object_matches(
-            ObjectPredicateDef::Permanent,
+            ObjectPredicateDef::InZone(ZoneKind::Battlefield),
             successor,
             ZoneKind::Hand,
             source
@@ -60,7 +80,10 @@ fn permanent_predicate_distinguishes_battlefield_identity_from_cards_and_spells(
     let object = game.trigger_event_object(game.battlefield.last().unwrap());
     game.destroy_permanent_without_regeneration(id);
     assert!(game.trigger_object_matches(
-        ObjectPredicateDef::All(&[ObjectPredicateDef::Permanent, ObjectPredicateDef::Token,]),
+        ObjectPredicateDef::All(&[
+            ObjectPredicateDef::InZone(ZoneKind::Battlefield),
+            ObjectPredicateDef::Token,
+        ]),
         &object,
         source,
         false
@@ -68,7 +91,7 @@ fn permanent_predicate_distinguishes_battlefield_identity_from_cards_and_spells(
 }
 
 #[test]
-fn permanent_predicate_composes_in_static_effects_in_both_engines() {
+fn zone_predicate_composes_in_static_effects_in_both_engines() {
     for prepared in [false, true] {
         let mut game = ready_game();
         let id = CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000902");
@@ -84,7 +107,7 @@ fn permanent_predicate_composes_in_static_effects_in_both_engines() {
                             EffectDef::StaticApply {
                                 recipient: EffectRecipientDef::matching_objects(
                                     ObjectPredicateDef::All(&[
-                                        ObjectPredicateDef::Permanent,
+                                        ObjectPredicateDef::InZone(ZoneKind::Battlefield),
                                         ObjectPredicateDef::HasType(CardType::Creature),
                                     ]),
                                     &[ZoneKind::Battlefield],
@@ -100,7 +123,9 @@ fn permanent_predicate_composes_in_static_effects_in_both_engines() {
                             "Nonpermanents get +5/+5.",
                             EffectDef::StaticApply {
                                 recipient: EffectRecipientDef::matching_objects(
-                                    ObjectPredicateDef::Not(&ObjectPredicateDef::Permanent),
+                                    ObjectPredicateDef::Not(&ObjectPredicateDef::InZone(
+                                        ZoneKind::Battlefield,
+                                    )),
                                     &[ZoneKind::Battlefield],
                                     PlayerRelation::Any,
                                 ),
@@ -137,5 +162,47 @@ fn permanent_predicate_composes_in_static_effects_in_both_engines() {
             (game.power(creature), game.toughness(creature)),
             (Some(1), Some(3))
         );
+    }
+}
+
+#[test]
+fn zone_predicate_uses_the_snapshot_zone_instead_of_live_location() {
+    let game = ready_game();
+    let id = GameObjectId(910_010);
+    for (context, zone) in [
+        (CharacteristicContext::Hand, ZoneKind::Hand),
+        (CharacteristicContext::Library, ZoneKind::Library),
+        (CharacteristicContext::Graveyard, ZoneKind::Graveyard),
+        (CharacteristicContext::Exile, ZoneKind::Exile),
+        (CharacteristicContext::Command, ZoneKind::Command),
+        (
+            CharacteristicContext::Stack {
+                form: SpellForm::Part(CardPartId::PRIMARY),
+            },
+            ZoneKind::Stack,
+        ),
+    ] {
+        let snapshot = game
+            .printed_trigger_event_object(id, cards::ORNITHOPTER, PlayerId::One, &context)
+            .unwrap();
+        for expected in [
+            ZoneKind::Hand,
+            ZoneKind::Library,
+            ZoneKind::Graveyard,
+            ZoneKind::Exile,
+            ZoneKind::Command,
+            ZoneKind::Stack,
+            ZoneKind::Battlefield,
+        ] {
+            assert_eq!(
+                game.trigger_object_matches(
+                    ObjectPredicateDef::InZone(expected),
+                    &snapshot,
+                    id,
+                    zone == ZoneKind::Stack
+                ),
+                expected == zone
+            );
+        }
     }
 }

@@ -16,7 +16,7 @@ pub(in crate::card::sets::tests) fn shared_object_predicate(predicate: ObjectPre
         | ObjectPredicateDef::Source
         | ObjectPredicateDef::Commander
         | ObjectPredicateDef::Token
-        | ObjectPredicateDef::Permanent
+        | ObjectPredicateDef::InZone(_)
         | ObjectPredicateDef::HasType(_)
         | ObjectPredicateDef::HasAnyBasicLandType(_)
         | ObjectPredicateDef::Spell
@@ -28,6 +28,7 @@ pub(in crate::card::sets::tests) fn shared_object_predicate(predicate: ObjectPre
         | ObjectPredicateDef::HasDeclaredPlayerTarget(_)
         | ObjectPredicateDef::NoncreatureSpell
         | ObjectPredicateDef::Color(_)
+        | ObjectPredicateDef::SharesColorWith(_)
         | ObjectPredicateDef::ColorCount(_)
         | ObjectPredicateDef::Subtype(_)
         | ObjectPredicateDef::ManaValueAtMost(_)

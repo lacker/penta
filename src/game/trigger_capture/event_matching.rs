@@ -118,13 +118,24 @@ impl Game {
         }
     }
 
-    #[allow(clippy::too_many_lines)]
     pub(super) fn trigger_event_matches_for_controller(
         &self,
         definition: TriggerEventDef,
         event: &CommittedTriggerEvent,
         source: GameObjectId,
         controller: Option<PlayerId>,
+    ) -> bool {
+        self.trigger_event_matches_with_bindings(definition, event, source, controller, None)
+    }
+
+    #[allow(clippy::too_many_lines)]
+    fn trigger_event_matches_with_bindings(
+        &self,
+        definition: TriggerEventDef,
+        event: &CommittedTriggerEvent,
+        source: GameObjectId,
+        controller: Option<PlayerId>,
+        bindings: Option<&super::EffectResolutionContext>,
     ) -> bool {
         match (definition, event) {
             (TriggerEventDef::AbilityTriggeredBy(expected), CommittedTriggerEvent::AbilityTriggered { cause, .. }) => {
@@ -158,7 +169,7 @@ impl Game {
             }),
             // One printed ability, several ways into the same matching path.
             (TriggerEventDef::AnyOf(events), _) => events.iter().any(|alternative| {
-                self.trigger_event_matches_for_controller(*alternative, event, source, controller)
+                self.trigger_event_matches_with_bindings(*alternative, event, source, controller, bindings)
             }),
             // A printed "while ...". The condition belongs to the event, so
             // it is asked here, once, against the board as the event
@@ -170,7 +181,7 @@ impl Game {
                 },
                 _,
             ) => {
-                self.trigger_event_matches_for_controller(*wrapped, event, source, controller)
+                self.trigger_event_matches_with_bindings(*wrapped, event, source, controller, bindings)
                     && controller.is_some_and(|controller| {
                         self.trigger_condition_holds(
                             condition,
@@ -214,7 +225,11 @@ impl Game {
                         ZoneChangeObservationDef::After => after.as_ref(),
                     }
                     .is_some_and(|object| {
-                        self.trigger_object_matches_for_controller(
+                        matcher.bound_objects.is_none_or(|binding| {
+                            bindings.is_some_and(|context| context.object_group(binding).iter().any(|target| {
+                                matches!(target, Target::Card(id) | Target::Permanent(id) | Target::Spell(id) if *id == object.id)
+                            }))
+                        }) && self.trigger_object_matches_for_controller(
                             matcher.object,
                             object,
                             source,

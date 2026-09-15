@@ -207,8 +207,30 @@ impl ColorSet {
     }
 
     #[must_use]
+    pub const fn intersection(self, other: Self) -> Self {
+        Self(self.0 & other.0)
+    }
+
+    #[must_use]
+    #[allow(clippy::cast_possible_truncation)] // An eight-bit mask has at most eight set bits.
+    pub const fn count(self) -> u8 {
+        self.0.count_ones() as u8
+    }
+
+    #[must_use]
     pub const fn is_colorless(self) -> bool {
         self.0 == 0
+    }
+
+    #[must_use]
+    pub const fn from_flags(flags: [bool; 5]) -> Self {
+        Self(
+            (flags[0] as u8)
+                | ((flags[1] as u8) << 1)
+                | ((flags[2] as u8) << 2)
+                | ((flags[3] as u8) << 3)
+                | ((flags[4] as u8) << 4),
+        )
     }
 
     #[must_use]

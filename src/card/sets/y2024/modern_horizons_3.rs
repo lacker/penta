@@ -2440,55 +2440,53 @@ pub(in crate::card::sets) static SOWING_MYCOSPAWN: CardRecord = CardRecord::new(
     // Four mana finds a land and six exiles one, and both happen on the cast
     // rather than on arrival -- so countering the creature does not stop
     // either of them.
-    CardRules::new_creature(mana_cost!("{3}{G}"), &["Eldrazi", "Fungus"], 3, 3)
-        .printed_colors(&[])
-        .with_abilities(&[
-            // Devoid is the empty printed colour set below; the keyword is here so
-            // the card says what it is.
-            abilities::devoid(),
-            AbilityDef::alternative_cast(
-                &[CostDef::Mana(mana_cost!("{4}{G}{C}"))],
-                AlternativeCastKindDef::Kicked,
-                Some("Kicker {1}{C} (You may pay an additional {1}{C} as you cast this spell.)"),
-                EffectDef::None,
-            ),
-            AbilityDef::triggered(
-                "When you cast this spell, search your library for a land \
+    CardRules::new_creature(mana_cost!("{3}{G}"), &["Eldrazi", "Fungus"], 3, 3).with_abilities(&[
+        // Devoid is the empty printed colour set below; the keyword is here so
+        // the card says what it is.
+        abilities::devoid(),
+        AbilityDef::alternative_cast(
+            &[CostDef::Mana(mana_cost!("{4}{G}{C}"))],
+            AlternativeCastKindDef::Kicked,
+            Some("Kicker {1}{C} (You may pay an additional {1}{C} as you cast this spell.)"),
+            EffectDef::None,
+        ),
+        AbilityDef::triggered(
+            "When you cast this spell, search your library for a land \
                  card, put it onto the battlefield, then shuffle.",
-                TriggerEventDef::spell_cast(ObjectPredicateDef::Source),
-                EffectDef::SearchZone {
-                    player: EffectRecipientDef::Controller,
-                    source: ZoneKind::Library,
-                    object: ObjectPredicateDef::HasType(CardType::Land),
-                    minimum: 0,
-                    maximum: ValueDef::Constant(1),
-                    reveal: false,
-                    destination: ZoneKind::Battlefield,
-                    placement: ZonePlacement::Top,
-                    shuffle: true,
-                    enters_tapped: false,
-                    attachment: None,
-                    binding: None,
-                    then: None,
-                },
+            TriggerEventDef::spell_cast(ObjectPredicateDef::Source),
+            EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                object: ObjectPredicateDef::HasType(CardType::Land),
+                minimum: 0,
+                maximum: ValueDef::Constant(1),
+                reveal: false,
+                destination: ZoneKind::Battlefield,
+                placement: ZonePlacement::Top,
+                shuffle: true,
+                enters_tapped: false,
+                attachment: None,
+                binding: None,
+                then: None,
+            },
+        ),
+        AbilityDef::triggered_if_with_targets(
+            "When you cast this spell, if it was kicked, exile target land.",
+            TriggerEventDef::spell_cast(ObjectPredicateDef::Source),
+            // The kicked half changes nothing about how the spell resolves: it costs
+            // more, and the second cast trigger reads that fact. That is why the
+            // alternative carries no instructions of its own.
+            &TriggerConditionDef::SourceCastWith(AlternativeCastKindDef::Kicked),
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Land),
+            )],
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Exile,
+                ZonePlacement::Top,
             ),
-            AbilityDef::triggered_if_with_targets(
-                "When you cast this spell, if it was kicked, exile target land.",
-                TriggerEventDef::spell_cast(ObjectPredicateDef::Source),
-                // The kicked half changes nothing about how the spell resolves: it costs
-                // more, and the second cast trigger reads that fact. That is why the
-                // alternative carries no instructions of its own.
-                &TriggerConditionDef::SourceCastWith(AlternativeCastKindDef::Kicked),
-                &[AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::HasType(CardType::Land),
-                )],
-                EffectDef::move_to_zone(
-                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    ZoneKind::Exile,
-                    ZonePlacement::Top,
-                ),
-            ),
-        ]),
+        ),
+    ]),
 );
 
 // MH3 171 — Springheart Nantuko

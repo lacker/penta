@@ -373,18 +373,14 @@ impl Game {
                 .object_card_name(object.id)
                 .zip(self.source_card_name(name, source))
                 .is_some_and(|(actual, expected)| actual == expected),
-            ObjectPredicateDef::NameIn(names) => self
-                .object_card_name(object.id)
-                .is_some_and(|actual| self.source_card_name_set(*names, source).contains(actual.as_ref())),
-            ObjectPredicateDef::TargetsObjectMatching(predicate) => {
-                self.stack_object_targets_match(
-                    object.id,
-                    *predicate,
-                    source,
-                    controller,
-                    text_words,
-                )
+            ObjectPredicateDef::NameIn(names) => {
+                self.object_card_name(object.id).is_some_and(|actual| {
+                    self.source_card_name_set(*names, source)
+                        .contains(actual.as_ref())
+                })
             }
+            ObjectPredicateDef::TargetsObjectMatching(predicate) => self
+                .stack_object_targets_match(object.id, *predicate, source, controller, text_words),
             ObjectPredicateDef::HasSourcesChosenScalar(destination) => {
                 self.matches_chosen_scalar(destination, object, source)
             }
@@ -419,8 +415,8 @@ impl Game {
                     .declared_targets()
                     .iter()
                     .any(|target| self.target_matches(predicate, *target)),
-                ObjectPredicateDef::HasDeclaredPlayerTarget(relation) => controller.is_some_and(
-                    |controller| {
+                ObjectPredicateDef::HasDeclaredPlayerTarget(relation) => {
+                    controller.is_some_and(|controller| {
                         stack_object.declared_targets().iter().any(|target| {
                             matches!(target, Target::Player(player) if self.player_relation_matches(
                                 *player,
@@ -429,8 +425,8 @@ impl Game {
                                 TriggerContext::empty(),
                             ))
                         })
-                    },
-                ),
+                    })
+                }
                 _ => unreachable!("only live stack predicates arrive here"),
             })
     }
@@ -549,13 +545,7 @@ impl Game {
             ObjectPredicateDef::Source => object.id == source,
             ObjectPredicateDef::Commander => self.is_commander(object.id),
             ObjectPredicateDef::Token => object.token,
-            ObjectPredicateDef::Permanent => {
-                self.battlefield.iter().any(|p| p.card.id == object.id)
-                    || matches!(
-                        self.retired_objects.get(&object.id),
-                        Some(RetiredObject::Permanent { .. })
-                    )
-            }
+            ObjectPredicateDef::InZone(zone) => object.zone == zone,
             ObjectPredicateDef::Saddled => object.saddled,
             ObjectPredicateDef::HasType(card_type) => object.types.contains(card_type),
             ObjectPredicateDef::HasAnyBasicLandType(land_types) => {
@@ -581,6 +571,8 @@ impl Game {
                 .color(self, color)
                 .color_index()
                 .is_some_and(|index| object.colors[index]),
+            ObjectPredicateDef::SharesColorWith(set) => !crate::card::ColorSet::from_flags(object.colors)
+                .intersection(self.color_set_value(set, |reference| self.static_object_reference(reference, source))).is_colorless(),
             ObjectPredicateDef::ColorCount(count) => {
                 object.colors.iter().filter(|present| **present).count() == usize::from(count)
             }
@@ -791,12 +783,7 @@ impl Game {
             PlayerRelation::EnchantedPlayer => {
                 self.current_or_last_known_enchanted_player(source) == Some(player)
             }
-            _ => self.player_relation_matches(
-                player,
-                relation,
-                controller,
-                context,
-            ),
+            _ => self.player_relation_matches(player, relation, controller, context),
         }
     }
 

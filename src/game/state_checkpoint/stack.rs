@@ -1,9 +1,9 @@
 use super::model::{
     AbilityOriginSnapshot, AppliedStackEffectSnapshot, BindingSnapshot, CastSignatureSnapshot,
     CounterKindSnapshot, DecisionCardOriginSnapshot, DetachedStackSnapshot, EffectBindingSnapshot,
-    EffectResolutionContextSnapshot, ManaSourceSnapshot, SeatSnapshot, SpellFormSnapshot,
-    StackAbilitySnapshot, StackObjectKindSnapshot, StackSnapshot, TargetSelectionSnapshot,
-    TargetSnapshot, TriggerContextSnapshot,
+    EffectResolutionContextSnapshot, ManaSourceSnapshot, ResolvedContinuousEffectSnapshot,
+    SeatSnapshot, SpellFormSnapshot, StackAbilitySnapshot, StackObjectKindSnapshot, StackSnapshot,
+    TargetSelectionSnapshot, TargetSnapshot, TriggerContextSnapshot,
 };
 use super::semantics::{
     ability_locator_for_origin, applied_effect_locator, catalog_applied_effect,
@@ -14,12 +14,13 @@ use super::{
     AppliedStackEffect, BasicLandType, CardPartId, CastChoices, CastContext, CastSignature,
     CharacteristicSource, CostConfiguration, DeclarativeAbilityDef, EffectResolutionContext, Game,
     GameObjectId, GameStack, GrantId, ManaSource, ModeId, ObjectBacking, ObjectCharacteristics,
-    ObjectInstance, ObjectKind, PlayOptionId, PlayerId, RetiredObject, SpellForm,
-    StackAbilityPayload, StackObject, StackObjectKind, Target, TargetSelection, TriggerContext,
-    Value, ability_locator, ability_origin_from_snapshot, ability_origin_snapshot,
-    ability_target_defs, array, card, card_definition_id_field, cast_source_zone_from_label,
-    catalog_ability, face_down_characteristics_from_snapshot, face_down_characteristics_snapshot,
-    field, object_characteristics_from_snapshot, object_characteristics_snapshot,
+    ObjectInstance, ObjectKind, PlayOptionId, PlayerId, ResolvedContinuousEffect,
+    ResolvedContinuousEffectKind, RetiredObject, SpellForm, StackAbilityPayload, StackObject,
+    StackObjectKind, Target, TargetSelection, TriggerContext, Value, ability_locator,
+    ability_origin_from_snapshot, ability_origin_snapshot, ability_target_defs, array, card,
+    card_definition_id_field, cast_source_zone_from_label, catalog_ability,
+    face_down_characteristics_from_snapshot, face_down_characteristics_snapshot, field,
+    object_characteristics_from_snapshot, object_characteristics_snapshot,
     object_kind_from_snapshot, object_kind_snapshot, optional_id, parse_cast_signature, parse_ids,
     parse_zone_kind, seat_value, str_field, text_change_snapshot, u8_field, u32_field, usize_field,
     zone_kind_snapshot,
@@ -180,6 +181,9 @@ pub(super) fn detached_stack_snapshot_allowing(
         return None;
     }
     let (applied_effects, has_runtime_overrides) = applied_stack_effect_snapshots(game, object);
+    let continuous = stack_continuous_effect_snapshots(game, object);
+    let has_runtime_overrides =
+        has_runtime_overrides || continuous.len() != object.resolved_continuous_effects.len();
     let face_down = object
         .face_down
         .and_then(face_down_characteristics_snapshot);
@@ -205,6 +209,8 @@ pub(super) fn detached_stack_snapshot_allowing(
             .iter()
             .map(text_change_snapshot)
             .collect(),
+        resolved_continuous_effects: continuous,
+        last_known_colors: object.last_known_colors.map(ColorSet::to_flags),
         colors: object.colors.map(ColorSet::to_flags),
         colors_of_mana_spent: cast.map_or([false; 5], |cast| cast.colors_of_mana_spent.to_flags()),
         phyrexian_symbols_paid_with_life: cast
@@ -388,6 +394,9 @@ pub(super) fn parse_stack(
     }
     let mut stack = GameStack::default();
     for (shown, state) in visible.iter().zip(snapshots) {
+        if state.last_known_colors.is_some() {
+            return Err("live stack object cannot have frozen last-known colors".into());
+        }
         if state.has_runtime_overrides {
             return Err(
                 "stack object has runtime overrides not yet represented by semantic locators"
@@ -536,6 +545,11 @@ pub(super) fn parse_stack(
             chosen_permanents: parse_ids(field(shown, "chosenPermanents")?)?,
             applied_effects: parse_applied_stack_effects(&state.applied_effects, game)?,
             text_changes: parse_text_changes(&state.text_changes)?,
+            resolved_continuous_effects: parse_stack_continuous_effects(
+                &state.resolved_continuous_effects,
+                game,
+            )?,
+            last_known_colors: state.last_known_colors.map(ColorSet::from_flags),
             colors: state.colors.map(color_set_from_flags),
             cast,
             face_down: state.face_down.map(face_down_characteristics_from_snapshot),
@@ -626,6 +640,11 @@ pub(super) fn parse_detached_stack(
             .collect(),
         applied_effects: parse_applied_stack_effects(&state.applied_effects, game)?,
         text_changes: parse_text_changes(&state.text_changes)?,
+        resolved_continuous_effects: parse_stack_continuous_effects(
+            &state.resolved_continuous_effects,
+            game,
+        )?,
+        last_known_colors: state.last_known_colors.map(ColorSet::from_flags),
         colors: state.colors.map(color_set_from_flags),
         cast,
         face_down: state.face_down.map(face_down_characteristics_from_snapshot),
@@ -857,113 +876,7 @@ fn seat_index_value(index: usize) -> Result<PlayerId, String> {
 include!("stack/ability_origin.rs");
 
 #[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::ParentBinding;
+mod tests;
 
-    #[test]
-    fn effect_resolution_context_round_trips_typed_bindings() {
-        let trigger = TriggerContext {
-            object: Some(GameObjectId(10)),
-            zone_change_result: Some(GameObjectId(12)),
-            object_controller: Some(PlayerId::One),
-            event_player: Some(PlayerId::Two),
-            amount: Some(3),
-            damaged_object: None,
-            sacrificed_object: None,
-            cast_from_zone: Some(crate::card::ZoneKind::Graveyard),
-        };
-        let mut context = EffectResolutionContext::new(trigger);
-        context.bind_single_object(Binding!("object"), Some(Target::Spell(GameObjectId(11))));
-        context.bind_object_group(
-            Binding!("objects"),
-            vec![
-                Target::Permanent(GameObjectId(12)),
-                Target::Card(GameObjectId(13)),
-                Target::Player(PlayerId::Two),
-            ],
-        );
-        context.bind_runtime_card_name(
-            &RuntimeBinding::Label("cabal_therapy_name".into()),
-            "Lightning Bolt".into(),
-        );
-        context.bind_single_object(ParentBinding, Some(Target::Permanent(GameObjectId(17))));
-        context.bind_object_group(
-            ParentBinding,
-            vec![
-                Target::Card(GameObjectId(18)),
-                Target::Card(GameObjectId(19)),
-            ],
-        );
-        context.declare_binding_group_label("optional_card");
-        context.bind_binding_group_label("revealed_card", vec![Target::Card(GameObjectId(14))]);
-        context.declare_binding_group_label("empty_cards");
-        context.bind_binding_group_label(
-            "milled_cards",
-            vec![
-                Target::Card(GameObjectId(15)),
-                Target::Card(GameObjectId(16)),
-            ],
-        );
-
-        let snapshot = effect_resolution_context_snapshot(&context);
-        let rebuilt = parse_effect_resolution_context(snapshot).expect("context should parse");
-
-        assert_eq!(rebuilt, context);
-        assert_eq!(
-            rebuilt.single_object(ParentBinding),
-            Some(Target::Permanent(GameObjectId(17)))
-        );
-        assert_eq!(
-            rebuilt.object_group(ParentBinding),
-            [
-                Target::Card(GameObjectId(18)),
-                Target::Card(GameObjectId(19))
-            ]
-        );
-        assert_eq!(
-            rebuilt.single_object(Binding!("object")),
-            Some(Target::Spell(GameObjectId(11)))
-        );
-        assert_eq!(
-            rebuilt.object_group(Binding!("objects")),
-            [
-                Target::Permanent(GameObjectId(12)),
-                Target::Card(GameObjectId(13)),
-                Target::Player(PlayerId::Two),
-            ]
-        );
-        assert!(rebuilt.bindings().contains_key("optional_card"));
-        assert!(rebuilt.object_group(Binding!("optional_card")).is_empty());
-        assert_eq!(
-            rebuilt.object_group(Binding!("revealed_card")),
-            [Target::Card(GameObjectId(14))]
-        );
-        assert!(rebuilt.bindings().contains_key("empty_cards"));
-        assert!(rebuilt.object_group(Binding!("empty_cards")).is_empty());
-        assert_eq!(
-            rebuilt.object_group(Binding!("milled_cards")),
-            [
-                Target::Card(GameObjectId(15)),
-                Target::Card(GameObjectId(16))
-            ]
-        );
-        let mut referenced = resolution_context_referenced_object_ids(&rebuilt);
-        referenced.sort_unstable();
-        assert_eq!(
-            referenced,
-            [
-                GameObjectId(10),
-                GameObjectId(11),
-                GameObjectId(12),
-                GameObjectId(13),
-                GameObjectId(14),
-                GameObjectId(15),
-                GameObjectId(16),
-                GameObjectId(17),
-                GameObjectId(18),
-                GameObjectId(19),
-            ]
-        );
-    }
-}
+mod continuous;
+use continuous::{parse_stack_continuous_effects, stack_continuous_effect_snapshots};

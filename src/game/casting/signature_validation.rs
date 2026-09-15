@@ -401,6 +401,8 @@ impl Game {
             definition: definition.id,
             controller: player,
             form: option.form.clone(),
+            alternative: alternative_kind,
+            x: choices.x(),
             reserved_life_payment: total_life,
         };
         if !self.can_pay_cost_for_reserving_with_life(

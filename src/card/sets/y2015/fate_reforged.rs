@@ -1,4 +1,5 @@
 //! FRF card records required by supported formats.
+use crate::card::CounterKind;
 
 use super::CardRecord;
 use super::PrintingRecord;
@@ -53,13 +54,86 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // FRF 1 — Ugin, the Spirit Dragon
-// Audit: unsupported — Loyalty activation costs are fixed signed integers; the activated-cost
-// planner cannot choose and pay a variable −X loyalty cost.
 pub(in crate::card::sets) static UGIN_THE_SPIRIT_DRAGON: CardRecord = CardRecord::new(
     "Ugin, the Spirit Dragon",
     "58c1e824-c8a9-4312-8e4c-a29a26d189a4",
     "Raymond Swanland",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_planeswalker(mana_cost!("{8}"), &["Ugin"], 7)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::activated_with_targets(
+                "+2: Ugin deals 3 damage to any target.",
+                &[CostDef::Loyalty(2)],
+                &[AbilityTargetDef::exactly_one(
+                    crate::card::AbilityTargetPredicate::AnyTarget,
+                )],
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(3),
+                ),
+            ),
+            AbilityDef::activated(
+                "−X: Exile each permanent with mana value X or less that's one or more colors.",
+                &[
+                    CostDef::Loyalty(0),
+                    CostDef::RemoveAnyNumberOfCountersFromSource(CounterKind::Loyalty),
+                ],
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::matching(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::ColorCount(0)),
+                            ObjectPredicateDef::ManaValueAtMostValue(ValueDef::ChosenX),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    ))),
+                    ZoneKind::Exile,
+                    ZonePlacement::Top,
+                ),
+            ),
+            AbilityDef::activated(
+                "−10: You gain 7 life, draw seven cards, then put up to seven permanent cards \
+                 from your hand onto the battlefield.",
+                &[CostDef::Loyalty(-10)],
+                EffectDef::Sequence(&[
+                    EffectDef::GainLife {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(7),
+                    },
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(7),
+                    },
+                    EffectDef::Choose(ChooseDef {
+                        binding: ObjectChoiceBindingDef::Objects(Binding!("ugin_permanents")),
+                        unchosen: None,
+                        chooser: PlayerRefDef::EffectController,
+                        candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
+                            ObjectPredicateDef::AnyOf(&[
+                                ObjectPredicateDef::HasType(CardType::Artifact),
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                ObjectPredicateDef::HasType(CardType::Enchantment),
+                                ObjectPredicateDef::HasType(CardType::Land),
+                                ObjectPredicateDef::HasType(CardType::Planeswalker),
+                            ]),
+                            &[ZoneKind::Hand],
+                            PlayerRelation::You,
+                        )),
+                        exclude: None,
+                        minimum: 0,
+                        maximum: 7,
+                        visibility: ChoiceVisibilityDef::Private,
+                        then: &EffectDef::move_to_zone(
+                            EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!(
+                                "ugin_permanents"
+                            ))),
+                            ZoneKind::Battlefield,
+                            ZonePlacement::Top,
+                        ),
+                    }),
+                ]),
+            ),
+        ]),
 );
 
 // FRF 28 — Valorous Stance

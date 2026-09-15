@@ -30,6 +30,18 @@ the bot-wire epoch.
   cards, intrinsic land mana abilities, changeling, Grist's outside-game types,
   and companion-only format bans.
 
+- Model zone predicates, intrinsic Devoid/color definitions, cross-zone color
+  effects, two-color choices, and target-dependent Equip discounts. Implement
+  Eldrazi Temple, Ersatz Gnomes, Ghostfire Blade, Forerunner of Slaughter,
+  Cultivator Drone, Titan's Presence, Tablet of the Guilds, Seal of the Guildpact,
+  Ghostfire, Ugin, the Ineffable, and Ugin, the Spirit Dragon. Exercise their
+  interactions with Consign to Memory, Humility, Eye of Ugin, and Ugin, Eye of
+  the Storms. Spell color effects remain distinct from copiable color changes;
+  retired objects retain last-known colors and revealed-card power/toughness.
+  Observations add `chosenColors`; checkpoints add optional color-effect,
+  last-known-color, and chosen-color-set fields. Existing protocol and artifact
+  epochs remain unchanged; simulation fingerprints identify the new rules.
+
 - Add Lord_Beerus's September 13 Vintage Challenge Dredge deck and implement
   all nine missing identities: Creeping Chill, Golgari Grave-Troll, Golgari
   Thug, Hollow One, Prized Amalgam, Shambling Shell, Sickening Shoal,

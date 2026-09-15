@@ -16,6 +16,7 @@ impl Game {
         owner: PlayerId,
     ) -> super::TriggerEventObject {
         super::TriggerEventObject {
+            zone: super::ZoneKind::Exile,
             id,
             token: false,
             types: super::CardTypeSet::empty(),

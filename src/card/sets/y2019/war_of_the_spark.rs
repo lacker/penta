@@ -1,4 +1,9 @@
 //! War of the Spark cards cataloged for the Vintage Cube pool.
+use crate::card::BindObjectsDef;
+use crate::card::CreatedTokensDef;
+use crate::card::ObjectCollectionSourceDef;
+use crate::card::ObjectSetFilterDef;
+use crate::card::ZoneChangeEventMatcherDef;
 
 use super::CardRecord;
 use super::PrintingRecord;
@@ -154,13 +159,106 @@ pub(in crate::card::sets) static KARN_THE_GREAT_CREATOR: CardRecord = CardRecord
 );
 
 // WAR 2 — Ugin, the Ineffable
-// Audit: unsupported — Needs a face-down exile linked to a token whose battlefield exit returns
-// that exact card, while retaining the token and face-down-card identities.
 pub(in crate::card::sets) static UGIN_THE_INEFFABLE: CardRecord = CardRecord::new(
     "Ugin, the Ineffable",
     "7b003521-3da3-41bf-9765-36630653f902",
     "Daarken",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_planeswalker(mana_cost!("{6}"), &["Ugin"], 4)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Colorless spells you cast cost {2} less to cast.",
+                EffectDef::ModifyCost(crate::card::CostModificationDef::reduce_spell(
+                    ObjectPredicateDef::ColorCount(0),
+                    PlayerRelation::You,
+                    ValueDef::Constant(2),
+                )),
+            ),
+            AbilityDef::activated(
+                "+1: Exile the top card of your library face down and look at it. Create a 2/2 \
+                 colorless Spirit creature token. When that token leaves the battlefield, put \
+                 the exiled card into your hand.",
+                &[CostDef::Loyalty(1)],
+                EffectDef::BindObjects(BindObjectsDef {
+                    source: ObjectCollectionSourceDef::TopCards {
+                        player: PlayerRefDef::EffectController,
+                        count: ValueDef::Constant(1),
+                    },
+                    binding: Binding!("ugin_top"),
+                    then: &EffectDef::ExileLinkedToSource {
+                        object: EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!(
+                            "ugin_top"
+                        ))),
+                        face_down: true,
+                        until_source_leaves: false,
+                        then: Some(&EffectDef::BindObjects(BindObjectsDef {
+                            source: ObjectCollectionSourceDef::ObjectSet(
+                                ObjectSetDef::ZoneChangeSuccessorsOfBinding(Binding!("ugin_top")),
+                            ),
+                            binding: Binding!("ugin_exiled"),
+                            then: &EffectDef::PermitLookAtExiled {
+                                object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                    Binding!("ugin_exiled"),
+                                )),
+                                player: PlayerRefDef::EffectController,
+                                then: &EffectDef::CreateToken(
+                                    CreateTokenDef::new(TokenDef::Literal(
+                                        TokenCharacteristics::creature(&["Spirit"], &[], 2, 2),
+                                    ))
+                                    .with_created_tokens(
+                                        CreatedTokensDef {
+                                            binding: Binding!("ugin_spirits"),
+                                            then: &EffectDef::InstallTrigger(
+                                                InstalledTriggerDef::once(&AbilityDef::triggered(
+                                                    "When that token leaves the battlefield, put \
+                                                 the exiled card into your hand.",
+                                                    TriggerEventDef::ZoneChanged(
+                                                        ZoneChangeEventMatcherDef::new(
+                                                            ObjectPredicateDef::Any,
+                                                            Some(ZoneKind::Battlefield),
+                                                            None,
+                                                        )
+                                                        .among(Binding!("ugin_spirits")),
+                                                    ),
+                                                    EffectDef::move_to_zone(
+                                                        EffectRecipientDef::objects(
+                                                            ObjectSetDef::Matching {
+                                                                objects: &ObjectSetDef::Binding(
+                                                                    Binding!("ugin_exiled"),
+                                                                ),
+                                                                object:
+                                                                    ObjectSetFilterDef::Predicate(
+                                                                        &ObjectPredicateDef::InZone(
+                                                                            ZoneKind::Exile,
+                                                                        ),
+                                                                    ),
+                                                            },
+                                                        ),
+                                                        ZoneKind::Hand,
+                                                        ZonePlacement::Top,
+                                                    ),
+                                                )),
+                                            ),
+                                        },
+                                    ),
+                                ),
+                            },
+                        })),
+                    },
+                }),
+            ),
+            AbilityDef::activated_with_targets(
+                "−3: Destroy target permanent that's one or more colors.",
+                &[CostDef::Loyalty(-3)],
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::ColorCount(0)),
+                )],
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    then: None,
+                },
+            ),
+        ]),
 );
 
 // WAR 10 — Divine Arrow

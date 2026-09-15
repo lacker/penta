@@ -660,6 +660,9 @@ pub enum ManaRestrictionDef {
     /// Spend only to cast a commander designated for the player spending it.
     CastYourCommander,
     ActivateAbility(ObjectPredicateDef),
+    /// Any mana portion of a payment whose total cost contains a fixed
+    /// requirement of this mana type, including its generic portion.
+    PayCostContaining(ManaColor),
     /// This mana can be spent only on a payment with the named semantic purpose.
     Payment(super::AbilityLabel),
     Special(&'static str),

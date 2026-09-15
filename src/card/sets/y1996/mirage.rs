@@ -4471,12 +4471,41 @@ pub(in crate::card::sets) static ELIXIR_OF_VITALITY: CardRecord = CardRecord::ne
 );
 
 // MIR 301 — Ersatz Gnomes
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ERSATZ_GNOMES: CardRecord = CardRecord::new(
     "Ersatz Gnomes",
     "5a2747ab-00c8-4f59-b9a6-54ff4e99f6c8",
     "Ron Spencer",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{3}"), &["Gnome"], 1, 1).with_abilities(&[
+        AbilityDef::activated_with_targets(
+            "{T}: Target spell becomes colorless.",
+            &[CostDef::TapSource],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Spell,
+                    zones: &[ZoneKind::Stack],
+                    owner: None,
+                    controller: None,
+                },
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::set_colors(crate::card::ColorSet::empty()),
+                duration: ResolvedEffectDurationDef::Permanent,
+            },
+        ),
+        AbilityDef::activated_with_targets(
+            "{T}: Target permanent becomes colorless until end of turn.",
+            &[CostDef::TapSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::Any,
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::set_colors(crate::card::ColorSet::empty()),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // MIR 302 — Fire Diamond

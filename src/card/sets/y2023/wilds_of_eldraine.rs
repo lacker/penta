@@ -5796,6 +5796,7 @@ pub(in crate::card::sets) static BLOSSOMING_TORTOISE: CardRecord = CardRecord::n
             "Activated abilities of lands you control cost {1} less to \
              activate.",
             EffectDef::ModifyCost(CostModificationDef::AbilityReduction {
+                target: None,
                 abilities: crate::card::AbilityKindDef::Activated,
                 permanent: ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Land),

@@ -50,8 +50,7 @@ impl ManaPlanSelection {
 
     const fn life_mana_capacity(&self, life_mana_enabled: bool, life_available: u16) -> u16 {
         if life_mana_enabled {
-            life_available
-                .saturating_sub(self.life_spent)
+            life_available.saturating_sub(self.life_spent)
         } else {
             0
         }
@@ -245,7 +244,7 @@ impl Game {
         request: ManaPlanningRequest<'_>,
     ) -> Option<Vec<PlannedManaActivation>> {
         let (cost, x) = self.restrict_x(request.cost, request.x, request.purpose);
-        let mana = self.eligible_mana_pool(request.player, request.purpose);
+        let mana = self.eligible_mana_pool_for_cost(request.player, request.purpose, request.cost);
         let starting_pool = PaymentCapacity::from_mana(mana);
         let contributions = self.payment_contributions(request.purpose);
         let life_mana_enabled = self
@@ -351,7 +350,8 @@ impl Game {
             .filter(|activation| Some(activation.source) != spell)
             .filter(|activation| !Self::activation_consumes_reserved(activation, request.reserved))
         {
-            let outputs = Self::planned_outputs(core::slice::from_ref(&activation), request.purpose);
+            let outputs =
+                Self::planned_outputs(core::slice::from_ref(&activation), request.purpose);
             if let Some(existing) = sources
                 .iter_mut()
                 .find(|source| source.source == activation.source)
@@ -440,9 +440,7 @@ impl Game {
         ) || !activation.costs.iter().any(|cost| {
             matches!(
                 cost,
-                CostDef::SacrificeSource
-                    | CostDef::ExileSource
-                    | CostDef::ReturnSourceToHand
+                CostDef::SacrificeSource | CostDef::ExileSource | CostDef::ReturnSourceToHand
             )
         });
         // An activation that itself costs mana is left to the player. The
@@ -460,7 +458,7 @@ impl Game {
         );
         Self::mana_for_activation(activation)
             .first()
-            .is_some_and(|mana| self.mana_can_pay_for(*mana, request.purpose))
+            .is_some_and(|mana| self.mana_can_pay_for_cost(*mana, request.purpose, request.cost))
             // "Activate only as an instant": paying for a spell is not a
             // moment an instant could be cast, so the planner leaves it to
             // the player and their priority.
@@ -561,10 +559,7 @@ fn normalized_payment_capacity(
     normalized
 }
 
-fn planned_payment(
-    source: &FlexibleManaSource,
-    output: ManaSourceOutput,
-) -> PlannedManaActivation {
+fn planned_payment(source: &FlexibleManaSource, output: ManaSourceOutput) -> PlannedManaActivation {
     PlannedManaActivation {
         source: source.source,
         kind: output.kind,
@@ -607,8 +602,7 @@ fn assign_independent_mana_sources(
     )]);
 
     for source in sources {
-        let mut next: BTreeMap<(ManaPool, u16, u16), Vec<PlannedManaActivation>> =
-            BTreeMap::new();
+        let mut next: BTreeMap<(ManaPool, u16, u16), Vec<PlannedManaActivation>> = BTreeMap::new();
         for ((mana, generic, life_spent), plan) in states {
             for output in &source.outputs {
                 let next_life = life_spent.saturating_add(output.life_payment);
@@ -697,10 +691,7 @@ fn payment_assignment_rank(
             .iter()
             .map(|payment| (payment.order, payment.source))
             .collect(),
-        assignment
-            .iter()
-            .map(|payment| payment.flexibility)
-            .sum(),
+        assignment.iter().map(|payment| payment.flexibility).sum(),
         assignment
             .iter()
             .map(|payment| payment.production.total())
@@ -715,11 +706,7 @@ fn life_mana_needed_for_payment(
     life_mana_enabled: bool,
     life_available: u16,
 ) -> Option<u16> {
-    let maximum = if life_mana_enabled {
-        life_available
-    } else {
-        0
-    };
+    let maximum = if life_mana_enabled { life_available } else { 0 };
     (0..=maximum).find(|amount| {
         let mut capacity = pool;
         capacity.mana.add_color(ManaColor::Colorless, *amount);
@@ -776,7 +763,9 @@ impl<'a> PaymentAssignmentSearch<'a> {
         if self.best_rank.as_ref().is_none_or(|best| rank < *best) {
             // A cyclic candidate must not replace a valid assignment or hide
             // a later one with the same mana output.
-            if order_mana_activations_before_consumption(self.assignment.clone(), self.cost).is_none() {
+            if order_mana_activations_before_consumption(self.assignment.clone(), self.cost)
+                .is_none()
+            {
                 return false;
             }
             self.best_rank = Some(rank);
@@ -833,7 +822,10 @@ impl<'a> PaymentAssignmentSearch<'a> {
             let output = self.sources[index].outputs[output_index].clone();
             let payment = planned_payment(&self.sources[index], output.clone());
             if output.life_payment > life_available
-                || self.assignment.iter().any(|other| payment.conflicts_with(other))
+                || self
+                    .assignment
+                    .iter()
+                    .any(|other| payment.conflicts_with(other))
             {
                 continue;
             }
@@ -919,7 +911,10 @@ impl PaymentAssignmentSearch<'_> {
             let output = self.sources[index].outputs[output_index].clone();
             let payment = planned_payment(&self.sources[index], output.clone());
             if output.life_payment > life_available
-                || self.assignment.iter().any(|other| payment.conflicts_with(other))
+                || self
+                    .assignment
+                    .iter()
+                    .any(|other| payment.conflicts_with(other))
             {
                 continue;
             }

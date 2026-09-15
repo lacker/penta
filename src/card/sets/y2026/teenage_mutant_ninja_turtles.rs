@@ -3496,6 +3496,7 @@ pub(in crate::card::sets) static MUTAGEN_MAN_LIVING_OOZE: CardRecord = CardRecor
                 "Activated abilities of artifact tokens you control cost {1} \
                  less to activate.",
                 EffectDef::ModifyCost(CostModificationDef::AbilityReduction {
+                    target: None,
                     abilities: crate::card::AbilityKindDef::Activated,
                     permanent: ObjectPredicateDef::All(&[
                         ObjectPredicateDef::All(&[

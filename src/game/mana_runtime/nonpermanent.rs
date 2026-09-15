@@ -172,7 +172,7 @@ impl Game {
         if available == 0 {
             return;
         }
-        let pool = self.eligible_mana_pool(player, purpose);
+        let pool = self.eligible_mana_pool_for_cost(player, purpose, cost);
         let needed = Self::generic_shortfall(pool, cost, x).min(available);
         self.activate_repeatable_life_mana_for_amount(player, needed, purpose);
     }

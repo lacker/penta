@@ -434,6 +434,8 @@ fn selected_modal_effects_resolve_distinct_and_deferred_flattened_targets() {
             chosen_permanents: Vec::new(),
             applied_effects: Vec::new(),
             text_changes: Vec::new(),
+            resolved_continuous_effects: Vec::new(),
+            last_known_colors: None,
             colors: None,
             cast: None,
             face_down: None,

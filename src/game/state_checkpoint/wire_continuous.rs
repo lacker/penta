@@ -4,7 +4,7 @@
 // Split out of `wire.rs` only to keep one file readable; included textually,
 // so the paths and imports here are the parent module's.
 
-fn parse_resolved_continuous_effect(
+pub(super) fn parse_resolved_continuous_effect(
     state: &ResolvedContinuousEffectSnapshot,
     catalog: &CardCatalog,
 ) -> Result<ResolvedContinuousEffect, String> {

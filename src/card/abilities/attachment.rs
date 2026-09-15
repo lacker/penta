@@ -237,6 +237,7 @@ pub const fn equip(costs: &'static [CostDef], text: &'static str) -> AbilityDef 
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
         },
     )
+    .with_activated_keyword(crate::card::AbilityKindDef::Equip)
     .with_activation_timing(ActivationTimingDef::SorcerySpeed)
 }
 

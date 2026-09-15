@@ -36,7 +36,7 @@ pub(super) fn object_predicate_implies(
         | ObjectPredicateDef::Source
         | ObjectPredicateDef::Commander
         | ObjectPredicateDef::Token
-        | ObjectPredicateDef::Permanent
+        | ObjectPredicateDef::InZone(_)
         | ObjectPredicateDef::Tapped
         | ObjectPredicateDef::WasDealtDamageThisTurn
         | ObjectPredicateDef::DealtDamageThisTurn
@@ -61,6 +61,7 @@ pub(super) fn object_predicate_implies(
         | ObjectPredicateDef::Spell
         | ObjectPredicateDef::NoncreatureSpell
         | ObjectPredicateDef::Color(_)
+        | ObjectPredicateDef::SharesColorWith(_)
         | ObjectPredicateDef::ColorCount(_)
         | ObjectPredicateDef::Subtype(_)
         | ObjectPredicateDef::ManaValueAtMost(_)
@@ -110,7 +111,7 @@ pub(super) fn predicate_color(predicate: ObjectPredicateDef) -> Option<ManaColor
         | ObjectPredicateDef::Source
         | ObjectPredicateDef::Commander
         | ObjectPredicateDef::Token
-        | ObjectPredicateDef::Permanent
+        | ObjectPredicateDef::InZone(_)
         | ObjectPredicateDef::Tapped
         | ObjectPredicateDef::WasDealtDamageThisTurn
         | ObjectPredicateDef::DealtDamageThisTurn
@@ -134,6 +135,7 @@ pub(super) fn predicate_color(predicate: ObjectPredicateDef) -> Option<ManaColor
         | ObjectPredicateDef::NameIn(_)
         | ObjectPredicateDef::Spell
         | ObjectPredicateDef::NoncreatureSpell
+        | ObjectPredicateDef::SharesColorWith(_)
         | ObjectPredicateDef::ColorCount(_)
         | ObjectPredicateDef::Subtype(_)
         | ObjectPredicateDef::ManaValueAtMost(_)
@@ -183,10 +185,11 @@ pub(super) fn predicate_color_count(predicate: ObjectPredicateDef) -> Option<u8>
         | ObjectPredicateDef::HasDeclaredTarget(_)
         | ObjectPredicateDef::HasDeclaredPlayerTarget(_)
         | ObjectPredicateDef::Any
+        | ObjectPredicateDef::SharesColorWith(_)
         | ObjectPredicateDef::Source
         | ObjectPredicateDef::Commander
         | ObjectPredicateDef::Token
-        | ObjectPredicateDef::Permanent
+        | ObjectPredicateDef::InZone(_)
         | ObjectPredicateDef::Tapped
         | ObjectPredicateDef::WasDealtDamageThisTurn
         | ObjectPredicateDef::DealtDamageThisTurn
@@ -265,7 +268,7 @@ pub(super) fn predicate_subtype(predicate: ObjectPredicateDef) -> Option<&'stati
         | ObjectPredicateDef::Source
         | ObjectPredicateDef::Commander
         | ObjectPredicateDef::Token
-        | ObjectPredicateDef::Permanent
+        | ObjectPredicateDef::InZone(_)
         | ObjectPredicateDef::Tapped
         | ObjectPredicateDef::WasDealtDamageThisTurn
         | ObjectPredicateDef::DealtDamageThisTurn
@@ -288,6 +291,7 @@ pub(super) fn predicate_subtype(predicate: ObjectPredicateDef) -> Option<&'stati
         | ObjectPredicateDef::Spell
         | ObjectPredicateDef::NoncreatureSpell
         | ObjectPredicateDef::Color(_)
+        | ObjectPredicateDef::SharesColorWith(_)
         | ObjectPredicateDef::ColorCount(_)
         | ObjectPredicateDef::ManaValueAtMost(_)
         | ObjectPredicateDef::FaceUpInExile
@@ -343,7 +347,7 @@ pub(super) fn predicate_negated_subtype(predicate: ObjectPredicateDef) -> Option
         | ObjectPredicateDef::Source
         | ObjectPredicateDef::Commander
         | ObjectPredicateDef::Token
-        | ObjectPredicateDef::Permanent
+        | ObjectPredicateDef::InZone(_)
         | ObjectPredicateDef::Tapped
         | ObjectPredicateDef::WasDealtDamageThisTurn
         | ObjectPredicateDef::DealtDamageThisTurn
@@ -368,6 +372,7 @@ pub(super) fn predicate_negated_subtype(predicate: ObjectPredicateDef) -> Option
         | ObjectPredicateDef::Spell
         | ObjectPredicateDef::NoncreatureSpell
         | ObjectPredicateDef::Color(_)
+        | ObjectPredicateDef::SharesColorWith(_)
         | ObjectPredicateDef::ColorCount(_)
         | ObjectPredicateDef::Subtype(_)
         | ObjectPredicateDef::ManaValueAtMost(_)
@@ -430,7 +435,7 @@ pub(super) fn predicate_power_at_least(predicate: ObjectPredicateDef) -> Option<
         | ObjectPredicateDef::Source
         | ObjectPredicateDef::Commander
         | ObjectPredicateDef::Token
-        | ObjectPredicateDef::Permanent
+        | ObjectPredicateDef::InZone(_)
         | ObjectPredicateDef::Tapped
         | ObjectPredicateDef::WasDealtDamageThisTurn
         | ObjectPredicateDef::DealtDamageThisTurn
@@ -455,6 +460,7 @@ pub(super) fn predicate_power_at_least(predicate: ObjectPredicateDef) -> Option<
         | ObjectPredicateDef::Spell
         | ObjectPredicateDef::NoncreatureSpell
         | ObjectPredicateDef::Color(_)
+        | ObjectPredicateDef::SharesColorWith(_)
         | ObjectPredicateDef::ColorCount(_)
         | ObjectPredicateDef::Subtype(_)
         | ObjectPredicateDef::ManaValueAtMost(_)
@@ -499,7 +505,7 @@ pub(super) fn predicate_mana_value_at_most(predicate: ObjectPredicateDef) -> Opt
         | ObjectPredicateDef::Source
         | ObjectPredicateDef::Commander
         | ObjectPredicateDef::Token
-        | ObjectPredicateDef::Permanent
+        | ObjectPredicateDef::InZone(_)
         | ObjectPredicateDef::Tapped
         | ObjectPredicateDef::WasDealtDamageThisTurn
         | ObjectPredicateDef::DealtDamageThisTurn
@@ -524,6 +530,7 @@ pub(super) fn predicate_mana_value_at_most(predicate: ObjectPredicateDef) -> Opt
         | ObjectPredicateDef::Spell
         | ObjectPredicateDef::NoncreatureSpell
         | ObjectPredicateDef::Color(_)
+        | ObjectPredicateDef::SharesColorWith(_)
         | ObjectPredicateDef::ColorCount(_)
         | ObjectPredicateDef::Subtype(_)
         | ObjectPredicateDef::ManaValueEqualTo(_)
@@ -577,7 +584,7 @@ pub(super) fn predicate_controller(predicate: ObjectPredicateDef) -> Option<Play
         | ObjectPredicateDef::Source
         | ObjectPredicateDef::Commander
         | ObjectPredicateDef::Token
-        | ObjectPredicateDef::Permanent
+        | ObjectPredicateDef::InZone(_)
         | ObjectPredicateDef::Tapped
         | ObjectPredicateDef::WasDealtDamageThisTurn
         | ObjectPredicateDef::DealtDamageThisTurn
@@ -602,6 +609,7 @@ pub(super) fn predicate_controller(predicate: ObjectPredicateDef) -> Option<Play
         | ObjectPredicateDef::Spell
         | ObjectPredicateDef::NoncreatureSpell
         | ObjectPredicateDef::Color(_)
+        | ObjectPredicateDef::SharesColorWith(_)
         | ObjectPredicateDef::ColorCount(_)
         | ObjectPredicateDef::Subtype(_)
         | ObjectPredicateDef::ManaValueAtMost(_)

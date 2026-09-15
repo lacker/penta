@@ -304,6 +304,7 @@ impl Game {
             | DecisionContinuation::BattlefieldEntryPayment { .. }
             | DecisionContinuation::BattlefieldEntryCopy { .. }
             | DecisionContinuation::BattlefieldEntryScalarChoice { .. }
+            | DecisionContinuation::BattlefieldEntryColorsChoice { .. }
             | DecisionContinuation::BattlefieldEntryBasicLandTypePairChoice {
                 ..
             }) => {

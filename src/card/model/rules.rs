@@ -89,7 +89,7 @@ impl AttachedAbilityDef {
 
 impl CardAbilityList {
     #[must_use]
-    pub fn as_slice(&self) -> &[AbilityDef] {
+    pub const fn as_slice(&self) -> &[AbilityDef] {
         match self {
             Self::None => &[],
             Self::One(ability) => std::slice::from_ref(ability),
@@ -522,17 +522,33 @@ impl CardRules {
 
     #[must_use]
     pub const fn colors(&self) -> [bool; 5] {
-        self.colors.to_flags()
+        self.color_set().to_flags()
     }
 
     #[must_use]
+    /// Colors after intrinsic characteristic definitions, before external
+    /// continuous effects. Printed cost/indicator colors remain separate.
     pub const fn color_set(&self) -> ColorSet {
+        let mut colors = self.colors;
+        let abilities = self.abilities.as_slice();
+        let mut index = 0;
+        while index < abilities.len() {
+            if let Some(defined) = abilities[index].color_definition() {
+                colors = defined;
+            }
+            index += 1;
+        }
+        colors
+    }
+
+    #[must_use]
+    pub const fn printed_color_set(&self) -> ColorSet {
         self.colors
     }
 
     #[must_use]
     pub const fn has_color(&self, color: ManaColor) -> bool {
-        self.colors.contains(color)
+        self.color_set().contains(color)
     }
 
     /// Returns a concise explanation when internal or compatibility code has

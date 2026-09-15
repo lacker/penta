@@ -1489,6 +1489,7 @@ pub(in crate::card::sets) static FORENSIC_GADGETEER: CardRecord = CardRecord::ne
              to activate. This effect can't reduce the mana in that cost \
              to less than one mana.",
             EffectDef::ModifyCost(CostModificationDef::AbilityReduction {
+                target: None,
                 abilities: crate::card::AbilityKindDef::Activated,
                 permanent: ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Artifact),

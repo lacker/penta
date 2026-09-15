@@ -599,10 +599,20 @@ impl Game {
     /// Whether nobody at all may look at this exiled card, its owner
     /// included. False for every face-down exile that hands its owner a
     /// look, which is most of them.
+    #[cfg(test)]
     pub(super) fn exiled_card_is_hidden_from_owner(&self, card: GameObjectId) -> bool {
         self.exile_play_permissions
             .iter()
             .any(|permission| permission.card == card && permission.hidden_from_owner)
+            && !self
+                .card_in_nonbattlefield_zone(card)
+                .is_some_and(|(_, instance)| self.may_look_at_face_down_exile(card, instance.owner))
+    }
+
+    pub(super) fn may_look_at_face_down_exile(&self, card: GameObjectId, viewer: PlayerId) -> bool {
+        self.exile_play_permissions.iter().any(|permission| {
+            permission.card == card && permission.player == viewer && !permission.hidden_from_owner
+        })
     }
 
     /// One player's exile as another sees it. A card lying face down is

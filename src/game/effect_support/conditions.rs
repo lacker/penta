@@ -192,6 +192,8 @@ impl Game {
     /// reduction already answers, plus the two a condition of this shape
     /// actually asks about: what a player is devoted to, and how much
     /// library they have left.
+    // Keep the context-sensitive value vocabulary in one dispatch.
+    #[allow(clippy::too_many_lines)]
     fn condition_value(
         &self,
         value: crate::card::ValueDef,
@@ -200,6 +202,15 @@ impl Game {
         context: TriggerContext,
     ) -> i32 {
         match value {
+            crate::card::ValueDef::ColorIntersectionCount(sets) => i32::from(
+                Self::color_intersection(sets, |set| {
+                    self.color_set_value(set, |reference| match reference {
+                        crate::card::ObjectRefDef::TriggeringObject => context.object,
+                        _ => self.static_object_reference(reference, source),
+                    })
+                })
+                .count(),
+            ),
             // Counted with the trigger's own context, so a query can name the
             // player the event happened to: "more creatures than they do" is
             // asked about the player whose upkeep began, not about whoever

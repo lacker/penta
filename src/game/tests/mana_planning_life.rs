@@ -118,6 +118,8 @@ fn flexible_allocation_caps_each_color_by_the_affordable_sources() {
         definition: cards::BARKSHELL_BLESSING,
         controller: PlayerId::One,
         form: SpellForm::Part(CardPartId::PRIMARY),
+        alternative: None,
+        x: 0,
         reserved_life_payment: 1,
     };
     let cost = mana_cost!("{G/W}{G/W}");
@@ -202,6 +204,8 @@ fn exact_mana_plan_preserves_cross_color_source_correlation() {
         definition: cards::BARKSHELL_BLESSING,
         controller: PlayerId::One,
         form: SpellForm::Part(CardPartId::PRIMARY),
+        alternative: None,
+        x: 0,
         reserved_life_payment: 1,
     };
     let cost = mana_cost!("{B}{W/U}");

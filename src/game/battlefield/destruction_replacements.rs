@@ -28,6 +28,8 @@ impl Game {
             chosen_permanents: Vec::new(),
             applied_effects: Vec::new(),
             text_changes: Vec::new(),
+            resolved_continuous_effects: Vec::new(),
+            last_known_colors: None,
             colors: None,
             cast: None,
             face_down: None,
@@ -55,7 +57,8 @@ impl Game {
                 pending.iter().any(|pending| {
                     matches!(
                         pending.continuation,
-                        DecisionContinuation::BattlefieldExitReplacement { .. } | DecisionContinuation::CommanderMove { .. }
+                        DecisionContinuation::BattlefieldExitReplacement { .. }
+                            | DecisionContinuation::CommanderMove { .. }
                     )
                 })
             })
@@ -100,9 +103,10 @@ impl Game {
             .resolved_continuous_effects
             .iter()
             .position(|effect| {
-                let ResolvedContinuousEffectKind::Abilities(
-                    ResolvedAbilityOperation::Add { grant, .. },
-                ) = effect.kind
+                let ResolvedContinuousEffectKind::Abilities(ResolvedAbilityOperation::Add {
+                    grant,
+                    ..
+                }) = effect.kind
                 else {
                     return false;
                 };

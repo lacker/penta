@@ -342,6 +342,7 @@ impl Game {
     /// another such value, which is how "+2/+2 for each Aura attached to it"
     /// is expressed; everything outside this vocabulary stays a seam, and the
     /// boundary test rejects a card that reaches for one.
+    #[allow(clippy::too_many_lines)] // Keep the vocabulary dispatcher together.
     pub(super) fn static_stat_value(
         &self,
         value: ValueDef,
@@ -353,6 +354,14 @@ impl Game {
         }
         match value {
             ValueDef::Constant(amount) => amount,
+            ValueDef::ColorIntersectionCount(sets) => i32::from(
+                Self::color_intersection(sets, |set| {
+                    self.color_set_value(set, |reference| {
+                        self.static_object_reference(reference, source)
+                    })
+                })
+                .count(),
+            ),
             ValueDef::ColorCount(reference) => self
                 .static_object_reference(reference, source)
                 .map_or(0, |object| i32::from(self.object_color_count(object))),

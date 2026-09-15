@@ -812,6 +812,7 @@ impl Game {
 
         let owner = card.owner;
         let before_move = card.clone();
+        self.remember_card_characteristics(&card, Some(from));
         let cards = match from {
             ZoneKind::Library => &mut self.players[owner.index()].library,
             ZoneKind::Hand => &mut self.players[owner.index()].hand,

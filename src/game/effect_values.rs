@@ -386,6 +386,14 @@ impl Game {
                     })
                     .unwrap_or(0)
             }
+            ValueDef::ColorIntersectionCount(sets) => i32::from(
+                Self::color_intersection(sets, |set| {
+                    self.color_set_value(set, |reference| {
+                        self.effect_object_reference_id(reference, object, context, scoped)
+                    })
+                })
+                .count(),
+            ),
             ValueDef::ColorCount(reference) => self
                 .effect_object_reference_id(reference, object, context, scoped)
                 .map_or(0, |referenced| {

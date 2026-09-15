@@ -3,14 +3,16 @@ fn validate_choice_labels(
 ) -> Result<(), GrantedAbilityValidationError> {
     let mut labels = std::collections::BTreeSet::new();
     if choices.is_empty()
-        || choices.iter().any(|choice| {
-            choice.label.trim().is_empty() || !labels.insert(choice.label)
-        })
+        || choices
+            .iter()
+            .any(|choice| choice.label.trim().is_empty() || !labels.insert(choice.label))
     {
-        return Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
-            context: "labeled choice",
-            operation: "choices require nonempty unique labels",
-        });
+        return Err(
+            GrantedAbilityValidationError::UnsupportedEffectProgramContext {
+                context: "labeled choice",
+                operation: "choices require nonempty unique labels",
+            },
+        );
     }
     Ok(())
 }
@@ -20,23 +22,31 @@ fn validate_replacement_binding_target_shape(
     effect: &'static ReplacementEffectDef,
 ) -> Result<(), GrantedAbilityValidationError> {
     if binding == crate::ParentBinding {
-        return Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
-            context: "binding",
-            operation: "BindOutput requires a durable labeled binding",
-        });
+        return Err(
+            GrantedAbilityValidationError::UnsupportedEffectProgramContext {
+                context: "binding",
+                operation: "BindOutput requires a durable labeled binding",
+            },
+        );
     }
     let ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(choice)) = *effect else {
-        return Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
-            context: "binding",
-            operation: "entry BindOutput requires a scalar choice producer",
-        });
+        return Err(
+            GrantedAbilityValidationError::UnsupportedEffectProgramContext {
+                context: "binding",
+                operation: "entry BindOutput requires a scalar choice producer",
+            },
+        );
     };
     match (choice.list, choice.destination) {
+        (ScalarChoiceListDef::CardNames(names), BattlefieldEntryChoiceDestinationDef::CardName)
+            if names.is_catalog_defined() =>
+        {
+            Ok(())
+        }
         (
-            ScalarChoiceListDef::CardNames(names),
-            BattlefieldEntryChoiceDestinationDef::CardName,
-        ) if names.is_catalog_defined() => Ok(()),
-        (ScalarChoiceListDef::CreatureTypes, BattlefieldEntryChoiceDestinationDef::CreatureType) => Ok(()),
+            ScalarChoiceListDef::CreatureTypes,
+            BattlefieldEntryChoiceDestinationDef::CreatureType,
+        ) => Ok(()),
         (ScalarChoiceListDef::Tokens(choices), BattlefieldEntryChoiceDestinationDef::Token) => {
             validate_choice_labels(choices)
         }
@@ -102,19 +112,19 @@ fn validate_replacement_effect_target_shapes(
         ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(choice)) => {
             let valid = matches!(
                 (choice.list, choice.destination),
-                (ScalarChoiceListDef::Players, BattlefieldEntryChoiceDestinationDef::Player)
-                    | (
-                        ScalarChoiceListDef::CreatureTypes,
-                        BattlefieldEntryChoiceDestinationDef::CreatureType
-                    )
-                    | (
-                        ScalarChoiceListDef::BasicLandTypes,
-                        BattlefieldEntryChoiceDestinationDef::BasicLandType
-                    )
-                    | (
-                        ScalarChoiceListDef::Colors,
-                        BattlefieldEntryChoiceDestinationDef::Color
-                    )
+                (
+                    ScalarChoiceListDef::Players,
+                    BattlefieldEntryChoiceDestinationDef::Player
+                ) | (
+                    ScalarChoiceListDef::CreatureTypes,
+                    BattlefieldEntryChoiceDestinationDef::CreatureType
+                ) | (
+                    ScalarChoiceListDef::BasicLandTypes,
+                    BattlefieldEntryChoiceDestinationDef::BasicLandType
+                ) | (
+                    ScalarChoiceListDef::Colors,
+                    BattlefieldEntryChoiceDestinationDef::Color
+                )
             );
             if valid {
                 Ok(())
@@ -124,6 +134,17 @@ fn validate_replacement_effect_target_shapes(
                     destination: choice.destination,
                 })
             }
+        }
+        ReplacementEffectDef::Choose(ReplacementChoiceDef::Colors(count))
+            if (1..=5).contains(&count) =>
+        {
+            Ok(())
+        }
+        ReplacementEffectDef::Choose(ReplacementChoiceDef::Colors(_)) => {
+            Err(GrantedAbilityValidationError::InvalidScalarChoice {
+                list: ScalarChoiceListDef::Colors,
+                destination: BattlefieldEntryChoiceDestinationDef::Color,
+            })
         }
         ReplacementEffectDef::ReplaceEventWithNothing
         | ReplacementEffectDef::MoveToZone(_)

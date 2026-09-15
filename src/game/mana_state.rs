@@ -29,6 +29,8 @@ pub(super) enum ManaPaymentPurpose {
         /// is local to the payment continuation until all costs are paid.
         commander_owner: Option<PlayerId>,
         form: SpellForm,
+        alternative: Option<crate::card::AlternativeCastKindDef>,
+        x: u16,
         /// Life already committed by the spell while mana abilities are
         /// planned, including Phyrexian symbols paid with life.
         reserved_life_payment: u16,

@@ -17,6 +17,8 @@ impl Game {
             definition: definition.id,
             controller: player,
             form: option.form.clone(),
+            alternative: None,
+            x: 0,
             reserved_life_payment: 0,
         };
         let mana = self.available_mana_ceiling(player, &purpose);

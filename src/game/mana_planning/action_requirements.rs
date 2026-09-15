@@ -143,6 +143,8 @@ impl Game {
                         definition: definition.id,
                         controller: player,
                         form: option.form.clone(),
+                        alternative,
+                        x: choices.x(),
                         reserved_life_payment: total_life,
                     },
                 ))

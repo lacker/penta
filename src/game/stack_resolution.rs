@@ -30,11 +30,11 @@ impl Game {
 
     #[allow(clippy::too_many_lines)]
     pub(super) fn resolve_stack_top(&mut self) {
-        let object = self
+        let mut object = self
             .stack
             .pop()
             .expect("resolution is requested only for a nonempty stack");
-        self.retire_stack_object(&object);
+        self.retire_stack_object(&mut object);
         match object.kind {
             StackObjectKind::ActivatedAbility | StackObjectKind::TriggeredAbility => {
                 // Counted as the resolution begins rather than after it, so
@@ -154,6 +154,9 @@ impl Game {
                         definition,
                     },
                     |permanent| {
+                        permanent
+                            .resolved_continuous_effects
+                            .clone_from(&object.resolved_continuous_effects);
                         permanent.chosen_player = chosen_player;
                         permanent.cast = cast;
                         permanent.attached_to = aura_host;
@@ -169,6 +172,9 @@ impl Game {
                 self.turns_started[object.controller.index()],
                 self.turn,
             );
+            permanent
+                .resolved_continuous_effects
+                .clone_from(&object.resolved_continuous_effects);
             permanent.face_down = object.face_down;
             self.initialize_battlefield_entry(&mut permanent);
             let phyrexian_symbols_paid_with_life = object

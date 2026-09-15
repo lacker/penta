@@ -30,9 +30,13 @@ struct StackObject {
     /// They transfer to a resolving permanent but are not copied by spell-copy
     /// effects.
     text_changes: Vec<TextChange>,
-    /// Colours imposed on this object by a copy effect or a resolving
-    /// characteristic effect, such as "except that the copy is red" or a
-    /// Lace. The override lasts for this stack incarnation.
+    /// Ordinary, noncopiable characteristic effects applied to this spell.
+    /// They retain their timestamps and transfer to a resolving permanent
+    /// under CR 400.7a.
+    resolved_continuous_effects: Vec<ResolvedContinuousEffect>,
+    /// Frozen layer-5 result once this object has left the stack; never copiable.
+    last_known_colors: Option<ColorSet>,
+    /// Copiable colors imposed by a copy exception (CR 707.9).
     colors: Option<ColorSet>,
     /// Casting choices, payment facts, and provenance carried through
     /// resolution. Ability objects and objects put directly on the stack have
@@ -219,7 +223,10 @@ impl ScopedEffect {
     }
 
     const fn with_costs(self, costs: &'static [crate::card::CostDef]) -> Self {
-        Self { cost_parameter: Some(costs), ..self }
+        Self {
+            cost_parameter: Some(costs),
+            ..self
+        }
     }
 
     const fn has_rule(self, rule: AppliedRuleDef) -> bool {
@@ -292,10 +299,8 @@ impl StackObject {
     /// Presentation safe for a public decision, including one made by the
     /// controller who can privately inspect the card underneath.
     pub(super) fn public_presentation(&self) -> ObjectCharacteristics {
-        self.face_down.map_or_else(
-            || self.presentation(),
-            ObjectCharacteristics::face_down,
-        )
+        self.face_down
+            .map_or_else(|| self.presentation(), ObjectCharacteristics::face_down)
     }
 
     fn presentation(&self) -> ObjectCharacteristics {

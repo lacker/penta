@@ -158,6 +158,11 @@ pub(in crate::game::state_checkpoint) fn stack_source_requires_hidden_rebinding(
         state.library.iter().any(|card| card.id == object)
             || state.outside_game.iter().any(|card| card.id == object)
             || (player != viewer && state.hand.iter().any(|card| card.id == object))
+            || state.exile.iter().any(|card| {
+                card.id == object
+                    && game.exiled_card_is_face_down(card.id)
+                    && !game.card_is_known_to(card, crate::ZoneKind::Exile, viewer)
+            })
     })
 }
 

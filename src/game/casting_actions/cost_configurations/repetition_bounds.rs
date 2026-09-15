@@ -8,6 +8,9 @@ impl Game {
         player: PlayerId,
         option: &PlayOptionDef,
     ) -> u16 {
+        if !option.additional_costs.iter().any(|cost| cost.repeatable) {
+            return 0;
+        }
         let Some((_, held)) = self.card_in_nonbattlefield_zone(card) else {
             return 0;
         };

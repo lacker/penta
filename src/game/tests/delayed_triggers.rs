@@ -1,5 +1,7 @@
 use super::*;
 
+mod goryos_vengeance;
+
 /// Answers every waiting decision by taking what is offered and otherwise
 /// passing, until the stack and the trigger queue are empty.
 pub(in crate::game) fn drain_pending(game: &mut Game) {

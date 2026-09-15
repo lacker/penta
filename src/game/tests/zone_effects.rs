@@ -1,5 +1,7 @@
 use super::*;
 
+mod object_zone_filters;
+
 #[test]
 fn urgent_exorcism_takes_spirits_and_enchantments_but_nothing_else() {
     // The predicate is a subtype or a card type, so a plain creature is out

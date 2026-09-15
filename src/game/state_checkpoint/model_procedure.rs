@@ -43,6 +43,10 @@ pub(super) enum PendingProcedureSnapshot {
         ability: AbilityLocator,
         context: EffectResolutionContextSnapshot,
     },
+    FinishMoveObjects {
+        inputs: Vec<(u32, u16)>,
+        continuation: EffectContinuationSnapshot,
+    },
     ForEachInBinding {
         objects: super::model::BindingSnapshot,
         binding: super::model::BindingSnapshot,

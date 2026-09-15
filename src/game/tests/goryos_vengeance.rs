@@ -213,14 +213,67 @@ fn splice_pays_its_cost_and_keeps_distinct_targets_and_delayed_bindings() {
 }
 
 #[test]
+fn post_move_binding_waits_for_entry_choices_and_survives_a_checkpoint() {
+    let (mut game, spell, body) = staged();
+    game.players[0].graveyard[0].definition = cards::SAKASHIMA_THE_IMPOSTOR;
+    game.battlefield
+        .push(creature(190_005, cards::GRIZZLY_BEARS, PlayerId::Two));
+    game.apply(
+        PlayerId::One,
+        cast_action(spell, vec![Target::Card(body)], Vec::new(), 0),
+    )
+    .unwrap();
+    for _ in 0..4 {
+        if !game.pending_decisions.is_empty() {
+            break;
+        }
+        game.apply(game.priority, Action::PassPriority).unwrap();
+    }
+    assert!(!game.pending_decisions.is_empty());
+    assert!(game.installed_triggers.is_empty());
+    let (wire, hidden) = checkpoint_fixture(&game, PlayerId::One);
+    let mut game = Game::from_observation_checkpoint(
+        game.catalog.clone(),
+        game.format,
+        &wire,
+        &hidden,
+        190_100,
+    )
+    .unwrap();
+    drain_pending(&mut game);
+    let returned = game
+        .battlefield
+        .iter()
+        .find(|permanent| permanent.card.definition == cards::SAKASHIMA_THE_IMPOSTOR)
+        .unwrap();
+    assert_ne!(returned.card.id, body);
+    assert!(game.permanent_has_executable_keyword(returned, KeywordAbility::Haste));
+    assert_eq!(game.installed_triggers.len(), 1);
+    next_end_step(&mut game);
+    drain_pending(&mut game);
+    assert_eq!(
+        game.players[0].exile[0].definition,
+        cards::SAKASHIMA_THE_IMPOSTOR
+    );
+}
+
+#[test]
 fn a_redirected_arrival_gets_neither_haste_nor_a_delayed_trigger() {
     let (mut game, spell, body) = staged();
     game.battlefield
         .push(creature(190_005, cards::CONTAINMENT_PRIEST, PlayerId::Two));
+    game.battlefield.push(creature(
+        190_006,
+        cards::ROFELLOS_LLANOWAR_EMISSARY,
+        PlayerId::Two,
+    ));
     cast(&mut game, spell, body);
     assert_eq!(game.players[0].exile.len(), 1);
     assert!(game.nonbattlefield_ability_grants.is_empty());
     assert!(game.installed_triggers.is_empty());
+    assert!(game.battlefield.iter().all(|permanent| {
+        !game.permanent_has_executable_keyword(permanent, KeywordAbility::Haste)
+    }));
     let exiled = game.players[0].exile[0].id;
     next_end_step(&mut game);
     drain_pending(&mut game);

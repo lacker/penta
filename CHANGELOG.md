@@ -47,6 +47,11 @@ the bot-wire epoch.
   stays hidden during interrupted cast payment. Protocol and checkpoint epochs
   are unchanged.
 
+- Implement Goryo's Vengeance with post-move object bindings. Collection moves
+  finish entry replacements before binding their results or running follow-up
+  effects. Checkpoints can retain the new `finishMoveObjects` continuation;
+  existing checkpoint and protocol epochs are unchanged.
+
 - Implement Aven Interrupter and Doc Aurlock, Grizzled Genius. Plotted status
   belongs to the current exile object independently of its abilities and grants
   its owner a free, later-turn, main-phase-only cast. Checkpoints add optional

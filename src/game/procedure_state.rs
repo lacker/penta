@@ -41,6 +41,12 @@ pub(super) enum PendingProcedure {
         object: Box<StackObject>,
         context: EffectResolutionContext,
     },
+    FinishMoveObjects {
+        inputs: Vec<(crate::GameObjectId, u16)>,
+        effect: ScopedEffect,
+        object: Box<StackObject>,
+        context: EffectResolutionContext,
+    },
     ForEachInBinding {
         objects: RuntimeBinding,
         binding: RuntimeBinding,

@@ -136,6 +136,22 @@ pub(super) fn pending_procedure_snapshot(
                 context: effect_resolution_context_snapshot(context),
             }
         }
+        super::super::PendingProcedure::FinishMoveObjects {
+            inputs,
+            effect,
+            object,
+            context,
+        } => PendingProcedureSnapshot::FinishMoveObjects {
+            inputs: inputs.iter().map(|(id, value)| (id.0, *value)).collect(),
+            continuation: effect_continuation_snapshot(
+                game,
+                viewer,
+                object,
+                context,
+                *effect,
+                visible_rebindings,
+            )?,
+        },
         super::super::PendingProcedure::ForEachInBinding {
             objects,
             binding,
@@ -258,6 +274,24 @@ pub(super) fn parse_pending_procedure(
                 context: parse_effect_resolution_context(context.clone())?,
             }
         }
+        PendingProcedureSnapshot::FinishMoveObjects {
+            inputs,
+            continuation,
+        } => {
+            let continuation = parse_effect_continuation(continuation, game)?;
+            if !matches!(continuation.effect.effect, EffectDef::MoveObjects(_)) {
+                return Err("move completion must reference a MoveObjects effect".to_owned());
+            }
+            super::super::PendingProcedure::FinishMoveObjects {
+                inputs: inputs
+                    .iter()
+                    .map(|(id, value)| (GameObjectId(*id), *value))
+                    .collect(),
+                effect: continuation.effect,
+                object: continuation.object,
+                context: continuation.context,
+            }
+        }
         PendingProcedureSnapshot::ForEachInBinding {
             objects,
             binding,
@@ -339,6 +373,16 @@ pub(super) fn pending_procedure_referenced_object_ids(
                         .filter_map(|mana| mana.source.map(|source| source.object)),
                 );
             }
+            ids
+        }
+        super::super::PendingProcedure::FinishMoveObjects {
+            inputs,
+            object,
+            context,
+            ..
+        } => {
+            let mut ids = continuation_referenced_object_ids(object, context);
+            ids.extend(inputs.iter().map(|(id, _)| *id));
             ids
         }
         super::super::PendingProcedure::ResolveEffects {

@@ -279,60 +279,49 @@ impl Game {
                 let cause = ZoneMoveCause::Effect {
                     controller: object.controller,
                 };
-                let mut moved = Vec::new();
+                let mut inputs = Vec::new();
                 for target in processing {
                     let Target::Card(card) = target else {
                         continue;
                     };
-                    if definition.from.is_some_and(|expected| {
-                        self.card_in_nonbattlefield_zone(card)
-                            .is_none_or(|(actual, _)| actual != expected)
-                    }) {
+                    let Some((from, _)) = self.card_in_nonbattlefield_zone(card) else {
+                        continue;
+                    };
+                    if definition.from.is_some_and(|expected| from != expected) {
                         continue;
                     }
-                    let mana_value = self.current_or_last_known_mana_value(card).unwrap_or(0);
-                    let Some((created, destination)) = self.move_card_target_to_zone(
+                    inputs.push((
+                        card,
+                        self.current_or_last_known_mana_value(card).unwrap_or(0),
+                    ));
+                    self.move_card_target_to_zone(
                         card,
                         definition.zone,
                         cause,
                         None,
                         definition.placement,
-                    ) else {
-                        continue;
-                    };
-                    let created = if destination == ZoneKind::Battlefield {
-                        Target::Permanent(self.arrived.take().unwrap_or(created))
-                    } else {
-                        Target::Card(created)
-                    };
-                    moved.push((target, created, mana_value));
+                    );
                 }
-                let moved_objects = input
-                    .iter()
-                    .filter_map(|input| {
-                        moved
-                            .iter()
-                            .find(|(previous, _, _)| previous == input)
-                            .map(|(_, created, _)| *created)
-                    })
-                    .collect::<Vec<_>>();
-                let consumed = moved
-                    .iter()
-                    .map(|(previous, _, _)| *previous)
-                    .collect::<Vec<_>>();
-                let mut context = context;
-                context.consume_bound_objects(&consumed);
-                context.matched_count =
-                    Some(u16::try_from(moved_objects.len()).unwrap_or(u16::MAX));
-                context.matched_mana_value = Some(
-                    moved
-                        .iter()
-                        .fold(0_u16, |total, (_, _, value)| total.saturating_add(*value)),
-                );
-                if let Some(binding) = definition.moved {
-                    context.bind_object_group(binding, moved_objects);
+                if definition.zone == ZoneKind::Library {
+                    inputs.reverse();
                 }
-                self.resolve_effect_def(scoped.with_effect(*definition.then), object, context);
+                // Entry replacements may still be waiting for a choice. Bind
+                // actual successors only after those moves have completed.
+                if !self.pending_decisions.is_empty()
+                    || !self.pending_events.is_empty()
+                    || !self.pending_procedures.is_empty()
+                {
+                    self.pending_procedures.push_back(
+                        super::super::PendingProcedure::FinishMoveObjects {
+                            inputs,
+                            effect: scoped,
+                            object: Box::new(object.clone()),
+                            context,
+                        },
+                    );
+                } else {
+                    self.finish_move_objects(inputs, scoped, object, context);
+                }
             }
             EffectDef::PutObjectsOntoBattlefieldFaceDown(definition) => {
                 let Some(controller) =
@@ -400,5 +389,34 @@ impl Game {
             }
             _ => unreachable!("only immediate collection effects reach this resolver"),
         }
+    }
+
+    pub(in crate::game) fn finish_move_objects(
+        &mut self,
+        inputs: Vec<(crate::GameObjectId, u16)>,
+        scoped: ScopedEffect,
+        object: &StackObject,
+        mut context: EffectResolutionContext,
+    ) {
+        let EffectDef::MoveObjects(definition) = scoped.effect else {
+            unreachable!("move completion retains its authored operation")
+        };
+        let mut moved = Vec::new();
+        let mut consumed = Vec::new();
+        let mut mana_value = 0_u16;
+        for (before, value) in inputs {
+            if let Some(after) = self.zone_change_successor_target(before) {
+                moved.push(after);
+                consumed.push(Target::Card(before));
+                mana_value = mana_value.saturating_add(value);
+            }
+        }
+        context.consume_bound_objects(&consumed);
+        context.matched_count = Some(u16::try_from(moved.len()).unwrap_or(u16::MAX));
+        context.matched_mana_value = Some(mana_value);
+        if let Some(binding) = definition.moved {
+            context.bind_object_group(binding, moved);
+        }
+        self.resolve_effect_def(scoped.with_effect(*definition.then), object, context);
     }
 }

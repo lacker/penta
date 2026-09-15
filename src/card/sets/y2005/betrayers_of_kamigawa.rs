@@ -26,6 +26,7 @@ use crate::card::HalvedValueDef;
 use crate::card::IfNoObjectsDef;
 use crate::card::InstalledTriggerDef;
 use crate::card::ManaColor;
+use crate::card::MoveObjectsDef;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectSetDef;
 use crate::card::PerPlayerSelectionDef;
@@ -111,26 +112,24 @@ pub(in crate::card::sets) static GORYO_S_VENGEANCE: CardRecord = CardRecord::new
                         owner: Some(PlayerRelation::You),
                     },
                 )],
-                EffectDef::WithZoneMoveResult {
-                    effect: &EffectDef::move_to_zone(
-                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        ZoneKind::Battlefield,
-                        ZonePlacement::Top,
-                    ),
-                    binding: crate::Binding!("returned"),
+                EffectDef::MoveObjects(MoveObjectsDef {
+                    input: ObjectSetDef::LegalTargets(TargetIndex::PRIMARY),
+                    from: Some(ZoneKind::Graveyard),
+                    zone: ZoneKind::Battlefield,
+                    placement: ZonePlacement::Top,
+                    moved: Some(crate::Binding!("returned")),
                     then: &EffectDef::IfNoObjects(IfNoObjectsDef {
                         input: ObjectSetDef::InZone {
-                            objects: &ObjectSetDef::ZoneChangeSuccessorsOfBinding(crate::Binding!(
-                                "returned"
-                            )),
+                            objects: &ObjectSetDef::Binding(crate::Binding!("returned")),
                             zone: ZoneKind::Battlefield,
                         },
                         if_empty: &EffectDef::None,
                         otherwise: &EffectDef::Sequence(&[
                             EffectDef::Apply {
-                                recipient: EffectRecipientDef::binding_zone_change_successors(
-                                    crate::Binding!("returned"),
-                                ),
+                                recipient: EffectRecipientDef::objects(ObjectSetDef::InZone {
+                                    objects: &ObjectSetDef::Binding(crate::Binding!("returned")),
+                                    zone: ZoneKind::Battlefield,
+                                }),
                                 effect: AppliedEffectDef::add_ability(&abilities::haste()),
                                 duration: ResolvedEffectDurationDef::Permanent,
                             },
@@ -142,9 +141,9 @@ pub(in crate::card::sets) static GORYO_S_VENGEANCE: CardRecord = CardRecord::new
                                         player: PlayerRelation::Any,
                                     },
                                     EffectDef::move_to_zone(
-                                        EffectRecipientDef::binding_zone_change_successors(
+                                        EffectRecipientDef::objects(ObjectSetDef::Binding(
                                             crate::Binding!("returned"),
-                                        ),
+                                        )),
                                         ZoneKind::Exile,
                                         ZonePlacement::Top,
                                     ),
@@ -152,7 +151,7 @@ pub(in crate::card::sets) static GORYO_S_VENGEANCE: CardRecord = CardRecord::new
                             )),
                         ]),
                     }),
-                },
+                }),
             ),
             abilities::splice_onto_arcane(&[CostDef::Mana(mana_cost!("{2}{B}"))]),
         ]),

@@ -778,6 +778,14 @@ impl Game {
                     object,
                     context,
                 } => self.resolve_effects_in_order(effects, &object, context),
+                PendingProcedure::FinishMoveObjects {
+                    inputs,
+                    effect,
+                    object,
+                    context,
+                } => {
+                    self.finish_move_objects(inputs, effect, &object, context);
+                }
                 PendingProcedure::ForEachInBinding {
                     objects,
                     binding,

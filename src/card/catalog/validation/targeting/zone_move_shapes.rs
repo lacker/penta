@@ -27,18 +27,6 @@ fn validate_zone_move_follow_up_shapes(
             }
             Ok(())
         }
-        EffectDef::IfNoObjects(definition) => {
-            validate_object_set_shape(definition.input, targets)?;
-            for branch in [definition.if_empty, definition.otherwise] {
-                validate_zone_move_follow_up_shapes(
-                    *branch,
-                    battlefield_recipient,
-                    targets,
-                    triggering_object_zone,
-                )?;
-            }
-            Ok(())
-        }
         EffectDef::Apply {
             recipient,
             effect,

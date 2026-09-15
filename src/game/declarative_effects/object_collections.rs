@@ -405,7 +405,16 @@ impl Game {
         let mut consumed = Vec::new();
         let mut mana_value = 0_u16;
         for (before, value) in inputs {
-            if let Some(after) = self.zone_change_successor_target(before) {
+            let after = self.zone_change_successor_target(before).or_else(|| {
+                // Reordering within a library preserves the existing object;
+                // unlike a zone change, it has no successor to bind.
+                (definition.zone == ZoneKind::Library
+                    && self
+                        .card_in_nonbattlefield_zone(before)
+                        .is_some_and(|(zone, _)| zone == ZoneKind::Library))
+                .then_some(Target::Card(before))
+            });
+            if let Some(after) = after {
                 moved.push(after);
                 consumed.push(Target::Card(before));
                 mana_value = mana_value.saturating_add(value);

@@ -81,6 +81,11 @@ impl Game {
         permanent: &Permanent,
         origin: AbilityOrigin,
     ) -> bool {
+        // CR 114.5: emblems are not permanents. Battlefield ability-removal
+        // effects cannot remove the abilities their creation effect defined.
+        if permanent.card.definition == super::ObjectKind::Emblem {
+            return true;
+        }
         self.collect_effective_abilities(permanent, None)
             .into_iter()
             .any(|ability| ability.origin == origin)
@@ -96,6 +101,9 @@ impl Game {
         effect: crate::card::EffectDef,
         timestamp: super::ContinuousEffectTimestamp,
     ) -> bool {
+        if permanent.card.definition == super::ObjectKind::Emblem {
+            return true;
+        }
         let layer = Self::static_effect_start_layer(effect);
         if layer < 6 {
             return true;

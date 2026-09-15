@@ -125,7 +125,7 @@ impl Game {
                 ability.definition,
                 DeclarativeAbilityDef::Static(definition)
                     if definition.source_zones.contains(&input.zone)
-            ) && ability.declarative_effect().is_some()
+            ) && ability.declarative_effect().is_some_and(|effect| kind.may_be_supplied_by(effect))
         });
         if !supplies_static_effect {
             return ControlFlow::Continue(());
@@ -144,20 +144,23 @@ impl Game {
             if !definition.source_zones.contains(&input.zone) {
                 continue;
             }
+            let Some(effect) = ability.declarative_effect() else {
+                continue;
+            };
+            if !kind.may_be_supplied_by(effect) {
+                continue;
+            }
             let origin = Self::authored_ability_origin(source_presentation, attached.id);
             if input.check_layer_survival
                 && !self.static_ability_survives_at_start(
                     source,
                     origin,
-                    ability.declarative_effect().unwrap_or(EffectDef::None),
+                    effect,
                     input.timestamp,
                 )
             {
                 continue;
             }
-            let Some(effect) = ability.declarative_effect() else {
-                continue;
-            };
             let mut traversal = StaticEffectTraversal {
                 source,
                 source_timestamp: input.timestamp,
@@ -178,7 +181,8 @@ impl Game {
         ControlFlow::Continue(())
     }
 
-    #[allow(clippy::too_many_arguments)]
+    // Keep source filtering, fallback, and ordered component visitation together.
+    #[allow(clippy::too_many_arguments, clippy::too_many_lines)]
     fn visit_prepared_static_source_effects(
         &self,
         input: StaticEffectSource<'_>,
@@ -193,6 +197,12 @@ impl Game {
         let text_words = self.text_word_map_for_permanent(source);
         for ability in program.abilities() {
             if !ability.source_zones.contains(&input.zone) {
+                continue;
+            }
+            if !ability.applications.as_ref().map_or_else(
+                || kind.may_be_supplied_by(ability.reference_effect),
+                |applications| applications.iter().any(|application| application.supplies(lane)),
+            ) {
                 continue;
             }
             let origin = Self::authored_ability_origin(source_presentation, ability.id);

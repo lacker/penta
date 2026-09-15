@@ -85,3 +85,27 @@ impl Game {
         }
     }
 }
+
+impl StaticEffectKind {
+    /// Reject unrelated static roots before asking live layer questions.
+    /// This inspects structure only: conditions and recipient selection still
+    /// run in the ordinary traversal, with stable component and grant IDs.
+    fn may_be_supplied_by(self, effect: EffectDef) -> bool {
+        fn includes(kind: StaticEffectKind, effect: AppliedEffectDef) -> bool {
+            match effect {
+                AppliedEffectDef::Composite(effects) => effects
+                    .iter()
+                    .copied()
+                    .any(|effect| includes(kind, effect)),
+                effect => kind.includes(effect),
+            }
+        }
+        match effect {
+            EffectDef::StaticApply { effect, .. } => includes(self, effect),
+            EffectDef::ConditionalStatic(conditional) => includes(self, conditional.then.effect),
+            _ => crate::card::child_effects(effect)
+                .into_iter()
+                .any(|effect| self.may_be_supplied_by(effect)),
+        }
+    }
+}

@@ -198,10 +198,10 @@ fn validate_query_shape(
     {
         validate_player_set_shape(players, targets)?;
     }
-    if let Some(relative @ (ZonePositionDef::Above(_) | ZonePositionDef::Below(_))) = query.position {
+    if let Some(relative @ (ZonePositionDef::Above(_) | ZonePositionDef::Below(_))) = query.position
+    {
         let reference = match relative {
-            ZonePositionDef::Above(reference)
-            | ZonePositionDef::Below(reference) => reference,
+            ZonePositionDef::Above(reference) | ZonePositionDef::Below(reference) => reference,
             ZonePositionDef::FromTop(_) => unreachable!("relative positions only"),
         };
         validate_object_reference_shape(reference, targets)?;
@@ -221,7 +221,8 @@ fn validate_object_set_shape(
         ObjectSetDef::One(reference)
         | ObjectSetDef::PermanentsTargetedBy(reference)
         | ObjectSetDef::LegalAttachmentHosts(reference)
-        | ObjectSetDef::TokensCreatedBy(reference) => {
+        | ObjectSetDef::TokensCreatedBy(reference)
+        | ObjectSetDef::AttachmentsOf(reference) => {
             validate_object_reference_shape(reference, targets)
         }
         ObjectSetDef::Query(query) => validate_query_shape(query, targets),
@@ -230,7 +231,10 @@ fn validate_object_set_shape(
             validate_object_set_shape(*objects, targets)?;
             validate_object_predicate_shape(object.predicate(), targets)
         }
-        ObjectSetDef::ExceptObject { objects, object } => {
+        ObjectSetDef::SharingCreatureType {
+            objects, object, ..
+        }
+        | ObjectSetDef::ExceptObject { objects, object } => {
             validate_object_set_shape(*objects, targets)?;
             validate_object_reference_shape(object, targets)
         }
@@ -376,6 +380,7 @@ fn validate_value_shape(
         }),
         ValueDef::ColorCount(reference)
         | ValueDef::ObjectPower(reference)
+        | ValueDef::ManaSpentToCast(reference)
         | ValueDef::ObjectManaValue(reference) => {
             validate_object_reference_shape(reference, targets)
         }
@@ -404,6 +409,7 @@ fn validate_value_shape(
         | ValueDef::DamageTakenThisTurn { .. }
         | ValueDef::CountersOnSource(_)
         | ValueDef::CardsDrawnThisTurn(_)
+        | ValueDef::PermanentsSacrificedThisTurn(_)
         | ValueDef::CardsDiscardedThisTurn(_)
         | ValueDef::LandsPlayedThisTurn(_)
         | ValueDef::LifeGainedThisTurn(_)
@@ -553,12 +559,14 @@ fn validate_trigger_condition_shape(
         TriggerConditionDef::ControlsCreaturesWithDifferentPowers(_)
         | TriggerConditionDef::ControllerHadPermanentLeaveThisTurn
         | TriggerConditionDef::ControllerHadCardLeaveGraveyardThisTurn
+        | TriggerConditionDef::ControllerHasEnduringStory
         | TriggerConditionDef::ControllerHasCitysBlessing
         | TriggerConditionDef::ControllerGainedLifeThisTurn
         | TriggerConditionDef::OpponentLostLifeThisTurn
         | TriggerConditionDef::CreatureDiedThisTurn
         | TriggerConditionDef::SourceArrivedSinceControllersLastUpkeep
         | TriggerConditionDef::SourceOnBattlefield
+        | TriggerConditionDef::SourceHasDesignation(_)
         | TriggerConditionDef::SourceInZone(_)
         | TriggerConditionDef::SourceUntapped
         | TriggerConditionDef::SourceIsPaired
@@ -725,7 +733,8 @@ fn recipient_may_name_nonbattlefield_object(
             | ObjectSetDef::ZoneChangeSuccessorsOfBinding(_)
             | ObjectSetDef::MatchingBinding { .. }
             | ObjectSetDef::Matching { .. }
-            | ObjectSetDef::ExceptObject { .. }
+            | ObjectSetDef::SharingCreatureType { .. }
+                | ObjectSetDef::ExceptObject { .. }
             // A graveyard is not the battlefield, which is the whole point of
             // naming a card at either end of it.
             | ObjectSetDef::LinkedExiles
@@ -754,7 +763,8 @@ fn recipient_may_name_nonbattlefield_object(
             | ObjectSetDef::PlayerAttachments(_)
             | ObjectSetDef::LegalAttachmentHosts(_)
             | ObjectSetDef::PermanentsControlledBy(_)
-            | ObjectSetDef::TokensCreatedBy(_),
+            | ObjectSetDef::TokensCreatedBy(_)
+                | ObjectSetDef::AttachmentsOf(_),
         )
         // Players and the creatures they control: nothing outside the
         // battlefield is named either way.
@@ -809,7 +819,8 @@ fn recipient_nonbattlefield_zones_support_flashback(
             | ObjectSetDef::ZoneChangeSuccessorsOfBinding(_)
             | ObjectSetDef::MatchingBinding { .. }
             | ObjectSetDef::Matching { .. }
-            | ObjectSetDef::ExceptObject { .. }
+            | ObjectSetDef::SharingCreatureType { .. }
+                | ObjectSetDef::ExceptObject { .. }
             | ObjectSetDef::LinkedExiles
             | ObjectSetDef::CardsDrawnThisTurnInHand(_)
             | ObjectSetDef::BottomOfGraveyard(_)
@@ -833,7 +844,8 @@ fn recipient_nonbattlefield_zones_support_flashback(
             | ObjectSetDef::PlayerAttachments(_)
             | ObjectSetDef::LegalAttachmentHosts(_)
             | ObjectSetDef::PermanentsControlledBy(_)
-            | ObjectSetDef::TokensCreatedBy(_),
+            | ObjectSetDef::TokensCreatedBy(_)
+                | ObjectSetDef::AttachmentsOf(_),
         )
         | EffectRecipientSetDef::PlayersAndCreaturesTheyControl(_)
         | EffectRecipientSetDef::DefenderOf(_)
@@ -874,12 +886,19 @@ fn validate_play_permission_shapes(
 ) -> Result<(), GrantedAbilityValidationError> {
     validate_recipient_shape(recipient, targets, RecipientExpectation::Player)?;
     if static_effect && !static_play_rule_recipient_supported(recipient) {
-        return Err(GrantedAbilityValidationError::UnsupportedStaticPlayerRecipient { recipient: Box::new(recipient) });
+        return Err(
+            GrantedAbilityValidationError::UnsupportedStaticPlayerRecipient {
+                recipient: Box::new(recipient),
+            },
+        );
     }
     validate_object_predicate_shape(restriction.object, targets)?;
     if let Some(ability) = benefit.and_then(|benefit| benefit.on_play) {
         let definition = reflexive_trigger_definition(ability)?;
-        validate_reflexive_trigger_references(ability, BindingScope::empty(&BindingRegistry::default()))?;
+        validate_reflexive_trigger_references(
+            ability,
+            BindingScope::empty(&BindingRegistry::default()),
+        )?;
         validate_program_target_shapes(ability.effect.definition, definition.targets, None)?;
     }
     Ok(())

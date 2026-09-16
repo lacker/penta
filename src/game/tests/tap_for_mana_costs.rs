@@ -242,6 +242,7 @@ fn drum_preserves_a_source_reserved_for_another_abilitys_tap_symbol() {
         mana_cost!("{G}"),
         0,
         &ManaPaymentPurpose::Ability {
+            waterbend: 0,
             source: helper,
             taps_source: true,
             leaves_source: false
@@ -252,9 +253,29 @@ fn drum_preserves_a_source_reserved_for_another_abilitys_tap_symbol() {
         mana_cost!("{G}"),
         0,
         &ManaPaymentPurpose::Ability {
+            waterbend: 0,
             source: helper,
             taps_source: false,
             leaves_source: true
         }
     ));
+}
+
+#[test]
+fn gene_pollinator_can_tap_a_noncreature_but_still_needs_its_own_tap_symbol_ready() {
+    for prepared in [false, true] {
+        let (mut game, source, helper) = staged();
+        game.set_prepared_engine_enabled(prepared);
+        game.battlefield[0] = creature(source.0, cards::GENE_POLLINATOR, PlayerId::One);
+        game.battlefield[1] = creature(helper.0, cards::FOREST, PlayerId::One);
+        let actions = mana_actions(&game, source);
+        assert_eq!(actions.len(), 5);
+        game.battlefield[0].entered_controller_turn = game.turns_started[0];
+        assert!(mana_actions(&game, source).is_empty());
+        game.battlefield[0].entered_controller_turn = 0;
+        game.apply(PlayerId::One, actions[0].clone()).unwrap();
+        assert!(game.battlefield.iter().all(|p| p.tapped));
+        assert_eq!(game.players[0].mana_pool.total(), 1);
+        assert!(game.stack.is_empty());
+    }
 }

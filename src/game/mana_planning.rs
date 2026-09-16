@@ -40,6 +40,7 @@ impl<'a> ManaPaymentReservations<'a> {
 
 #[derive(Clone, Copy)]
 struct AbilityManaRequest<'a> {
+    alternative_cost: Option<crate::AlternativeAbilityCost>,
     player: PlayerId,
     source: GameObjectId,
     ability: AbilityOrigin,
@@ -81,6 +82,7 @@ impl Game {
                 tap_cost_payer,
             },
             ManaPaymentPurpose::Ability {
+                waterbend: crate::card::costs::waterbend(definition.costs),
                 source,
                 taps_source,
                 leaves_source,
@@ -90,11 +92,13 @@ impl Game {
 
     /// The mana half of an activation cost, and how the payment should treat
     /// the ability's own source.
+    #[allow(clippy::too_many_lines)]
     fn ability_mana_requirement(
         &self,
         request: AbilityManaRequest<'_>,
     ) -> Option<(ManaCost, u16, ManaPlanOptions, ManaPaymentPurpose)> {
         let AbilityManaRequest {
+            alternative_cost,
             player,
             source,
             ability,
@@ -132,6 +136,7 @@ impl Game {
                     x,
                     ManaPlanOptions::default(),
                     ManaPaymentPurpose::Ability {
+                        waterbend: crate::card::costs::waterbend(definition.costs),
                         source,
                         taps_source: false,
                         leaves_source: false,
@@ -146,10 +151,18 @@ impl Game {
             .find(|permanent| permanent.card.id == source)?;
         if let Some((definition, animates_source)) = self
             .find_effective_ability(permanent, |effective| effective.origin == ability)
-            .and_then(|effective| match effective.ability.definition {
+            .and_then(|effective| {
+                self.activation_with_alternative_cost(
+                    player,
+                    source,
+                    effective.ability,
+                    alternative_cost,
+                )
+            })
+            .and_then(|ability| match ability.definition {
                 DeclarativeAbilityDef::Activated(definition) => Some((
                     definition,
-                    Self::effect_animates_source(effective.ability.declarative_effect()),
+                    Self::effect_animates_source(ability.declarative_effect()),
                 )),
                 DeclarativeAbilityDef::Spell(_)
                 | DeclarativeAbilityDef::ActivatedMana(_)
@@ -607,6 +620,15 @@ impl Game {
     ) -> (ManaCost, u16) {
         if self.explicit_mana_payment.is_some() {
             self.run_explicit_funding(player);
+            if matches!(purpose, ManaPaymentPurpose::Ability { .. })
+                && let Some(bound) = self.explicit_contributions.take()
+            {
+                for payment in bound.plan {
+                    self.tap_permanent(payment.source)
+                        .expect("a bound contributor remains untapped");
+                }
+                return (bound.remaining.cost, bound.remaining.x);
+            }
             return (cost, x);
         }
         let life_available =
@@ -697,7 +719,10 @@ impl Game {
         let mut actual = self.eligible_mana_pool_for_cost(
             match purpose {
                 ManaPaymentPurpose::Spell { controller, .. } => *controller,
-                _ => unreachable!("only spell payments use direct contributions"),
+                ManaPaymentPurpose::Ability { source, .. } => self
+                    .current_or_last_known_controller(*source)
+                    .expect("the activated source has a controller"),
+                _ => unreachable!("only spell and ability payments use direct contributions"),
             },
             purpose,
             cost,

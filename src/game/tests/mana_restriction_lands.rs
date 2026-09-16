@@ -20,6 +20,7 @@ fn cast_purpose(definition: CardDefinitionId) -> ManaPaymentPurpose {
         definition,
         controller: PlayerId::One,
         commander_owner: None,
+        source_zone: Some(ZoneKind::Hand),
         form: SpellForm::Part(CardPartId::PRIMARY),
         alternative: None,
         x: 0,
@@ -29,6 +30,7 @@ fn cast_purpose(definition: CardDefinitionId) -> ManaPaymentPurpose {
 
 fn ability_purpose(source: GameObjectId) -> ManaPaymentPurpose {
     ManaPaymentPurpose::Ability {
+        waterbend: 0,
         source,
         taps_source: false,
         leaves_source: false,

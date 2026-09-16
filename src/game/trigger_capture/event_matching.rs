@@ -4,6 +4,35 @@
 // imports here are that module's.
 
 impl Game {
+    fn crossed_saga_chapters(
+        &self,
+        chapters: &[u8],
+        event: &CommittedTriggerEvent,
+        source: GameObjectId,
+    ) -> usize {
+        let CommittedTriggerEvent::CountersPlaced {
+            object,
+            kind,
+            amount,
+        } = event
+        else {
+            return 0;
+        };
+        if object.id != source || !kind.is_lore() {
+            return 0;
+        }
+        let after = self
+            .battlefield
+            .iter()
+            .find(|p| p.card.id == source)
+            .map_or(0, |p| p.counters(*kind));
+        let before = after.saturating_sub(*amount);
+        chapters
+            .iter()
+            .filter(|chapter| before < u16::from(**chapter) && u16::from(**chapter) <= after)
+            .count()
+    }
+
     pub(super) fn zone_change_event_observation(
         definition: TriggerEventDef,
         event: &CommittedTriggerEvent,
@@ -149,6 +178,11 @@ impl Game {
             (TriggerEventDef::AbilityTriggeredBy(expected), CommittedTriggerEvent::AbilityTriggered { causes, .. }) => {
                 causes.iter().any(|cause| self.trigger_event_matches_with_bindings(*expected, cause, source, controller, bindings))
             }
+            (TriggerEventDef::SearchedLibrary(relation), CommittedTriggerEvent::LibrarySearched { player, owner }) => {
+                player == owner && controller.is_some_and(|controller| self.player_relation_matches(
+                    *player, relation, controller, event.context(),
+                ))
+            }
             (
                 TriggerEventDef::MechanicPerformed { mechanic, player: relation },
                 CommittedTriggerEvent::MechanicPerformed { mechanic: actual, player },
@@ -259,6 +293,7 @@ impl Game {
                         controller,
                     )
             }
+            (TriggerEventDef::SagaChapters(chapters), _) => self.crossed_saga_chapters(chapters, event, source) > 0,
             (
                 TriggerEventDef::CountersPlaced {
                     object: predicate,

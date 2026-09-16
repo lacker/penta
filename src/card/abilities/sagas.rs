@@ -8,34 +8,24 @@
 /// The event one chapter watches: a lore counter arriving that brings the
 /// count to this chapter's number.
 const fn saga_chapter_event(chapter: u8) -> TriggerEventDef {
-    TriggerEventDef::While {
-        event: &SAGA_LORE_COUNTER,
-        condition: match chapter {
-            1 => &SAGA_CHAPTER_ONE,
-            2 => &SAGA_CHAPTER_TWO,
-            3 => &SAGA_CHAPTER_THREE,
-            _ => &SAGA_CHAPTER_FOUR,
-        },
-    }
+    TriggerEventDef::SagaChapters(match chapter {
+        1 => &[1],
+        2 => &[2],
+        3 => &[3],
+        4 => &[4],
+        _ => panic!("use saga_chapters for another chapter number"),
+    })
 }
 
-static SAGA_LORE_COUNTER: TriggerEventDef = TriggerEventDef::CountersPlaced {
-    object: ObjectPredicateDef::Source,
-    kind: CounterKind::Lore,
-};
-
-const fn saga_chapter_condition(chapter: u8) -> TriggerConditionDef {
-    TriggerConditionDef::SourceCounters {
-        kind: CounterKind::Lore,
-        comparison: ComparisonDef::Equal,
-        amount: chapter,
-    }
+/// One printed clause shared by several chapter abilities (CR 714.2c).
+#[must_use]
+pub const fn saga_chapters(
+    chapters: &'static [u8],
+    text: &'static str,
+    effect: EffectDef,
+) -> AbilityDef {
+    AbilityDef::triggered(text, TriggerEventDef::SagaChapters(chapters), effect)
 }
-
-static SAGA_CHAPTER_ONE: TriggerConditionDef = saga_chapter_condition(1);
-static SAGA_CHAPTER_TWO: TriggerConditionDef = saga_chapter_condition(2);
-static SAGA_CHAPTER_THREE: TriggerConditionDef = saga_chapter_condition(3);
-static SAGA_CHAPTER_FOUR: TriggerConditionDef = saga_chapter_condition(4);
 
 /// One chapter of a Saga (CR 714.2c): the ability that triggers when the
 /// lore counter placed makes the count reach `chapter`.

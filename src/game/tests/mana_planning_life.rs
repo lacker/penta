@@ -115,6 +115,7 @@ fn flexible_allocation_caps_each_color_by_the_affordable_sources() {
     let purpose = ManaPaymentPurpose::Spell {
         object: GameObjectId(90_042),
         commander_owner: None,
+        source_zone: Some(ZoneKind::Hand),
         definition: cards::BARKSHELL_BLESSING,
         controller: PlayerId::One,
         form: SpellForm::Part(CardPartId::PRIMARY),
@@ -201,6 +202,7 @@ fn exact_mana_plan_preserves_cross_color_source_correlation() {
     let purpose = ManaPaymentPurpose::Spell {
         object: GameObjectId(90_044),
         commander_owner: None,
+        source_zone: Some(ZoneKind::Hand),
         definition: cards::BARKSHELL_BLESSING,
         controller: PlayerId::One,
         form: SpellForm::Part(CardPartId::PRIMARY),

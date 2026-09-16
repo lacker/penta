@@ -2,6 +2,7 @@ impl TriggeredAbilityDef {
     #[must_use]
     pub const fn new(event: TriggerEventDef) -> Self {
         Self {
+            keyword_kind: None,
             source_zones: &[ZoneKind::Battlefield],
             event,
             targets: &[],

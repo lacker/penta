@@ -40,6 +40,12 @@ impl Game {
     /// priority window. Suspend asks this exact question without casting the
     /// card, so the timing rule lives beside ordinary cast enumeration rather
     /// than inside the suspend procedure.
+    pub(super) fn sneak_window(&self, player: PlayerId) -> bool {
+        self.active_player == player
+            && self.step == super::Step::DeclareBlockers
+            && self.blockers_declared
+    }
+
     pub(super) fn spell_form_timing_allows(
         &self,
         definition: &CardDefinition,
@@ -200,7 +206,9 @@ impl Game {
                 .iter()
                 .filter(|option| option.action == PlayActionKind::CastSpell)
             {
-                if self.play_is_prohibited(card, player, option) {
+                if !self.card_can_use_spell_form(card, option)
+                    || self.play_is_prohibited(card, player, option)
+                {
                     continue;
                 }
                 if source_zone != CastSourceZone::Hand
@@ -228,11 +236,8 @@ impl Game {
                 // type would otherwise impose -- which is the only way a
                 // cascaded sorcery, or one an Arcanist points at mid-combat,
                 // is ever cast at all.
-                if offer.is_none()
-                    && !self.spell_form_timing_allows(definition, card, player, option, types)
-                {
-                    continue;
-                }
+                let ordinary_timing = offer.is_some()
+                    || self.spell_form_timing_allows(definition, card, player, option, types);
                 for spliced in self.splice_selections(definition, player, card.id) {
                     let Some(splice_clauses) = self.spliced_clauses_of(&spliced) else {
                         continue;
@@ -257,6 +262,9 @@ impl Game {
                                     &costs,
                                     offer.map(|offer| offer.cost),
                                 );
+                                if !(ordinary_timing || alternative_kind == Some(AlternativeCastKindDef::Sneak) && self.sneak_window(player)) {
+                                    return ControlFlow::Continue(());
+                                }
                                 if alternative_kind == Some(AlternativeCastKindDef::Overload)
                                     && !modes.is_empty()
                                 {
@@ -285,6 +293,7 @@ impl Game {
                                 let mana_x = if cost.variable_x && alternative_kind == Some(AlternativeCastKindDef::Harmonize) {
                                     Some(self.harmonize_x_ceiling(player, &ManaPaymentPurpose::Spell {
                                         object: card.id, commander_owner: self.commander_owner(card.id),
+                        source_zone: Some(source_zone.zone()),
                                         definition: definition.id, controller: player, form: option.form.clone(),
                                         alternative: alternative_kind,
         x: 0,
@@ -303,7 +312,7 @@ impl Game {
                                                     Self::locked_mana_payment(
                                                         increased,
                                                         &choice,
-                                                        self.card_mana_is_any_color(card.id),
+                                                        false,
                                                     )?;
                                                 let total_life = self
                                                     .configured_cast_life_payment(
@@ -321,6 +330,7 @@ impl Game {
                                                 let exact_purpose = ManaPaymentPurpose::Spell {
                                                     object: card.id,
                                                     commander_owner: self.commander_owner(card.id),
+                        source_zone: Some(source_zone.zone()),
                                                     definition: card.definition,
                                                     controller: player,
                                                     form: option.form.clone(),
@@ -491,7 +501,7 @@ impl Game {
                                                     Self::locked_mana_payment(
                                                         increased_cost,
                                                         &mana_payment,
-                                                        self.card_mana_is_any_color(card.id),
+                                                        false,
                                                     )
                                                 else {
                                                     continue;
@@ -509,6 +519,7 @@ impl Game {
                                                 let exact_purpose = ManaPaymentPurpose::Spell {
                                                     object: card.id,
                                                     commander_owner: self.commander_owner(card.id),
+                        source_zone: Some(source_zone.zone()),
                                                     definition: card.definition,
                                                     controller: player,
                                                     form: option.form.clone(),
@@ -548,7 +559,7 @@ impl Game {
                                                     card: card.id,
                                                     choices: CastChoices::new(option.id)
                                                         .with_modes(modes.clone())
-                                                        .with_costs(costs.clone())
+                                                        .with_costs(costs.clone().with_chosen_creature_type(additional_payment.chosen_creature_type))
                                                         .with_mana_payment(mana_payment.clone())
                                                         .with_x(x)
                                                         .with_targets(targets.clone())

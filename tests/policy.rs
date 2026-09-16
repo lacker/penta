@@ -42,6 +42,8 @@ fn policy_observation(
     legal_actions: Vec<Action>,
 ) -> PlayerObservation {
     PlayerObservation {
+        enduring_story: [false; 2],
+        exiled_part_copies: Vec::new(),
         known_cards: Vec::new(),
         viewer: PlayerId::One,
         turn: 3,
@@ -93,12 +95,14 @@ fn permanent(
         characteristics: ObjectCharacteristics::card(definition, CardPartId::PRIMARY),
         token: false,
         has_individual_state: false,
+        designations: Vec::new(),
         controller,
         face_down: false,
         physical_face: None,
         phased_out: false,
         types: penta::CardTypeSet::empty(),
         chosen_creature_type: None,
+        chosen_card_type: None,
         chosen_basic_land_type: None,
         chosen_basic_land_type_substitution: None,
         chosen_color: None,

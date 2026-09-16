@@ -309,6 +309,7 @@ impl HandcraftedPolicy {
             EffectDef::WithCosts { effect, .. }
             | EffectDef::WithRule { effect, .. }
             | EffectDef::BindOutput { effect, .. }
+            | EffectDef::OncePerTurn { effect }
             | EffectDef::May { effect, .. } => Self::is_empty_without_x(*effect),
             EffectDef::Sequence(effects) => {
                 !effects.is_empty()
@@ -428,7 +429,8 @@ impl HandcraftedPolicy {
             EffectDef::ChooseForEachPlayer(choice) => {
                 Self::collect_spell_effect_profile(*choice.then, x, targets, profile);
             }
-            EffectDef::PermitLookAtExiled { then, .. }
+            EffectDef::SearchZones { then, .. }
+            | EffectDef::PermitLookAtExiled { then, .. }
             | EffectDef::SearchZone {
                 then: Some(then), ..
             } => {
@@ -445,6 +447,7 @@ impl HandcraftedPolicy {
             EffectDef::WithCosts { effect, .. }
             | EffectDef::WithRule { effect, .. }
             | EffectDef::BindOutput { effect, .. }
+            | EffectDef::OncePerTurn { effect }
             | EffectDef::May { effect, .. }
             | EffectDef::ForEachInBinding { effect, .. }
             | EffectDef::WithBattlefieldArrival { effect, .. } => {
@@ -526,6 +529,8 @@ impl HandcraftedPolicy {
             | EffectDef::RemoveFromCombat { .. }
             | EffectDef::SkipNextUntapSteps { .. }
             | EffectDef::DoubleCounters { .. }
+            | EffectDef::AddCountersFrom { .. }
+            | EffectDef::SetDesignation { .. }
             | EffectDef::RemoveAllCounters { .. }
             | EffectDef::Untap { .. }
             | EffectDef::Saddle { .. }
@@ -561,6 +566,7 @@ impl HandcraftedPolicy {
                 crate::card::GameActionDef::Sacrifice { .. }
                 | crate::card::GameActionDef::SacrificeYours { .. }
                 | crate::card::GameActionDef::DiscardCards { .. }
+                | crate::card::GameActionDef::ModifyCounters { .. }
                 | crate::card::GameActionDef::Exile { .. }
                 | crate::card::GameActionDef::GainControl { .. }
                 | crate::card::GameActionDef::MoveToZone { .. },
@@ -601,6 +607,7 @@ impl HandcraftedPolicy {
             | EffectDef::CannotBeForcedToSacrifice
             | EffectDef::CannotBeForcedToDiscard
             | EffectDef::GainClassLevel { .. }
+            | EffectDef::RecordMechanic(_)
             | EffectDef::SubstituteBasicLandTypeUntilEndOfTurn { .. }
             | EffectDef::CreateEmblem { .. }
             | EffectDef::CreateOngoingEffect(_)
@@ -610,12 +617,14 @@ impl HandcraftedPolicy {
             | EffectDef::TakeExtraTurn { .. }
             | EffectDef::PutSourceOntoBattlefieldAttacking
             | EffectDef::SetLifeTotal { .. }
+            | EffectDef::ChooseCreatureType { .. }
             | EffectDef::ChooseCardName { .. }
             | EffectDef::BecomeMonarch { .. }
             | EffectDef::VoteForPermanentToExile { .. }
             | EffectDef::DamageCannotBePreventedThisTurn
             | EffectDef::ExileLinkedToSource { .. }
             | EffectDef::MayPlayWithoutPaying { .. }
+            | EffectDef::GrantPlayPermission(_)
             | EffectDef::ExileGrantingOwnerPlay { .. }
             | EffectDef::ExileGrantingControllerPlayThisTurn { .. }
             | EffectDef::ReturnLinkedExiles { .. }
@@ -632,6 +641,7 @@ impl HandcraftedPolicy {
             | EffectDef::PutIntoLibraryBeneathTop { .. }
             | EffectDef::Attach { .. }
             | EffectDef::AttachToSource { .. }
+            | EffectDef::AttachObjects { .. }
             | EffectDef::Reconfigure { .. }
             | EffectDef::Unattach { .. }
             | EffectDef::PairWithSource { .. }
@@ -674,6 +684,7 @@ impl HandcraftedPolicy {
             | ValueDef::CountersOnSource(_)
             | ValueDef::CountersOnObject(_)
             | ValueDef::CardsDrawnThisTurn(_)
+            | ValueDef::PermanentsSacrificedThisTurn(_)
             | ValueDef::CardsDiscardedThisTurn(_)
             | ValueDef::LandsPlayedThisTurn(_)
             | ValueDef::LifeGainedThisTurn(_)
@@ -681,6 +692,7 @@ impl HandcraftedPolicy {
             | ValueDef::BasicLandTypesControlled(_)
             | ValueDef::LibrarySize(_)
             | ValueDef::SpellsCastThisGame(_)
+            | ValueDef::ManaSpentToCast(_)
             | ValueDef::ColorsOfManaSpent
             | ValueDef::PaidAmount
             | ValueDef::MatchedCount

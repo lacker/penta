@@ -22,7 +22,8 @@ pub(in crate::game::state_checkpoint) fn catalog_emblem_characteristics(
     let creator = catalog_ability(catalog, locator.creator())?;
     match locator {
         EmblemCharacteristicsLocator::EffectPath { effect_path, .. } => {
-            let EffectDef::CreateEmblem { emblem } = effect_at_path(&creator, effect_path)? else {
+            let EffectDef::CreateEmblem { emblem, .. } = effect_at_path(&creator, effect_path)?
+            else {
                 return None;
             };
             Some(emblem)

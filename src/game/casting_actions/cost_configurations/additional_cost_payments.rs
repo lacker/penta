@@ -1,6 +1,7 @@
 // Scalar, object, composite, and repeated spell additional-cost payments.
 
 impl Game {
+    #[allow(clippy::too_many_lines)]
     fn spell_additional_cost_payment_options(
         &self,
         cost: CostDef,
@@ -25,6 +26,7 @@ impl Game {
                 includes_mana_payment: true,
                 life: 0,
                 generic_reduction: None,
+                chosen_creature_type: None,
             }],
             CostDef::ManaTimes { cost, quantity } => {
                 let repetitions = scale
@@ -38,6 +40,7 @@ impl Game {
                     includes_mana_payment: repetitions > 0,
                     life: 0,
                     generic_reduction: None,
+                    chosen_creature_type: None,
                 }]
             }
             CostDef::PayLife(amount) => (i64::from(amount)
@@ -48,6 +51,7 @@ impl Game {
                 includes_mana_payment: false,
                 life: amount,
                 generic_reduction: None,
+                chosen_creature_type: None,
             })
             .into_iter()
             .collect(),
@@ -62,10 +66,16 @@ impl Game {
                         includes_mana_payment: false,
                         life: amount,
                         generic_reduction: None,
+                        chosen_creature_type: None,
                     })
                     .into_iter()
                     .collect()
             }
+            CostDef::Behold {
+                object,
+                count,
+                choose_creature_type,
+            } => self.behold_cost_payments(cost, object, count, choose_creature_type, card, player),
             CostDef::RevealCardFromHand(_) => {
                 self.spell_object_additional_cost_payments_for_count(cost, 1, card, player, scale.x)
             }
@@ -144,6 +154,7 @@ impl Game {
             .collect()
     }
 
+    #[allow(clippy::too_many_lines)]
     fn repeated_spell_additional_cost_payment_options(
         &self,
         cost: CostDef,
@@ -163,6 +174,7 @@ impl Game {
                     includes_mana_payment: plan.includes_mana_payment,
                     life: plan.life,
                     generic_reduction: None,
+                    chosen_creature_type: None,
                 })
                 .collect();
         }
@@ -190,6 +202,7 @@ impl Game {
                 includes_mana_payment: total_repetitions > 0,
                 life: 0,
                 generic_reduction: None,
+                chosen_creature_type: None,
             }];
         }
         if let CostDef::Mana(cost) = cost {
@@ -201,6 +214,7 @@ impl Game {
                 includes_mana_payment: repetitions > 0,
                 life: 0,
                 generic_reduction: None,
+                chosen_creature_type: None,
             }];
         }
         if let CostDef::PayLifeTimes(quantity) = cost {
@@ -215,6 +229,7 @@ impl Game {
                     includes_mana_payment: false,
                     life: amount,
                     generic_reduction: None,
+                    chosen_creature_type: None,
                 })
                 .into_iter()
                 .collect();

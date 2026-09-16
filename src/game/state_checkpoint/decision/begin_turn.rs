@@ -57,14 +57,18 @@ pub(super) fn deferred_begin_turn_effect_snapshot(
     })
 }
 
-pub(super) const fn ability_source_snapshot(source: AbilitySourceRef) -> AbilitySourceSnapshot {
+pub(in crate::game::state_checkpoint) const fn ability_source_snapshot(
+    source: AbilitySourceRef,
+) -> AbilitySourceSnapshot {
     AbilitySourceSnapshot {
         object: source.object.0,
         ability: ability_origin_snapshot(source.ability),
     }
 }
 
-pub(super) fn parse_ability_source(source: AbilitySourceSnapshot) -> AbilitySourceRef {
+pub(in crate::game::state_checkpoint) fn parse_ability_source(
+    source: AbilitySourceSnapshot,
+) -> AbilitySourceRef {
     AbilitySourceRef {
         object: GameObjectId(source.object),
         ability: ability_origin_from_snapshot(source.ability),

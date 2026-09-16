@@ -361,11 +361,10 @@ pub(super) fn applied_effects(ability: &AbilityDef) -> Vec<AppliedEffectDef> {
         }
     }
     for replacement in replacement_effects(ability) {
-        if let ReplacementEffectDef::ModifyBattlefieldEntry(
-            crate::card::BattlefieldEntryModificationDef::SetCardTypes(types),
-        ) = replacement
+        if let ReplacementEffectDef::ModifyBattlefieldEntry(modification) = replacement
+            && let Some(effect) = modification.applied_effect()
         {
-            collect_applied_effect(AppliedEffectDef::set_card_types(types), &mut found);
+            collect_applied_effect(effect, &mut found);
         }
     }
     for mana in mana_effects(ability) {
@@ -393,10 +392,8 @@ fn collect_applied_effects_from_effect(effect: EffectDef, found: &mut Vec<Applie
         }
         EffectDef::WithBattlefieldArrival { arrival, .. } => {
             for modification in arrival.modifications {
-                if let crate::card::BattlefieldEntryModificationDef::SetCardTypes(types) =
-                    modification
-                {
-                    collect_applied_effect(AppliedEffectDef::set_card_types(*types), found);
+                if let Some(effect) = modification.applied_effect() {
+                    collect_applied_effect(effect, found);
                 }
             }
         }

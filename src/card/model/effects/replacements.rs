@@ -129,10 +129,16 @@ pub enum ReplacementConditionDef {
 /// the battlefield.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum BattlefieldEntryModificationDef {
+    Designation(super::super::PermanentDesignationDef),
     Tapped,
     /// Establish a noncopiable layer-4 type-setting effect before replacement
     /// effects inspect the prospective permanent. It lasts for this object.
     SetCardTypes(CardTypeSet),
+    SetBasePowerToughness {
+        power: i16,
+        toughness: i16,
+    },
+    AddCreatureTypes(super::CreatureTypeSetDef),
     AddCounters {
         kind: CounterKind,
         amount: u16,
@@ -151,6 +157,22 @@ pub enum BattlefieldEntryModificationDef {
     },
 }
 
+impl BattlefieldEntryModificationDef {
+    pub(crate) const fn applied_effect(self) -> Option<super::AppliedEffectDef> {
+        Some(match self {
+            Self::SetCardTypes(types) => super::AppliedEffectDef::set_card_types(types),
+            Self::SetBasePowerToughness { power, toughness } => {
+                super::AppliedEffectDef::set_base_power_toughness(
+                    ValueDef::Constant(power as i32),
+                    ValueDef::Constant(toughness as i32),
+                )
+            }
+            Self::AddCreatureTypes(types) => super::AppliedEffectDef::add_creature_types(types),
+            _ => return None,
+        })
+    }
+}
+
 /// The authored or catalog-derived vocabulary presented by a scalar entry choice.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum ScalarChoiceListDef {
@@ -166,6 +188,8 @@ pub enum ScalarChoiceListDef {
     CardNames(CardNameSetDef),
     /// Every creature subtype available to the current game.
     CreatureTypes,
+    /// An explicit set of card types available for an entry choice.
+    CardTypes(&'static [crate::card::CardType]),
     /// The five basic land types, which are fixed rather than catalog-derived.
     BasicLandTypes,
     /// The five colors. Colorless is a mana type, not a color, and is not an
@@ -181,6 +205,7 @@ pub enum BattlefieldEntryChoiceDestinationDef {
     Token,
     CardName,
     CreatureType,
+    CardType,
     /// A basic land type, which the permanent then *is* rather than merely
     /// remembers: Multiversal Passage names one on the way in and reads it
     /// back in layer 4.

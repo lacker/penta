@@ -11,6 +11,13 @@ pub(super) fn permission_snapshot(permission: &ExilePlayPermission) -> ExilePlay
         card: permission.card.0,
         player: permission.player.index(),
         cost: permission.cost.label().to_owned(),
+        alternative_mana_cost: match permission.cost {
+            ExilePlayCost::AlternativeMana(cost) => Some(mana_cost_snapshot(cost)),
+            _ => None,
+        },
+        until_holder_cleanup: permission
+            .until_holder_cleanup
+            .map(|(player, turn)| (player.index(), turn)),
         until_end_of_turn: permission
             .until_end_of_turn
             .map(|(player, turn)| (player.index(), turn)),
@@ -25,6 +32,7 @@ pub(super) fn permission_snapshot(permission: &ExilePlayPermission) -> ExilePlay
         hidden_from_owner: permission.hidden_from_owner,
         cast_only: !permission.lands_may_be_played,
         spend_any_color: permission.spend_any_color,
+        spend_any_type: permission.spend_any_type,
         attacked_with_subtype: permission.condition.map(|condition| match condition {
             ExilePlayConditionDef::AttackedWithSubtypeThisTurn(subtype) => subtype.to_owned(),
         }),
@@ -43,7 +51,23 @@ pub(super) fn parse_permission(
     Ok(ExilePlayPermission {
         card: GameObjectId(permission.card),
         player: wire::player_from_index(permission.player)?,
-        cost: ExilePlayCost::from_label(&permission.cost).ok_or("unknown exile-play cost")?,
+        cost: if permission.cost == "alternativeMana" {
+            ExilePlayCost::AlternativeMana(super::mana_cost_from_snapshot(
+                permission
+                    .alternative_mana_cost
+                    .as_ref()
+                    .ok_or("missing alternative mana cost")?,
+            ))
+        } else {
+            if permission.alternative_mana_cost.is_some() {
+                return Err("unexpected alternative mana cost".into());
+            }
+            ExilePlayCost::from_label(&permission.cost).ok_or("unknown exile-play cost")?
+        },
+        until_holder_cleanup: match permission.until_holder_cleanup {
+            Some((player, turn)) => Some((wire::player_from_index(player)?, turn)),
+            None => None,
+        },
         until_end_of_turn: match permission.until_end_of_turn {
             Some((player, turn)) => Some((wire::player_from_index(player)?, turn)),
             None => None,
@@ -60,6 +84,7 @@ pub(super) fn parse_permission(
         face_down: permission.face_down,
         hidden_only: permission.hidden_only,
         spend_any_color: permission.spend_any_color,
+        spend_any_type: permission.spend_any_type,
         condition: match permission.attacked_with_subtype.as_deref() {
             // Read back as the catalog's own name for the type, which is
             // what the permission holds.

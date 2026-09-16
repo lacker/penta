@@ -549,6 +549,7 @@ fn cavern_payment(definition: CardDefinitionId) -> ManaPaymentPurpose {
     ManaPaymentPurpose::Spell {
         object: GameObjectId(19_200),
         commander_owner: None,
+        source_zone: Some(ZoneKind::Hand),
         definition,
         controller: PlayerId::One,
         form: SpellForm::Part(CardPartId::PRIMARY),

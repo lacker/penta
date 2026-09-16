@@ -197,6 +197,14 @@ impl HandcraftedPolicy {
                 // activation the ordering leaves first, the same way it
                 // takes the first of any two otherwise equal actions.
                 mana_payment: _,
+            }
+            | Action::ActivateAbilityWithAlternativeCost {
+                source,
+                ability,
+                targets,
+                cost_objects,
+                x,
+                ..
             } => self.score_ability(observation, *source, *ability, targets, cost_objects, *x),
             Action::DeclareAttacker { attacker, defender } => {
                 Self::score_attack(observation, *attacker)

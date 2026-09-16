@@ -158,6 +158,7 @@ fn mana_pool_doubling_lotus_mana_cannot_cast_an_ordinary_spell_or_eligible_legen
         let spell = ManaPaymentPurpose::Spell {
             object: GameObjectId(11_000),
             commander_owner: None,
+            source_zone: Some(ZoneKind::Hand),
             definition,
             controller: PlayerId::One,
             form: SpellForm::Part(CardPartId::PRIMARY),
@@ -214,6 +215,7 @@ fn spell_payment(game: &Game, object: GameObjectId, controller: PlayerId) -> Man
     ManaPaymentPurpose::Spell {
         object,
         commander_owner: game.commander_owner(object),
+        source_zone: Some(ZoneKind::Hand),
         definition: card.definition,
         controller,
         form: SpellForm::Part(CardPartId::PRIMARY),
@@ -331,6 +333,7 @@ fn jeweled_lotus_follows_physical_identity_into_hand_and_rejects_other_uses() {
     assert!(!game.mana_can_pay_for(
         mana,
         &ManaPaymentPurpose::Ability {
+            waterbend: 0,
             source: held,
             taps_source: false,
             leaves_source: false

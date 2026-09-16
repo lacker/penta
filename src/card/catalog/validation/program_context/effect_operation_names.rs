@@ -25,6 +25,7 @@ const fn effect_operation_name(effect: EffectDef) -> &'static str {
         | EffectDef::Choose(_)
         | EffectDef::ChooseExact(_)
         | EffectDef::ChooseCardsFromCollection(_)
+        | EffectDef::ChooseCreatureType { .. }
         | EffectDef::ChooseCardName { .. } => "Choose",
         EffectDef::LookAtObjects(_) => "LookAtObjects",
         EffectDef::ChooseObjectOrder(_) => "ChooseObjectOrder",
@@ -33,6 +34,7 @@ const fn effect_operation_name(effect: EffectDef) -> &'static str {
         EffectDef::CombineObjects(_) => "CombineObjects",
         EffectDef::ChooseOneOfEach(_) => "ChooseOneOfEach",
         EffectDef::ChooseGroup(_) => "ChooseGroup",
+        EffectDef::SearchZones { .. } => "Search",
         EffectDef::BindObjects(_) => "BindObjects",
         EffectDef::IfNoObjects(_) => "IfNoObjects",
         EffectDef::PartitionGroup(_) => "PartitionGroup",
@@ -56,6 +58,8 @@ const fn effect_operation_name(effect: EffectDef) -> &'static str {
         EffectDef::ShuffleLibrary { .. } => "ShuffleLibrary",
         EffectDef::EmptyManaPool { .. } => "EmptyManaPool",
         EffectDef::Discard { .. } => "Discard",
+        EffectDef::Perform(crate::card::GameActionDef::ModifyCounters { .. })
+        | EffectDef::ModifyCounters { .. } => "ModifyCounters",
         EffectDef::Perform(crate::card::GameActionDef::DiscardCards { .. }) => "DiscardCards",
         EffectDef::LoseLife { .. } => "LoseLife",
         EffectDef::LoseTheGame { .. } => "LoseTheGame",
@@ -70,6 +74,7 @@ const fn effect_operation_name(effect: EffectDef) -> &'static str {
         EffectDef::CreateMyriadTokens => "CreateMyriadTokens",
         EffectDef::Attach { .. }
         | EffectDef::AttachToSource { .. }
+        | EffectDef::AttachObjects { .. }
         | EffectDef::PhaseOut { .. } => "Attach",
         EffectDef::Reconfigure { .. } => "Reconfigure",
         EffectDef::Unattach { .. } => "Unattach",
@@ -113,10 +118,11 @@ const fn effect_operation_name(effect: EffectDef) -> &'static str {
         EffectDef::AddCounters { .. } => "AddCounters",
         EffectDef::ChooseCounterKind { .. } => "ChooseCounterKind",
         EffectDef::ChooseEffect { .. } => "ChooseEffect",
-        EffectDef::ModifyCounters { .. } => "ModifyCounters",
         EffectDef::RemoveCounters { .. } => "RemoveCounters",
         EffectDef::DoubleCounters { .. } => "DoubleCounters",
+        EffectDef::AddCountersFrom { .. } => "AddCountersFrom",
         EffectDef::RemoveAllCounters { .. } => "RemoveAllCounters",
+        EffectDef::SetDesignation { .. } => "SetDesignation",
         EffectDef::SkipNextUntapSteps { .. } => "SkipNextUntapSteps",
         EffectDef::ChangeText { .. } => "ChangeText",
         EffectDef::ChooseColor { .. } => "ChooseColor",
@@ -126,8 +132,10 @@ const fn effect_operation_name(effect: EffectDef) -> &'static str {
         EffectDef::VoteForPermanentToExile { .. } => "VoteForPermanentToExile",
         EffectDef::DamageCannotBePreventedThisTurn => "DamageCannotBePreventedThisTurn",
         EffectDef::May { .. } => "May",
+        EffectDef::OncePerTurn { .. } => "OncePerTurn",
         EffectDef::ExileLinkedToSource { .. } => "ExileLinkedToSource",
         EffectDef::PermitLookAtExiled { .. } => "PermitLookAtExiled",
+        EffectDef::GrantPlayPermission(..) => "GrantPlayPermission",
         EffectDef::MayPlayWithoutPaying { .. } => "MayPlayWithoutPaying",
         EffectDef::ExileGrantingOwnerPlay { .. } => "ExileGrantingOwnerPlay",
         EffectDef::ExileGrantingControllerPlayThisTurn { .. } => "ExileToPlayThisTurn",
@@ -142,6 +150,7 @@ const fn effect_operation_name(effect: EffectDef) -> &'static str {
         EffectDef::CannotBeForcedToSacrifice => "CannotBeForcedToSacrifice",
         EffectDef::CannotBeForcedToDiscard => "CannotBeForcedToDiscard",
         EffectDef::GainClassLevel { .. } => "GainClassLevel",
+        EffectDef::RecordMechanic(_) => "RecordMechanic",
         EffectDef::SubstituteBasicLandTypeUntilEndOfTurn { .. } => {
             "SubstituteBasicLandTypeUntilEndOfTurn"
         }

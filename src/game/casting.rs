@@ -482,6 +482,11 @@ impl Game {
         let payment_purpose = ManaPaymentPurpose::Spell {
             object: stack_id,
             commander_owner,
+            source_zone: stack_object
+                .cast
+                .as_ref()
+                .and_then(|cast| cast.source_zone)
+                .map(super::casting_state::CastSourceZone::zone),
             definition,
             controller: player,
             form: stack_object
@@ -609,6 +614,15 @@ impl Game {
         // validated signature above, so keeping the provisional object local
         // gives mana spend riders a concrete destination without exposing a
         // half-paid spell to priority or trigger placement.
+        let prepared_from = self
+            .prepared_spell_copies
+            .iter()
+            .find(|(copy, _)| *copy == card.id)
+            .map(|(_, source)| *source);
+        let is_copy = matches!(
+            card.characteristics,
+            super::CharacteristicSource::PartCopy { .. }
+        );
         let (card, _zone_change) = self.zone_change_card(card);
         let id = card.id;
         let frozen_spell_ability = self.frozen_spell_payload(card.definition, &signature);
@@ -628,6 +642,7 @@ impl Game {
             exile_if_put_into_graveyard,
         );
         cast.caster = Some(player);
+        cast.prepared_from = prepared_from;
         cast.player_bindings =
             self.selected_cast_player_bindings(card.definition, &signature, player);
         StackObject {
@@ -646,7 +661,7 @@ impl Game {
             colors: None,
             cast: Some(cast),
             face_down,
-            is_copy: false,
+            is_copy,
         }
     }
 
@@ -662,7 +677,7 @@ impl Game {
         // CR 601.2g: omitting a mana payment never opens a mana-ability
         // window. An explicit {0}, including a reduced mana cost, still does.
         self.run_explicit_funding(player);
-        if let Some(bound) = &self.explicit_cast_contributions {
+        if let Some(bound) = &self.explicit_contributions {
             return bound.plan.clone();
         }
         if includes_mana_payment && self.explicit_mana_payment.is_none() {
@@ -785,7 +800,7 @@ impl Game {
             .expect("a cast spell retains its context through payment")
             .exiled_payment_cards
             .extend(exiled);
-        let (mana_cost, mana_x) = if let Some(bound) = self.explicit_cast_contributions.take() {
+        let (mana_cost, mana_x) = if let Some(bound) = self.explicit_contributions.take() {
             (bound.remaining.cost, bound.remaining.x)
         } else {
             self.residual_cost_after_contributions(cost, x, &purpose, &plan, true)
@@ -799,6 +814,7 @@ impl Game {
                 definition,
                 controller,
                 commander_owner,
+                source_zone,
                 form,
                 alternative,
                 x: chosen_x,
@@ -806,6 +822,7 @@ impl Game {
             } => ManaPaymentPurpose::Spell {
                 object: *object,
                 commander_owner: *commander_owner,
+                source_zone: *source_zone,
                 definition: *definition,
                 controller: *controller,
                 form: form.clone(),
@@ -827,6 +844,7 @@ impl Game {
             .cast
             .as_mut()
             .expect("a cast spell retains its context through payment");
+        cast_context.mana_spent = u16::try_from(spent_mana.len()).unwrap_or(u16::MAX);
         for mana in &spent_mana {
             if mana.color != ManaColor::Colorless {
                 cast_context.colors_of_mana_spent =
@@ -837,6 +855,17 @@ impl Game {
     }
 
     fn complete_spell_cast(&mut self, mut stack_object: StackObject, targets: Vec<Target>) {
+        if let Some(source) = stack_object
+            .cast
+            .as_mut()
+            .and_then(|cast| cast.prepared_from.take())
+        {
+            self.set_permanent_designation(
+                source,
+                crate::card::PermanentDesignationDef::Prepared,
+                false,
+            );
+        }
         self.apply_matching_cast_rules(&mut stack_object);
         let face_down = stack_object.face_down.is_some();
         let player = stack_object.controller;

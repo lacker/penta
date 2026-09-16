@@ -726,6 +726,41 @@ impl Game {
         true
     }
 
+    fn damage_after_player_multipliers(&self, target: Target, mut amount: u16) -> u16 {
+        let (player, permanent) = match target {
+            Target::Player(player) => (player, false),
+            Target::Permanent(id) => {
+                let Some(p) = self.battlefield.iter().find(|p| p.card.id == id) else {
+                    return amount;
+                };
+                (p.controller, true)
+            }
+            _ => return amount,
+        };
+        let mut apply = |rule: crate::card::PlayerRuleDef| {
+            if let crate::card::PlayerRuleDef::DamageMultiplier {
+                factor,
+                controlled_permanents,
+            } = rule
+                && (!permanent || controlled_permanents)
+            {
+                amount = amount.saturating_mul(factor);
+            }
+        };
+        self.visit_player_static_rules(player, |rule| {
+            if let AppliedRuleDef::PlayerRule(rule) = rule {
+                apply(rule);
+            }
+        });
+        for resolved in self.resolved_player_rules.iter().filter(|r| {
+            r.affected_player == player
+                && self.continuous_effect_expiration_is_active(r.expiration, r.source.object)
+        }) {
+            apply(resolved.rule);
+        }
+        amount
+    }
+
     /// Caps a prospective damage event by every limiting rule that applies to
     /// its recipient. Limits compose by taking the smallest survivor, which
     /// is what two independent "instead" replacements do.

@@ -81,6 +81,7 @@ fn predicate_negates(predicate: ObjectPredicateDef, expected: ObjectPredicateDef
         | ObjectPredicateDef::WasDealtDamageThisTurn
         | ObjectPredicateDef::DealtDamageThisTurn
         | ObjectPredicateDef::Attacking
+        | ObjectPredicateDef::UnblockedAttacker
         | ObjectPredicateDef::Saddled
         | ObjectPredicateDef::Blocking
         | ObjectPredicateDef::BlockedBySource
@@ -112,6 +113,7 @@ fn predicate_negates(predicate: ObjectPredicateDef, expected: ObjectPredicateDef
         | ObjectPredicateDef::Subtype(_)
         | ObjectPredicateDef::ManaValueAtMost(_)
         | ObjectPredicateDef::FaceUpInExile
+        | ObjectPredicateDef::HasAlternateSpell(_)
         | ObjectPredicateDef::GenericManaCostAtMost(_)
         | ObjectPredicateDef::ManaValueEqualTo(_)
         | ObjectPredicateDef::ManaValueAtMostValue(_)

@@ -138,6 +138,9 @@ impl WebGame {
                     "targetStackIds": action_target_stacks(action),
                     "targetCount": action_targets(action).len(),
                     "ability": action_ability_origin(action),
+                    "alternativeAbilityCost": action.alternative_ability_cost().map(|cost| json!({
+                        "sourceId": cost.source.0, "ability": ability_origin_value(cost.ability),
+                    })),
                     "abilityLabel": self.action_ability_label(&observation, action),
                     "manaAbility": matches!(action, Action::ActivateManaAbility { .. }),
                     "spellAction": matches!(action, Action::CastSpell { .. }),
@@ -148,7 +151,7 @@ impl WebGame {
                     },
                     "x": match action {
                         Action::CastSpell { choices, .. } => Some(choices.x()),
-                        Action::ActivateAbility { x, .. } => Some(*x),
+                        Action::ActivateAbility { x, .. } | Action::ActivateAbilityWithAlternativeCost { x, .. } => Some(*x),
                         _ => None,
                     },
                     "playOptionId": match action {
@@ -160,12 +163,12 @@ impl WebGame {
                         Action::CastSpell { choices, .. } => Some(
                             choices.modes().iter().map(|mode| mode.0).collect::<Vec<_>>(),
                         ),
-                        Action::ActivateAbility { modes, .. } => {
+                        Action::ActivateAbility { modes, .. } | Action::ActivateAbilityWithAlternativeCost { modes, .. } => {
                             Some(modes.iter().map(|mode| mode.0).collect::<Vec<_>>())
                         }
                         _ => None,
                     },
-                    "paymentAction": matches!(action, Action::CastSpell { .. } | Action::ActivateAbility { .. }),
+                    "paymentAction": matches!(action, Action::CastSpell { .. } | Action::ActivateAbility { .. } | Action::ActivateAbilityWithAlternativeCost { .. }),
                     "manaSourceIds": self.automatic_mana_sources(action),
                     "decisionId": match action {
                         Action::ChooseDecision { decision, .. }
@@ -225,6 +228,7 @@ impl WebGame {
                     "partId": permanent.characteristics.part().0,
                     "token": permanent.token,
                     "hasIndividualState": permanent.has_individual_state,
+                    "designations": permanent.designations.iter().copied().map(penta::card::PermanentDesignationDef::label).collect::<Vec<_>>(),
                     "faceDown": permanent.face_down,
                     "phasedOut": permanent.phased_out,
                     "name": presentation.name,
@@ -256,6 +260,7 @@ impl WebGame {
                     "owner": if permanent.controller == self.human { "human" } else { "opponent" },
                     "chosenCardName": permanent.chosen_card_name.as_deref(),
                     "chosenCreatureType": permanent.chosen_creature_type.as_deref(),
+                    "chosenCardType": permanent.chosen_card_type.as_deref(),
                     "chosenBasicLandType": permanent
                         .chosen_basic_land_type
                         .map(penta::card::BasicLandType::subtype),
@@ -556,6 +561,7 @@ impl WebGame {
             "active": if observation.active_player == self.human { "You" } else { "Opponent" },
             "priority": if observation.priority == self.human { "You" } else { "Opponent" },
             "human": {
+                "enduringStory": observation.enduring_story[self.human.index()],
                 "life": observation.life_totals[self.human.index()],
                 "library": observation.library_sizes[self.human.index()],
                 "mana": {
@@ -571,6 +577,7 @@ impl WebGame {
                 "commandZone": command_zone(self.human),
             },
             "opponent": {
+                "enduringStory": observation.enduring_story[opponent.index()],
                 "life": observation.life_totals[opponent.index()],
                 "library": observation.library_sizes[opponent.index()],
                 "handSize": observation.opponent_hand_size,
@@ -594,6 +601,7 @@ impl WebGame {
                 "rulesText": emblem.ability_texts.join(" "),
                 "abilityTexts": emblem.ability_texts,
                 "sourceAbility": ability_origin_value(emblem.source_ability),
+                "chosenCreatureType": emblem.chosen_creature_type,
             })).collect::<Vec<_>>(),
             "stack": stack,
             "actions": actions,

@@ -41,6 +41,7 @@ mod emblem;
 mod event;
 mod exile_play;
 mod model;
+use model::ExileReturnSnapshot;
 mod model_keyword;
 mod model_ongoing;
 mod model_prevention;
@@ -49,6 +50,7 @@ mod model_trigger;
 mod ongoing_effect;
 mod permanent;
 mod play_restriction;
+mod preparation;
 mod prevention;
 mod privacy;
 mod procedure;
@@ -111,6 +113,31 @@ use trigger::{installed_trigger_snapshot, parse_installed_trigger};
 #[allow(clippy::wildcard_imports)]
 use wire::*;
 use wire_decision::{rebind_stack_source_cards, rebind_visible_decision_cards};
+
+fn sneak_defender_snapshot(defender: crate::AttackDefender) -> model::AttackDefenderSnapshot {
+    match defender {
+        crate::AttackDefender::Player(player) => model::AttackDefenderSnapshot::Player {
+            seat: player.index(),
+        },
+        crate::AttackDefender::Planeswalker(object) => {
+            model::AttackDefenderSnapshot::Planeswalker {
+                object_id: object.0,
+            }
+        }
+    }
+}
+fn restore_sneak_defender(
+    defender: model::AttackDefenderSnapshot,
+) -> Result<crate::AttackDefender, String> {
+    Ok(match defender {
+        model::AttackDefenderSnapshot::Player { seat } => {
+            crate::AttackDefender::Player(wire::player_from_index(seat)?)
+        }
+        model::AttackDefenderSnapshot::Planeswalker { object_id } => {
+            crate::AttackDefender::Planeswalker(GameObjectId(object_id))
+        }
+    })
+}
 
 impl Game {
     /// Hidden-safe rules bookkeeping needed to use an observation as a
@@ -316,6 +343,7 @@ impl Game {
             .filter_map(|id| match self.retired_objects.get(&id)? {
                 RetiredObject::Permanent {
                     permanent,
+                    attachments,
                     colors,
                     power,
                     toughness,
@@ -323,6 +351,7 @@ impl Game {
                     keywords,
                 } => Some(RetiredObjectSnapshot::Permanent {
                     permanent: Box::new(detached_permanent_snapshot(&self.catalog, permanent)),
+                    attachments: attachments.iter().map(|id| id.0).collect(),
                     colors: *colors,
                     power: *power,
                     toughness: *toughness,
@@ -333,11 +362,7 @@ impl Game {
                     power: card.stats.map(|stats| stats.power),
                     toughness: card.stats.map(|stats| stats.toughness),
                     colors: card.colors,
-                    card: DetachedCardSnapshot {
-                        object_id: card.id.0,
-                        definition: card.definition,
-                        owner: card.owner.index(),
-                    },
+                    card: decision::detached_card_snapshot(&card.card),
                 }),
                 RetiredObject::Stack(object) => Some(RetiredObjectSnapshot::Stack {
                     object: Box::new(detached_stack_snapshot_allowing(
@@ -533,6 +558,10 @@ impl Game {
             restart_arrivals: self.restart_arrivals.as_ref().map(|state| serde_json::json!({ "controller": state.controller, "retained": state.retained.iter().map(|id| id.0).collect::<Vec<_>>(), "entering": state.entering, "ready": state.ready.iter().map(|pending| pending_event_snapshot(&self.catalog, pending)).collect::<Option<Vec<_>>>() })),
             simulation_fingerprint: crate::protocol::SIMULATION_FINGERPRINT.to_owned(),
             turns_started: self.turns_started,
+            prepared_spell_copies: self.prepared_spell_copies.iter().filter_map(|(copy, source)|
+                self.part_copy(*copy).map(|part| (copy.0, source.0, part.0))).collect(),
+            activated_ability_kinds_this_turn: self.activated_ability_kinds_this_turn.iter()
+                .map(|(player, kind)| (player.index(), *kind)).collect(),
             damage_taken_this_turn: self.damage_taken_this_turn,
             attacked_subtypes_this_turn: [
                 self.attacked_subtypes_this_turn[0]
@@ -574,6 +603,9 @@ impl Game {
             mana,
             creature_died_this_turn: self.creature_died_this_turn,
             creatures_died_this_turn: self.creatures_died_this_turn,
+            exile_returns: self.exile_returns.iter().map(|(source, card, zone)| ExileReturnSnapshot {
+                source: source.0, card: card.0, to_hand: *zone == ZoneKind::Hand,
+            }).collect(),
             linked_exiles: self
                 .linked_exiles
                 .iter()
@@ -615,7 +647,11 @@ impl Game {
             spell_cast_history_this_turn: object_ids_snapshot(&self.spell_cast_history_this_turn),
             cards_drawn_this_turn: self.cards_drawn_this_turn,
             cards_discarded_this_turn: self.cards_discarded_this_turn,
+            permanents_sacrificed_this_turn: self.permanents_sacrificed_this_turn,
             citys_blessing: self.citys_blessing,
+            enduring_story: self.enduring_story,
+            effect_uses_this_turn: self.effect_uses_this_turn.iter().copied().map(decision::ability_source_snapshot).collect(),
+            modes_chosen_this_turn: self.modes_chosen_this_turn.iter().map(|(source, mode)| (decision::ability_source_snapshot(*source), *mode)).collect(),
             permanent_left_battlefield_this_turn: self.permanent_left_battlefield_this_turn,
             card_left_graveyard_this_turn: self.card_left_graveyard_this_turn,
             life_gained_this_turn: self.life_gained_this_turn,

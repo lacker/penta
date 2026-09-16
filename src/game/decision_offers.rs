@@ -211,6 +211,18 @@ impl Game {
         context: EffectResolutionContext,
     ) {
         let choice = crate::card::BattlefieldEntryScalarChoiceDef::card_name(names);
+        self.queue_name_choice(player, choice, false, binding, object, context);
+    }
+
+    pub(super) fn queue_name_choice(
+        &mut self,
+        player: PlayerId,
+        choice: crate::card::BattlefieldEntryScalarChoiceDef,
+        creature_type: bool,
+        binding: crate::Binding,
+        object: StackObject,
+        context: EffectResolutionContext,
+    ) {
         let (prompt, choices) = self.entry_scalar_choices(player, choice);
         let options = choices
             .iter()
@@ -233,6 +245,7 @@ impl Game {
             false,
             options,
             DecisionContinuation::CardNameChoice {
+                creature_type,
                 choices,
                 binding: binding.into(),
                 resume: Box::new(super::PendingProcedure::ResolveEffects {

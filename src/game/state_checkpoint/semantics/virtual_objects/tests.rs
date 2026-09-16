@@ -88,7 +88,10 @@ fn token_and_emblem_owned_creators_form_one_semantic_chain() {
     static PARENT_ABILITIES: [AbilityDef; 1] = [AbilityDef::activated(
         "Create an emblem.",
         &[],
-        EffectDef::CreateEmblem { emblem: EMBLEM },
+        EffectDef::CreateEmblem {
+            emblem: EMBLEM,
+            creature_type: None,
+        },
     )];
     static PARENT_TOKEN: TokenCharacteristics =
         TokenCharacteristics::creature(&["Shapeshifter"], &[], 2, 2)

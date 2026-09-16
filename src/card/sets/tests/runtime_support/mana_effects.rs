@@ -118,6 +118,7 @@ fn shared_mana_restriction(restriction: ManaRestrictionDef) -> bool {
         | ManaRestrictionDef::ActivateAbility(object) => shared_object_predicate(object),
         ManaRestrictionDef::PayCostContaining(_)
         | ManaRestrictionDef::CastYourCommander
+        | ManaRestrictionDef::CastFrom(_)
         | ManaRestrictionDef::Payment(_) => true,
         ManaRestrictionDef::Special(_) => false,
     }

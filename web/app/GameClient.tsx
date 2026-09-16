@@ -12,6 +12,7 @@ import {
 } from "./card-art-mode";
 import {
   battlefieldWithObservedUntap,
+  cardChoiceLabel,
   cardPileStateKey,
   duplicatePermanentMarkers,
 } from "./card-visible-state.mjs";
@@ -1420,7 +1421,7 @@ export function GameClient({
   const selectedTarget = state?.battlefield.find(
     (card) => card.id === selectedTargetCard,
   );
-  const choosingSacrifice = selectedCard !== null && selectedTargetCard !== null;
+  const choosingTargetedOption = selectedCard !== null && selectedTargetCard !== null;
 
   const clearCardSelection = () => {
     setSelectedCard(null);
@@ -2307,7 +2308,7 @@ export function GameClient({
                 </button>
               ) : selectedCard !== null && (
                 <button onClick={clearCardSelection}>
-                  {choosingTarget || choosingFireballTargets || choosingSacrifice
+                  {choosingTarget || choosingFireballTargets || choosingTargetedOption
                     ? "Cancel"
                     : "Clear filter"}
                 </button>
@@ -2685,12 +2686,12 @@ export function GameClient({
                   <span>Release the dragged card over a legal card, player, or spell.</span>
                 </div>
               )}
-              {choosingSacrifice && (
+              {choosingTargetedOption && (
                 <div className="target-prompt" role="status">
-                  <strong>Choose an artifact to sacrifice</strong>
+                  <strong>Choose an action</strong>
                   <span>
-                    Select a cost below to deal 2 damage to{" "}
-                    {selectedTarget?.name ?? "that creature"}.
+                    Select an option for {selectedSource?.name ?? "this action"}{" "}
+                    targeting {selectedTarget?.name ?? "that permanent"}.
                   </span>
                 </div>
               )}
@@ -2894,6 +2895,11 @@ function PlayerBar({
     >
       <div className="player-name">
         <strong>{opponent ? "Opponent" : "You"}</strong>
+        {player.enduringStory && (
+          <span className="enduring-story" title="This player has an enduring story for the rest of the game">
+            Enduring story
+          </span>
+        )}
       </div>
       <div className="zone-counts">
         <span title="Library">LIB {player.library}</span>
@@ -3583,7 +3589,9 @@ function GameCard({
       hybridSymbolCount(card.manaCost)
     : 0;
   const manaCost = formatManaCost(card);
+  const choiceLabel = cardChoiceLabel(card);
   const battlefieldState = [
+    choiceLabel,
     card.owner ? (card.tapped ? "Tapped" : "Untapped") : null,
     card.attacking ? "Attacking" : null,
     card.flying ? "Flying" : null,
@@ -3710,6 +3718,9 @@ function GameCard({
       >
         {objectMarker && (
           <span className="object-marker" aria-hidden="true">#{objectMarker}</span>
+        )}
+        {choiceLabel && (
+          <span className="card-choice-label" title={choiceLabel}>{choiceLabel}</span>
         )}
         <span className={`card-header ${manaSymbolCount >= 3 ? "card-header-dense" : ""}`}>
           <span className="card-title">{card.name}</span>

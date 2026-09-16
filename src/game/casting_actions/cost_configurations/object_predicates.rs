@@ -56,6 +56,7 @@ impl Game {
                 includes_mana_payment: false,
                 life: 0,
                 generic_reduction: None,
+                chosen_creature_type: None,
             })
             .collect()
     }
@@ -83,7 +84,9 @@ impl Game {
                 (object, ZoneKind::Battlefield)
             }
             CostDef::Tap { object, .. } => (object, ZoneKind::Battlefield),
-            CostDef::Discard { object, .. } | CostDef::RevealCardFromHand(object) => (object, ZoneKind::Hand),
+            CostDef::Discard { object, .. } | CostDef::RevealCardFromHand(object) => {
+                (object, ZoneKind::Hand)
+            }
             CostDef::Exile { object, from, .. } => (object, from),
             _ => return Vec::new(),
         };

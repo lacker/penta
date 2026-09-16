@@ -99,6 +99,32 @@ fn card_list_json(
     )
 }
 
+fn exiled_cards_json(
+    catalog: &CardCatalog,
+    cards: &[(GameObjectId, crate::CardDefinitionId)],
+    copies: &[(GameObjectId, crate::CardPartId)],
+) -> Value {
+    let mut value = card_list_json(catalog, cards);
+    for card in value.as_array_mut().expect("card list") {
+        if let Some((_, part)) = copies
+            .iter()
+            .find(|(id, _)| Some(u64::from(id.0)) == card["objectId"].as_u64())
+        {
+            let definition =
+                crate::CardDefinitionId::try_from_uuid(card["definition"].as_str().unwrap());
+            if let Some(frame) = definition
+                .and_then(|id| catalog.get(id))
+                .and_then(|definition| definition.part(*part))
+            {
+                card["partId"] = json!(part.0);
+                card["isCopy"] = json!(true);
+                card["name"] = json!(frame.name);
+            }
+        }
+    }
+    value
+}
+
 fn mana_pool_json(pool: &crate::ManaPool) -> Value {
     json!({
         "white": pool.white,
@@ -180,12 +206,14 @@ fn permanent_observation_json(
         "name": object_characteristics_name(catalog, permanent.characteristics),
         "token": permanent.token,
         "hasIndividualState": permanent.has_individual_state,
+        "designations": permanent.designations.iter().copied().map(crate::card::PermanentDesignationDef::label).collect::<Vec<_>>(),
         "controller": seat_name(permanent.controller),
         "faceDown": permanent.face_down,
         "phasedOut": permanent.phased_out,
         "chosenCardName": permanent.chosen_card_name.as_deref(),
         "chosenLabels": permanent.chosen_labels,
         "chosenCreatureType": permanent.chosen_creature_type.as_deref(),
+        "chosenCardType": permanent.chosen_card_type.as_deref(),
         "chosenBasicLandType": permanent.chosen_basic_land_type.map(crate::card::BasicLandType::subtype),
         "chosenBasicLandTypeSubstitution": permanent.chosen_basic_land_type_substitution.map(|(from, to)| [from.subtype(), to.subtype()]),
         "chosenColors": permanent.chosen_colors.iter().map(|(binding, colors)|
@@ -230,6 +258,7 @@ fn emblem_observation_json(emblem: &crate::EmblemObservation) -> Value {
         "name": emblem.name,
         "sourceAbility": ability_origin_json(emblem.source_ability),
         "abilityTexts": emblem.ability_texts,
+        "chosenCreatureType": emblem.chosen_creature_type,
     })
 }
 
@@ -320,8 +349,8 @@ pub fn observation_json_for_format(
             card_list_json(catalog, &observation.graveyards[1]),
         ],
         "exiles": [
-            card_list_json(catalog, &observation.exiles[0]),
-            card_list_json(catalog, &observation.exiles[1]),
+            exiled_cards_json(catalog, &observation.exiles[0], &observation.exiled_part_copies),
+            exiled_cards_json(catalog, &observation.exiles[1], &observation.exiled_part_copies),
         ],
         // A card lying face down in exile is absent from the list above
         // rather than shown, so it is counted here instead -- the same way a
@@ -353,6 +382,7 @@ pub fn observation_json_for_format(
         }).collect::<Vec<_>>(),
         "checkpoint": observation.checkpoint,
     });
+    value["enduringStory"] = json!(observation.enduring_story);
     value["chosenCompanions"] = json!(observation.chosen_companions);
     value["knownCards"] = json!(observation.known_cards.iter().map(|known| json!({
         "objectId": known.card.0, "definition": known.definition, "owner": known.owner.index(),

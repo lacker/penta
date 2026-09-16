@@ -23,6 +23,13 @@ impl Game {
         let listeners = self.battlefield_trigger_listeners();
         let mut deferred_life_gains = Vec::new();
         let mut assigned_to_players = [0_u16; 2];
+        let shields = self
+            .battlefield
+            .iter()
+            .filter(|p| p.counters(CounterKind::Shield) > 0)
+            .map(|p| p.card.id)
+            .collect::<Vec<_>>();
+        let mut spent_shields = Vec::new();
         let prepared = assignments
             .into_iter()
             .filter_map(|assignment| {
@@ -30,9 +37,14 @@ impl Game {
                     assignment,
                     &mut assigned_to_players,
                     &mut deferred_life_gains,
+                    &shields,
+                    &mut spent_shields,
                 )
             })
             .collect::<Vec<_>>();
+        for id in spent_shields {
+            self.remove_counters_from_object(Target::Permanent(id), CounterKind::Shield, 1);
+        }
         let recipients = self.damage_recipient_outcomes(&prepared);
 
         self.commit_prepared_damage(&prepared, deferred_life_gains, &listeners);
@@ -55,6 +67,8 @@ impl Game {
         assignment: DamageAssignment,
         assigned_to_players: &mut [u16; 2],
         deferred_life_gains: &mut Vec<(PlayerId, u16)>,
+        shields: &[crate::GameObjectId],
+        spent_shields: &mut Vec<crate::GameObjectId>,
     ) -> Option<PreparedDamage> {
         // CR 614.9: redirection applies before prevention. Freeze where this
         // assignment lands before any result in the event is applied.
@@ -87,13 +101,25 @@ impl Game {
             recipient_object: recipient_object.as_ref(),
             combat: assignment.combat,
         };
+        let assignment_amount = self.damage_after_player_multipliers(target, assignment.amount);
         let preventable = !self.damage_cannot_be_prevented_this_turn
             && !self.static_damage_cannot_be_prevented()
             && !self.combat_damage_cannot_be_prevented(assignment.source, assignment.combat);
-        let mut amount = if preventable {
-            self.apply_resolved_damage_prevention(event, assignment.amount, deferred_life_gains)
+        // Unpreventable damage still removes the shield (CR 122.1c).
+        let shielded = assignment.amount > 0
+            && matches!(target, Target::Permanent(id) if shields.contains(&id));
+        if shielded
+            && let Target::Permanent(id) = target
+            && !spent_shields.contains(&id)
+        {
+            spent_shields.push(id);
+        }
+        let mut amount = if preventable && shielded {
+            0
+        } else if preventable {
+            self.apply_resolved_damage_prevention(event, assignment_amount, deferred_life_gains)
         } else {
-            assignment.amount
+            assignment_amount
         };
         let already_assigned = match target {
             Target::Player(player) => assigned_to_players[player.index()],

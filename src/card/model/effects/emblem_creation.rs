@@ -5,6 +5,7 @@ impl EffectDef {
     #[must_use]
     pub const fn create_emblem(name: &'static str, abilities: &'static [AbilityDef]) -> Self {
         Self::CreateEmblem {
+            creature_type: None,
             emblem: EmblemCharacteristics::new(name, abilities),
         }
     }

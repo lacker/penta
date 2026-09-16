@@ -49,7 +49,7 @@ fn explicit_payment_snapshot(game: &Game, viewer: PlayerId, payment: &PaymentDec
 fn payment_draft_snapshot(game: &Game, viewer: PlayerId, draft: &PaymentDraft) -> Option<super::model::PaymentDraftSnapshot> {
     let source = payment_action_object(&draft.action)?;
     if viewer != draft.player && !game.battlefield.iter().any(|p| p.card.id == source) { return None; }
-    let x = match draft.action.as_ref() { Action::CastSpell { choices, .. } => choices.x(), Action::ActivateAbility { x, .. } => *x, _ => 0 };
+    let x = match draft.action.as_ref() { Action::CastSpell { choices, .. } => choices.x(), Action::ActivateAbility { x, .. } | Action::ActivateAbilityWithAlternativeCost { x, .. } => *x, _ => 0 };
     let action = game.manual_payment_actions_at_x(draft.player, draft.resume.as_deref(), x).iter().filter(|action| payment_action_object(action) == Some(source)).position(|a| a == draft.action.as_ref())?;
     let mut prefix = PaymentDraft { player: draft.player, action: draft.action.clone(), funding: Vec::new(), contributions: Vec::new(), announcements: draft.announcements.clone(), resume: draft.resume.clone() };
     let mut funding = Vec::new();

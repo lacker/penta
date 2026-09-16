@@ -41,6 +41,15 @@ pub enum SpellAbilityDef {
 /// shuffling its owner's library.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum SpellResolutionDestinationDef {
+    /// A cast-origin-dependent completion. Other casts use the ordinary graveyard destination.
+    IfCastFrom {
+        zone: super::ZoneKind,
+        then: &'static SpellResolutionDestinationDef,
+    },
+    /// Exile, then return the exact successor transformed under its owner's control.
+    ExileThenReturnTransformed {
+        counters: Option<(CounterKind, u16)>,
+    },
     Graveyard,
     /// Its owner's hand, which is what buyback buys (CR 702.27a).
     Hand,
@@ -66,6 +75,7 @@ pub enum SpellResolutionDestinationDef {
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct ModalSpellDef {
+    pub different_each_turn: bool,
     /// Each mode is an ordinary spell ability. Its positional index supplies
     /// the stable [`ModeId`] used by casting and presentation.
     pub modes: ModalModeListDef,
@@ -188,6 +198,11 @@ pub struct ConditionalModeMaximumDef {
 
 impl ModalSpellDef {
     #[must_use]
+    pub const fn with_different_modes_each_turn(mut self) -> Self {
+        self.different_each_turn = true;
+        self
+    }
+    #[must_use]
     pub const fn new(
         modes: &'static [AbilityDef],
         minimum: u8,
@@ -195,6 +210,7 @@ impl ModalSpellDef {
         may_repeat: bool,
     ) -> Self {
         Self {
+            different_each_turn: false,
             modes: ModalModeListDef::Ordinary(modes),
             minimum,
             maximum,
@@ -644,6 +660,7 @@ pub enum ComparisonDef {
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct TriggeredAbilityDef {
+    pub keyword_kind: Option<super::AbilityKindDef>,
     pub source_zones: &'static [ZoneKind],
     pub event: TriggerEventDef,
     /// "This ability triggers only once each turn." A cap on how often one

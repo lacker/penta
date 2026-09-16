@@ -29,6 +29,7 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
             | crate::card::GameActionDef::Choice(actions),
         ) => actions.iter().copied().map(EffectDef::Perform).collect(),
         EffectDef::Sequence(effects) => effects.to_vec(),
+        EffectDef::SearchZones { then, .. } => vec![*then],
         EffectDef::DealDamage(damage) => damage.continuation().into_iter().copied().collect(),
         EffectDef::Randomized {
             on_success,
@@ -70,6 +71,7 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         EffectDef::BindOutput { effect, .. }
         | EffectDef::WithRule { effect, .. }
         | EffectDef::ForEachInBinding { effect, .. }
+        | EffectDef::OncePerTurn { effect }
         | EffectDef::May { effect, .. }
         | EffectDef::ChooseCounterKind { then: effect, .. }
         | EffectDef::ReplaceNextDrawThisTurn { effect, .. }
@@ -104,7 +106,8 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         EffectDef::CreateToken(crate::card::CreateTokenDef { created, .. }) => {
             created.into_iter().map(|created| *created.then).collect()
         }
-        EffectDef::SearchZone { then, .. }
+        EffectDef::AttachObjects { then, .. }
+        | EffectDef::SearchZone { then, .. }
         | EffectDef::ExileTopAndMayCast {
             otherwise: then, ..
         } => then.into_iter().copied().collect(),
@@ -129,6 +132,7 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         | EffectDef::Mill { .. }
         | EffectDef::MillUntil(_)
         | EffectDef::GainClassLevel { .. }
+        | EffectDef::RecordMechanic(_)
         | EffectDef::AddPlayerCounters { .. }
         | EffectDef::Apply { .. }
         | EffectDef::Attach { .. }
@@ -159,6 +163,7 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         | EffectDef::Detain { .. }
         | EffectDef::Perform(
             crate::card::GameActionDef::DiscardCards { .. }
+            | crate::card::GameActionDef::ModifyCounters { .. }
             | crate::card::GameActionDef::Exile { .. }
             | crate::card::GameActionDef::GainControl { .. }
             | crate::card::GameActionDef::Sacrifice { .. }
@@ -170,6 +175,7 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         | EffectDef::EmptyManaPool { .. }
         | EffectDef::ExileLinkedToSource { then: None, .. }
         | EffectDef::MayPlayWithoutPaying { .. }
+        | EffectDef::GrantPlayPermission(_)
         | EffectDef::ExileGrantingOwnerPlay { .. }
         | EffectDef::ExileGrantingControllerPlayThisTurn { .. }
         | EffectDef::GainLife { .. }
@@ -187,6 +193,7 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         | EffectDef::BecomePlotted { .. }
         | EffectDef::PermitCastFromGraveyardThisTurn { .. }
         | EffectDef::LookAtRandomCardInHand { .. }
+        | EffectDef::ChooseCreatureType { .. }
         | EffectDef::ChooseCardName { .. }
         | EffectDef::LoseLife { .. }
         | EffectDef::LoseTheGame { .. }
@@ -203,7 +210,9 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         | EffectDef::ModifyCost(_)
         | EffectDef::Regenerate { .. }
         | EffectDef::DoubleCounters { .. }
+        | EffectDef::AddCountersFrom { .. }
         | EffectDef::ModifyCounters { .. }
+        | EffectDef::SetDesignation { .. }
         | EffectDef::RemoveAllCounters { .. }
         | EffectDef::RemoveCounters { .. }
         | EffectDef::Explore { .. }

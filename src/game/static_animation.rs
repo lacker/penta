@@ -59,7 +59,10 @@ impl Game {
             | ObjectPredicateDef::InZone(_)
             | ObjectPredicateDef::AttachedToSource
             | ObjectPredicateDef::HasSourcesChosenScalar(_)
-            | ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Binding(_))
+            | ObjectPredicateDef::Subtype(
+                crate::card::SubtypeDef::Binding(_)
+                | crate::card::SubtypeDef::CastChosenCreatureType,
+            )
             | ObjectPredicateDef::HasAnyBasicLandType(_)
             | ObjectPredicateDef::HasType(
                 CardType::Land | CardType::Enchantment | CardType::Artifact,

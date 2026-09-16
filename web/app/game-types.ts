@@ -74,11 +74,13 @@ export type CastSignatureMetadata = {
   modeIds: number[];
   alternativeCostId?: number | null;
   additionalCostIds: number[];
+  chosenCreatureType?: string | null;
   x: number;
   targetSelections: TargetSelectionMetadata[];
 };
 
 export type Emblem = {
+  chosenCreatureType?: string | null;
   id: number;
   owner: Owner;
   name: string;
@@ -106,6 +108,7 @@ export type Card = {
   /** Attachments and object-specific effects make this permanent unsafe to
    * collapse with another object whose compact card happens to look alike. */
   hasIndividualState?: boolean;
+  designations?: string[];
   name: string;
   art: CardArtMetadata | null;
   kind: string;
@@ -127,6 +130,7 @@ export type Card = {
   } | null;
   owner?: Owner;
   chosenCardName?: string | null;
+  chosenCardType?: string | null;
   chosenCreatureType?: string | null;
   chosenBasicLandType?: string | null;
   chosenColor?: string | null;
@@ -169,6 +173,7 @@ export type Action = {
   targetSelections?: TargetSelectionMetadata[];
   attackDefender?: AttackDefenderMetadata | null;
   ability?: AbilityOriginMetadata | null;
+  alternativeAbilityCost?: { sourceId: number; ability: AbilityOriginMetadata } | null;
   /** Target-independent activation label; includes exact ability text when disambiguation is needed. */
   abilityLabel?: string | null;
   manaAbility?: boolean;
@@ -198,6 +203,7 @@ export type OpponentAction = {
 };
 
 export type PlayerState = {
+  enduringStory?: boolean;
   life: number;
   library: number;
   mana: {

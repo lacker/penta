@@ -150,9 +150,9 @@ static DEVOURER_OPENING_LOOK: EffectDef = abilities::bind_top_cards_then(
 );
 
 static DEVOURER_OPENING_TRIGGER: AbilityDef = AbilityDef::triggered(
-    "At the beginning of your first upkeep, look at the top four \
-     cards of your library. You may put one of those cards back \
-     on top of your library. Exile the rest.",
+    "At the beginning of your first upkeep, look at the top four cards of \
+        your library. You may put one of those cards back on top of your \
+        library. Exile the rest.",
     TriggerEventDef::StepBegins {
         step: TurnStepDef::Upkeep,
         player: PlayerRelation::You,
@@ -891,10 +891,9 @@ pub(in crate::card::sets) static STATIC_PRISON: CardRecord = CardRecord::new(
     // more turns of holding it. After that the prison opens.
     CardRules::new_enchantment(mana_cost!("{W}")).with_abilities(&[
         abilities::enters_trigger_with_targets(
-            "When this enchantment enters, exile target nonland \
-             permanent an opponent controls until this enchantment \
-             leaves the battlefield. You get {E}{E} (two energy \
-             counters).",
+            "When this enchantment enters, exile target nonland permanent an \
+                opponent controls until this enchantment leaves the battlefield. You \
+                get {E}{E} (two energy counters).",
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Object {
                     object: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
@@ -912,23 +911,6 @@ pub(in crate::card::sets) static STATIC_PRISON: CardRecord = CardRecord::new(
                     face_down: false,
                     then: None,
                 },
-                EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
-                    "When this enchantment leaves the battlefield, return the \
-                     exiled card to the battlefield under its owner's control.",
-                    TriggerEventDef::zone_changed(
-                        ObjectPredicateDef::Source,
-                        Some(ZoneKind::Battlefield),
-                        None,
-                    ),
-                    EffectDef::ReturnLinkedExiles {
-                        object: ObjectPredicateDef::Any,
-                        counters: None,
-                        zone: ZoneKind::Battlefield,
-                        grant: None,
-                        controller: None,
-                        transformed: false,
-                    },
-                ))),
                 // The energy arrives with the exile rather than paying for it: the first
                 // upkeep tax is already covered, and the second is not.
                 EffectDef::AddPlayerCounters {
@@ -939,8 +921,8 @@ pub(in crate::card::sets) static STATIC_PRISON: CardRecord = CardRecord::new(
             ]),
         ),
         AbilityDef::triggered(
-            "At the beginning of your first main phase, sacrifice this \
-             enchantment unless you pay {E}.",
+            "At the beginning of your first main phase, sacrifice this enchantment \
+                unless you pay {E}.",
             TriggerEventDef::StepBegins {
                 step: TurnStepDef::PrecombatMain,
                 player: PlayerRelation::You,
@@ -4772,9 +4754,8 @@ pub(in crate::card::sets) static TAMIYO_INQUISITIVE_STUDENT: CardRecord = CardRe
                             [
                                 abilities::flying(),
                                 AbilityDef::triggered(
-                                    "Whenever Tamiyo attacks, investigate. (Create a Clue token. \
-                                     It's an artifact with \"{2}, Sacrifice this token: Draw a \
-                                     card.\")",
+                                    "Whenever Tamiyo attacks, investigate. (Create a Clue token. It's an \
+                                        artifact with \"{2}, Sacrifice this token: Draw a card.\")",
                                     TriggerEventDef::Attacks(AttackEventMatcherDef::any(
                                         ObjectPredicateDef::Source,
                                     )),
@@ -4786,9 +4767,8 @@ pub(in crate::card::sets) static TAMIYO_INQUISITIVE_STUDENT: CardRecord = CardRe
                                 // any one step: her own attack Clue and the draw step are usually two
                                 // of the three.
                                 AbilityDef::triggered(
-                                    "When you draw your third card in a turn, exile Tamiyo, then \
-                                     return her to the battlefield transformed under her owner's \
-                                     control.",
+                                    "When you draw your third card in a turn, exile Tamiyo, then return her \
+                                        to the battlefield transformed under her owner's control.",
                                     TriggerEventDef::DrewCard(DrawEventMatcherDef::nth_each_turn(
                                         PlayerRelation::You,
                                         3,
@@ -4832,9 +4812,8 @@ pub(in crate::card::sets) static TAMIYO_INQUISITIVE_STUDENT: CardRecord = CardRe
                         &const {
                             [
                                 AbilityDef::activated(
-                                    "+2: Until your next turn, whenever a creature attacks you \
-                                     or a planeswalker you control, it gets -1/-0 until end of \
-                                     turn.",
+                                    "+2: Until your next turn, whenever a creature attacks you or a \
+                                        planeswalker you control, it gets -1/-0 until end of turn.",
                                     &[CostDef::Loyalty(ValueDef::Constant(2))],
                                     EffectDef::InstallTrigger(InstalledTriggerDef {
                                         // The attackers her plus ability shrinks. It is installed on resolution and
@@ -4842,8 +4821,9 @@ pub(in crate::card::sets) static TAMIYO_INQUISITIVE_STUDENT: CardRecord = CardRe
                                         // played to blunt.
                                         ability: &const {
                                             AbilityDef::triggered(
-                                                "Whenever a creature attacks you or a planeswalker you \
-                                                 control, it gets -1/-0 until end of turn.",
+                                                "Whenever a creature attacks you or a \
+                                                 planeswalker you control, it gets -1/-0 \
+                                                 until end of turn.",
                                                 TriggerEventDef::Attacks(AttackEventMatcherDef::attacking(
                                                     ObjectPredicateDef::HasType(CardType::Creature),
                                                     PlayerRelation::You,
@@ -4864,9 +4844,8 @@ pub(in crate::card::sets) static TAMIYO_INQUISITIVE_STUDENT: CardRecord = CardRe
                                     }),
                                 ),
                                 AbilityDef::activated_with_targets(
-                                    "−3: Return target instant or sorcery card from your \
-                                     graveyard to your hand. If it's a green card, add one mana \
-                                     of any color.",
+                                    "−3: Return target instant or sorcery card from your graveyard to your \
+                                        hand. If it's a green card, add one mana of any color.",
                                     &[CostDef::Loyalty(ValueDef::Constant(-3))],
                                     &const {
                                         [AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
@@ -4909,9 +4888,8 @@ pub(in crate::card::sets) static TAMIYO_INQUISITIVE_STUDENT: CardRecord = CardRe
                                     ),
                                 ),
                                 AbilityDef::activated(
-                                    "−7: Draw cards equal to half the number of cards in your \
-                                     library, rounded up. You get an emblem with \"You have no \
-                                     maximum hand size.\"",
+                                    "−7: Draw cards equal to half the number of cards in your library, \
+                                        rounded up. You get an emblem with \"You have no maximum hand size.\"",
                                     &[CostDef::Loyalty(ValueDef::Constant(-7))],
                                     EffectDef::Sequence(
                                         &const {
@@ -4924,7 +4902,8 @@ pub(in crate::card::sets) static TAMIYO_INQUISITIVE_STUDENT: CardRecord = CardRe
                                                     )),
                                                 },
                                                 EffectDef::CreateEmblem {
-                                                    emblem: EmblemCharacteristics::new(
+                                                    creature_type: None,
+                    emblem: EmblemCharacteristics::new(
                                                         "Tamiyo, Seasoned \
                                                          Scholar emblem",
                                                         &const {
@@ -4933,7 +4912,7 @@ pub(in crate::card::sets) static TAMIYO_INQUISITIVE_STUDENT: CardRecord = CardRe
                                         EffectDef::StaticApply {
                                             recipient: EffectRecipientDef::Controller,
                                             effect: AppliedEffectDef::Rule(AppliedRuleDef::PlayerRule(
-                                                crate::card::PlayerRuleDef::NoMaximumHandSize,
+                                                PlayerRuleDef::NoMaximumHandSize,
                                             )),
                                         },
                                     )]

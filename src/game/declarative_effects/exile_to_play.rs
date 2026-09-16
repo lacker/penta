@@ -14,7 +14,7 @@ pub(super) struct ExilePlayGrant {
     pub(super) free: bool,
     pub(super) face_down: bool,
     pub(super) duration: ExilePlayDurationDef,
-    pub(super) spend_any_color: bool,
+    pub(super) mana_spending: Option<crate::card::ManaSpendAsDef>,
     pub(super) play_condition: Option<ExilePlayConditionDef>,
     pub(super) cast_only: bool,
 }
@@ -37,29 +37,47 @@ impl Game {
             moved.push(card);
             match (grant.free, grant.face_down, grant.duration) {
                 (true, _, _) => self.permit_free_play_this_turn(exiled, controller),
-                (false, true, _) => {
+                (false, true, ExilePlayDurationDef::ThisTurn) => {
                     self.permit_face_down_play_this_turn(exiled, controller);
                 }
                 (false, false, ExilePlayDurationDef::ThisTurn) => {
                     self.permit_cast_this_turn(exiled, controller);
                 }
-                (false, false, ExilePlayDurationDef::UntilYourNextEndStep) => {
+                (false, _, ExilePlayDurationDef::UntilYourNextEndStep) => {
                     self.permit_play_until_your_next_end_step(exiled, controller);
                 }
-                (false, false, ExilePlayDurationDef::UntilEndOfYourNextTurn) => {
+                (false, _, ExilePlayDurationDef::UntilEndOfYourNextTurn) => {
                     self.permit_play_until_end_of_your_next_turn(exiled, controller);
                 }
                 // Bounded by the exile rather than by a turn: what limits it
                 // is whatever the clause asks for each time it is played.
-                (false, false, ExilePlayDurationDef::WhileExiled) => {
+                (false, _, ExilePlayDurationDef::WhileExiled) => {
                     self.permit_conditional_cast_while_exiled(exiled, controller);
                 }
+            }
+            if grant.face_down {
+                let permission = self
+                    .exile_play_permissions
+                    .last_mut()
+                    .expect("play grant just installed");
+                permission.face_down = true;
+                // The grantee is the player allowed to look; this does not expose
+                // another owner's cards merely because they own the exile zone.
+                permission.hidden_from_owner = false;
             }
             if grant.cast_only {
                 self.restrict_exile_permission_to_casting(exiled);
             }
-            if grant.spend_any_color || grant.play_condition.is_some() {
-                self.qualify_exile_permission(exiled, grant.spend_any_color, grant.play_condition);
+            if grant.mana_spending.is_some() || grant.play_condition.is_some() {
+                self.qualify_exile_permission(
+                    exiled,
+                    grant.mana_spending.is_some(),
+                    grant.play_condition,
+                );
+                if let Some(permission) = self.exile_play_permissions.last_mut() {
+                    permission.spend_any_type =
+                        grant.mana_spending == Some(crate::card::ManaSpendAsDef::AnyType);
+                }
             }
         }
         self.capture_cards_exiled(&moved, ZoneKind::Library);

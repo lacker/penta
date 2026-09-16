@@ -86,8 +86,12 @@ export function buildAbilityActionGroups(actions) {
   /** @type {Map<string, {key: string, actions: Action[], targeted: Action[], targetless: Action[]}>} */
   const groups = new Map();
   for (const action of actions) {
-    const key = abilityOriginKey(action.ability, action.cardId);
-    if (key === null) continue;
+    const origin = abilityOriginKey(action.ability, action.cardId);
+    if (origin === null) continue;
+    const alternative = action.alternativeAbilityCost;
+    const key = alternative
+      ? `${origin}:cost:${abilityOriginKey(alternative.ability, alternative.sourceId)}`
+      : origin;
     let group = groups.get(key);
     if (!group) {
       group = { key, actions: [], targeted: [], targetless: [] };

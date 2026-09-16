@@ -208,8 +208,8 @@ pub(in crate::card::sets) static TOUCH_THE_SPIRIT_REALM: CardRecord = CardRecord
     // quite dead.
     CardRules::new_enchantment(mana_cost!("{2}{W}")).with_abilities(&[
         abilities::enters_trigger_with_targets(
-            "When this enchantment enters, exile up to one target artifact or creature until this \
-             enchantment leaves the battlefield.",
+            "When this enchantment enters, exile up to one target artifact or \
+                creature until this enchantment leaves the battlefield.",
             &[AbilityTargetDef::up_to(
                 AbilityTargetPredicate::Object {
                     object: AN_ARTIFACT_OR_CREATURE,
@@ -219,38 +219,17 @@ pub(in crate::card::sets) static TOUCH_THE_SPIRIT_REALM: CardRecord = CardRecord
                 },
                 1,
             )],
-            EffectDef::Sequence(&[
-                EffectDef::ExileLinkedToSource {
-                    until_source_leaves: true,
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    face_down: false,
-                    then: None,
-                },
-                // "Until this enchantment leaves the battlefield" is one printed clause, so
-                // the return rides on a delayed trigger rather than appearing as a second
-                // ability the card does not print.
-                EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
-                    "When this enchantment leaves the battlefield, return the \
-                     exiled card to the battlefield under its owner's control.",
-                    TriggerEventDef::zone_changed(
-                        ObjectPredicateDef::Source,
-                        Some(ZoneKind::Battlefield),
-                        None,
-                    ),
-                    EffectDef::ReturnLinkedExiles {
-                        object: ObjectPredicateDef::Any,
-                        counters: None,
-                        zone: ZoneKind::Battlefield,
-                        grant: None,
-                        controller: None,
-                        transformed: false,
-                    },
-                ))),
-            ]),
+            EffectDef::Sequence(&[EffectDef::ExileLinkedToSource {
+                until_source_leaves: true,
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                face_down: false,
+                then: None,
+            }]),
         ),
         AbilityDef::activated_with_targets(
-            "Channel — {1}{W}, Discard this card: Exile target artifact or creature. Return it to \
-             the battlefield under its owner's control at the beginning of the next end step.",
+            "Channel — {1}{W}, Discard this card: Exile target artifact or \
+                creature. Return it to the battlefield under its owner's control at \
+                the beginning of the next end step.",
             &[CostDef::Mana(mana_cost!("{1}{W}")), CostDef::DiscardSource],
             &[AbilityTargetDef::exactly_one_permanent(
                 AN_ARTIFACT_OR_CREATURE,
@@ -637,9 +616,8 @@ pub(in crate::card::sets) static EXPERIMENTAL_SYNTHESIZER: CardRecord = CardReco
     "Yeong-Hao Han",
     CardRules::new_artifact(mana_cost!("{R}")).with_abilities(&[
         AbilityDef::triggered(
-            "When this artifact enters or leaves the battlefield, exile \
-             the top card of your library. Until end of turn, you may \
-             play that card.",
+            "When this artifact enters or leaves the battlefield, exile the top \
+                card of your library. Until end of turn, you may play that card.",
             TriggerEventDef::AnyOf(&[
                 TriggerEventDef::zone_changed(
                     ObjectPredicateDef::Source,
@@ -658,29 +636,22 @@ pub(in crate::card::sets) static EXPERIMENTAL_SYNTHESIZER: CardRecord = CardReco
                 free: false,
                 face_down: false,
                 duration: ExilePlayDurationDef::ThisTurn,
-                spend_any_color: false,
+                mana_spending: None,
                 play_condition: None,
                 cast_only: false,
             },
         ),
         AbilityDef::activated(
-            "{2}{R}, Sacrifice this artifact: Create a 2/2 white Samurai \
-             creature token with vigilance. Activate only as a sorcery.",
+            "{2}{R}, Sacrifice this artifact: Create a 2/2 white Samurai creature \
+                token with vigilance. Activate only as a sorcery.",
             &[
                 CostDef::Mana(mana_cost!("{2}{R}")),
                 CostDef::SacrificeSource,
             ],
-            EffectDef::CreateToken(crate::card::CreateTokenDef::new(
-                crate::card::TokenDef::Literal(
-                    crate::card::TokenCharacteristics::creature(
-                        &["Samurai"],
-                        &[ManaColor::White],
-                        2,
-                        2,
-                    )
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                TokenCharacteristics::creature(&["Samurai"], &[ManaColor::White], 2, 2)
                     .with_abilities(&[abilities::vigilance()]),
-                ),
-            )),
+            ))),
         )
         .with_activation_timing(ActivationTimingDef::SorcerySpeed),
     ]),

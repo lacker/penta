@@ -36,6 +36,7 @@ pub enum TriggerConditionDef {
     SacrificedObjectMatches(ObjectPredicateDef),
     /// Whether the original source object is still on the battlefield.
     SourceOnBattlefield,
+    SourceHasDesignation(super::super::PermanentDesignationDef),
     /// Whether the original source object is still a card in the named
     /// nonbattlefield zone.
     /// Graveyard triggers use this for intervening-if clauses whose source
@@ -109,6 +110,7 @@ pub enum TriggerConditionDef {
     /// Once gained it is never lost, so this asks what has already happened
     /// rather than what is on the battlefield now.
     ControllerHasCitysBlessing,
+    ControllerHasEnduringStory,
     /// "If you cast it from your hand." Recorded as the spell was cast for
     /// the same reason, and false for anything that was never a spell: a
     /// permanent put onto the battlefield was not cast from anywhere.
@@ -199,13 +201,20 @@ pub enum TriggerConditionDef {
     /// Whether the ability's own source matches in its current zone, or by
     /// last-known information after it leaves. This includes nonbattlefield
     /// card sources such as a card whose exile ability asks what it has.
-    SourceMatches { object: ObjectPredicateDef },
+    SourceMatches {
+        object: ObjectPredicateDef,
+    },
     /// Whether what the ability's source is attached to matches. This is what
     /// "as long as equipped creature is a Human" asks, and it is read live so
     /// the answer follows the Equipment as it moves.
-    AttachedPermanentMatches { object: ObjectPredicateDef },
+    AttachedPermanentMatches {
+        object: ObjectPredicateDef,
+    },
     /// The source permanent's noncopiable level; an unset level reads as 1.
-    SourceClassLevel { comparison: ComparisonDef, level: u8 },
+    SourceClassLevel {
+        comparison: ComparisonDef,
+        level: u8,
+    },
     /// How many counters of one kind the ability's own source carries. This
     /// is what "as long as there are exactly three tide counters on this
     /// creature" asks, and it is read live rather than captured.

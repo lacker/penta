@@ -24,6 +24,9 @@ pub struct CostConfiguration {
     /// The source of an explicitly selected play permission. This selects
     /// its alternative payment and riders; it is not a mana payment.
     permission_source: Option<GameObjectId>,
+    /// A creature type announced with a selected additional cost. This choice
+    /// is copiable even though the objects revealed or controlled are not paid again.
+    chosen_creature_type: Option<crate::card::Subtype>,
     alternative: Option<AlternativeCostId>,
     additional: Vec<AdditionalCostId>,
 }
@@ -86,6 +89,20 @@ impl ManaPaymentChoice {
 
 impl CostConfiguration {
     #[must_use]
+    pub const fn with_chosen_creature_type(
+        mut self,
+        subtype: Option<crate::card::Subtype>,
+    ) -> Self {
+        self.chosen_creature_type = subtype;
+        self
+    }
+
+    #[must_use]
+    pub const fn chosen_creature_type(&self) -> Option<crate::card::Subtype> {
+        self.chosen_creature_type
+    }
+
+    #[must_use]
     pub const fn with_permission_source(mut self, source: Option<GameObjectId>) -> Self {
         self.permission_source = source;
         self
@@ -101,6 +118,7 @@ impl CostConfiguration {
             alternative,
             additional,
             permission_source: None,
+            chosen_creature_type: None,
         }
     }
 

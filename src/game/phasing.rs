@@ -62,6 +62,7 @@ impl Game {
             }
         }
         self.battlefield = remaining;
+        self.prune_prepared_spell_copies();
     }
 
     /// Phases in everything of this player's that is waiting, which happens
@@ -107,7 +108,9 @@ impl Game {
             .collect::<Vec<_>>();
         for index in returning.into_iter().rev() {
             let permanent = self.phased_out.remove(index);
+            let id = permanent.card.id;
             self.battlefield.push(permanent);
+            self.create_prepared_spell(id);
         }
     }
 }

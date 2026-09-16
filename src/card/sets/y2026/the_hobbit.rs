@@ -41,6 +41,7 @@ use crate::CardPartId;
 use crate::PlayOptionId;
 use crate::TargetIndex;
 use crate::card::AbilityDef;
+use crate::card::AbilityKindDef;
 use crate::card::AbilityPredicateDef;
 use crate::card::AbilityTargetDef;
 use crate::card::AbilityTargetPredicate;
@@ -58,6 +59,7 @@ use crate::card::BindObjectsDef;
 use crate::card::CardArt;
 use crate::card::CardComposition;
 use crate::card::CardEffectStatus;
+use crate::card::CardNameSetDef;
 use crate::card::CardPart;
 use crate::card::CardRules;
 use crate::card::CardStructure;
@@ -75,10 +77,12 @@ use crate::card::ConditionalValueDef;
 use crate::card::CopyExceptionsDef;
 use crate::card::CostDef;
 use crate::card::CostModificationDef;
+use crate::card::CostQuantityDef;
 use crate::card::CounterKind;
 use crate::card::CreateTokenDef;
 use crate::card::CreatedTokensDef;
 use crate::card::CreatureTypeSetDef;
+use crate::card::DamageDef;
 use crate::card::DamageEventMatcherDef;
 use crate::card::DamageKindDef;
 use crate::card::DamagePreventionDef;
@@ -340,14 +344,63 @@ pub(in crate::card::sets) static TROOP_OF_PONIES: CardRecord = CardRecord::new(
 );
 
 // HOB 4 — Belladonna Took
-// Audit: unsupported — Needs per-ability resolution history retained after its source leaves
-// the battlefield; SourceResolutionsThisTurn currently reads only a live permanent, so queued
-// second and third resolutions lose their rewards.
 pub(in crate::card::sets) static BELLADONNA_TOOK: CardRecord = CardRecord::new(
     "Belladonna Took",
     "88f0c189-c9ed-4ea3-ae62-3d8ac6c7fecf",
     "Xabi Gaztelua",
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Halfling", "Citizen"], 2, 2)
+        .with_supertype(CardSupertype::Legendary)
+        .with_ability(AbilityDef::triggered(
+            "Whenever a token you control enters, you gain 1 life if this is the \
+            first time this ability has resolved this turn. If it's the second \
+            time, draw a card. If it's the third time, put a +1/+1 counter on each \
+            creature you control.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Token,
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            EffectDef::Sequence(&[
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::SourceResolutionsThisTurn {
+                        comparison: ComparisonDef::Equal,
+                        amount: 1,
+                    },
+
+                    then: &EffectDef::GainLife {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    },
+                },
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::SourceResolutionsThisTurn {
+                        comparison: ComparisonDef::Equal,
+                        amount: 2,
+                    },
+
+                    then: &abilities::draw_cards(ValueDef::Constant(1)),
+                },
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::SourceResolutionsThisTurn {
+                        comparison: ComparisonDef::Equal,
+                        amount: 3,
+                    },
+
+                    then: &EffectDef::AddCounters {
+                        object: EffectRecipientDef::matching_objects(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        ),
+                        kind: CounterKind::PlusOnePlusOne,
+                        amount: ValueDef::Constant(1),
+                    },
+                },
+            ]),
+        )),
 );
 
 // HOB 5 — Bilbo's Gambit
@@ -627,14 +680,61 @@ pub(in crate::card::sets) static ESGAROTH_GARRISON: CardRecord = CardRecord::new
 );
 
 // HOB 14 — Fíli the Pathfinder
-// Audit: unsupported — Needs the enduring-story player designation, acquired once when the
-// artifact/legendary/Saga union reaches three and retained after those permanents leave; a live
-// object count does not implement storied.
 pub(in crate::card::sets) static FILI_THE_PATHFINDER: CardRecord = CardRecord::new(
     "Fíli the Pathfinder",
     "b02142f3-5e55-40dc-a02c-9113fb7d763c",
     "Valera Lutfullina",
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{W}"), &["Dwarf", "Scout"], 2, 2)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Storied (If you control three or more artifacts, legendaries, and/or \
+                Sagas, you have an enduring story for the rest of the game.)",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Controller,
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::Storied),
+                },
+            ),
+            AbilityDef::static_ability(
+                "As long as you have an enduring story, creatures you control get +1/+1.",
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::ControllerHasEnduringStory,
+                    then: &EffectDef::StaticApply {
+                        recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                            ObjectQueryDef::matching(
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                &[ZoneKind::Battlefield],
+                                PlayerRelation::You,
+                            ),
+                        )),
+                        effect: AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(1),
+                            ValueDef::Constant(1),
+                        ),
+                    },
+                },
+            ),
+            AbilityDef::triggered(
+                "Whenever Fíli or another nontoken Dwarf you control enters, create a \
+                2/2 red Dwarf creature token.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::Source,
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::Subtype(SubtypeDef::from_name("Dwarf")),
+                            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                    ]),
+                    None,
+                    Some(ZoneKind::Battlefield),
+                ),
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                    TokenCharacteristics::creature(&["Dwarf"], &[ManaColor::Red], 2, 2),
+                ))),
+            ),
+        ]),
 );
 
 // HOB 15 — Gleaming Splendor
@@ -704,14 +804,54 @@ pub(in crate::card::sets) static IRON_HILLS_BLACKSMITH: CardRecord = CardRecord:
 );
 
 // HOB 17 — Kíli the Resourceful
-// Audit: unsupported — Needs the enduring-story player designation, acquired once when the
-// artifact/legendary/Saga union reaches three and retained after those permanents leave; a live
-// object count does not implement storied.
 pub(in crate::card::sets) static KILI_THE_RESOURCEFUL: CardRecord = CardRecord::new(
     "Kíli the Resourceful",
     "1805532f-6d99-47d0-9529-5f5831a7fdc8",
     "Yuhong Ding",
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Dwarf", "Scout"], 1, 2)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Storied (If you control three or more artifacts, legendaries, and/or \
+                    Sagas, you have an enduring story for the rest of the game.)",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Controller,
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::Storied),
+                },
+            ),
+            AbilityDef::static_ability(
+                "As long as you have an enduring story, you may pay {0} rather than pay \
+                    the equip cost of the first equip ability you activate each turn.",
+                EffectDef::ModifyCost(CostModificationDef::AbilityAlternative {
+                    abilities: AbilityKindDef::Equip,
+                    permanent: ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    condition: Some(&TriggerConditionDef::ControllerHasEnduringStory),
+                    first_each_turn: true,
+                    costs: &[CostDef::Mana(mana_cost!("{0}"))],
+                }),
+            ),
+            AbilityDef::triggered(
+                "Whenever another Dwarf or Equipment you control enters, draw a card. \
+                    This ability triggers only once each turn.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::Subtype(SubtypeDef::from_name("Dwarf")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::from_name("Equipment")),
+                        ]),
+                    ]),
+                    None,
+                    Some(ZoneKind::Battlefield),
+                ),
+                EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+            )
+            .triggering_at_most(1),
+        ]),
 );
 
 // HOB 18 — Lake-town Lookout
@@ -3315,13 +3455,23 @@ pub(in crate::card::sets) static DORI_BEARER_OF_FRIENDS: CardRecord = CardRecord
 );
 
 // HOB 95 — Dwarven Mauler
-// Audit: unsupported — Needs equip-cost reduction based on the activation's chosen target; the
-// current ability-cost modifier matches the ability source, not its recipient.
 pub(in crate::card::sets) static DWARVEN_MAULER: CardRecord = CardRecord::new(
     "Dwarven Mauler",
     "bd0f0415-43af-4f5d-8999-853c5d42780d",
     "Nathaniel Himawan",
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{R}"), &["Dwarf", "Warrior"], 2, 1).with_ability(
+        AbilityDef::static_ability(
+            "Equip abilities you activate that target this creature cost {2} less \
+                to activate.",
+            EffectDef::ModifyCost(CostModificationDef::AbilityReduction {
+                abilities: AbilityKindDef::Equip,
+                permanent: ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                target: Some(ObjectPredicateDef::Source),
+                amount: ValueDef::Constant(2),
+                minimum: 0,
+            }),
+        ),
+    ),
 );
 
 // HOB 96 — Gandalf, Goblins' Bane // Flameshape
@@ -4034,13 +4184,67 @@ pub(in crate::card::sets) static STONE_GIANT_OF_HIGH_PASS: CardRecord = CardReco
 );
 
 // HOB 114 — Thorin, Mountain-king
-// Audit: unsupported — Needs a source-independent reflexive trigger after one or more Equipment
-// successfully attach, with its damage target chosen after those attachment moves.
 pub(in crate::card::sets) static THORIN_MOUNTAIN_KING: CardRecord = CardRecord::new(
     "Thorin, Mountain-king",
     "117347af-0dd7-4350-901d-8c8a81387e22",
     "Javier Charro",
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{R}"), &["Dwarf", "Noble"], 3, 4)
+    .with_supertype(CardSupertype::Legendary).with_abilities(&[
+        abilities::trample(),
+        abilities::enters_trigger_with_targets(
+            "When Thorin enters, attach any number of target Equipment you control \
+                to target creature you control. When one or more Equipment become \
+                attached to that creature this way, that creature deals damage equal \
+                to its power to up to one target creature.",
+            &[
+                AbilityTargetDef::any_number(AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Subtype(SubtypeDef::from_name("Equipment")),
+                    zones: &[ZoneKind::Battlefield], controller: Some(PlayerRelation::You), owner: None,
+                }),
+                AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                         ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+
+                ])),
+            ],
+            EffectDef::BindObjects(BindObjectsDef {
+                source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::LegalTargets(TargetIndex(1))),
+                binding: crate::Binding!("equipped-creature"),
+                then: &EffectDef::AttachObjects {
+                    objects: ObjectSetDef::LegalTargets(TargetIndex::PRIMARY),
+                    host: ObjectRefDef::Target(TargetIndex(1)),
+                    then: Some(&EffectDef::IfCondition {
+                        condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                            left: ValueDef::MatchedCount, comparison: ComparisonDef::Greater,
+                            right: ValueDef::Constant(0),
+                        }),
+                        then: &EffectDef::ReflexiveTrigger(&AbilityDef::triggered_with_targets(
+                            "When one or more Equipment become attached to that creature this way, \
+                                that creature deals damage equal to its power to up to one target \
+                                creature.",
+                            TriggerEventDef::Reflexive,
+                            &[AbilityTargetDef::up_to(AbilityTargetPredicate::Object {
+                                object: ObjectPredicateDef::HasType(CardType::Creature),
+                                     zones: &[ZoneKind::Battlefield],
+
+                                controller: None, owner: None,
+                            }, 1)],
+                            EffectDef::ForEachInBinding {
+                                objects: crate::Binding!("equipped-creature"),
+                                     binding: crate::Binding!("damage-source"),
+
+                                effect: &EffectDef::DealDamage(DamageDef::from_source(
+                                    ObjectRefDef::Binding(crate::Binding!("damage-source")),
+                                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                    ValueDef::ObjectPower(ObjectRefDef::Binding(crate::Binding!("damage-source"))),
+                                )),
+                            },
+                        )),
+                    }),
+                },
+            }),
+        ),
+    ]),
 );
 
 // HOB 115 — Tidings of War
@@ -5663,14 +5867,39 @@ pub(in crate::card::sets) static DUSKWATCH_HUNTER: CardRecord = CardRecord::new(
 );
 
 // HOB 154 — Dwalin, Weaponmaster
-// Audit: unsupported — Needs hone counters with their intrinsic Equipment effect granting +1/+0
-// per counter to the equipped creature, independent of printed abilities and preserved through
-// ability removal.
 pub(in crate::card::sets) static DWALIN_WEAPONMASTER: CardRecord = CardRecord::new(
     "Dwalin, Weaponmaster",
     "196d9287-a37d-4b27-a83b-a5489a54f081",
     "Marco Teixeira",
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{R/W}"), &["Dwarf", "Warrior"], 2, 1)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::first_strike(),
+            AbilityDef::triggered(
+                "Whenever Dwalin enters or attacks, put a hone counter on each \
+                Equipment you control. (Each hone counter on an Equipment grants +1/+0 \
+                to equipped creature.)",
+                TriggerEventDef::AnyOf(&[
+                    TriggerEventDef::zone_changed(
+                        ObjectPredicateDef::Source,
+                        None,
+                        Some(ZoneKind::Battlefield),
+                    ),
+                    TriggerEventDef::attacks(ObjectPredicateDef::Source),
+                ]),
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::objects(ObjectSetDef::Query(
+                        ObjectQueryDef::matching(
+                            ObjectPredicateDef::Subtype(SubtypeDef::from_name("Equipment")),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        ),
+                    )),
+                    kind: CounterKind::Hone,
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+        ]),
 );
 
 // HOB 155 — Eagle's Rescue
@@ -6445,13 +6674,46 @@ pub(in crate::card::sets) static GLAMDRING_FOE_HAMMER: CardRecord = CardRecord::
 );
 
 // HOB 175 — Key to the Side-Door
-// Audit: unsupported — Needs a discard-cost predicate joining the candidate legendary card's
-// name to the names of legendary permanents its payer controls.
 pub(in crate::card::sets) static KEY_TO_THE_SIDE_DOOR: CardRecord = CardRecord::new(
     "Key to the Side-Door",
     "898c14a2-d897-4341-83ed-eee666df9648",
     "Nathaniel Himawan",
-    CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
+        AbilityDef::activated_with_targets(
+            "{2}, {T}: Target creature can't be blocked this turn.",
+            &[CostDef::Mana(mana_cost!("{2}")), CostDef::TapSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BE_BLOCKED),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+        AbilityDef::activated(
+            "{1}, {T}, Discard a legendary card with the same name as a legendary \
+                permanent you control: Draw two cards.",
+            &[
+                CostDef::Mana(mana_cost!("{1}")),
+                CostDef::TapSource,
+                CostDef::Discard {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Supertype(CardSupertype::Legendary),
+                        ObjectPredicateDef::NameIn(&CardNameSetDef::NamesOf(&ObjectSetDef::Query(
+                            ObjectQueryDef::matching(
+                                ObjectPredicateDef::Supertype(CardSupertype::Legendary),
+                                &[ZoneKind::Battlefield],
+                                PlayerRelation::You,
+                            ),
+                        ))),
+                    ]),
+                    quantity: CostQuantityDef::Fixed(1),
+                },
+            ],
+            abilities::draw_cards(ValueDef::Constant(2)),
+        ),
+    ]),
 );
 
 // HOB 176 — My Precious // Allure of Power

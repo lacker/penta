@@ -166,15 +166,16 @@ fn uncataloged_executable_state_fails_closed() {
     let mut game = Game::new(catalog, [deck.clone(), deck], 47).expect("game starts");
     let player = PlayerId::One;
     let card = game.players[player.index()].hand[0].id;
-    game.nonbattlefield_ability_grants.push(NonbattlefieldAbilityGrant {
-        object: card,
-        ability: crate::card::AbilityDef::static_ability(
-            "An intentionally uncataloged test ability.",
-            crate::card::EffectDef::None,
-        ),
-        expiration: ContinuousEffectExpiration::EndOfTurn,
-        source: None,
-    });
+    game.nonbattlefield_ability_grants
+        .push(NonbattlefieldAbilityGrant {
+            object: card,
+            ability: crate::card::AbilityDef::static_ability(
+                "An intentionally uncataloged test ability.",
+                crate::card::EffectDef::None,
+            ),
+            expiration: ContinuousEffectExpiration::EndOfTurn,
+            source: None,
+        });
 
     let checkpoint = game.checkpoint_json(player);
     assert_eq!(checkpoint["hasDeferredState"], true);
@@ -195,7 +196,9 @@ fn an_emblem_rebuilds_with_identity_and_source_provenance() {
         .and_then(|definition| definition.part(CardPartId::PRIMARY))
         .and_then(|part| part.rules.ability(AbilityId(2)))
         .expect("Domri has an emblem-creating ultimate");
-    let EffectDef::CreateEmblem { emblem: authored } = creator
+    let EffectDef::CreateEmblem {
+        emblem: authored, ..
+    } = creator
         .declarative_effect()
         .expect("Domri's ultimate is declarative")
     else {
@@ -283,10 +286,7 @@ fn installed_trigger_round_trip_preserves_targets_bindings_and_x() {
     };
     let source = source_for_locator(first_target, &installed_locator);
     let mut context = EffectResolutionContext::empty();
-    context.bind_single_object(
-        Binding!("object"),
-        Some(Target::Permanent(first_target)),
-    );
+    context.bind_single_object(Binding!("object"), Some(Target::Permanent(first_target)));
     let selections = vec![
         TargetSelection::single(TargetSlotId(0), Target::Permanent(first_target)),
         TargetSelection::single(TargetSlotId(1), Target::Permanent(second_target)),
@@ -296,10 +296,7 @@ fn installed_trigger_round_trip_preserves_targets_bindings_and_x() {
         .expect("the installed trigger is declarative");
     let capture = |target_base, x| TriggerCapture {
         source,
-        presentation: ObjectCharacteristics::card(
-            crate::card::cards::BERSERK,
-            CardPartId::PRIMARY,
-        ),
+        presentation: ObjectCharacteristics::card(crate::card::cards::BERSERK, CardPartId::PRIMARY),
         owner: PlayerId::One,
         controller: PlayerId::One,
         text: ability.text,
@@ -508,7 +505,8 @@ fn a_retired_card_direct_target_reconstructs_as_dangling_and_fizzles() {
         .iter()
         .find(|permanent| permanent.card.id == ooze)
         .expect("the Ooze remains")
-        .counters.count(crate::CounterKind::PlusOnePlusOne);
+        .counters
+        .count(crate::CounterKind::PlusOnePlusOne);
 
     let viewer = game.decision_player().expect("the game awaits priority");
     let (wire, mut rebuilt) = rebuild_current_checkpoint(&game, viewer, 95_101);
@@ -540,7 +538,8 @@ fn a_retired_card_direct_target_reconstructs_as_dangling_and_fizzles() {
                 .iter()
                 .find(|permanent| permanent.card.id == ooze)
                 .expect("the Ooze remains")
-                .counters.count(crate::CounterKind::PlusOnePlusOne),
+                .counters
+                .count(crate::CounterKind::PlusOnePlusOne),
             counters_after_first,
             "the stale lower activation fizzles instead of using retired-card LKI",
         );

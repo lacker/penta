@@ -6,6 +6,7 @@ pub(crate) fn mana_cost(costs: &[CostDef], source_mana_cost: Option<ManaCost>) -
     costs.iter().try_fold(ManaCost::default(), |total, cost| {
         let mana = match cost {
             CostDef::Mana(mana) => *mana,
+            CostDef::Waterbend(amount) => ManaCost::new(*amount, 0),
             CostDef::ManaCostOf(ObjectRefDef::Source) => source_mana_cost?,
             _ => return Some(total),
         };
@@ -20,6 +21,7 @@ pub(crate) fn includes_mana_payment(costs: &[CostDef]) -> bool {
     fn includes(cost: &CostDef) -> bool {
         match cost {
             CostDef::Mana(_)
+            | CostDef::Waterbend(_)
             | CostDef::ManaTimes { .. }
             | CostDef::GenericMana(_)
             | CostDef::ColoredMana { .. }
@@ -42,7 +44,7 @@ pub(crate) fn includes_fixed_mana_payment(costs: &[CostDef]) -> bool {
     costs.iter().any(|cost| {
         matches!(
             cost,
-            CostDef::Mana(_) | CostDef::ManaCostOf(ObjectRefDef::Source)
+            CostDef::Mana(_) | CostDef::Waterbend(_) | CostDef::ManaCostOf(ObjectRefDef::Source)
         )
     })
 }
@@ -71,7 +73,7 @@ pub(crate) fn costs_without_fixed_mana(costs: &[CostDef]) -> impl Iterator<Item 
     costs.iter().copied().filter(|cost| {
         !matches!(
             cost,
-            CostDef::Mana(_) | CostDef::ManaCostOf(ObjectRefDef::Source)
+            CostDef::Mana(_) | CostDef::Waterbend(_) | CostDef::ManaCostOf(ObjectRefDef::Source)
         )
     })
 }
@@ -82,6 +84,7 @@ pub(crate) fn selected_costs(costs: &[CostDef]) -> impl Iterator<Item = CostDef>
         !matches!(
             cost,
             CostDef::Mana(_)
+                | CostDef::Waterbend(_)
                 | CostDef::ManaCostOf(ObjectRefDef::Source)
                 | CostDef::PayLife(_)
                 | CostDef::GainLife {
@@ -90,4 +93,15 @@ pub(crate) fn selected_costs(costs: &[CostDef]) -> impl Iterator<Item = CostDef>
                 }
         )
     })
+}
+
+/// The contribution allowance belongs only to waterbend's own generic component.
+pub(crate) fn waterbend(costs: &[CostDef]) -> u16 {
+    costs
+        .iter()
+        .filter_map(|cost| match cost {
+            CostDef::Waterbend(amount) => Some(*amount),
+            _ => None,
+        })
+        .fold(0, u16::saturating_add)
 }

@@ -224,6 +224,50 @@ impl Game {
         context: EffectResolutionContext,
     ) {
         match scoped.effect {
+            EffectDef::SearchZones {
+                searcher,
+                owner,
+                zones,
+                binding,
+                then,
+            } => {
+                let Some(searcher) =
+                    self.effect_player_reference(searcher, object, &context, scoped)
+                else {
+                    return;
+                };
+                let Some(owner) = self.effect_player_reference(owner, object, &context, scoped)
+                else {
+                    return;
+                };
+                if zones.contains(&ZoneKind::Library) {
+                    self.capture_battlefield_triggers(
+                        &super::super::CommittedTriggerEvent::LibrarySearched {
+                            player: searcher,
+                            owner,
+                        },
+                    );
+                }
+                let mut cards = Vec::new();
+                for zone in zones {
+                    let members = match zone {
+                        ZoneKind::Hand => &self.players[owner.index()].hand,
+                        ZoneKind::Graveyard => &self.players[owner.index()].graveyard,
+                        ZoneKind::Library => &self.players[owner.index()].library,
+                        ZoneKind::Exile => &self.players[owner.index()].exile,
+                        _ => continue,
+                    };
+                    for card in members {
+                        let target = Target::Card(card.id);
+                        if !cards.contains(&target) {
+                            cards.push(target);
+                        }
+                    }
+                }
+                let mut context = context;
+                context.bind_object_group(binding, cards);
+                self.resolve_effect_def(scoped.with_effect(*then), object, context);
+            }
             EffectDef::BindObjects(definition) => {
                 let Some(cards) =
                     self.effect_object_collection(definition.source, object, &context, scoped)

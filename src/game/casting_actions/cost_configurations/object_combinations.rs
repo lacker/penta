@@ -1,8 +1,8 @@
-// Minimal object combinations used by semantic spell costs.
+// Complete object selections used by semantic spell costs.
 impl Game {
-    /// Every minimal way to make a composed value over the chosen objects
-    /// reach its threshold. Supersets are legal but strictly worse payments,
-    /// so omitting them keeps graveyard-sized action lists bounded.
+    /// Every way to reach an object-set threshold. Supersets are rules-legal:
+    /// tapping an additional creature or exiling another graveyard card can
+    /// change later effects, even when it was not needed to reach the total.
     fn object_set_value_combinations(
         &self,
         candidates: &[GameObjectId],
@@ -14,17 +14,7 @@ impl Game {
                 if self.object_set_value(&combination, requirement.value) < requirement.minimum {
                     continue;
                 }
-                let minimal = combination.iter().all(|dropped| {
-                    let without = combination
-                        .iter()
-                        .copied()
-                        .filter(|id| id != dropped)
-                        .collect::<Vec<_>>();
-                    self.object_set_value(&without, requirement.value) < requirement.minimum
-                });
-                if minimal {
-                    payments.push(combination);
-                }
+                payments.push(combination);
             }
         }
         payments
@@ -46,30 +36,30 @@ impl Game {
                 .count(),
             crate::card::ObjectSetValueDef::Aggregate { select, operation } => {
                 let values = objects.iter().map(|id| match select {
-                    crate::card::ObjectValueDef::ManaValue => {
-                        self.current_or_last_known_mana_value(*id).unwrap_or(0)
+                    crate::card::ObjectValueDef::ManaSymbols(color) => {
+                        i32::from(self.object_mana_symbol_count(*id, color))
                     }
-                    crate::card::ObjectValueDef::Power => self
-                        .current_or_last_known_power(*id)
-                        .unwrap_or(0)
-                        .max(0)
-                        .cast_unsigned(),
-                    crate::card::ObjectValueDef::Toughness => self
-                        .current_or_last_known_toughness(*id)
-                        .unwrap_or(0)
-                        .max(0)
-                        .cast_unsigned(),
+                    crate::card::ObjectValueDef::ManaValue => {
+                        i32::from(self.current_or_last_known_mana_value(*id).unwrap_or(0))
+                    }
+                    crate::card::ObjectValueDef::Power => {
+                        i32::from(self.current_or_last_known_power(*id).unwrap_or(0))
+                    }
+                    crate::card::ObjectValueDef::Toughness => {
+                        i32::from(self.current_or_last_known_toughness(*id).unwrap_or(0))
+                    }
                     crate::card::ObjectValueDef::Counters(kind) => {
-                        self.current_or_last_known_counters(*id, kind)
+                        i32::from(self.current_or_last_known_counters(*id, kind))
                     }
                 });
-                match operation {
+                let value = match operation {
                     crate::card::AggregateOperationDef::Minimum => values.min().unwrap_or(0),
                     crate::card::AggregateOperationDef::Maximum => values.max().unwrap_or(0),
                     crate::card::AggregateOperationDef::Sum => {
-                        values.fold(0_u16, u16::saturating_add)
+                        values.fold(0_i32, i32::saturating_add)
                     }
-                }
+                };
+                u16::try_from(value.max(0)).unwrap_or(u16::MAX)
             }
         }
     }

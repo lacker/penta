@@ -84,6 +84,8 @@ fn woe_hob_event_lists_preserve_published_sizes_and_stay_out_of_playable_menus()
         };
         assert_eq!(deck.main.len(), expected_main, "{}", source.source);
         assert_eq!(deck.sideboard.len(), 15, "{}", source.source);
+        deck.validate_supported_cards(&catalog)
+            .unwrap_or_else(|error| panic!("{}: {error}", source.source));
         for &format in Format::ALL {
             assert!(!crate::protocol::deck_names_for_format(format).contains(&source.name));
             for name in [source.name, source.id] {

@@ -1158,9 +1158,9 @@ pub(in crate::card::sets) static RAGAVAN_NIMBLE_PILFERER: CardRecord = CardRecor
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
             AbilityDef::triggered(
-                "Whenever this creature deals combat damage to a player, \
-                 create a Treasure token and exile the top card of that \
-                 player's library. Until end of turn, you may cast that card.",
+                "Whenever this creature deals combat damage to a player, create a \
+                    Treasure token and exile the top card of that player's library. Until \
+                    end of turn, you may cast that card.",
                 TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
                 EffectDef::Sequence(&[
                     EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))),
@@ -1172,7 +1172,7 @@ pub(in crate::card::sets) static RAGAVAN_NIMBLE_PILFERER: CardRecord = CardRecor
                         free: false,
                         face_down: false,
                         duration: ExilePlayDurationDef::ThisTurn,
-                        spend_any_color: false,
+                        mana_spending: None,
                         play_condition: None,
                         cast_only: true,
                     },
@@ -1180,10 +1180,9 @@ pub(in crate::card::sets) static RAGAVAN_NIMBLE_PILFERER: CardRecord = CardRecor
             ),
             abilities::dash(
                 &[CostDef::Mana(mana_cost!("{1}{R}"))],
-                "Dash {1}{R} (You may cast this spell for its dash cost. If \
-                 you do, it gains haste, and it's returned from the \
-                 battlefield to its owner's hand at the beginning of the \
-                 next end step.)",
+                "Dash {1}{R} (You may cast this spell for its dash cost. If you do, it \
+                    gains haste, and it's returned from the battlefield to its owner's \
+                    hand at the beginning of the next end step.)",
             ),
             abilities::dashed_haste(),
             abilities::dashed_return(),

@@ -35,7 +35,10 @@ impl Game {
     ) {
         match effect {
             EffectDef::Perform(
-                crate::card::GameActionDef::Choose(_) | crate::card::GameActionDef::Sequence(_) | crate::card::GameActionDef::Choice(_) | crate::card::GameActionDef::Named { .. },
+                crate::card::GameActionDef::Choose(_)
+                | crate::card::GameActionDef::Sequence(_)
+                | crate::card::GameActionDef::Choice(_)
+                | crate::card::GameActionDef::Named { .. },
             ) => (),
             EffectDef::BindOutput { effect, .. } => {
                 self.resolve_triggered_mana_effect_with_choices(
@@ -69,6 +72,7 @@ impl Game {
             | EffectDef::ChooseOneOfEach(_)
             | EffectDef::CombineObjects(_)
             | EffectDef::ChooseGroup(_)
+            | EffectDef::SearchZones { .. }
             | EffectDef::BindObjects(_)
             | EffectDef::IfNoObjects(_)
             | EffectDef::PartitionGroup(_)
@@ -77,6 +81,7 @@ impl Game {
             | EffectDef::MoveObjects(_)
             | EffectDef::PutObjectsOntoBattlefieldFaceDown(_)
             | EffectDef::ChooseForEachPlayer(_)
+            | EffectDef::ChooseCreatureType { .. }
             | EffectDef::ChooseCardName { .. }
             | EffectDef::SelectAtRandomFromZone { .. }
             | EffectDef::ForEachInBinding { .. }
@@ -91,7 +96,9 @@ impl Game {
             | EffectDef::DrawCards { .. }
             | EffectDef::Discard { .. }
             | EffectDef::Perform(
-                crate::card::GameActionDef::DiscardCards { .. } | crate::card::GameActionDef::Exile { .. }
+                crate::card::GameActionDef::DiscardCards { .. }
+                | crate::card::GameActionDef::ModifyCounters { .. }
+                | crate::card::GameActionDef::Exile { .. }
                 | crate::card::GameActionDef::Sacrifice { .. }
                 | crate::card::GameActionDef::SacrificeYours { .. }
                 | crate::card::GameActionDef::GainControl { .. }
@@ -108,6 +115,8 @@ impl Game {
             | EffectDef::RemoveFromCombat { .. }
             | EffectDef::SkipNextUntapSteps { .. }
             | EffectDef::DoubleCounters { .. }
+            | EffectDef::AddCountersFrom { .. }
+            | EffectDef::SetDesignation { .. }
             | EffectDef::RemoveAllCounters { .. }
             | EffectDef::Untap { .. }
             | EffectDef::Saddle { .. }
@@ -148,10 +157,12 @@ impl Game {
             | EffectDef::ChangeText { .. }
             | EffectDef::ChooseColor { .. }
             | EffectDef::BecomeCopyOf { .. }
+            | EffectDef::OncePerTurn { .. }
             | EffectDef::May { .. }
             | EffectDef::CannotBeForcedToSacrifice
             | EffectDef::CannotBeForcedToDiscard
             | EffectDef::GainClassLevel { .. }
+            | EffectDef::RecordMechanic(_)
             | EffectDef::SetLifeTotal { .. }
             | EffectDef::SubstituteBasicLandTypeUntilEndOfTurn { .. }
             | EffectDef::CreateEmblem { .. }
@@ -167,6 +178,7 @@ impl Game {
             | EffectDef::ExileLinkedToSource { .. }
             | EffectDef::PermitLookAtExiled { .. }
             | EffectDef::MayPlayWithoutPaying { .. }
+            | EffectDef::GrantPlayPermission(_)
             | EffectDef::ExileGrantingOwnerPlay { .. }
             | EffectDef::ExileGrantingControllerPlayThisTurn { .. }
             | EffectDef::ReturnLinkedExiles { .. }
@@ -186,6 +198,7 @@ impl Game {
             | EffectDef::WithRule { .. }
             | EffectDef::Attach { .. }
             | EffectDef::AttachToSource { .. }
+            | EffectDef::AttachObjects { .. }
             | EffectDef::PairWithSource { .. }
             | EffectDef::Reconfigure { .. }
             | EffectDef::Unattach { .. }

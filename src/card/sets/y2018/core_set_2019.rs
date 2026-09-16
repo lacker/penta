@@ -506,7 +506,7 @@ pub(in crate::card::sets) static APEX_OF_POWER: CardRecord = CardRecord::new(
                 free: false,
                 face_down: false,
                 duration: ExilePlayDurationDef::ThisTurn,
-                spend_any_color: false,
+                mana_spending: None,
                 play_condition: None,
                 cast_only: true,
             },
@@ -527,8 +527,8 @@ pub(in crate::card::sets) static DARK_DWELLER_ORACLE: CardRecord = CardRecord::n
     // and it can eat itself once the board is empty.
     CardRules::new_creature(mana_cost!("{1}{R}"), &["Goblin", "Shaman"], 2, 2).with_ability(
         AbilityDef::activated(
-            "{1}, Sacrifice a creature: Exile the top card of your \
-             library. You may play that card this turn.",
+            "{1}, Sacrifice a creature: Exile the top card of your library. You may \
+                play that card this turn.",
             &[
                 CostDef::Mana(mana_cost!("{1}")),
                 CostDef::SacrificePermanent {
@@ -544,7 +544,7 @@ pub(in crate::card::sets) static DARK_DWELLER_ORACLE: CardRecord = CardRecord::n
                 free: false,
                 face_down: false,
                 duration: ExilePlayDurationDef::ThisTurn,
-                spend_any_color: false,
+                mana_spending: None,
                 play_condition: None,
                 cast_only: false,
             },
@@ -798,10 +798,9 @@ pub(in crate::card::sets) static VIVIEN_REID: CardRecord = CardRecord::new(
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
             AbilityDef::activated(
-                "+1: Look at the top four cards of your library. You may \
-                 reveal a creature or land card from among them and put it \
-                 into your hand. Put the rest on the bottom of your library in \
-                 a random order.",
+                "+1: Look at the top four cards of your library. You may reveal a \
+                    creature or land card from among them and put it into your hand. Put \
+                    the rest on the bottom of your library in a random order.",
                 &[CostDef::Loyalty(ValueDef::Constant(1))],
                 EffectDef::ChooseCardsFromCollection(ChooseCardsFromCollectionDef {
                     source: ObjectCollectionSourceDef::TopCards {
@@ -864,15 +863,16 @@ pub(in crate::card::sets) static VIVIEN_REID: CardRecord = CardRecord::new(
                 },
             ),
             AbilityDef::activated(
-                "−8: You get an emblem with \"Creatures you control get +2/+2 \
-                 and have vigilance, trample, and indestructible.\"",
+                "−8: You get an emblem with \"Creatures you control get +2/+2 and have \
+                    vigilance, trample, and indestructible.\"",
                 &[CostDef::Loyalty(ValueDef::Constant(-8))],
                 EffectDef::CreateEmblem {
+                    creature_type: None,
                     emblem: EmblemCharacteristics::new(
                         "Vivien Emblem",
                         &[AbilityDef::static_ability(
-                            "Creatures you control get +2/+2 and have vigilance, trample, \
-                             and indestructible.",
+                            "Creatures you control get +2/+2 and have vigilance, trample, and \
+                                indestructible.",
                             EffectDef::StaticApply {
                                 recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
                                     ObjectQueryDef::matching(

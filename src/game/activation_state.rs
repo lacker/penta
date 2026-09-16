@@ -12,6 +12,7 @@ use super::GameObjectId;
 /// of it is chosen as the ability is activated (CR 601.2b, CR 602.2b), so it
 /// travels together from the action to the stack object.
 pub(super) struct ActivationChoices<'a> {
+    pub(super) alternative_cost: Option<crate::AlternativeAbilityCost>,
     pub(super) targets: Vec<TargetSelection>,
     pub(super) cost_objects: &'a [GameObjectId],
     pub(super) x: u16,

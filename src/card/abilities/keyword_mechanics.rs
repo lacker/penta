@@ -175,7 +175,6 @@ pub const fn extort() -> AbilityDef {
     )
 }
 
-
 /// Unleash. The engine implements both halves from the keyword: an optional
 /// +1/+1 counter offered as the permanent enters, and no blocking for as long
 /// as it carries one.
@@ -356,6 +355,7 @@ pub const fn ward(costs: &'static [CostDef], text: &'static str) -> AbilityDef {
                 .with_visibility(ChoiceVisibilityDef::Public),
         ),
     )
+    .with_triggered_keyword(crate::card::AbilityKindDef::Ward)
 }
 
 /// The creature a backup trigger points at. Any creature, its own included:
@@ -526,7 +526,6 @@ pub const fn eternalize_with_costs(text: &'static str, costs: &'static [CostDef]
     .with_source_zones(&[ZoneKind::Graveyard])
     .with_activation_timing(ActivationTimingDef::SorcerySpeed)
 }
-
 
 /// Boast (CR 702.141): the two restrictions the keyword abbreviates, applied
 /// to an activated ability the caller has already built.

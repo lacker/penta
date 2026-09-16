@@ -92,11 +92,8 @@ impl Game {
                     add_mana_cost(cost, additional_mana),
                     self.spell_cost_increase(spell, choices.targets()),
                 );
-                let (locked, phyrexian_life) = Self::locked_mana_payment(
-                    increased,
-                    choices.mana_payment(),
-                    self.card_mana_is_any_color(*card),
-                )?;
+                let (locked, phyrexian_life) =
+                    Self::locked_mana_payment(increased, choices.mana_payment(), false)?;
                 let cast_life = self.configured_cast_life_payment(
                     player,
                     definition,
@@ -140,6 +137,7 @@ impl Game {
                     ManaPaymentPurpose::Spell {
                         object: *card,
                         commander_owner: self.commander_owner(*card),
+                        source_zone: spell.source_zone,
                         definition: definition.id,
                         controller: player,
                         form: option.form.clone(),
@@ -157,7 +155,17 @@ impl Game {
                 x,
                 mana_payment,
                 ..
+            }
+            | Action::ActivateAbilityWithAlternativeCost {
+                source,
+                ability,
+                targets,
+                cost_objects,
+                x,
+                mana_payment,
+                ..
             } => self.ability_mana_requirement(AbilityManaRequest {
+                alternative_cost: action.alternative_ability_cost(),
                 player,
                 source: *source,
                 ability: *ability,

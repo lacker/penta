@@ -27,6 +27,12 @@ impl Game {
         source: GameObjectId,
         controller: PlayerId,
     ) {
+        if source_zone == ZoneKind::Library {
+            self.capture_battlefield_triggers(&super::CommittedTriggerEvent::LibrarySearched {
+                player,
+                owner: player,
+            });
+        }
         if maximum == 0 {
             if shuffle && source_zone == ZoneKind::Library {
                 self.rng.shuffle(&mut self.players[player.index()].library);

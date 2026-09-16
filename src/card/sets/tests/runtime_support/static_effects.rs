@@ -37,6 +37,26 @@ fn shared_spell_alternative(
 
 fn shared_cost_modification(source_zones: &[ZoneKind], modification: CostModificationDef) -> bool {
     match modification {
+        CostModificationDef::AbilityAlternative {
+            abilities,
+            permanent,
+            condition,
+            costs,
+            ..
+        } => {
+            battlefield_only(source_zones)
+                && matches!(
+                    abilities,
+                    crate::card::AbilityKindDef::NonManaActivated
+                        | crate::card::AbilityKindDef::Equip
+                )
+                && shared_object_predicate(permanent)
+                && condition.is_none_or(|condition| shared_static_trigger_condition(*condition))
+                && costs
+                    .iter()
+                    .all(|cost| matches!(cost, CostDef::Mana(mana) if !mana.variable_x))
+                && !costs.is_empty()
+        }
         CostModificationDef::AbilityIncrease { permanent, .. } => {
             battlefield_only(source_zones) && shared_object_predicate(permanent)
         }
@@ -149,6 +169,14 @@ fn shared_spell_cost_value(value: ValueDef) -> bool {
         ValueDef::CountSpellsCastThisTurn(query) => {
             shared_object_predicate(query.spell) && shared_cost_modifier_caster(query.player, true)
         }
+        ValueDef::IfCondition(branches) => {
+            shared_static_trigger_condition(*branches.condition)
+                && shared_spell_cost_value(branches.then)
+                && shared_spell_cost_value(branches.otherwise)
+        }
+        ValueDef::AggregateObjectValues(aggregate) => matches!(aggregate.objects,
+            ObjectSetDef::Query(query) if !query.zones.contains(&ZoneKind::Stack)
+                && shared_static_query(query) && shared_object_predicate(query.object)),
         ValueDef::BasicLandTypesControlled(relation) => shared_cost_modifier_caster(relation, true),
         _ => false,
     }
@@ -172,6 +200,7 @@ pub(in super::super) fn shared_static_non_apply_effect(
         EffectDef::CannotBeForcedToSacrifice
         | EffectDef::CannotBeForcedToDiscard
         | EffectDef::GainClassLevel { .. }
+        | EffectDef::RecordMechanic(_)
         | EffectDef::SubstituteBasicLandTypeUntilEndOfTurn { .. }
         | EffectDef::LandwalkCanBeBlocked(_)
         | EffectDef::Perform(crate::card::GameActionDef::GainControl {
@@ -213,6 +242,7 @@ fn shared_static_effect_at(source_zones: &[ZoneKind], effect: EffectDef, root: b
         EffectDef::CannotBeForcedToSacrifice
         | EffectDef::CannotBeForcedToDiscard
         | EffectDef::GainClassLevel { .. }
+        | EffectDef::RecordMechanic(_)
         | EffectDef::SubstituteBasicLandTypeUntilEndOfTurn { .. }
         | EffectDef::ModifyCost(_)
         | EffectDef::LandwalkCanBeBlocked(_)
@@ -293,8 +323,10 @@ fn shared_static_effect_at(source_zones: &[ZoneKind], effect: EffectDef, root: b
                     | ObjectSetDef::PermanentsTargetedBy(_)
                     | ObjectSetDef::PlayerAttachments(_)
                     | ObjectSetDef::LegalAttachmentHosts(_)
+                    | ObjectSetDef::SharingCreatureType { .. }
                     | ObjectSetDef::ExceptObject { .. }
                     | ObjectSetDef::TokensCreatedBy(_)
+                    | ObjectSetDef::AttachmentsOf(_)
                     | ObjectSetDef::TopOfGraveyardMatching { .. },
                 )
                 | EffectRecipientSetDef::Players(
@@ -372,6 +404,7 @@ fn shared_static_effect_at(source_zones: &[ZoneKind], effect: EffectDef, root: b
         | EffectDef::FlipCoin { .. }
         | EffectDef::Choose(_)
         | EffectDef::ChooseForEachPlayer(_)
+        | EffectDef::ChooseCreatureType { .. }
         | EffectDef::ChooseCardName { .. }
         | EffectDef::SelectAtRandomFromZone { .. }
         | EffectDef::ForEachInBinding { .. }
@@ -379,9 +412,11 @@ fn shared_static_effect_at(source_zones: &[ZoneKind], effect: EffectDef, root: b
         | EffectDef::WithCosts { .. }
         | EffectDef::PreventDamage { .. }
         | EffectDef::Apply { .. }
+        | EffectDef::OncePerTurn { .. }
         | EffectDef::May { .. }
         | EffectDef::ExileLinkedToSource { .. }
         | EffectDef::MayPlayWithoutPaying { .. }
+        | EffectDef::GrantPlayPermission(_)
         | EffectDef::ExileGrantingOwnerPlay { .. }
         | EffectDef::ExileGrantingControllerPlayThisTurn { .. }
         | EffectDef::BecomePlotted { .. }
@@ -408,6 +443,7 @@ fn shared_static_effect_at(source_zones: &[ZoneKind], effect: EffectDef, root: b
             | crate::card::GameActionDef::Choice(_)
             | crate::card::GameActionDef::Named { .. }
             | crate::card::GameActionDef::DiscardCards { .. }
+            | crate::card::GameActionDef::ModifyCounters { .. }
             | crate::card::GameActionDef::Exile { .. }
             | crate::card::GameActionDef::Sacrifice { .. }
             | crate::card::GameActionDef::SacrificeYours { .. }
@@ -423,11 +459,14 @@ fn shared_static_effect_at(source_zones: &[ZoneKind], effect: EffectDef, root: b
         | EffectDef::RemoveFromCombat { .. }
         | EffectDef::SkipNextUntapSteps { .. }
         | EffectDef::DoubleCounters { .. }
+        | EffectDef::AddCountersFrom { .. }
+        | EffectDef::SetDesignation { .. }
         | EffectDef::RemoveAllCounters { .. }
         | EffectDef::Untap { .. }
         | EffectDef::Saddle { .. }
         | EffectDef::Attach { .. }
         | EffectDef::AttachToSource { .. }
+        | EffectDef::AttachObjects { .. }
         | EffectDef::Reconfigure { .. }
         | EffectDef::Unattach { .. }
         | EffectDef::PairWithSource { .. }
@@ -457,6 +496,7 @@ fn shared_static_effect_at(source_zones: &[ZoneKind], effect: EffectDef, root: b
         | EffectDef::CombineObjects(_)
         | EffectDef::ChooseOneOfEach(_)
         | EffectDef::ChooseGroup(_)
+        | EffectDef::SearchZones { .. }
         | EffectDef::BindObjects(_)
         | EffectDef::IfNoObjects(_)
         | EffectDef::PartitionGroup(_)
@@ -723,6 +763,11 @@ pub(in super::super) fn shared_static_applied_effect(
 /// for.
 fn shared_static_applied_rule(recipient: EffectRecipientDef, rule: AppliedRuleDef) -> bool {
     match rule {
+        AppliedRuleDef::MayBeTargetedThroughHexproof
+        | AppliedRuleDef::SuppressTriggeredAbilities(_) => {
+            recipient.object_reference().is_some() || recipient.object_query().is_some()
+        }
+
         AppliedRuleDef::RedirectDamageFromTo { .. }
         | AppliedRuleDef::PlayerRule(PlayerRuleDef::ApplyToMatchingSpell { .. }) => false,
         AppliedRuleDef::PlayerRule(PlayerRuleDef::LegendRuleDoesNotApplyTo(predicate)) => {

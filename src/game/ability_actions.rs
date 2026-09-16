@@ -102,14 +102,27 @@ impl Game {
         frozen: FrozenActivatedAbility,
         targets: Vec<TargetSelection>,
         chosen_permanents: Vec<GameObjectId>,
-        context: super::EffectResolutionContext,
+        mut context: super::EffectResolutionContext,
     ) -> GameObjectId {
         if let Some(permanent) = self
             .battlefield
             .iter_mut()
             .find(|permanent| permanent.card.id == source)
         {
+            context.source_transform_count = Some(permanent.transform_count);
             permanent.record_activation(frozen.origin);
+        }
+        if let Some(ability) = frozen.definition.as_ref()
+            && let DeclarativeAbilityDef::Activated(definition) = ability.definition
+        {
+            self.activated_ability_kinds_this_turn
+                .push((controller, crate::card::AbilityKindDef::Activated));
+            self.activated_ability_kinds_this_turn
+                .push((controller, crate::card::AbilityKindDef::NonManaActivated));
+            if let Some(kind) = definition.keyword_kind {
+                self.activated_ability_kinds_this_turn
+                    .push((controller, kind));
+            }
         }
         let event_chosen_permanents = chosen_permanents.clone();
         let card = self.unbacked_ability_object(frozen.presentation, source_owner);
@@ -222,6 +235,15 @@ impl Game {
                     return;
                 }
                 last_activated_origin = Some(effective.origin);
+                let mut costs = vec![(None, definition.costs)];
+                costs.extend(self.alternative_activation_costs(player, permanent, &definition)
+                    .into_iter().map(|(choice, costs)| (Some(choice), costs)));
+                for (selected_cost, costs) in costs {
+                    let mut definition = definition;
+                    definition.costs = costs;
+                    let mut ability = ability;
+                    ability.definition = DeclarativeAbilityDef::Activated(definition);
+                    let mut enumerate = || {
                 if !definition.source_zones.contains(&ZoneKind::Battlefield)
                     // Detain stops activated abilities, not the permanent's
                     // other clauses. An Aura saying so directly is the same
@@ -282,6 +304,7 @@ impl Game {
                 // taps its own source is never offered on mana only that
                 // source could have made.
                 let payment_purpose = ManaPaymentPurpose::Ability {
+            waterbend: crate::card::costs::waterbend(definition.costs),
                     source: permanent.card.id,
                     taps_source,
                     leaves_source,
@@ -296,6 +319,9 @@ impl Game {
                         // so what makes the cost payable is that one of them
                         // is -- paying 2 life for a Phyrexian symbol counts
                         // even with no mana of that colour anywhere.
+                        CostDef::Waterbend(amount) => self.affordable_activation_payments(
+                            player, self.minimum_activation_mana_cost(&definition, permanent.card.id, ManaCost::new(*amount, 0)),
+                            0, &payment_purpose).is_empty(),
                         CostDef::Mana(cost) => self
                             .affordable_activation_payments(
                                 player,
@@ -693,7 +719,7 @@ impl Game {
                                         )
                                     },
                                 ) {
-                                    actions.push(Action::ActivateAbility {
+                                    let action = Action::ActivateAbility {
                                         source: permanent.card.id,
                                         ability: effective.origin,
                                         targets: selections.clone(),
@@ -701,11 +727,19 @@ impl Game {
                                         x,
                                         modes: selected_modes.clone(),
                                         mana_payment: payment.map(Box::new),
-                                    });
+                                    };
+                                    actions.push(if let Some(cost) = selected_cost {
+                                        let Action::ActivateAbility { source, ability, targets, cost_objects, x, modes, mana_payment } = action else { unreachable!() };
+                                        Action::ActivateAbilityWithAlternativeCost { cost, source, ability, targets, cost_objects, x, modes, mana_payment }
+                                    } else { action });
                                 }
                             }
                         }
                     }
+                }
+
+                    };
+                    enumerate();
                 }
             });
         }
@@ -737,6 +771,7 @@ impl Game {
                 continue;
             };
             let purpose = ManaPaymentPurpose::Ability {
+                waterbend: crate::card::costs::waterbend(definition.costs),
                 source: ongoing.source.object,
                 taps_source: false,
                 leaves_source: false,

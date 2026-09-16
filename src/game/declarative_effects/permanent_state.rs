@@ -59,6 +59,7 @@ impl Game {
             | EffectDef::ChooseEffect { .. }
             | EffectDef::ModifyCounters { .. }
             | EffectDef::DoubleCounters { .. }
+            | EffectDef::AddCountersFrom { .. }
             | EffectDef::RemoveCounters { .. } => {
                 self.resolve_counter_effect(scoped, object, context);
             }
@@ -67,6 +68,17 @@ impl Game {
             }
             EffectDef::PhaseOut { object: recipient } => {
                 self.phase_out_recipients(recipient, object, context, scoped);
+            }
+            EffectDef::SetDesignation {
+                object: recipient,
+                designation,
+                present,
+            } => {
+                for target in self.effect_recipients(recipient, object, context, scoped) {
+                    if let Target::Permanent(id) = target {
+                        self.set_permanent_designation(id, designation, present);
+                    }
+                }
             }
             EffectDef::RemoveAllCounters {
                 object: recipient,
@@ -210,6 +222,7 @@ impl Game {
     }
 
     /// Counters put on or taken off the permanents a recipient names.
+    #[allow(clippy::too_many_lines)]
     fn resolve_counter_effect(
         &mut self,
         scoped: ScopedEffect,
@@ -276,22 +289,49 @@ impl Game {
                 }
                 self.capture_counters_placed(&placed, kind, amount);
             }
+            EffectDef::AddCountersFrom {
+                from,
+                object: recipient,
+            } => {
+                let Some(source) = self.effect_object_reference_id(from, object, context, scoped)
+                else {
+                    return;
+                };
+                let counters = self.current_or_last_known_counter_inventory(source);
+                for target in self.effect_recipients(recipient, object, context, scoped) {
+                    for (kind, amount) in &counters {
+                        self.modify_counters(
+                            target,
+                            *kind,
+                            crate::card::CounterOperationDef::Add,
+                            *amount,
+                        );
+                    }
+                }
+            }
             EffectDef::DoubleCounters {
                 object: recipient,
                 kind,
             } => {
-                // Each permanent's own count, read as that permanent is
-                // reached: doubling is not one amount handed to everybody.
+                let mut placements = Vec::new();
                 for target in self.effect_recipients(recipient, object, context, scoped) {
-                    if let Target::Permanent(permanent) = target
-                        && let Some(permanent) = self
-                            .battlefield
-                            .iter_mut()
-                            .find(|candidate| candidate.card.id == permanent)
+                    if let Target::Permanent(id) = target
+                        && let Some(permanent) =
+                            self.battlefield.iter_mut().find(|p| p.card.id == id)
                     {
-                        let existing = permanent.counters(kind);
-                        permanent.add_counters(kind, existing);
+                        let counters = permanent
+                            .counters
+                            .iter()
+                            .filter(|(present, _)| kind.is_none_or(|kind| *present == kind))
+                            .collect::<Vec<_>>();
+                        for (kind, amount) in counters {
+                            permanent.add_counters(kind, amount);
+                            placements.push((id, kind, amount));
+                        }
                     }
+                }
+                for (id, kind, amount) in placements {
+                    self.capture_counters_placed(&[id], kind, amount);
                 }
             }
             EffectDef::RemoveCounters {

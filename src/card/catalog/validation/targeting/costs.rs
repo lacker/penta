@@ -16,14 +16,17 @@ fn validate_payment_cost_references(
         CostDef::All(costs) | CostDef::Choice(costs) => costs
             .iter()
             .try_for_each(|cost| validate_payment_cost_references(*cost, target_count, scope)),
-        CostDef::GenericMana(amount) | CostDef::ColoredMana { amount, .. } => {
+        CostDef::GenericMana(amount)
+        | CostDef::Life(amount)
+        | CostDef::ColoredMana { amount, .. } => {
             validate_value_target_references(amount, target_count, scope)
         }
         CostDef::ObjectManaCostReducedBy { object, .. }
         | CostDef::RemoveAnyNumberOfCounters { object, .. } => {
             validate_recipient_target_references(*object, target_count, scope)
         }
-        CostDef::Discard { object, .. }
+        CostDef::Behold { object, .. }
+        | CostDef::Discard { object, .. }
         | CostDef::SacrificePermanent { object, .. }
         | CostDef::MovePermanentMatching { object, .. } => {
             validate_object_predicate_references(object, target_count, scope)
@@ -49,14 +52,15 @@ fn validate_payment_cost_shape(
         CostDef::All(costs) | CostDef::Choice(costs) => costs
             .iter()
             .try_for_each(|cost| validate_payment_cost_shape(*cost, targets)),
-        CostDef::GenericMana(amount) | CostDef::ColoredMana { amount, .. } => {
-            validate_value_shape(amount, targets)
-        }
+        CostDef::GenericMana(amount)
+        | CostDef::Life(amount)
+        | CostDef::ColoredMana { amount, .. } => validate_value_shape(amount, targets),
         CostDef::ObjectManaCostReducedBy { object, .. }
         | CostDef::RemoveAnyNumberOfCounters { object, .. } => {
             validate_recipient_shape(*object, targets, RecipientExpectation::Object)
         }
-        CostDef::Discard { object, .. }
+        CostDef::Behold { object, .. }
+        | CostDef::Discard { object, .. }
         | CostDef::SacrificePermanent { object, .. }
         | CostDef::MovePermanentMatching { object, .. } => {
             validate_object_predicate_shape(object, targets)

@@ -17,6 +17,7 @@ impl Game {
             super::super::ManaContributionKind::Convoke => "Convoke",
             super::super::ManaContributionKind::Delve => "Delve",
             super::super::ManaContributionKind::Improvise => "Improvise with",
+            super::super::ManaContributionKind::Waterbend => "Waterbend with",
         };
         self.payment_card_option(
             index,
@@ -54,7 +55,8 @@ impl Game {
                     object,
                     super::super::ObjectCharacteristics::card(
                         card.definition,
-                        crate::CardPartId::PRIMARY,
+                        self.part_copy(card.id)
+                            .unwrap_or(crate::CardPartId::PRIMARY),
                     ),
                 ));
                 option.zone = match zone {
@@ -92,6 +94,13 @@ impl Game {
             .map(|o| o.cost)
             .unwrap_or_default();
         let mut option = self.payment_card_option(index, object, format!("{verb} {name}: {cost}"));
+        if let Some(cost) = action.alternative_ability_cost() {
+            let _ = write!(
+                option.label,
+                "; alternative cost from {}",
+                self.payment_object_label(player, cost.source)
+            );
+        }
         let (targets, payers) = match action {
             Action::CastSpell {
                 card,
@@ -129,6 +138,9 @@ impl Game {
                         }
                     }
                 }
+                if let Some(creature_type) = choices.costs().chosen_creature_type() {
+                    let _ = write!(option.label, "; chosen type: {}", creature_type.name());
+                }
                 if choices.x() > 0 {
                     let _ = write!(option.label, "; X = {}", choices.x());
                 }
@@ -139,6 +151,14 @@ impl Game {
                 (choices.targets(), sacrifices.as_slice())
             }
             Action::ActivateAbility {
+                source,
+                ability,
+                targets,
+                cost_objects,
+                modes,
+                ..
+            }
+            | Action::ActivateAbilityWithAlternativeCost {
                 source,
                 ability,
                 targets,

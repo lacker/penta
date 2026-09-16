@@ -20,7 +20,6 @@ use crate::card::CounterKind;
 use crate::card::CreateTokenDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
-use crate::card::InstalledTriggerDef;
 use crate::card::ManaColor;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
@@ -299,9 +298,9 @@ pub(in crate::card::sets) static KITESAIL_FREEBOOTER: CardRecord = CardRecord::n
     CardRules::new_creature(mana_cost!("{1}{B}"), &["Human", "Pirate"], 1, 2).with_abilities(&[
         abilities::flying(),
         abilities::enters_trigger_with_targets(
-            "When this creature enters, target opponent reveals their \
-             hand. You choose a noncreature, nonland card from it. Exile \
-             that card until this creature leaves the battlefield.",
+            "When this creature enters, target opponent reveals their hand. You \
+                choose a noncreature, nonland card from it. Exile that card until this \
+                creature leaves the battlefield.",
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Player(PlayerRelation::Opponent),
             )],
@@ -313,34 +312,12 @@ pub(in crate::card::sets) static KITESAIL_FREEBOOTER: CardRecord = CardRecord::n
                     ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
                     ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
                 ]),
-                &EffectDef::Sequence(&[
-                    EffectDef::ExileLinkedToSource {
-                        until_source_leaves: true,
-                        object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
-                        face_down: false,
-                        then: None,
-                    },
-                    // "Until this creature leaves the battlefield" is one printed ability, so
-                    // the return is a delayed trigger installed by the same resolution rather
-                    // than a second clause the card does not print.
-                    EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
-                        "When this creature leaves the battlefield, return the \
-                         exiled card to its owner's hand.",
-                        TriggerEventDef::zone_changed(
-                            ObjectPredicateDef::Source,
-                            Some(ZoneKind::Battlefield),
-                            None,
-                        ),
-                        EffectDef::ReturnLinkedExiles {
-                            object: ObjectPredicateDef::Any,
-                            counters: None,
-                            zone: ZoneKind::Hand,
-                            grant: None,
-                            controller: None,
-                            transformed: false,
-                        },
-                    ))),
-                ]),
+                &EffectDef::Sequence(&[EffectDef::ExileLinkedToSource {
+                    until_source_leaves: true,
+                    object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
+                    face_down: false,
+                    then: None,
+                }]),
             )),
         ),
     ]),

@@ -4,6 +4,7 @@ use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
 use crate::card::AbilityDef;
+use crate::card::AbilityKindDef;
 use crate::card::AbilityPredicateDef;
 use crate::card::AbilityTargetDef;
 use crate::card::AbilityTargetPredicate;
@@ -171,8 +172,8 @@ const fn impending_cast(costs: &'static [CostDef], text: &'static str) -> Abilit
 }
 const fn impending_entry(amount: u16) -> AbilityDef {
     AbilityDef::as_enters_if(
-        "If you chose to pay this permanent's impending cost, it \
-         enters with time counters.",
+        "If you chose to pay this permanent's impending cost, it enters with \
+            time counters.",
         ReplacementConditionDef::SourceCastWith(AlternativeCastKindDef::Impending),
         ReplacementEffectDef::ModifyBattlefieldEntry(
             BattlefieldEntryModificationDef::AddCounters {
@@ -192,9 +193,9 @@ const fn impending_countdown() -> AbilityDef {
         },
     ]);
     AbilityDef::triggered_if(
-        "At the beginning of your end step, if this permanent's \
-         impending cost was paid and it has a time counter on it, \
-         remove a time counter from it.",
+        "At the beginning of your end step, if this permanent's impending cost \
+            was paid and it has a time counter on it, remove a time counter from \
+            it.",
         TriggerEventDef::StepBegins {
             step: TurnStepDef::End,
             player: PlayerRelation::You,
@@ -955,14 +956,48 @@ pub(in crate::card::sets) static SHARDMAGE_S_RESCUE: CardRecord = CardRecord::ne
 );
 
 // DSK 30 — Sheltered by Ghosts
-// Audit: unsupported — Needs an exile-until-source-leaves duration with immediate return when
-// that duration ends (CR 610.3); an ordinary leaves trigger returns the card later through the
-// stack.
 pub(in crate::card::sets) static SHELTERED_BY_GHOSTS: CardRecord = CardRecord::new(
     "Sheltered by Ghosts",
     "389f3f7b-be40-4a2d-b5cc-28471a577981",
     "Mirko Failoni",
-    CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{W}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature_you_control(),
+            abilities::enters_trigger_with_targets(
+                "When this Aura enters, exile target nonland permanent an opponent \
+                    controls until this Aura leaves the battlefield.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
+                    ]),
+                )],
+                EffectDef::ExileLinkedToSource {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    face_down: false,
+                    until_source_leaves: true,
+                    then: None,
+                },
+            ),
+            AbilityDef::static_ability(
+                "Enchanted creature gets +1/+0 and has lifelink and ward {2}.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(1),
+                            ValueDef::Constant(0),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::lifelink()),
+                        AppliedEffectDef::add_ability(&abilities::ward(
+                            &[CostDef::Mana(mana_cost!("{2}"))],
+                            "Ward {2}",
+                        )),
+                    ]),
+                },
+            ),
+        ]),
 );
 
 // DSK 31 — Shepherding Spirits
@@ -3745,14 +3780,51 @@ const MURDER_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // DSK 111 — Nowhere to Run
-// Audit: unsupported — Needs a controller-filtered targeting permission that ignores opponents'
-// creature hexproof and suppresses those creatures' ward triggers without removing unrelated
-// abilities.
 pub(in crate::card::sets) static NOWHERE_TO_RUN: CardRecord = CardRecord::new(
     "Nowhere to Run",
     "fee60e9d-9ee7-444a-88f3-c1929e1888fb",
     "Jodie Muir",
-    CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{B}")).with_abilities(&[
+        abilities::flash(),
+        abilities::enters_trigger_with_targets(
+            "When this enchantment enters, target creature an opponent controls \
+                gets -3/-3 until end of turn.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
+                ]),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(-3),
+                    ValueDef::Constant(-3),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+        AbilityDef::static_ability(
+            "Creatures your opponents control can be the targets of spells and \
+                abilities as though they didn't have hexproof. Ward abilities of those \
+                creatures don't trigger.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                    ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Opponent,
+                    ),
+                )),
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::Rule(AppliedRuleDef::MayBeTargetedThroughHexproof),
+                    AppliedEffectDef::Rule(AppliedRuleDef::SuppressTriggeredAbilities(
+                        AbilityPredicateDef::Is(AbilityKindDef::Ward),
+                    )),
+                ]),
+            },
+        ),
+    ]),
 );
 
 // DSK 112 — Osseous Sticktwister
@@ -4387,8 +4459,8 @@ pub(in crate::card::sets) static DIVERSION_SPECIALIST: CardRecord = CardRecord::
     CardRules::new_creature(mana_cost!("{3}{R}"), &["Human", "Warrior"], 4, 3).with_abilities(&[
         abilities::menace(),
         AbilityDef::activated(
-            "{1}, Sacrifice another creature or enchantment: Exile the top \
-             card of your library. You may play it this turn.",
+            "{1}, Sacrifice another creature or enchantment: Exile the top card of \
+                your library. You may play it this turn.",
             &[
                 CostDef::Mana(mana_cost!("{1}")),
                 CostDef::sacrifice_permanent(ObjectPredicateDef::All(&[
@@ -4405,7 +4477,7 @@ pub(in crate::card::sets) static DIVERSION_SPECIALIST: CardRecord = CardRecord::
                 duration: ExilePlayDurationDef::ThisTurn,
                 free: false,
                 face_down: false,
-                spend_any_color: false,
+                mana_spending: None,
                 play_condition: None,
                 cast_only: false,
             },
@@ -7215,14 +7287,14 @@ pub(in crate::card::sets) static KAITO_BANE_OF_NIGHTMARES: CardRecord = CardReco
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
             abilities::ninjutsu!(
-                "Ninjutsu {1}{U}{B} ({1}{U}{B}, Return an unblocked attacker \
-                 you control to hand: Put this card onto the battlefield \
-                 from your hand tapped and attacking.)",
+                "Ninjutsu {1}{U}{B} ({1}{U}{B}, Return an unblocked attacker you \
+                    control to hand: Put this card onto the battlefield from your hand \
+                    tapped and attacking.)",
                 &[CostDef::Mana(mana_cost!("{1}{U}{B}"))],
             ),
             AbilityDef::static_ability(
-                "During your turn, as long as Kaito has one or more loyalty \
-                 counters on him, he's a 3/4 Ninja creature and has hexproof.",
+                "During your turn, as long as Kaito has one or more loyalty counters on \
+                    him, he's a 3/4 Ninja creature and has hexproof.",
                 EffectDef::IfCondition {
                     // He is a creature only while it is your turn and only while he still has
                     // loyalty: the pair of conditions is what keeps him from being a creature
@@ -7259,6 +7331,7 @@ pub(in crate::card::sets) static KAITO_BANE_OF_NIGHTMARES: CardRecord = CardReco
                 "+1: You get an emblem with \"Ninjas you control get +1/+1.\"",
                 &[CostDef::Loyalty(ValueDef::Constant(1))],
                 EffectDef::CreateEmblem {
+                    creature_type: None,
                     emblem: EmblemCharacteristics::new(
                         "Kaito, Bane of Nightmares emblem",
                         &[AbilityDef::static_ability(
@@ -8194,15 +8267,71 @@ pub(in crate::card::sets) static FRIENDLY_TEDDY: CardRecord = CardRecord::new(
 );
 
 // DSK 248 — Ghost Vacuum
-// Audit: unsupported — Needs the returned creatures' 1/1 base size and additional Spirit type
-// established simultaneously with battlefield entry (CR 611.2e); applying those continuous
-// effects after returning them lets entry replacements and triggers observe the wrong
-// characteristics.
 pub(in crate::card::sets) static GHOST_VACUUM: CardRecord = CardRecord::new(
     "Ghost Vacuum",
     "8ac39c01-127f-4471-bc74-11a90c48e306",
     "David Szabo",
-    CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
+        AbilityDef::activated_with_targets(
+            "{T}: Exile target card from a graveyard.",
+            &[CostDef::TapSource],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Any,
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: None,
+                },
+            )],
+            EffectDef::ExileLinkedToSource {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                face_down: false,
+                until_source_leaves: false,
+                then: None,
+            },
+        ),
+        AbilityDef::activated(
+            "{6}, {T}, Sacrifice this artifact: Put each creature card exiled with \
+                this artifact onto the battlefield under your control with a flying \
+                counter on it. Each of them is a 1/1 Spirit in addition to its other \
+                types. Activate only as a sorcery.",
+            &[
+                CostDef::Mana(mana_cost!("{6}")),
+                CostDef::TapSource,
+                CostDef::SacrificeSource,
+            ],
+            EffectDef::WithBattlefieldArrival {
+                effect: &EffectDef::move_to_zone(
+                    EffectRecipientDef::objects(ObjectSetDef::Matching {
+                        objects: &ObjectSetDef::LinkedExiles,
+                        object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::HasType(
+                            CardType::Creature,
+                        )),
+                    }),
+                    ZoneKind::Battlefield,
+                    ZonePlacement::Top,
+                ),
+                arrival: BattlefieldArrivalDef {
+                    controller: Some(PlayerRelation::You),
+                    modifications: &[
+                        BattlefieldEntryModificationDef::SetBasePowerToughness {
+                            power: 1,
+                            toughness: 1,
+                        },
+                        BattlefieldEntryModificationDef::AddCreatureTypes(
+                            CreatureTypeSetDef::named(&["Spirit"]),
+                        ),
+                        BattlefieldEntryModificationDef::AddCounters {
+                            kind: CounterKind::Flying,
+                            amount: 1,
+                        },
+                    ],
+                    ..BattlefieldArrivalDef::DEFAULT
+                },
+            },
+        )
+        .with_activation_timing(ActivationTimingDef::SorcerySpeed),
+    ]),
 );
 
 // DSK 249 — Glimmerlight

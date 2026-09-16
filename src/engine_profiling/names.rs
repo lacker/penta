@@ -3,6 +3,8 @@
 #[allow(clippy::too_many_lines)]
 pub(crate) const fn effect_kind(value: crate::EffectDef) -> &'static str {
     match value {
+        crate::EffectDef::ChooseCreatureType { .. } => "ChooseCreatureType",
+        crate::EffectDef::SearchZones { .. } => "SearchZones",
         crate::EffectDef::Perform(..) => "Perform",
         crate::EffectDef::WithCosts { .. } => "WithCosts",
         crate::EffectDef::AddCounters { .. } => "AddCounters",
@@ -12,11 +14,13 @@ pub(crate) const fn effect_kind(value: crate::EffectDef) -> &'static str {
         crate::EffectDef::AddMana(..) => "AddMana",
         crate::EffectDef::AddManaEqualTo { .. } => "AddManaEqualTo",
         crate::EffectDef::GainClassLevel { .. } => "GainClassLevel",
+        crate::EffectDef::RecordMechanic(_) => "RecordMechanic",
         crate::EffectDef::AddPlayerCounters { .. } => "AddPlayerCounters",
         crate::EffectDef::Apply { .. } => "Apply",
         crate::EffectDef::WithRule { .. } => "WithRule",
         crate::EffectDef::Attach { .. } => "Attach",
         crate::EffectDef::AttachToSource { .. } => "AttachToSource",
+        crate::EffectDef::AttachObjects { .. } => "AttachObjects",
         crate::EffectDef::PairWithSource { .. } => "PairWithSource",
         crate::EffectDef::Reconfigure { .. } => "Reconfigure",
         crate::EffectDef::Unattach { .. } => "Unattach",
@@ -93,6 +97,7 @@ pub(crate) const fn effect_kind(value: crate::EffectDef) -> &'static str {
         crate::EffectDef::LoseTheGame { .. } => "LoseTheGame",
         crate::EffectDef::WinTheGame { .. } => "WinTheGame",
         crate::EffectDef::May { .. } => "May",
+        crate::EffectDef::OncePerTurn { .. } => "OncePerTurn",
         crate::EffectDef::MillUntil(..) => "MillUntil",
         crate::EffectDef::ExileFromTopUntil { .. } => "ExileFromTopUntil",
         crate::EffectDef::Cascade => "Cascade",
@@ -121,7 +126,9 @@ pub(crate) const fn effect_kind(value: crate::EffectDef) -> &'static str {
         crate::EffectDef::ModifyCost(..) => "ModifyCost",
         crate::EffectDef::Regenerate { .. } => "Regenerate",
         crate::EffectDef::DoubleCounters { .. } => "DoubleCounters",
+        crate::EffectDef::AddCountersFrom { .. } => "AddCountersFrom",
         crate::EffectDef::RemoveAllCounters { .. } => "RemoveAllCounters",
+        crate::EffectDef::SetDesignation { .. } => "SetDesignation",
         crate::EffectDef::RemoveCounters { .. } => "RemoveCounters",
         crate::EffectDef::ReplaceNextDrawThisTurn { .. } => "ReplaceNextDrawThisTurn",
         crate::EffectDef::Explore { .. } => "Explore",
@@ -142,6 +149,7 @@ pub(crate) const fn effect_kind(value: crate::EffectDef) -> &'static str {
         crate::EffectDef::Sequence(..) => "Sequence",
         crate::EffectDef::ShuffleLibrary { .. } => "ShuffleLibrary",
         crate::EffectDef::Saddle { .. } => "Saddle",
+        crate::EffectDef::GrantPlayPermission(..) => "GrantPlayPermission",
         crate::EffectDef::MayPlayWithoutPaying(..) => "MayPlayWithoutPaying",
         crate::EffectDef::SkipNextUntapSteps { .. } => "SkipNextUntapSteps",
         crate::EffectDef::Special(..) => "Special",
@@ -158,6 +166,7 @@ pub(crate) const fn effect_kind(value: crate::EffectDef) -> &'static str {
 #[allow(clippy::too_many_lines)]
 pub(crate) const fn predicate_kind(value: crate::ObjectPredicateDef) -> &'static str {
     match value {
+        crate::ObjectPredicateDef::UnblockedAttacker => "UnblockedAttacker",
         crate::ObjectPredicateDef::Any => "Any",
         crate::ObjectPredicateDef::Commander => "Commander",
         crate::ObjectPredicateDef::Source => "Source",
@@ -184,6 +193,7 @@ pub(crate) const fn predicate_kind(value: crate::ObjectPredicateDef) -> &'static
         crate::ObjectPredicateDef::ManaValueAtMost(..) => "ManaValueAtMost",
         crate::ObjectPredicateDef::ManaValueEqualTo(..) => "ManaValueEqualTo",
         crate::ObjectPredicateDef::ManaValueAtMostValue(..) => "ManaValueAtMostValue",
+        crate::ObjectPredicateDef::HasAlternateSpell(..) => "HasAlternateSpell",
         crate::ObjectPredicateDef::GenericManaCostAtMost(..) => "GenericManaCostAtMost",
         crate::ObjectPredicateDef::PowerAtLeast(..) => "PowerAtLeast",
         crate::ObjectPredicateDef::PowerExactly(..) => "PowerExactly",
@@ -247,6 +257,7 @@ pub(crate) const fn action_kind(value: crate::GameActionDef) -> &'static str {
         crate::GameActionDef::Sacrifice { .. } => "Sacrifice",
         crate::GameActionDef::SacrificeYours { .. } => "SacrificeYours",
         crate::GameActionDef::MoveToZone { .. } => "MoveToZone",
+        crate::GameActionDef::ModifyCounters { .. } => "ModifyCounters",
         crate::GameActionDef::GainControl { .. } => "GainControl",
     }
 }

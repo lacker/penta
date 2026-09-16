@@ -390,6 +390,7 @@ fn extend_battlefield_exit_ids(
     ids.extend(candidates.iter().map(|candidate| match candidate.action {
         BattlefieldExitReplacementAction::Ability { context, .. } => context.source.object,
         BattlefieldExitReplacementAction::RegenerationShield
+        | BattlefieldExitReplacementAction::ShieldCounter
         | BattlefieldExitReplacementAction::Commander => batch.moves[candidate.move_index].object,
     }));
 }
@@ -548,8 +549,14 @@ pub(super) fn ids(ids: &[GameObjectId]) -> Vec<u32> {
     ids.iter().map(|id| id.0).collect()
 }
 
-pub(super) fn detached_card_snapshot(card: &super::super::CardInstance) -> DetachedCardSnapshot {
+pub(in crate::game::state_checkpoint) fn detached_card_snapshot(
+    card: &super::super::CardInstance,
+) -> DetachedCardSnapshot {
     DetachedCardSnapshot {
+        copy_part_id: match card.characteristics {
+            crate::game::CharacteristicSource::PartCopy { part, .. } => Some(part.0),
+            _ => None,
+        },
         object_id: card.id.0,
         definition: card.definition,
         owner: card.owner.index(),
@@ -570,12 +577,7 @@ pub(super) fn parse_detached_cards(
                     snapshot.object_id
                 ));
             }
-            card(
-                GameObjectId(snapshot.object_id),
-                snapshot.definition,
-                player(snapshot.owner)?,
-                &game.catalog,
-            )
+            super::super::wire::parse_detached_card(snapshot, &game.catalog)
         })
         .collect()
 }

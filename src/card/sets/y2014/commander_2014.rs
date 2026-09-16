@@ -39,6 +39,7 @@ use crate::card::PlayerRelation;
 use crate::card::ReplacementEffectDef;
 use crate::card::ReplacementEventDef;
 use crate::card::ResolvedEffectDurationDef;
+use crate::card::SacrificedAmountDef;
 use crate::card::TokenCharacteristics;
 use crate::card::TokenDef;
 use crate::card::TriggerEventDef;
@@ -142,9 +143,8 @@ pub(in crate::card::sets) static TEFERI_TEMPORAL_ARCHMAGE: CardRecord = CardReco
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
             AbilityDef::activated(
-                "+1: Look at the top two cards of your library. Put one of \
-                 them into your hand and the other on the bottom of your \
-                 library.",
+                "+1: Look at the top two cards of your library. Put one of them into \
+                    your hand and the other on the bottom of your library.",
                 &[CostDef::Loyalty(ValueDef::Constant(1))],
                 abilities::look_at_top_cards_choose_to_hand_rest_bottom(
                     ValueDef::Constant(2),
@@ -170,17 +170,17 @@ pub(in crate::card::sets) static TEFERI_TEMPORAL_ARCHMAGE: CardRecord = CardReco
                 },
             ),
             AbilityDef::activated(
-                "−10: You get an emblem with \"You may activate loyalty \
-                 abilities of planeswalkers you control on any player's turn \
-                 any time you could cast an instant.\"",
+                "−10: You get an emblem with \"You may activate loyalty abilities of \
+                    planeswalkers you control on any player's turn any time you could cast \
+                    an instant.\"",
                 &[CostDef::Loyalty(ValueDef::Constant(-10))],
                 EffectDef::CreateEmblem {
+                    creature_type: None,
                     emblem: EmblemCharacteristics::new(
                         "Teferi, Temporal Archmage emblem",
                         &[AbilityDef::static_ability(
-                            "You may activate loyalty abilities of planeswalkers you \
-                             control on any player's turn any time you could cast an \
-                             instant.",
+                            "You may activate loyalty abilities of planeswalkers you control on any \
+                                player's turn any time you could cast an instant.",
                             EffectDef::StaticApply {
                                 recipient: EffectRecipientDef::matching_objects(
                                     ObjectPredicateDef::HasType(CardType::Planeswalker),
@@ -241,9 +241,8 @@ pub(in crate::card::sets) static DARETTI_SCRAP_SAVANT: CardRecord = CardRecord::
                 }),
             ),
             AbilityDef::activated_with_targets(
-                "−2: Sacrifice an artifact. If you do, return \
-                 target artifact card from your graveyard to \
-                 the battlefield.",
+                "−2: Sacrifice an artifact. If you do, return target artifact card from \
+                    your graveyard to the battlefield.",
                 &[CostDef::Loyalty(ValueDef::Constant(-2))],
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Object {
@@ -262,26 +261,24 @@ pub(in crate::card::sets) static DARETTI_SCRAP_SAVANT: CardRecord = CardRecord::
                         ZoneKind::Battlefield,
                         ZonePlacement::Top,
                     )),
-                    amount: crate::card::SacrificedAmountDef::Power,
+                    amount: SacrificedAmountDef::Power,
                     otherwise: None,
                     optional: false,
                 },
             ),
             AbilityDef::activated(
-                "−10: You get an emblem with \"Whenever an \
-                 artifact is put into your graveyard from the \
-                 battlefield, return that card to the \
-                 battlefield at the beginning of the next end \
-                 step.\"",
+                "−10: You get an emblem with \"Whenever an artifact is put into your \
+                    graveyard from the battlefield, return that card to the battlefield at \
+                    the beginning of the next end step.\"",
                 &[CostDef::Loyalty(ValueDef::Constant(-10))],
                 EffectDef::CreateEmblem {
+                    creature_type: None,
                     emblem: EmblemCharacteristics::new(
                         "Daretti, Scrap Savant emblem",
                         &[AbilityDef::triggered(
-                            "Whenever an artifact is put into your \
-                             graveyard from the battlefield, return that \
-                             card to the battlefield at the beginning of \
-                             the next end step.",
+                            "Whenever an artifact is put into your graveyard from the battlefield, \
+                                return that card to the battlefield at the beginning of the next end \
+                                step.",
                             TriggerEventDef::zone_changed(
                                 ObjectPredicateDef::All(&[
                                     ObjectPredicateDef::HasType(CardType::Artifact),

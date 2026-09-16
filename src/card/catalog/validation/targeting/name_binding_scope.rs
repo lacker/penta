@@ -32,10 +32,55 @@ impl BindingScope<'_> {
             return Ok(());
         };
         if self.card_names & bit == 0 {
-            return Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
-                context: "card-name binding",
-                operation: "a binding declared for another value kind",
-            });
+            return Err(
+                GrantedAbilityValidationError::UnsupportedEffectProgramContext {
+                    context: "card-name binding",
+                    operation: "a binding declared for another value kind",
+                },
+            );
+        }
+        self.bindings
+            .binding_reads
+            .set(self.bindings.binding_reads.get() | bit);
+        Ok(())
+    }
+}
+
+impl BindingScope<'_> {
+    fn with_declared_creature_type(
+        self,
+        binding: Binding,
+    ) -> Result<Self, GrantedAbilityValidationError> {
+        let bit = self
+            .binding_bit(binding, false)?
+            .expect("the creature-type output binding was declared while validating the effect");
+        Ok(Self {
+            creature_types: self.creature_types | bit,
+            ..self
+        })
+    }
+
+    fn validate_creature_type_reference(
+        self,
+        binding: Binding,
+    ) -> Result<(), GrantedAbilityValidationError> {
+        let Some(bit) = self.binding_bit(binding, false)? else {
+            // A name recorded by the source permanent is outside the lexical
+            // effect-binding scope and is validated with that source.
+            return Err(
+                GrantedAbilityValidationError::UnsupportedEffectProgramContext {
+                    context: "creature-type binding",
+                    operation: "an undeclared binding",
+                },
+            );
+        };
+        if self.creature_types & bit == 0 {
+            return Err(
+                GrantedAbilityValidationError::UnsupportedEffectProgramContext {
+                    context: "creature-type binding",
+                    operation: "a binding declared for another value kind",
+                },
+            );
         }
         self.bindings
             .binding_reads

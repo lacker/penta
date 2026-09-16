@@ -27,6 +27,30 @@ pub(super) fn add_declaration_cost(mut total: ManaCost, cost: ManaCost) -> ManaC
 }
 
 impl Game {
+    /// CR 506.3a-c: an entry instruction cannot attack with a noncreature,
+    /// another player's permanent, or a defender that has left the battlefield.
+    pub(super) fn arriving_creature_can_attack(
+        &self,
+        id: GameObjectId,
+        defender: AttackDefender,
+    ) -> bool {
+        self.battlefield.iter().any(|permanent| {
+            permanent.card.id == id
+                && permanent.controller == self.active_player
+                && self
+                    .permanent_types(permanent)
+                    .is_some_and(|types| types.contains(CardType::Creature))
+        }) && match defender {
+            AttackDefender::Player(_) => true,
+            AttackDefender::Planeswalker(id) => self.battlefield.iter().any(|permanent| {
+                permanent.card.id == id
+                    && self
+                        .permanent_types(permanent)
+                        .is_some_and(|types| types.contains(CardType::Planeswalker))
+            }),
+        }
+    }
+
     /// Points a creature that arrived attacking at the defender its
     /// controller chose. It is already attacking when this runs -- the
     /// choice is made as it enters, and no player has had priority in

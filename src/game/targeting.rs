@@ -197,6 +197,11 @@ impl Game {
             return Some(Self::face_down_exiled_event_object(id, controller));
         }
         let definition = self.catalog.get(definition)?;
+        let copied_part = self.part_copy(id);
+        let copy_context = copied_part.map(|part| CharacteristicContext::Stack {
+            form: crate::card::SpellForm::Part(part),
+        });
+        let context = copy_context.as_ref().unwrap_or(context);
         let parts = applicable_part_ids_ref(definition, context).ok()?;
         let mut types = CardTypeSet::empty();
         let mut colors = [false; 5];

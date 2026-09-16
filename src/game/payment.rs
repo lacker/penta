@@ -229,6 +229,7 @@ pub(in crate::game) fn payment_action_object(
     match action {
         super::Action::CastSpell { card, .. } => Some(*card),
         super::Action::ActivateAbility { source, .. }
+        | super::Action::ActivateAbilityWithAlternativeCost { source, .. }
         | super::Action::ActivateManaAbility { source, .. } => Some(*source),
         _ => None,
     }
@@ -239,6 +240,7 @@ pub(in crate::game) fn mana_ability_payment_purpose(
     costs: &[super::CostDef],
 ) -> ManaPaymentPurpose {
     ManaPaymentPurpose::Ability {
+        waterbend: crate::card::costs::waterbend(costs),
         source,
         taps_source: costs.contains(&super::CostDef::TapSource),
         leaves_source: costs.iter().any(|cost| {

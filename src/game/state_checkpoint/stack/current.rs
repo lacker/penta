@@ -4,6 +4,7 @@ use super::{
     stack_object_requires_retired, text_change_snapshot,
 };
 
+#[allow(clippy::too_many_lines)]
 pub(in crate::game::state_checkpoint) fn current_stack_snapshot(
     game: &Game,
     viewer: PlayerId,
@@ -45,6 +46,7 @@ pub(in crate::game::state_checkpoint) fn current_stack_snapshot(
             .last_known_colors
             .map(crate::card::ColorSet::to_flags),
         colors: object.colors.map(crate::card::ColorSet::to_flags),
+        mana_spent: object.cast.as_ref().map_or(0, |cast| cast.mana_spent),
         colors_of_mana_spent: object
             .cast
             .as_ref()
@@ -65,6 +67,16 @@ pub(in crate::game::state_checkpoint) fn current_stack_snapshot(
                 .map(|(kind, amount)| (kind.name().to_owned(), *amount))
                 .collect()
         }),
+        cast_prepared_from: object
+            .cast
+            .as_ref()
+            .and_then(|cast| cast.prepared_from)
+            .map(|id| id.0),
+        cast_sneak_defender: object
+            .cast
+            .as_ref()
+            .and_then(|cast| cast.sneak_defender)
+            .map(super::super::sneak_defender_snapshot),
         cast_at_instant_speed: object
             .cast
             .as_ref()

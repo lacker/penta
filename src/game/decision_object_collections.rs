@@ -41,11 +41,19 @@ impl Game {
             .collect::<Vec<_>>();
         let minimum = definition.minimum.min(candidates.len());
         let maximum = definition.maximum.min(candidates.len()).max(minimum);
-        let members = inspected
+        let mut members = inspected
             .iter()
             .copied()
             .filter_map(|target| self.effect_target_card(target))
             .collect::<Vec<_>>();
+        for (viewer, id) in context.inspected_objects() {
+            if viewer == chooser
+                && !members.iter().any(|(held, _)| *held == id)
+                && let Some(card) = self.effect_target_card(Target::Card(id))
+            {
+                members.push(card);
+            }
+        }
         let mut options = candidates
             .iter()
             .copied()
@@ -92,6 +100,18 @@ impl Game {
         };
         if definition.inspection == CollectionInspectionDef::Reveal {
             self.reveal_effect_collection(&inspected);
+        }
+        let known = inspected
+            .iter()
+            .filter_map(|target| self.effect_target_card(*target).map(|(id, _)| id))
+            .collect::<Vec<_>>();
+        if let Some(chooser) =
+            self.effect_player_reference(definition.actor, object, &context, scoped)
+        {
+            context.remember_inspected_objects(chooser, &known);
+            if definition.inspection == CollectionInspectionDef::Reveal {
+                context.remember_inspected_objects(chooser.opponent(), &known);
+            }
         }
         context.bind_object_group(definition.chosen, Vec::new());
         context.bind_object_group(definition.remainder, inspected);

@@ -25,6 +25,8 @@ pub enum CostDef {
         count: &'static ValueDef,
     },
     Mana(ManaCost),
+    /// Generic mana payable by tapping one untapped artifact or creature you control per mana.
+    Waterbend(u16),
     /// Pay the same mana cost a computed number of times. Fixed single
     /// payments should use [`Self::Mana`]; this form preserves quantities
     /// such as chosen X and the number of selected modes.
@@ -59,6 +61,13 @@ pub enum CostDef {
         target: TargetIndex,
         multiplier: u8,
     },
+    /// Choose controlled permanents and/or reveal cards from hand. When a
+    /// creature type is announced, every selected object must have that type.
+    Behold {
+        object: ObjectPredicateDef,
+        count: u8,
+        choose_creature_type: bool,
+    },
     TapSource,
     UntapSource,
     SacrificeSource,
@@ -91,6 +100,8 @@ pub enum CostDef {
     /// player with nothing in hand pays it by discarding nothing.
     DiscardHand,
     PayLife(u16),
+    /// Pay a resolved amount of life, such as the source creature's power.
+    Life(ValueDef),
     /// Pay life a computed number of times.
     PayLifeTimes(CostQuantityDef),
     /// Spend a fixed amount of energy.
@@ -661,6 +672,8 @@ pub enum ManaRestrictionDef {
     CannotCastSpell(ObjectPredicateDef),
     /// Spend only to cast a commander designated for the player spending it.
     CastYourCommander,
+    /// Spend only to cast a spell from the specified zone.
+    CastFrom(super::ZoneKind),
     ActivateAbility(ObjectPredicateDef),
     /// Any mana portion of a payment whose total cost contains a fixed
     /// requirement of this mana type, including its generic portion.

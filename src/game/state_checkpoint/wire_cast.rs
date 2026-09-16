@@ -46,7 +46,19 @@ pub(super) fn parse_cast_signature(value: &Value) -> Result<CastSignature, Strin
         u8::try_from(usize_field(value, "playOptionId")?).map_err(|_| "play option too large")?,
     ))
     .with_modes(modes)
-    .with_costs(CostConfiguration::new(alternative, additional).with_permission_source(value.get("permissionSource").filter(|v| !v.is_null()).map(|v| read_u32(v).map(GameObjectId)).transpose()?))
+    .with_costs(
+        CostConfiguration::new(alternative, additional.clone())
+            .with_permission_source(
+                value
+                    .get("permissionSource")
+                    .filter(|v| !v.is_null())
+                    .map(|v| read_u32(v).map(GameObjectId))
+                    .transpose()?,
+            )
+            .with_chosen_creature_type(parse_chosen_creature_type(
+                value.get("chosenCreatureType").and_then(Value::as_str),
+            )?),
+    )
     .with_x(u16::try_from(usize_field(value, "x")?).map_err(|_| "x too large")?)
     .with_targets(selections)
     .with_spliced(spliced);
@@ -88,4 +100,15 @@ pub(super) fn parse_target(value: &Value) -> Result<Target, String> {
         )?))),
         other => Err(format!("unknown target type {other}")),
     }
+}
+
+pub(super) fn parse_chosen_creature_type(
+    name: Option<&str>,
+) -> Result<Option<crate::card::Subtype>, String> {
+    name.map(|name| {
+        crate::card::Subtype::from_name(name)
+            .filter(|subtype| subtype.in_family(crate::card::SubtypeFamily::Creature))
+            .ok_or_else(|| "invalid chosen creature type".into())
+    })
+    .transpose()
 }

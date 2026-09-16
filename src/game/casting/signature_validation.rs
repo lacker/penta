@@ -201,7 +201,9 @@ impl Game {
         let option = definition
             .play_option(choices.play_option())
             .filter(|option| option.action == PlayActionKind::CastSpell)?;
-        if self.play_is_prohibited(card, player, option) {
+        if !self.card_can_use_spell_form(card, option)
+            || self.play_is_prohibited(card, player, option)
+        {
             return None;
         }
         if source_zone != CastSourceZone::Hand
@@ -229,7 +231,7 @@ impl Game {
         if offer.is_none() && !self.play_timing_allows(player, option.restriction) {
             return None;
         }
-        let _types = Self::play_option_types(definition, option)?;
+        let types = Self::play_option_types(definition, option)?;
         if option.effect_status == CardEffectStatus::Unsupported {
             return None;
         }
@@ -249,7 +251,9 @@ impl Game {
                     offer: offer.map(|offer| offer.cost),
                 },
                 |costs| {
-                    if &costs == choices.costs() {
+                    if costs.with_chosen_creature_type(choices.costs().chosen_creature_type())
+                        == *choices.costs()
+                    {
                         ControlFlow::Break(())
                     } else {
                         ControlFlow::Continue(())
@@ -267,6 +271,13 @@ impl Game {
             choices.costs(),
             offer.map(|offer| offer.cost),
         );
+        if offer.is_none()
+            && !self.spell_form_timing_allows(definition, card, player, option, types)
+            && !(alternative_kind == Some(AlternativeCastKindDef::Sneak)
+                && self.sneak_window(player))
+        {
+            return None;
+        }
         if alternative_kind == Some(AlternativeCastKindDef::Overload) && !choices.modes().is_empty()
         {
             return None;
@@ -349,6 +360,13 @@ impl Game {
             0
         };
         let declared_slots = Self::target_slots_for(option, choices.modes());
+        if offer.is_none()
+            && !self.spell_form_timing_allows(definition, card, player, option, types)
+            && !(alternative_kind == Some(AlternativeCastKindDef::Sneak)
+                && self.sneak_window(player))
+        {
+            return None;
+        }
         if alternative_kind == Some(AlternativeCastKindDef::Overload) {
             if !choices.targets().is_empty() {
                 return None;
@@ -379,11 +397,8 @@ impl Game {
         let spell =
             self.proposed_spell_view(player, card_id, &option.form, alternative_kind, choices.x())?;
         cost = add_mana_cost(cost, self.spell_cost_increase(spell, choices.targets()));
-        let (cost, phyrexian_life) = Self::locked_mana_payment(
-            cost,
-            choices.mana_payment(),
-            self.card_mana_is_any_color(card_id),
-        )?;
+        let (cost, phyrexian_life) =
+            Self::locked_mana_payment(cost, choices.mana_payment(), false)?;
         let cost = self.apply_spell_cost_reduction(
             cost,
             self.spell_cost_reduction(spell, choices.targets())
@@ -398,6 +413,7 @@ impl Game {
         let payment_purpose = ManaPaymentPurpose::Spell {
             object: card_id,
             commander_owner: self.commander_owner(card_id),
+            source_zone: Some(source_zone.zone()),
             definition: definition.id,
             controller: player,
             form: option.form.clone(),

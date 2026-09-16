@@ -172,6 +172,27 @@ fn validate_static_effect(
         {
             Ok(())
         }
+        EffectDef::ModifyCost(CostModificationDef::AbilityAlternative {
+            abilities,
+            permanent,
+            condition,
+            costs,
+            ..
+        }) if position == StaticPosition::Root
+            && source_zones == [ZoneKind::Battlefield]
+            && matches!(
+                abilities,
+                crate::card::AbilityKindDef::NonManaActivated | crate::card::AbilityKindDef::Equip
+            )
+            && static_object_predicate_supported(permanent)
+            && condition.is_none_or(|condition| static_trigger_condition_supported(*condition))
+            && !costs.is_empty()
+            && costs
+                .iter()
+                .all(|cost| matches!(cost, CostDef::Mana(mana) if !mana.variable_x)) =>
+        {
+            Ok(())
+        }
         EffectDef::ModifyCost(CostModificationDef::AbilityReduction {
             abilities,
             permanent: matcher,
@@ -444,7 +465,8 @@ fn static_player_applied_effect_supported(effect: AppliedEffectDef) -> bool {
         // The colour permission is read the same way, from the mana payment
         // rather than the cleanup step.
         AppliedEffectDef::Rule(
-            AppliedRuleDef::Ascend
+            AppliedRuleDef::Storied
+            | AppliedRuleDef::Ascend
             // Read by whoever is being shown the game rather than by any
             // step of it: a public top card changes what an observation
             // says and nothing else.
@@ -565,7 +587,9 @@ fn static_object_characteristic_supported(
 /// Which rules a static walk can supply to an object.
 fn static_object_rule_supported(recipient: EffectRecipientDef, rule: AppliedRuleDef) -> bool {
     match rule {
-        AppliedRuleDef::AssignsNoCombatDamage
+        AppliedRuleDef::MayBeTargetedThroughHexproof
+        | AppliedRuleDef::SuppressTriggeredAbilities(_)
+        | AppliedRuleDef::AssignsNoCombatDamage
         | AppliedRuleDef::MayAssignCombatDamageAsThoughUnblocked
         | AppliedRuleDef::AssignsCombatDamageEqualToToughness
         // Read off the creature dealing the damage, which the damage walk
@@ -599,6 +623,7 @@ fn static_object_rule_supported(recipient: EffectRecipientDef, rule: AppliedRule
         AppliedRuleDef::MayBlockAdditionalCreatures(extra) => extra > 0,
         AppliedRuleDef::CannotBeCountered
         // Ascend belongs to a player, so nothing about an object reads it.
+        | AppliedRuleDef::Storied
         | AppliedRuleDef::Ascend
         | AppliedRuleDef::KnownCards(_)
         // Trigger modification applies to abilities controlled by a player.
@@ -782,154 +807,7 @@ fn applied_effect_adds_ability(effect: AppliedEffectDef) -> bool {
     }
 }
 
-fn static_player_set_supported(players: PlayerSetDef) -> bool {
-    match players {
-        PlayerSetDef::All
-        | PlayerSetDef::One(
-            PlayerRefDef::EffectController | PlayerRefDef::Opponent | PlayerRefDef::EnchantedPlayer,
-        ) => true,
-        PlayerSetDef::Related(relation) => static_player_relation_supported(relation),
-        PlayerSetDef::LegalTargets(_)
-        | PlayerSetDef::One(
-            PlayerRefDef::CastBinding(_)
-            | PlayerRefDef::EventPlayer
-            | PlayerRefDef::Target(_)
-            | PlayerRefDef::ControllerOf(_)
-            | PlayerRefDef::OpponentOf(_)
-            | PlayerRefDef::OwnerOf(_),
-        ) => false,
-    }
-}
-
-fn static_player_relation_supported(relation: PlayerRelation) -> bool {
-    matches!(
-        relation,
-        PlayerRelation::Any
-            | PlayerRelation::You
-            | PlayerRelation::NotYou
-            | PlayerRelation::Opponent
-            | PlayerRelation::ActivePlayer
-            | PlayerRelation::NonactivePlayer
-            | PlayerRelation::ChosenPlayer
-            | PlayerRelation::DefendingPlayer
-            | PlayerRelation::EnchantedPlayer
-    )
-}
-
-fn static_object_set_supported(objects: ObjectSetDef) -> bool {
-    match objects {
-        ObjectSetDef::Union(sets) => sets.iter().copied().all(static_object_set_supported),
-        ObjectSetDef::One(ObjectRefDef::Source | ObjectRefDef::AttachedToSource)
-        | ObjectSetDef::LinkedExiles => true,
-        ObjectSetDef::Query(query) => {
-            query.zones == [ZoneKind::Battlefield] && static_query_supported(query)
-        }
-        ObjectSetDef::ExceptObject {
-            objects,
-            object: ObjectRefDef::Source | ObjectRefDef::AttachedToSource,
-        } => static_object_set_supported(*objects),
-        ObjectSetDef::LegalTargets(_)
-        | ObjectSetDef::One(
-            ObjectRefDef::ResolvingObject
-            | ObjectRefDef::CreatingSource
-            | ObjectRefDef::ZoneChangeSuccessor(_)
-            | ObjectRefDef::ZoneChangeResultOfTriggeringObject
-            | ObjectRefDef::Binding(_)
-            | ObjectRefDef::AdditionalCostObject(_)
-            | ObjectRefDef::AbilityGrantSource
-            | ObjectRefDef::Target(_)
-            | ObjectRefDef::SourceOfTargetedStackObject(_)
-            | ObjectRefDef::TriggeringObject
-            | ObjectRefDef::DamagedObject,
-        )
-        | ObjectSetDef::Binding(_)
-        | ObjectSetDef::ZoneChangeSuccessorsOfBinding(_)
-        | ObjectSetDef::MatchingBinding { .. }
-        | ObjectSetDef::PermanentsTargetedBy(_)
-        | ObjectSetDef::PlayerAttachments(_)
-        | ObjectSetDef::LegalAttachmentHosts(_)
-        | ObjectSetDef::CardsDrawnThisTurnInHand(_)
-        | ObjectSetDef::PermanentsControlledBy(_)
-        | ObjectSetDef::TokensCreatedBy(_)
-        | ObjectSetDef::BottomOfGraveyard(_)
-        | ObjectSetDef::TopOfGraveyardMatching { .. }
-        | ObjectSetDef::ExceptObject { .. }
-        | ObjectSetDef::InZone { .. } => false,
-        ObjectSetDef::Matching { objects, object } => {
-            static_object_set_supported(*objects)
-                && static_object_predicate_supported(object.predicate())
-        }
-    }
-}
-
-/// A condition may inspect objects outside the battlefield even though a
-/// static apply can only modify battlefield objects. This preserves the
-/// query vocabulary supported by the older `ObjectCount` condition while the
-/// count and the applied operation stay separately composed.
-fn static_condition_object_set_supported(objects: ObjectSetDef) -> bool {
-    match objects {
-        ObjectSetDef::Query(query) => static_query_supported(query),
-        ObjectSetDef::Matching { objects, object } => {
-            static_condition_object_set_supported(*objects)
-                && static_object_predicate_supported(object.predicate())
-        }
-        ObjectSetDef::ExceptObject {
-            objects,
-            object: ObjectRefDef::Source | ObjectRefDef::AttachedToSource,
-        } => static_condition_object_set_supported(*objects),
-        ObjectSetDef::ExceptObject { .. } => false,
-        _ => static_object_set_supported(objects),
-    }
-}
-
-pub(super) fn static_query_supported(query: ObjectQueryDef) -> bool {
-    !query.zones.is_empty()
-        && query.position.is_none_or(|position| {
-            matches!(position, crate::card::ZonePositionDef::FromTop(_))
-                && query
-                    .zones
-                    .iter()
-                    .all(|zone| matches!(zone, ZoneKind::Library | ZoneKind::Graveyard))
-        })
-        && [query.related_player, query.controller, query.owner]
-            .into_iter()
-            .flatten()
-            .all(static_player_set_supported)
-        && static_object_predicate_supported(query.object)
-}
-
-fn static_animation_query_supported(recipient: EffectRecipientDef) -> bool {
-    static_direct_characteristic_recipient(recipient)
-        || recipient.object_query().is_some_and(|query| {
-            query.zones == [ZoneKind::Battlefield]
-                && static_query_supported(query)
-                && static_animation_predicate_supported(query.object, false)
-        })
-}
-
-fn static_type_animation_query_supported(recipient: EffectRecipientDef) -> bool {
-    static_direct_characteristic_recipient(recipient)
-        || recipient.object_query().is_some_and(|query| {
-            query.zones == [ZoneKind::Battlefield]
-                && static_query_supported(query)
-                && static_animation_predicate_supported(query.object, true)
-        })
-}
-
-fn static_creature_type_query_supported(recipient: EffectRecipientDef) -> bool {
-    static_direct_characteristic_recipient(recipient)
-        || recipient.object_query().is_some_and(|query| {
-            static_query_supported(query)
-                && static_animation_predicate_supported(query.object, true)
-        })
-}
-
-fn static_direct_characteristic_recipient(recipient: EffectRecipientDef) -> bool {
-    matches!(
-        recipient.object_reference(),
-        Some(ObjectRefDef::Source | ObjectRefDef::AttachedToSource)
-    )
-}
+include!("program_context/static_object_sets.rs");
 
 fn static_damage_matcher_supported(matcher: DamageEventMatcherDef) -> bool {
     let source = match matcher.source {

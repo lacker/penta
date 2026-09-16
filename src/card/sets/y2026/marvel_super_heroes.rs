@@ -1,5 +1,30 @@
 //! Marvel Super Heroes card inventory.
 
+use crate::card::AggregateOperationDef;
+use crate::card::CharacteristicOperationDef;
+use crate::card::CostQuantityDef;
+use crate::card::DamageDef;
+use crate::card::DamageEventMatcherDef;
+use crate::card::DamageRecipientMatcherDef;
+use crate::card::DeclarativeAbilityDef;
+use crate::card::ExilePlayDurationDef;
+use crate::card::ModalSpellDef;
+use crate::card::ObjectSetValueAtLeastDef;
+use crate::card::ObjectSetValueDef;
+use crate::card::ObjectValueAggregateDef;
+use crate::card::ObjectValueDef;
+use crate::card::OptionalAdditionalCostAbilityDef;
+use crate::card::OptionalAdditionalCostKindDef;
+use crate::card::PermanentDesignationDef;
+use crate::card::PlayerRuleDef;
+use crate::card::PlayerSetDef;
+use crate::card::PowerToughnessOperationDef;
+use crate::card::ReplacementEffectDef;
+use crate::card::SpellResolutionDestinationDef;
+use crate::card::SumValueDef;
+use crate::card::TriggeredAbilityDef;
+use crate::card::TurnPhaseDef;
+use crate::card::ZonePlayGrantDef;
 use crate::card::ZonePositionDef;
 
 use super::CardRecord;
@@ -61,7 +86,6 @@ use crate::card::PlayPermissionDef;
 use crate::card::PlayRestrictionDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
-use crate::card::PlayerSetDef;
 use crate::card::QuantifierDef;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::RevealObjectsDef;
@@ -291,14 +315,54 @@ pub(in crate::card::sets) static BRAVE_BRAWLER: CardRecord = CardRecord::new(
 );
 
 // MSH 9 — Captain America, Super-Soldier
-// Audit: unsupported — Needs intrinsic shield-counter damage prevention and destruction
-// replacement, including removing a counter for each replacement; ordinary named counters do
-// not provide those rules.
 pub(in crate::card::sets) static CAPTAIN_AMERICA_SUPER_SOLDIER: CardRecord = CardRecord::new(
     "Captain America, Super-Soldier",
     "33631d6c-c584-42ff-afe5-2647b5fb321f",
     "Anna Podedworna",
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{W}{W}"), &["Human", "Soldier", "Hero"], 3, 2)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::first_strike(),
+            AbilityDef::as_enters(
+                "Captain America enters with a shield counter on him.",
+                ReplacementEffectDef::ModifyBattlefieldEntry(
+                    BattlefieldEntryModificationDef::AddCounters {
+                        kind: CounterKind::Shield,
+                        amount: 1,
+                    },
+                ),
+            ),
+            AbilityDef::static_ability(
+                "As long as Captain America has a shield counter on him, you and other \
+                    Heroes you control have hexproof.",
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::SourceCounters {
+                        kind: CounterKind::Shield,
+                        comparison: ComparisonDef::GreaterOrEqual,
+                        amount: 1,
+                    },
+                    then: &EffectDef::Sequence(&[
+                        EffectDef::StaticApply {
+                            recipient: EffectRecipientDef::Controller,
+                            effect: AppliedEffectDef::Rule(AppliedRuleDef::PlayerRule(
+                                PlayerRuleDef::Hexproof,
+                            )),
+                        },
+                        EffectDef::StaticApply {
+                            recipient: EffectRecipientDef::matching_objects(
+                                ObjectPredicateDef::All(&[
+                                    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                                    ObjectPredicateDef::Subtype(SubtypeDef::from_name("Hero")),
+                                ]),
+                                &[ZoneKind::Battlefield],
+                                PlayerRelation::You,
+                            ),
+                            effect: AppliedEffectDef::add_ability(&abilities::hexproof()),
+                        },
+                    ]),
+                },
+            ),
+        ]),
 );
 
 // MSH 10 — Captain America, Wings of Freedom
@@ -478,14 +542,96 @@ pub(in crate::card::sets) static INVISIBLE_WOMAN_SUE_STORM: CardRecord = CardRec
 );
 
 // MSH 18 — Jennifer Walters // The Sensational She-Hulk
-// Audit: unsupported — Needs modal double-faced permanents to transform while retaining the
-// ability to cast either face; physical_other_face currently rejects modal cards, so an
-// ordinary transforming-card declaration would incorrectly remove the back-face casting option.
-pub(in crate::card::sets) static JENNIFER_WALTERS: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static JENNIFER_WALTERS: CardRecord = CardRecord::new_mdfc(
     "Jennifer Walters // The Sensational She-Hulk",
     "61237530-ad49-469c-a952-67c92315708e",
     "Taurin Clarke",
-    CardRules::unsupported(),
+    &[
+        (
+            "Jennifer Walters",
+            CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Advisor", "Hero"], 2, 3)
+                .with_supertype(CardSupertype::Legendary)
+                .with_abilities(&[
+                    AbilityDef::static_ability(
+                        "Your opponents can't cast spells during your turn.",
+                        EffectDef::IfCondition {
+                            condition: &TriggerConditionDef::ActivePlayer(PlayerRelation::You),
+                            then: &EffectDef::StaticApply {
+                                recipient: EffectRecipientDef::players(PlayerSetDef::Related(
+                                    PlayerRelation::Opponent,
+                                )),
+                                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotPlay(
+                                    PlayRestrictionDef::new(
+                                        PlayActionMatcherDef::CastSpell,
+                                        ObjectPredicateDef::Any,
+                                    ),
+                                )),
+                            },
+                        },
+                    ),
+                    AbilityDef::activated(
+                        "{3}{G}{W}{W}: Transform Jennifer Walters. Activate only as a sorcery.",
+                        &[CostDef::Mana(mana_cost!("{3}{G}{W}{W}"))],
+                        EffectDef::Transform {
+                            object: EffectRecipientDef::Source,
+                        },
+                    )
+                    .with_activation_timing(ActivationTimingDef::SorcerySpeed),
+                ]),
+        ),
+        (
+            "The Sensational She-Hulk",
+            CardRules::new_creature(mana_cost!("{3}{G}{W}{W}"), &["Gamma", "Hero"], 6, 6)
+                .with_supertype(CardSupertype::Legendary)
+                .with_abilities(&[
+                    abilities::reach(),
+                    abilities::trample(),
+                    AbilityDef::static_ability(
+                        "Your opponents can't cast spells during your turn.",
+                        EffectDef::IfCondition {
+                            condition: &TriggerConditionDef::ActivePlayer(PlayerRelation::You),
+                            then: &EffectDef::StaticApply {
+                                recipient: EffectRecipientDef::players(PlayerSetDef::Related(
+                                    PlayerRelation::Opponent,
+                                )),
+                                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotPlay(
+                                    PlayRestrictionDef::new(
+                                        PlayActionMatcherDef::CastSpell,
+                                        ObjectPredicateDef::Any,
+                                    ),
+                                )),
+                            },
+                        },
+                    ),
+                    AbilityDef::triggered_with_targets(
+                        "Whenever a creature you control is dealt damage, you may have The \
+                            Sensational She-Hulk deal that much damage to any target. Do this only \
+                            once each turn.",
+                        TriggerEventDef::DamageDealt(DamageEventMatcherDef {
+                            recipient: DamageRecipientMatcherDef::MatchingObject(
+                                ObjectPredicateDef::All(&[
+                                    ObjectPredicateDef::HasType(CardType::Creature),
+                                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                                ]),
+                            ),
+                            ..DamageEventMatcherDef::ANY
+                        }),
+                        &[AbilityTargetDef::exactly_one(
+                            AbilityTargetPredicate::AnyTarget,
+                        )],
+                        EffectDef::May {
+                            player: EffectRecipientDef::Controller,
+                            effect: &EffectDef::OncePerTurn {
+                                effect: &EffectDef::DealDamage(DamageDef::new(
+                                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                    ValueDef::TriggerEventAmount,
+                                )),
+                            },
+                        },
+                    ),
+                ]),
+        ),
+    ],
 );
 
 // MSH 19 — Kree Commandos
@@ -528,14 +674,75 @@ pub(in crate::card::sets) static LUKE_CAGE_POWER_MAN: CardRecord = CardRecord::n
 );
 
 // MSH 21 — The Mind Stone
-// Audit: unsupported — Needs a persistent harnessed designation for an Infinity Stone and
-// conditional activation of its infinity ability; ordinary counters cannot substitute for that
-// designation.
 pub(in crate::card::sets) static THE_MIND_STONE: CardRecord = CardRecord::new(
     "The Mind Stone",
     "87f1e69a-6d74-4982-afda-82613637799a",
     "Volkan Baǵa",
-    CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{1}{W}"))
+        .with_subtypes(&["Infinity", "Stone"])
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::indestructible(),
+            abilities::tap_for_mana("{T}: Add {W}.", AddManaEffectDef::one(ManaColor::White)),
+            AbilityDef::activated(
+                "{5}{W}, {T}: Harness The Mind Stone. (Once harnessed, its ∞ ability is active.)",
+                &[CostDef::Mana(mana_cost!("{5}{W}")), CostDef::TapSource],
+                EffectDef::SetDesignation {
+                    object: EffectRecipientDef::Source,
+                    designation: PermanentDesignationDef::Harnessed,
+                    present: true,
+                },
+            ),
+            AbilityDef::static_ability(
+                "∞ — At the beginning of your end step, exile up to one other target \
+                nonland permanent you control, then return it to the battlefield under \
+                its owner's control.",
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::SourceHasDesignation(
+                        PermanentDesignationDef::Harnessed,
+                    ),
+                    then: &EffectDef::StaticApply {
+                        recipient: EffectRecipientDef::Source,
+                        effect: AppliedEffectDef::add_ability(&AbilityDef::triggered_with_targets(
+                            "At the beginning of your end step, exile up to one other target \
+                            nonland permanent you control, then return it to the battlefield under \
+                            its owner's control.",
+                            TriggerEventDef::StepBegins {
+                                step: TurnStepDef::End,
+                                player: PlayerRelation::You,
+                            },
+                            &[AbilityTargetDef::up_to(
+                                AbilityTargetPredicate::Object {
+                                    object: ObjectPredicateDef::All(&[
+                                        ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(
+                                            CardType::Land,
+                                        )),
+                                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                                    ]),
+                                    zones: &[ZoneKind::Battlefield],
+                                    controller: Some(PlayerRelation::You),
+                                    owner: None,
+                                },
+                                1,
+                            )],
+                            EffectDef::ExileLinkedToSource {
+                                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                face_down: false,
+                                until_source_leaves: false,
+                                then: Some(&EffectDef::ReturnLinkedExiles {
+                                    object: ObjectPredicateDef::Any,
+                                    counters: None,
+                                    zone: ZoneKind::Battlefield,
+                                    grant: None,
+                                    controller: None,
+                                    transformed: false,
+                                }),
+                            },
+                        )),
+                    },
+                },
+            ),
+        ]),
 );
 
 // MSH 22 — Mockingbird, Ace Agent
@@ -793,14 +1000,75 @@ pub(in crate::card::sets) static PATRIOT_SHIELD_WIELDER: CardRecord = CardRecord
 );
 
 // MSH 31 — Political Triumph
-// Audit: unsupported — Needs a counter-placement event detecting the specified ordinal counter,
-// including a batch that crosses that count; an equality test of the final count misses that
-// event, and a persistent threshold can retrigger incorrectly.
 pub(in crate::card::sets) static POLITICAL_TRIUMPH: CardRecord = CardRecord::new(
     "Political Triumph",
     "dec3dd36-b8ca-432b-8973-d37c6efc4c1a",
     "Monztre",
-    CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{W}"))
+        .with_subtypes(&["Plan"])
+        .with_abilities(&[
+            AbilityDef::triggered(
+                "Whenever a creature you control enters, scry 1 and put a plan counter \
+                on this enchantment.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ]),
+                    None,
+                    Some(ZoneKind::Battlefield),
+                ),
+                EffectDef::Sequence(&[
+                    abilities::scry(ValueDef::Constant(1)),
+                    EffectDef::AddCounters {
+                        object: EffectRecipientDef::Source,
+                        kind: CounterKind::named("plan"),
+                        amount: ValueDef::Constant(1),
+                    },
+                ]),
+            ),
+            AbilityDef::triggered(
+                "When the fourth plan counter is put on this enchantment, sacrifice it, \
+                draw a card, and put a +1/+1 counter on each creature you control.",
+                TriggerEventDef::While {
+                    event: &TriggerEventDef::CountersPlaced {
+                        object: ObjectPredicateDef::Source,
+                        kind: CounterKind::named("plan"),
+                    },
+
+                    condition: &TriggerConditionDef::All(&[
+                        TriggerConditionDef::SourceCounters {
+                            kind: CounterKind::named("plan"),
+                            comparison: ComparisonDef::GreaterOrEqual,
+                            amount: 4,
+                        },
+                        TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                            left: ValueDef::Sum(&SumValueDef {
+                                left: ValueDef::CountersOnSource(CounterKind::named("plan")),
+                                right: ValueDef::Negate(&ValueDef::TriggerEventAmount),
+                            }),
+                            comparison: ComparisonDef::Less,
+                            right: ValueDef::Constant(4),
+                        }),
+                    ]),
+                },
+                EffectDef::Sequence(&[
+                    EffectDef::sacrifice(EffectRecipientDef::Source),
+                    abilities::draw_cards(ValueDef::Constant(1)),
+                    EffectDef::AddCounters {
+                        object: EffectRecipientDef::objects(ObjectSetDef::Query(
+                            ObjectQueryDef::matching(
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                &[ZoneKind::Battlefield],
+                                PlayerRelation::You,
+                            ),
+                        )),
+                        kind: CounterKind::PlusOnePlusOne,
+                        amount: ValueDef::Constant(1),
+                    },
+                ]),
+            ),
+        ]),
 );
 
 // MSH 32 — Quake, Agent of S.H.I.E.L.D.
@@ -1176,14 +1444,71 @@ pub(in crate::card::sets) static BOLD_BIOCHEMIST: CardRecord = CardRecord::new(
 );
 
 // MSH 49 — Bruce Banner // The Incredible Hulk
-// Audit: unsupported — Needs modal double-faced permanents to transform while retaining the
-// ability to cast either face; physical_other_face currently rejects modal cards, so an
-// ordinary transforming-card declaration would incorrectly remove the back-face casting option.
-pub(in crate::card::sets) static BRUCE_BANNER: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static BRUCE_BANNER: CardRecord = CardRecord::new_mdfc(
     "Bruce Banner // The Incredible Hulk",
     "e0dbbdcf-84e1-494f-8b8c-0a094f603fa9",
     "Tommy Arnold",
-    CardRules::unsupported(),
+    &[
+        (
+            "Bruce Banner",
+            CardRules::new_creature(mana_cost!("{U}"), &["Human", "Scientist", "Hero"], 1, 1)
+                .with_supertype(CardSupertype::Legendary)
+                .with_abilities(&[
+                    AbilityDef::activated(
+                        "{X}{X}, {T}: Draw X cards. Activate only as a sorcery.",
+                        &[CostDef::Mana(mana_cost!("{X}{X}")), CostDef::TapSource],
+                        abilities::draw_cards(ValueDef::ChosenX),
+                    )
+                    .with_activation_timing(ActivationTimingDef::SorcerySpeed),
+                    AbilityDef::activated(
+                        "{2}{R}{R}{G}{G}: Transform Bruce Banner. Activate only as a sorcery.",
+                        &[CostDef::Mana(mana_cost!("{2}{R}{R}{G}{G}"))],
+                        EffectDef::Transform {
+                            object: EffectRecipientDef::Source,
+                        },
+                    )
+                    .with_activation_timing(ActivationTimingDef::SorcerySpeed),
+                ]),
+        ),
+        (
+            "The Incredible Hulk",
+            CardRules::new_creature(
+                mana_cost!("{2}{R}{R}{G}{G}"),
+                &["Gamma", "Berserker", "Hero"],
+                8,
+                8,
+            )
+            .with_supertype(CardSupertype::Legendary)
+            .with_abilities(&[
+                abilities::reach(),
+                abilities::trample(),
+                AbilityDef::triggered(
+                    "Enrage — Whenever The Incredible Hulk is dealt damage, put a +1/+1 \
+                        counter on him. If he's attacking, untap him and there is an \
+                        additional combat phase after this phase.",
+                    TriggerEventDef::damage_to_source(),
+                    EffectDef::Sequence(&[
+                        EffectDef::AddCounters {
+                            object: EffectRecipientDef::Source,
+                            kind: CounterKind::PlusOnePlusOne,
+                            amount: ValueDef::Constant(1),
+                        },
+                        EffectDef::IfCondition {
+                            condition: &TriggerConditionDef::SourceMatches {
+                                object: ObjectPredicateDef::Attacking,
+                            },
+                            then: &EffectDef::Sequence(&[
+                                EffectDef::Untap {
+                                    object: EffectRecipientDef::Source,
+                                },
+                                EffectDef::ScheduleTurnPhases(&[TurnPhaseDef::Combat]),
+                            ]),
+                        },
+                    ]),
+                ),
+            ]),
+        ),
+    ],
 );
 
 // MSH 50 — Depower
@@ -1633,14 +1958,61 @@ pub(in crate::card::sets) static MULTIVERSAL_INCURSION: CardRecord = CardRecord:
 );
 
 // MSH 69 — Namor the Sub-Mariner
-// Audit: unsupported — Needs a value counting blue mana symbols in the particular noncreature
-// spell's mana cost, including hybrid symbols; devotion counts permanents and is not a
-// spell-cost symbol query.
 pub(in crate::card::sets) static NAMOR_THE_SUB_MARINER: CardRecord = CardRecord::new(
     "Namor the Sub-Mariner",
     "7aaefcf9-fbe1-4767-92a5-09825761d116",
     "Chris Rallis",
-    CardRules::unsupported(),
+    CardRules::new_creature(
+        mana_cost!("{1}{U}{U}"),
+        &["Mutant", "Merfolk", "Villain"],
+        0,
+        4,
+    )
+    .with_supertype(CardSupertype::Legendary)
+    .with_abilities(&[
+        abilities::flying(),
+        AbilityDef::static_ability(
+            "Namor's power is equal to the number of Merfolk you control.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Characteristic(
+                    CharacteristicOperationDef::PowerToughness(
+                        PowerToughnessOperationDef::Define {
+                            power: Some(ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                                ObjectPredicateDef::Subtype(SubtypeDef::from_name("Merfolk")),
+                                &[ZoneKind::Battlefield],
+                                PlayerRelation::You,
+                            ))),
+                            toughness: None,
+                        },
+                    ),
+                ),
+            },
+        ),
+        AbilityDef::triggered(
+            "Whenever you cast a noncreature spell, create a 1/1 blue Merfolk \
+                creature token for each blue mana symbol in that spell's mana cost.",
+            TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                ObjectPredicateDef::NoncreatureSpell,
+                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+            ])),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(TokenCharacteristics::creature(
+                    &["Merfolk"],
+                    &[ManaColor::Blue],
+                    1,
+                    1,
+                )))
+                .with_count(ValueDef::AggregateObjectValues(
+                    &ObjectValueAggregateDef {
+                        objects: ObjectSetDef::One(ObjectRefDef::TriggeringObject),
+                        select: ObjectValueDef::ManaSymbols(ManaColor::Blue),
+                        operation: AggregateOperationDef::Sum,
+                    },
+                )),
+            ),
+        ),
+    ]),
 );
 
 // MSH 70 — Pym Particles
@@ -1916,14 +2288,59 @@ pub(in crate::card::sets) static TRICKSTER_S_STRATAGEM: CardRecord = CardRecord:
 );
 
 // MSH 82 — We Say Thee Nay!
-// Audit: unsupported — Needs an optional casting cost paid by a jointly selected group of
-// creatures with sufficient total power, retaining a teamwork payment receipt for the spell;
-// total-power tap costs currently belong to battlefield activations.
 pub(in crate::card::sets) static WE_SAY_THEE_NAY: CardRecord = CardRecord::new(
     "We Say Thee Nay!",
     "13b70321-75bd-4d44-b9f6-5f062a5dda0f",
     "Mateus Manhanini",
-    CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{U}"))
+        .with_subtypes(&["Arcane"])
+        .with_abilities(&[
+            AbilityDef::optional_additional_cost(
+                "Teamwork 2 (As an additional cost to cast this spell, you may tap any \
+                    number of creatures you control with total power 2 or more.)",
+                OptionalAdditionalCostAbilityDef {
+                    kind: OptionalAdditionalCostKindDef::Optional,
+                    label: "Teamwork 2",
+                    resolution_destination: SpellResolutionDestinationDef::Graveyard,
+                    costs: &[CostDef::Tap {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        quantity: CostQuantityDef::ObjectSetValueAtLeast(
+                            &ObjectSetValueAtLeastDef {
+                                value: ObjectSetValueDef::Aggregate {
+                                    select: ObjectValueDef::Power,
+                                    operation: AggregateOperationDef::Sum,
+                                },
+                                minimum: 2,
+                            },
+                        ),
+                    }],
+                },
+            ),
+            AbilityDef::spell_with_targets(
+                "Counter target spell unless its controller pays {2}. Counter that \
+                    spell unless its controller pays {4} instead if this spell was cast \
+                    using teamwork.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::Any,
+                        zones: &[ZoneKind::Stack],
+                        controller: None,
+                        owner: None,
+                    },
+                )],
+                EffectDef::IfElseCondition {
+                    condition: &TriggerConditionDef::SourcePaidAdditionalCost(
+                        crate::AdditionalCostIndex::PRIMARY,
+                    ),
+                    then: &abilities::counter_target_unless_paid(&[CostDef::Mana(mana_cost!(
+                        "{4}"
+                    ))]),
+                    otherwise: &abilities::counter_target_unless_paid(&[CostDef::Mana(
+                        mana_cost!("{2}"),
+                    )]),
+                },
+            ),
+        ]),
 );
 
 // MSH 83 — Wiccan, Rising Magician
@@ -2304,14 +2721,46 @@ pub(in crate::card::sets) static DOOM_REIGNS_SUPREME: CardRecord = CardRecord::n
 );
 
 // MSH 97 — Elektra, Daughter of the Hand
-// Audit: unsupported — Needs sneak as an alternative spell cast during the declare-blockers
-// step, with an unblocked-attacker return cost and entry tapped and attacking; existing
-// ninjutsu is an activated ability and cannot substitute.
 pub(in crate::card::sets) static ELEKTRA_DAUGHTER_OF_THE_HAND: CardRecord = CardRecord::new(
     "Elektra, Daughter of the Hand",
     "ac3e586c-d654-4631-beda-a5e29cf04717",
     "Bastien L. Deharme",
-    CardRules::unsupported(),
+    CardRules::new_creature(
+        mana_cost!("{2}{B}{B}"),
+        &["Human", "Ninja", "Villain"],
+        3,
+        3,
+    )
+    .with_supertype(CardSupertype::Legendary)
+    .with_abilities(&[
+        crate::card::sets::teenage_mutant_ninja_turtles::sneak(
+            "Sneak {1}{B}{B} (You may cast this spell for {1}{B}{B} if you also \
+                return an unblocked attacker you control to hand during the declare \
+                blockers step. She enters tapped and attacking.)",
+            &[
+                CostDef::Mana(mana_cost!("{1}{B}{B}")),
+                CostDef::ReturnToHand {
+                    object: ObjectPredicateDef::UnblockedAttacker,
+                    quantity: CostQuantityDef::Fixed(1),
+                },
+            ],
+        ),
+        abilities::enters_trigger_with_targets(
+            "When Elektra enters, destroy target creature an opponent controls with \
+                power 3 or less.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::PowerAtLeast(4)),
+                ]),
+            )],
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // MSH 98 — Grim Reaper, Lethal Legionnaire
@@ -3630,14 +4079,69 @@ pub(in crate::card::sets) static TEAM_TACTICS: CardRecord = CardRecord::new(
 );
 
 // MSH 156 — Thor, God of Thunder
-// Audit: unsupported — Needs an exile-play permission expiring at cleanup of its controller's
-// next turn; the current turn-count duration also permits plays during the following opponent
-// turn.
 pub(in crate::card::sets) static THOR_GOD_OF_THUNDER: CardRecord = CardRecord::new(
     "Thor, God of Thunder",
     "cddd314c-c271-475a-b076-01a8599c8015",
     "Jesper Ejsing",
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{R}{R}"), &["God", "Warrior", "Hero"], 5, 5)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::flying(),
+            abilities::enters_trigger_with_targets(
+                "When Thor enters, exile target Equipment, instant, or sorcery card \
+                from your graveyard. Until the end of your next turn, you may play \
+                that card.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::Subtype(SubtypeDef::from_name("Equipment")),
+                            ObjectPredicateDef::HasType(CardType::Instant),
+                            ObjectPredicateDef::HasType(CardType::Sorcery),
+                        ]),
+                        zones: &[ZoneKind::Graveyard],
+                        controller: None,
+                        owner: Some(PlayerRelation::You),
+                    },
+                )],
+                EffectDef::WithZoneMoveResult {
+                    effect: &EffectDef::move_to_zone(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ZoneKind::Exile,
+                        ZonePlacement::Top,
+                    ),
+
+                    binding: crate::Binding!("exiled"),
+                    then: &EffectDef::GrantPlayPermission(&ZonePlayGrantDef {
+                        objects: ObjectSetDef::InZone {
+                            objects: &ObjectSetDef::ZoneChangeSuccessorsOfBinding(crate::Binding!(
+                                "exiled"
+                            )),
+                            zone: ZoneKind::Exile,
+                        },
+
+                        player: PlayerRefDef::EffectController,
+                        mana_cost: None,
+                        duration: ExilePlayDurationDef::UntilEndOfYourNextTurn,
+                        cast_only: false,
+                    }),
+                },
+            ),
+            AbilityDef::triggered_with_targets(
+                "Whenever you cast a noncreature spell, Thor deals damage equal to that \
+                spell's mana value to any target.",
+                TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ])),
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::AnyTarget,
+                )],
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::ObjectManaValue(ObjectRefDef::TriggeringObject),
+                ),
+            ),
+        ]),
 );
 
 // MSH 157 — Truck Toss
@@ -5168,11 +5672,9 @@ pub(in crate::card::sets) static CLOAK_AND_DAGGER_ENTWINED: CardRecord = CardRec
                         PlayerRelation::Opponent,
                     )),
                     AbilityTargetDef::up_to(
-                        AbilityTargetPredicate::Object {
+                        AbilityTargetPredicate::ControlledByTargetOf {
                             object: ObjectPredicateDef::HasType(CardType::Creature),
-                            zones: &[ZoneKind::Battlefield],
-                            controller: Some(PlayerRelation::Opponent),
-                            owner: None,
+                            slot: TargetIndex::PRIMARY,
                         },
                         1,
                     ),
@@ -5182,7 +5684,7 @@ pub(in crate::card::sets) static CLOAK_AND_DAGGER_ENTWINED: CardRecord = CardRec
                         player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     },
                     EffectDef::Choose(ChooseDef {
-                        binding: ObjectChoiceBindingDef::Object(crate::Binding!("exiled")),
+                        binding: ObjectChoiceBindingDef::Object(crate::Binding!("cloaked-object")),
                         unchosen: None,
                         chooser: PlayerRefDef::EffectController,
                         candidates: ObjectSetDef::Union(&[
@@ -5199,10 +5701,13 @@ pub(in crate::card::sets) static CLOAK_AND_DAGGER_ENTWINED: CardRecord = CardRec
                         minimum: 0,
                         maximum: 1,
                         visibility: ChoiceVisibilityDef::Public,
-                        then: &EffectDef::ExileUntilSourceLeaves {
+                        then: &EffectDef::ExileLinkedToSource {
                             object: EffectRecipientDef::object(ObjectRefDef::Binding(
-                                crate::Binding!("exiled"),
+                                crate::Binding!("cloaked-object"),
                             )),
+                            face_down: false,
+                            until_source_leaves: true,
+                            then: None,
                         },
                     }),
                 ]),
@@ -5479,14 +5984,57 @@ pub(in crate::card::sets) static KILLMONGER_SCOURGE_OF_WAKANDA: CardRecord = Car
 );
 
 // MSH 219 — King T'Challa // Black Panther, Hope Enduring
-// Audit: unsupported — Needs modal double-faced permanents to transform while retaining the
-// ability to cast either face; physical_other_face currently rejects modal cards, so an
-// ordinary transforming-card declaration would incorrectly remove the back-face casting option.
-pub(in crate::card::sets) static KING_T_CHALLA: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static KING_T_CHALLA: CardRecord = CardRecord::new_mdfc(
     "King T'Challa // Black Panther, Hope Enduring",
     "add7d3ce-aa58-4da0-8c2a-cfd01c3a8975",
     "Aaron J. Riley & Eric Wilkerson",
-    CardRules::unsupported(),
+    &[
+        (
+            "King T'Challa",
+            CardRules::new_creature(mana_cost!("{1}{W}{U}"), &["Human", "Noble", "Hero"], 3, 2)
+                .with_supertype(CardSupertype::Legendary)
+                .with_abilities(&[
+                    abilities::flash(),
+                    AbilityDef::triggered(
+                        "Whenever a player draws their second card each turn, you draw a card.",
+                        TriggerEventDef::DrewCard(DrawEventMatcherDef::nth_each_turn(
+                            PlayerRelation::Any,
+                            2,
+                        )),
+                        abilities::draw_cards(ValueDef::Constant(1)),
+                    ),
+                    AbilityDef::activated(
+                        "{4}{W}{U}: Transform King T'Challa. Activate only as a sorcery.",
+                        &[CostDef::Mana(mana_cost!("{4}{W}{U}"))],
+                        EffectDef::Transform {
+                            object: EffectRecipientDef::Source,
+                        },
+                    )
+                    .with_activation_timing(ActivationTimingDef::SorcerySpeed),
+                ]),
+        ),
+        (
+            "Black Panther, Hope Enduring",
+            CardRules::new_creature(mana_cost!("{4}{W}{U}"), &["Human", "Warrior", "Hero"], 3, 3)
+                .with_supertype(CardSupertype::Legendary)
+                .with_abilities(&[
+                    abilities::flash(),
+                    abilities::double_strike(),
+                    AbilityDef::static_ability(
+                        "Prevent all damage that would be dealt to Black Panther.",
+                        EffectDef::StaticApply {
+                            recipient: EffectRecipientDef::Source,
+                            effect: AppliedEffectDef::prevent_damage_from(ObjectPredicateDef::Any),
+                        },
+                    ),
+                    AbilityDef::triggered(
+                        "Whenever Black Panther deals combat damage to a player, draw a card.",
+                        TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
+                        abilities::draw_cards(ValueDef::Constant(1)),
+                    ),
+                ]),
+        ),
+    ],
 );
 
 // MSH 220 — The Kingpin of Crime
@@ -6417,13 +6965,38 @@ pub(in crate::card::sets) static VIBRANIUM_ENERGY_DAGGERS: CardRecord = CardReco
 );
 
 // MSH 255 — The Vision
-// Audit: unsupported — Needs per-ability modal-choice history for the current turn, excluding
-// modes already selected; ordinary modal choices have no turn-scoped used-mode set.
 pub(in crate::card::sets) static THE_VISION: CardRecord = CardRecord::new(
     "The Vision",
     "2961cf20-33c8-4e66-9d0f-6daca8ea7880",
     "Carissa Susilo",
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}"), &["Robot", "Hero"], 2, 5)
+.with_type(CardType::Artifact).with_supertype(CardSupertype::Legendary).with_abilities(&[
+    abilities::flying(), abilities::vigilance(),
+    AbilityDef::defined("Whenever you cast a noncreature spell, choose one that hasn't been \
+        chosen this turn —",
+        DeclarativeAbilityDef::Triggered(TriggeredAbilityDef::new(
+            TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                     ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
+
+            ]))).with_modes(ModalSpellDef::choose_one(&[
+                AbilityDef::spell("Solar Beam — The Vision gains double strike until end of turn.", EffectDef::Apply {
+                    recipient: EffectRecipientDef::Source,
+                         effect: AppliedEffectDef::add_ability(&abilities::double_strike()),
+                         duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+
+                }),
+                AbilityDef::spell("Density Control — The Vision gains indestructible until end of turn.",
+                     EffectDef::Apply {
+
+                    recipient: EffectRecipientDef::Source,
+                         effect: AppliedEffectDef::add_ability(&abilities::indestructible()),
+                         duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+
+                }),
+                AbilityDef::spell("Technopathy — Draw a card.", abilities::draw_cards(ValueDef::Constant(1))),
+            ]).with_different_modes_each_turn())), EffectDef::None),
+]),
 );
 
 // MSH 256 — Viv Vision, Teen Synthezoid

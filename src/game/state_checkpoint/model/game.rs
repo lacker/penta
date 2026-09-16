@@ -22,6 +22,11 @@ pub(in crate::game::state_checkpoint) struct GameSnapshot {
     pub(in crate::game::state_checkpoint) restart_arrivals: Option<serde_json::Value>,
     pub(in crate::game::state_checkpoint) simulation_fingerprint: String,
     pub(in crate::game::state_checkpoint) turns_started: [u32; 2],
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub(in crate::game::state_checkpoint) prepared_spell_copies: Vec<(u32, u32, u8)>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub(in crate::game::state_checkpoint) activated_ability_kinds_this_turn:
+        Vec<(usize, crate::card::AbilityKindDef)>,
     /// Damage each player has taken this turn, in total and per source
     /// group. Absent from checkpoints that predate the accumulators.
     #[serde(default)]
@@ -60,6 +65,8 @@ pub(in crate::game::state_checkpoint) struct GameSnapshot {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub(in crate::game::state_checkpoint) duration_exiles: Vec<(u32, u32, ZoneKindSnapshot)>,
     pub(in crate::game::state_checkpoint) linked_exiles: Vec<[u32; 2]>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub(in crate::game::state_checkpoint) exile_returns: Vec<ExileReturnSnapshot>,
     /// Uses of a limited play permission this turn (legacy wire member name). Additive: a
     /// checkpoint written before it existed restores a turn in which nothing
     /// had been played that way yet.
@@ -128,7 +135,16 @@ pub(in crate::game::state_checkpoint) struct GameSnapshot {
     /// Additive turn tally; older checkpoints restore no discards.
     #[serde(default)]
     pub(in crate::game::state_checkpoint) cards_discarded_this_turn: [u16; 2],
+    #[serde(default)]
+    pub(in crate::game::state_checkpoint) permanents_sacrificed_this_turn: [u16; 2],
     pub(in crate::game::state_checkpoint) citys_blessing: [bool; 2],
+    #[serde(default)]
+    pub(in crate::game::state_checkpoint) enduring_story: [bool; 2],
+    #[serde(default)]
+    pub(in crate::game::state_checkpoint) effect_uses_this_turn: Vec<AbilitySourceSnapshot>,
+    #[serde(default)]
+    pub(in crate::game::state_checkpoint) modes_chosen_this_turn:
+        Vec<(AbilitySourceSnapshot, usize)>,
     pub(in crate::game::state_checkpoint) permanent_left_battlefield_this_turn: [bool; 2],
     /// Additive: a checkpoint written before the turn tracked it restores
     /// with nobody's graveyard having lost a card, which is what every turn

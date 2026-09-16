@@ -18,6 +18,7 @@ mod mana;
 mod move_to_zone;
 mod object_collections;
 mod permanent_state;
+mod play_grants;
 mod player_state;
 mod prevention;
 mod tapping;
@@ -164,7 +165,8 @@ impl Game {
             EffectDef::ChooseCardsFromCollection(definition) => {
                 self.queue_collection_card_choice(definition, object, context, scoped);
             }
-            EffectDef::BindObjects(_)
+            EffectDef::SearchZones { .. }
+            | EffectDef::BindObjects(_)
             | EffectDef::IfNoObjects(_)
             | EffectDef::ClassifyObjects(_)
             | EffectDef::RevealAndClassifyCards(_)
@@ -334,7 +336,9 @@ impl Game {
             | EffectDef::ChooseEffect { .. }
             | EffectDef::ModifyCounters { .. }
             | EffectDef::DoubleCounters { .. }
+            | EffectDef::AddCountersFrom { .. }
             | EffectDef::RemoveCounters { .. }
+            | EffectDef::SetDesignation { .. }
             | EffectDef::RemoveAllCounters { .. }
             | EffectDef::PhaseOut { .. }
             | EffectDef::SubstituteBasicLandTypeUntilEndOfTurn { .. }
@@ -479,7 +483,10 @@ impl Game {
                 };
                 self.resolve_effect_def(scoped.with_effect(*effect), object, context);
             }
-            EffectDef::CreateEmblem { emblem } => {
+            EffectDef::CreateEmblem {
+                emblem,
+                creature_type,
+            } => {
                 let controller = object.controller;
                 let card = self.unbacked_emblem_object(emblem, controller);
                 let mut emblem = Permanent::entering(
@@ -491,6 +498,10 @@ impl Game {
                 );
                 emblem.timestamp = self.allocate_continuous_effect_timestamp();
                 emblem.emblem_source = object.ability_origin();
+                if let Some(binding) = creature_type {
+                    emblem.chosen_creature_type = context.creature_type(binding);
+                    emblem.chosen_creature_type_binding = binding.label().map(str::to_owned);
+                }
                 self.emblems.push(emblem);
             }
             EffectDef::CreateOngoingEffect(ongoing) => {
@@ -547,7 +558,22 @@ impl Game {
             EffectDef::Transform { object: recipient } => {
                 for target in self.effect_recipients(recipient, object, &context, scoped) {
                     if let Target::Permanent(id) = target {
-                        self.transform_permanent(id);
+                        let self_ability = object.source == Some(id)
+                            && matches!(
+                                object.kind,
+                                crate::StackObjectKind::ActivatedAbility
+                                    | crate::StackObjectKind::TriggeredAbility
+                            );
+                        let already_transformed = self_ability
+                            && context.source_transform_count.is_some_and(|count| {
+                                self.battlefield
+                                    .iter()
+                                    .find(|permanent| permanent.card.id == id)
+                                    .is_none_or(|permanent| permanent.transform_count != count)
+                            });
+                        if !already_transformed {
+                            self.transform_permanent(id);
+                        }
                     }
                 }
             }
@@ -614,6 +640,9 @@ impl Game {
                     object.source.unwrap_or(object.id),
                 );
             }
+            EffectDef::RecordMechanic(mechanic) => {
+                self.capture_mechanic(mechanic, object.controller);
+            }
             EffectDef::GainClassLevel { level } => {
                 self.raise_class_level(object.source.unwrap_or(object.id), level);
             }
@@ -636,6 +665,13 @@ impl Game {
                     if let Target::Permanent(permanent) = target {
                         self.queue_endure(object.controller, permanent, amount);
                     }
+                }
+            }
+            EffectDef::OncePerTurn { effect } => {
+                let key = Self::effect_usage_source(object);
+                if !self.effect_uses_this_turn.contains(&key) {
+                    self.effect_uses_this_turn.push(key);
+                    self.resolve_effect_def(scoped.with_effect(*effect), object, context);
                 }
             }
             EffectDef::May {
@@ -672,6 +708,9 @@ impl Game {
             | EffectDef::MayPlayWithoutPaying { .. }
             | EffectDef::ReturnLinkedExiles { .. } => {
                 self.resolve_linked_exile_effect(scoped, object, &context);
+            }
+            EffectDef::GrantPlayPermission(grant) => {
+                self.resolve_play_grant(grant, object, &context, scoped);
             }
             EffectDef::BecomePlotted { object: recipient } => {
                 for target in self.effect_recipients(recipient, object, &context, scoped) {
@@ -740,7 +779,7 @@ impl Game {
                 };
                 self.install_trigger_from(installed, scoped, object, &context, source_ability);
             }
-            EffectDef::ChooseCardName { .. } => {
+            EffectDef::ChooseCardName { .. } | EffectDef::ChooseCreatureType { .. } => {
                 unreachable!("catalog validation rejected an unbound card-name choice")
             }
             EffectDef::CopyStackObject(copy) => {
@@ -922,6 +961,13 @@ impl Game {
                 binding,
                 then,
             } => self.resolve_zone_move_result(effect, binding, then, object, context, scoped),
+            EffectDef::AttachObjects {
+                objects,
+                host,
+                then,
+            } => {
+                self.resolve_attach_objects(objects, host, then, object, &context, scoped);
+            }
             EffectDef::Attach { object: recipient } => {
                 self.resolve_attach_effect(recipient, false, object, &context, scoped);
             }
@@ -954,6 +1000,7 @@ impl Game {
                 // supported card needs their concrete rules procedure.
             }
         }
+        self.grant_enduring_stories();
     }
 
     pub(super) fn resolve_for_each_in_binding(

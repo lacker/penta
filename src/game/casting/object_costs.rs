@@ -36,6 +36,36 @@ impl Game {
                 stack_object.chosen_permanents.push(spent);
             }
             match cost {
+                CostDef::Behold { count, .. } => {
+                    let mut chosen = vec![spent];
+                    for _ in 1..count {
+                        let (id, next) = remaining_sacrifices.first().copied()?;
+                        if next != cost {
+                            return None;
+                        }
+                        remaining_sacrifices.remove(0);
+                        chosen.push(id);
+                        stack_object.chosen_permanents.push(id);
+                    }
+                    for id in chosen {
+                        if let Some(card) = self.players[stack_object.controller.index()]
+                            .hand
+                            .iter()
+                            .find(|c| c.id == id)
+                        {
+                            self.events.push(crate::game::GameEvent::CardRevealed {
+                                player: stack_object.controller,
+                                card: id,
+                                definition: card.definition,
+                            });
+                        }
+                    }
+                    self.capture_mechanic(
+                        crate::card::MechanicId::from_name("mtg:behold"),
+                        stack_object.controller,
+                    );
+                    continue;
+                }
                 CostDef::RevealCardFromHand(_) => {
                     let card = self.players[stack_object.controller.index()]
                         .hand
@@ -117,7 +147,18 @@ impl Game {
                     );
                     return None;
                 }
-                CostDef::ReturnToHand { .. } => {
+                CostDef::ReturnToHand {
+                    object: predicate, ..
+                } => {
+                    if stack_object
+                        .cast
+                        .as_ref()
+                        .is_some_and(|cast| cast.alternative == Some(AlternativeCastKindDef::Sneak))
+                        && predicate == crate::card::ObjectPredicateDef::UnblockedAttacker
+                    {
+                        let defender = self.attack_defender_of(spent);
+                        stack_object.cast.as_mut()?.sneak_defender = defender;
+                    }
                     self.move_target_to_zone(
                         Target::Permanent(spent),
                         ZoneKind::Hand,

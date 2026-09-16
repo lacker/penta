@@ -50,6 +50,7 @@ use crate::card::ExilePlayDurationDef;
 use crate::card::InstalledTriggerDef;
 use crate::card::KeywordAbility;
 use crate::card::ManaColor;
+use crate::card::ManaSpendAsDef;
 use crate::card::ManaTypeDef;
 use crate::card::ObjectCountConditionDef;
 use crate::card::ObjectPredicateDef;
@@ -1192,10 +1193,10 @@ pub(in crate::card::sets) static ROBBER_OF_THE_RICH: CardRecord = CardRecord::ne
             abilities::reach(),
             abilities::haste(),
             AbilityDef::triggered_if(
-                "Whenever this creature attacks, if defending player has more cards in hand than \
-                 you, exile the top card of their library. During any turn you attacked with a \
-                 Rogue, you may cast that card and you may spend mana as though it were mana of \
-                 any color to cast that spell.",
+                "Whenever this creature attacks, if defending player has more cards in \
+                    hand than you, exile the top card of their library. During any turn \
+                    you attacked with a Rogue, you may cast that card and you may spend \
+                    mana as though it were mana of any color to cast that spell.",
                 TriggerEventDef::attacks(ObjectPredicateDef::Source),
                 &// "If defending player has more cards in hand than you", which is two hand
                     // sizes compared rather than either measured: a hand above nothing is the
@@ -1217,7 +1218,7 @@ pub(in crate::card::sets) static ROBBER_OF_THE_RICH: CardRecord = CardRecord::ne
                     free: false,
                     face_down: false,
                     duration: ExilePlayDurationDef::WhileExiled,
-                    spend_any_color: true,
+                    mana_spending: Some(ManaSpendAsDef::AnyColor),
                     play_condition: Some(ExilePlayConditionDef::AttackedWithSubtypeThisTurn(
                         "Rogue",
                     )),

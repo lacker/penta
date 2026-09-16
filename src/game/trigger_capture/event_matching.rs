@@ -149,6 +149,11 @@ impl Game {
             (TriggerEventDef::AbilityTriggeredBy(expected), CommittedTriggerEvent::AbilityTriggered { causes, .. }) => {
                 causes.iter().any(|cause| self.trigger_event_matches_with_bindings(*expected, cause, source, controller, bindings))
             }
+            (TriggerEventDef::SearchedLibrary(relation), CommittedTriggerEvent::LibrarySearched { player, owner }) => {
+                player == owner && controller.is_some_and(|controller| self.player_relation_matches(
+                    *player, relation, controller, event.context(),
+                ))
+            }
             (
                 TriggerEventDef::MechanicPerformed { mechanic, player: relation },
                 CommittedTriggerEvent::MechanicPerformed { mechanic: actual, player },

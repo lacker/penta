@@ -102,6 +102,7 @@ impl Game {
             selected.add_unit(*mana, self.mana_requires_nongeneric(*mana, purpose, *cost));
         }
         selected.any_color = self.may_spend_any_color(player, purpose);
+        selected.any_type = self.may_spend_any_type(purpose);
         super::mana_planning::exact_mana_payment(selected, *cost, *x)
     }
 
@@ -235,6 +236,7 @@ pub(in crate::game) fn payment_action_object(
     match action {
         super::Action::CastSpell { card, .. } => Some(*card),
         super::Action::ActivateAbility { source, .. }
+        | super::Action::ActivateAbilityWithAlternativeCost { source, .. }
         | super::Action::ActivateManaAbility { source, .. } => Some(*source),
         _ => None,
     }
@@ -245,7 +247,7 @@ pub(in crate::game) fn mana_ability_payment_purpose(
     costs: &[super::CostDef],
 ) -> ManaPaymentPurpose {
     ManaPaymentPurpose::Ability {
-        waterbend: 0,
+        waterbend: crate::card::costs::waterbend_amount(costs),
         source,
         taps_source: costs.contains(&super::CostDef::TapSource),
         leaves_source: costs.iter().any(|cost| {

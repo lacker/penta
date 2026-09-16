@@ -16,9 +16,20 @@ impl Game {
     ) -> Option<crate::card::Subtype> {
         match subtype {
             crate::card::SubtypeDef::Fixed(value) => Some(value),
+            crate::card::SubtypeDef::CastChosenCreatureType => self
+                .stack
+                .iter()
+                .find(|object| object.id == source)
+                .or_else(|| match self.retired_objects.get(&source) {
+                    Some(crate::game::RetiredObject::Stack(object)) => Some(object.as_ref()),
+                    _ => None,
+                })
+                .and_then(|object| object.signature.as_ref())
+                .and_then(|signature| signature.costs().chosen_creature_type()),
             crate::card::SubtypeDef::Binding(binding) => self
                 .battlefield
                 .iter()
+                .chain(&self.emblems)
                 .find(|permanent| permanent.card.id == source)
                 .or_else(|| match self.retired_objects.get(&source) {
                     Some(crate::game::RetiredObject::Permanent { permanent, .. }) => {

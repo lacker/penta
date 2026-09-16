@@ -797,6 +797,18 @@ button {
   background: transparent;
 }
 
+.player-name {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.enduring-story {
+  color: #e5c47e;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
 .player-name strong {
   font-family: Georgia, serif;
   font-size: 14px;
@@ -1728,6 +1740,27 @@ button {
   background: rgba(245, 236, 213, 0.8);
   font-family: Georgia, serif;
   font-size: 12px;
+}
+
+.card-choice-label {
+  position: absolute;
+  z-index: 3;
+  top: 22px;
+  left: 50%;
+  width: max-content;
+  max-width: calc(100% + 12px);
+  transform: translateX(-50%);
+  overflow: hidden;
+  padding: 1px 2px;
+  border: 1px solid #bca46c;
+  color: #f2deb0;
+  background: rgba(20, 30, 25, 0.96);
+  font-size: 8px;
+  font-weight: 700;
+  line-height: 12px;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .card-stats small {
@@ -2873,7 +2906,6 @@ button {
     min-width: 0;
   }
 
-  .player-name span,
   .zone-counts {
     display: none;
   }

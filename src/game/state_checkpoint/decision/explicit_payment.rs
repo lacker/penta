@@ -128,7 +128,7 @@ fn payment_draft_snapshot(
     }
     let x = match draft.action.as_ref() {
         Action::CastSpell { choices, .. } => choices.x(),
-        Action::ActivateAbility { x, .. } => *x,
+        Action::ActivateAbility { x, .. } | Action::ActivateAbilityWithAlternativeCost { x, .. } => *x,
         _ => 0,
     };
     let action = game

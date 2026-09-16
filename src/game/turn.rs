@@ -426,8 +426,16 @@ impl Game {
         self.spells_cast_this_turn = [0; 2];
         self.abilities_used_this_turn.clear();
         self.spell_cast_history_this_turn.clear();
+        for retired in self.retired_objects.values_mut() {
+            if let super::RetiredObject::Permanent { permanent, .. } = retired {
+                permanent.resolutions_this_turn.clear();
+            }
+        }
         self.cards_drawn_this_turn = [0; 2];
         self.cards_discarded_this_turn = [0; 2];
+        self.permanents_sacrificed_this_turn = [0; 2];
+        self.effect_uses_this_turn.clear();
+        self.modes_chosen_this_turn.clear();
         self.life_gained_this_turn = [0; 2];
         self.lost_life_this_turn = [false; 2];
         self.permanent_left_battlefield_this_turn = [false; 2];
@@ -450,6 +458,7 @@ impl Game {
                     player != self.active_player || self.turns_started[player.index()] < turn
                 }
             });
+        self.activated_ability_kinds_this_turn.clear();
         for permanent in &mut self.battlefield {
             permanent
                 .keywords_until_upkeep_of
@@ -647,6 +656,13 @@ impl Game {
     }
 
     pub(super) fn finish_cleanup(&mut self) {
+        self.exile_play_permissions.retain(|permission| {
+            permission
+                .until_holder_cleanup
+                .is_none_or(|(holder, turn)| {
+                    holder != self.active_player || self.turns_started[holder.index()] < turn
+                })
+        });
         self.nonbattlefield_ability_grants
             .retain(|grant| grant.expiration.survives_cleanup());
         // These resolving permissions and restrictions last only until the

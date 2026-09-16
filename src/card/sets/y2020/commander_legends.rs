@@ -226,8 +226,8 @@ pub(in crate::card::sets) static JESKA_S_WILL: CardRecord = CardRecord::new(
     "4e91d96d-cc69-439b-b876-a7d57039022c",
     "Izzy",
     CardRules::new_sorcery(mana_cost!("{2}{R}")).with_abilities(&[AbilityDef::modal_spell(
-        "Choose one. If you control a commander as you cast this \
-         spell, you may choose both instead.",
+        "Choose one. If you control a commander as you cast this spell, you may \
+            choose both instead.",
         &[
             AbilityDef::spell_with_targets(
                 "• Add {R} for each card in target opponent's hand.",
@@ -251,7 +251,7 @@ pub(in crate::card::sets) static JESKA_S_WILL: CardRecord = CardRecord::new(
                     free: false,
                     face_down: false,
                     duration: ExilePlayDurationDef::ThisTurn,
-                    spend_any_color: false,
+                    mana_spending: None,
                     play_condition: None,
                     cast_only: false,
                 },

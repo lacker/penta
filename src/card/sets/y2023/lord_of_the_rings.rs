@@ -1196,9 +1196,8 @@ pub(in crate::card::sets) static MORIA_MARAUDER: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{R}{R}"), &["Goblin", "Warrior"], 1, 1).with_abilities(&[
         abilities::double_strike(),
         AbilityDef::triggered(
-            "Whenever a Goblin or Orc you control deals combat damage to \
-             a player, exile the top card of your library. You may play \
-             that card this turn.",
+            "Whenever a Goblin or Orc you control deals combat damage to a player, \
+                exile the top card of your library. You may play that card this turn.",
             TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::All(&[
                 ObjectPredicateDef::AnyOf(&[
                     ObjectPredicateDef::Subtype(SubtypeDef::from_name("Goblin")),
@@ -1212,7 +1211,7 @@ pub(in crate::card::sets) static MORIA_MARAUDER: CardRecord = CardRecord::new(
                 free: false,
                 face_down: false,
                 duration: ExilePlayDurationDef::ThisTurn,
-                spend_any_color: false,
+                mana_spending: None,
                 play_condition: None,
                 cast_only: false,
             },

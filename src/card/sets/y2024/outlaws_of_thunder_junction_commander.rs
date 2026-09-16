@@ -65,9 +65,8 @@ pub(in crate::card::sets) static STELLA_LEE_WILD_CARD: CardRecord = CardRecord::
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
             AbilityDef::triggered(
-                "Whenever you cast your second spell each turn, exile the \
-                 top card of your library. Until the end of your next turn, \
-                 you may play that card.",
+                "Whenever you cast your second spell each turn, exile the top card of \
+                    your library. Until the end of your next turn, you may play that card.",
                 TriggerEventDef::While {
                     event: &TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(
                         PlayerRelation::You,
@@ -87,15 +86,15 @@ pub(in crate::card::sets) static STELLA_LEE_WILD_CARD: CardRecord = CardRecord::
                     free: false,
                     face_down: false,
                     duration: ExilePlayDurationDef::UntilEndOfYourNextTurn,
-                    spend_any_color: false,
+                    mana_spending: None,
                     play_condition: None,
                     cast_only: false,
                 },
             ),
             AbilityDef::activated_with_targets(
-                "{T}: Copy target instant or sorcery spell you control. You \
-                 may choose new targets for the copy. Activate only if \
-                 you've cast three or more spells this turn.",
+                "{T}: Copy target instant or sorcery spell you control. You may choose \
+                    new targets for the copy. Activate only if you've cast three or more \
+                    spells this turn.",
                 &[CostDef::TapSource],
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Object {

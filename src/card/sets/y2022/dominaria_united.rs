@@ -29,7 +29,6 @@ use crate::card::DrawEventMatcherDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::IfNoObjectsDef;
-use crate::card::InstalledTriggerDef;
 use crate::card::ManaColor;
 use crate::card::MoveObjectsDef;
 use crate::card::ObjectChoiceBindingDef;
@@ -121,13 +120,13 @@ pub(in crate::card::sets) static LEYLINE_BINDING: CardRecord = CardRecord::new(
     CardRules::new_enchantment(mana_cost!("{5}{W}")).with_abilities(&[
         abilities::flash(),
         abilities::this_spell_cost_reduction(
-            "Domain — This spell costs {1} less to cast for each basic land type among lands you \
-             control.",
+            "Domain — This spell costs {1} less to cast for each basic land type \
+                among lands you control.",
             ValueDef::BasicLandTypesControlled(PlayerRelation::You),
         ),
         abilities::enters_trigger_with_targets(
-            "When this enchantment enters, exile target nonland permanent an opponent controls \
-             until this enchantment leaves the battlefield.",
+            "When this enchantment enters, exile target nonland permanent an \
+                opponent controls until this enchantment leaves the battlefield.",
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Object {
                     object: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
@@ -136,34 +135,12 @@ pub(in crate::card::sets) static LEYLINE_BINDING: CardRecord = CardRecord::new(
                     owner: None,
                 },
             )],
-            EffectDef::Sequence(&[
-                EffectDef::ExileLinkedToSource {
-                    until_source_leaves: true,
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    face_down: false,
-                    then: None,
-                },
-                // "Until this enchantment leaves the battlefield" is one printed clause, so
-                // the return rides on a delayed trigger rather than appearing as a second
-                // ability the card does not print.
-                EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
-                    "When this enchantment leaves the battlefield, return the \
-                     exiled card to the battlefield under its owner's control.",
-                    TriggerEventDef::zone_changed(
-                        ObjectPredicateDef::Source,
-                        Some(ZoneKind::Battlefield),
-                        None,
-                    ),
-                    EffectDef::ReturnLinkedExiles {
-                        object: ObjectPredicateDef::Any,
-                        counters: None,
-                        zone: ZoneKind::Battlefield,
-                        grant: None,
-                        controller: None,
-                        transformed: false,
-                    },
-                ))),
-            ]),
+            EffectDef::Sequence(&[EffectDef::ExileLinkedToSource {
+                until_source_leaves: true,
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                face_down: false,
+                then: None,
+            }]),
         ),
     ]),
 );

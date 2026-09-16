@@ -115,12 +115,14 @@ fn flexible_allocation_caps_each_color_by_the_affordable_sources() {
     let purpose = ManaPaymentPurpose::Spell {
         object: GameObjectId(90_042),
         commander_owner: None,
+        source_zone: Some(ZoneKind::Hand),
         definition: cards::BARKSHELL_BLESSING,
         controller: PlayerId::One,
         form: SpellForm::Part(CardPartId::PRIMARY),
         alternative: None,
         x: 0,
         spend_any_color: false,
+        spend_any_type: false,
         reserved_life_payment: 1,
     };
     let cost = mana_cost!("{G/W}{G/W}");
@@ -202,12 +204,14 @@ fn exact_mana_plan_preserves_cross_color_source_correlation() {
     let purpose = ManaPaymentPurpose::Spell {
         object: GameObjectId(90_044),
         commander_owner: None,
+        source_zone: Some(ZoneKind::Hand),
         definition: cards::BARKSHELL_BLESSING,
         controller: PlayerId::One,
         form: SpellForm::Part(CardPartId::PRIMARY),
         alternative: None,
         x: 0,
         spend_any_color: false,
+        spend_any_type: false,
         reserved_life_payment: 1,
     };
     let cost = mana_cost!("{B}{W/U}");

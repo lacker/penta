@@ -39,7 +39,8 @@ mod rng;
 pub mod rules;
 
 pub use action::{
-    AbilityOrigin, Action, ActionError, AttackDefender, CombatDamageAssignment, ManaColor, Target,
+    AbilityOrigin, Action, ActionError, AlternativeAbilityCost, AttackDefender,
+    CombatDamageAssignment, ManaColor, Target,
 };
 pub use card::{
     AbilityDef, AbilityEffectDef, AbilityOperationDef, AbilityPredicateDef, AbilityProcedureDef,

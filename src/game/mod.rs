@@ -115,6 +115,7 @@ mod land_type_substitution;
 mod legacy_resolution;
 mod lifecycle;
 mod mana;
+mod mana_cost_symbols;
 mod mana_planning;
 mod mana_runtime;
 mod mana_state;
@@ -127,6 +128,7 @@ mod phasing;
 mod play_permissions;
 mod plot;
 mod pregame;
+mod preparation;
 mod prepared_host;
 mod prevention_state;
 mod procedure_state;
@@ -391,6 +393,7 @@ enum RetiredObject {
     Card(RetiredCard),
     Permanent {
         permanent: Box<Permanent>,
+        attachments: Vec<GameObjectId>,
         colors: [bool; 5],
         power: Option<i16>,
         toughness: Option<i16>,
@@ -591,7 +594,7 @@ pub struct Game {
     explicit_mana_payment_tail: std::collections::VecDeque<payment::BoundManaPayment>,
     payment_probe: Option<payment::preview::PaymentProbe>,
     explicit_funding: Option<Vec<payment::funding::FundingStep>>,
-    explicit_cast_contributions: Option<payment::contributions::BoundCastContributions>,
+    explicit_contributions: Option<payment::contributions::BoundContributions>,
     /// What each retired object became when it changed zones. A trigger
     /// captured on the battlefield names the object that was there, and
     /// "return it to its owner's hand" has to reach the card that object is
@@ -626,6 +629,8 @@ pub struct Game {
     /// phase anything today, and carrying these is what the deck that can
     /// will need first.
     phased_out: Vec<Permanent>,
+    /// Exiled prepare spell copies and the prepared incarnation permitting their cast.
+    prepared_spell_copies: Vec<(GameObjectId, GameObjectId)>,
     stack: GameStack,
     retired_objects: BTreeMap<GameObjectId, RetiredObject>,
     /// Abilities granted to non-battlefield object incarnations.
@@ -638,6 +643,7 @@ pub struct Game {
     next_continuous_effect_timestamp: u64,
     turn: u32,
     turns_started: [u32; 2],
+    activated_ability_kinds_this_turn: Vec<(PlayerId, crate::card::AbilityKindDef)>,
     /// Damage each player has been dealt this turn, in total and by the
     /// named source groups. Accumulated as the damage is dealt, since a
     /// group such as "unblocked creatures" is only answerable then.
@@ -666,6 +672,9 @@ pub struct Game {
     /// with whatever exiled them. Oblivion Ring is the shape.
     duration_exiles: Vec<(GameObjectId, GameObjectId, ZoneKind)>,
     linked_exiles: Vec<(GameObjectId, GameObjectId)>,
+    /// CR 610.3 paired one-shot effects, independent of triggered abilities.
+    /// The destination is the zone occupied before this exact exile move.
+    exile_returns: Vec<(GameObjectId, GameObjectId, ZoneKind)>,
     /// How many plays each limited play permission has been used for
     /// this turn. "Once during each of your turns" is a bound on the
     /// permission rather than on the card it names, so it is counted against
@@ -684,6 +693,9 @@ pub struct Game {
     /// Which players have the city's blessing (CR 702.131a). It is gained for
     /// the rest of the game, so this only ever turns on.
     citys_blessing: [bool; 2],
+    enduring_story: [bool; 2],
+    effect_uses_this_turn: Vec<AbilitySourceRef>,
+    modes_chosen_this_turn: Vec<(AbilitySourceRef, usize)>,
     /// How much life each player has gained this turn. "If you gained life
     /// this turn" is a fact about what happened rather than about the life
     /// total, which a loss in between would hide.
@@ -770,6 +782,7 @@ pub struct Game {
     /// draw was the first one.
     cards_drawn_this_turn: [u16; 2],
     cards_discarded_this_turn: [u16; 2],
+    permanents_sacrificed_this_turn: [u16; 2],
     /// Whether each player has already taken the one draw their own draw
     /// step spares from Orcish Bowmasters. Reset as that step begins rather
     /// than at the turn's start, so "each of their draw steps" stays true of

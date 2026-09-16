@@ -67,6 +67,16 @@ pub(in crate::game::state_checkpoint) fn current_stack_snapshot(
                 .map(|(kind, amount)| (kind.name().to_owned(), *amount))
                 .collect()
         }),
+        cast_prepared_from: object
+            .cast
+            .as_ref()
+            .and_then(|cast| cast.prepared_from)
+            .map(|id| id.0),
+        cast_sneak_defender: object
+            .cast
+            .as_ref()
+            .and_then(|cast| cast.sneak_defender)
+            .map(super::super::sneak_defender_snapshot),
         cast_at_instant_speed: object
             .cast
             .as_ref()

@@ -159,10 +159,8 @@ impl Game {
         if matches!(draft.action.as_ref(), Action::CastSpell { .. })
             || !draft.contributions.is_empty()
         {
-            committed.explicit_cast_contributions = Some(Self::bind_cast_contributions(
-                draft,
-                frame.obligation.clone(),
-            ));
+            committed.explicit_contributions =
+                Some(Self::bind_contributions(draft, frame.obligation.clone()));
         }
         committed.payment_query = super::query::PaymentQuery::announcement();
         committed.start_payment_operation(draft.player, &draft.action)?;
@@ -171,7 +169,7 @@ impl Game {
         committed.finish_rules_procedure();
         debug_assert!(committed.explicit_mana_payment.is_none());
         debug_assert!(committed.explicit_funding.is_none());
-        debug_assert!(committed.explicit_cast_contributions.is_none());
+        debug_assert!(committed.explicit_contributions.is_none());
         committed.payment_query = super::query::PaymentQuery::default();
         *self = committed;
         Some(())

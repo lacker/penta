@@ -68,8 +68,10 @@ pub(super) fn shared_effect_recipient(recipient: EffectRecipientDef) -> bool {
             | ObjectSetDef::PermanentsControlledBy(_)
             | ObjectSetDef::BottomOfGraveyard(_)
             | ObjectSetDef::LegalTargets(_)
-            | ObjectSetDef::ExceptObject { .. }
+            | ObjectSetDef::SharingCreatureType { .. }
+                | ObjectSetDef::ExceptObject { .. }
             | ObjectSetDef::TokensCreatedBy(_)
+                | ObjectSetDef::AttachmentsOf(_)
             | ObjectSetDef::TopOfGraveyardMatching { .. },
         )
         // Both kinds at once is shared for the same reason each half is:
@@ -570,12 +572,14 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::CombineObjects(_)
                     | EffectDef::ChooseOneOfEach(_)
                     | EffectDef::ChooseGroup(_)
+                    | EffectDef::SearchZones { .. }
                     | EffectDef::BindObjects(_)
                     | EffectDef::PartitionGroup(_)
                     | EffectDef::RandomizeObjectOrder(_)
                     | EffectDef::RevealObjects(_)
                     | EffectDef::MoveObjects(_)
                     | EffectDef::ChooseForEachPlayer(_)
+                    | EffectDef::ChooseCreatureType { .. }
                     | EffectDef::ChooseCardName { .. }
                     | EffectDef::SelectAtRandomFromZone { .. }
                     | EffectDef::ForEachInBinding { .. }
@@ -583,6 +587,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::WithCosts { .. }
                     | EffectDef::PreventDamage { .. }
                     | EffectDef::Repeat { .. }
+                    | EffectDef::OncePerTurn { .. }
                     | EffectDef::May { .. }
                     | EffectDef::RecordAbilityUse
                     | EffectDef::None
@@ -600,6 +605,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                         | crate::card::GameActionDef::Choice(_)
                         | crate::card::GameActionDef::Named { .. }
                         | crate::card::GameActionDef::DiscardCards { .. }
+                        | crate::card::GameActionDef::ModifyCounters { .. }
                         | crate::card::GameActionDef::Exile { .. }
                         | crate::card::GameActionDef::Sacrifice { .. }
                         | crate::card::GameActionDef::SacrificeYours { .. }
@@ -616,11 +622,14 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::RemoveFromCombat { .. }
                     | EffectDef::SkipNextUntapSteps { .. }
                     | EffectDef::DoubleCounters { .. }
+                    | EffectDef::AddCountersFrom { .. }
+                    | EffectDef::SetDesignation { .. }
                     | EffectDef::RemoveAllCounters { .. }
                     | EffectDef::Untap { .. }
                     | EffectDef::Saddle { .. }
                     | EffectDef::Attach { .. }
                     | EffectDef::AttachToSource { .. }
+                    | EffectDef::AttachObjects { .. }
                     | EffectDef::Reconfigure { .. }
                     | EffectDef::Unattach { .. }
                     | EffectDef::PairWithSource { .. }
@@ -671,6 +680,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::CannotBeForcedToSacrifice
                     | EffectDef::CannotBeForcedToDiscard
                     | EffectDef::GainClassLevel { .. }
+                    | EffectDef::RecordMechanic(_)
                     | EffectDef::SubstituteBasicLandTypeUntilEndOfTurn { .. }
                     | EffectDef::CreateEmblem { .. }
                     | EffectDef::CreateOngoingEffect(_)
@@ -684,6 +694,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::ExileUntilSourceLeaves { .. }
                     | EffectDef::ExileLinkedToSource { .. }
                     | EffectDef::MayPlayWithoutPaying { .. }
+                    | EffectDef::GrantPlayPermission(_)
                     | EffectDef::ExileGrantingOwnerPlay { .. }
                     | EffectDef::ExileGrantingControllerPlayThisTurn { .. }
                     | EffectDef::BecomePlotted { .. }
@@ -856,6 +867,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
             | AlternativeCastKindDef::Emerge
             | AlternativeCastKindDef::Miracle
             | AlternativeCastKindDef::AlternativeCost
+            | AlternativeCastKindDef::Sneak
             | AlternativeCastKindDef::FaceDown { .. } => effect == EffectDef::None,
             // Plot executes its authored program immediately after payment.
             AlternativeCastKindDef::Plot => shared_stack_effect(effect),

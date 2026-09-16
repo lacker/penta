@@ -220,6 +220,20 @@ impl Game {
                     .map(|player| i32::from(self.total_spells_cast[player.index()]))
                     .sum()
             }
+            crate::card::ValueDef::PermanentsSacrificedThisTurn(relation) => {
+                [crate::ids::PlayerId::One, crate::ids::PlayerId::Two]
+                    .into_iter()
+                    .filter(|player| {
+                        self.player_relation_matches(
+                            *player,
+                            relation,
+                            controller,
+                            crate::game::TriggerContext::empty(),
+                        )
+                    })
+                    .map(|player| i32::from(self.permanents_sacrificed_this_turn[player.index()]))
+                    .sum()
+            }
             crate::card::ValueDef::CardsDiscardedThisTurn(relation) => {
                 [crate::ids::PlayerId::One, crate::ids::PlayerId::Two]
                     .into_iter()
@@ -327,12 +341,12 @@ impl Game {
             | ValueDef::ResolvedRecipientCount
             | ValueDef::AffectedManaValue => 0,
             ValueDef::SourceCastX => self
-                .battlefield
-                .iter()
-                .find(|permanent| Some(permanent.card.id) == object.source)
-                .map_or(0, |permanent| {
-                    i32::from(permanent.cast.as_ref().map_or(0, |cast| cast.x))
-                }),
+                .cast_context_for(object.source.unwrap_or(object.id), Some(object))
+                .map_or(0, |cast| i32::from(cast.x)),
+            ValueDef::ManaSpentToCast(reference) => self
+                .effect_object_reference_id(reference, object, context, scoped)
+                .and_then(|referenced| self.cast_context_for(referenced, Some(object)))
+                .map_or(0, |cast| i32::from(cast.mana_spent)),
             ValueDef::TriggeringObjectPower => context
                 .trigger
                 .object
@@ -426,10 +440,6 @@ impl Game {
                 .effect_object_reference_id(reference, object, context, scoped)
                 .and_then(|referenced| self.current_or_last_known_power(referenced))
                 .map_or(0, i32::from),
-            ValueDef::ManaSpentToCast(reference) => self
-                .effect_object_reference_id(reference, object, context, scoped)
-                .and_then(|referenced| self.cast_context_for(referenced, Some(object)))
-                .map_or(0, |cast| i32::from(cast.mana_spent)),
             ValueDef::ObjectManaValue(reference) => self
                 .effect_object_reference_id(reference, object, context, scoped)
                 .and_then(|referenced| self.current_or_last_known_mana_value(referenced))
@@ -462,6 +472,18 @@ impl Game {
                     )
                 })
                 .map(|player| i32::from(self.cards_drawn_this_turn[player.index()]))
+                .sum(),
+            ValueDef::PermanentsSacrificedThisTurn(relation) => [PlayerId::One, PlayerId::Two]
+                .into_iter()
+                .filter(|player| {
+                    self.player_relation_matches(
+                        *player,
+                        relation,
+                        object.controller,
+                        context.trigger,
+                    )
+                })
+                .map(|player| i32::from(self.permanents_sacrificed_this_turn[player.index()]))
                 .sum(),
             ValueDef::CardsDiscardedThisTurn(relation) => [PlayerId::One, PlayerId::Two]
                 .into_iter()
@@ -940,41 +962,7 @@ impl Game {
     }
 }
 
-impl Game {
-    /// Project live characteristics before reducing a resolved collection.
-    pub(in crate::game) fn aggregate_object_values(
-        &self,
-        objects: Vec<Target>,
-        select: crate::card::ObjectValueDef,
-        operation: crate::card::AggregateOperationDef,
-    ) -> i32 {
-        let values = objects.into_iter().filter_map(|target| {
-            let id = match target {
-                Target::Card(id) | Target::Permanent(id) | Target::Spell(id) => id,
-                Target::Player(_) => return None,
-            };
-            match select {
-                crate::card::ObjectValueDef::ManaValue => {
-                    self.current_or_last_known_mana_value(id).map(i32::from)
-                }
-                crate::card::ObjectValueDef::Power => {
-                    self.current_or_last_known_power(id).map(i32::from)
-                }
-                crate::card::ObjectValueDef::Toughness => {
-                    self.current_or_last_known_toughness(id).map(i32::from)
-                }
-                crate::card::ObjectValueDef::Counters(kind) => {
-                    Some(i32::from(self.current_or_last_known_counters(id, kind)))
-                }
-            }
-        });
-        match operation {
-            crate::card::AggregateOperationDef::Minimum => values.min().unwrap_or(0),
-            crate::card::AggregateOperationDef::Maximum => values.max().unwrap_or(0),
-            crate::card::AggregateOperationDef::Sum => values.fold(0_i32, i32::saturating_add),
-        }
-    }
-}
+include!("effect_values/aggregates.rs");
 
 #[cfg(test)]
 mod tests {

@@ -4421,9 +4421,8 @@ pub(in crate::card::sets) static NARSET_OF_THE_ANCIENT_WAY: CardRecord = CardRec
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
             AbilityDef::activated(
-                "+1: You gain 2 life. Add {U}, {R}, \
-                 or {W}. Spend this mana only to \
-                 cast a noncreature spell.",
+                "+1: You gain 2 life. Add {U}, {R}, or {W}. Spend this mana only to \
+                    cast a noncreature spell.",
                 &[CostDef::Loyalty(ValueDef::Constant(1))],
                 EffectDef::Sequence(&[
                     EffectDef::GainLife {
@@ -4443,12 +4442,9 @@ pub(in crate::card::sets) static NARSET_OF_THE_ANCIENT_WAY: CardRecord = CardRec
                 ]),
             ),
             AbilityDef::activated(
-                "−2: Draw a card, then you may \
-                 discard a card. When you discard a \
-                 nonland card this way, Narset deals \
-                 damage equal to that card's mana \
-                 value to target creature or \
-                 planeswalker.",
+                "−2: Draw a card, then you may discard a card. When you discard a \
+                    nonland card this way, Narset deals damage equal to that card's mana \
+                    value to target creature or planeswalker.",
                 &[CostDef::Loyalty(ValueDef::Constant(-2))],
                 EffectDef::Sequence(&[
                     abilities::draw_cards(ValueDef::Constant(1)),
@@ -4468,10 +4464,8 @@ pub(in crate::card::sets) static NARSET_OF_THE_ANCIENT_WAY: CardRecord = CardRec
                                     if_empty: &EffectDef::None,
                                     otherwise: &EffectDef::ReflexiveTrigger(
                                         &AbilityDef::triggered_with_targets(
-                                            "When you discard a nonland card \
-                                             this way, Narset deals damage equal \
-                                             to that card's mana value to target \
-                                             creature or planeswalker.",
+                                            "When you discard a nonland card this way, Narset deals damage equal to \
+                                                that card's mana value to target creature or planeswalker.",
                                             TriggerEventDef::Reflexive,
                                             &[AbilityTargetDef::exactly_one(
                                                 AbilityTargetPredicate::Object {
@@ -4509,18 +4503,16 @@ pub(in crate::card::sets) static NARSET_OF_THE_ANCIENT_WAY: CardRecord = CardRec
                 ]),
             ),
             AbilityDef::activated(
-                "−6: You get an emblem with \
-                 \"Whenever you cast a noncreature \
-                 spell, this emblem deals 2 damage \
-                 to any target.\"",
+                "−6: You get an emblem with \"Whenever you cast a noncreature spell, \
+                    this emblem deals 2 damage to any target.\"",
                 &[CostDef::Loyalty(ValueDef::Constant(-6))],
                 EffectDef::CreateEmblem {
+                    creature_type: None,
                     emblem: EmblemCharacteristics::new(
                         "Narset of the Ancient Way emblem",
                         &[AbilityDef::triggered_with_targets(
-                            "Whenever you cast a noncreature \
-                             spell, this emblem deals 2 damage \
-                             to any target.",
+                            "Whenever you cast a noncreature spell, this emblem deals 2 damage to \
+                                any target.",
                             TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
                                 ObjectPredicateDef::NoncreatureSpell,
                                 ObjectPredicateDef::ControlledBy(PlayerRelation::You),

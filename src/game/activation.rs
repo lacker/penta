@@ -9,6 +9,7 @@ use super::{
 
 use crate::ManaPaymentChoice;
 
+mod alternative_costs;
 mod nonbattlefield;
 
 /// The payment facts announced for one activation.
@@ -129,12 +130,14 @@ impl Game {
         source_card: &CardInstance,
     ) {
         let ActivationChoices {
+            alternative_cost,
             targets,
             cost_objects,
             x,
             modes,
             mana_payment,
         } = choices;
+        debug_assert!(alternative_cost.is_none());
         let Some(effective) = self.find_printed_card_ability(
             source_card,
             &CharacteristicContext::Graveyard,
@@ -319,6 +322,7 @@ impl Game {
         choices: ActivationChoices<'_>,
     ) {
         let ActivationChoices {
+            alternative_cost,
             targets,
             cost_objects,
             x,
@@ -530,6 +534,7 @@ impl Game {
             .cloned()
         {
             let choices = ActivationChoices {
+                alternative_cost,
                 targets,
                 cost_objects,
                 x,
@@ -563,6 +568,7 @@ impl Game {
         }
         if targets.len() < frozen_ability.target_defs.len() {
             self.begin_deferred_activation_targeting(PendingActivationTargeting {
+                alternative_cost,
                 controller: player,
                 source,
                 ability,
@@ -582,7 +588,14 @@ impl Game {
         let frozen_targets = targets;
         let selected_ability = self
             .find_effective_ability(source_permanent, |effective| effective.origin == ability)
-            .map(|effective| effective.ability);
+            .and_then(|effective| {
+                self.activation_with_alternative_cost(
+                    player,
+                    source,
+                    effective.ability,
+                    alternative_cost,
+                )
+            });
         let declarative = selected_ability.filter(|ability| {
             matches!(
                 ability.definition,
@@ -821,6 +834,13 @@ impl Game {
                     }
                     _ => unreachable!("cost is not supported for an activated ability"),
                 }
+            }
+            if definition
+                .costs
+                .iter()
+                .any(|cost| matches!(cost, CostDef::Waterbend(_)))
+            {
+                self.capture_mechanic(crate::card::MechanicId::from_name("mtg:waterbend"), player);
             }
             let mut remaining_sacrifices = Vec::new();
             if has_generic_sacrifice {

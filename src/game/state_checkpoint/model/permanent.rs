@@ -36,6 +36,12 @@ pub(super) struct PermanentSnapshot {
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub(super) turn_up_for_mana_cost: bool,
     pub(super) presented_part_id: u8,
+    #[serde(default)]
+    pub(super) transform_count: u32,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub(super) designations: Vec<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(super) chosen_card_type: Option<String>,
     pub(super) timestamp: u64,
     pub(super) entered_controller_turn: u32,
     /// The game turn this permanent entered, for the clauses that ask about
@@ -187,6 +193,10 @@ pub(super) struct PermanentSnapshot {
     /// as false, which is what an ordinary permanent means anyway.
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub(super) cast_at_instant_speed: bool,
+    #[serde(default)]
+    pub(in crate::game::state_checkpoint) cast_prepared_from: Option<u32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(in crate::game::state_checkpoint) cast_sneak_defender: Option<AttackDefenderSnapshot>,
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub(super) became_aura: bool,
     pub(super) copy_effect: Option<CopiableCharacteristicsSnapshot>,

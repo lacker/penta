@@ -1,5 +1,9 @@
 //! Outlaws of Thunder Junction card inventory.
 
+use crate::card::DeclarativeAbilityDef;
+use crate::card::MechanicId;
+use crate::card::ModalSpellDef;
+use crate::card::SpellAbilityDef;
 use crate::card::ZonePositionDef;
 
 use super::CardRecord;
@@ -122,7 +126,7 @@ use crate::card::sets::y2022::dominaria_united as catalog_dmu;
 use crate::card::sets::y2022::streets_of_new_capenna as catalog_snc;
 use crate::card::sets::y2023::march_of_the_machine as catalog_mom;
 
-pub const SPREE: crate::card::MechanicId = crate::card::MechanicId::from_name("mtg:spree");
+pub const SPREE: MechanicId = MechanicId::from_name("mtg:spree");
 
 /// Choose one or more modes and pay the additional costs of the chosen modes.
 ///
@@ -135,9 +139,12 @@ pub const fn spree(modes: &'static [(&'static [CostDef], AbilityDef)]) -> Abilit
     assert!(!modes.is_empty() && modes.len() <= u8::MAX as usize);
     AbilityDef::defined(
         "Spree (Choose one or more additional costs.)",
-        crate::card::DeclarativeAbilityDef::Spell(crate::card::SpellAbilityDef::Modal(
-            crate::card::ModalSpellDef::with_costed_modes(modes, 1, modes.len() as u8, false),
-        )),
+        DeclarativeAbilityDef::Spell(SpellAbilityDef::Modal(ModalSpellDef::with_costed_modes(
+            modes,
+            1,
+            modes.len() as u8,
+            false,
+        ))),
         EffectDef::None,
     )
     .labeled(SPREE)
@@ -163,8 +170,8 @@ const TREASURE_TOKEN: TokenCharacteristics = crate::card::tokens::treasure().wit
 const MERCENARY_TOKEN: TokenCharacteristics =
     TokenCharacteristics::creature(&["Mercenary"], &[ManaColor::Red], 1, 1)
         .with_abilities(&[AbilityDef::activated_with_targets(
-            "{T}: Target creature you control gets +1/+0 until end of \
-             turn. Activate only as a sorcery.",
+            "{T}: Target creature you control gets +1/+0 until end of turn. \
+                Activate only as a sorcery.",
             &[CostDef::TapSource],
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Object {
@@ -5088,8 +5095,8 @@ pub(in crate::card::sets) static BRISTLY_BILL_SPINE_SOWER: CardRecord = CardReco
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
             AbilityDef::triggered_with_targets(
-                "Landfall — Whenever a land you control enters, put a +1/+1 \
-                 counter on target creature.",
+                "Landfall — Whenever a land you control enters, put a +1/+1 counter on \
+                    target creature.",
                 TriggerEventDef::zone_changed(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Land),
@@ -5118,7 +5125,7 @@ pub(in crate::card::sets) static BRISTLY_BILL_SPINE_SOWER: CardRecord = CardReco
                         &[ZoneKind::Battlefield],
                         PlayerRelation::You,
                     ),
-                    kind: CounterKind::PlusOnePlusOne,
+                    kind: Some(CounterKind::PlusOnePlusOne),
                 },
             ),
         ]),
@@ -5549,8 +5556,8 @@ pub(in crate::card::sets) static ORNERY_TUMBLEWAGG: CardRecord = CardRecord::new
     "Izzy",
     CardRules::new_creature(mana_cost!("{2}{G}"), &["Brushwagg", "Mount"], 2, 2).with_abilities(&[
         AbilityDef::triggered_with_targets(
-            "At the beginning of combat on your turn, put a +1/+1 counter \
-             on target creature.",
+            "At the beginning of combat on your turn, put a +1/+1 counter on target \
+                creature.",
             TriggerEventDef::StepBegins {
                 step: TurnStepDef::BeginningOfCombat,
                 player: PlayerRelation::You,
@@ -5565,8 +5572,8 @@ pub(in crate::card::sets) static ORNERY_TUMBLEWAGG: CardRecord = CardRecord::new
             },
         ),
         AbilityDef::triggered_with_targets(
-            "Whenever this creature attacks while saddled, double the \
-             number of +1/+1 counters on target creature.",
+            "Whenever this creature attacks while saddled, double the number of \
+                +1/+1 counters on target creature.",
             TriggerEventDef::While {
                 event: &TriggerEventDef::attacks(ObjectPredicateDef::Source),
                 condition: &TriggerConditionDef::SourceMatches {
@@ -5578,14 +5585,14 @@ pub(in crate::card::sets) static ORNERY_TUMBLEWAGG: CardRecord = CardRecord::new
             )],
             EffectDef::DoubleCounters {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                kind: CounterKind::PlusOnePlusOne,
+                kind: Some(CounterKind::PlusOnePlusOne),
             },
         ),
         abilities::saddle(
             &[CostDef::TapCreaturesWithTotalPower { minimum: 2 }],
-            "Saddle 2 (Tap any number of other creatures you control with \
-             total power 2 or more: This Mount becomes saddled until end \
-             of turn. Saddle only as a sorcery.)",
+            "Saddle 2 (Tap any number of other creatures you control with total \
+                power 2 or more: This Mount becomes saddled until end of turn. Saddle \
+                only as a sorcery.)",
         ),
     ]),
 );

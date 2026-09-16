@@ -203,6 +203,20 @@ impl AbilityDef {
         self
     }
 
+    /// Preserve a triggered keyword's identity through copies and grants.
+    ///
+    /// # Panics
+    /// Panics unless this is a triggered ability.
+    #[must_use]
+    pub const fn with_triggered_keyword(mut self, kind: super::AbilityKindDef) -> Self {
+        let DeclarativeAbilityDef::Triggered(mut definition) = self.definition else {
+            panic!("only triggered abilities have a triggered keyword");
+        };
+        definition.keyword_kind = Some(kind);
+        self.definition = DeclarativeAbilityDef::Triggered(definition);
+        self
+    }
+
     /// Marks an activated keyword, such as Equip.
     ///
     /// # Panics

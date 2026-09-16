@@ -111,6 +111,13 @@ pub enum AttackDefender {
     Planeswalker(GameObjectId),
 }
 
+/// The exact static ability offering a replacement activation cost.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub struct AlternativeAbilityCost {
+    pub source: GameObjectId,
+    pub ability: AbilityOrigin,
+}
+
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub enum Action {
     KeepHand,
@@ -178,6 +185,37 @@ pub enum Action {
         sacrifices: Vec<GameObjectId>,
     },
     ActivateAbility {
+        source: GameObjectId,
+        ability: AbilityOrigin,
+        targets: Vec<TargetSelection>,
+        /// The objects chosen to pay a nonmana cost: the permanent a
+        /// sacrifice cost takes, or the cards an exile cost lifts from a
+        /// graveyard. Most costs name one or none; a cost that spends several
+        /// names them all. Further cost decisions retain the activation's
+        /// continuation without granting priority. Empty when no object is chosen.
+        cost_objects: Vec<GameObjectId>,
+        /// The value chosen for X in the activation cost, zero when the cost
+        /// has no X.
+        x: u16,
+        /// The modes chosen for an ability that prints "choose one --",
+        /// in ascending order. Modes are chosen as the ability is activated
+        /// (CR 601.2b), so they travel with the action. Empty for every
+        /// ability that prints no modes, which is nearly all of them.
+        modes: Vec<ModeId>,
+        /// How the flexible symbols in the activation cost were announced to
+        /// be paid: which copies of a Phyrexian symbol take 2 life instead
+        /// of mana. An activation determines its total cost the same way a
+        /// cast does (CR 602.2b), so the branch is announced rather than
+        /// chosen for the player while the cost is being paid.
+        ///
+        /// Boxed behind an option because nearly every ability prints no
+        /// flexible symbol at all and has nothing to announce.
+        mana_payment: Option<Box<ManaPaymentChoice>>,
+    },
+    /// An activation that replaces its printed costs using a live permission.
+    /// Additional cost increases still apply to the replacement payment.
+    ActivateAbilityWithAlternativeCost {
+        cost: AlternativeAbilityCost,
         source: GameObjectId,
         ability: AbilityOrigin,
         targets: Vec<TargetSelection>,
@@ -302,3 +340,13 @@ impl fmt::Display for ActionError {
 }
 
 impl Error for ActionError {}
+
+impl Action {
+    #[must_use]
+    pub const fn alternative_ability_cost(&self) -> Option<AlternativeAbilityCost> {
+        match self {
+            Self::ActivateAbilityWithAlternativeCost { cost, .. } => Some(*cost),
+            _ => None,
+        }
+    }
+}

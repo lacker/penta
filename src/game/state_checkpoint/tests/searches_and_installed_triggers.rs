@@ -197,7 +197,9 @@ fn an_emblem_rebuilds_with_identity_and_source_provenance() {
         .and_then(|definition| definition.part(CardPartId::PRIMARY))
         .and_then(|part| part.rules.ability(AbilityId(2)))
         .expect("Domri has an emblem-creating ultimate");
-    let EffectDef::CreateEmblem { emblem: authored } = creator
+    let EffectDef::CreateEmblem {
+        emblem: authored, ..
+    } = creator
         .declarative_effect()
         .expect("Domri's ultimate is declarative")
     else {

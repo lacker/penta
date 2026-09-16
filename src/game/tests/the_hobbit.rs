@@ -409,3 +409,41 @@ fn great_fierce_bee_excludes_its_own_death_but_observes_other_simultaneous_death
         settle(&mut game);
     }
 }
+
+#[test]
+fn belladonna_counts_queued_resolutions_after_leaving_and_reconstruction() {
+    for prepared in [false, true] {
+        let mut game = board(&[cards::PLAINS, cards::FOREST]);
+        game.set_prepared_engine_enabled(prepared);
+        let source = game
+            .put_onto_battlefield(PlayerId::One, cards::BELLADONNA_TOOK)
+            .unwrap();
+        for _ in 0..3 {
+            game.create_token(
+                PlayerId::One,
+                crate::card::TokenCharacteristics::creature(&["Dwarf"], &[ManaColor::Red], 2, 2),
+            );
+        }
+        game.sacrifice_permanent(source);
+        let (wire, hidden) = checkpoint_fixture(&game, PlayerId::One);
+        let mut rebuilt =
+            Game::from_observation_checkpoint(game.catalog.clone(), game.format, &wire, &hidden, 0)
+                .unwrap();
+        settle(&mut game);
+        settle(&mut rebuilt);
+        // Hidden library objects receive fresh identities during reconstruction.
+        // Both continuations must deliver the same three ordered rewards.
+        for resolved in [&game, &rebuilt] {
+            assert_eq!(resolved.players[0].life, 21);
+            assert_eq!(resolved.players[0].hand.len(), 1);
+            assert_eq!(resolved.players[0].hand[0].definition, cards::PLAINS);
+            assert_eq!(resolved.battlefield.len(), 3);
+            assert!(
+                resolved
+                    .battlefield
+                    .iter()
+                    .all(|p| p.counters(CounterKind::PlusOnePlusOne) == 1)
+            );
+        }
+    }
+}

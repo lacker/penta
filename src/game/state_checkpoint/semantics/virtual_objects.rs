@@ -216,7 +216,7 @@ fn collect_effects(
                 },
             ));
         }
-        EffectDef::CreateEmblem { emblem } => found.emblems.push((
+        EffectDef::CreateEmblem { emblem, .. } => found.emblems.push((
             emblem,
             EmblemCharacteristicsLocator::EffectPath {
                 creator: Box::new(creator.clone()),

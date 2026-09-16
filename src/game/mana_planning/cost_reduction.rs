@@ -482,6 +482,21 @@ impl Game {
                 })
                 .count(),
             ),
+            ValueDef::AggregateObjectValues(aggregate) => {
+                let crate::card::ObjectSetDef::Query(query) = aggregate.objects else {
+                    return 0;
+                };
+                let objects = self
+                    .objects_matching_query(query, player, modifier_source, TriggerContext::empty())
+                    .into_iter()
+                    .filter(|target| *target != Target::Card(casting.object))
+                    .collect();
+                u16::try_from(
+                    self.aggregate_object_values(objects, aggregate.select, aggregate.operation)
+                        .max(0),
+                )
+                .unwrap_or(u16::MAX)
+            }
             ValueDef::CountMatchingObjects(query) => {
                 u16::try_from(count(*query)).unwrap_or(u16::MAX)
             }
@@ -517,6 +532,21 @@ impl Game {
                     targets,
                     casting,
                 )),
+            ValueDef::IfCondition(branches) => {
+                let selected = if self.trigger_condition_holds(
+                    branches.condition,
+                    modifier_source,
+                    player,
+                    TriggerContext::empty(),
+                    None,
+                    None,
+                ) {
+                    branches.then
+                } else {
+                    branches.otherwise
+                };
+                self.spell_cost_value(selected, player, modifier_source, targets, casting)
+            }
             ValueDef::DistinctTargets => distinct_target_count(targets),
             ValueDef::CountSpellsCastThisTurn(query) => u16::try_from(
                 self.spells_cast_matching_this_turn(

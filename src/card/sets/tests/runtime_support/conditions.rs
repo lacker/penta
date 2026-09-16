@@ -47,6 +47,7 @@ fn shared_condition_value(value: ValueDef, static_context: bool) -> bool {
         | ValueDef::CardTypesAmongGraveyards(_)
         // Static and triggered conditions read the same stored turn tally.
         | ValueDef::CardsDrawnThisTurn(_)
+        | ValueDef::PermanentsSacrificedThisTurn(_)
         | ValueDef::CardsDiscardedThisTurn(_)
         | ValueDef::LifeGainedThisTurn(_) => true,
         ValueDef::ColorIntersectionCount(sets) => sets.iter().all(|set| match set {
@@ -58,6 +59,7 @@ fn shared_condition_value(value: ValueDef, static_context: bool) -> bool {
                     || (!static_context && *reference == ObjectRefDef::TriggeringObject)
             }
         }),
+        ValueDef::Negate(value) => shared_condition_value(*value, static_context),
         ValueDef::Sum(sum) => {
             shared_condition_value(sum.left, static_context)
                 && shared_condition_value(sum.right, static_context)
@@ -75,7 +77,7 @@ fn shared_condition_value(value: ValueDef, static_context: bool) -> bool {
         // condition walk has in hand. Not offered to a static clause:
         // sizing a creature by its own power would read the layer being
         // computed.
-        ValueDef::ManaSpentToCast(_)
+        ValueDef::ManaSpentToCast(_) | ValueDef::TriggerEventAmount | ValueDef::CountersOnSource(_)
         | ValueDef::SourcePower
         | ValueDef::LandsPlayedThisTurn(_)
         | ValueDef::LibrarySize(_)
@@ -114,12 +116,14 @@ pub(in super::super) fn shared_trigger_condition(condition: TriggerConditionDef)
         TriggerConditionDef::ControlsCreaturesWithDifferentPowers(_)
         | TriggerConditionDef::ControllerHadPermanentLeaveThisTurn
         | TriggerConditionDef::ControllerHadCardLeaveGraveyardThisTurn
+        | TriggerConditionDef::ControllerHasEnduringStory
         | TriggerConditionDef::ControllerHasCitysBlessing
         | TriggerConditionDef::ControllerGainedLifeThisTurn
         | TriggerConditionDef::OpponentLostLifeThisTurn
         | TriggerConditionDef::CreatureDiedThisTurn
         | TriggerConditionDef::SourceArrivedSinceControllersLastUpkeep
         | TriggerConditionDef::SourceOnBattlefield
+        | TriggerConditionDef::SourceHasDesignation(_)
         | TriggerConditionDef::SourceInZone(_)
         | TriggerConditionDef::SourceUntapped
         | TriggerConditionDef::SourceIsPaired
@@ -205,9 +209,11 @@ pub(in super::super) fn shared_static_trigger_condition(condition: TriggerCondit
         condition,
         // Counters live on the source, so a static clause can read them from
         // exactly the input it has.
-        TriggerConditionDef::CreatureDiedThisTurn
+        TriggerConditionDef::ControllerHasEnduringStory
+        | TriggerConditionDef::CreatureDiedThisTurn
         | TriggerConditionDef::SourceArrivedSinceControllersLastUpkeep
         | TriggerConditionDef::SourceOnBattlefield
+        | TriggerConditionDef::SourceHasDesignation(_)
         // Spell tallies are recorded game state, also read by cast permissions.
         | TriggerConditionDef::SpellsCastThisTurn { .. }
             | TriggerConditionDef::SourceUntapped
@@ -243,7 +249,8 @@ pub(super) fn shared_source_object_set(objects: ObjectSetDef) -> bool {
         ObjectSetDef::Matching { objects, object } => {
             shared_source_object_set(*objects) && shared_object_predicate(object.predicate())
         }
-        ObjectSetDef::ExceptObject { objects, .. } => shared_source_object_set(*objects),
+        ObjectSetDef::SharingCreatureType { objects, .. }
+        | ObjectSetDef::ExceptObject { objects, .. } => shared_source_object_set(*objects),
         ObjectSetDef::Query(query) => shared_query(query),
         _ => false,
     }

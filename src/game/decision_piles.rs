@@ -79,6 +79,7 @@ impl Game {
         &mut self,
         choices: &[String],
         binding: &super::RuntimeBinding,
+        creature_type: bool,
         mut resume: Box<super::PendingProcedure>,
         options: &[u32],
     ) {
@@ -93,7 +94,11 @@ impl Game {
         let super::PendingProcedure::ResolveEffects { context, .. } = resume.as_mut() else {
             unreachable!("a card-name choice always resumes an effect sequence")
         };
-        context.bind_runtime_card_name(binding, name);
+        if creature_type {
+            context.bind_runtime_creature_type(binding, name);
+        } else {
+            context.bind_runtime_card_name(binding, name);
+        }
         self.pending_procedures.push_front(*resume);
     }
 
@@ -353,6 +358,9 @@ impl Game {
             return;
         };
         self.battlefield[index].presented = other;
+        self.battlefield[index].transform_count =
+            self.battlefield[index].transform_count.saturating_add(1);
+        self.grant_enduring_stories();
         let listeners = self.battlefield_trigger_listeners();
         let object = self.trigger_event_object(&self.battlefield[index]);
         self.capture_battlefield_triggers_from_snapshot(

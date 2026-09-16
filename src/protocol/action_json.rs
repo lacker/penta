@@ -160,6 +160,30 @@ pub fn action_json(action: &Action) -> Value {
             "sacrifices": instances_json(sacrifices),
             "x": choices.x(),
         }),
+        Action::ActivateAbilityWithAlternativeCost {
+            cost,
+            source,
+            ability,
+            targets,
+            cost_objects,
+            x,
+            modes,
+            mana_payment,
+        } => {
+            let base = Action::ActivateAbility {
+                source: *source,
+                ability: *ability,
+                targets: targets.clone(),
+                cost_objects: cost_objects.clone(),
+                x: *x,
+                modes: modes.clone(),
+                mana_payment: mana_payment.clone(),
+            };
+            let mut value = action_json(&base);
+            value["alternativeCost"] =
+                json!({ "source": cost.source.0, "ability": ability_origin_json(cost.ability) });
+            value
+        }
         Action::ActivateAbility {
             source,
             ability,

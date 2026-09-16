@@ -18,6 +18,8 @@ pub(super) fn emblem_snapshot(catalog: &CardCatalog, emblem: &Permanent) -> Opti
         return None;
     };
     Some(EmblemSnapshot {
+        chosen_creature_type: emblem.chosen_creature_type.clone(),
+        chosen_creature_type_binding: emblem.chosen_creature_type_binding.clone(),
         object_id: emblem.card.id.0,
         characteristics: emblem_characteristics_locator(catalog, characteristics)?,
         owner: emblem.card.owner.index(),
@@ -64,6 +66,10 @@ pub(super) fn parse_emblems(
                     "checkpoint emblem ability texts do not match its characteristics".into(),
                 );
             }
+            if shown.get("chosenCreatureType").and_then(serde_json::Value::as_str) != state.chosen_creature_type.as_deref()
+                || state.chosen_creature_type.as_deref().is_some_and(|name| !crate::card::Subtype::named(name).in_family(crate::card::SubtypeFamily::Creature)) {
+                return Err("checkpoint emblem chosen creature type is invalid or does not match observation".into());
+            }
             let owner = player(state.owner)?;
             let controller = seat_value(field(shown, "controller")?)?;
             let source = parse_ability_origin(field(shown, "sourceAbility")?)?;
@@ -87,6 +93,8 @@ pub(super) fn parse_emblems(
             );
             emblem.timestamp = ContinuousEffectTimestamp(state.timestamp);
             emblem.emblem_source = Some(source);
+            emblem.chosen_creature_type.clone_from(&state.chosen_creature_type);
+            emblem.chosen_creature_type_binding.clone_from(&state.chosen_creature_type_binding);
             Ok(emblem)
         })
         .collect()

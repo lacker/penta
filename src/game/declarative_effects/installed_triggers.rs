@@ -12,7 +12,7 @@ impl Game {
         &mut self,
         ability: &'static crate::card::AbilityDef,
         object: &StackObject,
-        context: EffectResolutionContext,
+        mut context: EffectResolutionContext,
     ) {
         let DeclarativeAbilityDef::Triggered(definition) = ability.definition else {
             return;
@@ -21,6 +21,19 @@ impl Game {
         else {
             return;
         };
+        if let Some(condition) = definition.condition
+            && !self.trigger_condition_holds(
+                condition,
+                object.source.unwrap_or(object.id),
+                object.controller,
+                context.trigger,
+                Some(frozen.origin),
+                Some((object, &ScopedEffect::primary(effect), &context)),
+            )
+        {
+            return;
+        }
+        context.source_transform_count = None;
         self.capture_trigger(&TriggerCapture {
             source: AbilitySourceRef {
                 object: object.source.unwrap_or(object.id),
@@ -35,7 +48,7 @@ impl Game {
             effect,
             resolver: Self::ability_resolver(frozen.origin, ability),
             context,
-            condition: None,
+            condition: definition.condition,
             modes: None,
             x: frozen.x,
         });
@@ -83,6 +96,12 @@ impl Game {
         };
         let id = self.next_installed_trigger_id;
         self.next_installed_trigger_id = self.next_installed_trigger_id.saturating_add(1);
+        let mut context = context.clone();
+        context.source_transform_count = self
+            .battlefield
+            .iter()
+            .find(|permanent| Some(permanent.card.id) == object.source)
+            .map(|permanent| permanent.transform_count);
         self.installed_triggers.push(InstalledTrigger {
             id,
             event: definition.event,
@@ -105,7 +124,7 @@ impl Game {
                 resolver: StackAbilityResolver::Declarative(scoped.with_effect(effect)),
                 // Resolution branches share mutable bindings. A delayed trigger must
                 // retain the values at installation, before later instructions rebind them.
-                context: context.clone(),
+                context,
                 condition: definition.condition,
                 // An installed trigger carries the effect it was installed
                 // with; nothing about it is modal.

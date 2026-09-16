@@ -710,19 +710,19 @@ pub(in crate::card::sets) static PROFESSIONAL_FACE_BREAKER: CardRecord = CardRec
     CardRules::new_creature(mana_cost!("{2}{R}"), &["Human", "Warrior"], 2, 3).with_abilities(&[
         abilities::menace(),
         AbilityDef::triggered(
-            "Whenever one or more creatures you control deal combat \
-             damage to a player, create a Treasure token.",
+            "Whenever one or more creatures you control deal combat damage to a \
+                player, create a Treasure token.",
             TriggerEventDef::CombatDamageDealtToPlayers {
                 sources: ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                 players: PlayerRelation::Any,
             },
-            EffectDef::CreateToken(crate::card::CreateTokenDef::new(
-                crate::card::TokenDef::Literal(crate::card::tokens::treasure()),
-            )),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                crate::card::tokens::treasure(),
+            ))),
         ),
         AbilityDef::activated(
-            "Sacrifice a Treasure: Exile the top card of your library. \
-             You may play that card this turn.",
+            "Sacrifice a Treasure: Exile the top card of your library. You may play \
+                that card this turn.",
             &[CostDef::sacrifice_permanent(ObjectPredicateDef::Subtype(
                 SubtypeDef::from_name("Treasure"),
             ))],
@@ -732,7 +732,7 @@ pub(in crate::card::sets) static PROFESSIONAL_FACE_BREAKER: CardRecord = CardRec
                 free: false,
                 face_down: false,
                 duration: ExilePlayDurationDef::ThisTurn,
-                spend_any_color: false,
+                mana_spending: None,
                 play_condition: None,
                 cast_only: false,
             },

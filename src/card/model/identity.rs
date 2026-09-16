@@ -218,6 +218,7 @@ pub enum DoubleFacedKind {
 /// A secondary spell frame printed alongside a card's ordinary characteristics.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum AlternateSpellKind {
+    Prepare,
     Adventure,
     Omen,
 }
@@ -405,4 +406,22 @@ pub enum PlayerRelation {
     /// The player the ability's source Aura is attached to. Unlike a chosen
     /// player, this is a live attachment relation and can move.
     EnchantedPlayer,
+}
+
+/// Rules designations of one battlefield incarnation, independent of abilities,
+/// counters, copiable characteristics, and printed card identity.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum PermanentDesignationDef {
+    Harnessed,
+    Prepared,
+}
+
+impl PermanentDesignationDef {
+    #[must_use]
+    pub const fn label(self) -> &'static str {
+        match self {
+            Self::Harnessed => "harnessed",
+            Self::Prepared => "prepared",
+        }
+    }
 }

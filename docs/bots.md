@@ -559,6 +559,39 @@ players to draw, the active player completes all of their individual draws
 before the nonactive player begins theirs. This is visible in resulting hand
 sizes and game events but adds no observation field or legal-action shape.
 
+WOE–HOB card coverage adds these optional facilities without changing protocol 33:
+
+- `actions.alternative-ability-cost.v1`: an `ActivateAbility` action can carry
+  `alternativeCost: {source, ability}` identifying the exact static ability
+  that replaces its printed activation cost. Taxes still apply. Preserve the
+  selected action index; do not collapse actions with different costs.
+- `casting.chosen-creature-type.v1`: cast signatures can carry
+  `chosenCreatureType`, a chosen subtype label (for example, Behold's shared
+  type). Missing or null means no choice. Emblems may also retain a
+  `chosenCreatureType` used by their continuous abilities.
+- `observation.rules-designations.v1`: permanents expose `designations`, an
+  array of open labels currently including `prepared` and `harnessed`.
+  `enduringStory` is a two-seat boolean array. These are independent of
+  copiable characteristics and persist for the rules-defined lifetime.
+  A permanent may also expose `chosenCardType` for choices such as Arachne's.
+  Missing fields mean no designations and no enduring stories. Consumers
+  must preserve unknown labels as opaque data or ignore them for display.
+- `observation.exiled-part-copies.v1`: an exile entry with `isCopy: true`
+  and `partId` is an unbacked copy with only that catalog part's characteristics.
+  Its `name` reflects that part. Do not infer the physical card's main frame
+  from `definition` alone. Preparation uses an alternate-spell catalog kind
+  `Prepare`; kind labels are open display data. Unknown labels may be shown
+  verbatim while legal action indices remain authoritative. The physical
+  preparation card cannot be cast as its prepare spell.
+
+Checkpoint format 20 adds defaulted fields for these states, payment choices,
+turn history, permission lifetimes, delayed returns, and inspected objects
+that remain visible to the same chooser through nested collection decisions.
+A reconstructed copy keeps its separate object identity and uses the current prepared permanent's
+controller for casting permission. Public copy, designation, and story fields
+must agree with their checkpoint counterparts when supplied. Pin the generated
+simulation fingerprint for exact reconstruction and replay.
+
 Objects are referenced two ways. The object ID identifies one rules object in
 its current zone. Its `characteristics` object says how to present that object:
 

@@ -26,10 +26,18 @@ pub enum EffectDef {
     },
     /// Execute a shared game-action program under ordinary resolution rules.
     Perform(super::GameActionDef),
+    /// Publish completion of a named mechanic after its composed instructions.
+    RecordMechanic(super::MechanicId),
     /// Supply a lexical cost parameter to an inspectable effect program.
     WithCosts {
         costs: &'static [CostDef],
         effect: &'static EffectDef,
+    },
+    /// Put the same number of each kind of counter held by the referenced
+    /// object onto each recipient, using last-known information when needed.
+    AddCountersFrom {
+        from: ObjectRefDef,
+        object: EffectRecipientDef,
     },
     AddCounters {
         object: EffectRecipientDef,
@@ -90,6 +98,13 @@ pub enum EffectDef {
     /// ability's own source, which is what "attach it to this creature" says.
     AttachToSource {
         object: EffectRecipientDef,
+    },
+    /// Attach independently selected objects to one host, then continue with
+    /// `MatchedCount` equal to the number of attachments that actually changed.
+    AttachObjects {
+        objects: ObjectSetDef,
+        host: ObjectRefDef,
+        then: Option<&'static EffectDef>,
     },
     /// Soulbond's pairing. The chosen creature and the ability's source
     /// record each other; the pair is symmetric and survives until one of
@@ -251,6 +266,9 @@ pub enum EffectDef {
     /// Names a card while this effect resolves and continues. Wrap it in
     /// `BindOutput` so the follow-up can read the chosen name from an explicit
     /// binding.
+    ChooseCreatureType {
+        chooser: PlayerRefDef,
+    },
     ChooseCardName {
         chooser: PlayerRefDef,
         names: CardNameSetDef,
@@ -263,6 +281,7 @@ pub enum EffectDef {
     /// zone and does nothing but carry its abilities.
     CreateEmblem {
         emblem: super::EmblemCharacteristics,
+        creature_type: Option<Binding>,
     },
     /// Creates a duration-scoped rules object outside every zone. It is not a
     /// permanent, but its activated ability uses the ordinary action, cost,
@@ -515,6 +534,10 @@ pub enum EffectDef {
     },
     /// An effect the named player may decline. Held by reference so that
     /// `EffectDef` does not grow a recursive inline copy of itself.
+    /// Execute at most once per source ability each turn; declining an enclosing May does not spend the use.
+    OncePerTurn {
+        effect: &'static EffectDef,
+    },
     May {
         player: EffectRecipientDef,
         effect: &'static EffectDef,
@@ -581,7 +604,7 @@ pub enum EffectDef {
         duration: ExilePlayDurationDef,
         /// Whether mana spent on the card may be of any colour, which is a
         /// property of the permission rather than of the card.
-        spend_any_color: bool,
+        mana_spending: Option<super::ManaSpendAsDef>,
         /// What has to be true where the card is played, asked there rather
         /// than where it was granted.
         play_condition: Option<ExilePlayConditionDef>,
@@ -729,12 +752,18 @@ pub enum EffectDef {
     /// gains none.
     DoubleCounters {
         object: EffectRecipientDef,
-        kind: CounterKind,
+        /// None doubles every kind already on each recipient.
+        kind: Option<CounterKind>,
     },
     /// Removes every counter of one kind, or -- when no kind is named --
     /// every counter of every kind. "Remove all counters from target
     /// permanent" is the second: what it takes off a planeswalker is its
     /// loyalty, which is why the thing then dies.
+    SetDesignation {
+        object: EffectRecipientDef,
+        designation: super::super::PermanentDesignationDef,
+        present: bool,
+    },
     RemoveAllCounters {
         object: EffectRecipientDef,
         kind: Option<CounterKind>,
@@ -863,6 +892,15 @@ pub enum EffectDef {
     /// from whether the predicate describes a quality: a search for simply
     /// "a card" is compulsory when one exists, while a qualified hidden-zone
     /// search may legally fail to find and therefore uses a minimum of zero.
+    /// Opens a search over an owner's zones for a distinct searching player.
+    /// The continuation chooses from this frozen collection and explicitly moves and shuffles.
+    SearchZones {
+        searcher: PlayerRefDef,
+        owner: PlayerRefDef,
+        zones: &'static [ZoneKind],
+        binding: Binding,
+        then: &'static EffectDef,
+    },
     SearchZone {
         /// Hide the arriving card in exile; the searcher already knows its identity.
         exile_face_down: bool,
@@ -910,6 +948,8 @@ pub enum EffectDef {
     },
     /// "You may play those cards without paying their mana costs."
     MayPlayWithoutPaying(FreePlayDef),
+    /// Grant future play of exact cards from their current exile or graveyard zone.
+    GrantPlayPermission(&'static ZonePlayGrantDef),
     /// The object sits out this many of its controller's untap steps.
     SkipNextUntapSteps {
         object: EffectRecipientDef,

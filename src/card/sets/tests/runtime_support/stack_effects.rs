@@ -58,6 +58,7 @@ fn shared_effect_payment(payment: EffectPaymentDef) -> bool {
             crate::card::CostDef::Parameter
             | crate::card::CostDef::Mana(_)
             | crate::card::CostDef::GenericMana(_)
+            | crate::card::CostDef::Life(_)
             | crate::card::CostDef::ColoredMana { .. }
             | crate::card::CostDef::ObjectManaCostReducedBy { .. }
             | crate::card::CostDef::PayLife(_)
@@ -249,6 +250,12 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
                             || shared_stack_effect_at_position(choice.effect, true)
                     })
         }
+        EffectDef::SearchZones { searcher, owner, zones, then, .. } => {
+            deferred_decision_allowed && shared_effect_recipient(EffectRecipientDef::player(searcher))
+                && shared_effect_recipient(EffectRecipientDef::player(owner))
+                && zones.iter().all(|z| matches!(z, ZoneKind::Hand | ZoneKind::Graveyard | ZoneKind::Library | ZoneKind::Exile))
+                && shared_object_collection_continuation(*then, true)
+        }
         EffectDef::BindObjects(definition) => {
             shared_object_collection(definition.source)
                 && shared_object_collection_continuation(*definition.then, deferred_decision_allowed)
@@ -399,6 +406,7 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
 
         // Naming a card is a decision window. Its sequence tail resumes after
         // the answer like every other deferred sibling.
+        EffectDef::ChooseCreatureType { .. } => deferred_decision_allowed,
         EffectDef::ChooseCardName { names, .. } => {
             names.is_catalog_defined() && deferred_decision_allowed
         }
@@ -642,6 +650,15 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         // clause names, and every set the shared walk understands works.
         // Either duration is shared -- one grants and stops, the other
         // grants and offers, and both are the same walk's business.
+        EffectDef::AttachObjects { objects, host, then } => {
+            shared_effect_recipient(EffectRecipientDef::objects(objects))
+                && shared_effect_recipient(EffectRecipientDef::object(host))
+                && then.is_none_or(|effect| *effect == EffectDef::None
+                    || shared_stack_effect_at_position(*effect, deferred_decision_allowed))
+        }
+        EffectDef::GrantPlayPermission(grant) => {
+            shared_effect_recipient(EffectRecipientDef::objects(grant.objects))
+        }
         EffectDef::MayPlayWithoutPaying(permission) => {
             shared_effect_recipient(EffectRecipientDef::objects(permission.objects))
         }
@@ -657,6 +674,8 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         | EffectDef::RemoveFromCombat { object }
         | EffectDef::SkipNextUntapSteps { object, .. }
         | EffectDef::DoubleCounters { object, .. }
+        | EffectDef::AddCountersFrom { object, .. }
+        | EffectDef::SetDesignation { object, .. }
         | EffectDef::RemoveAllCounters { object, .. }
         | EffectDef::Untap { object }
         | EffectDef::Saddle { object }
@@ -664,7 +683,8 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
             GameActionDef::Sacrifice { object }
             | GameActionDef::SacrificeYours { object }
             | GameActionDef::DiscardCards { object }
-            | GameActionDef::GainControl { object, .. },
+            | GameActionDef::GainControl { object, .. }
+            | GameActionDef::ModifyCounters { object, .. },
         )
         | EffectDef::ExileLinkedToSource { object, .. }
         | EffectDef::ExileGrantingOwnerPlay { object, .. }
@@ -755,10 +775,12 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         | EffectDef::PutSourceOntoBattlefieldAttacking
         | EffectDef::BecomeMonarch { .. }
         | EffectDef::GainClassLevel { .. }
+        | EffectDef::RecordMechanic(_)
         | EffectDef::ContinueReplacedDraw => true,
         // Each of these asks a question and then runs an inner effect,
         // so the question has to be allowed here and the answer has to be
         // something the shared procedure can carry out.
+        EffectDef::OncePerTurn { effect } => shared_stack_effect_at_position(*effect, deferred_decision_allowed),
         EffectDef::Repeat { player, effect, .. } | EffectDef::May { player, effect } => {
             deferred_decision_allowed
                 && shared_effect_recipient(player)

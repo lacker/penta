@@ -239,6 +239,17 @@ fn validate_attached_ability(
         ));
     }
     if let Some(modal) = ability.modal() {
+        if modal.different_each_turn
+            && !matches!(ability.definition, DeclarativeAbilityDef::Triggered(_))
+        {
+            return Err(CatalogError::UnsupportedAbilityEffectProgramContext {
+                definition: definition.id,
+                part,
+                ability: ability_id,
+                context: "modal history",
+                operation: "different modes each turn require a triggered ability",
+            });
+        }
         // An activated ability's own effect is the thing it does before its
         // modes; a modal spell prints nothing but its modes. Only the spell
         // is required to be empty.

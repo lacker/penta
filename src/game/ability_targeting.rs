@@ -744,6 +744,7 @@ impl Game {
         cards.get_mut(index)
     }
 
+    #[allow(clippy::too_many_lines)]
     pub(super) fn card_object_matches(
         &self,
         predicate: ObjectPredicateDef,
@@ -774,13 +775,30 @@ impl Game {
             ObjectPredicateDef::HasAnyCounter => {
                 return !card.counters.is_empty();
             }
+            ObjectPredicateDef::HasAlternateSpell(kind) => {
+                return !face_down
+                    && !matches!(
+                        card.characteristics,
+                        super::CharacteristicSource::PartCopy { .. }
+                    )
+                    && self.catalog.get(card.definition).is_some_and(|definition| {
+                        matches!(definition.structure, crate::card::CardStructure::AlternateSpell {
+                        kind: present, ..
+                    } if present == kind)
+                    });
+            }
             ObjectPredicateDef::GenericManaCostAtMost(limit) => {
                 // The printed cost, not the mana value: a card with no mana
                 // cost at all is not a card whose mana cost is {0}.
                 return !face_down
                     && self.catalog.get(card.definition).is_some_and(|definition| {
-                        definition
-                            .rules
+                        let rules = match card.characteristics {
+                            super::CharacteristicSource::PartCopy { part, .. } => {
+                                &definition.part(part).expect("valid copied frame").rules
+                            }
+                            _ => &definition.rules,
+                        };
+                        rules
                             .printed_mana_cost()
                             .as_option()
                             .is_some_and(|cost| cost.is_generic_at_most(u16::from(limit)))
@@ -792,13 +810,26 @@ impl Game {
                         .catalog
                         .get(card.definition)
                         .zip(self.source_card_name(name, source))
-                        .is_some_and(|(definition, expected)| definition.name == expected);
+                        .is_some_and(|(definition, expected)| {
+                            let name = match card.characteristics {
+                                super::CharacteristicSource::PartCopy { part, .. } => {
+                                    &definition.part(part).expect("valid copied frame").name
+                                }
+                                _ => &definition.name,
+                            };
+                            *name == expected
+                        });
             }
             ObjectPredicateDef::NameIn(names) => {
                 return !face_down
                     && self.catalog.get(card.definition).is_some_and(|definition| {
-                        self.source_card_name_set(*names, source)
-                            .contains(&definition.name)
+                        let name = match card.characteristics {
+                            super::CharacteristicSource::PartCopy { part, .. } => {
+                                &definition.part(part).expect("valid copied frame").name
+                            }
+                            _ => &definition.name,
+                        };
+                        self.source_card_name_set(*names, source).contains(name)
                     });
             }
             ObjectPredicateDef::All(predicates) => {

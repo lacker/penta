@@ -73,6 +73,7 @@ pub(super) const fn double_faced_kind_name(kind: DoubleFacedKind) -> &'static st
 
 pub(super) const fn alternate_spell_kind_name(kind: AlternateSpellKind) -> &'static str {
     match kind {
+        AlternateSpellKind::Prepare => "Prepare",
         AlternateSpellKind::Adventure => "Adventure",
         AlternateSpellKind::Omen => "Omen",
     }
@@ -326,6 +327,9 @@ pub(super) fn cast_choices_json(choices: &CastChoices) -> Value {
         "x": choices.x(),
         "targetSelections": target_selections_json(choices.targets()),
     });
+    if let Some(kind) = choices.costs().chosen_creature_type() {
+        value["chosenCreatureType"] = json!(kind.name());
+    }
     if let Some(source) = choices.costs().permission_source() {
         value["permissionSource"] = json!(source.0);
     }
@@ -375,6 +379,7 @@ pub(super) fn cast_signature_json(signature: &CastSignature) -> Value {
         "form": spell_form_json(signature.form()),
         "modeIds": signature.modes().iter().map(|mode| mode.0).collect::<Vec<_>>(),
         "alternativeCostId": signature.costs().alternative().map(|cost| cost.0),
+        "chosenCreatureType": signature.costs().chosen_creature_type().map(crate::card::Subtype::name),
         "additionalCostIds": signature
             .costs()
             .additional()

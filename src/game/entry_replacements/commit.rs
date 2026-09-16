@@ -31,6 +31,8 @@ impl Game {
         let choose_defender = entry.permanent.attacking;
         let arriving_controller = entry.permanent.controller;
         self.battlefield.push(entry.permanent);
+        self.create_prepared_spell(permanent_id);
+        self.grant_enduring_stories();
         let mut arriving_attacker = None;
         if choose_defender {
             let is_creature = self.battlefield.last().is_some_and(|permanent| {
@@ -60,13 +62,23 @@ impl Game {
             self.try_attach(permanent_id, host);
         }
 
-        if let Some(defender) = arriving_attacker.or(match entry.completion {
+        let attacking = match entry.completion {
             EntryCompletion::Attacking { defender } => Some(defender),
+            EntryCompletion::SpellResolved { .. } if self.step.is_combat() => self
+                .battlefield
+                .iter()
+                .find(|p| p.card.id == permanent_id && p.controller == self.active_player)
+                .and_then(|p| p.cast.as_ref())
+                .and_then(|cast| cast.sneak_defender),
             _ => None,
-        }) && let Some(permanent) = self
-            .battlefield
-            .iter_mut()
-            .find(|permanent| permanent.card.id == permanent_id)
+        };
+        let attacking =
+            arriving_attacker.or(attacking).filter(|defender| self.arriving_creature_can_attack(permanent_id, *defender));
+        if let Some(defender) = attacking
+            && let Some(permanent) = self
+                .battlefield
+                .iter_mut()
+                .find(|permanent| permanent.card.id == permanent_id)
         {
             // It was never declared, so it does not count as having been
             // declared -- but everything else about it is an attacker.

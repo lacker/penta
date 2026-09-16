@@ -95,8 +95,8 @@ pub(in crate::card::sets) static HEDRON_DETONATOR: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{2}{R}"), &["Goblin", "Artificer"], 2, 3).with_abilities(
         &[
             AbilityDef::triggered_with_targets(
-                "Whenever an artifact you control enters, this creature \
-                 deals 1 damage to target opponent.",
+                "Whenever an artifact you control enters, this creature deals 1 damage \
+                    to target opponent.",
                 TriggerEventDef::zone_changed(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Artifact),
@@ -114,8 +114,8 @@ pub(in crate::card::sets) static HEDRON_DETONATOR: CardRecord = CardRecord::new(
                 ),
             ),
             AbilityDef::activated(
-                "{T}, Sacrifice two artifacts: Exile the top card of your \
-                 library. You may play that card this turn.",
+                "{T}, Sacrifice two artifacts: Exile the top card of your library. You \
+                    may play that card this turn.",
                 &[
                     CostDef::TapSource,
                     CostDef::SacrificePermanents {
@@ -130,7 +130,7 @@ pub(in crate::card::sets) static HEDRON_DETONATOR: CardRecord = CardRecord::new(
                     free: false,
                     face_down: false,
                     duration: ExilePlayDurationDef::ThisTurn,
-                    spend_any_color: false,
+                    mana_spending: None,
                     play_condition: None,
                     cast_only: false,
                 },

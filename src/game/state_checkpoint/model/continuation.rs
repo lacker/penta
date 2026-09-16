@@ -158,6 +158,8 @@ pub(in crate::game::state_checkpoint) enum DecisionContinuationSnapshot {
         if_paid: Option<Box<EffectContinuationSnapshot>>,
     },
     CardNameChoice {
+        #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+        creature_type: bool,
         /// The names on offer. A card name is stable catalog data, so the
         /// list is written down rather than recomputed: which names were
         /// offered is part of the pending question.

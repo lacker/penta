@@ -134,6 +134,25 @@ impl Game {
         )
         .into_iter()
         .filter(|target| {
+            if let GameActionDef::ModifyCounters {
+                kind,
+                operation,
+                amount,
+                ..
+            } = *choice.then
+            {
+                let Target::Permanent(id) = target else {
+                    return false;
+                };
+                return self
+                    .battlefield
+                    .iter()
+                    .find(|permanent| permanent.card.id == *id)
+                    .is_some_and(|permanent| {
+                        operation == crate::card::CounterOperationDef::Add
+                            || permanent.counters(kind) >= amount
+                    });
+            }
             if !matches!(*choice.then, GameActionDef::GainControl { .. }) {
                 return true;
             }
@@ -212,6 +231,11 @@ impl ActionPayment {
             GameActionDef::DiscardCards { .. } => "Discard",
             GameActionDef::Exile { .. } => "Exile",
             GameActionDef::Sacrifice { .. } | GameActionDef::SacrificeYours { .. } => "Sacrifice",
+            GameActionDef::ModifyCounters {
+                operation: crate::card::CounterOperationDef::Add,
+                ..
+            } => "Put counters on",
+            GameActionDef::ModifyCounters { .. } => "Remove counters from",
             GameActionDef::GainControl { .. } => "Gain control of",
             _ => unreachable!("validated action payment leaf"),
         }

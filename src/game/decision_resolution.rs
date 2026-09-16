@@ -131,11 +131,12 @@ impl Game {
                 }
             }
             DecisionContinuation::CardNameChoice {
+                creature_type,
                 choices,
                 binding,
                 resume,
             } => {
-                self.resolve_card_name_choice(&choices, &binding, resume, options);
+                self.resolve_card_name_choice(&choices, &binding, creature_type, resume, options);
             }
             DecisionContinuation::ChooseForEachPlayer {
                 definition,

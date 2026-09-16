@@ -1,6 +1,7 @@
 fn entry_value_supported(value: ValueDef) -> bool {
     match value {
         ValueDef::Constant(_)
+        | ValueDef::ManaSpentToCast(crate::card::ObjectRefDef::Source)
         | ValueDef::SourceCastX
         | ValueDef::AdditionalCostPayments(_)
         | ValueDef::ColorsOfManaSpent => true,
@@ -23,8 +24,7 @@ fn entry_value_supported(value: ValueDef) -> bool {
         }
         ValueDef::Halved(halved) => entry_value_supported(halved.value),
         ValueDef::Quotient(quotient) => {
-            entry_value_supported(quotient.numerator)
-                && entry_value_supported(quotient.denominator)
+            entry_value_supported(quotient.numerator) && entry_value_supported(quotient.denominator)
         }
         _ => false,
     }

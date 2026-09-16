@@ -18,7 +18,7 @@ pub enum CostQuantityDef {
     /// The left quantity minus the right, floored at zero because a cost
     /// cannot ask for a negative quantity.
     Subtract(&'static Self, &'static Self),
-    /// Choose a minimal set whose composed value reaches a threshold.
+    /// Choose a set whose composed value reaches a threshold.
     ObjectSetValueAtLeast(&'static ObjectSetValueAtLeastDef),
 }
 

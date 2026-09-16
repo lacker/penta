@@ -119,6 +119,7 @@ fn shared_mana_restriction(restriction: ManaRestrictionDef) -> bool {
         ManaRestrictionDef::CannotPayGeneric
         | ManaRestrictionDef::PayCostContaining(_)
         | ManaRestrictionDef::CastYourCommander
+        | ManaRestrictionDef::CastFrom(_)
         | ManaRestrictionDef::Payment(_) => true,
         ManaRestrictionDef::Special(_) => false,
     }

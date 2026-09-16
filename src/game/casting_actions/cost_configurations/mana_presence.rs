@@ -10,7 +10,12 @@ impl Game {
         configuration: &CostConfiguration,
         offer: Option<CastOfferCost>,
     ) -> bool {
-        let base = if self.card_mana_cost_is_replaced(card, player)
+        let base = if self
+            .exile_play_permission(card, player)
+            .is_some_and(|p| matches!(p.cost, ExilePlayCost::AlternativeMana(_)))
+        {
+            true
+        } else if self.card_mana_cost_is_replaced(card, player)
             || self.permission_replaces_mana_with_life(card, option, configuration)
         {
             false

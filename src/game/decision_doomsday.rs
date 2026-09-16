@@ -17,6 +17,12 @@ impl Game {
         zones: &[ZoneKind],
         count: usize,
     ) {
+        if zones.contains(&ZoneKind::Library) {
+            self.capture_battlefield_triggers(&super::CommittedTriggerEvent::LibrarySearched {
+                player,
+                owner: player,
+            });
+        }
         let mut options = Vec::new();
         for zone in zones {
             let decision_zone = match zone {

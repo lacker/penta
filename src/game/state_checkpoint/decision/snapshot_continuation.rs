@@ -866,10 +866,12 @@ fn continuation_snapshot(
             votes: ids(votes),
         },
         DecisionContinuation::CardNameChoice {
+            creature_type,
             choices,
             binding,
             resume,
         } => DecisionContinuationSnapshot::CardNameChoice {
+            creature_type: *creature_type,
             choices: choices.clone(),
             binding: binding_snapshot(binding),
             resume: Box::new(pending_procedure_snapshot(

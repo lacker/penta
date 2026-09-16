@@ -480,6 +480,13 @@ pub(super) fn parse_battlefield(
             if id.0 != state.object_id {
                 return Err("checkpoint permanent id does not match observation".into());
             }
+            if let Some(designations) = shown.get("designations") {
+                let names: Vec<String> = serde_json::from_value(designations.clone())
+                    .map_err(|_| "designations must be an array of labels")?;
+                if names != state.designations {
+                    return Err("permanent designations do not match checkpoint".into());
+                }
+            }
             parse_permanent(
                 state,
                 PermanentPresentation {
@@ -694,6 +701,35 @@ fn parse_permanent(
     permanent.token_characteristics = token_characteristics;
     permanent.double_faced_token_copy = double_faced_token_copy;
     permanent.timestamp = ContinuousEffectTimestamp(state.timestamp);
+    permanent.transform_count = state.transform_count;
+    permanent.chosen_card_type = state
+        .chosen_card_type
+        .as_deref()
+        .map(|name| {
+            crate::card::CardType::ALL
+                .into_iter()
+                .find(|kind| kind.name() == name)
+                .ok_or_else(|| format!("unknown chosen card type {name:?}"))
+        })
+        .transpose()?;
+    if state
+        .designations
+        .iter()
+        .collect::<std::collections::BTreeSet<_>>()
+        .len()
+        != state.designations.len()
+    {
+        return Err("duplicate permanent designation".into());
+    }
+    permanent.designations = state
+        .designations
+        .iter()
+        .map(|designation| match designation.as_str() {
+            "harnessed" => Ok(crate::card::PermanentDesignationDef::Harnessed),
+            "prepared" => Ok(crate::card::PermanentDesignationDef::Prepared),
+            _ => Err(format!("unknown permanent designation {designation:?}")),
+        })
+        .collect::<Result<Vec<_>, _>>()?;
     permanent.tapped = shown.tapped;
     permanent.damage = shown.damage;
     permanent.attacking = shown.attacking;

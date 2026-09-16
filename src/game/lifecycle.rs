@@ -225,7 +225,7 @@ impl Game {
             explicit_mana_payment_tail: std::collections::VecDeque::new(),
             payment_probe: None,
             explicit_funding: None,
-            explicit_cast_contributions: None,
+            explicit_contributions: None,
             successors: std::collections::HashMap::new(),
             seed,
             rng,
@@ -238,6 +238,7 @@ impl Game {
             players,
             battlefield: Vec::new(),
             phased_out: Vec::new(),
+            prepared_spell_copies: Vec::new(),
             stack: GameStack::default(),
             retired_objects: BTreeMap::new(),
             nonbattlefield_ability_grants: Vec::new(),
@@ -245,6 +246,7 @@ impl Game {
             next_object_id,
             next_continuous_effect_timestamp: u64::from(next_object_id),
             turn: 1,
+            activated_ability_kinds_this_turn: Vec::new(),
             turns_started: if starting_player == PlayerId::One {
                 [1, 0]
             } else {
@@ -264,6 +266,7 @@ impl Game {
             lost_life_this_turn: [false; 2],
             duration_exiles: Vec::new(),
             linked_exiles: Vec::new(),
+            exile_returns: Vec::new(),
             play_permission_uses: Vec::new(),
             monarch: None,
             ninjutsu_returned_defender: None,
@@ -287,7 +290,11 @@ impl Game {
             total_spells_cast: [0; 2],
             cards_drawn_this_turn: [0; 2],
             cards_discarded_this_turn: [0; 2],
+            permanents_sacrificed_this_turn: [0; 2],
             citys_blessing: [false; 2],
+            enduring_story: [false; 2],
+            effect_uses_this_turn: Vec::new(),
+            modes_chosen_this_turn: Vec::new(),
             permanent_left_battlefield_this_turn: [false; 2],
             card_left_graveyard_this_turn: [false; 2],
             life_gained_this_turn: [0; 2],
@@ -521,8 +528,10 @@ impl Game {
                 toughness: last_known.toughness,
                 mana_value: last_known.mana_value,
                 keywords: last_known.keywords.clone(),
+                attachments: last_known.attachments.clone(),
             },
         );
+        self.prune_prepared_spell_copies();
         permanent
     }
 

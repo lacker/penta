@@ -57,6 +57,9 @@ impl Game {
         zone: Option<ZoneKind>,
     ) -> Option<crate::CreatureStats> {
         let definition = self.catalog.get(card.definition)?;
+        if let super::CharacteristicSource::PartCopy { part, .. } = card.characteristics {
+            return definition.part(part)?.rules.creature_stats();
+        }
         // What the card says it is where it is comes first: a planeswalker
         // card that is a 1/1 Insect in a graveyard has a body there and
         // nothing in its corner to read it from.
@@ -233,5 +236,46 @@ impl Game {
                 Some(RetiredObject::Stack(stack)) => Some(stack.card.owner),
                 None => None,
             })
+    }
+}
+
+impl Game {
+    pub(super) fn current_or_last_known_attachments(
+        &self,
+        object: GameObjectId,
+    ) -> Vec<GameObjectId> {
+        if self.battlefield.iter().any(|p| p.card.id == object) {
+            return self
+                .battlefield
+                .iter()
+                .filter(|p| p.attached_to == Some(object))
+                .map(|p| p.card.id)
+                .collect();
+        }
+        match self.retired_objects.get(&object) {
+            Some(RetiredObject::Permanent { attachments, .. }) => attachments
+                .iter()
+                .copied()
+                .filter(|id| self.battlefield.iter().any(|p| p.card.id == *id))
+                .collect(),
+            _ => Vec::new(),
+        }
+    }
+
+    pub(super) fn current_or_last_known_counter_inventory(
+        &self,
+        object: GameObjectId,
+    ) -> Vec<(CounterKind, u16)> {
+        if let Some(permanent) = self.battlefield.iter().find(|p| p.card.id == object) {
+            return permanent.counters.iter().collect();
+        }
+        if let Some((_, card)) = self.card_in_nonbattlefield_zone(object) {
+            return card.counters.iter().collect();
+        }
+        match self.retired_objects.get(&object) {
+            Some(RetiredObject::Permanent { permanent, .. }) => permanent.counters.iter().collect(),
+            Some(RetiredObject::Card(card)) => card.card.counters.iter().collect(),
+            _ => Vec::new(),
+        }
     }
 }

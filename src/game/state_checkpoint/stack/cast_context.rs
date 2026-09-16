@@ -8,6 +8,7 @@ use super::{
     cast_source_zone_from_label, color_set_from_flags,
 };
 
+#[allow(clippy::too_many_lines)]
 pub(super) fn stack_cast_context(
     state: &StackSnapshot,
     game: &Game,
@@ -58,6 +59,10 @@ pub(super) fn stack_cast_context(
             .map(str::to_owned)
     });
     let caster = state.cast_by.map(player_from_index).transpose()?;
+    let sneak_defender = state
+        .cast_sneak_defender
+        .map(super::super::restore_sneak_defender)
+        .transpose()?;
     let player_bindings = super::super::cast_bindings::restore_player_bindings(
         &state.cast_player_bindings,
         card.definition.card_definition(),
@@ -78,6 +83,8 @@ pub(super) fn stack_cast_context(
         parse_permission_entry_counters(&state.permission_entry_counters)?;
     Ok((kind == StackObjectKind::Spell).then(|| CastContext {
         caster,
+        sneak_defender,
+        prepared_from: state.cast_prepared_from.map(GameObjectId),
         source_zone: state
             .cast_from_zone
             .as_deref()
@@ -167,6 +174,10 @@ pub(super) fn detached_cast_context(
             .map(str::to_owned)
     });
     let caster = state.cast_by.map(player_from_index).transpose()?;
+    let sneak_defender = state
+        .cast_sneak_defender
+        .map(super::super::restore_sneak_defender)
+        .transpose()?;
     let player_bindings = super::super::cast_bindings::restore_player_bindings(
         &state.cast_player_bindings,
         card.definition.card_definition(),
@@ -188,6 +199,8 @@ pub(super) fn detached_cast_context(
     Ok(
         (state.kind == StackObjectKindSnapshot::Spell).then(|| CastContext {
             caster,
+            sneak_defender,
+            prepared_from: state.cast_prepared_from.map(GameObjectId),
             source_zone: state
                 .cast_from_zone
                 .as_deref()

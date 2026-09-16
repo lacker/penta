@@ -511,6 +511,7 @@ impl Game {
                 | Action::ExertAttacker { .. }
                 | Action::DeclareBlocker { .. }
         );
+        let alternative_cost = action.alternative_ability_cost();
         match action {
             Action::KeepHand => self.keep_hand(player),
             Action::TakeMulligan => self.take_mulligan(player),
@@ -576,6 +577,16 @@ impl Game {
                 x,
                 modes,
                 mana_payment,
+            }
+            | Action::ActivateAbilityWithAlternativeCost {
+                source,
+                ability,
+                targets,
+                cost_objects,
+                x,
+                modes,
+                mana_payment,
+                ..
             } => {
                 if self.is_pregame_ability_action(player, source, ability, &cost_objects) {
                     self.activate_pregame_ability(player, source, ability, &cost_objects);
@@ -585,6 +596,7 @@ impl Game {
                         source,
                         ability,
                         ActivationChoices {
+                            alternative_cost,
                             targets,
                             cost_objects: &cost_objects,
                             x,
@@ -720,6 +732,7 @@ impl Game {
                     unreachable!("an emblem has creator-owned emblem characteristics")
                 };
                 EmblemObservation {
+                    chosen_creature_type: emblem.chosen_creature_type.clone(),
                     id: emblem.card.id,
                     controller: emblem.controller,
                     name: authored.name().to_owned(),
@@ -802,6 +815,7 @@ impl Game {
             characteristics,
             token: permanent.card.definition.is_token(),
             has_individual_state: self.permanent_has_individual_state(permanent),
+            designations: permanent.designations.clone(),
             controller: permanent.controller,
             types,
             face_down: permanent.face_down.is_some(),
@@ -811,6 +825,9 @@ impl Game {
                 .iter()
                 .any(|phased| phased.card.id == permanent.card.id),
             chosen_creature_type: permanent.chosen_creature_type.clone(),
+            chosen_card_type: permanent
+                .chosen_card_type
+                .map(|kind| kind.name().to_owned()),
             chosen_basic_land_type: permanent.chosen_basic_land_type,
             chosen_basic_land_type_substitution: permanent.chosen_basic_land_type_substitution,
             chosen_colors: permanent
@@ -907,6 +924,8 @@ impl Game {
             || permanent.paired_with.is_some()
             || permanent.created_by.is_some()
             || permanent.chosen_player.is_some()
+            || permanent.chosen_card_type.is_some()
+            || !permanent.designations.is_empty()
             || !permanent.chosen_tokens.is_empty();
         if stateful {
             return true;

@@ -21,6 +21,11 @@ pub(super) enum CharacteristicSource {
     Emblem(EmblemCharacteristics),
     FaceDown(FaceDownCharacteristics),
     Copy(CardDefinitionId),
+    /// An unbacked copy whose normal characteristics are one printed part.
+    PartCopy {
+        definition: CardDefinitionId,
+        part: crate::CardPartId,
+    },
     Ability(CardDefinitionId),
     Meld(MeldRecipeId),
 }
@@ -154,6 +159,7 @@ pub(super) struct EffectiveAbility {
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub(super) struct PermanentLastKnownInformation {
+    pub(super) attachments: Vec<crate::GameObjectId>,
     pub(super) colors: [bool; 5],
     pub(super) power: Option<i16>,
     pub(super) toughness: Option<i16>,

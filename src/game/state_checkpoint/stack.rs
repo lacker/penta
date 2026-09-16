@@ -221,6 +221,10 @@ pub(super) fn detached_stack_snapshot_allowing(
         cast_via_suspend: cast.is_some_and(|cast| cast.via_suspend),
         permission_entry_counters: snapshot_permission_entry_counters(cast),
         cast_at_instant_speed: cast.is_some_and(|cast| cast.at_instant_speed),
+        cast_prepared_from: cast.and_then(|cast| cast.prepared_from).map(|id| id.0),
+        cast_sneak_defender: cast
+            .and_then(|cast| cast.sneak_defender)
+            .map(super::sneak_defender_snapshot),
         cast_by: cast.and_then(|cast| cast.caster).map(PlayerId::index),
         cast_from_zone: cast
             .and_then(|cast| cast.source_zone)
@@ -309,6 +313,10 @@ fn signature_snapshot(signature: &CastSignature) -> CastSignatureSnapshot {
         modes: signature.modes().iter().map(|mode| mode.0).collect(),
         alternative_cost: signature.costs().alternative().map(|cost| cost.0),
         permission_source: signature.costs().permission_source().map(|source| source.0),
+        chosen_creature_type: signature
+            .costs()
+            .chosen_creature_type()
+            .map(|kind| kind.name().to_owned()),
         additional_costs: signature
             .costs()
             .additional()
@@ -805,7 +813,10 @@ fn parse_signature_snapshot(state: &CastSignatureSnapshot) -> Result<CastSignatu
                     .map(AdditionalCostId)
                     .collect(),
             )
-            .with_permission_source(state.permission_source.map(GameObjectId)),
+            .with_permission_source(state.permission_source.map(GameObjectId))
+            .with_chosen_creature_type(super::wire::parse_chosen_creature_type(
+                state.chosen_creature_type.as_deref(),
+            )?),
         )
         .with_x(state.x)
         .with_targets(

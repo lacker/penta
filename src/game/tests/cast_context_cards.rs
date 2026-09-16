@@ -7,6 +7,8 @@ fn a_spell_copy_keeps_choices_and_payment_objects_but_not_actual_payment_facts()
     let original = CastContext {
         player_bindings: std::collections::BTreeMap::new(),
         caster: Some(PlayerId::One),
+        sneak_defender: None,
+        prepared_from: None,
         source_zone: Some(CastSourceZone::Graveyard),
         alternative: Some(AlternativeCastKindDef::Escape),
         alternative_cost_binding: Some("evoke".to_owned()),
@@ -41,6 +43,7 @@ fn a_spell_copy_keeps_choices_and_payment_objects_but_not_actual_payment_facts()
     assert_eq!(copied.additional_costs, [1, 0, 2]);
     assert_eq!(copied.exiled_payment_cards, original.exiled_payment_cards);
     assert_eq!(copied.colors_spent_count(), 0);
+    assert_eq!(copied.mana_spent, 0);
     assert_eq!(copied.phyrexian_symbols_paid_with_life, 0);
     assert!(!copied.at_instant_speed);
     assert!(!copied.via_flashback);

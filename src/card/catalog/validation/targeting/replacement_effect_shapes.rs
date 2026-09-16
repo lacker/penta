@@ -141,6 +141,9 @@ fn validate_replacement_effect_target_shapes(
                     ScalarChoiceListDef::Players,
                     BattlefieldEntryChoiceDestinationDef::Player
                 ) | (
+                    ScalarChoiceListDef::CardTypes(_),
+                    BattlefieldEntryChoiceDestinationDef::CardType
+                ) | (
                     ScalarChoiceListDef::CreatureTypes,
                     BattlefieldEntryChoiceDestinationDef::CreatureType
                 ) | (

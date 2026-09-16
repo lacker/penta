@@ -13,6 +13,7 @@ use crate::card::{ManaCost, ZoneKind};
 pub(super) enum ExilePlayCost {
     /// Its own cost, as printed.
     Printed,
+    AlternativeMana(ManaCost),
     /// Waived entirely (CR 118.5): "you may play those cards without paying
     /// their mana costs".
     Free,
@@ -76,6 +77,7 @@ pub(super) struct ExilePlayPermission {
     /// Whether mana spent on this card may be of any colour, which is a
     /// property of the permission rather than of the card.
     pub(super) spend_any_color: bool,
+    pub(super) spend_any_type: bool,
     /// What has to be true where the card is played, asked then rather than
     /// where the permission was granted.
     pub(super) condition: Option<crate::card::ExilePlayConditionDef>,
@@ -89,6 +91,7 @@ pub(super) struct ExilePlayPermission {
     /// it was granted on when that turn was somebody else's: "until your
     /// next end step" reaches across to the holder's own.
     pub(super) until_holder_end_step: Option<(PlayerId, u32)>,
+    pub(super) until_holder_cleanup: Option<(PlayerId, u32)>,
     /// Where the card this permission names is. Almost every one of them
     /// is about a card in exile, which is what the zone defaults to; Emry
     /// hands out one about a card in a graveyard, and the two are told
@@ -109,6 +112,7 @@ impl ExilePlayCost {
     pub(super) const fn label(self) -> &'static str {
         match self {
             Self::Printed => "printed",
+            Self::AlternativeMana(_) => "alternativeMana",
             Self::Free => "free",
             Self::EnergyEqualToManaValue => "energyEqualToManaValue",
             Self::Foretell => "foretell",
@@ -159,8 +163,8 @@ impl Game {
         player: PlayerId,
         accepts: impl Fn(ExilePlayPermission) -> bool,
     ) -> Option<ExilePlayPermission> {
-        self.plotted_cast_permission(card, player)
-            .into_iter()
+        self.prepared_cast_permission(card, player).into_iter()
+            .chain(self.plotted_cast_permission(card, player))
             .chain(self.exile_play_permissions.iter().copied())
             .find(|permission| {
                 accepts(*permission) && permission.card == card
@@ -174,6 +178,10 @@ impl Game {
                     && permission
                         .condition
                         .is_none_or(|condition| self.exile_play_condition_holds(condition, player))
+                    && permission.until_holder_cleanup.is_none_or(|(holder, turn)| {
+                        self.turns_started[holder.index()] < turn
+                            || (self.turns_started[holder.index()] == turn && self.active_player == holder)
+                    })
                     && permission.until_end_of_turn.is_none_or(|(owner, turn)| {
                         self.turns_started[owner.index()] == turn && self.active_player == owner
                     })
@@ -210,7 +218,9 @@ impl Game {
             face_down: false,
             hidden_only: false,
             spend_any_color: false,
+            spend_any_type: false,
             condition: None,
+            until_holder_cleanup: None,
             until_holder_end_step: None,
             zone: ZoneKind::Exile,
             group: None,
@@ -272,7 +282,9 @@ impl Game {
             face_down: true,
             hidden_only: true,
             spend_any_color: false,
+            spend_any_type: false,
             condition: None,
+            until_holder_cleanup: None,
             until_holder_end_step: None,
             zone: ZoneKind::Exile,
             group: None,
@@ -313,7 +325,9 @@ impl Game {
             hidden_from_owner: true,
             hidden_only: true,
             spend_any_color: false,
+            spend_any_type: false,
             condition: None,
+            until_holder_cleanup: None,
             until_holder_end_step: None,
             zone: ZoneKind::Exile,
             group: None,
@@ -338,7 +352,9 @@ impl Game {
             face_down: false,
             hidden_only: false,
             spend_any_color: false,
+            spend_any_type: false,
             condition: None,
+            until_holder_cleanup: None,
             until_holder_end_step: None,
             zone: ZoneKind::Exile,
             group: None,
@@ -364,7 +380,9 @@ impl Game {
             face_down: false,
             hidden_only: false,
             spend_any_color: false,
+            spend_any_type: false,
             condition: None,
+            until_holder_cleanup: None,
             until_holder_end_step: None,
             zone: ZoneKind::Exile,
             group: None,
@@ -392,7 +410,9 @@ impl Game {
             face_down: true,
             hidden_only: false,
             spend_any_color: false,
+            spend_any_type: false,
             condition: None,
+            until_holder_cleanup: None,
             until_holder_end_step: None,
             zone: ZoneKind::Exile,
             group: None,
@@ -425,7 +445,9 @@ impl Game {
             face_down: false,
             hidden_only: false,
             spend_any_color: false,
+            spend_any_type: false,
             condition: None,
+            until_holder_cleanup: None,
             until_holder_end_step: Some((
                 player,
                 if self.active_player == player {
@@ -469,11 +491,13 @@ impl Game {
             face_down: false,
             hidden_only: false,
             spend_any_color: false,
+            spend_any_type: false,
             condition: None,
-            until_holder_end_step: Some((
+            until_holder_cleanup: Some((
                 player,
                 self.turns_started[player.index()].saturating_add(1),
             )),
+            until_holder_end_step: None,
             zone: ZoneKind::Exile,
             group: None,
             hidden_from_owner: false,
@@ -499,7 +523,9 @@ impl Game {
             face_down: false,
             hidden_only: false,
             spend_any_color: false,
+            spend_any_type: false,
             condition: None,
+            until_holder_cleanup: None,
             until_holder_end_step: None,
             zone: ZoneKind::Exile,
             group: None,
@@ -525,7 +551,9 @@ impl Game {
             face_down: false,
             hidden_only: false,
             spend_any_color: false,
+            spend_any_type: false,
             condition: None,
+            until_holder_cleanup: None,
             until_holder_end_step: None,
             zone: ZoneKind::Exile,
             group: None,
@@ -564,7 +592,9 @@ impl Game {
             face_down: false,
             hidden_only: false,
             spend_any_color: false,
+            spend_any_type: false,
             condition: None,
+            until_holder_cleanup: None,
             until_holder_end_step: None,
             zone: ZoneKind::Exile,
             group: None,
@@ -590,7 +620,9 @@ impl Game {
             face_down: true,
             hidden_only: false,
             spend_any_color: false,
+            spend_any_type: false,
             condition: None,
+            until_holder_cleanup: None,
             until_holder_end_step: None,
             zone: ZoneKind::Exile,
             group: None,
@@ -698,6 +730,13 @@ impl Game {
                 permission.card == card
                     && permission.player == player
                     && permission.zone == ZoneKind::Graveyard
+                    && permission
+                        .until_holder_cleanup
+                        .is_none_or(|(holder, turn)| {
+                            self.turns_started[holder.index()] < turn
+                                || (self.turns_started[holder.index()] == turn
+                                    && self.active_player == holder)
+                        })
                     && permission.until_end_of_turn.is_none_or(|(owner, turn)| {
                         self.turns_started[owner.index()] == turn && self.active_player == owner
                     })
@@ -721,7 +760,9 @@ impl Game {
             face_down: false,
             hidden_only: false,
             spend_any_color: false,
+            spend_any_type: false,
             condition: None,
+            until_holder_cleanup: None,
             until_holder_end_step: None,
             zone: ZoneKind::Graveyard,
             group: None,

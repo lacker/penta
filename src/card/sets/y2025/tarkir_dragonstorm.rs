@@ -10,6 +10,7 @@ use crate::card::ActivationTimingDef;
 use crate::card::AddManaEffectDef;
 use crate::card::AggregateOperationDef;
 use crate::card::AlternateSpellKind;
+use crate::card::AlternativeCastKindDef;
 use crate::card::AppliedEffectDef;
 use crate::card::AppliedRuleDef;
 use crate::card::BattlefieldArrivalDef;
@@ -124,8 +125,8 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
 /// board could tell them from the ones the last attack made, or from a
 /// Warrior that arrived some other way, so they are bound as they are
 /// created and this names the binding.
-static MOBILIZE_SACRIFICE: EffectDef = EffectDef::InstallTrigger(
-    crate::card::InstalledTriggerDef::once(&AbilityDef::triggered(
+static MOBILIZE_SACRIFICE: EffectDef =
+    EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
         "At the beginning of the next end step, sacrifice those tokens.",
         TriggerEventDef::StepBegins {
             step: TurnStepDef::End,
@@ -134,8 +135,7 @@ static MOBILIZE_SACRIFICE: EffectDef = EffectDef::InstallTrigger(
         EffectDef::sacrifice(EffectRecipientDef::objects(ObjectSetDef::Binding(
             ParentBinding,
         ))),
-    )),
-);
+    )));
 
 /// Mobilize N (CR 702.180a): "Whenever this creature attacks, create N tapped
 /// and attacking 1/1 red Warrior creature tokens. Sacrifice them at the
@@ -247,7 +247,7 @@ const SPIRIT_TOKEN: TokenCharacteristics =
 pub const fn harmonize(costs: &'static [CostDef]) -> AbilityDef {
     AbilityDef::alternative_cast(
         costs,
-        crate::card::AlternativeCastKindDef::Harmonize,
+        AlternativeCastKindDef::Harmonize,
         None,
         EffectDef::None,
     )
@@ -5521,9 +5521,9 @@ pub(in crate::card::sets) static SAGE_OF_THE_FANG: CardRecord = CardRecord::new(
             },
         ),
         AbilityDef::activated_with_targets(
-            "Renew — {3}{G}, Exile this card from your graveyard: Put a \
-             +1/+1 counter on target creature, then double the number of \
-             +1/+1 counters on that creature. Activate only as a sorcery.",
+            "Renew — {3}{G}, Exile this card from your graveyard: Put a +1/+1 \
+                counter on target creature, then double the number of +1/+1 counters \
+                on that creature. Activate only as a sorcery.",
             &[CostDef::Mana(mana_cost!("{3}{G}")), CostDef::ExileSource],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
@@ -5536,7 +5536,7 @@ pub(in crate::card::sets) static SAGE_OF_THE_FANG: CardRecord = CardRecord::new(
                 },
                 EffectDef::DoubleCounters {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    kind: CounterKind::PlusOnePlusOne,
+                    kind: Some(CounterKind::PlusOnePlusOne),
                 },
             ]),
         )

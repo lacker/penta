@@ -229,11 +229,9 @@ impl Game {
         match permanent.card.definition {
             ObjectKind::Card(definition) => {
                 let definition = self.catalog.get(definition)?;
-                let CardStructure::DoubleFaced {
-                    kind: crate::card::DoubleFacedKind::Transforming,
-                    ..
-                } = definition.structure
-                else {
+                // CR 701.27 and 712.9 permit both modal and nonmodal
+                // double-faced cards to transform into a permanent face.
+                let CardStructure::DoubleFaced { .. } = definition.structure else {
                     return None;
                 };
                 let other = definition.other_face(permanent.presented)?;
@@ -243,9 +241,6 @@ impl Game {
             }
             ObjectKind::Token => {
                 if let Some(faces) = &permanent.double_faced_token_copy {
-                    if faces.kind != crate::card::DoubleFacedKind::Transforming {
-                        return None;
-                    }
                     let other = faces.other_face(permanent.presented)?;
                     let copy = faces.face(other)?;
                     return self.copiable_face_can_be_up(copy).then_some(other);
@@ -457,6 +452,12 @@ impl Game {
             object: self.trigger_event_object(permanent),
             abilities,
             last_known: PermanentLastKnownInformation {
+                attachments: self
+                    .battlefield
+                    .iter()
+                    .filter(|attachment| attachment.attached_to == Some(permanent.card.id))
+                    .map(|attachment| attachment.card.id)
+                    .collect(),
                 colors: self.permanent_colors(permanent),
                 power: self.power(permanent),
                 toughness: self.toughness(permanent),

@@ -9,13 +9,21 @@ impl Game {
         let (prompt, mut choices, fallback) = match choice.list {
             ScalarChoiceListDef::Tokens(choices) => (
                 "Choose one",
-                choices.iter().map(|choice| choice.label.to_owned()).collect(),
+                choices
+                    .iter()
+                    .map(|choice| choice.label.to_owned())
+                    .collect(),
                 "",
             ),
             ScalarChoiceListDef::Players => (
                 "Choose a player",
                 vec!["You".to_owned(), "Opponent".to_owned()],
                 "You",
+            ),
+            ScalarChoiceListDef::CardTypes(types) => (
+                "Choose a card type",
+                types.iter().map(|kind| kind.name().to_owned()).collect(),
+                "Artifact",
             ),
             ScalarChoiceListDef::BasicLandTypes => (
                 "Choose a basic land type",
@@ -43,9 +51,7 @@ impl Game {
                     match name_set {
                         CardNameSetDef::NonlandCardNames => "Choose a nonland card name",
                         CardNameSetDef::LandCardNames => "Choose a land card name",
-                        CardNameSetDef::NonbasicLandCardNames => {
-                            "Choose a nonbasic land card name"
-                        }
+                        CardNameSetDef::NonbasicLandCardNames => "Choose a nonbasic land card name",
                         CardNameSetDef::CardNamesOtherThanBasicLands => {
                             "Choose a card name other than a basic land card name"
                         }

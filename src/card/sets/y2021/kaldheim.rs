@@ -554,8 +554,9 @@ pub(in crate::card::sets) static TUSKERI_FIREWALKER: CardRecord = CardRecord::ne
     // with a 3/2 first.
     CardRules::new_creature(mana_cost!("{2}{R}"), &["Human", "Berserker"], 3, 2).with_ability(
         abilities::boast(AbilityDef::activated(
-            "Boast — {1}: Exile the top card of your library. You may play that card this turn. \
-             (Activate only if this creature attacked this turn and only once each turn.)",
+            "Boast — {1}: Exile the top card of your library. You may play that \
+                card this turn. (Activate only if this creature attacked this turn and \
+                only once each turn.)",
             &[CostDef::Mana(mana_cost!("{1}"))],
             EffectDef::ExileTopOfLibraryToPlay {
                 player: EffectRecipientDef::Controller,
@@ -566,7 +567,7 @@ pub(in crate::card::sets) static TUSKERI_FIREWALKER: CardRecord = CardRecord::ne
                 free: false,
                 face_down: false,
                 duration: ExilePlayDurationDef::ThisTurn,
-                spend_any_color: false,
+                mana_spending: None,
                 play_condition: None,
                 cast_only: false,
             },

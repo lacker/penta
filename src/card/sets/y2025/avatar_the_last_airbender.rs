@@ -1,6 +1,17 @@
 //! Avatar: The Last Airbender card inventory.
 
+use crate::card::ConditionValueDef;
+use crate::card::ExilePlayDurationDef;
+use crate::card::HalvedValueDef;
+use crate::card::IfNoObjectsDef;
+use crate::card::MechanicId;
 use crate::card::PlayPermissionDef;
+use crate::card::RoundingDef;
+use crate::card::SpellCastQueryDef;
+use crate::card::SpellResolutionDestinationDef;
+use crate::card::ZoneChangeEventMatcherDef;
+use crate::card::ZoneChangeReferenceDef;
+use crate::card::ZonePlayGrantDef;
 use crate::card::ZonePositionDef;
 
 use super::CardRecord;
@@ -90,7 +101,6 @@ use crate::card::TriggerEventDef;
 use crate::card::TurnStepDef;
 use crate::card::ValueComparisonDef;
 use crate::card::ValueDef;
-use crate::card::ZoneChangeEventMatcherDef;
 use crate::card::ZoneKind;
 use crate::card::ZonePlacement;
 use crate::card::abilities;
@@ -192,58 +202,105 @@ pub(in crate::card::sets) const fn earthbend(amount: i32) -> EffectDef {
 const EARTHBEND_EFFECT: EffectDef = EffectDef::BindObjects(BindObjectsDef {
     source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::LegalTargets(TargetIndex::PRIMARY)),
     binding: crate::Binding!("earthbent"),
-    then: &EffectDef::Sequence(&[
-        EffectDef::Apply {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            effect: AppliedEffectDef::Composite(&[
-                AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)),
-                AppliedEffectDef::set_base_power_toughness(
-                    ValueDef::Constant(0),
-                    ValueDef::Constant(0),
-                ),
-                AppliedEffectDef::add_ability(&abilities::haste()),
-            ]),
-            duration: ResolvedEffectDurationDef::Permanent,
-        },
-        EffectDef::AddCounters {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            kind: CounterKind::PlusOnePlusOne,
-            amount: ValueDef::BoundValue(crate::Binding!("earthbend-amount")),
-        },
-        EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
-            "When that land dies or is exiled, return it to the battlefield tapped.",
-            TriggerEventDef::AnyOf(&[
-                TriggerEventDef::ZoneChanged(
-                    ZoneChangeEventMatcherDef::new(
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                        Some(ZoneKind::Battlefield),
-                        Some(ZoneKind::Graveyard),
-                    )
-                    .among(crate::Binding!("earthbent")),
-                ),
-                TriggerEventDef::ZoneChanged(
-                    ZoneChangeEventMatcherDef::new(
-                        ObjectPredicateDef::Any,
-                        Some(ZoneKind::Battlefield),
-                        Some(ZoneKind::Exile),
-                    )
-                    .among(crate::Binding!("earthbent")),
-                ),
-            ]),
-            EffectDef::WithBattlefieldArrival {
-                arrival: BattlefieldArrivalDef {
-                    modifications: &[BattlefieldEntryModificationDef::Tapped],
-                    ..BattlefieldArrivalDef::DEFAULT
+    then: &EffectDef::IfNoObjects(IfNoObjectsDef {
+        input: ObjectSetDef::Binding(crate::Binding!("earthbent")),
+        if_empty: &EffectDef::None,
+        otherwise: &EffectDef::Sequence(&[
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)),
+                    AppliedEffectDef::set_base_power_toughness(
+                        ValueDef::Constant(0),
+                        ValueDef::Constant(0),
+                    ),
+                    AppliedEffectDef::add_ability(&abilities::haste()),
+                ]),
+                duration: ResolvedEffectDurationDef::Permanent,
+            },
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::BoundValue(crate::Binding!("earthbend-amount")),
+            },
+            EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
+                "When that land dies or is exiled, return it to the battlefield tapped.",
+                TriggerEventDef::AnyOf(&[
+                    TriggerEventDef::ZoneChanged(
+                        ZoneChangeEventMatcherDef::new(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            Some(ZoneKind::Battlefield),
+                            Some(ZoneKind::Graveyard),
+                        )
+                        .among(crate::Binding!("earthbent")),
+                    ),
+                    TriggerEventDef::ZoneChanged(
+                        ZoneChangeEventMatcherDef::new(
+                            ObjectPredicateDef::Any,
+                            Some(ZoneKind::Battlefield),
+                            Some(ZoneKind::Exile),
+                        )
+                        .among(crate::Binding!("earthbent")),
+                    ),
+                ]),
+                EffectDef::WithBattlefieldArrival {
+                    arrival: BattlefieldArrivalDef {
+                        controller: Some(PlayerRelation::You),
+                        modifications: &[BattlefieldEntryModificationDef::Tapped],
+                        ..BattlefieldArrivalDef::DEFAULT
+                    },
+                    effect: &EffectDef::move_to_zone(
+                        EffectRecipientDef::object(
+                            ObjectRefDef::ZoneChangeResultOfTriggeringObject,
+                        ),
+                        ZoneKind::Battlefield,
+                        ZonePlacement::Top,
+                    ),
                 },
+            ))),
+            EffectDef::RecordMechanic(MechanicId::from_name("mtg:earthbend")),
+        ]),
+    }),
+});
+
+/// Airbending exiles the complete batch before granting each exact successor
+/// card's owner a fixed alternative cost. Tokens leave no playable successor.
+const fn airbend(objects: ObjectSetDef) -> EffectDef {
+    EffectDef::BindObjects(BindObjectsDef {
+        source: ObjectCollectionSourceDef::ObjectSet(objects),
+        binding: crate::Binding!("airbend-selected"),
+        then: &const {
+            EffectDef::WithZoneMoveResult {
                 effect: &EffectDef::move_to_zone(
-                    EffectRecipientDef::object(ObjectRefDef::ZoneChangeResultOfTriggeringObject),
-                    ZoneKind::Battlefield,
+                    EffectRecipientDef::objects(ObjectSetDef::Binding(crate::Binding!(
+                        "airbend-selected"
+                    ))),
+                    ZoneKind::Exile,
                     ZonePlacement::Top,
                 ),
-            },
-        ))),
-    ]),
-});
+                binding: crate::Binding!("airbend-moved"),
+                then: &EffectDef::ForEachInBinding {
+                    objects: crate::Binding!("airbend-moved"),
+                    binding: crate::Binding!("airbend-card"),
+                    effect: &EffectDef::GrantPlayPermission(&ZonePlayGrantDef {
+                        objects: ObjectSetDef::InZone {
+                            objects: &ObjectSetDef::One(ObjectRefDef::ZoneChangeSuccessor(
+                                ZoneChangeReferenceDef::Binding(crate::Binding!("airbend-card")),
+                            )),
+                            zone: ZoneKind::Exile,
+                        },
+                        player: PlayerRefDef::OwnerOf(ObjectRefDef::Binding(crate::Binding!(
+                            "airbend-card"
+                        ))),
+                        mana_cost: Some(mana_cost!("{2}")),
+                        duration: ExilePlayDurationDef::WhileExiled,
+                        cast_only: true,
+                    }),
+                },
+            }
+        },
+    })
+}
 
 // TLA 1 — Aang's Journey
 pub(in crate::card::sets) static AANG_S_JOURNEY: CardRecord = CardRecord::new(
@@ -404,13 +461,84 @@ pub(in crate::card::sets) static AANG_S_ICEBERG: CardRecord = CardRecord::new(
 );
 
 // TLA 6 — Airbender Ascension
-// Audit: unsupported — Needs airbend exile with an owner-specific {2} alternative cast
-// permission lasting while that card remains exiled.
 pub(in crate::card::sets) static AIRBENDER_ASCENSION: CardRecord = CardRecord::new(
     "Airbender Ascension",
     "99a90d13-891c-45cc-b1d5-6080ebae5862",
     "Shiren",
-    CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{W}")).with_abilities(&[
+        abilities::enters_trigger_with_targets(
+            "When this enchantment enters, airbend up to one target creature.",
+            &[AbilityTargetDef::up_to(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+                1,
+            )],
+            airbend(ObjectSetDef::LegalTargets(TargetIndex::PRIMARY)),
+        ),
+        AbilityDef::triggered(
+            "Whenever a creature you control enters, put a quest counter on this \
+                enchantment.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::named("quest"),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        AbilityDef::triggered_if_with_targets(
+            "At the beginning of your end step, if this enchantment has four or \
+                more quest counters on it, exile up to one target creature you \
+                control, then return it to the battlefield under its owner's control.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::End,
+                player: PlayerRelation::You,
+            },
+            &TriggerConditionDef::SourceCounters {
+                kind: CounterKind::named("quest"),
+                comparison: ComparisonDef::GreaterOrEqual,
+                amount: 4,
+            },
+            &[AbilityTargetDef::up_to(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                },
+                1,
+            )],
+            EffectDef::WithZoneMoveResult {
+                effect: &EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Exile,
+                    ZonePlacement::Top,
+                ),
+
+                binding: crate::Binding!("blinked"),
+                then: &EffectDef::move_to_zone(
+                    EffectRecipientDef::objects(ObjectSetDef::InZone {
+                        objects: &ObjectSetDef::ZoneChangeSuccessorsOfBinding(crate::Binding!(
+                            "blinked"
+                        )),
+                        zone: ZoneKind::Exile,
+                    }),
+                    ZoneKind::Battlefield,
+                    ZonePlacement::Top,
+                ),
+            },
+        ),
+    ]),
 );
 
 // TLA 7 — Airbender's Reversal
@@ -444,13 +572,40 @@ pub(in crate::card::sets) static APPA_LOYAL_SKY_BISON: CardRecord = CardRecord::
 );
 
 // TLA 10 — Appa, Steadfast Guardian
-// Audit: unsupported — Needs airbend exile with an owner-specific {2} alternative cast
-// permission lasting while that card remains exiled.
 pub(in crate::card::sets) static APPA_STEADFAST_GUARDIAN: CardRecord = CardRecord::new(
     "Appa, Steadfast Guardian",
     "829d91e9-4878-4e55-a262-ac0d55b65d4e",
     "Maël Ollivier-Henry",
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{W}{W}"), &["Bison", "Ally"], 3, 4)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::flash(),
+            abilities::flying(),
+            abilities::enters_trigger_with_targets(
+                "When Appa enters, airbend any number of other target nonland \
+                permanents you control.",
+                &[AbilityTargetDef::any_number(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                        ]),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::You),
+                        owner: None,
+                    },
+                )],
+                airbend(ObjectSetDef::LegalTargets(TargetIndex::PRIMARY)),
+            ),
+            AbilityDef::triggered(
+                "Whenever you cast a spell from exile, create a 1/1 white Ally creature token.",
+                TriggerEventDef::spell_cast_from(
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ZoneKind::Exile,
+                ),
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(ALLY_TOKEN))),
+            ),
+        ]),
 );
 
 // TLA 11 — Avatar Enthusiasts
@@ -482,13 +637,73 @@ pub(in crate::card::sets) static AVATAR_ENTHUSIASTS: CardRecord = CardRecord::ne
 );
 
 // TLA 12 — Avatar's Wrath
-// Audit: unsupported — Needs airbend exile with an owner-specific {2} alternative cast
-// permission lasting while that card remains exiled.
 pub(in crate::card::sets) static AVATAR_S_WRATH: CardRecord = CardRecord::new(
     "Avatar's Wrath",
     "4811072d-fac0-40dd-a5cf-9694d51b12cf",
     "Ainezu",
-    CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{2}{W}{W}")).with_ability(
+        AbilityDef::spell_with_targets(
+            "Choose up to one target creature, then airbend all other creatures. \
+                Until your next turn, your opponents can't cast spells from anywhere \
+                other than their hands. Exile Avatar's Wrath.",
+            &[AbilityTargetDef::up_to(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+                1,
+            )],
+            EffectDef::Sequence(&[
+                airbend(ObjectSetDef::Query(
+                    ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    )
+                    .excluding_target(TargetIndex::PRIMARY),
+                )),
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::players(PlayerSetDef::Related(
+                        PlayerRelation::Opponent,
+                    )),
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::Rule(AppliedRuleDef::CannotPlay(
+                            PlayRestrictionDef::new(
+                                PlayActionMatcherDef::CastSpell,
+                                ObjectPredicateDef::Any,
+                            )
+                            .from_zone(ZoneKind::Library),
+                        )),
+                        AppliedEffectDef::Rule(AppliedRuleDef::CannotPlay(
+                            PlayRestrictionDef::new(
+                                PlayActionMatcherDef::CastSpell,
+                                ObjectPredicateDef::Any,
+                            )
+                            .from_zone(ZoneKind::Graveyard),
+                        )),
+                        AppliedEffectDef::Rule(AppliedRuleDef::CannotPlay(
+                            PlayRestrictionDef::new(
+                                PlayActionMatcherDef::CastSpell,
+                                ObjectPredicateDef::Any,
+                            )
+                            .from_zone(ZoneKind::Exile),
+                        )),
+                        AppliedEffectDef::Rule(AppliedRuleDef::CannotPlay(
+                            PlayRestrictionDef::new(
+                                PlayActionMatcherDef::CastSpell,
+                                ObjectPredicateDef::Any,
+                            )
+                            .from_zone(ZoneKind::Command),
+                        )),
+                    ]),
+                    duration: ResolvedEffectDurationDef::UntilYourNextTurn,
+                },
+            ]),
+        )
+        .with_resolution_destination(SpellResolutionDestinationDef::Exile),
+    ),
 );
 
 // TLA 13 — Compassionate Healer
@@ -928,14 +1143,63 @@ pub(in crate::card::sets) static MASTER_PIANDAO: CardRecord = CardRecord::new(
 );
 
 // TLA 29 — Momo, Friendly Flier
-// Audit: unsupported — Needs filtered per-turn cast history for the first non-Lemur flying
-// creature spell on each of your turns; current spell-cost conditions do not count prior
-// matching casts.
+const MOMO_DISCOUNTED_SPELL: ObjectPredicateDef = ObjectPredicateDef::All(&[
+    ObjectPredicateDef::HasType(CardType::Creature),
+    ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
+    ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::from_name("Lemur"))),
+]);
 pub(in crate::card::sets) static MOMO_FRIENDLY_FLIER: CardRecord = CardRecord::new(
     "Momo, Friendly Flier",
     "c472ef84-a632-4ad7-853c-60588a7a4b12",
     "Brandon L. Hunt",
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{W}"), &["Lemur", "Bat", "Ally"], 1, 1)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::flying(),
+            abilities::spell_cost_reduction(
+                "The first non-Lemur creature spell with flying you cast during each of \
+                your turns costs {1} less to cast.",
+                MOMO_DISCOUNTED_SPELL,
+                PlayerRelation::You,
+                ValueDef::IfCondition(&ConditionValueDef {
+                    condition: &TriggerConditionDef::All(&[
+                        TriggerConditionDef::ActivePlayer(PlayerRelation::You),
+                        TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                            left: ValueDef::CountSpellsCastThisTurn(&SpellCastQueryDef {
+                                player: PlayerRelation::You,
+                                spell: MOMO_DISCOUNTED_SPELL,
+                            }),
+                            comparison: ComparisonDef::Equal,
+                            right: ValueDef::Constant(0),
+                        }),
+                    ]),
+                    then: ValueDef::Constant(1),
+                    otherwise: ValueDef::Constant(0),
+                }),
+            ),
+            AbilityDef::triggered(
+                "Whenever another creature you control with flying enters, Momo gets \
+                +1/+1 until end of turn.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    ]),
+                    None,
+                    Some(ZoneKind::Battlefield),
+                ),
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(1),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ]),
 );
 
 // TLA 30 — Momo, Playful Pet
@@ -1894,13 +2158,82 @@ pub(in crate::card::sets) static KNOWLEDGE_SEEKER: CardRecord = CardRecord::new(
 );
 
 // TLA 61 — The Legend of Kuruk // Avatar Kuruk
-// Audit: unsupported — Needs waterbend payment combining generic mana with tapping untapped
-// artifacts and creatures, including creatures unable to pay their own tap costs.
-pub(in crate::card::sets) static THE_LEGEND_OF_KURUK: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static THE_LEGEND_OF_KURUK: CardRecord = CardRecord::new_dfc(
     "The Legend of Kuruk // Avatar Kuruk",
     "5e9a53d3-7f2f-4a9c-9516-0713da740478",
     "Takayama Toshiaki",
-    CardRules::unsupported(),
+    &[
+        (
+            "The Legend of Kuruk",
+            CardRules::new_enchantment(mana_cost!("{2}{U}{U}"))
+                .with_subtypes(&["Saga"])
+                .with_abilities(&[
+                    abilities::saga_chapters(
+                        &[1, 2],
+                        "I, II — Scry 2, then draw a card.",
+                        EffectDef::Sequence(&[
+                            abilities::scry(ValueDef::Constant(2)),
+                            abilities::draw_cards(ValueDef::Constant(1)),
+                        ]),
+                    ),
+                    abilities::saga_chapter(
+                        3,
+                        "III — Exile this Saga, then return it to the battlefield transformed \
+                    under your control.",
+                        abilities::exile_and_return_transformed(EffectRecipientDef::Source),
+                    ),
+                ]),
+        ),
+        (
+            "Avatar Kuruk",
+            CardRules::new_creature_without_mana_cost(&["Avatar"], 4, 3)
+                .with_supertype(CardSupertype::Legendary)
+                .with_abilities(&[
+                    AbilityDef::triggered(
+                        "Whenever you cast a spell, create a 1/1 colorless Spirit creature \
+                    token with \"This token can't block or be blocked by non-Spirit \
+                    creatures.\"",
+                        TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(
+                            PlayerRelation::You,
+                        )),
+                        EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                            TokenCharacteristics::creature(&["Spirit"], &[], 1, 1).with_abilities(
+                                &[AbilityDef::static_ability(
+                                    "This token can't block or be blocked by non-Spirit creatures.",
+                                    EffectDef::StaticApply {
+                                        recipient: EffectRecipientDef::Source,
+                                        effect: AppliedEffectDef::Composite(&[
+                                            AppliedEffectDef::Rule(AppliedRuleDef::can_block_only(
+                                                ObjectPredicateDef::Subtype(SubtypeDef::from_name(
+                                                    "Spirit",
+                                                )),
+                                            )),
+                                            AppliedEffectDef::Rule(
+                                                AppliedRuleDef::cannot_be_blocked_by(
+                                                    ObjectPredicateDef::Not(
+                                                        &ObjectPredicateDef::Subtype(
+                                                            SubtypeDef::from_name("Spirit"),
+                                                        ),
+                                                    ),
+                                                ),
+                                            ),
+                                        ]),
+                                    },
+                                )],
+                            ),
+                        ))),
+                    ),
+                    crate::card::sets::aetherdrift::exhaust(AbilityDef::activated(
+                        "Exhaust — Waterbend {20}: Take an extra turn after this one. (Activate \
+                        each exhaust ability only once.)",
+                        &[CostDef::Waterbend(20)],
+                        EffectDef::TakeExtraTurn {
+                            player: EffectRecipientDef::Controller,
+                        },
+                    )),
+                ]),
+        ),
+    ],
 );
 
 // TLA 62 — Lost Days
@@ -2289,15 +2622,45 @@ pub(in crate::card::sets) static THE_UNAGI_OF_KYOSHI_ISLAND: CardRecord = CardRe
 );
 
 // TLA 78 — Wan Shi Tong, Librarian
-// Audit: unsupported — Needs the entering spell's X retained in the resolving trigger after its
-// source leaves; SourceCastX in effect values reads only a current battlefield permanent. Also
-// needs a trigger for an opponent searching their library; no library-search event is published
-// to card triggers.
 pub(in crate::card::sets) static WAN_SHI_TONG_LIBRARIAN: CardRecord = CardRecord::new(
     "Wan Shi Tong, Librarian",
     "e20da6b5-1057-4a28-9e85-07de714e262f",
     "Ryota Murayama",
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{X}{U}{U}"), &["Bird", "Spirit"], 1, 1)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::flash(),
+            abilities::flying(),
+            abilities::vigilance(),
+            abilities::enters_trigger(
+                "When Wan Shi Tong enters, put X +1/+1 counters on it, then draw half X \
+                cards, rounded down.",
+                EffectDef::Sequence(&[
+                    EffectDef::AddCounters {
+                        object: EffectRecipientDef::Source,
+                        kind: CounterKind::PlusOnePlusOne,
+                        amount: ValueDef::SourceCastX,
+                    },
+                    abilities::draw_cards(ValueDef::Halved(&HalvedValueDef {
+                        value: ValueDef::SourceCastX,
+                        rounding: RoundingDef::Down,
+                    })),
+                ]),
+            ),
+            AbilityDef::triggered(
+                "Whenever an opponent searches their library, put a +1/+1 counter on \
+                Wan Shi Tong and draw a card.",
+                TriggerEventDef::SearchedLibrary(PlayerRelation::Opponent),
+                EffectDef::Sequence(&[
+                    EffectDef::AddCounters {
+                        object: EffectRecipientDef::Source,
+                        kind: CounterKind::PlusOnePlusOne,
+                        amount: ValueDef::Constant(1),
+                    },
+                    abilities::draw_cards(ValueDef::Constant(1)),
+                ]),
+            ),
+        ]),
 );
 
 // TLA 79 — Waterbender Ascension
@@ -3006,13 +3369,70 @@ pub(in crate::card::sets) static NORTHERN_AIR_TEMPLE: CardRecord = CardRecord::n
 );
 
 // TLA 112 — Obsessive Pursuit
-// Audit: unsupported — Needs a per-player count of all permanents sacrificed this turn,
-// retained across zone changes and independent of whether this enchantment was present.
 pub(in crate::card::sets) static OBSESSIVE_PURSUIT: CardRecord = CardRecord::new(
     "Obsessive Pursuit",
     "e837e29c-d241-43c8-8f45-05056e082b60",
     "Ichiko Milk Tei",
-    CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{B}")).with_abilities(&[
+        AbilityDef::triggered(
+            "When this enchantment enters and at the beginning of your upkeep, you \
+                lose 1 life and create a Clue token.",
+            TriggerEventDef::AnyOf(&[
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::Source,
+                    None,
+                    Some(ZoneKind::Battlefield),
+                ),
+                TriggerEventDef::StepBegins {
+                    step: TurnStepDef::Upkeep,
+                    player: PlayerRelation::You,
+                },
+            ]),
+            EffectDef::Sequence(&[
+                EffectDef::LoseLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(CLUE_TOKEN))),
+            ]),
+        ),
+        AbilityDef::triggered_with_targets(
+            "Whenever you attack, put X +1/+1 counters on target attacking \
+                creature, where X is the number of permanents you've sacrificed this \
+                turn. If X is three or more, that creature gains lifelink until end of \
+                turn.",
+            TriggerEventDef::attack_declared(
+                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                1,
+                None,
+            ),
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Attacking,
+                ]),
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::PermanentsSacrificedThisTurn(PlayerRelation::You),
+                },
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                        left: ValueDef::PermanentsSacrificedThisTurn(PlayerRelation::You),
+                        comparison: ComparisonDef::GreaterOrEqual,
+                        right: ValueDef::Constant(3),
+                    }),
+                    then: &EffectDef::Apply {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        effect: AppliedEffectDef::add_ability(&abilities::lifelink()),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                },
+            ]),
+        ),
+    ]),
 );
 
 // TLA 113 — Ozai's Cruelty
@@ -4623,15 +5043,99 @@ pub(in crate::card::sets) static EARTH_RUMBLE: CardRecord = CardRecord::new(
 );
 
 // TLA 175 — Earthbender Ascension
-// Audit: unsupported — Needs earthbend land animation and its independent delayed
-// death-or-exile return trigger, preserving the affected object identity through ability
-// removal and its subsequent zone change. Also needs a reflexive trigger tied to the quest
-// counter placed by the landfall ability, with the later counter target chosen at that point.
 pub(in crate::card::sets) static EARTHBENDER_ASCENSION: CardRecord = CardRecord::new(
     "Earthbender Ascension",
     "590a58ab-5e98-4031-8aa6-ce396dc1429f",
     "Logan Feliciano",
-    CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{2}{G}")).with_abilities(&[
+        abilities::enters_trigger_with_targets(
+            "When this enchantment enters, earthbend 2. Then search your library \
+            for a basic land card, put it onto the battlefield tapped, then \
+            shuffle.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
+            )],
+            EffectDef::Sequence(&[
+                earthbend(2),
+                EffectDef::SearchZone {
+                    player: EffectRecipientDef::Controller,
+                    source: ZoneKind::Library,
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                    ]),
+
+                    minimum: 0,
+                    maximum: ValueDef::Constant(1),
+                    reveal: false,
+                    exile_face_down: false,
+                    destination: ZoneKind::Battlefield,
+                    placement: ZonePlacement::Top,
+                    shuffle: true,
+                    enters_tapped: true,
+                    attachment: None,
+                    binding: None,
+                    then: None,
+                },
+            ]),
+        ),
+        AbilityDef::triggered(
+            "Landfall — Whenever a land you control enters, put a quest counter on \
+            this enchantment. When you do, if it has four or more quest counters \
+            on it, put a +1/+1 counter on target creature you control. It gains \
+            trample until end of turn.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::SourceOnBattlefield,
+                then: &EffectDef::Sequence(&[
+                    EffectDef::AddCounters {
+                        object: EffectRecipientDef::Source,
+                        kind: CounterKind::named("quest"),
+                        amount: ValueDef::Constant(1),
+                    },
+                    EffectDef::ReflexiveTrigger(&AbilityDef::triggered_if_with_targets(
+                        "When you do, if this enchantment has four or more quest counters on \
+                    it, put a +1/+1 counter on target creature you control. It gains \
+                    trample until end of turn.",
+                        TriggerEventDef::Reflexive,
+                        &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                            left: ValueDef::CountersOnSource(CounterKind::named("quest")),
+                            comparison: ComparisonDef::GreaterOrEqual,
+                            right: ValueDef::Constant(4),
+                        }),
+                        &[AbilityTargetDef::exactly_one_permanent(
+                            ObjectPredicateDef::All(&[
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                            ]),
+                        )],
+                        EffectDef::Sequence(&[
+                            EffectDef::AddCounters {
+                                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                kind: CounterKind::PlusOnePlusOne,
+                                amount: ValueDef::Constant(1),
+                            },
+                            EffectDef::Apply {
+                                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                effect: AppliedEffectDef::add_ability(&abilities::trample()),
+                                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                            },
+                        ]),
+                    )),
+                ]),
+            },
+        ),
+    ]),
 );
 
 // TLA 176 — Earthbending Lesson
@@ -5511,26 +6015,210 @@ pub(in crate::card::sets) static WALLTOP_SENTRIES: CardRecord = CardRecord::new(
 );
 
 // TLA 203 — Aang, at the Crossroads // Aang, Destined Savior
-// Audit: unsupported — Needs earthbend land animation and its independent delayed
-// death-or-exile return trigger, preserving the affected object identity through ability
-// removal and its subsequent zone change.
-pub(in crate::card::sets) static AANG_AT_THE_CROSSROADS: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static AANG_AT_THE_CROSSROADS: CardRecord = CardRecord::new_dfc(
     "Aang, at the Crossroads // Aang, Destined Savior",
     "fea89ca0-8070-4f28-9851-994314f9d248",
     "Evan Shipard",
-    CardRules::unsupported(),
+    &[
+        (
+            "Aang, at the Crossroads",
+            CardRules::new_creature(
+                mana_cost!("{2}{G}{W}{U}"),
+                &["Human", "Avatar", "Ally"],
+                3,
+                3,
+            )
+            .with_supertype(CardSupertype::Legendary)
+            .with_abilities(&[
+                abilities::flying(),
+                abilities::enters_trigger(
+                    "When Aang enters, look at the top five cards of your library. You may \
+                        put a creature card with mana value 4 or less from among them onto the \
+                        battlefield. Put the rest on the bottom of your library in a random \
+                        order.",
+                    EffectDef::ChooseCardsFromCollection(ChooseCardsFromCollectionDef {
+                        source: ObjectCollectionSourceDef::TopCards {
+                            player: PlayerRefDef::EffectController,
+                            count: ValueDef::Constant(5),
+                        },
+
+                        actor: PlayerRefDef::EffectController,
+                        inspection: CollectionInspectionDef::Look,
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::ManaValueAtMost(4),
+                        ]),
+
+                        minimum: 0,
+                        maximum: 1,
+                        chosen: crate::Binding!("chosen"),
+                        remainder: crate::Binding!("rest"),
+                        then: &EffectDef::Sequence(&[
+                            EffectDef::move_to_zone(
+                                EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                    crate::Binding!("chosen"),
+                                )),
+                                ZoneKind::Battlefield,
+                                ZonePlacement::Top,
+                            ),
+                            EffectDef::RandomizeObjectOrder(RandomizeObjectOrderDef {
+                                input: ObjectSetDef::Binding(crate::Binding!("rest")),
+                                randomized: crate::Binding!("bottom"),
+
+                                then: &EffectDef::move_to_zone(
+                                    EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                        crate::Binding!("bottom"),
+                                    )),
+                                    ZoneKind::Library,
+                                    ZonePlacement::Bottom,
+                                ),
+                            }),
+                        ]),
+                    }),
+                ),
+                AbilityDef::triggered(
+                    "When another creature you control leaves the battlefield, transform \
+                        Aang at the beginning of the next upkeep.",
+                    TriggerEventDef::zone_changed(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                        Some(ZoneKind::Battlefield),
+                        None,
+                    ),
+                    EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
+                        "Transform Aang at the beginning of the next upkeep.",
+                        TriggerEventDef::StepBegins {
+                            step: TurnStepDef::Upkeep,
+                            player: PlayerRelation::Any,
+                        },
+                        EffectDef::Transform {
+                            object: EffectRecipientDef::Source,
+                        },
+                    ))),
+                ),
+            ]),
+        ),
+        (
+            "Aang, Destined Savior",
+            CardRules::new_creature_without_mana_cost(&["Avatar", "Ally"], 4, 4)
+                .with_supertype(CardSupertype::Legendary)
+                .printed_colors(&[ManaColor::Green, ManaColor::White, ManaColor::Blue])
+                .with_abilities(&[
+                    abilities::flying(),
+                    AbilityDef::static_ability(
+                        "Land creatures you control have vigilance.",
+                        EffectDef::StaticApply {
+                            recipient: EffectRecipientDef::matching_objects(
+                                ObjectPredicateDef::All(&[
+                                    ObjectPredicateDef::HasType(CardType::Land),
+                                    ObjectPredicateDef::HasType(CardType::Creature),
+                                ]),
+                                &[ZoneKind::Battlefield],
+                                PlayerRelation::You,
+                            ),
+                            effect: AppliedEffectDef::add_ability(&abilities::vigilance()),
+                        },
+                    ),
+                    AbilityDef::triggered_with_targets(
+                        "At the beginning of combat on your turn, earthbend 2. (Target land you \
+                        control becomes a 0/0 creature with haste that's still a land. Put two \
+                        +1/+1 counters on it. When it dies or is exiled, return it to the \
+                        battlefield tapped.)",
+                        TriggerEventDef::StepBegins {
+                            step: TurnStepDef::BeginningOfCombat,
+                            player: PlayerRelation::You,
+                        },
+                        &[AbilityTargetDef::exactly_one_permanent(
+                            ObjectPredicateDef::All(&[
+                                ObjectPredicateDef::HasType(CardType::Land),
+                                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                            ]),
+                        )],
+                        earthbend(2),
+                    ),
+                ]),
+        ),
+    ],
 );
 
 // TLA 204 — Aang, Swift Savior // Aang and La, Ocean's Fury
-// Audit: unsupported — Needs waterbend payment combining generic mana with tapping untapped
-// artifacts and creatures, including creatures unable to pay their own tap costs; airbend exile
-// with an owner-specific {2} alternative cast permission lasting while that card remains
-// exiled.
-pub(in crate::card::sets) static AANG_SWIFT_SAVIOR: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static AANG_SWIFT_SAVIOR: CardRecord = CardRecord::new_dfc(
     "Aang, Swift Savior // Aang and La, Ocean's Fury",
     "82866a0e-485a-4f7e-8c49-f7d9ff3f4ad4",
     "Tetsuko",
-    CardRules::unsupported(),
+    &[
+        (
+            "Aang, Swift Savior",
+            CardRules::new_creature(mana_cost!("{1}{W}{U}"), &["Human", "Avatar", "Ally"], 2, 3)
+                .with_supertype(CardSupertype::Legendary)
+                .with_abilities(&[
+                    abilities::flash(),
+                    abilities::flying(),
+                    abilities::enters_trigger_with_targets(
+                        "When Aang enters, airbend up to one other target creature or spell. \
+                        (Exile it. While it's exiled, its owner may cast it for {2} rather \
+                        than its mana cost.)",
+                        &[AbilityTargetDef::up_to(
+                            AbilityTargetPredicate::AnyOf(&[
+                                AbilityTargetPredicate::Object {
+                                    object: ObjectPredicateDef::All(&[
+                                        ObjectPredicateDef::HasType(CardType::Creature),
+                                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                                    ]),
+                                    zones: &[ZoneKind::Battlefield],
+                                    controller: None,
+                                    owner: None,
+                                },
+                                AbilityTargetPredicate::Object {
+                                    object: ObjectPredicateDef::Any,
+                                    zones: &[ZoneKind::Stack],
+                                    controller: None,
+                                    owner: None,
+                                },
+                            ]),
+                            1,
+                        )],
+                        airbend(ObjectSetDef::LegalTargets(TargetIndex::PRIMARY)),
+                    ),
+                    AbilityDef::activated(
+                        "Waterbend {8}: Transform Aang.",
+                        &[CostDef::Waterbend(8)],
+                        EffectDef::Transform {
+                            object: EffectRecipientDef::Source,
+                        },
+                    ),
+                ]),
+        ),
+        (
+            "Aang and La, Ocean's Fury",
+            CardRules::new_creature_without_mana_cost(&["Avatar", "Spirit", "Ally"], 5, 5)
+                .with_supertype(CardSupertype::Legendary)
+                .with_abilities(&[
+                    abilities::reach(),
+                    abilities::trample(),
+                    AbilityDef::triggered(
+                        "Whenever Aang and La attack, put a +1/+1 counter on each tapped \
+                    creature you control.",
+                        TriggerEventDef::attacks(ObjectPredicateDef::Source),
+                        EffectDef::AddCounters {
+                            object: EffectRecipientDef::matching_objects(
+                                ObjectPredicateDef::All(&[
+                                    ObjectPredicateDef::HasType(CardType::Creature),
+                                    ObjectPredicateDef::Tapped,
+                                ]),
+                                &[ZoneKind::Battlefield],
+                                PlayerRelation::You,
+                            ),
+                            kind: CounterKind::PlusOnePlusOne,
+                            amount: ValueDef::Constant(1),
+                        },
+                    ),
+                ]),
+        ),
+    ],
 );
 
 // TLA 205 — Abandon Attachments
@@ -7074,34 +7762,25 @@ pub(in crate::card::sets) static BA_SING_SE: CardRecord = CardRecord::new(
     "bdf3b2be-d0cd-4a3c-a10e-82d32c12d3bd",
     "Andreas Rocha",
     CardRules::new_land(&[]).with_abilities(&[
-        AbilityDef::as_enters(
+        abilities::enters_tapped_unless_you_control(
             "This land enters tapped unless you control a basic land.",
-            ReplacementEffectDef::Conditional {
-                condition: ConditionDef::Exists(ObjectQueryDef::matching(
-                    ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::HasType(CardType::Land),
-                        ObjectPredicateDef::Supertype(CardSupertype::Basic),
-                    ]),
-                    &[ZoneKind::Battlefield],
-                    PlayerRelation::You,
-                )),
-                if_true: &[],
-                if_false: &[ReplacementEffectDef::ModifyBattlefieldEntry(
-                    BattlefieldEntryModificationDef::Tapped,
-                )],
-            },
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Land),
+                ObjectPredicateDef::Supertype(CardSupertype::Basic),
+            ]),
         ),
         abilities::tap_for(ManaColor::Green),
         AbilityDef::activated_with_targets(
-            "{2}{G}, {T}: Earthbend 2. Activate only as a sorcery.",
+            "{2}{G}, {T}: Earthbend 2. Activate only as a sorcery. (Target land you \
+                control becomes a 0/0 creature with haste that's still a land. Put two \
+                +1/+1 counters on it. When it dies or is exiled, return it to the \
+                battlefield tapped.)",
             &[CostDef::Mana(mana_cost!("{2}{G}")), CostDef::TapSource],
-            &[AbilityTargetDef::exactly_one(
-                AbilityTargetPredicate::Object {
-                    object: ObjectPredicateDef::HasType(CardType::Land),
-                    zones: &[ZoneKind::Battlefield],
-                    controller: Some(PlayerRelation::You),
-                    owner: None,
-                },
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
             )],
             earthbend(2),
         )

@@ -317,6 +317,9 @@ impl Game {
                     Target::Player(_) => return None,
                 };
                 match aggregate.select {
+                    crate::card::ObjectValueDef::ManaSymbols(color) => {
+                        Some(i32::from(self.object_mana_symbol_count(id, color)))
+                    }
                     crate::card::ObjectValueDef::ManaValue => {
                         self.current_or_last_known_mana_value(id).map(i32::from)
                     }
@@ -466,6 +469,9 @@ impl Game {
             // resizes as its controller draws.
             ValueDef::CardsDrawnThisTurn(relation) => {
                 self.static_turn_tally(self.cards_drawn_this_turn, relation, controller)
+            }
+            ValueDef::PermanentsSacrificedThisTurn(relation) => {
+                self.static_turn_tally(self.permanents_sacrificed_this_turn, relation, controller)
             }
             ValueDef::CardsDiscardedThisTurn(relation) => {
                 self.static_turn_tally(self.cards_discarded_this_turn, relation, controller)
@@ -639,7 +645,24 @@ impl Game {
         base: crate::CreatureStats,
         static_bonus: (i16, i16),
     ) -> crate::CreatureStats {
-        let counter_bonus = Self::counter_stat_bonus(permanent);
+        let mut counter_bonus = Self::counter_stat_bonus(permanent);
+        let hone = self
+            .battlefield
+            .iter()
+            .filter(|equipment| {
+                equipment.attached_to == Some(permanent.card.id)
+                    && equipment.counters(crate::card::CounterKind::Hone) > 0
+                    && self
+                        .effective_subtypes(equipment)
+                        .contains(crate::card::Subtype::Equipment)
+            })
+            .fold(0_i16, |total, equipment| {
+                total.saturating_add(
+                    i16::try_from(equipment.counters(crate::card::CounterKind::Hone))
+                        .unwrap_or(i16::MAX),
+                )
+            });
+        counter_bonus.0 = counter_bonus.0.saturating_add(hone);
         let resolved_bonus = self.resolved_power_toughness_bonus(permanent);
         let stats = crate::CreatureStats {
             power: base.power + resolved_bonus.0 + static_bonus.0 + counter_bonus.0,

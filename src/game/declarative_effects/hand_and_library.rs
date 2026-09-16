@@ -430,7 +430,7 @@ impl Game {
                 free,
                 face_down,
                 duration,
-                spend_any_color,
+                mana_spending,
                 play_condition,
                 cast_only,
             } => {
@@ -442,7 +442,7 @@ impl Game {
                     free,
                     face_down,
                     duration,
-                    spend_any_color,
+                    mana_spending,
                     play_condition,
                     cast_only,
                 };

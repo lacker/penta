@@ -36,7 +36,8 @@ pub enum AbilityPredicateDef {
 /// These are properties of authored ability definitions rather than keyword
 /// flags on an object: landwalk includes both ordinary and legendary
 /// landwalk, while bands with other ignores the quality it names.
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub enum AbilityKindDef {
     /// Any activated ability, including one that produces mana.
     Activated,
@@ -45,6 +46,7 @@ pub enum AbilityKindDef {
     /// An activated ability the engine classifies as not being a mana ability.
     NonManaActivated,
     Equip,
+    Ward,
     Flashback,
     Suspend,
     BandsWithOther,
@@ -73,6 +75,8 @@ impl AbilityPredicateDef {
                 AbilityKindDef::NonManaActivated => {
                     matches!(ability.definition, DeclarativeAbilityDef::Activated(_))
                 }
+                AbilityKindDef::Ward => matches!(ability.definition,
+                    DeclarativeAbilityDef::Triggered(definition) if definition.keyword_kind == Some(AbilityKindDef::Ward)),
                 AbilityKindDef::Equip => matches!(ability.definition,
                     DeclarativeAbilityDef::Activated(definition) if definition.keyword_kind == Some(AbilityKindDef::Equip)),
                 AbilityKindDef::Flashback => matches!(
@@ -217,6 +221,15 @@ pub enum SpecialActionKindDef {
 /// One static modification to what something costs.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum CostModificationDef {
+    /// Replace the whole printed activation cost, before ordinary increases
+    /// and reductions. The player may still choose the printed cost.
+    AbilityAlternative {
+        abilities: AbilityKindDef,
+        permanent: ObjectPredicateDef,
+        condition: Option<&'static TriggerConditionDef>,
+        first_each_turn: bool,
+        costs: &'static [CostDef],
+    },
     /// Reduces generic mana in the total payment for a matching special action.
     SpecialActionReduction {
         action: SpecialActionKindDef,

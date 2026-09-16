@@ -89,6 +89,18 @@ pub(super) fn permanent_snapshot(
         face_down,
         turn_up_for_mana_cost: permanent.turn_up_for_mana_cost,
         presented_part_id: permanent.presented.0,
+        transform_count: permanent.transform_count,
+        chosen_card_type: permanent
+            .chosen_card_type
+            .map(|kind| kind.name().to_owned()),
+        designations: permanent
+            .designations
+            .iter()
+            .map(|designation| match designation {
+                crate::card::PermanentDesignationDef::Harnessed => "harnessed".into(),
+                crate::card::PermanentDesignationDef::Prepared => "prepared".into(),
+            })
+            .collect(),
         timestamp: permanent.timestamp.0,
         entered_controller_turn: permanent.entered_controller_turn,
         entered_turn: permanent.entered_turn,
@@ -257,6 +269,16 @@ pub(super) fn permanent_snapshot(
                 count: *count,
             })
             .collect(),
+        cast_prepared_from: permanent
+            .cast
+            .as_ref()
+            .and_then(|cast| cast.prepared_from)
+            .map(|id| id.0),
+        cast_sneak_defender: permanent
+            .cast
+            .as_ref()
+            .and_then(|cast| cast.sneak_defender)
+            .map(super::sneak_defender_snapshot),
         cast_at_instant_speed: permanent
             .cast
             .as_ref()

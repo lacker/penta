@@ -55,6 +55,11 @@ pub(in crate::game::state_checkpoint) struct StackSnapshot {
     /// false, which is what an ordinary sorcery-speed cast means anyway.
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub(in crate::game::state_checkpoint) cast_at_instant_speed: bool,
+    #[serde(default)]
+    pub(in crate::game::state_checkpoint) cast_prepared_from: Option<u32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(in crate::game::state_checkpoint) cast_sneak_defender:
+        Option<super::AttackDefenderSnapshot>,
     /// Which zone this spell was cast from, by its stable label. Additive:
     /// a checkpoint written before the zone was recorded restores as
     /// nothing, which is what a permanent nobody cast carries anyway.
@@ -187,6 +192,11 @@ pub(in crate::game::state_checkpoint) struct DetachedStackSnapshot {
     /// false, which is what an ordinary sorcery-speed cast means anyway.
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub(in crate::game::state_checkpoint) cast_at_instant_speed: bool,
+    #[serde(default)]
+    pub(in crate::game::state_checkpoint) cast_prepared_from: Option<u32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(in crate::game::state_checkpoint) cast_sneak_defender:
+        Option<super::AttackDefenderSnapshot>,
     /// Which zone this spell was cast from, by its stable label. Additive:
     /// a checkpoint written before the zone was recorded restores as
     /// nothing, which is what a permanent nobody cast carries anyway.
@@ -246,6 +256,8 @@ pub(in crate::game::state_checkpoint) struct CastSignatureSnapshot {
     pub(in crate::game::state_checkpoint) alternative_cost: Option<u8>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub(in crate::game::state_checkpoint) permission_source: Option<u32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(in crate::game::state_checkpoint) chosen_creature_type: Option<String>,
     pub(in crate::game::state_checkpoint) additional_costs: Vec<u8>,
     pub(in crate::game::state_checkpoint) x: u16,
     pub(in crate::game::state_checkpoint) targets: Vec<TargetSelectionSnapshot>,

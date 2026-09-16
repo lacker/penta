@@ -1,53 +1,4 @@
-fn validate_object_continuation(
-    binding: Binding,
-    effect: EffectDef,
-    target_count: usize,
-    scope: BindingScope<'_>,
-    operation: &'static str,
-) -> Result<(), GrantedAbilityValidationError> {
-    let nested = scope.with_object(binding)?;
-    validate_effect_references(effect, target_count, nested)?;
-    let read = if binding == crate::ParentBinding {
-        nested.parent_binding_was_read()
-    } else {
-        nested.binding_was_read(binding)
-    };
-    if !read {
-        return Err(
-            GrantedAbilityValidationError::UnsupportedEffectProgramContext {
-                context: "then continuation does not consume its declared binding; use Sequence",
-                operation,
-            },
-        );
-    }
-    Ok(())
-}
-
-fn validate_object_set_continuation(
-    binding: Binding,
-    effect: EffectDef,
-    target_count: usize,
-    scope: BindingScope<'_>,
-    operation: &'static str,
-) -> Result<(), GrantedAbilityValidationError> {
-    let may_escape = scope.object_set_may_escape(binding);
-    let nested = scope.with_object_set(binding)?;
-    validate_effect_references(effect, target_count, nested)?;
-    let read = if binding == crate::ParentBinding {
-        nested.parent_binding_was_read()
-    } else {
-        nested.binding_was_read(binding)
-    };
-    if !read && !may_escape {
-        return Err(
-            GrantedAbilityValidationError::UnsupportedEffectProgramContext {
-                context: "then continuation does not consume its declared binding; use Sequence",
-                operation,
-            },
-        );
-    }
-    Ok(())
-}
+include!("continuation_bindings.rs");
 
 #[allow(clippy::too_many_lines)]
 fn validate_effect_references(
@@ -67,6 +18,20 @@ fn validate_effect_references(
             }
             Ok(())
         }
+        EffectDef::AddCountersFrom { from, object } => {
+            validate_recipient_target_references(object, target_count, scope)?;
+            validate_recipient_target_references(EffectRecipientDef::object(from), target_count, scope)
+        }
+        EffectDef::AttachObjects { objects, host, then } => {
+            validate_recipient_target_references(EffectRecipientDef::objects(objects), target_count, scope)?;
+            validate_recipient_target_references(EffectRecipientDef::object(host), target_count, scope)?;
+            if let Some(then) = then { validate_effect_references(*then, target_count, scope)?; }
+            Ok(())
+        }
+        EffectDef::GrantPlayPermission(grant) => {
+            validate_player_reference(grant.player, target_count, scope)?;
+            validate_recipient_target_references(EffectRecipientDef::objects(grant.objects), target_count, scope)
+        }
         EffectDef::WithRule { effect, .. } => {
             validate_effect_references(*effect, target_count, scope)
         }
@@ -77,7 +42,7 @@ fn validate_effect_references(
                     operation: "BindOutput requires a durable labeled binding",
                 });
             }
-            if let EffectDef::ChooseCardName { chooser, .. } = *effect {
+            if let EffectDef::ChooseCardName { chooser, .. } | EffectDef::ChooseCreatureType { chooser } = *effect {
                 validate_player_reference(chooser, target_count, scope)?;
                 let _ = scope.declare_binding(binding)?;
                 return Ok(());
@@ -201,7 +166,10 @@ fn validate_effect_references(
                 "Destroy follow-ups must expose a result binding consumed by their continuation",
             )
         }
-        EffectDef::ChooseCardName { .. } => {
+        EffectDef::CreateEmblem { creature_type, .. } => {
+            creature_type.map_or(Ok(()), |binding| scope.validate_creature_type_reference(binding))
+        }
+        EffectDef::ChooseCardName { .. } | EffectDef::ChooseCreatureType { .. } => {
             Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
                 context: "card-name choice",
                 operation: "ChooseCardName must be wrapped in BindOutput",
@@ -318,6 +286,12 @@ fn validate_effect_references(
                 .with_object_set(choice.chosen)?
                 .with_object_set(choice.remainder)?;
             validate_effect_references(*choice.then, target_count, nested)
+        }
+        EffectDef::SearchZones { searcher, owner, binding, then, .. } => {
+            validate_player_reference(searcher, target_count, scope)?;
+            validate_player_reference(owner, target_count, scope)?;
+            validate_object_set_continuation(binding, *then, target_count, scope,
+                "SearchZones must expose a result binding consumed by its continuation")
         }
         EffectDef::BindObjects(definition) => {
             validate_object_collection_references(definition.source, target_count, scope)?;
@@ -629,6 +603,7 @@ fn validate_effect_references(
         | EffectDef::RemoveFromCombat { object }
         | EffectDef::SkipNextUntapSteps { object, .. }
         | EffectDef::DoubleCounters { object, .. }
+        | EffectDef::SetDesignation { object, .. }
         | EffectDef::RemoveAllCounters { object, .. }
         | EffectDef::Untap { object }
         | EffectDef::Saddle { object }
@@ -645,6 +620,7 @@ fn validate_effect_references(
             | GameActionDef::SacrificeYours { object }
             | GameActionDef::DiscardCards { object }
             | GameActionDef::GainControl { object, .. }
+            | GameActionDef::ModifyCounters { object, .. }
             | GameActionDef::MoveToZone { object, .. },
         )
         | EffectDef::BecomePlotted { object }
@@ -841,6 +817,7 @@ fn validate_effect_references(
         | EffectDef::RevealHand { player } => {
             validate_recipient_target_references(player, target_count, scope)
         }
+        EffectDef::OncePerTurn { effect } => validate_effect_references(*effect, target_count, scope),
         EffectDef::Repeat { player, effect, .. } | EffectDef::May { player, effect }
         | EffectDef::ReplaceNextDrawThisTurn { player, effect } => {
             validate_recipient_target_references(player, target_count, scope)?;
@@ -973,7 +950,7 @@ fn validate_effect_references(
         | EffectDef::None
         | EffectDef::ContinueReplacedDraw
         | EffectDef::AddManaEqualTo { .. }
-        | EffectDef::CreateEmblem { .. }
+
         | EffectDef::DamageCannotBePreventedThisTurn
         // The ballot is a predicate, not a target: nothing is pointed at.
         | EffectDef::PutSourceOntoBattlefieldAttacking
@@ -984,6 +961,7 @@ fn validate_effect_references(
         | EffectDef::CannotBeForcedToSacrifice
             | EffectDef::CannotBeForcedToDiscard
             | EffectDef::GainClassLevel { .. }
+        | EffectDef::RecordMechanic(_)
         | EffectDef::SubstituteBasicLandTypeUntilEndOfTurn { .. }
         | EffectDef::ScheduleTurnPhases(_)
         | EffectDef::CreateAttachedToken { .. }

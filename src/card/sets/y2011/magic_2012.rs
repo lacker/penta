@@ -2510,15 +2510,15 @@ pub(in crate::card::sets) static PRIMORDIAL_HYDRA: CardRecord = CardRecord::new(
             ),
         ),
         AbilityDef::triggered(
-            "At the beginning of your upkeep, double the number of +1/+1 \
-             counters on this creature.",
+            "At the beginning of your upkeep, double the number of +1/+1 counters \
+                on this creature.",
             TriggerEventDef::StepBegins {
                 step: TurnStepDef::Upkeep,
                 player: PlayerRelation::You,
             },
             EffectDef::DoubleCounters {
                 object: EffectRecipientDef::Source,
-                kind: CounterKind::PlusOnePlusOne,
+                kind: Some(CounterKind::PlusOnePlusOne),
             },
         ),
         AbilityDef::static_ability(

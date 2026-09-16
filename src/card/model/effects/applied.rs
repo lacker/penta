@@ -187,6 +187,11 @@ pub enum AppliedEffectDef {
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum PlayerRuleDef {
+    /// Multiply damage to this player, optionally also to permanents they currently control.
+    DamageMultiplier {
+        factor: u16,
+        controlled_permanents: bool,
+    },
     /// Apply a stack effect as the affected player finishes casting each
     /// matching spell, before cast triggers or priority. The enclosing Apply
     /// supplies expiration, including `UntilNextMatchingCast` for a one-shot grant.
@@ -239,6 +244,10 @@ pub enum PlayerRuleDef {
 /// top-level effect variant.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum AppliedRuleDef {
+    /// Hexproof is ignored solely for targeting; it remains an ability.
+    MayBeTargetedThroughHexproof,
+    /// Matching abilities remain on the object but cannot trigger.
+    SuppressTriggeredAbilities(AbilityPredicateDef),
     /// The affected creature assigns no combat damage. This is a constraint
     /// on the assignment rather than a shield over the result: an attacker
     /// under it is not asked how to divide its damage at all, so trample has
@@ -337,6 +346,8 @@ pub enum AppliedRuleDef {
     /// combat or characteristics reads it, and what it produces is a state
     /// change rather than a continuous effect.
     Ascend,
+    /// Storied grants its controller the lasting enduring-story designation.
+    Storied,
     /// "You may activate her loyalty abilities any time you could cast an
     /// instant." A permission on the affected planeswalker rather than a
     /// timing printed on each ability: what it lifts is the sorcery-speed

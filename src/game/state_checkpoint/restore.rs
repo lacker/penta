@@ -18,6 +18,13 @@ impl Game {
     ) -> Result<Self, String> {
         let checkpoint_value = field(observation, "checkpoint")?;
         let checkpoint = parse_compatible_game_snapshot(checkpoint_value)?;
+        if let Some(story) = observation.get("enduringStory") {
+            let story: [bool; 2] = serde_json::from_value(story.clone())
+                .map_err(|_| "enduringStory must contain two booleans")?;
+            if story != checkpoint.enduring_story {
+                return Err("enduringStory does not match checkpoint".into());
+            }
+        }
         let viewer = seat_value(field(observation, "seat")?)?;
         if checkpoint.viewer != viewer.index() {
             return Err("checkpoint viewer does not match observation seat".into());
@@ -245,7 +252,7 @@ impl Game {
             explicit_mana_payment_tail: std::collections::VecDeque::new(),
             payment_probe: None,
             explicit_funding: None,
-            explicit_cast_contributions: None,
+            explicit_contributions: None,
             successors: std::collections::HashMap::new(),
             damage_taken_this_turn: checkpoint.damage_taken_this_turn,
             attacked_subtypes_this_turn: [
@@ -280,6 +287,7 @@ impl Game {
             players,
             battlefield: Vec::new(),
             phased_out: Vec::new(),
+            prepared_spell_copies: Vec::new(),
             stack: GameStack::default(),
             retired_objects: BTreeMap::new(),
             nonbattlefield_ability_grants,
@@ -288,6 +296,11 @@ impl Game {
             next_continuous_effect_timestamp: checkpoint.next_continuous_effect_timestamp,
             turn: u32_field(observation, "turn")?,
             turns_started,
+            activated_ability_kinds_this_turn: checkpoint
+                .activated_ability_kinds_this_turn
+                .iter()
+                .map(|(player, kind)| player_from_index(*player).map(|player| (player, *kind)))
+                .collect::<Result<Vec<_>, _>>()?,
             active_player: seat_value(field(observation, "activeSeat")?)?,
             priority: seat_value(field(observation, "prioritySeat")?)?,
             consecutive_passes: checkpoint.consecutive_passes,
@@ -321,6 +334,21 @@ impl Game {
                         GameObjectId(*source),
                         GameObjectId(*card),
                         wire::parse_zone_kind(*zone),
+                    )
+                })
+                .collect(),
+            exile_returns: checkpoint
+                .exile_returns
+                .iter()
+                .map(|entry| {
+                    (
+                        GameObjectId(entry.source),
+                        GameObjectId(entry.card),
+                        if entry.to_hand {
+                            ZoneKind::Hand
+                        } else {
+                            ZoneKind::Battlefield
+                        },
                     )
                 })
                 .collect(),
@@ -370,7 +398,20 @@ impl Game {
             spell_cast_history_this_turn: ids(&checkpoint.spell_cast_history_this_turn),
             cards_drawn_this_turn: checkpoint.cards_drawn_this_turn,
             cards_discarded_this_turn: checkpoint.cards_discarded_this_turn,
+            permanents_sacrificed_this_turn: checkpoint.permanents_sacrificed_this_turn,
             citys_blessing: checkpoint.citys_blessing,
+            enduring_story: checkpoint.enduring_story,
+            effect_uses_this_turn: checkpoint
+                .effect_uses_this_turn
+                .iter()
+                .copied()
+                .map(decision::parse_ability_source)
+                .collect(),
+            modes_chosen_this_turn: checkpoint
+                .modes_chosen_this_turn
+                .iter()
+                .map(|(source, mode)| (decision::parse_ability_source(*source), *mode))
+                .collect(),
             permanent_left_battlefield_this_turn: checkpoint.permanent_left_battlefield_this_turn,
             card_left_graveyard_this_turn: checkpoint.card_left_graveyard_this_turn,
             life_gained_this_turn: checkpoint.life_gained_this_turn,
@@ -558,6 +599,7 @@ impl Game {
             return Err("invalid plotted exile object or turn".into());
         }
         game.validate_companion_checkpoint()?;
+        game.restore_prepared_spell_copies(&checkpoint.prepared_spell_copies, observation)?;
         game.restore_physical_cards();
         game.restore_commanders(&checkpoint.commanders, &checkpoint.commander_considered)?;
         Ok(game)

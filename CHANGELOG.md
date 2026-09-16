@@ -41,6 +41,23 @@ the bot-wire epoch.
   single-color mana continuations, and color-specific hexproof keywords. Regenerate
   format 20 checkpoints and advertise `reconstruction.checkpoint.v21` when using
   reconstruction. The ordinary bot protocol and replay versions are unchanged.
+- Implement the 59 remaining identities used by the 16 WOE–HOB Standard
+  event lists, including their sideboards. The deck inventory now checks all
+  222 distinct card identities for support. These event lists still have no
+  registered format profile and are not added to playable format menus.
+  Shared rules cover zone-specific play grants, alternative activation costs,
+  Behold, Blight, Waterbend, Sneak, Hone, enduring stories, preparation,
+  persistent permanent designations, and shield counters. Trigger and payment
+  history, selected creature types, delayed returns, and unbacked prepare
+  spell copies survive reconstruction.
+  The bot wire adds optional activation `alternativeCost`, cast
+  `chosenCreatureType`, permanent `designations`, player `enduringStory`, and
+  exiled-copy `partId`/`isCopy` fields with named capabilities. Protocol 33 and
+  checkpoint format 21 retain their version numbers for these additive fields;
+  absent checkpoint members retain
+  their previous defaults. Exact replay and reconstruction require the new
+  generated simulation fingerprint. The web client separates alternative
+  equip payments and displays Prepared, Harnessed, and enduring-story state.
 
 - Companion now uses composable starting-deck requirements and a pregame reveal
   decision before opening hands. Only the chosen card can be taken, once per

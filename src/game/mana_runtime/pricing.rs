@@ -36,6 +36,16 @@ impl Game {
             .map_or((cost, x), |color| fold_restricted_x(cost, x, color))
     }
 
+    pub(in crate::game) fn may_spend_any_type(&self, purpose: &ManaPaymentPurpose) -> bool {
+        matches!(
+            purpose,
+            ManaPaymentPurpose::Spell {
+                spend_any_type: true,
+                ..
+            }
+        )
+    }
+
     /// Color-spending permissions change which units can satisfy a symbol,
     /// without changing a colored symbol into a generic cost.
     pub(in crate::game) fn may_spend_any_color(

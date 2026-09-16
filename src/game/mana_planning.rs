@@ -41,6 +41,7 @@ impl<'a> ManaPaymentReservations<'a> {
 
 #[derive(Clone, Copy)]
 struct AbilityManaRequest<'a> {
+    alternative_cost: Option<crate::AlternativeAbilityCost>,
     player: PlayerId,
     source: GameObjectId,
     ability: AbilityOrigin,
@@ -92,11 +93,13 @@ impl Game {
 
     /// The mana half of an activation cost, and how the payment should treat
     /// the ability's own source.
+    #[allow(clippy::too_many_lines)]
     fn ability_mana_requirement(
         &self,
         request: AbilityManaRequest<'_>,
     ) -> Option<(ManaCost, u16, ManaPlanOptions, ManaPaymentPurpose)> {
         let AbilityManaRequest {
+            alternative_cost,
             player,
             source,
             ability,
@@ -149,10 +152,18 @@ impl Game {
             .find(|permanent| permanent.card.id == source)?;
         if let Some((definition, animates_source)) = self
             .find_effective_ability(permanent, |effective| effective.origin == ability)
-            .and_then(|effective| match effective.ability.definition {
+            .and_then(|effective| {
+                self.activation_with_alternative_cost(
+                    player,
+                    source,
+                    effective.ability,
+                    alternative_cost,
+                )
+            })
+            .and_then(|ability| match ability.definition {
                 DeclarativeAbilityDef::Activated(definition) => Some((
                     definition,
-                    Self::effect_animates_source(effective.ability.declarative_effect()),
+                    Self::effect_animates_source(ability.declarative_effect()),
                 )),
                 DeclarativeAbilityDef::Spell(_)
                 | DeclarativeAbilityDef::ActivatedMana(_)
@@ -641,7 +652,7 @@ impl Game {
         if self.explicit_mana_payment.is_some() {
             self.run_explicit_funding(player);
             if matches!(purpose, ManaPaymentPurpose::Ability { .. })
-                && let Some(bound) = self.explicit_cast_contributions.take()
+                && let Some(bound) = self.explicit_contributions.take()
             {
                 for contribution in bound.plan {
                     if contribution
@@ -653,7 +664,7 @@ impl Game {
                             .expect("a bound contributor remains available");
                     }
                 }
-                return (bound.remaining.cost, 0);
+                return (bound.remaining.cost, bound.remaining.x);
             }
             return (cost, x);
         }

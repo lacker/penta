@@ -155,7 +155,6 @@ impl Game {
                 | EffectRecipientSetDef::LegalTargets(_)
                 | EffectRecipientSetDef::Objects(
                     ObjectSetDef::Binding(_)
-
                     | ObjectSetDef::ZoneChangeSuccessorsOfBinding(_)
                     | ObjectSetDef::MatchingBinding { .. }
                     | ObjectSetDef::Matching { .. }
@@ -169,7 +168,9 @@ impl Game {
                     | ObjectSetDef::CardsDrawnThisTurnInHand(_)
                     | ObjectSetDef::PermanentsControlledBy(_)
                     | ObjectSetDef::TokensCreatedBy(_)
+                    | ObjectSetDef::AttachmentsOf(_)
                     | ObjectSetDef::BottomOfGraveyard(_)
+                    | ObjectSetDef::SharingCreatureType { .. }
                     | ObjectSetDef::ExceptObject { .. }
                     | ObjectSetDef::TopOfGraveyardMatching { .. },
                 ) => false,

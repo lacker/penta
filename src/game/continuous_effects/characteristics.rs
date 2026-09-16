@@ -516,9 +516,23 @@ impl Game {
         self.printed_trigger_event_object(source, card.definition, card.owner, &context)
     }
 
+    pub(super) fn objects_share_creature_type(
+        &self,
+        first: GameObjectId,
+        second: GameObjectId,
+    ) -> bool {
+        let creature_types = |id| {
+            crate::card::SubtypeSet::from_names(&self.object_subtypes(id)).intersection(
+                crate::card::SubtypeSet::family(crate::card::SubtypeFamily::Creature),
+            )
+        };
+        !creature_types(first)
+            .intersection(creature_types(second))
+            .is_empty()
+    }
+
     /// The subtypes of any object, wherever it is. The companion of
     /// [`Self::object_colors`], and read the same way.
-    #[cfg(test)]
     pub(super) fn object_subtypes(&self, object: GameObjectId) -> Vec<&'static str> {
         if let Some(permanent) = self
             .battlefield
@@ -639,6 +653,10 @@ impl Game {
         !(self.is_protected_from_object(permanent, source, source_is_spell)
             || self.permanent_has_executable_keyword(permanent, KeywordAbility::Shroud)
             || permanent.controller != controller
+                && !self.has_applied_rule(
+                    permanent,
+                    crate::card::AppliedRuleDef::MayBeTargetedThroughHexproof,
+                )
                 && (self.permanent_has_executable_keyword(permanent, KeywordAbility::Hexproof)
                     || self.has_hexproof_from_object(permanent, source, source_is_spell))
             || self.cannot_become_enchanted(permanent) && self.source_attaches_itself(source))
@@ -669,7 +687,9 @@ impl Game {
         match effect {
             EffectDef::Attach { .. } => true,
             EffectDef::Sequence(effects) => effects.iter().copied().any(Self::effect_attaches),
-            EffectDef::May { effect, .. } => Self::effect_attaches(*effect),
+            EffectDef::OncePerTurn { effect } | EffectDef::May { effect, .. } => {
+                Self::effect_attaches(*effect)
+            }
             _ => false,
         }
     }

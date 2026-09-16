@@ -21,6 +21,7 @@ use crate::card::BlockRestrictionDef;
 use crate::card::BlockRestrictionMatchDef;
 use crate::card::BlockRestrictionSubjectDef;
 use crate::card::CardArt;
+use crate::card::CardNameDef;
 use crate::card::CardRules;
 use crate::card::CardSupertype;
 use crate::card::CardType;
@@ -35,6 +36,7 @@ use crate::card::ControlDurationDef;
 use crate::card::CopyExceptionsDef;
 use crate::card::CostDef;
 use crate::card::CostModificationDef;
+use crate::card::CostQuantityDef;
 use crate::card::CounterKind;
 use crate::card::CreateTokenDef;
 use crate::card::CreatedTokensDef;
@@ -44,9 +46,11 @@ use crate::card::DrawEventMatcherDef;
 use crate::card::EffectChoiceDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
+use crate::card::ExilePlayDurationDef;
 use crate::card::InstalledTriggerDef;
 use crate::card::KeywordAbility;
 use crate::card::ManaColor;
+use crate::card::ManaSpendAsDef;
 use crate::card::MoveObjectsDef;
 use crate::card::ObjectChoiceBindingDef;
 use crate::card::ObjectCollectionSourceDef;
@@ -57,8 +61,12 @@ use crate::card::ObjectSetCountConditionDef;
 use crate::card::ObjectSetDef;
 use crate::card::ObjectSetFilterDef;
 use crate::card::ObjectSetPredicateDef;
+use crate::card::ObjectSetValueAtLeastDef;
+use crate::card::ObjectSetValueDef;
 use crate::card::ObjectValueAggregateDef;
 use crate::card::ObjectValueDef;
+use crate::card::OptionalAdditionalCostAbilityDef;
+use crate::card::OptionalAdditionalCostKindDef;
 use crate::card::PayOrDef;
 use crate::card::PerPlayerSelectionDef;
 use crate::card::PlayerRefDef;
@@ -72,6 +80,7 @@ use crate::card::ReplacementEffectDef;
 use crate::card::ReplacementEventDef;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::RevealObjectsDef;
+use crate::card::SpellResolutionDestinationDef;
 use crate::card::SubtypeDef;
 use crate::card::SumValueDef;
 use crate::card::TokenCharacteristics;
@@ -91,8 +100,8 @@ use crate::mana_cost;
 static SURVEIL_LAND_ABILITIES: [AbilityDef; 2] = [
     abilities::enters_tapped(CardType::Land),
     abilities::enters_trigger(
-        "When this land enters, surveil 1. (Look at the top card of \
-         your library. You may put it into your graveyard.)",
+        "When this land enters, surveil 1. (Look at the top card of your \
+            library. You may put it into your graveyard.)",
         abilities::surveil(ValueDef::Constant(1)),
     ),
 ];
@@ -2072,14 +2081,104 @@ const CLANDESTINE_MEDDLER_ALTERNATE_1: PrintingRecord = PrintingRecord::alternat
 );
 
 // MKM 83 — Deadly Cover-Up
-// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana
-// value at least the threshold, including nonminimal sets, and named-action completion; current
-// aggregate payment selections require a minimal set.
 pub(in crate::card::sets) static DEADLY_COVER_UP: CardRecord = CardRecord::new(
     "Deadly Cover-Up",
     "3876aa0f-b199-43f5-8a91-c2d620b8ef84",
     "Sam Guay",
-    CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{3}{B}{B}")).with_abilities(&[
+    AbilityDef::optional_additional_cost("As an additional cost to cast this spell, you may collect evidence 6.",
+        OptionalAdditionalCostAbilityDef {
+            kind: OptionalAdditionalCostKindDef::Optional, label: "Collect evidence 6",
+            costs: &[CostDef::exile(ObjectPredicateDef::Any, ZoneKind::Graveyard,
+                CostQuantityDef::ObjectSetValueAtLeast(&ObjectSetValueAtLeastDef {
+                    value: ObjectSetValueDef::Aggregate {
+                         select: ObjectValueDef::ManaValue,
+                         operation: AggregateOperationDef::Sum },
+                         minimum: 6,
+
+                }))],
+            resolution_destination: SpellResolutionDestinationDef::Graveyard,
+        }),
+    AbilityDef::spell("Destroy all creatures. If evidence was collected, exile a card from an \
+        opponent's graveyard. Then search its owner's graveyard, hand, and \
+        library for any number of cards with that name and exile them. That \
+        player shuffles, then draws a card for each card exiled from their \
+        hand this way.",
+        EffectDef::Sequence(&[
+            EffectDef::Destroy {
+                 object: EffectRecipientDef::matching_objects(ObjectPredicateDef::HasType(CardType::Creature),
+                 &[ZoneKind::Battlefield],
+                 PlayerRelation::Any),
+                 then: None },
+
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::SourcePaidAdditionalCost(crate::AdditionalCostIndex::PRIMARY),
+                then: &EffectDef::Choose(ChooseDef {
+                    chooser: PlayerRefDef::EffectController,
+                    candidates: ObjectSetDef::Query(ObjectQueryDef::matching(ObjectPredicateDef::Any,
+                         &[ZoneKind::Graveyard],
+                         PlayerRelation::Opponent)),
+
+                    exclude: None, minimum: 1, maximum: 1, visibility: ChoiceVisibilityDef::Public,
+                    binding: ObjectChoiceBindingDef::Object(crate::Binding!("named_card")), unchosen: None,
+                    then: &EffectDef::Sequence(&[
+                        EffectDef::move_to_zone(
+                            EffectRecipientDef::object(ObjectRefDef::Binding(crate::Binding!("named_card"))),
+                             ZoneKind::Exile,
+                             ZonePlacement::Top),
+
+                        EffectDef::SearchZones {
+                            searcher: PlayerRefDef::EffectController, owner: PlayerRefDef::Opponent,
+                            zones: &[ZoneKind::Graveyard,
+                                 ZoneKind::Hand,
+                                 ZoneKind::Library],
+                                 binding: crate::Binding!("searched"),
+
+                            then: &EffectDef::ChooseCardsFromCollection(ChooseCardsFromCollectionDef {
+                                source: ObjectCollectionSourceDef::ObjectSet(
+                                    ObjectSetDef::Binding(crate::Binding!("searched"))),
+
+                                actor: PlayerRefDef::EffectController, inspection: CollectionInspectionDef::Look,
+                                object: ObjectPredicateDef::NameEquals(
+                                    CardNameDef::NameOf(ObjectRefDef::Binding(crate::Binding!("named_card")))),
+
+                                minimum: 0,
+                                     maximum: usize::MAX,
+                                     chosen: crate::Binding!("selected"),
+                                     remainder: crate::Binding!("rest"),
+
+                                then: &EffectDef::BindObjects(BindObjectsDef {
+                                    source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::InZone {
+                                         objects: &ObjectSetDef::Binding(crate::Binding!("selected")),
+                                         zone: ZoneKind::Hand }),
+
+                                    binding: crate::Binding!("from_hand"),
+                                    then: &EffectDef::Sequence(&[
+                                        EffectDef::move_to_zone(
+                                            EffectRecipientDef::objects(
+                                                ObjectSetDef::Binding(crate::Binding!("selected"))),
+                                             ZoneKind::Exile,
+                                             ZonePlacement::Top),
+
+                                        EffectDef::ShuffleLibrary { player: EffectRecipientDef::Opponent },
+                                        EffectDef::DrawCards {
+                                             recipient: EffectRecipientDef::Opponent,
+                                             amount: ValueDef::CountObjects(&ObjectSetDef::InZone {
+
+                                            objects: &ObjectSetDef::ZoneChangeSuccessorsOfBinding(
+                                                crate::Binding!("from_hand")),
+                                                 zone: ZoneKind::Exile,
+
+                                        }) },
+                                    ]),
+                                }),
+                            }),
+                        },
+                    ]),
+                }),
+            },
+        ])),
+]),
 );
 
 // MKM 84 — Extract a Confession
@@ -2368,14 +2467,29 @@ pub(in crate::card::sets) static NIGHTDRINKER_MOROII: CardRecord = CardRecord::n
 );
 
 // MKM 97 — Outrageous Robbery
-// Audit: unsupported — Needs exile-play permission that privately reveals face-down exiled
-// cards to its grantee; the existing face-down exile operation grants visibility only to the
-// cards' owner.
 pub(in crate::card::sets) static OUTRAGEOUS_ROBBERY: CardRecord = CardRecord::new(
     "Outrageous Robbery",
     "b87813fa-ad12-4062-bb9e-436d8418fba5",
     "Kai Carpenter",
-    CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{X}{B}{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Target opponent exiles the top X cards of their library face down. You \
+            may look at and play those cards for as long as they remain exiled. If \
+            you cast a spell this way, you may spend mana as though it were mana \
+            of any type to cast it.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+        )],
+        EffectDef::ExileTopOfLibraryToPlay {
+            player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            amount: ValueDef::ChosenX,
+            free: false,
+            face_down: true,
+            duration: ExilePlayDurationDef::WhileExiled,
+            mana_spending: Some(ManaSpendAsDef::AnyType),
+            play_condition: None,
+            cast_only: false,
+        },
+    )),
 );
 
 // MKM 98 — Persuasive Interrogators

@@ -36,6 +36,7 @@ use crate::card::CostDef;
 use crate::card::CostModificationDef;
 use crate::card::CountConditionDef;
 use crate::card::CounterKind;
+use crate::card::CounterOperationDef;
 use crate::card::CreateTokenDef;
 use crate::card::CreatedTokensDef;
 use crate::card::CreatureTypeSetDef;
@@ -49,11 +50,14 @@ use crate::card::EffectChoiceDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::EmblemCharacteristics;
+use crate::card::GameActionChoiceDef;
+use crate::card::GameActionDef;
 use crate::card::HalvedValueDef;
 use crate::card::InstalledTriggerDef;
 use crate::card::KeywordAbility;
 use crate::card::ManaColor;
 use crate::card::ManaRestrictionDef;
+use crate::card::MechanicId;
 use crate::card::ModalSpellDef;
 use crate::card::MoveObjectsDef;
 use crate::card::MoveToZoneCostDef;
@@ -119,7 +123,7 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
-pub const STATION: crate::card::MechanicId = crate::card::MechanicId::from_name("mtg:station");
+pub const STATION: MechanicId = MechanicId::from_name("mtg:station");
 
 /// Station taps another creature and reads its current or last-known power on resolution.
 #[must_use]
@@ -164,9 +168,8 @@ const ROBOT_TOKEN: TokenCharacteristics =
     ));
 const LANDER_TOKEN: TokenCharacteristics = TokenCharacteristics::artifact(&["Lander"], &[])
     .with_abilities(&[AbilityDef::activated(
-        "{2}, {T}, Sacrifice this token: Search your library for a \
-         basic land card, put it onto the battlefield tapped, then \
-         shuffle.",
+        "{2}, {T}, Sacrifice this token: Search your library for a basic land \
+            card, put it onto the battlefield tapped, then shuffle.",
         &[
             CostDef::Mana(mana_cost!("{2}")),
             CostDef::TapSource,
@@ -291,8 +294,8 @@ pub(in crate::card::sets) static TEZZERET_CRUEL_CAPTAIN: CardRecord = CardRecord
                 },
             ),
             AbilityDef::activated_with_targets(
-                "0: Untap target artifact or creature. If it\'s an artifact \
-                 creature, put a +1/+1 counter on it.",
+                "0: Untap target artifact or creature. If it\'s an artifact creature, \
+                    put a +1/+1 counter on it.",
                 &[CostDef::Loyalty(ValueDef::Constant(0))],
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::AnyOf(&[
@@ -323,9 +326,8 @@ pub(in crate::card::sets) static TEZZERET_CRUEL_CAPTAIN: CardRecord = CardRecord
                 ]),
             ),
             AbilityDef::activated(
-                "−3: Search your library for an artifact card with mana \
-                 value 1 or less, reveal it, put it into your hand, then \
-                 shuffle.",
+                "−3: Search your library for an artifact card with mana value 1 or \
+                    less, reveal it, put it into your hand, then shuffle.",
                 &[CostDef::Loyalty(ValueDef::Constant(-3))],
                 EffectDef::SearchZone {
                     exile_face_down: false,
@@ -349,18 +351,18 @@ pub(in crate::card::sets) static TEZZERET_CRUEL_CAPTAIN: CardRecord = CardRecord
                 },
             ),
             AbilityDef::activated(
-                "−7: You get an emblem with \"At the beginning of combat on \
-                 your turn, put three +1/+1 counters on target artifact you \
-                 control. If it\'s not a creature, it becomes a 0/0 Robot \
-                 artifact creature.\"",
+                "−7: You get an emblem with \"At the beginning of combat on your turn, \
+                    put three +1/+1 counters on target artifact you control. If it\'s not \
+                    a creature, it becomes a 0/0 Robot artifact creature.\"",
                 &[CostDef::Loyalty(ValueDef::Constant(-7))],
                 EffectDef::CreateEmblem {
+                    creature_type: None,
                     emblem: EmblemCharacteristics::new(
                         "Tezzeret, Cruel Captain emblem",
                         &[AbilityDef::triggered_with_targets(
-                            "At the beginning of combat on your turn, put three +1/+1 \
-                             counters on target artifact you control. If it's not a \
-                             creature, it becomes a 0/0 Robot artifact creature.",
+                            "At the beginning of combat on your turn, put three +1/+1 counters on \
+                                target artifact you control. If it's not a creature, it becomes a 0/0 \
+                                Robot artifact creature.",
                             TriggerEventDef::StepBegins {
                                 step: TurnStepDef::BeginningOfCombat,
                                 player: PlayerRelation::You,
@@ -1381,13 +1383,30 @@ pub(in crate::card::sets) static SCOUT_FOR_SURVIVORS: CardRecord = CardRecord::n
 );
 
 // EOE 34 — Seam Rip
-// Audit: unsupported — Needs exile-until-source-leaves with immediate return when the duration
-// ends (CR 610.3); an ordinary leaves trigger returns through the stack too late.
 pub(in crate::card::sets) static SEAM_RIP: CardRecord = CardRecord::new(
     "Seam Rip",
     "9d298847-2d02-4593-b4d3-c5b722edac1e",
     "Sam Guay",
-    CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{W}")).with_abilities(&[
+        abilities::enters_trigger_with_targets(
+            "When this enchantment enters, exile target nonland permanent an \
+                opponent controls with mana value 2 or less until this enchantment \
+                leaves the battlefield.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
+                    ObjectPredicateDef::ManaValueAtMost(2),
+                ]),
+            )],
+            EffectDef::ExileLinkedToSource {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                face_down: false,
+                until_source_leaves: true,
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // EOE 35 — The Seriema
@@ -6124,14 +6143,24 @@ pub(in crate::card::sets) static GALACTIC_WAYFARER: CardRecord = CardRecord::new
 );
 
 // EOE 186 — Gene Pollinator
-// Audit: unsupported — Needs a mana-ability payment that taps a separately chosen untapped
-// permanent in addition to its source; TapPermanents is implemented for ordinary activations
-// but rejected by mana activation enumeration and payment.
 pub(in crate::card::sets) static GENE_POLLINATOR: CardRecord = CardRecord::new(
     "Gene Pollinator",
     "ce7a8eec-a029-4ee1-b2d6-405d903d4640",
     "Milivoj Ćeran",
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{G}"), &["Robot", "Insect"], 1, 2)
+        .with_type(CardType::Artifact)
+        .with_ability(AbilityDef::activated_mana(
+            "{T}, Tap an untapped permanent you control: Add one mana of any color.",
+            &[
+                CostDef::TapSource,
+                CostDef::TapPermanents {
+                    object: ObjectPredicateDef::Any,
+                    controller: PlayerRelation::You,
+                    count: 1,
+                },
+            ],
+            EffectDef::AddMana(AddManaEffectDef::any_color()),
+        )),
 );
 
 // EOE 187 — Germinating Wurm
@@ -7094,13 +7123,66 @@ pub(in crate::card::sets) static COSMOGOYF: CardRecord = CardRecord::new(
 );
 
 // EOE 216 — Dyadrine, Synthesis Amalgam
-// Audit: unsupported — Needs a resolving payment that chooses two distinct controlled creatures
-// and removes one +1/+1 counter from each; current fixed counter removal is source-only.
 pub(in crate::card::sets) static DYADRINE_SYNTHESIS_AMALGAM: CardRecord = CardRecord::new(
     "Dyadrine, Synthesis Amalgam",
     "994ca692-7138-4dcb-bf46-5da530f86036",
     "Igor Grechanyi",
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{X}{G}{W}"), &["Construct"], 0, 1)
+        .with_type(CardType::Artifact)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::trample(),
+            AbilityDef::as_enters(
+                "Dyadrine enters with a number of +1/+1 counters on it equal to the \
+                amount of mana spent to cast it.",
+                ReplacementEffectDef::ModifyBattlefieldEntry(
+                    BattlefieldEntryModificationDef::AddCountersValue {
+                        kind: CounterKind::PlusOnePlusOne,
+                        amount: ValueDef::ManaSpentToCast(ObjectRefDef::Source),
+                    },
+                ),
+            ),
+            AbilityDef::triggered(
+                "Whenever you attack, you may remove a +1/+1 counter from each of two \
+                creatures you control. If you do, draw a card and create a 2/2 \
+                colorless Robot artifact creature token.",
+                TriggerEventDef::attack_declared(
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    1,
+                    None,
+                ),
+                EffectDef::PayOr(PayOrDef::optional(
+                    &[GameActionDef::Choose(GameActionChoiceDef {
+                        binding: crate::Binding!("counterPayment"),
+                        chooser: PlayerRefDef::EffectController,
+                        candidates: ObjectSetDef::Query(ObjectQueryDef::controlled_by(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            &[ZoneKind::Battlefield],
+                            PlayerSetDef::Related(PlayerRelation::You),
+                        )),
+
+                        amount: ValueDef::Constant(2),
+                        visibility: ChoiceVisibilityDef::Public,
+                        then: &GameActionDef::ModifyCounters {
+                            object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                crate::Binding!("counterPayment"),
+                            )),
+                            kind: CounterKind::PlusOnePlusOne,
+                            operation: CounterOperationDef::Remove,
+                            amount: 1,
+                        },
+                    })
+                    .as_cost()],
+                    &EffectDef::Sequence(&[
+                        EffectDef::DrawCards {
+                            recipient: EffectRecipientDef::Controller,
+                            amount: ValueDef::Constant(1),
+                        },
+                        EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(ROBOT_TOKEN))),
+                    ]),
+                )),
+            ),
+        ]),
 );
 
 // EOE 217 — Genemorph Imago

@@ -41,6 +41,7 @@ pub(super) fn object_predicate_implies(
         | ObjectPredicateDef::WasDealtDamageThisTurn
         | ObjectPredicateDef::DealtDamageThisTurn
         | ObjectPredicateDef::Attacking
+        | ObjectPredicateDef::UnblockedAttacker
         | ObjectPredicateDef::Saddled
         | ObjectPredicateDef::Blocking
         | ObjectPredicateDef::BlockedBySource
@@ -67,6 +68,7 @@ pub(super) fn object_predicate_implies(
         | ObjectPredicateDef::ManaCostHasX
         | ObjectPredicateDef::ManaValueAtMost(_)
         | ObjectPredicateDef::FaceUpInExile
+        | ObjectPredicateDef::HasAlternateSpell(_)
         | ObjectPredicateDef::GenericManaCostAtMost(_)
         | ObjectPredicateDef::ManaValueEqualTo(_)
         | ObjectPredicateDef::ManaValueAtMostValue(_)
@@ -117,6 +119,7 @@ pub(super) fn predicate_color(predicate: ObjectPredicateDef) -> Option<ManaColor
         | ObjectPredicateDef::WasDealtDamageThisTurn
         | ObjectPredicateDef::DealtDamageThisTurn
         | ObjectPredicateDef::Attacking
+        | ObjectPredicateDef::UnblockedAttacker
         | ObjectPredicateDef::Saddled
         | ObjectPredicateDef::Blocking
         | ObjectPredicateDef::BlockedBySource
@@ -142,6 +145,7 @@ pub(super) fn predicate_color(predicate: ObjectPredicateDef) -> Option<ManaColor
         | ObjectPredicateDef::ManaCostHasX
         | ObjectPredicateDef::ManaValueAtMost(_)
         | ObjectPredicateDef::FaceUpInExile
+        | ObjectPredicateDef::HasAlternateSpell(_)
         | ObjectPredicateDef::GenericManaCostAtMost(_)
         | ObjectPredicateDef::ManaValueEqualTo(_)
         | ObjectPredicateDef::ManaValueAtMostValue(_)
@@ -196,6 +200,7 @@ pub(super) fn predicate_color_count(predicate: ObjectPredicateDef) -> Option<u8>
         | ObjectPredicateDef::WasDealtDamageThisTurn
         | ObjectPredicateDef::DealtDamageThisTurn
         | ObjectPredicateDef::Attacking
+        | ObjectPredicateDef::UnblockedAttacker
         | ObjectPredicateDef::Saddled
         | ObjectPredicateDef::Blocking
         | ObjectPredicateDef::BlockedBySource
@@ -220,6 +225,7 @@ pub(super) fn predicate_color_count(predicate: ObjectPredicateDef) -> Option<u8>
         | ObjectPredicateDef::ManaCostHasX
         | ObjectPredicateDef::ManaValueAtMost(_)
         | ObjectPredicateDef::FaceUpInExile
+        | ObjectPredicateDef::HasAlternateSpell(_)
         | ObjectPredicateDef::GenericManaCostAtMost(_)
         | ObjectPredicateDef::ManaValueEqualTo(_)
         | ObjectPredicateDef::ManaValueAtMostValue(_)
@@ -258,7 +264,9 @@ pub(super) fn predicate_subtype(predicate: ObjectPredicateDef) -> Option<&'stati
         ObjectPredicateDef::All(predicates) => {
             predicates.iter().copied().find_map(predicate_subtype)
         }
-        ObjectPredicateDef::Subtype(super::SubtypeDef::Binding(_))
+        ObjectPredicateDef::Subtype(
+            super::SubtypeDef::Binding(_) | super::SubtypeDef::CastChosenCreatureType,
+        )
         | ObjectPredicateDef::Ability
         | ObjectPredicateDef::ActivatedAbility
         | ObjectPredicateDef::TriggeredAbility
@@ -276,6 +284,7 @@ pub(super) fn predicate_subtype(predicate: ObjectPredicateDef) -> Option<&'stati
         | ObjectPredicateDef::WasDealtDamageThisTurn
         | ObjectPredicateDef::DealtDamageThisTurn
         | ObjectPredicateDef::Attacking
+        | ObjectPredicateDef::UnblockedAttacker
         | ObjectPredicateDef::Saddled
         | ObjectPredicateDef::Blocking
         | ObjectPredicateDef::BlockedBySource
@@ -299,6 +308,7 @@ pub(super) fn predicate_subtype(predicate: ObjectPredicateDef) -> Option<&'stati
         | ObjectPredicateDef::ManaCostHasX
         | ObjectPredicateDef::ManaValueAtMost(_)
         | ObjectPredicateDef::FaceUpInExile
+        | ObjectPredicateDef::HasAlternateSpell(_)
         | ObjectPredicateDef::GenericManaCostAtMost(_)
         | ObjectPredicateDef::ManaValueEqualTo(_)
         | ObjectPredicateDef::ManaValueAtMostValue(_)
@@ -356,6 +366,7 @@ pub(super) fn predicate_negated_subtype(predicate: ObjectPredicateDef) -> Option
         | ObjectPredicateDef::WasDealtDamageThisTurn
         | ObjectPredicateDef::DealtDamageThisTurn
         | ObjectPredicateDef::Attacking
+        | ObjectPredicateDef::UnblockedAttacker
         | ObjectPredicateDef::Saddled
         | ObjectPredicateDef::Blocking
         | ObjectPredicateDef::BlockedBySource
@@ -382,6 +393,7 @@ pub(super) fn predicate_negated_subtype(predicate: ObjectPredicateDef) -> Option
         | ObjectPredicateDef::ManaCostHasX
         | ObjectPredicateDef::ManaValueAtMost(_)
         | ObjectPredicateDef::FaceUpInExile
+        | ObjectPredicateDef::HasAlternateSpell(_)
         | ObjectPredicateDef::GenericManaCostAtMost(_)
         | ObjectPredicateDef::ManaValueEqualTo(_)
         | ObjectPredicateDef::ManaValueAtMostValue(_)
@@ -445,6 +457,7 @@ pub(super) fn predicate_power_at_least(predicate: ObjectPredicateDef) -> Option<
         | ObjectPredicateDef::WasDealtDamageThisTurn
         | ObjectPredicateDef::DealtDamageThisTurn
         | ObjectPredicateDef::Attacking
+        | ObjectPredicateDef::UnblockedAttacker
         | ObjectPredicateDef::Saddled
         | ObjectPredicateDef::Blocking
         | ObjectPredicateDef::BlockedBySource
@@ -471,6 +484,7 @@ pub(super) fn predicate_power_at_least(predicate: ObjectPredicateDef) -> Option<
         | ObjectPredicateDef::ManaCostHasX
         | ObjectPredicateDef::ManaValueAtMost(_)
         | ObjectPredicateDef::FaceUpInExile
+        | ObjectPredicateDef::HasAlternateSpell(_)
         | ObjectPredicateDef::GenericManaCostAtMost(_)
         | ObjectPredicateDef::ManaValueEqualTo(_)
         | ObjectPredicateDef::ManaValueAtMostValue(_)
@@ -517,6 +531,7 @@ pub(super) fn predicate_mana_value_at_most(predicate: ObjectPredicateDef) -> Opt
         | ObjectPredicateDef::WasDealtDamageThisTurn
         | ObjectPredicateDef::DealtDamageThisTurn
         | ObjectPredicateDef::Attacking
+        | ObjectPredicateDef::UnblockedAttacker
         | ObjectPredicateDef::Saddled
         | ObjectPredicateDef::Blocking
         | ObjectPredicateDef::BlockedBySource
@@ -568,6 +583,7 @@ pub(super) fn predicate_mana_value_at_most(predicate: ObjectPredicateDef) -> Opt
         | ObjectPredicateDef::AnyOf(_)
         | ObjectPredicateDef::Not(_)
         | ObjectPredicateDef::FaceUpInExile
+        | ObjectPredicateDef::HasAlternateSpell(_)
         | ObjectPredicateDef::GenericManaCostAtMost(_)
         | ObjectPredicateDef::Special(_) => None,
     }
@@ -595,7 +611,7 @@ pub(super) fn predicate_controller(predicate: ObjectPredicateDef) -> Option<Play
         | ObjectPredicateDef::Tapped
         | ObjectPredicateDef::WasDealtDamageThisTurn
         | ObjectPredicateDef::DealtDamageThisTurn
-        | ObjectPredicateDef::Attacking
+        | ObjectPredicateDef::Attacking | ObjectPredicateDef::UnblockedAttacker
         | ObjectPredicateDef::Saddled
         | ObjectPredicateDef::Blocking
         | ObjectPredicateDef::BlockedBySource
@@ -622,6 +638,7 @@ pub(super) fn predicate_controller(predicate: ObjectPredicateDef) -> Option<Play
         | ObjectPredicateDef::ManaCostHasX
         | ObjectPredicateDef::ManaValueAtMost(_)
         | ObjectPredicateDef::FaceUpInExile
+        | ObjectPredicateDef::HasAlternateSpell(_)
         | ObjectPredicateDef::GenericManaCostAtMost(_)
         | ObjectPredicateDef::ManaValueEqualTo(_)
         | ObjectPredicateDef::ManaValueAtMostValue(_)

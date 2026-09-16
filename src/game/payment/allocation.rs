@@ -8,6 +8,7 @@ pub(in crate::game) struct PaymentPool {
     pub(in crate::game) mana: ManaPool,
     pub(in crate::game) non_generic: ManaPool,
     pub(in crate::game) any_color: bool,
+    pub(in crate::game) any_type: bool,
     pub(in crate::game) direct: ManaPool,
 }
 impl From<ManaPool> for PaymentPool {
@@ -33,6 +34,7 @@ impl PaymentPool {
         self.non_generic.add(other.non_generic);
         self.direct.add(other.direct);
         self.any_color |= other.any_color;
+        self.any_type |= other.any_type;
     }
     pub(in crate::game) fn add_color(&mut self, color: ManaColor, amount: u16) {
         self.mana.add_color(color, amount);
@@ -44,7 +46,7 @@ impl PaymentPool {
         }
     }
     pub(in crate::game) fn needs_symbol_allocation(self) -> bool {
-        self.any_color || self.non_generic.total() > 0 || self.direct.total() > 0
+        self.any_color || self.any_type || self.non_generic.total() > 0 || self.direct.total() > 0
     }
 }
 
@@ -274,7 +276,9 @@ fn allocate(
             let color_fits = if direct {
                 demand.generic || (color != ManaColor::Colorless && demand.colors.contains(&color))
             } else {
-                demand.colors.contains(&color) || (pool.any_color && demand.any_color)
+                demand.colors.contains(&color)
+                    || (pool.any_color && demand.any_color)
+                    || (pool.any_type && !demand.generic)
             };
             if color_fits && (index < 6 || direct || !demand.generic) {
                 flow.edge(units + index, slots + slot, i32::from(u16::MAX));
@@ -302,6 +306,7 @@ fn allocate(
     }
     let mut remaining = PaymentPool {
         any_color: pool.any_color,
+        any_type: pool.any_type,
         ..PaymentPool::default()
     };
     for (index, color) in ManaColor::ALL.into_iter().enumerate() {

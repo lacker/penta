@@ -338,6 +338,8 @@ pub enum TriggerEventDef {
     /// A matching player drew a card. One trigger per card, so a spell that
     /// draws three fires this three times.
     DrewCard(DrawEventMatcherDef),
+    /// The named player searches a library, even when they find no card.
+    SearchedLibrary(PlayerRelation),
     /// A matching player became the monarch (CR 720). The crown passing
     /// from one player to another raises this once, for whoever received it.
     BecomesMonarch(PlayerRelation),

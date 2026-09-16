@@ -10,6 +10,38 @@ use crate::card::{EffectDef, EffectRecipientDef};
 use crate::game::GameObjectId;
 
 impl Game {
+    /// Return a paired exile as the duration ends, before any player receives
+    /// priority. Ability removal and trigger suppression cannot stop this.
+    pub(in crate::game) fn return_exiles_whose_duration_ended(&mut self) {
+        let mut returning = Vec::new();
+        self.exile_returns.retain(|(source, card, zone)| {
+            if self
+                .battlefield
+                .iter()
+                .chain(&self.phased_out)
+                .any(|permanent| permanent.card.id == *source)
+            {
+                true
+            } else {
+                returning.push((*source, *card, *zone));
+                false
+            }
+        });
+        self.linked_exiles.retain(|(source, card)| {
+            !returning.iter().any(|(return_source, return_card, _)| {
+                return_source == source && return_card == card
+            })
+        });
+        if returning.is_empty() {
+            return;
+        }
+        self.entering_together(|game| {
+            for (_, card, zone) in returning {
+                game.return_exiled_card(card, zone, None, None, false, None);
+            }
+        });
+    }
+
     pub(in crate::game) fn matching_linked_exiles(
         &self,
         predicate: crate::card::ObjectPredicateDef,
@@ -71,9 +103,32 @@ impl Game {
         {
             return;
         }
+        let origins = if until_source_leaves {
+            self.effect_recipients(recipient, object, context, scoped)
+                .into_iter()
+                .filter_map(|target| match target {
+                    Target::Permanent(id) => Some((id, crate::card::ZoneKind::Battlefield)),
+                    Target::Card(id) => self
+                        .card_in_nonbattlefield_zone(id)
+                        .filter(|(zone, _)| *zone == crate::card::ZoneKind::Hand)
+                        .map(|(zone, _)| (id, zone)),
+                    _ => None,
+                })
+                .collect::<Vec<_>>()
+        } else {
+            Vec::new()
+        };
         for exiled in self.exile_effect_objects(recipient, face_down, object, context, scoped) {
             self.linked_exiles.push((source, exiled));
+            if let Some((_, origin)) = origins
+                .iter()
+                .find(|(original, _)| self.successors.get(original) == Some(&exiled))
+            {
+                self.exile_returns.push((source, exiled, *origin));
+            }
         }
+        // Exiling the duration's own source can end it during this instruction.
+        self.return_exiles_whose_duration_ended();
         if let Some(then) = then {
             self.resolve_effect_def(scoped.with_effect(*then), object, context.clone());
         }

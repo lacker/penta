@@ -48,6 +48,8 @@ pub enum OptionalAdditionalCostKindDef {
     /// once. Like kicker it buys a yes rather than a number, and what that
     /// yes is worth is printed beside it on each card that has it.
     Bargain,
+    /// A single optional payment without a keyword identity.
+    Optional,
 }
 
 impl OptionalAdditionalCostKindDef {
@@ -60,7 +62,7 @@ impl OptionalAdditionalCostKindDef {
             Self::Buyback => "Buyback",
             Self::Replicate => "Replicate",
             Self::Multikicker => "Multikicker",
-            Self::Repeatable => "Additional cost",
+            Self::Repeatable | Self::Optional => "Additional cost",
             Self::Squad => "Squad",
             Self::Conspire => "Conspire",
             Self::Bargain => "Bargain",
@@ -144,7 +146,11 @@ impl OptionalAdditionalCostAbilityDef {
                  copies of it.)"
             ),
             (OptionalAdditionalCostKindDef::Squad, None) => "Squad".into(),
-            (OptionalAdditionalCostKindDef::ChooseOpponent(_), _) => self.label.into(),
+            (
+                OptionalAdditionalCostKindDef::ChooseOpponent(_)
+                | OptionalAdditionalCostKindDef::Optional,
+                _,
+            ) => self.label.into(),
             (OptionalAdditionalCostKindDef::Conspire, _) => "Conspire".into(),
             (OptionalAdditionalCostKindDef::Bargain, _) => "Bargain".into(),
         }

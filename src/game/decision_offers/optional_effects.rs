@@ -1,4 +1,13 @@
 impl Game {
+    pub(super) fn effect_usage_source(object: &StackObject) -> super::AbilitySourceRef {
+        super::AbilitySourceRef {
+            object: object.source.unwrap_or(object.id),
+            ability: object.ability_origin().unwrap_or_else(|| {
+                Self::authored_ability_origin(object.presentation(), super::AbilityId::PRIMARY)
+            }),
+        }
+    }
+
     /// A "may" cannot choose an impossible object selection (CR 608.2d).
     /// Read the authored minimum before ordinary effect execution clamps it.
     /// Continuations still run normally: later instructions may depend on
@@ -10,6 +19,16 @@ impl Game {
         scoped: ScopedEffect,
     ) -> (bool, DecisionVisibility) {
         match scoped.effect {
+            EffectDef::OncePerTurn { effect } => {
+                if self
+                    .effect_uses_this_turn
+                    .contains(&Self::effect_usage_source(object))
+                {
+                    (false, DecisionVisibility::Public)
+                } else {
+                    self.optional_effect_availability(object, context, scoped.with_effect(*effect))
+                }
+            }
             EffectDef::Choose(choice) => {
                 self.optional_object_choice_availability(choice, object, context, scoped)
             }

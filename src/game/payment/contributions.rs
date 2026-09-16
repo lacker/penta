@@ -54,7 +54,7 @@ pub(in crate::game) struct BoundContribution {
 }
 
 #[derive(Clone, Debug)]
-pub(in crate::game) struct BoundCastContributions {
+pub(in crate::game) struct BoundContributions {
     pub(in crate::game) plan: Vec<PlannedManaActivation>,
     pub(in crate::game) remaining: ManaPaymentObligation,
 }
@@ -175,10 +175,10 @@ impl Game {
         Some(())
     }
 
-    pub(in crate::game) fn bind_cast_contributions(
+    pub(in crate::game) fn bind_contributions(
         draft: &PaymentDraft,
         remaining: ManaPaymentObligation,
-    ) -> BoundCastContributions {
+    ) -> BoundContributions {
         let plan = draft
             .contributions
             .iter()
@@ -197,6 +197,6 @@ impl Game {
                 order,
             })
             .collect();
-        BoundCastContributions { plan, remaining }
+        BoundContributions { plan, remaining }
     }
 }

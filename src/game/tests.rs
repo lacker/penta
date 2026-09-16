@@ -550,6 +550,9 @@ mod tarkir_dragonstorm;
 mod teenage_mutant_ninja_turtles;
 mod thunder_junction;
 mod wilds_of_eldraine;
+mod woe_hob_completion;
+mod woe_hob_preparation;
+mod woe_hob_zone_actions;
 
 mod cedh_card_audit;
 mod duel_cards;
@@ -568,3 +571,5 @@ mod vintage_dredge_recursion;
 mod zone_access;
 
 pub(crate) mod companions;
+
+mod woe_hob_collections;

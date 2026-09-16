@@ -267,6 +267,8 @@ pub(super) enum RetiredObjectSnapshot {
     Permanent {
         permanent: Box<DetachedPermanentSnapshot>,
         #[serde(default)]
+        attachments: Vec<u32>,
+        #[serde(default)]
         colors: [bool; 5],
         power: Option<i16>,
         toughness: Option<i16>,
@@ -334,6 +336,10 @@ pub(super) struct CombatDamageAssignmentSnapshot {
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub(super) struct EmblemSnapshot {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(super) chosen_creature_type: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(super) chosen_creature_type_binding: Option<String>,
     pub(super) object_id: u32,
     pub(super) characteristics: EmblemCharacteristicsLocator,
     pub(super) owner: usize,
@@ -498,7 +504,11 @@ include!("model_trigger_context.rs");
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub(super) struct EffectResolutionContextSnapshot {
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub(super) inspected_objects: Vec<(usize, u32)>,
     pub(super) trigger: TriggerContextSnapshot,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(super) source_transform_count: Option<u32>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub(super) paid_amount: Option<u16>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -515,6 +525,7 @@ pub(super) struct EffectResolutionContextSnapshot {
     pub(super) card_name_bindings: std::collections::BTreeMap<String, String>,
     #[serde(default, skip_serializing_if = "std::collections::BTreeMap::is_empty")]
     pub(super) number_bindings: std::collections::BTreeMap<String, i32>,
+    pub(super) creature_type_bindings: std::collections::BTreeMap<String, String>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -616,6 +627,8 @@ pub(super) struct DiscardChoiceSnapshot {
 #[derive(Clone, Copy, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub(super) struct DetachedCardSnapshot {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(super) copy_part_id: Option<u8>,
     pub(super) object_id: u32,
     pub(super) definition: CardDefinitionId,
     pub(super) owner: usize,
@@ -638,3 +651,11 @@ pub(super) use continuation::ExplicitPaymentResumeSnapshot;
 
 mod payment_drafts;
 pub(super) use payment_drafts::{FundingStepSnapshot, PaymentDraftSnapshot};
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub(super) struct ExileReturnSnapshot {
+    pub(super) source: u32,
+    pub(super) card: u32,
+    pub(super) to_hand: bool,
+}

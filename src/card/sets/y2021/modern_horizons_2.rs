@@ -1174,7 +1174,7 @@ pub(in crate::card::sets) static RAGAVAN_NIMBLE_PILFERER: CardRecord = CardRecor
                         free: false,
                         face_down: false,
                         duration: ExilePlayDurationDef::ThisTurn,
-                        spend_any_color: false,
+                        mana_spending: None,
                         play_condition: None,
                         cast_only: true,
                     },
@@ -1182,10 +1182,9 @@ pub(in crate::card::sets) static RAGAVAN_NIMBLE_PILFERER: CardRecord = CardRecor
             )],
             abilities::dash(
                 &[CostDef::Mana(mana_cost!("{1}{R}"))],
-                "Dash {1}{R} (You may cast this spell for its dash cost. If \
-                 you do, it gains haste, and it's returned from the \
-                 battlefield to its owner's hand at the beginning of the \
-                 next end step.)",
+                "Dash {1}{R} (You may cast this spell for its dash cost. If you do, it \
+                    gains haste, and it's returned from the battlefield to its owner's \
+                    hand at the beginning of the next end step.)",
             ),
         ]),
 );

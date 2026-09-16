@@ -127,11 +127,15 @@ pub const SIMULATION_FINGERPRINT_NUL: &str = concat!(env!("PENTA_SIMULATION_FING
 /// capabilities they do not use; hosted bots may require the subset they use.
 pub const PROTOCOL_CAPABILITIES: &[&str] = &[
     "action.concede.v1",
+    "actions.alternative-ability-cost.v1",
     "actions.forced.v1",
+    "casting.chosen-creature-type.v1",
     "match.first-to-two-wins.v1",
     "observation.chosen-companions.v1",
+    "observation.exiled-part-copies.v1",
     "observation.known-cards.v1",
     "observation.public-reveals.v1",
+    "observation.rules-designations.v1",
     "payments.explicit.v1",
     "reconstruction.checkpoint.v21",
     "rules.commander.v1",

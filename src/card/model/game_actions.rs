@@ -47,6 +47,14 @@ pub enum GameActionDef {
         /// Which end of a library receives the objects; ignored for other zones.
         placement: super::ZonePlacement,
     },
+    /// Add or remove counters from each selected object. Payments require
+    /// every selected permanent to supply the full removal amount.
+    ModifyCounters {
+        object: EffectRecipientDef,
+        kind: super::CounterKind,
+        operation: super::CounterOperationDef,
+        amount: u16,
+    },
     GainControl {
         object: EffectRecipientDef,
         controller: PlayerRefDef,
@@ -84,6 +92,7 @@ impl GameActionDef {
         matches!(
             leaf,
             Self::Sacrifice { .. }
+                | Self::ModifyCounters { .. }
                 | Self::SacrificeYours { .. }
                 | Self::Exile {
                     from: ZoneKind::Graveyard,
@@ -125,7 +134,7 @@ impl GameActionDef {
         }
         self.public_alternative_supported() && self.payment_choice().is_some_and(|choice| {
             matches!(choice.amount, ValueDef::Constant(amount) if amount > 0 && amount <= i32::from(u16::MAX))
-                && matches!(*choice.then, Self::Exile { from: ZoneKind::Graveyard, .. } | Self::Sacrifice { .. } | Self::SacrificeYours { .. })
+                && matches!(*choice.then, Self::Exile { from: ZoneKind::Graveyard, .. } | Self::Sacrifice { .. } | Self::SacrificeYours { .. } | Self::ModifyCounters { .. })
         })
     }
 
@@ -269,7 +278,11 @@ impl GameActionDef {
             Self::DiscardCards { object } if object == bound => {
                 ObjectQueryDef::owned_by(query.object, &[ZoneKind::Hand], you)
             }
-            Self::SacrificeYours { object } | Self::Sacrifice { object } if object == bound => {
+            Self::SacrificeYours { object }
+            | Self::Sacrifice { object }
+            | Self::ModifyCounters { object, .. }
+                if object == bound =>
+            {
                 ObjectQueryDef::controlled_by(query.object, &[ZoneKind::Battlefield], you)
             }
             Self::GainControl {

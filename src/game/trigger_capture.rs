@@ -140,6 +140,7 @@ impl Game {
     }
 
     pub(super) fn capture_battlefield_triggers(&mut self, event: &CommittedTriggerEvent) {
+        self.grant_enduring_stories();
         if let CommittedTriggerEvent::Discarded { player, .. } = event {
             let discarded = &mut self.cards_discarded_this_turn[player.index()];
             *discarded = discarded.saturating_add(1);
@@ -385,6 +386,7 @@ impl Game {
         }
     }
 
+    #[allow(clippy::too_many_lines)]
     pub(super) fn battlefield_trigger_listeners_uncached(&self) -> Vec<BattlefieldTriggerListener> {
         // Another long read that asks the same land-type questions once per
         // permanent, so it is worth one memo for the sweep rather than one
@@ -440,6 +442,21 @@ impl Game {
                     | DeclarativeAbilityDef::DeckConstruction(_)
                     | DeclarativeAbilityDef::Companion(_) => return,
                 };
+                if self
+                    .visit_applied_rules(permanent, |rule| {
+                        if let crate::card::AppliedRuleDef::SuppressTriggeredAbilities(predicate) =
+                            rule.rule
+                            && predicate.matches(&ability)
+                        {
+                            std::ops::ControlFlow::Break(())
+                        } else {
+                            std::ops::ControlFlow::Continue(())
+                        }
+                    })
+                    .is_break()
+                {
+                    return;
+                }
                 // Compatibility procedures execute elsewhere, so admitting
                 // them here would manufacture a duplicate trigger.
                 if definition.procedure != AbilityProcedureDef::Shared {
@@ -661,6 +678,7 @@ impl Game {
         }
     }
 
+    #[allow(clippy::too_many_lines)]
     pub(super) fn capture_battlefield_trigger_batch_with_mana_resolver(
         &mut self,
         listeners: &[BattlefieldTriggerListener],

@@ -215,6 +215,13 @@ impl Game {
                     .and_then(|object| self.cast_context_for(object, None))
                     .map_or(0, |cast| i32::from(cast.mana_spent))
             }
+            crate::card::ValueDef::TriggerEventAmount => context.amount.unwrap_or(0),
+            crate::card::ValueDef::CountersOnSource(kind) => {
+                i32::from(self.current_or_last_known_counters(source, kind))
+            }
+            crate::card::ValueDef::Negate(value) => self
+                .condition_value(*value, source, controller, context)
+                .saturating_neg(),
             crate::card::ValueDef::ColorIntersectionCount(sets) => i32::from(
                 Self::color_intersection(sets, |set| {
                     self.color_set_value(set, |reference| match reference {
@@ -309,6 +316,15 @@ impl Game {
                 })
                 .map(|player| i32::from(self.cards_drawn_this_turn[player.index()]))
                 .sum(),
+            crate::card::ValueDef::PermanentsSacrificedThisTurn(relation) => {
+                [PlayerId::One, PlayerId::Two]
+                    .into_iter()
+                    .filter(|player| {
+                        self.player_relation_matches(*player, relation, controller, context)
+                    })
+                    .map(|player| i32::from(self.permanents_sacrificed_this_turn[player.index()]))
+                    .sum()
+            }
             crate::card::ValueDef::CardsDiscardedThisTurn(relation) => {
                 [PlayerId::One, PlayerId::Two]
                     .into_iter()
@@ -357,6 +373,10 @@ impl Game {
         self.battlefield
             .iter()
             .find(|permanent| permanent.card.id == source)
+            .or_else(|| match self.retired_objects.get(&source) {
+                Some(RetiredObject::Permanent { permanent, .. }) => Some(permanent),
+                _ => None,
+            })
             .and_then(|permanent| {
                 permanent
                     .resolutions_this_turn
@@ -441,6 +461,17 @@ impl Game {
                         .collect::<std::collections::HashSet<_>>();
                     powers.len() >= usize::from(*minimum)
                 }
+                TriggerConditionDef::SourceHasDesignation(designation) => self
+                    .battlefield
+                    .iter()
+                    .find(|permanent| permanent.card.id == source)
+                    .or_else(|| match self.retired_objects.get(&source) {
+                        Some(crate::game::RetiredObject::Permanent { permanent, .. }) => {
+                            Some(permanent)
+                        }
+                        _ => None,
+                    })
+                    .is_some_and(|permanent| permanent.designations.contains(designation)),
                 TriggerConditionDef::SourceOnBattlefield => self
                     .battlefield
                     .iter()
@@ -563,6 +594,9 @@ impl Game {
                 }
                 // Follows the attachment rather than being frozen when the
                 // Equipment moved, so the answer is about where it is now.
+                TriggerConditionDef::ControllerHasEnduringStory => {
+                    self.enduring_story[controller.index()]
+                }
                 TriggerConditionDef::ControllerHasCitysBlessing => {
                     self.citys_blessing[controller.index()]
                 }

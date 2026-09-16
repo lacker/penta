@@ -542,6 +542,7 @@ impl Game {
             // spell named: the first two put the source onto the object, and
             // pairing is not attachment at all.
             EffectDef::AttachToSource { .. }
+            | EffectDef::AttachObjects { .. }
             | EffectDef::Reconfigure { .. }
             | EffectDef::PairWithSource { .. } => None,
             other => {
@@ -575,6 +576,7 @@ impl Game {
                 | EffectDef::CombineObjects(_)
                 | EffectDef::ChooseOneOfEach(_)
                 | EffectDef::ChooseGroup(_)
+                | EffectDef::SearchZones { .. }
                 | EffectDef::BindObjects(_)
                 | EffectDef::IfNoObjects(_)
                 | EffectDef::PartitionGroup(_)
@@ -582,6 +584,7 @@ impl Game {
                 | EffectDef::RevealObjects(_)
                 | EffectDef::MoveObjects(_)
                 | EffectDef::ChooseForEachPlayer(_)
+                | EffectDef::ChooseCreatureType { .. }
                 | EffectDef::ChooseCardName { .. }
                 | EffectDef::SelectAtRandomFromZone { .. }
                 | EffectDef::PayOr(_)
@@ -596,6 +599,7 @@ impl Game {
                 | EffectDef::Discard { .. }
                 | EffectDef::Perform(
                     crate::card::GameActionDef::DiscardCards { .. }
+                        | crate::card::GameActionDef::ModifyCounters { .. }
                         | crate::card::GameActionDef::Sacrifice { .. }
                         | crate::card::GameActionDef::GainControl { .. }
                         | crate::card::GameActionDef::MoveToZone { .. },
@@ -610,6 +614,8 @@ impl Game {
                 | EffectDef::RemoveFromCombat { .. }
                 | EffectDef::SkipNextUntapSteps { .. }
                 | EffectDef::DoubleCounters { .. }
+                | EffectDef::AddCountersFrom { .. }
+                | EffectDef::SetDesignation { .. }
                 | EffectDef::RemoveAllCounters { .. }
                 | EffectDef::Untap { .. }
                 | EffectDef::Saddle { .. }
@@ -640,6 +646,7 @@ impl Game {
                 | EffectDef::ChangeText { .. }
                 | EffectDef::ChooseColor { .. }
                 | EffectDef::BecomeCopyOf { .. }
+                | EffectDef::OncePerTurn { .. }
                 | EffectDef::May { .. }
                 | EffectDef::ScheduleTurnPhases(_)
                 | EffectDef::TakeExtraTurn { .. }
@@ -651,6 +658,7 @@ impl Game {
                 | EffectDef::ExileLinkedToSource { .. }
                 | EffectDef::ExileGrantingControllerPlayThisTurn { .. }
                 | EffectDef::MayPlayWithoutPaying { .. }
+                | EffectDef::GrantPlayPermission(_)
                 | EffectDef::ReturnLinkedExiles { .. }
                 | EffectDef::Detain { .. }
                 | EffectDef::IfCondition { .. }
@@ -676,6 +684,7 @@ impl Game {
                 | EffectDef::Endure { .. }
                 | EffectDef::Cascade
                 | EffectDef::GainClassLevel { .. }
+                | EffectDef::RecordMechanic(_)
                 | EffectDef::CannotAttackIf(_)
                 | EffectDef::PutSpellIntoOwnersLibrary { .. }
                 | EffectDef::CreateMyriadTokens

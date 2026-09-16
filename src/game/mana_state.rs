@@ -30,6 +30,8 @@ pub(super) enum ManaPaymentPurpose {
         /// is local to the payment continuation until all costs are paid.
         commander_owner: Option<PlayerId>,
         spend_any_color: bool,
+        spend_any_type: bool,
+        source_zone: Option<crate::card::ZoneKind>,
         form: SpellForm,
         alternative: Option<crate::card::AlternativeCastKindDef>,
         x: u16,

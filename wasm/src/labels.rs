@@ -81,7 +81,11 @@ impl WebGame {
                     .find_map(|(candidate, definition)| {
                         (*candidate == id).then_some(ObjectCharacteristics::card(
                             *definition,
-                            penta::CardPartId::PRIMARY,
+                            observation
+                                .exiled_part_copies
+                                .iter()
+                                .find(|(copy, _)| *copy == id)
+                                .map_or(penta::CardPartId::PRIMARY, |(_, part)| *part),
                         ))
                     })
             })
@@ -172,6 +176,21 @@ impl WebGame {
         label
     }
 
+    fn describe_alternative_ability_cost(
+        &self,
+        observation: &PlayerObservation,
+        action: &Action,
+        label: &mut String,
+    ) {
+        if let Some(cost) = action.alternative_ability_cost() {
+            let _ = write!(
+                label,
+                " — alternative cost from {}",
+                self.instance_name(observation, cost.source)
+            );
+        }
+    }
+
     /// Names each mode an activation chose, reading the printed clause off
     /// the ability itself rather than the catalog: an ability's modes are
     /// not a play option's.
@@ -210,7 +229,17 @@ impl WebGame {
                 ability,
                 modes,
                 ..
-            } => Some(self.activation_label(observation, *source, *ability, modes)),
+            }
+            | Action::ActivateAbilityWithAlternativeCost {
+                source,
+                ability,
+                modes,
+                ..
+            } => {
+                let mut label = self.activation_label(observation, *source, *ability, modes);
+                self.describe_alternative_ability_cost(observation, action, &mut label);
+                Some(label)
+            }
             Action::Suspend { card, ability, .. } => self.ability_rules_text(*card, *ability),
             Action::KeepHand
             | Action::TakeMulligan
@@ -686,6 +715,9 @@ impl WebGame {
                         }
                     }
                 }
+                if let Some(creature_type) = choices.costs().chosen_creature_type() {
+                    let _ = write!(label, " (chosen type: {})", creature_type.name());
+                }
                 let modes =
                     self.mode_labels(observation, *card, choices.play_option(), choices.modes());
                 if !modes.is_empty() {
@@ -700,7 +732,7 @@ impl WebGame {
                 if !sacrifices.is_empty() {
                     let _ = write!(
                         label,
-                        " (sacrifice {})",
+                        " (pay with {})",
                         sacrifices
                             .iter()
                             .map(|id| self.instance_name(observation, *id))
@@ -722,8 +754,19 @@ impl WebGame {
                 x,
                 modes,
                 mana_payment,
+            }
+            | Action::ActivateAbilityWithAlternativeCost {
+                source,
+                ability,
+                targets: target_selections,
+                cost_objects,
+                x,
+                modes,
+                mana_payment,
+                ..
             } => {
                 let mut label = self.activation_label(observation, *source, *ability, modes);
+                self.describe_alternative_ability_cost(observation, action, &mut label);
                 if source_ability_has_multiple_x_values(observation, *source, *ability) {
                     let _ = write!(label, " (X={x})");
                 }

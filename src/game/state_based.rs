@@ -34,13 +34,45 @@ impl Game {
         }
     }
 
+    /// Storied is continuous, not a state-based action or a trigger (CR
+    /// 702.195). Each permanent is counted once in the three-way union.
+    pub(super) fn grant_enduring_stories(&mut self) {
+        for player in [PlayerId::One, PlayerId::Two] {
+            if self.enduring_story[player.index()]
+                || !self.player_rule_applies(player, AppliedRuleDef::Storied)
+            {
+                continue;
+            }
+            let count = self
+                .battlefield
+                .iter()
+                .filter(|permanent| permanent.controller == player)
+                .filter(|permanent| {
+                    self.is_artifact_permanent(permanent)
+                        || self
+                            .permanent_supertypes(permanent)
+                            .is_some_and(|types| types.contains(CardSupertype::Legendary))
+                        || self
+                            .effective_subtypes(permanent)
+                            .contains(crate::card::Subtype::Saga)
+                })
+                .take(3)
+                .count();
+            if count == 3 {
+                self.enduring_story[player.index()] = true;
+            }
+        }
+    }
+
     pub(super) fn check_state_based_actions(&mut self) {
+        self.prune_prepared_spell_copies();
         self.end_expired_control_changes();
         self.reconcile_static_control_changes();
         if self.check_player_loss_conditions() {
             return;
         }
         self.grant_the_citys_blessing();
+        self.grant_enduring_stories();
         self.annihilate_opposing_counters();
         self.unattach_illegal_non_aura_attachments();
         loop {
@@ -95,6 +127,7 @@ impl Game {
                     permanent.card.id,
                     BattlefieldExitCause::Destroy {
                         regeneration_prohibited: false,
+                        by_effect: false,
                     },
                 ));
             }
@@ -276,6 +309,7 @@ impl Game {
     /// State-based actions are checked whenever anything could have changed,
     /// which is exactly when such a condition could have become true.
     pub(super) fn capture_state_triggers(&mut self) {
+        self.grant_enduring_stories();
         let listeners = self
             .battlefield_trigger_listeners()
             .into_iter()

@@ -8,6 +8,10 @@ use super::{
 pub(super) fn action_target_selections(action: &Action, human: PlayerId) -> Value {
     match action {
         Action::CastSpell { choices, .. } => target_selections_value(choices.targets(), human),
+        Action::ActivateAbility { targets, .. }
+        | Action::ActivateAbilityWithAlternativeCost { targets, .. } => {
+            target_selections_value(targets, human)
+        }
         _ => Value::Array(Vec::new()),
     }
 }
@@ -82,6 +86,7 @@ pub(super) fn cast_signature_value(signature: &penta::CastSignature, human: Play
         "modeIds": signature.modes().iter().map(|mode| mode.0).collect::<Vec<_>>(),
         "alternativeCostId": signature.costs().alternative().map(|cost| cost.0),
         "permissionSource": signature.costs().permission_source().map(|source| source.0),
+        "chosenCreatureType": signature.costs().chosen_creature_type().map(penta::card::Subtype::name),
         "additionalCostIds": signature
             .costs()
             .additional()
@@ -111,9 +116,9 @@ pub(super) fn action_kind(action: &Action) -> &'static str {
 pub(super) fn action_card(action: &Action) -> Option<CardInstanceId> {
     match action {
         Action::PlayLand { card, .. } | Action::CastSpell { card, .. } => Some(*card),
-        Action::ActivateManaAbility { source, .. } | Action::ActivateAbility { source, .. } => {
-            Some(*source)
-        }
+        Action::ActivateManaAbility { source, .. }
+        | Action::ActivateAbility { source, .. }
+        | Action::ActivateAbilityWithAlternativeCost { source, .. } => Some(*source),
         Action::DeclareAttacker { attacker, .. }
         | Action::ExertAttacker { attacker }
         | Action::AssignCombatDamage { attacker, .. } => Some(*attacker),
@@ -127,9 +132,9 @@ pub(super) fn action_card(action: &Action) -> Option<CardInstanceId> {
 
 pub(super) fn action_ability_origin(action: &Action) -> Option<Value> {
     let origin = match action {
-        Action::ActivateManaAbility { ability, .. } | Action::ActivateAbility { ability, .. } => {
-            *ability
-        }
+        Action::ActivateManaAbility { ability, .. }
+        | Action::ActivateAbility { ability, .. }
+        | Action::ActivateAbilityWithAlternativeCost { ability, .. } => *ability,
         _ => return None,
     };
     Some(ability_origin_value(origin))
@@ -141,11 +146,16 @@ pub(super) fn source_has_multiple_activated_abilities(
 ) -> bool {
     let mut first = None;
     for action in &observation.legal_actions {
-        let Action::ActivateAbility {
+        let (Action::ActivateAbility {
             source: candidate,
             ability,
             ..
-        } = action
+        }
+        | Action::ActivateAbilityWithAlternativeCost {
+            source: candidate,
+            ability,
+            ..
+        }) = action
         else {
             continue;
         };
@@ -168,12 +178,18 @@ pub(super) fn source_ability_has_multiple_x_values(
 ) -> bool {
     let mut first = None;
     for action in &observation.legal_actions {
-        let Action::ActivateAbility {
+        let (Action::ActivateAbility {
             source: candidate,
             ability: candidate_ability,
             x,
             ..
-        } = action
+        }
+        | Action::ActivateAbilityWithAlternativeCost {
+            source: candidate,
+            ability: candidate_ability,
+            x,
+            ..
+        }) = action
         else {
             continue;
         };
@@ -307,6 +323,11 @@ pub(super) fn action_sacrifices(action: &Action) -> Vec<u32> {
             source,
             cost_objects,
             ..
+        }
+        | Action::ActivateAbilityWithAlternativeCost {
+            source,
+            cost_objects,
+            ..
         } => cost_objects
             .iter()
             .filter(|spent| *spent != source)
@@ -353,7 +374,8 @@ pub(super) fn action_target_stack(action: &Action) -> Option<u32> {
 pub(super) fn action_targets(action: &Action) -> Vec<Target> {
     match action {
         Action::CastSpell { choices, .. } => choices.iter_targets().copied().collect(),
-        Action::ActivateAbility { targets, .. } => targets
+        Action::ActivateAbility { targets, .. }
+        | Action::ActivateAbilityWithAlternativeCost { targets, .. } => targets
             .iter()
             .flat_map(penta::TargetSelection::targets)
             .copied()
@@ -418,6 +440,7 @@ pub(super) fn animated_action_kind(action: &Action) -> &'static str {
         // Turning a permanent face up changes what a permanent is, which
         // reads as an ability being used rather than a bare choice.
         Action::ActivateAbility { .. }
+        | Action::ActivateAbilityWithAlternativeCost { .. }
         | Action::TurnFaceUp { .. }
         | Action::Foretell { .. }
         | Action::Plot { .. }

@@ -15,6 +15,10 @@ pub(in crate::game::state_checkpoint) struct ExilePlayPermissionSnapshot {
     pub(in crate::game::state_checkpoint) card: u32,
     pub(in crate::game::state_checkpoint) player: usize,
     pub(in crate::game::state_checkpoint) cost: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(in crate::game::state_checkpoint) alternative_mana_cost: Option<ManaCostSnapshot>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(in crate::game::state_checkpoint) until_holder_cleanup: Option<(usize, u32)>,
     pub(in crate::game::state_checkpoint) until_end_of_turn: Option<(usize, u32)>,
     pub(in crate::game::state_checkpoint) adventure_return_only: bool,
     /// Additive: a checkpoint written before a permission could charge for
@@ -48,6 +52,8 @@ pub(in crate::game::state_checkpoint) struct ExilePlayPermissionSnapshot {
     /// Additive: whether mana spent on this card may be of any colour.
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub(in crate::game::state_checkpoint) spend_any_color: bool,
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub(in crate::game::state_checkpoint) spend_any_type: bool,
     /// Additive: the creature type this permission asks its holder to have
     /// attacked with this turn, if it asks anything at all.
     #[serde(default, skip_serializing_if = "Option::is_none")]

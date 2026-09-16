@@ -390,6 +390,7 @@ fn validate_trigger_condition(
         TriggerConditionDef::ControlsCreaturesWithDifferentPowers(_)
         | TriggerConditionDef::ControllerHadPermanentLeaveThisTurn
         | TriggerConditionDef::ControllerHadCardLeaveGraveyardThisTurn
+        | TriggerConditionDef::ControllerHasEnduringStory
         | TriggerConditionDef::ControllerHasCitysBlessing
         | TriggerConditionDef::ControllerGainedLifeThisTurn
         | TriggerConditionDef::OpponentLostLifeThisTurn
@@ -397,6 +398,7 @@ fn validate_trigger_condition(
         | TriggerConditionDef::SourceArrivedSinceControllersLastUpkeep
         | TriggerConditionDef::SacrificedObjectMatches(_)
         | TriggerConditionDef::SourceOnBattlefield
+        | TriggerConditionDef::SourceHasDesignation(_)
         | TriggerConditionDef::SourceInZone(_)
         | TriggerConditionDef::SourceUntapped
         | TriggerConditionDef::SourceIsPaired
@@ -465,7 +467,8 @@ fn validate_object_set_target_references(
         ObjectSetDef::One(reference)
         | ObjectSetDef::PermanentsTargetedBy(reference)
         | ObjectSetDef::LegalAttachmentHosts(reference)
-        | ObjectSetDef::TokensCreatedBy(reference) => {
+        | ObjectSetDef::TokensCreatedBy(reference)
+        | ObjectSetDef::AttachmentsOf(reference) => {
             validate_object_reference(reference, target_count, scope)
         }
         ObjectSetDef::Binding(binding)
@@ -480,7 +483,10 @@ fn validate_object_set_target_references(
             validate_object_set_target_references(*objects, target_count, scope)?;
             validate_object_predicate_references(object.predicate(), target_count, scope)
         }
-        ObjectSetDef::ExceptObject { objects, object } => {
+        ObjectSetDef::SharingCreatureType {
+            objects, object, ..
+        }
+        | ObjectSetDef::ExceptObject { objects, object } => {
             validate_object_set_target_references(*objects, target_count, scope)?;
             validate_object_reference(object, target_count, scope)
         }
@@ -641,6 +647,7 @@ fn validate_value_target_references(
         | ValueDef::DamageTakenThisTurn { .. }
         | ValueDef::CountersOnSource(_)
         | ValueDef::CardsDrawnThisTurn(_)
+        | ValueDef::PermanentsSacrificedThisTurn(_)
         | ValueDef::CardsDiscardedThisTurn(_)
         | ValueDef::LandsPlayedThisTurn(_)
         | ValueDef::LifeGainedThisTurn(_)

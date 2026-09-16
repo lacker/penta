@@ -183,23 +183,22 @@ pub(in crate::card::sets) static LIGHT_UP_THE_STAGE: CardRecord = CardRecord::ne
             &[CostDef::Mana(mana_cost!("{R}"))],
             AlternativeCastKindDef::AlternativeCost,
             Some(
-                "Spectacle {R} (You may cast this spell for its spectacle \
-                 cost rather than its mana cost if an opponent lost life \
-                 this turn.)",
+                "Spectacle {R} (You may cast this spell for its spectacle cost rather \
+                    than its mana cost if an opponent lost life this turn.)",
             ),
             EffectDef::None,
         )
         .with_alternative_condition(&TriggerConditionDef::OpponentLostLifeThisTurn),
         AbilityDef::spell(
-            "Exile the top two cards of your library. Until the end of \
-             your next turn, you may play those cards.",
+            "Exile the top two cards of your library. Until the end of your next \
+                turn, you may play those cards.",
             EffectDef::ExileTopOfLibraryToPlay {
                 player: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(2),
                 free: false,
                 face_down: false,
                 duration: ExilePlayDurationDef::UntilEndOfYourNextTurn,
-                spend_any_color: false,
+                mana_spending: None,
                 play_condition: None,
                 cast_only: false,
             },

@@ -35,8 +35,10 @@ use crate::card::CostAdjustmentDef;
 use crate::card::CostAmountDef;
 use crate::card::CostDef;
 use crate::card::CostModificationDef;
+use crate::card::CostQuantityDef;
 use crate::card::CountConditionDef;
 use crate::card::CounterKind;
+use crate::card::CounterOperationDef;
 use crate::card::CreateTokenDef;
 use crate::card::CreatureTypeSetDef;
 use crate::card::DamageAssignmentDef;
@@ -45,10 +47,14 @@ use crate::card::DamageKindDef;
 use crate::card::DamagePreventionDef;
 use crate::card::DamageRecipientMatcherDef;
 use crate::card::DamageSourceMatcherDef;
+use crate::card::DeclarativeAbilityDef;
 use crate::card::DiscardSelectionDef;
 use crate::card::EffectChoiceDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
+use crate::card::EmblemCharacteristics;
+use crate::card::GameActionChoiceDef;
+use crate::card::GameActionDef;
 use crate::card::InstalledTriggerDef;
 use crate::card::KeywordAbility;
 use crate::card::LookAtObjectsDef;
@@ -56,6 +62,8 @@ use crate::card::ManaColor;
 use crate::card::ManaRestrictionDef;
 use crate::card::ManaTypeDef;
 use crate::card::ManaTypeSetDef;
+use crate::card::MechanicId;
+use crate::card::ModalSpellDef;
 use crate::card::ObjectChoiceBindingDef;
 use crate::card::ObjectCollectionSourceDef;
 use crate::card::ObjectPredicateDef;
@@ -67,6 +75,8 @@ use crate::card::ObjectSetFilterDef;
 use crate::card::ObjectSetPredicateDef;
 use crate::card::ObjectValueAggregateDef;
 use crate::card::ObjectValueDef;
+use crate::card::OptionalAdditionalCostAbilityDef;
+use crate::card::OptionalAdditionalCostKindDef;
 use crate::card::PayOrDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
@@ -77,6 +87,7 @@ use crate::card::ReplacementEffectDef;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::RevealObjectsDef;
 use crate::card::ScaledValueDef;
+use crate::card::SpellAbilityDef;
 use crate::card::SpellCostConditionDef;
 use crate::card::SpellCostModificationDef;
 use crate::card::SpellResolutionDestinationDef;
@@ -191,6 +202,8 @@ const TREEFOLK_TOKEN: TokenCharacteristics =
             "82e01706-ab45-4e52-9ee1-7070567234fd",
             "Jeff Laubenstein",
         ));
+
+const BLIGHT: MechanicId = MechanicId::from_name("mtg:blight");
 
 // ECL 1 — Changeling Wayfinder
 // Audit: unsupported — Needs an all-zone creature-type characteristic-defining ability whose
@@ -937,14 +950,77 @@ pub(in crate::card::sets) static PROTECTIVE_RESPONSE: CardRecord = CardRecord::n
 );
 
 // ECL 30 — Pyrrhic Strike
-// Audit: unsupported — Needs a blight cost that chooses a creature you control and puts the
-// required -1/-1 counters on it before the spell or ability is put on the stack; existing
-// counter costs only name the source.
 pub(in crate::card::sets) static PYRRHIC_STRIKE: CardRecord = CardRecord::new(
     "Pyrrhic Strike",
     "cce5b16d-07fb-4e64-8ec9-b8b29ba86cff",
     "Randy Vargas",
-    CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{2}{W}")).with_ability(AbilityDef::defined(
+        "As an additional cost to cast this spell, you may blight 2. (You may \
+            put two -1/-1 counters on a creature you control.)",
+        DeclarativeAbilityDef::Spell(SpellAbilityDef::Modal(
+            ModalSpellDef::new(
+                &[
+                    AbilityDef::spell_with_targets(
+                        "Destroy target artifact or enchantment.",
+                        &[AbilityTargetDef::exactly_one_permanent(
+                            ObjectPredicateDef::AnyOf(&[
+                                ObjectPredicateDef::HasType(CardType::Artifact),
+                                ObjectPredicateDef::HasType(CardType::Enchantment),
+                            ]),
+                        )],
+                        EffectDef::Destroy {
+                            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            then: None,
+                        },
+                    ),
+                    AbilityDef::spell_with_targets(
+                        "Destroy target creature with mana value 3 or greater.",
+                        &[AbilityTargetDef::exactly_one_permanent(
+                            ObjectPredicateDef::All(&[
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                ObjectPredicateDef::Not(&ObjectPredicateDef::ManaValueAtMost(2)),
+                            ]),
+                        )],
+                        EffectDef::Destroy {
+                            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            then: None,
+                        },
+                    ),
+                ],
+                1,
+                2,
+                false,
+            )
+            .with_selection_text(
+                "Choose one. If this spell's additional cost was paid, choose both instead.",
+            )
+            .with_additional_cost(
+                GameActionDef::Choose(GameActionChoiceDef {
+                    binding: crate::Binding!("counterPayment"),
+                    chooser: PlayerRefDef::EffectController,
+                    candidates: ObjectSetDef::Query(ObjectQueryDef::controlled_by(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerSetDef::Related(PlayerRelation::You),
+                    )),
+                    amount: ValueDef::Constant(1),
+                    visibility: ChoiceVisibilityDef::Public,
+                    then: &GameActionDef::ModifyCounters {
+                        object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                            crate::Binding!("counterPayment"),
+                        )),
+                        kind: CounterKind::MinusOneMinusOne,
+                        operation: CounterOperationDef::Add,
+                        amount: 2,
+                    },
+                })
+                .named(BLIGHT)
+                .as_cost(),
+                CostQuantityDef::Subtract(&CostQuantityDef::ModeCount, &CostQuantityDef::Fixed(1)),
+            ),
+        )),
+        EffectDef::None,
+    )),
 );
 
 // ECL 31 — Reluctant Dounguard
@@ -1233,14 +1309,76 @@ pub(in crate::card::sets) static WANDERBRINE_TRAPPER: CardRecord = CardRecord::n
 );
 
 // ECL 43 — Winnowing
-// Audit: unsupported — Needs each player's creatures compared with that player's chosen
-// creature type set, followed by one simultaneous sacrifice of all nonmatching creatures;
-// current cross-object predicates do not compare creature-type intersections.
 pub(in crate::card::sets) static WINNOWING: CardRecord = CardRecord::new(
     "Winnowing",
     "f943a7d8-9550-427e-8c45-ef834329d345",
     "David Palumbo",
-    CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{4}{W}{W}")).with_abilities(&[
+        abilities::convoke(),
+        AbilityDef::spell(
+            "For each player, you choose a creature that player controls. Then each \
+                player sacrifices all other creatures they control that don't share a \
+                creature type with the chosen creature they control.",
+            EffectDef::Choose(ChooseDef {
+                binding: ObjectChoiceBindingDef::Object(crate::Binding!("chosen-own")),
+                unchosen: None,
+                chooser: PlayerRefDef::EffectController,
+                candidates: ObjectSetDef::Query(ObjectQueryDef::controlled_by(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerSetDef::Related(PlayerRelation::You),
+                )),
+                exclude: None,
+                minimum: 1,
+                maximum: 1,
+                visibility: ChoiceVisibilityDef::Public,
+                then: &EffectDef::Choose(ChooseDef {
+                    binding: ObjectChoiceBindingDef::Object(crate::Binding!("chosen-opponent")),
+                    unchosen: None,
+                    chooser: PlayerRefDef::EffectController,
+                    candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Opponent,
+                    )),
+                    exclude: None,
+                    minimum: 1,
+                    maximum: 1,
+                    visibility: ChoiceVisibilityDef::Public,
+                    then: &EffectDef::sacrifice(EffectRecipientDef::objects(ObjectSetDef::Union(
+                        &[
+                            ObjectSetDef::ExceptObject {
+                                objects: &ObjectSetDef::SharingCreatureType {
+                                    objects: &ObjectSetDef::Query(ObjectQueryDef::matching(
+                                        ObjectPredicateDef::HasType(CardType::Creature),
+                                        &[ZoneKind::Battlefield],
+                                        PlayerRelation::You,
+                                    )),
+                                    object: ObjectRefDef::Binding(crate::Binding!("chosen-own")),
+                                    sharing: false,
+                                },
+                                object: ObjectRefDef::Binding(crate::Binding!("chosen-own")),
+                            },
+                            ObjectSetDef::ExceptObject {
+                                objects: &ObjectSetDef::SharingCreatureType {
+                                    objects: &ObjectSetDef::Query(ObjectQueryDef::matching(
+                                        ObjectPredicateDef::HasType(CardType::Creature),
+                                        &[ZoneKind::Battlefield],
+                                        PlayerRelation::Opponent,
+                                    )),
+                                    object: ObjectRefDef::Binding(crate::Binding!(
+                                        "chosen-opponent"
+                                    )),
+                                    sharing: false,
+                                },
+                                object: ObjectRefDef::Binding(crate::Binding!("chosen-opponent")),
+                            },
+                        ],
+                    ))),
+                }),
+            }),
+        ),
+    ]),
 );
 
 // ECL 44 — Aquitect's Defenses
@@ -1651,14 +1789,120 @@ pub(in crate::card::sets) static NOGGLE_THE_MIND: CardRecord = CardRecord::new(
 );
 
 // ECL 61 — Oko, Lorwyn Liege // Oko, Shadowmoor Scion
-// Audit: unsupported — Needs a resolution-time creature-type choice stored on a newly created
-// emblem and used by its static predicate; entry choices on permanents do not create that
-// emblem binding.
-pub(in crate::card::sets) static OKO_LORWYN_LIEGE: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static OKO_LORWYN_LIEGE: CardRecord = CardRecord::new_dfc(
     "Oko, Lorwyn Liege // Oko, Shadowmoor Scion",
     "1dab370a-1067-4d94-be1f-10362d4abf5a",
     "Kai Carpenter",
-    CardRules::unsupported(),
+    &[("Oko, Lorwyn Liege",
+         CardRules::new_planeswalker(mana_cost!("{2}{U}"),
+         &["Oko"],
+         3).with_supertype(CardSupertype::Legendary).with_abilities(&[
+    AbilityDef::triggered("At the beginning of your first main phase, you may pay {G}. If you do, \
+        transform Oko.",
+        TriggerEventDef::StepBegins { step: TurnStepDef::PrecombatMain, player: PlayerRelation::You },
+        EffectDef::PayOr(PayOrDef::optional(&[CostDef::Mana(mana_cost!("{G}"))],
+             &EffectDef::Transform {
+             object: EffectRecipientDef::Source }))),
+
+    AbilityDef::activated_with_targets("+2: Up to one target creature gains all creature types. (This effect \
+        doesn't end.)",
+        &[CostDef::Loyalty(ValueDef::Constant(2))],
+        &[AbilityTargetDef::up_to(AbilityTargetPredicate::Object {
+             object: ObjectPredicateDef::HasType(CardType::Creature),
+             zones: &[ZoneKind::Battlefield],
+             controller: None,
+             owner: None },
+             1)],
+
+        EffectDef::Apply {
+             recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+             effect: AppliedEffectDef::add_creature_types(CreatureTypeSetDef::ALL),
+             duration: ResolvedEffectDurationDef::Permanent }),
+
+    AbilityDef::activated_with_targets("+1: Target creature gets -2/-0 until your next turn.",
+         &[CostDef::Loyalty(ValueDef::Constant(1))],
+
+        &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Creature))],
+        EffectDef::Apply {
+             recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+             effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(-2),
+             ValueDef::Constant(0)),
+             duration: ResolvedEffectDurationDef::UntilYourNextTurn }),
+
+])),
+("Oko, Shadowmoor Scion",
+     CardRules::new_planeswalker_without_mana_cost(
+         &["Oko"])
+         .with_starting_loyalty(3)
+         .with_supertype(CardSupertype::Legendary).printed_colors(&[ManaColor::Green])
+         .with_abilities(&[
+    AbilityDef::triggered("At the beginning of your first main phase, you may pay {U}. If you do, \
+        transform Oko.",
+        TriggerEventDef::StepBegins { step: TurnStepDef::PrecombatMain, player: PlayerRelation::You },
+        EffectDef::PayOr(PayOrDef::optional(&[CostDef::Mana(mana_cost!("{U}"))],
+             &EffectDef::Transform {
+             object: EffectRecipientDef::Source }))),
+
+    AbilityDef::activated("−1: Mill three cards. You may put a permanent card from among them \
+        into your hand.",
+        &[CostDef::Loyalty(ValueDef::Constant(-1))], EffectDef::Sequence(&[
+            EffectDef::BindOutput {
+                 effect: &EffectDef::Mill {
+                 player: EffectRecipientDef::Controller,
+                 amount: ValueDef::Constant(3) },
+                 binding: crate::Binding!("milled") },
+
+            EffectDef::ChooseCardsFromCollection(ChooseCardsFromCollectionDef {
+                source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(crate::Binding!("milled"))),
+                actor: PlayerRefDef::EffectController, inspection: CollectionInspectionDef::Reveal,
+                object: ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::HasType(CardType::Enchantment), ObjectPredicateDef::HasType(CardType::Land),
+                    ObjectPredicateDef::HasType(CardType::Planeswalker),
+                ]), minimum: 0, maximum: 1, chosen: crate::Binding!("chosen"), remainder: crate::Binding!("rest"),
+                then: &EffectDef::move_to_zone(
+                    EffectRecipientDef::objects(ObjectSetDef::Binding(crate::Binding!("chosen"))),
+                     ZoneKind::Hand,
+                     ZonePlacement::Top),
+
+            }),
+        ])),
+    AbilityDef::activated("−3: Create two 3/3 green Elk creature tokens.", &[CostDef::Loyalty(ValueDef::Constant(-3))],
+        EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(TokenCharacteristics::creature(&["Elk"],
+             &[ManaColor::Green],
+             3,
+             3))).with_count(ValueDef::Constant(2)))),
+
+    AbilityDef::activated("−6: Choose a creature type. You get an emblem with \"Creatures you \
+        control of the chosen type get +3/+3 and have vigilance and \
+        hexproof.\"",
+        &[CostDef::Loyalty(ValueDef::Constant(-6))], EffectDef::Sequence(&[
+            EffectDef::BindOutput {
+                 effect: &EffectDef::ChooseCreatureType {
+                 chooser: PlayerRefDef::EffectController },
+                 binding: crate::Binding!("chosen_type") },
+
+            EffectDef::CreateEmblem {
+                 creature_type: Some(crate::Binding!("chosen_type")),
+                 emblem: EmblemCharacteristics::new("Oko, Shadowmoor Scion emblem",
+                 &[
+                AbilityDef::static_ability("Creatures you control of the chosen type get +3/+3 and have vigilance \
+                    and hexproof.", EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                             ObjectPredicateDef::Subtype(SubtypeDef::Binding(crate::Binding!("chosen_type"))),
+
+                    ]), &[ZoneKind::Battlefield], PlayerRelation::You),
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(ValueDef::Constant(3), ValueDef::Constant(3)),
+                        AppliedEffectDef::add_ability(&abilities::vigilance()),
+                             AppliedEffectDef::add_ability(&abilities::hexproof()),
+
+                    ]),
+                }),
+            ]) },
+        ])),
+]))],
 );
 
 // ECL 62 — Omni-Changeling
@@ -1934,14 +2178,49 @@ pub(in crate::card::sets) static SUMMIT_SENTINEL: CardRecord = CardRecord::new(
 );
 
 // ECL 74 — Sunderflock
-// Audit: unsupported — Needs a self-cost value computing the greatest mana value among
-// controlled Elementals; AggregateObjectValues exists for resolving effects but the
-// cost-reduction evaluator does not evaluate aggregates.
 pub(in crate::card::sets) static SUNDERFLOCK: CardRecord = CardRecord::new(
     "Sunderflock",
     "e5b6221e-cb22-45e4-bb98-2b960afc614c",
     "Caio Monteiro",
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{7}{U}{U}"), &["Elemental"], 5, 5).with_abilities(&[
+        abilities::this_spell_cost_reduction(
+            "This spell costs {X} less to cast, where X is the greatest mana value \
+                    among Elementals you control.",
+            ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
+                objects: ObjectSetDef::Query(ObjectQueryDef::matching(
+                    ObjectPredicateDef::Subtype(SubtypeDef::from_name("Elemental")),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                )),
+                select: ObjectValueDef::ManaValue,
+                operation: AggregateOperationDef::Maximum,
+            }),
+        ),
+        abilities::flying(),
+        AbilityDef::triggered_if(
+            "When this creature enters, if you cast it, return all non-Elemental \
+                    creatures to their owners' hands.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            &TriggerConditionDef::SourceWasCast,
+            EffectDef::move_to_zone(
+                EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::new(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(
+                            SubtypeDef::from_name("Elemental"),
+                        )),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                ))),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
+        ),
+    ]),
 );
 
 // ECL 75 — Swat Away
@@ -3308,14 +3587,68 @@ pub(in crate::card::sets) static PERFECT_INTIMIDATION: CardRecord = CardRecord::
 );
 
 // ECL 116 — Requiting Hex
-// Audit: unsupported — Needs a blight cost that chooses a creature you control and puts the
-// required -1/-1 counters on it before the spell or ability is put on the stack; existing
-// counter costs only name the source.
 pub(in crate::card::sets) static REQUITING_HEX: CardRecord = CardRecord::new(
     "Requiting Hex",
     "f21b0fb7-91b6-403f-a81a-562665961276",
     "Randy Gallegos",
-    CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{B}")).with_abilities(&[
+        AbilityDef::optional_additional_cost(
+            "As an additional cost to cast this spell, you may blight 1. (You may \
+        put a -1/-1 counter on a creature you control.)",
+            OptionalAdditionalCostAbilityDef {
+                kind: OptionalAdditionalCostKindDef::Optional,
+                label: "Blight 1",
+                costs: &[GameActionDef::Choose(GameActionChoiceDef {
+                    binding: crate::Binding!("counterPayment"),
+                    chooser: PlayerRefDef::EffectController,
+                    candidates: ObjectSetDef::Query(ObjectQueryDef::controlled_by(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerSetDef::Related(PlayerRelation::You),
+                    )),
+
+                    amount: ValueDef::Constant(1),
+                    visibility: ChoiceVisibilityDef::Public,
+                    then: &GameActionDef::ModifyCounters {
+                        object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                            crate::Binding!("counterPayment"),
+                        )),
+                        kind: CounterKind::MinusOneMinusOne,
+                        operation: CounterOperationDef::Add,
+                        amount: 1,
+                    },
+                })
+                .named(BLIGHT)
+                .as_cost()],
+                resolution_destination: SpellResolutionDestinationDef::Graveyard,
+            },
+        ),
+        AbilityDef::spell_with_targets(
+            "Destroy target creature with mana value 2 or less. If this spell's \
+            additional cost was paid, you gain 2 life.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::ManaValueAtMost(2),
+                ]),
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    then: None,
+                },
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::SourcePaidAdditionalCost(
+                        crate::AdditionalCostIndex::PRIMARY,
+                    ),
+                    then: &EffectDef::GainLife {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(2),
+                    },
+                },
+            ]),
+        ),
+    ]),
 );
 
 // ECL 117 — Retched Wretch
@@ -4461,14 +4794,90 @@ pub(in crate::card::sets) static BRISTLEBANE_OUTRIDER: CardRecord = CardRecord::
 );
 
 // ECL 170 — Celestial Reunion
-// Audit: unsupported — Needs a behold payment that can choose a controlled permanent or reveal
-// a matching card from hand, retaining the chosen object and any linked exile across the cast;
-// the payment programs cannot express that mixed-zone choice.
 pub(in crate::card::sets) static CELESTIAL_REUNION: CardRecord = CardRecord::new(
     "Celestial Reunion",
     "583b2863-aca1-4dab-9196-ea453b5d9454",
     "Justin Gerard",
-    CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{X}{G}")).with_abilities(&[
+        AbilityDef::optional_additional_cost(
+            "As an additional cost to cast this spell, you may choose a creature \
+                type and behold two creatures of that type.",
+            OptionalAdditionalCostAbilityDef {
+                kind: OptionalAdditionalCostKindDef::Optional,
+                label: "Behold two creatures of a chosen type",
+                costs: &[CostDef::Behold {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    count: 2,
+                    choose_creature_type: true,
+                }],
+                resolution_destination: SpellResolutionDestinationDef::Graveyard,
+            },
+        ),
+        AbilityDef::spell(
+            "Search your library for a creature card with mana value X or less, \
+                reveal it, put it into your hand, then shuffle. If this spell's \
+                additional cost was paid and the revealed card is the chosen type, put \
+                that card onto the battlefield instead of putting it into your hand.",
+            EffectDef::SearchZones {
+                searcher: PlayerRefDef::EffectController,
+                owner: PlayerRefDef::EffectController,
+                zones: &[ZoneKind::Library],
+                binding: crate::Binding!("searched"),
+                then: &EffectDef::ChooseCardsFromCollection(ChooseCardsFromCollectionDef {
+                    source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(
+                        crate::Binding!("searched"),
+                    )),
+                    actor: PlayerRefDef::EffectController,
+                    inspection: CollectionInspectionDef::Look,
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::ManaValueAtMostValue(ValueDef::ChosenX),
+                    ]),
+                    minimum: 0,
+                    maximum: 1,
+                    chosen: crate::Binding!("found"),
+                    remainder: crate::Binding!("rest"),
+                    then: &EffectDef::Sequence(&[
+                        EffectDef::RevealObjects(RevealObjectsDef {
+                            input: ObjectSetDef::Binding(crate::Binding!("found")),
+                            then: &EffectDef::None,
+                        }),
+                        EffectDef::IfElseCondition {
+                            condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                                left: ValueDef::CountObjects(&ObjectSetDef::Matching {
+                                    objects: &ObjectSetDef::Binding(crate::Binding!("found")),
+                                    object: ObjectSetFilterDef::Predicate(
+                                        &ObjectPredicateDef::Subtype(
+                                            SubtypeDef::CastChosenCreatureType,
+                                        ),
+                                    ),
+                                }),
+                                comparison: ComparisonDef::GreaterOrEqual,
+                                right: ValueDef::Constant(1),
+                            }),
+                            then: &EffectDef::move_to_zone(
+                                EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                    crate::Binding!("found"),
+                                )),
+                                ZoneKind::Battlefield,
+                                ZonePlacement::Top,
+                            ),
+                            otherwise: &EffectDef::move_to_zone(
+                                EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                    crate::Binding!("found"),
+                                )),
+                                ZoneKind::Hand,
+                                ZonePlacement::Top,
+                            ),
+                        },
+                        EffectDef::ShuffleLibrary {
+                            player: EffectRecipientDef::Controller,
+                        },
+                    ]),
+                }),
+            },
+        ),
+    ]),
 );
 
 // ECL 171 — Champions of the Perfect
@@ -4483,13 +4892,32 @@ pub(in crate::card::sets) static CHAMPIONS_OF_THE_PERFECT: CardRecord = CardReco
 );
 
 // ECL 172 — Chomping Changeling
-// Audit: unsupported — Needs an all-zone creature-type characteristic-defining ability whose
-// all-types value is copiable; battlefield all-type modifiers do not implement changeling.
 pub(in crate::card::sets) static CHOMPING_CHANGELING: CardRecord = CardRecord::new(
     "Chomping Changeling",
     "e187dcc6-19ad-4cf6-94b4-daf07f5144e5",
     "Jeff Laubenstein",
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Shapeshifter"], 1, 2).with_abilities(&[
+        abilities::changeling(),
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, destroy up to one target artifact or enchantment.",
+            &[AbilityTargetDef::up_to(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        ObjectPredicateDef::HasType(CardType::Enchantment),
+                    ]),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+                1,
+            )],
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // ECL 173 — Crossroads Watcher

@@ -581,6 +581,14 @@ impl Game {
         source: Option<AbilitySourceRef>,
     ) {
         match modification {
+            BattlefieldEntryModificationDef::Designation(designation) => {
+                if (designation != crate::card::PermanentDesignationDef::Prepared
+                    || self.prepare_spell_characteristics(permanent).is_some())
+                    && !permanent.designations.contains(&designation)
+                {
+                    permanent.designations.push(designation);
+                }
+            }
             BattlefieldEntryModificationDef::Tapped => permanent.tapped = true,
             BattlefieldEntryModificationDef::Attacking => {
                 permanent.attacking =
@@ -590,6 +598,9 @@ impl Game {
             | BattlefieldEntryModificationDef::SetBasePowerToughness { .. }
             | BattlefieldEntryModificationDef::AddCreatureTypes(_) => {
                 let source = source.expect("a characteristic modification has an authored source");
+                let definition = modification
+                    .applied_effect()
+                    .expect("a characteristic modification has an effect");
                 let timestamp = self.allocate_continuous_effect_timestamp();
                 let kind = match modification {
                     BattlefieldEntryModificationDef::SetCardTypes(types) => {
@@ -612,9 +623,7 @@ impl Game {
                 permanent
                     .resolved_continuous_effects
                     .push(super::ResolvedContinuousEffect {
-                        definition: modification
-                            .applied_effect()
-                            .expect("persistent modification"),
+                        definition,
                         source,
                         timestamp,
                         component_order: 0,

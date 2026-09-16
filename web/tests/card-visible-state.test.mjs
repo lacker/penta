@@ -79,3 +79,18 @@ test("same-name permanents receive stable per-player markers", () => {
   assert.equal(markers.get(11), "2");
   assert.equal(markers.has(12), false);
 });
+
+test("prepared and harnessed designations remain visible and split card piles", () => {
+  const base = { id: 1, name: "Emeritus of Ideation" };
+  const prepared = { ...base, designations: ["prepared"] };
+  assert.equal(cardChoiceLabel(prepared), "Prepared");
+  assert.notEqual(cardPileStateKey(base), cardPileStateKey(prepared));
+  assert.equal(cardChoiceLabel({ designations: ["harnessed"] }), "Harnessed");
+});
+
+test("chosen card types remain visible and distinguish otherwise identical cards", () => {
+  const artifact = { name: "Arachne, Psionic Weaver", chosenCardType: "Artifact" };
+  const enchantment = { ...artifact, chosenCardType: "Enchantment" };
+  assert.equal(cardChoiceLabel(artifact), "Chosen card type: Artifact");
+  assert.notEqual(cardPileStateKey(artifact), cardPileStateKey(enchantment));
+});

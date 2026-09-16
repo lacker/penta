@@ -1356,8 +1356,8 @@ pub(in crate::card::sets) static KAITO_CUNNING_INFILTRATOR: CardRecord = CardRec
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
             AbilityDef::triggered(
-                "Whenever a creature you control deals combat damage to a \
-                 player, put a loyalty counter on Kaito.",
+                "Whenever a creature you control deals combat damage to a player, put a \
+                    loyalty counter on Kaito.",
                 TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
                     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
@@ -1369,8 +1369,8 @@ pub(in crate::card::sets) static KAITO_CUNNING_INFILTRATOR: CardRecord = CardRec
                 },
             ),
             AbilityDef::activated_with_targets(
-                "+1: Up to one target creature you control can't be blocked \
-                 this turn. Draw a card, then discard a card.",
+                "+1: Up to one target creature you control can't be blocked this turn. \
+                    Draw a card, then discard a card.",
                 &[CostDef::Loyalty(ValueDef::Constant(1))],
                 &[AbilityTargetDef::up_to(
                     AbilityTargetPredicate::Object {
@@ -1402,10 +1402,11 @@ pub(in crate::card::sets) static KAITO_CUNNING_INFILTRATOR: CardRecord = CardRec
                 EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(NINJA_TOKEN))),
             ),
             AbilityDef::activated(
-                "−9: You get an emblem with \"Whenever a player casts a spell, \
-                 you create a 2/1 blue Ninja creature token.\"",
+                "−9: You get an emblem with \"Whenever a player casts a spell, you \
+                    create a 2/1 blue Ninja creature token.\"",
                 &[CostDef::Loyalty(ValueDef::Constant(-9))],
                 EffectDef::CreateEmblem {
+                    creature_type: None,
                     emblem: EmblemCharacteristics::new(
                         "Kaito Emblem",
                         &[AbilityDef::triggered(
@@ -5190,10 +5191,9 @@ pub(in crate::card::sets) static KELLAN_PLANAR_TRAILBLAZER: CardRecord = CardRec
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
             AbilityDef::activated(
-                "{1}{R}: If Kellan is a Scout, it becomes a Human Faerie \
-                 Detective and gains \"Whenever Kellan deals combat damage \
-                 to a player, exile the top card of your library. You may \
-                 play that card this turn.\"",
+                "{1}{R}: If Kellan is a Scout, it becomes a Human Faerie Detective and \
+                    gains \"Whenever Kellan deals combat damage to a player, exile the top \
+                    card of your library. You may play that card this turn.\"",
                 &[CostDef::Mana(mana_cost!("{1}{R}"))],
                 EffectDef::IfCondition {
                     // Each activation asks what Kellan is now, so the two have to be paid in
@@ -5216,8 +5216,8 @@ pub(in crate::card::sets) static KELLAN_PLANAR_TRAILBLAZER: CardRecord = CardRec
                             // off the top and playable for the turn, which is what the second
                             // activation is paying to turn on.
                             AppliedEffectDef::add_ability(&AbilityDef::triggered(
-                                "Whenever Kellan deals combat damage to a player, exile the \
-                                 top card of your library. You may play that card this turn.",
+                                "Whenever Kellan deals combat damage to a player, exile the top card of \
+                                    your library. You may play that card this turn.",
                                 TriggerEventDef::combat_damage_to_player(
                                     ObjectPredicateDef::Source,
                                 ),
@@ -5227,7 +5227,7 @@ pub(in crate::card::sets) static KELLAN_PLANAR_TRAILBLAZER: CardRecord = CardRec
                                     free: false,
                                     face_down: false,
                                     duration: ExilePlayDurationDef::ThisTurn,
-                                    spend_any_color: false,
+                                    mana_spending: None,
                                     play_condition: None,
                                     cast_only: false,
                                 },
@@ -5238,8 +5238,8 @@ pub(in crate::card::sets) static KELLAN_PLANAR_TRAILBLAZER: CardRecord = CardRec
                 },
             ),
             AbilityDef::activated(
-                "{2}{R}: If Kellan is a Detective, it becomes a 3/2 Human \
-                 Faerie Rogue and gains double strike.",
+                "{2}{R}: If Kellan is a Detective, it becomes a 3/2 Human Faerie Rogue \
+                    and gains double strike.",
                 &[CostDef::Mana(mana_cost!("{2}{R}"))],
                 EffectDef::IfCondition {
                     condition: &TriggerConditionDef::SourceMatches {

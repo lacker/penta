@@ -34,6 +34,7 @@ pub(in crate::card::sets::tests) fn shared_object_predicate(predicate: ObjectPre
         | ObjectPredicateDef::ManaCostHasX
         | ObjectPredicateDef::ManaValueAtMost(_)
         | ObjectPredicateDef::FaceUpInExile
+        | ObjectPredicateDef::HasAlternateSpell(_)
         | ObjectPredicateDef::GenericManaCostAtMost(_)
         | ObjectPredicateDef::ManaValueEqualTo(_)
         | ObjectPredicateDef::ManaValueAtMostValue(_)
@@ -63,6 +64,7 @@ pub(in crate::card::sets::tests) fn shared_object_predicate(predicate: ObjectPre
         | ObjectPredicateDef::HasNonManaActivatedAbility
         | ObjectPredicateDef::Tapped
         | ObjectPredicateDef::Attacking
+        | ObjectPredicateDef::UnblockedAttacker
         | ObjectPredicateDef::Saddled
         | ObjectPredicateDef::Blocking
         | ObjectPredicateDef::AttachedToSource

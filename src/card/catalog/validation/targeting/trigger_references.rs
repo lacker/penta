@@ -21,6 +21,7 @@ fn trigger_stat_value_is_supported(value: ValueDef) -> bool {
             | ValueDef::SourceToughness
             | ValueDef::CountersOnSource(_)
             | ValueDef::CardsDrawnThisTurn(_)
+            | ValueDef::PermanentsSacrificedThisTurn(_)
             | ValueDef::CardsDiscardedThisTurn(_)
             | ValueDef::DevotionTo(_)
             | ValueDef::BasicLandTypesControlled(_)
@@ -101,6 +102,7 @@ fn validate_trigger_object_predicate(
         | ObjectPredicateDef::FaceUpInExile
         // A trigger snapshot carries mana value, not the printed cost, so
         // the cost-shape reading has nothing to read here.
+        | ObjectPredicateDef::HasAlternateSpell(_)
         | ObjectPredicateDef::GenericManaCostAtMost(_)
         | ObjectPredicateDef::Special(_) => Err(unsupported_trigger_event(event)),
         ObjectPredicateDef::Any
@@ -135,7 +137,7 @@ fn validate_trigger_object_predicate(
         | ObjectPredicateDef::AttackingOrBlocking
         | ObjectPredicateDef::HasKeyword(_)
         | ObjectPredicateDef::HasNonManaActivatedAbility
-        | ObjectPredicateDef::Attacking
+        | ObjectPredicateDef::Attacking | ObjectPredicateDef::UnblockedAttacker
         | ObjectPredicateDef::Saddled
         | ObjectPredicateDef::AttachedToSource
         | ObjectPredicateDef::Blocking
@@ -190,6 +192,7 @@ fn trigger_predicate_requires_live_battlefield(predicate: ObjectPredicateDef) ->
         | ObjectPredicateDef::ManaCostHasX
         | ObjectPredicateDef::ManaValueAtMost(_)
         | ObjectPredicateDef::FaceUpInExile
+        | ObjectPredicateDef::HasAlternateSpell(_)
         | ObjectPredicateDef::GenericManaCostAtMost(_)
         | ObjectPredicateDef::ManaValueEqualTo(_)
         | ObjectPredicateDef::ManaValueAtMostValue(_)
@@ -216,6 +219,7 @@ fn trigger_predicate_requires_live_battlefield(predicate: ObjectPredicateDef) ->
         | ObjectPredicateDef::HasAbility(_)
         | ObjectPredicateDef::AttachedToSource
         | ObjectPredicateDef::Attacking
+        | ObjectPredicateDef::UnblockedAttacker
         | ObjectPredicateDef::Saddled
         | ObjectPredicateDef::Blocking
         | ObjectPredicateDef::BlockedBySource
@@ -560,6 +564,7 @@ fn validate_trigger_event_references(
         | TriggerEventDef::LandPlayed { .. }
         | TriggerEventDef::LifeGained(_)
         | TriggerEventDef::BecomesMonarch(_)
+        | TriggerEventDef::SearchedLibrary(_)
         | TriggerEventDef::DrewCard(_)
         | TriggerEventDef::Discarded(_)
         | TriggerEventDef::DiscardedCards(_)

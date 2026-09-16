@@ -143,6 +143,7 @@ impl std::error::Error for ZoneError {}
 /// A command-zone emblem and the printed ability that created it.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct EmblemObservation {
+    pub chosen_creature_type: Option<String>,
     pub id: GameObjectId,
     pub controller: PlayerId,
     pub name: String,
@@ -194,6 +195,7 @@ pub struct PermanentObservation {
     /// clients may still render it beside similar objects, but must not
     /// collapse it into a shared visual pile.
     pub has_individual_state: bool,
+    pub designations: Vec<crate::card::PermanentDesignationDef>,
     pub controller: PlayerId,
     /// Whether this permanent is phased out. It is public information --
     /// both players can see it -- and the rules merely treat it as though it
@@ -211,6 +213,8 @@ pub struct PermanentObservation {
     pub types: CardTypeSet,
     /// Public choice associated with permanents such as Cavern of Souls.
     pub chosen_creature_type: Option<String>,
+    /// Public card type selected as this permanent entered.
+    pub chosen_card_type: Option<String>,
     /// The basic land type this permanent was told to be as it entered.
     pub chosen_basic_land_type: Option<crate::card::BasicLandType>,
     /// Public ordered pair chosen for a persistent basic-land-type
@@ -319,6 +323,7 @@ pub struct PlayerObservation {
     /// Who holds the crown (CR 720), if anyone. Public information: both
     /// players know, and so does anything reading the observation.
     pub monarch: Option<PlayerId>,
+    pub enduring_story: [bool; 2],
     pub mana_pools: [ManaPool; 2],
     pub hand: Vec<(GameObjectId, CardDefinitionId)>,
     pub opponent_hand_size: usize,
@@ -354,6 +359,8 @@ pub struct PlayerObservation {
     pub face_down_exile_sizes: [usize; 2],
     /// Sparse counter state for visible cards in nonbattlefield zones.
     pub card_counters: Vec<CardCounterObservation>,
+    /// Normal characteristics of unbacked copies currently in exile.
+    pub exiled_part_copies: Vec<(GameObjectId, CardPartId)>,
     pub battlefield: Vec<PermanentObservation>,
     pub emblems: Vec<EmblemObservation>,
     pub stack: Vec<StackObservation>,

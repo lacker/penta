@@ -54,8 +54,8 @@ const fn conspire(spell: &'static AbilityDef, costs: &'static [CostDef]) -> [Abi
     [
         *spell,
         AbilityDef::optional_additional_cost(
-            "Conspire (As you cast this spell, you may tap two untapped \
-             creatures you control that share a color with it.)",
+            "Conspire (As you cast this spell, you may tap two untapped creatures \
+                you control that share a color with it.)",
             OptionalAdditionalCostAbilityDef {
                 kind: OptionalAdditionalCostKindDef::Conspire,
                 label: "Conspire",
@@ -176,9 +176,8 @@ pub(in crate::card::sets) static KNACKSAW_CLIQUE: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{3}{U}"), &["Faerie", "Rogue"], 1, 4).with_abilities(&[
         abilities::flying(),
         AbilityDef::activated_with_targets(
-            "{1}{U}, {Q}: Target opponent exiles the top card of their \
-             library. Until end of turn, you may play that card. ({Q} is \
-             the untap symbol.)",
+            "{1}{U}, {Q}: Target opponent exiles the top card of their library. \
+                Until end of turn, you may play that card. ({Q} is the untap symbol.)",
             &[CostDef::Mana(mana_cost!("{1}{U}")), CostDef::UntapSource],
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Player(PlayerRelation::Opponent),
@@ -189,7 +188,7 @@ pub(in crate::card::sets) static KNACKSAW_CLIQUE: CardRecord = CardRecord::new(
                 free: false,
                 face_down: false,
                 duration: ExilePlayDurationDef::ThisTurn,
-                spend_any_color: false,
+                mana_spending: None,
                 play_condition: None,
                 cast_only: false,
             },

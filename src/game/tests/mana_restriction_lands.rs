@@ -20,10 +20,12 @@ fn cast_purpose(definition: CardDefinitionId) -> ManaPaymentPurpose {
         definition,
         controller: PlayerId::One,
         commander_owner: None,
+        source_zone: Some(ZoneKind::Hand),
         form: SpellForm::Part(CardPartId::PRIMARY),
         alternative: None,
         x: 0,
         spend_any_color: false,
+        spend_any_type: false,
         reserved_life_payment: 0,
     }
 }

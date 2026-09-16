@@ -137,6 +137,7 @@ pub enum ReplacementConditionDef {
 pub enum BattlefieldEntryModificationDef {
     /// Put this permanent into combat attacking, choosing a legal defender as it enters.
     Attacking,
+    Designation(super::super::PermanentDesignationDef),
     Tapped,
     /// Establish a noncopiable layer-4 type-setting effect before replacement
     /// effects inspect the prospective permanent. It lasts for this object.
@@ -180,6 +181,8 @@ pub enum ScalarChoiceListDef {
     CardNames(CardNameSetDef),
     /// Every creature subtype available to the current game.
     CreatureTypes,
+    /// An explicit set of card types available for an entry choice.
+    CardTypes(&'static [crate::card::CardType]),
     /// The five basic land types, which are fixed rather than catalog-derived.
     BasicLandTypes,
     /// The five colors. Colorless is a mana type, not a color, and is not an
@@ -195,6 +198,7 @@ pub enum BattlefieldEntryChoiceDestinationDef {
     Token,
     CardName,
     CreatureType,
+    CardType,
     /// A basic land type, which the permanent then *is* rather than merely
     /// remembers: Multiversal Passage names one on the way in and reads it
     /// back in layer 4.

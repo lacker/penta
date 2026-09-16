@@ -1,6 +1,9 @@
 //! Bloomburrow card inventory.
 
+use crate::card::EmblemCharacteristics;
+use crate::card::MechanicId;
 use crate::card::PlayPermissionDef;
+use crate::card::ResolutionEventDef;
 use crate::card::ZonePositionDef;
 
 use super::CardRecord;
@@ -119,22 +122,20 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
-pub(in crate::card::sets) const FORAGE: crate::card::MechanicId =
-    crate::card::MechanicId::from_name("mtg:forage");
+pub(in crate::card::sets) const FORAGE: MechanicId = MechanicId::from_name("mtg:forage");
 
-const fn forage() -> crate::card::GameActionDef {
-    const ACTION: crate::card::GameActionDef = crate::card::actions::choice(&[
+const fn forage() -> GameActionDef {
+    const ACTION: GameActionDef = crate::card::actions::choice(&[
         crate::card::actions::choose_exile_from_graveyard(3),
-        crate::card::actions::choose_sacrifice(1).matching(ObjectPredicateDef::Subtype(
-            crate::card::SubtypeDef::from_name("Food"),
-        )),
+        crate::card::actions::choose_sacrifice(1)
+            .matching(ObjectPredicateDef::Subtype(SubtypeDef::from_name("Food"))),
     ]);
     ACTION.named(FORAGE)
 }
 
 /// Completion identity for CR 702.174c; independent of whether the gift's
 /// draw or token creation was replaced.
-pub(crate) const GIFT: crate::card::MechanicId = crate::card::MechanicId::from_name("mtg:gift");
+pub(crate) const GIFT: MechanicId = MechanicId::from_name("mtg:gift");
 
 const GIFT_PROMISED: TriggerConditionDef =
     TriggerConditionDef::SourceHasCastPlayerBinding(crate::Binding!("gift"));
@@ -154,13 +155,14 @@ const fn gift(
                 then: effect,
             },
         )
-        .on_resolution_completed(&crate::card::ResolutionEventDef {
+        .on_resolution_completed(&ResolutionEventDef {
             mechanic: GIFT,
             condition: Some(&GIFT_PROMISED),
         })
     } else {
         AbilityDef::triggered_if(
-            "When this permanent enters, if the gift was promised, give the chosen opponent the gift.",
+            "When this permanent enters, if the gift was promised, give the chosen \
+                opponent the gift.",
             TriggerEventDef::zone_changed(
                 ObjectPredicateDef::Source,
                 None,
@@ -169,7 +171,7 @@ const fn gift(
             &GIFT_PROMISED,
             *effect,
         )
-        .on_resolution_completed(&crate::card::ResolutionEventDef {
+        .on_resolution_completed(&ResolutionEventDef {
             mechanic: GIFT,
             condition: None,
         })
@@ -220,8 +222,8 @@ const fn offspring(costs: &'static [CostDef], text: &'static str) -> AbilityDef 
 }
 const fn offspring_arrival() -> AbilityDef {
     AbilityDef::triggered_if(
-        "When this creature enters, if its offspring cost was paid, \
-         create a token that's a copy of it, except it's 1/1.",
+        "When this creature enters, if its offspring cost was paid, create a \
+            token that's a copy of it, except it's 1/1.",
         TriggerEventDef::zone_changed(
             ObjectPredicateDef::Source,
             None,
@@ -7574,13 +7576,15 @@ pub(in crate::card::sets) static RAL_CRACKLING_WIT: CardRecord = CardRecord::new
                 ]),
             ),
             AbilityDef::activated(
-                "−10: Draw three cards. You get an emblem with \"Instant and sorcery spells you cast have storm.\" \
-                 (Whenever you cast an instant or sorcery spell, copy it for each spell cast before it this turn.)",
+                "−10: Draw three cards. You get an emblem with \"Instant and sorcery \
+                    spells you cast have storm.\" (Whenever you cast an instant or sorcery \
+                    spell, copy it for each spell cast before it this turn.)",
                 &[CostDef::Loyalty(ValueDef::Constant(-10))],
                 EffectDef::Sequence(&[
                     abilities::draw_cards(ValueDef::Constant(3)),
                     EffectDef::CreateEmblem {
-                        emblem: crate::card::EmblemCharacteristics::new(
+                        creature_type: None,
+                        emblem: EmblemCharacteristics::new(
                             "Ral, Crackling Wit emblem",
                             &[AbilityDef::static_ability(
                                 "Instant and sorcery spells you cast have storm.",

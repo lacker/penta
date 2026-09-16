@@ -161,7 +161,10 @@ impl Game {
         // A permission handed out by a resolution names one card for the
         // turn; the static ones below name a whole class of them for as
         // long as their source is on the battlefield.
-        self.graveyard_cast_permission(card.id, player).is_some()
+        self.graveyard_cast_permission(card.id, player)
+            .is_some_and(|permission| {
+                option.action == PlayActionKind::CastSpell || permission.lands_may_be_played
+            })
             || self
                 .matching_play_permission(card, player, option, |permission| {
                     matches!(permission, PlayPermission::Cards(_)).then_some(())

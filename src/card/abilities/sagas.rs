@@ -34,6 +34,16 @@ pub const fn saga_chapters_with_targets(
     AbilityDef::triggered_with_targets(text, saga_chapters_event(chapters), targets, effect)
 }
 
+/// One printed clause shared by several chapter abilities (CR 714.2c).
+#[must_use]
+pub const fn saga_chapters(
+    chapters: &'static [u8],
+    text: &'static str,
+    effect: EffectDef,
+) -> AbilityDef {
+    AbilityDef::triggered(text, saga_chapters_event(chapters), effect)
+}
+
 /// One chapter of a Saga (CR 714.2c): the ability that triggers when the
 /// lore counter placed makes the count reach `chapter`.
 ///

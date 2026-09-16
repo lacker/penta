@@ -128,6 +128,7 @@ impl Game {
         player: PlayerId,
         action: &Action,
     ) -> Option<()> {
+        let alternative_cost = action.alternative_ability_cost();
         match action.clone() {
             Action::CastSpell {
                 card,
@@ -142,11 +143,22 @@ impl Game {
                 x,
                 modes,
                 mana_payment,
+            }
+            | Action::ActivateAbilityWithAlternativeCost {
+                source,
+                ability,
+                targets,
+                cost_objects,
+                x,
+                modes,
+                mana_payment,
+                ..
             } => self.activate_ability(
                 player,
                 source,
                 ability,
                 ActivationChoices {
+                    alternative_cost,
                     targets,
                     cost_objects: &cost_objects,
                     x,

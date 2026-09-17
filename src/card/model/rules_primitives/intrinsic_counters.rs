@@ -11,15 +11,19 @@ pub enum IntrinsicCounter {
     Finality,
     Stun,
     Poison,
+    Hone,
+    Shield,
 }
 
 impl IntrinsicCounter {
-    pub const ALL: [Self; 5] = [
+    pub const ALL: [Self; 7] = [
         Self::Loyalty,
         Self::Lore,
         Self::Finality,
         Self::Stun,
         Self::Poison,
+        Self::Hone,
+        Self::Shield,
     ];
 
     #[must_use]
@@ -30,6 +34,8 @@ impl IntrinsicCounter {
             Self::Finality => "finality",
             Self::Stun => "stun",
             Self::Poison => "poison",
+            Self::Hone => "hone",
+            Self::Shield => "shield",
         }
     }
 

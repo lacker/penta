@@ -332,10 +332,12 @@ fn parse_continuation(
             },
         },
         DecisionContinuationSnapshot::CardNameChoice {
+            creature_type,
             choices,
             binding,
             resume,
         } => DecisionContinuation::CardNameChoice {
+            creature_type: *creature_type,
             choices: choices.clone(),
             binding: parse_binding_snapshot(binding),
             resume: Box::new(parse_pending_procedure(resume, game)?),

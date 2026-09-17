@@ -57,10 +57,16 @@ fn restore_permanent_cast_context(
         catalog,
     )?;
     let caster = state.cast_by.map(player_from_index).transpose()?;
+    let sneak_defender = state
+        .cast_sneak_defender
+        .map(super::restore_sneak_defender)
+        .transpose()?;
     let permission_entry_counters =
         super::stack::parse_permission_entry_counters(&state.permission_entry_counters)?;
     permanent.cast = has_cast_context.then(|| CastContext {
         caster,
+        sneak_defender,
+        prepared_from: state.cast_prepared_from.map(GameObjectId),
         source_zone,
         alternative,
         alternative_cost_binding,
@@ -70,6 +76,7 @@ fn restore_permanent_cast_context(
         repeatable_additional_costs: state.cast_kicks,
         additional_costs: state.cast_additional_costs.clone(),
         colors_of_mana_spent,
+        mana_spent: state.cast_mana_spent,
         phyrexian_symbols_paid_with_life: state.cast_phyrexian_symbols_paid_with_life,
         exiled_payment_cards: state
             .cast_exiled_payment_cards

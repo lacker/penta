@@ -64,8 +64,8 @@ pub(in crate::card::sets) static HEADLINER_SCARLETT: CardRecord = CardRecord::ne
         .with_abilities(&[
             abilities::haste(),
             abilities::enters_trigger_with_targets(
-                "When Headliner Scarlett enters, creatures target player \
-                 controls can't block this turn.",
+                "When Headliner Scarlett enters, creatures target player controls can't \
+                    block this turn.",
                 // "Creatures target player controls." Read as the trigger resolves, so a
                 // creature that arrives afterwards blocks perfectly well -- which is what
                 // makes this a tempo card rather than an evasion one.
@@ -88,9 +88,8 @@ pub(in crate::card::sets) static HEADLINER_SCARLETT: CardRecord = CardRecord::ne
             // around, and at its own cost: what the upkeep buys is a card a turn,
             // not a free one.
             AbilityDef::triggered(
-                "At the beginning of your upkeep, exile the top card of your \
-                 library face down. You may look at and play that card this \
-                 turn.",
+                "At the beginning of your upkeep, exile the top card of your library \
+                    face down. You may look at and play that card this turn.",
                 TriggerEventDef::StepBegins {
                     step: TurnStepDef::Upkeep,
                     player: PlayerRelation::You,
@@ -101,7 +100,7 @@ pub(in crate::card::sets) static HEADLINER_SCARLETT: CardRecord = CardRecord::ne
                     free: false,
                     face_down: true,
                     duration: ExilePlayDurationDef::ThisTurn,
-                    spend_any_color: false,
+                    mana_spending: None,
                     play_condition: None,
                     cast_only: false,
                 },

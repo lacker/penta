@@ -201,6 +201,8 @@ impl CounterKind {
     pub const Finality: Self = Self::intrinsic_named(IntrinsicCounter::Finality);
     pub const Stun: Self = Self::intrinsic_named(IntrinsicCounter::Stun);
     pub const Poison: Self = Self::intrinsic_named(IntrinsicCounter::Poison);
+    pub const Shield: Self = Self::intrinsic_named(IntrinsicCounter::Shield);
+    pub const Hone: Self = Self::intrinsic_named(IntrinsicCounter::Hone);
 
     /// Whether this is the counter a Saga reads its chapters with.
     #[must_use]
@@ -211,7 +213,9 @@ impl CounterKind {
     /// The counter names currently authored in the catalog or interpreted by
     /// the engine. This is a serialization registry, not a storage layout:
     /// its order has no rules or checkpoint meaning.
-    pub const KNOWN: [Self; 68] = [
+    pub const KNOWN: [Self; 72] = [
+        Self::Shield,
+        Self::Hone,
         Self::PlusOnePlusOne,
         Self::Lore,
         Self::named("javelin"),
@@ -280,9 +284,13 @@ impl CounterKind {
         Self::named("growth"),
         Self::named("page"),
         Self::named("component"),
+        Self::named("quest"),
+        Self::named("plan"),
     ];
 
-    const KNOWN_NAMES: [&'static str; 68] = [
+    const KNOWN_NAMES: [&'static str; Self::KNOWN.len()] = [
+        "shield",
+        "hone",
         "+1/+1",
         "lore",
         "javelin",
@@ -351,6 +359,8 @@ impl CounterKind {
         "growth",
         "page",
         "component",
+        "quest",
+        "plan",
     ];
 
     #[must_use]

@@ -135,7 +135,7 @@ impl Game {
             std::borrow::Cow::into_owned,
         );
         let target_effect = match trigger.effect {
-            EffectDef::May { effect, .. } => *effect,
+            EffectDef::OncePerTurn { effect } | EffectDef::May { effect, .. } => *effect,
             effect => effect,
         };
         let preference = if matches!(
@@ -226,7 +226,17 @@ impl Game {
             .modes
             .take()
             .expect("asked only for a modal trigger");
-        let offered = modal.modes.iter().enumerate().collect::<Vec<_>>();
+        let offered = modal
+            .modes
+            .iter()
+            .enumerate()
+            .filter(|(index, _)| {
+                !modal.different_each_turn
+                    || !self
+                        .modes_chosen_this_turn
+                        .contains(&(trigger.source, *index))
+            })
+            .collect::<Vec<_>>();
         // "Choose up to one" makes declining an answer in its own right, so
         // a lone executable mode is still a question worth asking.
         let required = usize::from(modal.minimum.min(1));
@@ -234,6 +244,10 @@ impl Game {
             .first()
             .filter(|_| offered.len() == 1 && required == 1)
         else {
+            if offered.is_empty() && required > 0 {
+                self.place_trigger_sequence(pending, remaining);
+                return;
+            }
             if offered.is_empty() {
                 let mut continued = vec![trigger];
                 continued.extend(pending);
@@ -289,7 +303,7 @@ impl Game {
             return;
         };
         // One executable mode is no choice at all.
-        Self::apply_trigger_mode(&mut trigger, modal, *only);
+        self.apply_trigger_mode(&mut trigger, modal, *only);
         let mut continued = vec![trigger];
         continued.extend(pending);
         self.place_trigger_sequence(continued, remaining);
@@ -299,6 +313,7 @@ impl Game {
     /// trigger. From here it is an ordinary trigger carrying one program,
     /// which is also what lets a checkpoint locate the mode again.
     pub(super) fn apply_trigger_mode(
+        &mut self,
         trigger: &mut PendingTrigger,
         modal: crate::card::ModalSpellDef,
         index: usize,
@@ -306,6 +321,9 @@ impl Game {
         let Some(mode) = modal.modes.get(index) else {
             return;
         };
+        if modal.different_each_turn {
+            self.modes_chosen_this_turn.push((trigger.source, index));
+        }
         trigger.modes = None;
         trigger.text = mode.text;
         trigger.effect = mode.declarative_effect().unwrap_or(EffectDef::None);
@@ -478,7 +496,14 @@ impl Game {
         }
     }
 
-    pub(super) fn put_trigger_on_stack(&mut self, trigger: PendingTrigger) {
+    pub(super) fn put_trigger_on_stack(&mut self, mut trigger: PendingTrigger) {
+        if trigger.context.source_transform_count.is_none() {
+            trigger.context.source_transform_count = self
+                .battlefield
+                .iter()
+                .find(|permanent| permanent.card.id == trigger.source.object)
+                .map(|permanent| permanent.transform_count);
+        }
         let id = trigger
             .stack_object
             .unwrap_or_else(|| self.allocate_object_id());

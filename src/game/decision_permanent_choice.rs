@@ -480,7 +480,9 @@ pub(super) fn effect_removes_binding(effect: EffectDef, binding: ObjectChoiceBin
                     .otherwise
                     .is_some_and(|effect| effect_removes_binding(*effect, binding))
         }
-        EffectDef::May { effect, .. } | EffectDef::ReplaceNextDrawThisTurn { effect, .. } => {
+        EffectDef::OncePerTurn { effect }
+        | EffectDef::May { effect, .. }
+        | EffectDef::ReplaceNextDrawThisTurn { effect, .. } => {
             effect_removes_binding(*effect, binding)
         }
         effect @ (EffectDef::IfCondition { .. } | EffectDef::IfElseCondition { .. }) => {

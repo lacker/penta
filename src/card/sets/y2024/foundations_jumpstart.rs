@@ -242,9 +242,10 @@ pub(in crate::card::sets) static SCYTHECAT_CUB: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{1}{G}"), &["Cat"], 2, 2).with_abilities(&[
         abilities::trample(),
         AbilityDef::triggered_with_targets(
-            "Landfall \u{2014} Whenever a land you control enters, put a +1/+1 counter on target \
-             creature you control. If this is the second time this ability has resolved this \
-             turn, double the number of +1/+1 counters on that creature instead.",
+            "Landfall \u{2014} Whenever a land you control enters, put a +1/+1 \
+                counter on target creature you control. If this is the second time \
+                this ability has resolved this turn, double the number of +1/+1 \
+                counters on that creature instead.",
             // A land arriving under your control, which is what landfall watches: a
             // land put onto the battlefield by a search counts exactly as one played
             // from hand does.
@@ -276,7 +277,7 @@ pub(in crate::card::sets) static SCYTHECAT_CUB: CardRecord = CardRecord::new(
                 // just as readily.
                 then: &EffectDef::DoubleCounters {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    kind: CounterKind::PlusOnePlusOne,
+                    kind: Some(CounterKind::PlusOnePlusOne),
                 },
                 otherwise: &EffectDef::AddCounters {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),

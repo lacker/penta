@@ -454,7 +454,9 @@ impl HandcraftedPolicy {
                         .find_map(|effect| Self::target_condition_in(**effect))
                 })
             }
-            EffectDef::May { effect, .. } => Self::target_condition_in(*effect),
+            EffectDef::OncePerTurn { effect } | EffectDef::May { effect, .. } => {
+                Self::target_condition_in(*effect)
+            }
             effect @ (EffectDef::IfCondition { .. } | EffectDef::IfElseCondition { .. }) => {
                 let conditional = effect
                     .conditional()
@@ -500,7 +502,8 @@ impl HandcraftedPolicy {
             crate::card::ObjectSetDef::PlayerAttachments(query) => {
                 Self::target_condition_in_object_predicate(query.object)
             }
-            crate::card::ObjectSetDef::ExceptObject { objects, .. } => {
+            crate::card::ObjectSetDef::SharingCreatureType { objects, .. }
+            | crate::card::ObjectSetDef::ExceptObject { objects, .. } => {
                 Self::target_condition_in_object_set(*objects)
             }
             crate::card::ObjectSetDef::One(_)
@@ -515,6 +518,7 @@ impl HandcraftedPolicy {
             | crate::card::ObjectSetDef::CardsDrawnThisTurnInHand(_)
             | crate::card::ObjectSetDef::PermanentsControlledBy(_)
             | crate::card::ObjectSetDef::TokensCreatedBy(_)
+            | crate::card::ObjectSetDef::AttachmentsOf(_)
             | crate::card::ObjectSetDef::BottomOfGraveyard(_)
             | crate::card::ObjectSetDef::LegalTargets(_)
             | crate::card::ObjectSetDef::TopOfGraveyardMatching { .. } => None,
@@ -651,6 +655,7 @@ impl HandcraftedPolicy {
                 .iter()
                 .find_map(|cost| Self::target_condition_in_cost(*cost)),
             crate::CostDef::GenericMana(value)
+            | crate::CostDef::Life(value)
             | crate::CostDef::ColoredMana { amount: value, .. } => {
                 Self::target_condition_in_value(value)
             }

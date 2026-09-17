@@ -136,6 +136,7 @@ impl Game {
             CharacteristicSource::Card(_)
             | CharacteristicSource::Emblem(_)
             | CharacteristicSource::FaceDown(_)
+            | CharacteristicSource::PartCopy { .. }
             | CharacteristicSource::Copy(_)
             | CharacteristicSource::Ability(_)
             | CharacteristicSource::Meld(_) => None,

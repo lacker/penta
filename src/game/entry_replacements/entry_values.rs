@@ -12,6 +12,9 @@ pub(super) fn entry_value(
     match value {
         ValueDef::Constant(value) => Some(value),
         ValueDef::SourceCastX => Some(i32::from(permanent.cast.as_ref().map_or(0, |cast| cast.x))),
+        ValueDef::ManaSpentToCast(crate::card::ObjectRefDef::Source) => Some(i32::from(
+            permanent.cast.as_ref().map_or(0, |cast| cast.mana_spent),
+        )),
         ValueDef::ColorsOfManaSpent => Some(i32::from(
             permanent
                 .cast

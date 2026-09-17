@@ -32,6 +32,51 @@ impl Game {
         }
         cost.variable_x = false;
         cost.x_multiplier = 0;
+        self.cast_mana_spending_cost(cost, view.object, view.controller)
+    }
+
+    fn cast_mana_spending_cost(
+        &self,
+        mut cost: ManaCost,
+        card: GameObjectId,
+        player: PlayerId,
+    ) -> ManaCost {
+        let Some(permission) = self.matching_exile_play_permission(card, player, |permission| {
+            permission.spend_any_color || permission.spend_any_type
+        }) else {
+            return cost;
+        };
+        for color in [
+            ManaColor::White,
+            ManaColor::Blue,
+            ManaColor::Black,
+            ManaColor::Red,
+            ManaColor::Green,
+        ] {
+            let amount = match color {
+                ManaColor::White => std::mem::take(&mut cost.white),
+                ManaColor::Blue => std::mem::take(&mut cost.blue),
+                ManaColor::Black => std::mem::take(&mut cost.black),
+                ManaColor::Red => std::mem::take(&mut cost.red),
+                ManaColor::Green => std::mem::take(&mut cost.green),
+                ManaColor::Colorless => unreachable!(),
+            };
+            cost.generic = cost.generic.saturating_add(amount);
+        }
+        if permission.spend_any_type {
+            cost.generic = cost
+                .generic
+                .saturating_add(std::mem::take(&mut cost.colorless));
+        }
+        // Life and two-brid choices have already been announced. Each
+        // remaining flexible symbol can be paid with one mana of any color.
+        for symbol in crate::card::FlexibleManaSymbol::ALL {
+            let amount = cost.flexible_count(symbol);
+            cost = cost
+                .without_flexible(symbol, amount)
+                .expect("existing symbols");
+            cost.generic = cost.generic.saturating_add(amount);
+        }
         cost
     }
 

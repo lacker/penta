@@ -128,8 +128,8 @@ pub(in crate::card::sets) static LAELIA_THE_BLADE_REFORGED: CardRecord = CardRec
         .with_abilities(&[
             abilities::haste(),
             AbilityDef::triggered(
-                "Whenever Laelia attacks, exile the top card of your \
-                 library. You may play that card this turn.",
+                "Whenever Laelia attacks, exile the top card of your library. You may \
+                    play that card this turn.",
                 TriggerEventDef::attacks(ObjectPredicateDef::Source),
                 EffectDef::ExileTopOfLibraryToPlay {
                     player: EffectRecipientDef::Controller,
@@ -139,7 +139,7 @@ pub(in crate::card::sets) static LAELIA_THE_BLADE_REFORGED: CardRecord = CardRec
                     free: false,
                     face_down: false,
                     duration: ExilePlayDurationDef::ThisTurn,
-                    spend_any_color: false,
+                    mana_spending: None,
                     play_condition: None,
                     cast_only: false,
                 },
@@ -148,9 +148,8 @@ pub(in crate::card::sets) static LAELIA_THE_BLADE_REFORGED: CardRecord = CardRec
             // or more" means: her own attack trigger gives one, and a Breach exiling
             // three still gives one.
             AbilityDef::triggered(
-                "Whenever one or more cards are put into exile from your \
-                 library and/or your graveyard, put a +1/+1 counter on \
-                 Laelia.",
+                "Whenever one or more cards are put into exile from your library and/or \
+                    your graveyard, put a +1/+1 counter on Laelia.",
                 TriggerEventDef::CardsExiled {
                     // "From your library and/or your graveyard": one clause naming two zones,
                     // so either answers it and a move that takes cards from both is still one

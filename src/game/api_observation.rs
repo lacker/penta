@@ -35,6 +35,7 @@ impl Game {
                     .collect()
             }),
             monarch: self.monarch,
+            enduring_story: self.enduring_story,
             mana_pools: [self.players[0].mana_pool, self.players[1].mana_pool],
             hand: player
                 .hand
@@ -43,16 +44,27 @@ impl Game {
                 .collect(),
             opponent_hand_size: opponent.hand.len(),
             last_seen_hand: self.last_seen_hands[viewer.index()].clone(),
-            public_reveals: self.events.iter().filter_map(|event| match event {
-                GameEvent::CardRevealed { player, card, definition } => Some((*player, *card, *definition)),
-                _ => None,
-            }).collect(),
+            public_reveals: self
+                .events
+                .iter()
+                .filter_map(|event| match event {
+                    GameEvent::CardRevealed {
+                        player,
+                        card,
+                        definition,
+                    } => Some((*player, *card, *definition)),
+                    _ => None,
+                })
+                .collect(),
             library_sizes: [self.players[0].library.len(), self.players[1].library.len()],
             companions: self.observed_companions(viewer),
             chosen_companions: self.players.each_ref().map(|player| player.companion),
             revealed_library_top: self.observed_library_top(viewer, viewer),
             opponent_revealed_library_top: self.observed_library_top(viewer, viewer.opponent()),
-            command_zones: [public_cards(&self.players[0].command), public_cards(&self.players[1].command)],
+            command_zones: [
+                public_cards(&self.players[0].command),
+                public_cards(&self.players[1].command),
+            ],
             commanders: self.commanders(viewer),
             graveyards: [
                 public_cards(&self.players[0].graveyard),
@@ -71,6 +83,12 @@ impl Game {
                 self.face_down_exile_size(PlayerId::Two),
             ],
             card_counters: self.observed_card_counters(viewer),
+            exiled_part_copies: self
+                .players
+                .iter()
+                .flat_map(|player| &player.exile)
+                .filter_map(|card| self.part_copy(card.id).map(|part| (card.id, part)))
+                .collect(),
             // Phased-out permanents come last and carry a flag: they are
             // visible to both players, and only the rules treat them as
             // absent. Reconstruction relies on this order.
@@ -108,13 +126,18 @@ impl Game {
                     x: object.x(),
                 })
                 .collect(),
-            decision: self.match_decision().filter(|decision| decision.player == viewer).or_else(|| (!self.between_games()).then(|| self.pending_decisions.first()).flatten().and_then(|decision| {
-                decision.observation.for_viewer(viewer)
-            })),
+            decision: self
+                .match_decision()
+                .filter(|decision| decision.player == viewer)
+                .or_else(|| {
+                    (!self.between_games())
+                        .then(|| self.pending_decisions.first())
+                        .flatten()
+                        .and_then(|decision| decision.observation.for_viewer(viewer))
+                }),
             result: self.result(),
             legal_actions: self.legal_actions(viewer),
             checkpoint: self.checkpoint_json(viewer),
         }
     }
-
 }

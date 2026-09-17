@@ -18,6 +18,7 @@ pub enum ZoneChangeReferenceDef {
 }
 
 impl ZoneChangeReferenceDef {
+    #[must_use]
     pub const fn exact(self) -> ObjectRefDef {
         match self {
             Self::Source => ObjectRefDef::Source,
@@ -28,9 +29,7 @@ impl ZoneChangeReferenceDef {
             Self::AttachedToSource => ObjectRefDef::AttachedToSource,
             Self::Target(target) => ObjectRefDef::Target(target),
             Self::TriggeringObject => ObjectRefDef::TriggeringObject,
-            Self::TriggeringZoneChangeResult => {
-                ObjectRefDef::ZoneChangeResultOfTriggeringObject
-            }
+            Self::TriggeringZoneChangeResult => ObjectRefDef::ZoneChangeResultOfTriggeringObject,
             Self::SourceOfTargetedStackObject(target) => {
                 ObjectRefDef::SourceOfTargetedStackObject(target)
             }

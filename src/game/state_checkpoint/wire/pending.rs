@@ -4,6 +4,35 @@
 // zones and permanents, and these read the bookkeeping that travels beside
 // them. Included textually, so the imports here are that module's.
 
+pub(super) fn parse_detached_card(
+    snapshot: &DetachedCardSnapshot,
+    catalog: &CardCatalog,
+) -> Result<CardInstance, String> {
+    let mut card = card(
+        GameObjectId(snapshot.object_id),
+        snapshot.definition,
+        player_from_index(snapshot.owner)?,
+        catalog,
+    )?;
+    if let Some(part) = snapshot.copy_part_id {
+        if !catalog.get(snapshot.definition).is_some_and(|definition| {
+            matches!(
+                definition.structure,
+                crate::card::CardStructure::AlternateSpell {
+                    alternate, kind: crate::card::AlternateSpellKind::Prepare, ..
+                } if alternate.0 == part
+            )
+        }) {
+            return Err("invalid detached prepare spell frame".into());
+        }
+        card.characteristics = CharacteristicSource::PartCopy {
+            definition: snapshot.definition,
+            part: CardPartId(part),
+        };
+    }
+    Ok(card)
+}
+
 pub(super) fn parse_retired_objects(
     snapshots: &[RetiredObjectSnapshot],
     game: &Game,
@@ -17,12 +46,7 @@ pub(super) fn parse_retired_objects(
                 toughness,
                 colors,
             } => {
-                let parsed = card(
-                    GameObjectId(snapshot.object_id),
-                    snapshot.definition,
-                    player_from_index(snapshot.owner)?,
-                    &game.catalog,
-                )?;
+                let parsed = parse_detached_card(snapshot, &game.catalog)?;
                 Ok((
                     parsed.id,
                     RetiredObject::Card(crate::game::RetiredCard {
@@ -40,6 +64,7 @@ pub(super) fn parse_retired_objects(
             }
             RetiredObjectSnapshot::Permanent {
                 permanent,
+                attachments,
                 colors,
                 power,
                 toughness,
@@ -51,6 +76,7 @@ pub(super) fn parse_retired_objects(
                     parsed.card.id,
                     RetiredObject::Permanent {
                         permanent: Box::new(parsed),
+                        attachments: attachments.iter().copied().map(GameObjectId).collect(),
                         colors: *colors,
                         power: *power,
                         toughness: *toughness,

@@ -139,6 +139,7 @@ impl Game {
                 let minimum_mana_cost =
                     self.minimum_activation_mana_cost(&definition, card.id, mana_cost);
                 let payment_purpose = ManaPaymentPurpose::Ability {
+                    waterbend: crate::card::costs::waterbend(definition.costs),
                     source: card.id,
                     taps_source: false,
                     leaves_source: false,
@@ -189,7 +190,8 @@ impl Game {
                                 x,
                                 &payment_purpose,
                                 crate::game::mana_planning::ManaPaymentReservations {
-                                    objects: cost_objects, tap_cost_payer: None,
+                                    objects: cost_objects,
+                                    tap_cost_payer: None,
                                 },
                                 life_available,
                             ) {
@@ -214,6 +216,7 @@ impl Game {
     /// Activations offered from a player's own graveyard. Only the card's
     /// controller sees them, and the printed timing window is checked here
     /// rather than at resolution, matching the battlefield path.
+    #[allow(clippy::too_many_lines)]
     pub(super) fn add_graveyard_ability_actions(
         &self,
         player: PlayerId,
@@ -268,6 +271,7 @@ impl Game {
                         return;
                     }
                     let payment_purpose = ManaPaymentPurpose::Ability {
+                        waterbend: crate::card::costs::waterbend(definition.costs),
                         source: card.id,
                         taps_source: false,
                         leaves_source: false,
@@ -301,7 +305,8 @@ impl Game {
                                 0,
                                 &payment_purpose,
                                 crate::game::mana_planning::ManaPaymentReservations {
-                                    objects: cost_objects, tap_cost_payer: None,
+                                    objects: cost_objects,
+                                    tap_cost_payer: None,
                                 },
                                 life_available,
                             ) {

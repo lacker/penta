@@ -26,12 +26,7 @@ fn collect_ability_grants(
     match effect {
         EffectDef::InstallTrigger(crate::card::InstalledTriggerDef { ability, .. })
         | EffectDef::ReflexiveTrigger(ability) => {
-            collect_program_ability_grants(
-                ability.effect.definition,
-                grants,
-                tokens,
-                emblems,
-            );
+            collect_program_ability_grants(ability.effect.definition, grants, tokens, emblems);
         }
         EffectDef::CreateOngoingEffect(ongoing) => {
             collect_program_ability_grants(
@@ -63,13 +58,13 @@ fn collect_ability_grants(
                     }),
             ),
             crate::card::TokenDef::Literal(token) => tokens.push(token),
-            crate::card::TokenDef::Binding(_) => {},
+            crate::card::TokenDef::Binding(_) => {}
         },
         EffectDef::CreateAttachedToken { token, .. } => {
             tokens.push(token);
         }
         EffectDef::WithCosts { costs, .. } => collect_cost_tokens(costs, tokens),
-        EffectDef::CreateEmblem { emblem } => emblems.push(emblem),
+        EffectDef::CreateEmblem { emblem, .. } => emblems.push(emblem),
         EffectDef::BecomeCopyOf { exceptions, .. } => grants.extend(
             exceptions
                 .added_abilities
@@ -142,10 +137,22 @@ fn collect_replacement_ability_grants(
     }
 }
 
-fn collect_applied_ability_grants(effect: AppliedEffectDef, grants: &mut Vec<&AbilityDef>, tokens: &mut Vec<TokenCharacteristics>, emblems: &mut Vec<EmblemCharacteristics>) {
+fn collect_applied_ability_grants(
+    effect: AppliedEffectDef,
+    grants: &mut Vec<&AbilityDef>,
+    tokens: &mut Vec<TokenCharacteristics>,
+    emblems: &mut Vec<EmblemCharacteristics>,
+) {
     match effect {
-        AppliedEffectDef::Rule(crate::card::AppliedRuleDef::MayPlay(crate::card::PlayPermissionDef { benefit: Some(benefit), .. })) => {
-            if let Some(ability) = benefit.on_play { collect_program_ability_grants(ability.effect.definition, grants, tokens, emblems); }
+        AppliedEffectDef::Rule(crate::card::AppliedRuleDef::MayPlay(
+            crate::card::PlayPermissionDef {
+                benefit: Some(benefit),
+                ..
+            },
+        )) => {
+            if let Some(ability) = benefit.on_play {
+                collect_program_ability_grants(ability.effect.definition, grants, tokens, emblems);
+            }
         }
         AppliedEffectDef::Composite(effects) => {
             for effect in effects {
@@ -259,7 +266,9 @@ fn collect_cost_tokens(
     for cost in costs {
         match cost {
             crate::CostDef::CreateTokens { token, .. } => tokens.push(**token),
-            crate::CostDef::All(costs) | crate::CostDef::Choice(costs) | crate::CostDef::Repeated { costs, .. } => {
+            crate::CostDef::All(costs)
+            | crate::CostDef::Choice(costs)
+            | crate::CostDef::Repeated { costs, .. } => {
                 collect_cost_tokens(costs, tokens);
             }
             _ => {}

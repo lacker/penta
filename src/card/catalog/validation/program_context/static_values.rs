@@ -19,6 +19,7 @@ fn static_object_value_aggregate_supported(aggregate: ObjectValueAggregateDef) -
     matches!(
         aggregate.select,
         ObjectValueDef::ManaValue
+            | ObjectValueDef::ManaSymbols(_)
             | ObjectValueDef::Power
             | ObjectValueDef::Toughness
             | ObjectValueDef::Counters(_)
@@ -40,6 +41,7 @@ fn static_power_toughness_value_supported(value: ValueDef) -> bool {
         // A per-turn tally the game keeps and clears with the turn, read the
         // same way and just as live.
         | ValueDef::CardsDrawnThisTurn(_)
+        | ValueDef::PermanentsSacrificedThisTurn(_)
         | ValueDef::CardsDiscardedThisTurn(_)
         | ValueDef::LandsPlayedThisTurn(_)
         | ValueDef::LifeGainedThisTurn(_)
@@ -106,6 +108,7 @@ fn static_power_toughness_value_supported(value: ValueDef) -> bool {
         | ValueDef::IfCondition(_)
         | ValueDef::IfTargetMatches(_)
         | ValueDef::IfMatchingObjectCount(_)
+        | ValueDef::ManaSpentToCast(_)
         | ValueDef::ColorsOfManaSpent
         | ValueDef::PaidAmount
         | ValueDef::MatchedCount
@@ -139,17 +142,18 @@ fn static_cost_reduction_value_supported(value: ValueDef) -> bool {
     match value {
         ValueDef::Constant(_) => true,
         ValueDef::ColorIntersectionCount(sets) => sets.iter().all(|set| {
-            *set != crate::card::ColorSetDef::Binding(crate::ParentBinding) && matches!(
-                set,
-                crate::card::ColorSetDef::Fixed(_)
-                    | crate::card::ColorSetDef::OfObject(
-                        ObjectRefDef::Source
-                            | ObjectRefDef::ResolvingObject
-                            | ObjectRefDef::AttachedToSource
-                            | ObjectRefDef::CreatingSource
-                    )
-                    | crate::card::ColorSetDef::Binding(_)
-            )
+            *set != crate::card::ColorSetDef::Binding(crate::ParentBinding)
+                && matches!(
+                    set,
+                    crate::card::ColorSetDef::Fixed(_)
+                        | crate::card::ColorSetDef::OfObject(
+                            ObjectRefDef::Source
+                                | ObjectRefDef::ResolvingObject
+                                | ObjectRefDef::AttachedToSource
+                                | ObjectRefDef::CreatingSource
+                        )
+                        | crate::card::ColorSetDef::Binding(_)
+                )
         }),
         ValueDef::ColorCount(reference) => matches!(
             reference,
@@ -167,6 +171,7 @@ fn static_cost_reduction_value_supported(value: ValueDef) -> bool {
         // Domain counts basic land types rather than permanents, which no
         // query can say. The planner reads it off the board the same way.
         ValueDef::BasicLandTypesControlled(relation)
+        | ValueDef::PermanentsSacrificedThisTurn(relation)
         | ValueDef::CardsDiscardedThisTurn(relation) => static_player_relation_supported(relation),
         ValueDef::Sum(sum) => {
             static_cost_reduction_value_supported(sum.left)
@@ -216,6 +221,7 @@ fn static_cost_reduction_value_supported(value: ValueDef) -> bool {
         | ValueDef::LifeGainedThisTurn(_)
         | ValueDef::DevotionTo(_)
         | ValueDef::LibrarySize(_)
+        | ValueDef::ManaSpentToCast(_)
         | ValueDef::ColorsOfManaSpent
         | ValueDef::PaidAmount
         | ValueDef::MatchedCount
@@ -246,6 +252,15 @@ fn static_cost_reduction_value_supported(value: ValueDef) -> bool {
 
 fn static_spell_cost_value_supported(value: ValueDef) -> bool {
     match value {
+        ValueDef::AggregateObjectValues(aggregate) => {
+            matches!(aggregate.objects, ObjectSetDef::Query(query)
+                if !query.zones.contains(&ZoneKind::Stack) && static_query_supported(query))
+        }
+        ValueDef::IfCondition(branches) => {
+            static_trigger_condition_supported(*branches.condition)
+                && static_spell_cost_value_supported(branches.then)
+                && static_spell_cost_value_supported(branches.otherwise)
+        }
         ValueDef::DistinctTargets => true,
         ValueDef::CountSpellsCastThisTurn(query) => {
             static_player_relation_supported(query.player)
@@ -313,7 +328,8 @@ fn static_spell_cost_modification_supported(
                 && static_object_predicate_supported(spell)
                 && static_player_relation_supported(caster)
         }
-        CostModificationDef::AbilityIncrease { .. }
+        CostModificationDef::AbilityAlternative { .. }
+        | CostModificationDef::AbilityIncrease { .. }
         | CostModificationDef::SourceAbilityIncrease { .. }
         | CostModificationDef::AbilityReduction { .. } => false,
     }

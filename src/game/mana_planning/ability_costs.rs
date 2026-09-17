@@ -269,7 +269,7 @@ impl Game {
             })
     }
 
-    fn activation_kind_matches(
+    pub(in crate::game) fn activation_kind_matches(
         kind: crate::card::AbilityKindDef,
         mana_ability: bool,
         definition: Option<&ActivatedAbilityDef>,
@@ -458,7 +458,9 @@ impl Game {
             // Domain: how many basic land types are among the lands you
             // control, which is a count of types rather than of permanents
             // and so cannot be said as a query.
-            ValueDef::BasicLandTypesControlled(_) | ValueDef::CardsDiscardedThisTurn(_) => {
+            ValueDef::BasicLandTypesControlled(_)
+            | ValueDef::PermanentsSacrificedThisTurn(_)
+            | ValueDef::CardsDiscardedThisTurn(_) => {
                 u16::try_from(self.player_readable_value(value, player).max(0)).unwrap_or(u16::MAX)
             }
             _ => 0,

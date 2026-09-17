@@ -596,36 +596,35 @@ impl Game {
                 ) {
                     continue;
                 }
-                let Some(mut program) = attached.definition.declarative_effect() else {
+                let Some(program) = attached.definition.declarative_effect() else {
                     continue;
                 };
-                while let Some(conditional) = program.conditional() {
-                    let holds = self.trigger_condition_holds(
-                        conditional.condition,
-                        source.card.id,
-                        source.controller,
-                        crate::game::TriggerContext::empty(),
-                        None,
-                        None,
-                    );
-                    program = conditional
-                        .branch(holds)
-                        .copied()
-                        .unwrap_or(EffectDef::None);
-                }
-                let EffectDef::StaticApply { recipient, effect } = program else {
-                    continue;
-                };
-                if !self.static_player_recipient_matches(recipient, source, affected_player) {
-                    continue;
-                }
                 let origin = crate::game::AbilitySourceRef {
                     object: source.card.id,
                     ability: Self::authored_ability_origin(source_presentation, attached.id),
                 };
-                Self::visit_player_rule_leaves(effect, source.card.id, &mut |_, rule| {
-                    visitor(origin, rule);
-                });
+                let mut programs = vec![program];
+                while let Some(program) = programs.pop() {
+                    if let Some(conditional) = program.conditional() {
+                        let holds = self.trigger_condition_holds(
+                            conditional.condition,
+                            source.card.id,
+                            source.controller,
+                            crate::game::TriggerContext::empty(),
+                            None,
+                            None,
+                        );
+                        programs.extend(conditional.branch(holds).copied());
+                    } else if let EffectDef::Sequence(effects) = program {
+                        programs.extend(effects.iter().rev().copied());
+                    } else if let EffectDef::StaticApply { recipient, effect } = program
+                        && self.static_player_recipient_matches(recipient, source, affected_player)
+                    {
+                        Self::visit_player_rule_leaves(effect, source.card.id, &mut |_, rule| {
+                            visitor(origin, rule);
+                        });
+                    }
+                }
             }
         }
     }

@@ -43,6 +43,7 @@ use crate::card::EffectChoiceDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::EmblemCharacteristics;
+use crate::card::ExilePlayDurationDef;
 use crate::card::InstalledTriggerDef;
 use crate::card::KeywordAbility;
 use crate::card::ManaColor;
@@ -58,6 +59,7 @@ use crate::card::ObjectSetDef;
 use crate::card::ObjectSetPredicateDef;
 use crate::card::PayOrDef;
 use crate::card::PerPlayerSelectionDef;
+use crate::card::PermanentDesignationDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
 use crate::card::PlayerRuleDef;
@@ -83,6 +85,7 @@ use crate::card::ValueComparisonDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
 use crate::card::ZonePlacement;
+use crate::card::ZonePlayGrantDef;
 use crate::card::abilities;
 use crate::mana_cost;
 
@@ -1227,15 +1230,77 @@ pub(in crate::card::sets) static ECHOCASTING_SYMPOSIUM: CardRecord = CardRecord:
 );
 
 // SOS 45 — Emeritus of Ideation // Ancestral Recall
-// Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy
-// of the associated prepare spell while consuming that designation; the current face and
-// cast-permission model does not represent prepare spells.
 pub(in crate::card::sets) static EMERITUS_OF_IDEATION: CardRecord = CardRecord::new(
     "Emeritus of Ideation // Ancestral Recall",
     "75961d36-acf6-425f-9698-0bf52af74f31",
     "Evyn Fong",
-    CardRules::unsupported(),
-);
+    CardRules::new_creature(mana_cost!("{3}{U}{U}"), &["Human", "Wizard"], 5, 5).with_abilities(&[
+        abilities::flying(),
+        abilities::ward(&[CostDef::Mana(mana_cost!("{2}"))], "Ward {2}"),
+        AbilityDef::as_enters(
+            "This creature enters prepared.",
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::Designation(PermanentDesignationDef::Prepared),
+            ),
+        ),
+        AbilityDef::triggered(
+            "Whenever this creature attacks, you may exile eight cards from your \
+                graveyard. If you do, this creature becomes prepared.",
+            TriggerEventDef::attacks(ObjectPredicateDef::Source),
+            EffectDef::PayOr(PayOrDef::optional(
+                &[crate::card::actions::choose_exile_from_graveyard(8).as_cost()],
+                &EffectDef::SetDesignation {
+                    object: EffectRecipientDef::Source,
+                    designation: PermanentDesignationDef::Prepared,
+                    present: true,
+                },
+            )),
+        ),
+    ]),
+)
+.with_composition(|| {
+    use crate::card::{
+        AlternateSpellKind, CardComposition, CardEffectStatus, CardPart, CardStructure,
+        PlayOptionDef, SpellForm,
+    };
+    use crate::{CardPartId, PlayOptionId};
+    CardComposition {
+        parts: vec![
+            CardPart::new(
+                CardPartId::PRIMARY,
+                "Emeritus of Ideation",
+                EMERITUS_OF_IDEATION.rules,
+            ),
+            CardPart::new(
+                CardPartId(1),
+                "Ancestral Recall",
+                catalog_lea::ANCESTRAL_RECALL.rules,
+            ),
+        ],
+        structure: CardStructure::AlternateSpell {
+            main: CardPartId::PRIMARY,
+            alternate: CardPartId(1),
+            kind: AlternateSpellKind::Prepare,
+        },
+        play_options: vec![
+            PlayOptionDef::cast(
+                PlayOptionId::DEFAULT,
+                "Emeritus of Ideation",
+                SpellForm::Part(CardPartId::PRIMARY),
+                mana_cost!("{3}{U}{U}"),
+                CardEffectStatus::Implemented,
+            ),
+            PlayOptionDef::cast(
+                PlayOptionId(1),
+                "Ancestral Recall",
+                SpellForm::Part(CardPartId(1)),
+                mana_cost!("{U}"),
+                CardEffectStatus::Implemented,
+            ),
+        ],
+    }
+    .with_derived_spell_targets()
+});
 
 // SOS 46 — Encouraging Aviator // Jump
 // Audit: unsupported — Needs the prepared/unprepared designation and permission to cast a copy
@@ -2991,13 +3056,52 @@ pub(in crate::card::sets) static STRIFE_SCHOLAR: CardRecord = CardRecord::new(
 );
 
 // SOS 132 — Tablet of Discovery
-// Audit: unsupported — Needs a one-turn play permission for the specific milled card while it
-// remains in the graveyard, including land plays.
 pub(in crate::card::sets) static TABLET_OF_DISCOVERY: CardRecord = CardRecord::new(
     "Tablet of Discovery",
     "13059664-a940-4a66-8100-0c90b884bab4",
     "Craig J Spearing",
-    CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{2}{R}")).with_abilities(&[
+        abilities::enters_trigger(
+            "When this artifact enters, mill a card. You may play that card this turn.",
+            EffectDef::BindObjects(BindObjectsDef {
+                source: ObjectCollectionSourceDef::TopCards {
+                    player: PlayerRefDef::EffectController,
+                    count: ValueDef::Constant(1),
+                },
+                binding: crate::Binding!("milled"),
+                then: &EffectDef::Sequence(&[
+                    EffectDef::Mill {
+                        player: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    },
+                    EffectDef::GrantPlayPermission(&ZonePlayGrantDef {
+                        objects: ObjectSetDef::ZoneChangeSuccessorsOfBinding(crate::Binding!(
+                            "milled"
+                        )),
+                        player: PlayerRefDef::EffectController,
+                        mana_cost: None,
+                        duration: ExilePlayDurationDef::ThisTurn,
+                        cast_only: false,
+                    }),
+                ]),
+            }),
+        ),
+        abilities::tap_for_mana("{T}: Add {R}.", AddManaEffectDef::one(ManaColor::Red)),
+        AbilityDef::activated_mana(
+            "{T}: Add {R}{R}. Spend this mana only to cast instant and sorcery spells.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(
+                AddManaEffectDef::one(ManaColor::Red)
+                    .with_amount(2)
+                    .with_restrictions(&[ManaRestrictionDef::CastSpell(
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Instant),
+                            ObjectPredicateDef::HasType(CardType::Sorcery),
+                        ]),
+                    )]),
+            ),
+        ),
+    ]),
 );
 
 // SOS 133 — Tackle Artist
@@ -4406,14 +4510,51 @@ pub(in crate::card::sets) static CAULDRON_OF_ESSENCE: CardRecord = CardRecord::n
 );
 
 // SOS 180 — Colorstorm Stallion
-// Audit: unsupported — Needs a retained triggering-spell payment total to distinguish casts
-// that spent at least five mana, including cost reductions, increases, alternate costs, and
-// free casts.
 pub(in crate::card::sets) static COLORSTORM_STALLION: CardRecord = CardRecord::new(
     "Colorstorm Stallion",
     "f5b54d46-2caf-4d1b-8be1-dbd9e9dce058",
     "Lorenzo Lanfranconi",
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{U}{R}"), &["Elemental", "Horse"], 3, 3).with_abilities(
+        &[
+            abilities::ward(&[CostDef::Mana(mana_cost!("{1}"))], "Ward {1}"),
+            abilities::haste(),
+            AbilityDef::triggered(
+                "Opus — Whenever you cast an instant or sorcery spell, this creature \
+                gets +1/+1 until end of turn. If five or more mana was spent to cast \
+                that spell, create a token that's a copy of this creature.",
+                TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Instant),
+                        ObjectPredicateDef::HasType(CardType::Sorcery),
+                    ]),
+                ])),
+                EffectDef::Sequence(&[
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::Source,
+                        effect: AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(1),
+                            ValueDef::Constant(1),
+                        ),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                    EffectDef::IfCondition {
+                        condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                            left: ValueDef::ManaSpentToCast(ObjectRefDef::TriggeringObject),
+                            comparison: ComparisonDef::GreaterOrEqual,
+                            right: ValueDef::Constant(5),
+                        }),
+                        then: &EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Copy(
+                            &TokenCopyDef {
+                                object: &EffectRecipientDef::Source,
+                                exceptions: CopyExceptionsDef::NONE,
+                            },
+                        ))),
+                    },
+                ]),
+            ),
+        ],
+    ),
 );
 
 // SOS 181 — Colossus of the Blood Age
@@ -5390,10 +5531,11 @@ pub(in crate::card::sets) static PROFESSOR_DELLIAN_FEL: CardRecord = CardRecord:
                 },
             ),
             AbilityDef::activated(
-                "−6: You get an emblem with \"Whenever you gain life, target \
-                 opponent loses that much life.\"",
+                "−6: You get an emblem with \"Whenever you gain life, target opponent \
+                    loses that much life.\"",
                 &[CostDef::Loyalty(ValueDef::Constant(-6))],
                 EffectDef::CreateEmblem {
+                    creature_type: None,
                     emblem: EmblemCharacteristics::new(
                         "Dellian Emblem",
                         &[AbilityDef::triggered_with_targets(

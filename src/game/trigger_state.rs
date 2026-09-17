@@ -70,6 +70,7 @@ impl TriggerContext {
 #[derive(Debug, Eq, PartialEq)]
 pub(super) struct EffectResolutionContext {
     pub(super) trigger: TriggerContext,
+    pub(super) source_transform_count: Option<u32>,
     pub(super) replaced_draw: Option<ReplacedDrawContinuation>,
     /// What a payment made during this resolution actually cost, for the
     /// branch that reads it back. "You may pay {X}" settles X here rather
@@ -88,6 +89,7 @@ pub(super) struct EffectResolutionContext {
     parent_object: Shared<Option<Target>>,
     parent_objects: Shared<Vec<Target>>,
     bindings: Shared<EffectBindings>,
+    inspected: Shared<Vec<(PlayerId, GameObjectId)>>,
 }
 
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
@@ -156,6 +158,7 @@ pub(super) enum EffectBindingValue {
     Object(Option<Target>),
     Objects(Vec<Target>),
     CardName(String),
+    CreatureType(String),
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -179,6 +182,7 @@ impl Clone for EffectResolutionContext {
             Shared::new(self.parent_object.snapshot()),
             Shared::new(self.parent_objects.snapshot()),
             Shared::new(self.bindings.snapshot()),
+            Shared::new(self.inspected.snapshot()),
         )
     }
 }
@@ -189,9 +193,11 @@ impl EffectResolutionContext {
         parent_object: Shared<Option<Target>>,
         parent_objects: Shared<Vec<Target>>,
         bindings: Shared<EffectBindings>,
+        inspected: Shared<Vec<(PlayerId, GameObjectId)>>,
     ) -> Self {
         Self {
             trigger: self.trigger,
+            source_transform_count: self.source_transform_count,
             replaced_draw: self.replaced_draw.clone(),
             paid_amount: self.paid_amount,
             matched_count: self.matched_count,
@@ -201,6 +207,7 @@ impl EffectResolutionContext {
             parent_object,
             parent_objects,
             bindings,
+            inspected,
         }
     }
 
@@ -212,12 +219,15 @@ impl EffectResolutionContext {
             self.parent_object.clone(),
             self.parent_objects.clone(),
             self.bindings.clone(),
+            self.inspected.clone(),
         )
     }
 
     pub(super) fn new(trigger: TriggerContext) -> Self {
         Self {
             trigger,
+            source_transform_count: None,
+            inspected: Shared::new(Vec::new()),
             replaced_draw: None,
             paid_amount: None,
             matched_count: None,
@@ -246,9 +256,12 @@ impl EffectResolutionContext {
         self.bindings
             .with(|bindings| match bindings.values.get(label) {
                 Some(EffectBindingValue::Object(object)) => *object,
-                Some(EffectBindingValue::Objects(_) | EffectBindingValue::CardName(_)) | None => {
-                    None
-                }
+                Some(
+                    EffectBindingValue::Objects(_)
+                    | EffectBindingValue::CardName(_)
+                    | EffectBindingValue::CreatureType(_),
+                )
+                | None => None,
             })
     }
 
@@ -289,9 +302,12 @@ impl EffectResolutionContext {
         self.bindings
             .with(|bindings| match bindings.values.get(label) {
                 Some(EffectBindingValue::Objects(objects)) => objects.clone(),
-                Some(EffectBindingValue::Object(_) | EffectBindingValue::CardName(_)) | None => {
-                    Vec::new()
-                }
+                Some(
+                    EffectBindingValue::Object(_)
+                    | EffectBindingValue::CardName(_)
+                    | EffectBindingValue::CreatureType(_),
+                )
+                | None => Vec::new(),
             })
     }
 
@@ -363,7 +379,7 @@ impl EffectResolutionContext {
                     EffectBindingValue::Objects(group) => {
                         group.retain(|object| !objects.contains(object));
                     }
-                    EffectBindingValue::CardName(_) => {}
+                    EffectBindingValue::CardName(_) | EffectBindingValue::CreatureType(_) => {}
                 }
             }
         });
@@ -400,7 +416,7 @@ impl EffectResolutionContext {
             |binding| match binding {
                 EffectBindingValue::Object(object) => object.iter().copied().collect::<Vec<_>>(),
                 EffectBindingValue::Objects(objects) => objects.clone(),
-                EffectBindingValue::CardName(_) => Vec::new(),
+                EffectBindingValue::CardName(_) | EffectBindingValue::CreatureType(_) => Vec::new(),
             },
         ));
         targets
@@ -414,6 +430,8 @@ impl EffectResolutionContext {
     ) -> Self {
         Self {
             trigger,
+            source_transform_count: None,
+            inspected: Shared::new(Vec::new()),
             replaced_draw: None,
             paid_amount: None,
             matched_count: None,
@@ -430,6 +448,7 @@ impl EffectResolutionContext {
 }
 
 include!("trigger_state/name_bindings.rs");
+include!("trigger_state/inspected_objects.rs");
 mod scoped_bindings;
 use scoped_bindings::ScopedBindingValues;
 

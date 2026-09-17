@@ -4,7 +4,8 @@ fn has_bindable_output(effect: EffectDef) -> Result<bool, GrantedAbilityValidati
         | EffectDef::MillUntil(_)
         | EffectDef::SelectAtRandomFromZone { .. }
         | EffectDef::RevealAtRandomFromHand { .. }
-        | EffectDef::ChooseCardName { .. } => Ok(true),
+        | EffectDef::ChooseCardName { .. }
+        | EffectDef::ChooseCreatureType { .. } => Ok(true),
         EffectDef::IfCondition { then, .. } => has_bindable_output(*then),
         EffectDef::IfFormat {
             then, otherwise, ..
@@ -26,10 +27,12 @@ fn has_bindable_output(effect: EffectDef) -> Result<bool, GrantedAbilityValidati
             Ok(bindable)
         }
         EffectDef::None => Ok(false),
-        _ => Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
-            context: "bound effect output",
-            operation: "an effect that does not expose an output",
-        }),
+        _ => Err(
+            GrantedAbilityValidationError::UnsupportedEffectProgramContext {
+                context: "bound effect output",
+                operation: "an effect that does not expose an output",
+            },
+        ),
     }
 }
 
@@ -41,7 +44,7 @@ fn durable_object_set_outputs(effect: EffectDef, outputs: &mut Vec<Binding>) {
     };
     match effect {
         EffectDef::BindOutput {
-            effect: &EffectDef::ChooseCardName { .. },
+            effect: &(EffectDef::ChooseCardName { .. } | EffectDef::ChooseCreatureType { .. }),
             ..
         } => {}
         EffectDef::BindOutput { binding, .. } => push(binding),
@@ -156,11 +159,35 @@ fn durable_card_name_outputs(effect: EffectDef, outputs: &mut Vec<Binding>) {
     }
 }
 
+fn durable_creature_type_outputs(effect: EffectDef, outputs: &mut Vec<Binding>) {
+    let mut push = |binding: Binding| {
+        if binding != crate::ParentBinding && !outputs.contains(&binding) {
+            outputs.push(binding);
+        }
+    };
+    match effect {
+        EffectDef::BindOutput {
+            binding,
+            effect: &EffectDef::ChooseCreatureType { .. },
+        } => push(binding),
+        EffectDef::Sequence(effects) => {
+            for effect in effects {
+                durable_creature_type_outputs(*effect, outputs);
+            }
+        }
+        _ => {}
+    }
+}
+
 fn scope_after_sequence_effect(
     effect: EffectDef,
     mut scope: BindingScope<'_>,
 ) -> Result<BindingScope<'_>, GrantedAbilityValidationError> {
     let mut outputs = Vec::new();
+    durable_creature_type_outputs(effect, &mut outputs);
+    for binding in outputs.drain(..) {
+        scope = scope.with_declared_creature_type(binding)?;
+    }
     durable_object_set_outputs(effect, &mut outputs);
     for binding in outputs {
         scope = scope.with_declared_object_set(binding)?;

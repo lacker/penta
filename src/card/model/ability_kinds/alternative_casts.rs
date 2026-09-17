@@ -72,6 +72,8 @@ pub enum AlternativeCastKindDef {
     /// it does, so the spell's own clause still supplies the instructions --
     /// its complete replacement cost is carried in `costs`.
     AlternativeCost,
+    /// Sneak (CR 702.190): declare-blockers timing and an unblocked-attacker return cost.
+    Sneak,
     /// Cast from hand with its kicker paid. A kicker is printed as an
     /// optional additional cost, but the kicked spell is exactly a spell cast
     /// for the printed cost plus the kicker with a different set of
@@ -205,6 +207,7 @@ impl AlternativeCastKindDef {
             Self::Miracle => "Miracle",
             Self::Kicked => "Kicker",
             Self::AlternativeCost => "Alternative cost",
+            Self::Sneak => "Sneak",
             Self::Granted => "Granted alternative cost",
             Self::Escape => "Escape",
             Self::Impending => "Impending",
@@ -245,6 +248,7 @@ impl AlternativeCastKindDef {
             Self::Miracle,
             Self::Kicked,
             Self::AlternativeCost,
+            Self::Sneak,
             Self::Granted,
             crate::card::face_down::morph_cast(),
             crate::card::face_down::disguise_cast(),
@@ -475,7 +479,7 @@ impl AlternativeCastAbilityDef {
                 "Kicked".into()
             }
             // The card prints what is paid instead, so it supplies the text.
-            (AlternativeCastKindDef::AlternativeCost, _) => self.generic_alternative_rules_text(),
+            (AlternativeCastKindDef::AlternativeCost | AlternativeCastKindDef::Sneak, _) => self.generic_alternative_rules_text(),
             (AlternativeCastKindDef::Foretell, AlternativeCastManaCostDef::Fixed(mana_cost)) => {
                 format!(
                     "Foretell {mana_cost} (During your turn, you may pay {{2}} and exile this card from your hand face down. Cast it on a later turn for its foretell cost.)",

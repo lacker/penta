@@ -154,6 +154,9 @@ pub enum ObjectSetDef {
     /// same-name permanents keep separate groups, and a token that changes
     /// controller remains in its creator's group.
     TokensCreatedBy(ObjectRefDef),
+    /// Live attachments of an object, using its last battlefield state after
+    /// it leaves. An attachment that subsequently changes zones is omitted.
+    AttachmentsOf(ObjectRefDef),
     /// The members of a binding that match a predicate. "Put a creature card
     /// from among them into your hand" names a subset of what a mill just
     /// bound, which neither a plain binding nor a zone query can say: the
@@ -188,6 +191,14 @@ pub enum ObjectSetDef {
     /// this ignores hexproof and shroud while still enforcing the live Aura,
     /// Equipment, or Fortification attachment restriction and protection.
     LegalAttachmentHosts(ObjectRefDef),
+    /// Filter a collection by whether each member shares a creature subtype
+    /// with the referenced object. A creature with no types shares none,
+    /// including with itself; choosing an exempt object is a separate step.
+    SharingCreatureType {
+        objects: &'static ObjectSetDef,
+        object: ObjectRefDef,
+        sharing: bool,
+    },
     /// Every member of one set except the exact referenced object.
     ExceptObject {
         objects: &'static ObjectSetDef,
@@ -246,11 +257,10 @@ impl EffectRecipientDef {
     pub const EnchantedPlayer: Self = Self::player(PlayerRefDef::EnchantedPlayer);
     pub const Opponent: Self = Self::players(PlayerSetDef::Related(PlayerRelation::Opponent));
     pub const EachPlayer: Self = Self::players(PlayerSetDef::All);
-    pub const EachOpponentAndTheirCreatures: Self = Self(
-        EffectRecipientSetDef::PlayersAndCreaturesTheyControl(PlayerSetDef::Related(
-            PlayerRelation::Opponent,
-        )),
-    );
+    pub const EachOpponentAndTheirCreatures: Self =
+        Self(EffectRecipientSetDef::PlayersAndCreaturesTheyControl(
+            PlayerSetDef::Related(PlayerRelation::Opponent),
+        ));
     pub const TriggeringObject: Self = Self::object(ObjectRefDef::TriggeringObject);
     pub const TriggeringZoneChangeResult: Self =
         Self::object(ObjectRefDef::ZoneChangeResultOfTriggeringObject);
@@ -340,6 +350,7 @@ impl EffectRecipientDef {
                 | ObjectSetDef::CardsDrawnThisTurnInHand(_)
                 | ObjectSetDef::PermanentsControlledBy(_)
                 | ObjectSetDef::TokensCreatedBy(_)
+                | ObjectSetDef::AttachmentsOf(_)
                 | ObjectSetDef::MatchingBinding { .. }
                 | ObjectSetDef::Matching { .. }
                 | ObjectSetDef::InZone { .. }
@@ -350,6 +361,7 @@ impl EffectRecipientDef {
                 | ObjectSetDef::BottomOfGraveyard(_)
                 | ObjectSetDef::LegalTargets(_)
                 | ObjectSetDef::Query(_)
+                | ObjectSetDef::SharingCreatureType { .. }
                 | ObjectSetDef::ExceptObject { .. }
                 | ObjectSetDef::TopOfGraveyardMatching { .. },
             )
@@ -371,6 +383,7 @@ impl EffectRecipientDef {
                 | ObjectSetDef::CardsDrawnThisTurnInHand(_)
                 | ObjectSetDef::PermanentsControlledBy(_)
                 | ObjectSetDef::TokensCreatedBy(_)
+                | ObjectSetDef::AttachmentsOf(_)
                 | ObjectSetDef::MatchingBinding { .. }
                 | ObjectSetDef::Matching { .. }
                 | ObjectSetDef::InZone { .. }
@@ -380,6 +393,7 @@ impl EffectRecipientDef {
                 | ObjectSetDef::LinkedExiles
                 | ObjectSetDef::BottomOfGraveyard(_)
                 | ObjectSetDef::LegalTargets(_)
+                | ObjectSetDef::SharingCreatureType { .. }
                 | ObjectSetDef::ExceptObject { .. }
                 | ObjectSetDef::TopOfGraveyardMatching { .. },
             )

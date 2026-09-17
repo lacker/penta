@@ -84,6 +84,7 @@ fn static_object_predicate_supported(predicate: ObjectPredicateDef) -> bool {
         // A printed cost shape is only readable where the card's own
         // definition is in hand, which a static continuous effect does not
         // have; the zone-search path answers it instead.
+        | ObjectPredicateDef::HasAlternateSpell(_)
         | ObjectPredicateDef::GenericManaCostAtMost(_)
         | ObjectPredicateDef::Special(_) => false,
         ObjectPredicateDef::Any
@@ -116,7 +117,7 @@ fn static_object_predicate_supported(predicate: ObjectPredicateDef) -> bool {
         | ObjectPredicateDef::AttackingOrBlocking
         | ObjectPredicateDef::HasKeyword(_)
         | ObjectPredicateDef::HasNonManaActivatedAbility
-        | ObjectPredicateDef::Attacking
+        | ObjectPredicateDef::Attacking | ObjectPredicateDef::UnblockedAttacker
         | ObjectPredicateDef::Saddled
         | ObjectPredicateDef::AttachedToSource
         | ObjectPredicateDef::Blocking

@@ -11,7 +11,6 @@ fn reflexive_trigger_definition(
     if definition.event != TriggerEventDef::Reflexive
         || definition.procedure != AbilityProcedureDef::Shared
         || definition.source_zones != [ZoneKind::Battlefield]
-        || definition.condition.is_some()
         || definition.modes.is_some()
         || definition.trigger_limit.is_some()
         || definition.resolves_with_illegal_targets
@@ -28,6 +27,9 @@ fn validate_reflexive_trigger_references(
 ) -> Result<(), GrantedAbilityValidationError> {
     let definition = reflexive_trigger_definition(ability)?;
     validate_target_definitions(definition.targets)?;
+    if let Some(condition) = definition.condition {
+        validate_trigger_condition(*condition, definition.targets.len(), scope)?;
+    }
     // Bindings carry the completed action's result across the stack boundary;
     // target slots belong exclusively to the new ability.
     validate_program_references(ability.effect.definition, definition.targets.len(), scope)

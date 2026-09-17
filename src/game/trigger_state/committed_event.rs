@@ -42,6 +42,10 @@ pub(super) enum CommittedTriggerEvent {
         player: PlayerId,
         label: crate::card::AbilityLabel,
     },
+    LibrarySearched {
+        player: PlayerId,
+        owner: PlayerId,
+    },
     CoinFlipped {
         player: PlayerId,
         won: bool,
@@ -278,20 +282,16 @@ impl CommittedTriggerEvent {
     #[allow(clippy::too_many_lines)]
     pub(super) fn context(&self) -> TriggerContext {
         match self {
-            Self::AbilityTriggered { object, controller, .. } => TriggerContext {
-                object: Some(*object), object_controller: Some(*controller),
-                event_player: Some(*controller), ..TriggerContext::empty()
-            },
-            Self::PaymentPaid {
-                object,
-                player,
-                ..
-            }
-            | Self::PaymentNotPaid {
-                object,
-                player,
-                ..
+            Self::AbilityTriggered {
+                object, controller, ..
             } => TriggerContext {
+                object: Some(*object),
+                object_controller: Some(*controller),
+                event_player: Some(*controller),
+                ..TriggerContext::empty()
+            },
+            Self::PaymentPaid { object, player, .. }
+            | Self::PaymentNotPaid { object, player, .. } => TriggerContext {
                 object: Some(object.id),
                 zone_change_result: None,
                 object_controller: Some(object.controller),
@@ -571,7 +571,8 @@ impl CommittedTriggerEvent {
             // A drawn card snapshot belongs to trigger matching only. The
             // draw does not reveal it, so these player-only events carry no
             // hidden-zone identity into resolution or a public checkpoint.
-            Self::MechanicPerformed { player, .. }
+            Self::LibrarySearched { player, .. }
+            | Self::MechanicPerformed { player, .. }
             | Self::CoinFlipped { player, .. }
             | Self::StepBegins { player, .. }
             | Self::CommittedCrime { player }

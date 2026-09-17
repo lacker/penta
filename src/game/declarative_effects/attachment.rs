@@ -97,3 +97,48 @@ impl Game {
         }
     }
 }
+
+impl Game {
+    pub(super) fn resolve_attach_objects(
+        &mut self,
+        objects: crate::card::ObjectSetDef,
+        host: crate::card::ObjectRefDef,
+        then: Option<&'static crate::card::EffectDef>,
+        object: &StackObject,
+        context: &EffectResolutionContext,
+        scoped: ScopedEffect,
+    ) {
+        let host = self
+            .effect_recipients(
+                crate::card::EffectRecipientDef::object(host),
+                object,
+                context,
+                scoped,
+            )
+            .into_iter()
+            .find_map(|target| match target {
+                Target::Permanent(id) => Some(id),
+                _ => None,
+            });
+        let mut attached = 0_u16;
+        if let Some(host) = host {
+            for target in self.effect_recipients(
+                crate::card::EffectRecipientDef::objects(objects),
+                object,
+                context,
+                scoped,
+            ) {
+                if let Target::Permanent(id) = target
+                    && self.try_attach(id, host)
+                {
+                    attached = attached.saturating_add(1);
+                }
+            }
+        }
+        if let Some(then) = then {
+            let mut context = context.fork_resolution();
+            context.matched_count = Some(attached);
+            self.resolve_effect_def(scoped.with_effect(*then), object, context);
+        }
+    }
+}

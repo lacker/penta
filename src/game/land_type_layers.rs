@@ -500,7 +500,9 @@ impl Game {
                 | ObjectSetDef::CardsDrawnThisTurnInHand(_)
                 | ObjectSetDef::PermanentsControlledBy(_)
                 | ObjectSetDef::TokensCreatedBy(_)
+                | ObjectSetDef::AttachmentsOf(_)
                 | ObjectSetDef::BottomOfGraveyard(_)
+                | ObjectSetDef::SharingCreatureType { .. }
                 | ObjectSetDef::ExceptObject { .. }
                 | ObjectSetDef::TopOfGraveyardMatching { .. },
             )
@@ -568,6 +570,7 @@ impl Game {
             | ObjectPredicateDef::Subtype(_)
             | ObjectPredicateDef::ManaValueAtMost(_)
             | ObjectPredicateDef::FaceUpInExile
+            | ObjectPredicateDef::HasAlternateSpell(_)
             | ObjectPredicateDef::GenericManaCostAtMost(_)
             | ObjectPredicateDef::ManaValueEqualTo(_)
             | ObjectPredicateDef::ManaValueAtMostValue(_)
@@ -595,6 +598,7 @@ impl Game {
             | ObjectPredicateDef::WasDealtDamageThisTurn
             | ObjectPredicateDef::DealtDamageThisTurn
             | ObjectPredicateDef::Attacking
+            | ObjectPredicateDef::UnblockedAttacker
             | ObjectPredicateDef::Saddled
             | ObjectPredicateDef::Blocking
             | ObjectPredicateDef::BlockedBySource

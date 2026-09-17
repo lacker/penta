@@ -14,6 +14,7 @@ use crate::{ManaPaymentChoice, TargetChooserDef};
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub(super) struct PendingActivationTargeting {
+    pub(super) alternative_cost: Option<crate::AlternativeAbilityCost>,
     pub(super) controller: PlayerId,
     pub(super) source: GameObjectId,
     pub(super) ability: AbilityOrigin,
@@ -225,6 +226,7 @@ impl Game {
 
     fn resume_targeted_activation(&mut self, pending: PendingActivationTargeting) {
         let PendingActivationTargeting {
+            alternative_cost,
             controller,
             source,
             ability,
@@ -240,6 +242,7 @@ impl Game {
             source,
             ability,
             ActivationChoices {
+                alternative_cost,
                 targets,
                 cost_objects: &cost_objects,
                 x,

@@ -175,8 +175,9 @@ pub(in super::super) fn shared_trigger_event(event: TriggerEventDef) -> bool {
         // The crown names only the player who received it, and there is
         // nothing else for a predicate to read.
         | TriggerEventDef::BecomesMonarch(_)
+        | TriggerEventDef::SearchedLibrary(_)
         | TriggerEventDef::DrewCard(_)
-        | TriggerEventDef::StateCondition
+        | TriggerEventDef::SagaChapters(_) | TriggerEventDef::StateCondition
         | TriggerEventDef::Reflexive => true,
         TriggerEventDef::DamageDealt(matcher) => {
             let source = match matcher.source {

@@ -64,6 +64,9 @@ impl Game {
                 | GameActionDef::Exile {
                     object: recipient, ..
                 }
+                | GameActionDef::ModifyCounters {
+                    object: recipient, ..
+                }
                 | GameActionDef::GainControl {
                     object: recipient, ..
                 }) = leaf
@@ -222,6 +225,16 @@ impl Game {
                     .collect::<Vec<_>>();
                 self.sacrifice_permanents_then(&permanents, completion);
                 return exiled;
+            }
+            GameActionDef::ModifyCounters {
+                kind,
+                operation,
+                amount,
+                ..
+            } => {
+                for target in targets {
+                    self.modify_counters(*target, kind, operation, amount);
+                }
             }
             GameActionDef::GainControl { duration, .. } => {
                 self.take_control_of_targets(targets, source, duration, receiver);

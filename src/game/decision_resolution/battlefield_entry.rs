@@ -216,6 +216,11 @@ impl Game {
                             entry.permanent.chosen_card_name_binding =
                                 binding.label().map(str::to_owned);
                         }
+                        BattlefieldEntryChoiceDestinationDef::CardType => {
+                            entry.permanent.chosen_card_type = crate::card::CardType::ALL
+                                .into_iter()
+                                .find(|kind| kind.name() == selected);
+                        }
                         BattlefieldEntryChoiceDestinationDef::CreatureType => {
                             entry.permanent.chosen_creature_type = Some(selected);
                             entry.permanent.chosen_creature_type_binding = match authored_effect {

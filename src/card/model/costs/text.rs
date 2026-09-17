@@ -15,6 +15,7 @@ pub(crate) fn rules_text(costs: &[CostDef]) -> Option<String> {
 fn cost_rules_text(cost: &CostDef) -> Option<String> {
     Some(match cost {
         CostDef::Mana(mana) => mana.to_string(),
+        CostDef::Waterbend(amount) => format!("Waterbend {amount}"),
         CostDef::ManaCostOf(ObjectRefDef::Source) => "this card's mana cost".into(),
         CostDef::PayLife(amount) => format!("Pay {amount} life"),
         CostDef::DiscardCards(1) => "Discard a card".into(),

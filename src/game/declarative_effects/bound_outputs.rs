@@ -19,6 +19,19 @@ impl Game {
         let Some(label) = binding.label() else {
             unreachable!("catalog validation rejected a parent binding on BindOutput")
         };
+        if let EffectDef::ChooseCreatureType { chooser } = *effect {
+            if let Some(player) = self.player_reference(chooser, object, &context, scoped) {
+                self.queue_name_choice(
+                    player,
+                    crate::card::BattlefieldEntryScalarChoiceDef::CREATURE_TYPE,
+                    true,
+                    binding,
+                    object.clone(),
+                    context.fork_resolution(),
+                );
+            }
+            return context;
+        }
         if let EffectDef::ChooseCardName { chooser, names } = *effect {
             if let Some(player) = self.player_reference(chooser, object, &context, scoped) {
                 self.queue_card_name_choice(

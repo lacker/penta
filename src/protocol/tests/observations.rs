@@ -32,6 +32,7 @@ fn observation_with_printed_and_token_permanents() -> PlayerObservation {
             Vec::new(),
         ],
         monarch: None,
+        enduring_story: [false; 2],
         command_zones: [Vec::new(), Vec::new()],
         commanders: Vec::new(),
         life_totals: [20, 20],
@@ -48,6 +49,7 @@ fn observation_with_printed_and_token_permanents() -> PlayerObservation {
         graveyards: [Vec::new(), Vec::new()],
         exiles: [Vec::new(), Vec::new()],
         face_down_exile_sizes: [0, 0],
+        exiled_part_copies: Vec::new(),
         card_counters: vec![crate::CardCounterObservation {
             object: GameObjectId(40),
             counters: vec![crate::CounterObservation {
@@ -65,6 +67,7 @@ fn observation_with_printed_and_token_permanents() -> PlayerObservation {
                 ),
                 token: false,
                 has_individual_state: false,
+                designations: Vec::new(),
                 controller: PlayerId::One,
                 face_down: false,
                 physical_face: Some(crate::PhysicalFaceObservation {
@@ -74,6 +77,7 @@ fn observation_with_printed_and_token_permanents() -> PlayerObservation {
                 phased_out: false,
                 types: crate::CardTypeSet::single(crate::CardType::Creature),
                 chosen_creature_type: Some("Werewolf".into()),
+                chosen_card_type: None,
                 chosen_basic_land_type: None,
                 chosen_basic_land_type_substitution: None,
                 chosen_colors: std::collections::BTreeMap::new(),
@@ -109,6 +113,7 @@ fn observation_with_printed_and_token_permanents() -> PlayerObservation {
                 ),
                 token: true,
                 has_individual_state: false,
+                designations: Vec::new(),
                 controller: PlayerId::One,
                 face_down: false,
                 physical_face: None,
@@ -116,6 +121,7 @@ fn observation_with_printed_and_token_permanents() -> PlayerObservation {
                 types: crate::CardTypeSet::single(crate::CardType::Artifact)
                     .with(crate::CardType::Creature),
                 chosen_creature_type: None,
+                chosen_card_type: None,
                 chosen_basic_land_type: None,
                 chosen_basic_land_type_substitution: None,
                 chosen_colors: std::collections::BTreeMap::new(),

@@ -52,7 +52,7 @@ use super::stack::{
 use super::{
     DeclarativeAbilityDef, Game, ReplacementEffectContext, ReplacementEffectDef, ZoneMoveCause,
     ability_origin_from_snapshot, ability_origin_snapshot, applicable_replacement_snapshot, array,
-    bool_field, card, copiable_ability_snapshot, expiration_snapshot, field,
+    bool_field, copiable_ability_snapshot, expiration_snapshot, field,
     object_characteristics_from_snapshot, object_characteristics_snapshot,
     parse_applicable_replacement, parse_copiable_ability, parse_expiration, parse_text_change_kind,
     parse_zone_kind, seat_value, str_field, text_change_kind_snapshot, u32_field, usize_field,
@@ -78,11 +78,13 @@ mod support;
 
 #[allow(clippy::wildcard_imports)]
 use begin_turn::*;
+pub(super) use begin_turn::{ability_source_snapshot, parse_ability_source};
 pub(super) use support::decision_referenced_object_ids;
 #[allow(clippy::wildcard_imports)]
 use support::*;
 pub(super) use support::{
-    mana_cost_from_snapshot, mana_cost_snapshot, parse_pending_trigger, pending_trigger_snapshot,
+    detached_card_snapshot, mana_cost_from_snapshot, mana_cost_snapshot, parse_pending_trigger,
+    pending_trigger_snapshot,
 };
 
 include!("decision/explicit_payment.rs");

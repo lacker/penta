@@ -48,6 +48,7 @@ use crate::card::KeywordAbility;
 use crate::card::ManaColor;
 use crate::card::ManaRestrictionDef;
 use crate::card::ManaTypeDef;
+use crate::card::MechanicId;
 use crate::card::MoveToZoneCostDef;
 use crate::card::ObjectChoiceBindingDef;
 use crate::card::ObjectCollectionSourceDef;
@@ -89,7 +90,7 @@ use crate::card::sets::y2014::khans_of_tarkir as catalog_ktk;
 use crate::card::sets::y2016::kaladesh as catalog_kld;
 use crate::card::sets::y2020::zendikar_rising as catalog_znr;
 
-pub const EXHAUST: crate::card::MechanicId = crate::card::MechanicId::from_name("mtg:exhaust");
+pub const EXHAUST: MechanicId = MechanicId::from_name("mtg:exhaust");
 
 /// Exhaust labels an ordinary ability restricted to one activation per object.
 ///
@@ -2793,9 +2794,9 @@ pub(in crate::card::sets) static CHANDRA_SPARK_HUNTER: CardRecord = CardRecord::
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
             AbilityDef::triggered_with_targets(
-                "At the beginning of combat on your turn, choose up to one \
-                 target Vehicle you control. Until end of turn, it becomes an \
-                 artifact creature and gains haste.",
+                "At the beginning of combat on your turn, choose up to one target \
+                    Vehicle you control. Until end of turn, it becomes an artifact \
+                    creature and gains haste.",
                 TriggerEventDef::StepBegins {
                     step: TurnStepDef::BeginningOfCombat,
                     player: PlayerRelation::You,
@@ -2872,15 +2873,16 @@ pub(in crate::card::sets) static CHANDRA_SPARK_HUNTER: CardRecord = CardRecord::
                 ))),
             ),
             AbilityDef::activated(
-                "−7: You get an emblem with \"Whenever an artifact you control \
-                 enters, this emblem deals 3 damage to any target.\"",
+                "−7: You get an emblem with \"Whenever an artifact you control enters, \
+                    this emblem deals 3 damage to any target.\"",
                 &[CostDef::Loyalty(ValueDef::Constant(-7))],
                 EffectDef::CreateEmblem {
+                    creature_type: None,
                     emblem: EmblemCharacteristics::new(
                         "Chandra Emblem",
                         &[AbilityDef::triggered_with_targets(
-                            "Whenever an artifact you control enters, this emblem deals 3 \
-                             damage to any target.",
+                            "Whenever an artifact you control enters, this emblem deals 3 damage to \
+                                any target.",
                             TriggerEventDef::zone_changed(
                                 ObjectPredicateDef::All(&[
                                     ObjectPredicateDef::HasType(CardType::Artifact),

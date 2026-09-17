@@ -1,6 +1,11 @@
 //! Marvel's Spider-Man card inventory.
 
+use crate::card::BattlefieldEntryChoiceDestinationDef;
+use crate::card::ExilePlayDurationDef;
+use crate::card::ManaRestrictionDef;
+use crate::card::MechanicId;
 use crate::card::PlayPermissionDef;
+use crate::card::ScalarChoiceListDef;
 use crate::card::ZonePositionDef;
 
 use super::CardRecord;
@@ -110,8 +115,7 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
-pub const WEB_SLINGING: crate::card::MechanicId =
-    crate::card::MechanicId::from_name("mtg:web-slinging");
+pub const WEB_SLINGING: MechanicId = MechanicId::from_name("mtg:web-slinging");
 #[must_use]
 pub const fn web_slinging(text: &'static str, costs: &'static [CostDef]) -> AbilityDef {
     AbilityDef::alternative_cast(
@@ -169,14 +173,57 @@ pub(in crate::card::sets) static ANTI_VENOM_HORRIFYING_HEALER: CardRecord = Card
 );
 
 // SPM 2 — Arachne, Psionic Weaver
-// Audit: unsupported — Needs an as-entry opponent-hand inspection followed by a durable
-// noncreature card-type choice, and a cost modifier keyed to that chosen type; existing scalar
-// entry choices do not include card types.
 pub(in crate::card::sets) static ARACHNE_PSIONIC_WEAVER: CardRecord = CardRecord::new(
     "Arachne, Psionic Weaver",
     "7c1f871a-bd85-402e-b474-1deb64c18a52",
     "Steve Argyle",
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Spider", "Human", "Hero"], 3, 3)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            web_slinging(
+                "Web-slinging {W} (You may cast this spell for {W} if you also return a \
+                tapped creature you control to its owner's hand.)",
+                &[
+                    CostDef::Mana(mana_cost!("{W}")),
+                    CostDef::return_to_hand(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Tapped,
+                        ]),
+                        CostQuantityDef::Fixed(1),
+                    ),
+                ],
+            ),
+            AbilityDef::as_enters(
+                "As Arachne enters, look at an opponent's hand, then choose a card type \
+                other than creature.",
+                ReplacementEffectDef::Sequence(&[
+                    ReplacementEffectDef::LookAtHand(PlayerRelation::Opponent),
+                    ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(
+                        BattlefieldEntryScalarChoiceDef {
+                            list: ScalarChoiceListDef::CardTypes(&[
+                                CardType::Artifact,
+                                CardType::Enchantment,
+                                CardType::Instant,
+                                CardType::Kindred,
+                                CardType::Land,
+                                CardType::Planeswalker,
+                                CardType::Sorcery,
+                            ]),
+                            destination: BattlefieldEntryChoiceDestinationDef::CardType,
+                        },
+                    )),
+                ]),
+            ),
+            abilities::spell_cost_increase(
+                "Spells of the chosen type cost {1} more to cast.",
+                ObjectPredicateDef::HasSourcesChosenScalar(
+                    BattlefieldEntryChoiceDestinationDef::CardType,
+                ),
+                PlayerRelation::Any,
+                mana_cost!("{1}"),
+            ),
+        ]),
 );
 
 // SPM 3 — Aunt May
@@ -3262,13 +3309,106 @@ pub(in crate::card::sets) static LURKING_LIZARDS: CardRecord = CardRecord::new(
 );
 
 // SPM 108 — Miles Morales // Ultimate Spider-Man
-// Audit: unsupported — Needs doubling of every counter kind on a dynamically selected permanent
-// group; DoubleCounters and counter projections require an explicitly named kind.
-pub(in crate::card::sets) static MILES_MORALES: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static MILES_MORALES: CardRecord = CardRecord::new_mdfc(
     "Miles Morales // Ultimate Spider-Man",
     "9f8b4d9b-208a-4673-a617-5e3edd069c33",
     "L.A. Draws",
-    CardRules::unsupported(),
+    &[
+        (
+            "Miles Morales",
+            CardRules::new_creature(mana_cost!("{1}{G}"), &["Human", "Citizen", "Hero"], 1, 2)
+                .with_supertype(CardSupertype::Legendary)
+                .with_abilities(&[
+                    abilities::enters_trigger_with_targets(
+                        "When Miles Morales enters, put a +1/+1 counter on each of up to two \
+                        target creatures.",
+                        &[AbilityTargetDef::up_to(
+                            AbilityTargetPredicate::Object {
+                                object: ObjectPredicateDef::HasType(CardType::Creature),
+                                zones: &[ZoneKind::Battlefield],
+                                controller: None,
+                                owner: None,
+                            },
+                            2,
+                        )],
+                        EffectDef::AddCounters {
+                            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            kind: CounterKind::PlusOnePlusOne,
+                            amount: ValueDef::Constant(1),
+                        },
+                    ),
+                    AbilityDef::activated(
+                        "{3}{R}{G}{W}: Transform Miles Morales. Activate only as a sorcery.",
+                        &[CostDef::Mana(mana_cost!("{3}{R}{G}{W}"))],
+                        EffectDef::Transform {
+                            object: EffectRecipientDef::Source,
+                        },
+                    )
+                    .with_activation_timing(ActivationTimingDef::SorcerySpeed),
+                ]),
+        ),
+        (
+            "Ultimate Spider-Man",
+            CardRules::new_creature(
+                mana_cost!("{3}{R}{G}{W}"),
+                &["Spider", "Human", "Hero"],
+                4,
+                3,
+            )
+            .with_supertype(CardSupertype::Legendary)
+            .with_abilities(&[
+                abilities::first_strike(),
+                abilities::haste(),
+                AbilityDef::activated(
+                    "Camouflage — {2}: Put a +1/+1 counter on Ultimate Spider-Man. He gains \
+                        hexproof and becomes colorless until end of turn.",
+                    &[CostDef::Mana(mana_cost!("{2}"))],
+                    EffectDef::Sequence(&[
+                        EffectDef::AddCounters {
+                            object: EffectRecipientDef::Source,
+                            kind: CounterKind::PlusOnePlusOne,
+                            amount: ValueDef::Constant(1),
+                        },
+                        EffectDef::Apply {
+                            recipient: EffectRecipientDef::Source,
+                            effect: AppliedEffectDef::Composite(&[
+                                AppliedEffectDef::add_ability(&abilities::hexproof()),
+                                AppliedEffectDef::set_colors(ColorSet::empty()),
+                            ]),
+                            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                        },
+                    ]),
+                ),
+                AbilityDef::triggered(
+                    "Whenever you attack, double the number of each kind of counter on each \
+                        Spider and legendary creature you control.",
+                    TriggerEventDef::attack_declared(
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                        1,
+                        None,
+                    ),
+                    EffectDef::DoubleCounters {
+                        object: EffectRecipientDef::objects(ObjectSetDef::Query(
+                            ObjectQueryDef::matching(
+                                ObjectPredicateDef::All(&[
+                                    ObjectPredicateDef::HasType(CardType::Creature),
+                                    ObjectPredicateDef::AnyOf(&[
+                                        ObjectPredicateDef::Subtype(SubtypeDef::from_name(
+                                            "Spider",
+                                        )),
+                                        ObjectPredicateDef::Supertype(CardSupertype::Legendary),
+                                    ]),
+                                ]),
+                                &[ZoneKind::Battlefield],
+                                PlayerRelation::You,
+                            ),
+                        )),
+                        kind: None,
+                    },
+                ),
+            ]),
+        ),
+    ],
 );
 
 // SPM 109 — Pictures of Spider-Man
@@ -5103,13 +5243,35 @@ pub(in crate::card::sets) static HOT_DOG_CART: CardRecord = CardRecord::new(
 );
 
 // SPM 165 — Interdimensional Web Watch
-// Audit: unsupported — Needs a mana-spending restriction that tests the zone a spell is cast
-// from; CastSpell accepts characteristic predicates, which cannot inspect cast origin.
 pub(in crate::card::sets) static INTERDIMENSIONAL_WEB_WATCH: CardRecord = CardRecord::new(
     "Interdimensional Web Watch",
     "87a8e112-e72f-413f-88a3-e7ce72c2ec53",
     "Toni Infante",
-    CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{4}")).with_abilities(&[
+        abilities::enters_trigger(
+            "When this artifact enters, exile the top two cards of your library. \
+                Until the end of your next turn, you may play those cards.",
+            EffectDef::ExileTopOfLibraryToPlay {
+                player: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(2),
+                free: false,
+                face_down: false,
+                duration: ExilePlayDurationDef::UntilEndOfYourNextTurn,
+                mana_spending: None,
+                play_condition: None,
+                cast_only: false,
+            },
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add two mana in any combination of colors. Spend this mana only \
+                to cast spells from exile.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(
+                AddManaEffectDef::combination(&ManaColor::COLORS, 2)
+                    .with_restrictions(&[ManaRestrictionDef::CastFrom(ZoneKind::Exile)]),
+            ),
+        ),
+    ]),
 );
 
 // SPM 166 — Iron Spider, Stark Upgrade

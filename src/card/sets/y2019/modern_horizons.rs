@@ -584,8 +584,9 @@ pub(in crate::card::sets) static URZA_LORD_HIGH_ARTIFICER: CardRecord = CardReco
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
             abilities::enters_trigger(
-                "When this creature enters, create a 0/0 colorless Construct artifact creature \
-                 token with \"This token gets +1/+1 for each artifact you control.\"",
+                "When this creature enters, create a 0/0 colorless Construct artifact \
+                    creature token with \"This token gets +1/+1 for each artifact you \
+                    control.\"",
                 EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
                     TokenCharacteristics::artifact_creature(&["Construct"], &[], 0, 0)
                         .with_abilities(&[AbilityDef::static_ability(
@@ -616,8 +617,8 @@ pub(in crate::card::sets) static URZA_LORD_HIGH_ARTIFICER: CardRecord = CardReco
                 EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Blue)),
             ),
             AbilityDef::activated(
-                "{5}: Shuffle your library, then exile the top card. Until end of turn, you may \
-                 play that card without paying its mana cost.",
+                "{5}: Shuffle your library, then exile the top card. Until end of turn, \
+                    you may play that card without paying its mana cost.",
                 &[CostDef::Mana(mana_cost!("{5}"))],
                 EffectDef::Sequence(&[
                     EffectDef::ShuffleLibrary {
@@ -629,7 +630,7 @@ pub(in crate::card::sets) static URZA_LORD_HIGH_ARTIFICER: CardRecord = CardReco
                         free: true,
                         face_down: false,
                         duration: ExilePlayDurationDef::ThisTurn,
-                        spend_any_color: false,
+                        mana_spending: None,
                         play_condition: None,
                         cast_only: false,
                     },
@@ -1388,16 +1389,15 @@ pub(in crate::card::sets) static FALLEN_SHINOBI: CardRecord = CardRecord::new(
     // free, every time.
     CardRules::new_creature(mana_cost!("{3}{U}{B}"), &["Zombie", "Ninja"], 5, 4).with_abilities(&[
         abilities::ninjutsu!(
-            "Ninjutsu {2}{U}{B} ({2}{U}{B}, Return an unblocked attacker \
-             you control to hand: Put this card onto the battlefield \
-             from your hand tapped and attacking.)",
+            "Ninjutsu {2}{U}{B} ({2}{U}{B}, Return an unblocked attacker you \
+                control to hand: Put this card onto the battlefield from your hand \
+                tapped and attacking.)",
             &[CostDef::Mana(mana_cost!("{2}{U}{B}"))],
         ),
         AbilityDef::triggered(
-            "Whenever this creature deals combat damage to a player, \
-             that player exiles the top two cards of their library. \
-             Until end of turn, you may play those cards without paying \
-             their mana costs.",
+            "Whenever this creature deals combat damage to a player, that player \
+                exiles the top two cards of their library. Until end of turn, you may \
+                play those cards without paying their mana costs.",
             TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
             EffectDef::ExileTopOfLibraryToPlay {
                 player: EffectRecipientDef::EventPlayer,
@@ -1405,7 +1405,7 @@ pub(in crate::card::sets) static FALLEN_SHINOBI: CardRecord = CardRecord::new(
                 free: true,
                 face_down: false,
                 duration: ExilePlayDurationDef::ThisTurn,
-                spend_any_color: false,
+                mana_spending: None,
                 play_condition: None,
                 cast_only: false,
             },
@@ -1505,12 +1505,13 @@ pub(in crate::card::sets) static WRENN_AND_SIX: CardRecord = CardRecord::new(
                 ),
             ),
             AbilityDef::activated(
-                "−7: You get an emblem with \"Instant and sorcery cards in \
-                 your graveyard have retrace.\" (You may cast instant and \
-                 sorcery cards from your graveyard by discarding a land card \
-                 in addition to paying their other costs.)",
+                "−7: You get an emblem with \"Instant and sorcery cards in your \
+                    graveyard have retrace.\" (You may cast instant and sorcery cards from \
+                    your graveyard by discarding a land card in addition to paying their \
+                    other costs.)",
                 &[CostDef::Loyalty(ValueDef::Constant(-7))],
                 EffectDef::CreateEmblem {
+                    creature_type: None,
                     emblem: EmblemCharacteristics::new(
                         "Wrenn and Six emblem",
                         &[AbilityDef::static_ability(
@@ -1534,9 +1535,8 @@ pub(in crate::card::sets) static WRENN_AND_SIX: CardRecord = CardRecord::new(
                                             ],
                                             AlternativeCastKindDef::Retrace,
                                             Some(
-                                                "Retrace (You may cast this card from your \
-                                                 graveyard by discarding a land card in \
-                                                 addition to paying its other costs.)",
+                                                "Retrace (You may cast this card from your graveyard by discarding a \
+                                                    land card in addition to paying its other costs.)",
                                             ),
                                             EffectDef::None,
                                         ), // Retrace's own cost: the card's mana cost, plus a land out of your hand.

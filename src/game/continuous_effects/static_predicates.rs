@@ -207,7 +207,8 @@ impl Game {
             }
             ObjectPredicateDef::ManaValueAtMost(_)
             | ObjectPredicateDef::FaceUpInExile
-            | ObjectPredicateDef::GenericManaCostAtMost(_)
+            | ObjectPredicateDef::HasAlternateSpell(_)
+        | ObjectPredicateDef::GenericManaCostAtMost(_)
             | ObjectPredicateDef::ManaValueEqualTo(_)
             | ObjectPredicateDef::ManaValueAtMostValue(_)
             | ObjectPredicateDef::PowerAtLeast(_)
@@ -229,7 +230,7 @@ impl Game {
             | ObjectPredicateDef::HasKeyword(_)
             | ObjectPredicateDef::HasAbility(_)
             | ObjectPredicateDef::HasNonManaActivatedAbility
-            | ObjectPredicateDef::Attacking
+            | ObjectPredicateDef::Attacking | ObjectPredicateDef::UnblockedAttacker
             | ObjectPredicateDef::Saddled
             | ObjectPredicateDef::AttachedToSource
             | ObjectPredicateDef::Blocking

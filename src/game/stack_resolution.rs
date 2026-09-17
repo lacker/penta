@@ -193,6 +193,13 @@ impl Game {
             }
             permanent.chosen_player = chosen_player;
             permanent.cast.clone_from(&object.cast);
+            if permanent
+                .cast
+                .as_ref()
+                .is_some_and(|cast| cast.sneak_defender.is_some())
+            {
+                permanent.tapped = true;
+            }
             if let Some(cast) = &object.cast {
                 for (kind, amount) in &cast.permission_entry_counters {
                     permanent.add_counters(*kind, *amount);
@@ -310,6 +317,10 @@ impl Game {
             .battlefield
             .iter_mut()
             .find(|permanent| permanent.card.id == source)
+            .or_else(|| match self.retired_objects.get_mut(&source) {
+                Some(super::RetiredObject::Permanent { permanent, .. }) => Some(permanent),
+                _ => None,
+            })
         else {
             return;
         };
@@ -447,6 +458,19 @@ impl Game {
         } else {
             SpellResolutionDestinationDef::Graveyard
         };
+        let mut destination = destination;
+        while let SpellResolutionDestinationDef::IfCastFrom { zone, then } = destination {
+            destination = if object
+                .cast
+                .as_ref()
+                .and_then(|cast| cast.source_zone)
+                .is_some_and(|source| source.zone() == zone)
+            {
+                *then
+            } else {
+                SpellResolutionDestinationDef::Graveyard
+            };
+        }
         let destination = self.rebound_destination(object, destination);
         if object.is_copy {
             // A copy has no card to move, but "shuffle it into its owner's
@@ -508,6 +532,21 @@ impl Game {
                     card.add_counters(kind, amount);
                 }
                 self.players[owner.index()].exile.push(card);
+            }
+            SpellResolutionDestinationDef::ExileThenReturnTransformed { counters } => {
+                let id = card.id;
+                self.players[owner.index()].exile.push(card);
+                self.return_exiled_card(
+                    id,
+                    ZoneKind::Battlefield,
+                    None,
+                    Some(owner),
+                    true,
+                    counters,
+                );
+            }
+            SpellResolutionDestinationDef::IfCastFrom { .. } => {
+                unreachable!("conditional destination was selected")
             }
             SpellResolutionDestinationDef::Rebound => {}
             SpellResolutionDestinationDef::LibraryShuffled => {

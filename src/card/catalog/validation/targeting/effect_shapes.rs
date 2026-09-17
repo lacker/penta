@@ -33,6 +33,34 @@ fn validate_effect_target_shapes(
     triggering_object_zone: Option<ZoneKind>,
 ) -> Result<(), GrantedAbilityValidationError> {
     match effect {
+        EffectDef::AddCountersFrom { from, object } => {
+            validate_object_reference_shape(from, targets)?;
+            validate_recipient_shape(object, targets, RecipientExpectation::Object)
+        }
+        EffectDef::AttachObjects {
+            objects,
+            host,
+            then,
+        } => {
+            validate_object_set_shape(objects, targets)?;
+            validate_recipient_shape(
+                EffectRecipientDef::object(host),
+                targets,
+                RecipientExpectation::Object,
+            )?;
+            if let Some(then) = then {
+                validate_effect_target_shapes(*then, targets, triggering_object_zone)?;
+            }
+            Ok(())
+        }
+        EffectDef::GrantPlayPermission(grant) => {
+            validate_player_reference_shape(grant.player, targets)?;
+            validate_recipient_shape(
+                EffectRecipientDef::objects(grant.objects),
+                targets,
+                RecipientExpectation::Object,
+            )
+        }
         EffectDef::Perform(GameActionDef::Named { action, .. }) => validate_effect_target_shapes(
             EffectDef::Perform(*action),
             targets,
@@ -106,7 +134,7 @@ fn validate_effect_target_shapes(
             }
             Ok(())
         }
-        EffectDef::ChooseCardName { chooser, .. } => {
+        EffectDef::ChooseCardName { chooser, .. } | EffectDef::ChooseCreatureType { chooser } => {
             validate_player_reference_shape(chooser, targets)
         }
         EffectDef::Choose(choice) => {
@@ -142,6 +170,30 @@ fn validate_effect_target_shapes(
             validate_object_predicate_shape(choice.object, targets)?;
             validate_effect_target_shapes(*choice.then, targets, triggering_object_zone)
         }
+        EffectDef::SearchZones {
+            searcher,
+            owner,
+            zones,
+            then,
+            ..
+        } => {
+            validate_player_reference_shape(searcher, targets)?;
+            validate_player_reference_shape(owner, targets)?;
+            if zones.iter().any(|z| {
+                !matches!(
+                    z,
+                    ZoneKind::Hand | ZoneKind::Graveyard | ZoneKind::Library | ZoneKind::Exile
+                )
+            }) {
+                return Err(
+                    GrantedAbilityValidationError::UnsupportedEffectProgramContext {
+                        context: "search",
+                        operation: "a non-searchable zone",
+                    },
+                );
+            }
+            validate_effect_target_shapes(*then, targets, triggering_object_zone)
+        }
         EffectDef::BindObjects(definition) => {
             validate_object_collection_shape(definition.source, targets)?;
             if matches!(definition.source,
@@ -149,7 +201,10 @@ fn validate_effect_target_shapes(
                     if query.zones == [ZoneKind::Battlefield])
             {
                 validate_battlefield_binding_continuation(
-                    *definition.then, definition.binding, targets, triggering_object_zone,
+                    *definition.then,
+                    definition.binding,
+                    targets,
+                    triggering_object_zone,
                 )
             } else {
                 validate_effect_target_shapes(*definition.then, targets, triggering_object_zone)
@@ -224,7 +279,8 @@ fn validate_effect_target_shapes(
         }
         EffectDef::WithRule { effect, .. }
         | EffectDef::BindOutput { effect, .. }
-        | EffectDef::ForEachInBinding { effect, .. } => {
+        | EffectDef::ForEachInBinding { effect, .. }
+        | EffectDef::OncePerTurn { effect } => {
             validate_effect_target_shapes(*effect, targets, triggering_object_zone)
         }
         EffectDef::WithBattlefieldArrival { effect, arrival } => {
@@ -434,6 +490,7 @@ fn validate_effect_target_shapes(
             | GameActionDef::Sacrifice { object }
             | GameActionDef::SacrificeYours { object }
             | GameActionDef::GainControl { object, .. }
+            | GameActionDef::ModifyCounters { object, .. }
             | GameActionDef::MoveToZone { object, .. },
         )
         | EffectDef::Explore { object }
@@ -452,6 +509,7 @@ fn validate_effect_target_shapes(
         }
         | EffectDef::Detain { object }
         | EffectDef::DoubleCounters { object, .. }
+        | EffectDef::SetDesignation { object, .. }
         | EffectDef::RemoveAllCounters { object, .. }
         | EffectDef::SkipNextUntapSteps { object, .. }
         | EffectDef::ChangeText { object, .. }
@@ -527,9 +585,12 @@ fn validate_effect_target_shapes(
             ..
         }) => {
             if let crate::card::TokenDef::Binding(crate::ParentBinding) = token {
-                return Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
-                    context: "token binding", operation: "requires a durable labeled binding",
-                });
+                return Err(
+                    GrantedAbilityValidationError::UnsupportedEffectProgramContext {
+                        context: "token binding",
+                        operation: "requires a durable labeled binding",
+                    },
+                );
             }
             validate_value_shape(count, targets)?;
             if let crate::card::TokenDef::Copy(copy) = token {
@@ -587,6 +648,9 @@ fn validate_effect_target_shapes(
         }
         EffectDef::ReflexiveTrigger(ability) => {
             let definition = reflexive_trigger_definition(ability)?;
+            if let Some(condition) = definition.condition {
+                validate_trigger_condition_shape(*condition, definition.targets)?;
+            }
             validate_program_target_shapes(ability.effect.definition, definition.targets, None)
         }
         EffectDef::InstallTrigger(trigger) => {
@@ -608,7 +672,8 @@ fn validate_effect_target_shapes(
                 | DeclarativeAbilityDef::SpecialAction(_)
                 | DeclarativeAbilityDef::Pregame(_)
                 | DeclarativeAbilityDef::Keyword(_)
-                | DeclarativeAbilityDef::DeckConstruction(_) | DeclarativeAbilityDef::Companion(_) => None,
+                | DeclarativeAbilityDef::DeckConstruction(_)
+                | DeclarativeAbilityDef::Companion(_) => None,
             };
             validate_program_target_shapes(
                 trigger.ability.effect.definition,
@@ -733,6 +798,7 @@ fn validate_effect_target_shapes(
         | EffectDef::CannotBeForcedToSacrifice
         | EffectDef::CannotBeForcedToDiscard
         | EffectDef::GainClassLevel { .. }
+        | EffectDef::RecordMechanic(_)
         | EffectDef::SubstituteBasicLandTypeUntilEndOfTurn { .. }
         | EffectDef::LandwalkCanBeBlocked(_)
         | EffectDef::ScheduleTurnPhases(_)
@@ -748,195 +814,5 @@ fn validate_effect_target_shapes(
 mod entry_choice_tests;
 
 #[cfg(test)]
-mod recipient_shape_tests {
-    use super::*;
-    use crate::card::{PlayActionMatcherDef, PlayRestrictionDef, ResolvedEffectDurationDef};
-
-    const PLAYER_TARGET: AbilityTargetDef =
-        AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(PlayerRelation::Any));
-    const OBJECT_TARGET: AbilityTargetDef =
-        AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
-            object: ObjectPredicateDef::Any,
-            zones: &[ZoneKind::Battlefield],
-            controller: None,
-            owner: None,
-        });
-    const ANY_TARGET: AbilityTargetDef =
-        AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget);
-
-    fn cannot_play() -> AppliedEffectDef {
-        AppliedEffectDef::Rule(AppliedRuleDef::CannotPlay(PlayRestrictionDef::new(
-            PlayActionMatcherDef::CastSpell,
-            ObjectPredicateDef::NoncreatureSpell,
-        )))
-    }
-
-    #[test]
-    fn object_and_player_effects_reject_opposite_typed_recipients() {
-        assert_eq!(
-            validate_ability_targets(
-                &[],
-                EffectDef::Tap {
-                    object: EffectRecipientDef::Controller,
-                },
-            ),
-            Err(GrantedAbilityValidationError::EffectRecipientKindMismatch {
-                recipient: Box::new(EffectRecipientDef::Controller),
-                expected: EffectSubjectKind::Object,
-            }),
-        );
-        assert_eq!(
-            validate_ability_targets(
-                &[],
-                EffectDef::GainLife {
-                    recipient: EffectRecipientDef::Source,
-                    amount: ValueDef::Constant(1),
-                },
-            ),
-            Err(GrantedAbilityValidationError::EffectRecipientKindMismatch {
-                recipient: Box::new(EffectRecipientDef::Source),
-                expected: EffectSubjectKind::Player,
-            }),
-        );
-        assert_eq!(
-            validate_ability_targets(
-                &[],
-                EffectDef::ExchangeControl {
-                    first: EffectRecipientDef::Source,
-                    second: EffectRecipientDef::Controller,
-                    otherwise: None,
-                },
-            ),
-            Err(GrantedAbilityValidationError::EffectRecipientKindMismatch {
-                recipient: Box::new(EffectRecipientDef::Controller),
-                expected: EffectSubjectKind::Object,
-            }),
-            "both sides of an exchange are validated",
-        );
-    }
-
-    #[test]
-    fn target_slots_must_contain_the_subject_kind_an_effect_reads() {
-        assert_eq!(
-            validate_ability_targets(
-                &[PLAYER_TARGET],
-                EffectDef::Tap {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                },
-            ),
-            Err(GrantedAbilityValidationError::TargetReferenceKindMismatch {
-                target: TargetIndex::PRIMARY,
-                predicate: PLAYER_TARGET.predicate,
-                expected: EffectSubjectKind::Object,
-            }),
-        );
-        assert_eq!(
-            validate_ability_targets(
-                &[OBJECT_TARGET],
-                EffectDef::GainLife {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(1),
-                },
-            ),
-            Err(GrantedAbilityValidationError::TargetReferenceKindMismatch {
-                target: TargetIndex::PRIMARY,
-                predicate: OBJECT_TARGET.predicate,
-                expected: EffectSubjectKind::Player,
-            }),
-        );
-    }
-
-    #[test]
-    fn typed_projections_make_mixed_target_filtering_explicit() {
-        let effects = Box::leak(Box::new([
-            EffectDef::Tap {
-                object: EffectRecipientDef::target_objects(TargetIndex::PRIMARY),
-            },
-            EffectDef::Apply {
-                recipient: EffectRecipientDef::target_players(TargetIndex::PRIMARY),
-                effect: cannot_play(),
-                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-            },
-        ]));
-        validate_ability_targets(&[ANY_TARGET], EffectDef::Sequence(effects))
-            .expect("typed projections retain both halves of an any-target slot");
-    }
-
-    #[test]
-    fn raw_target_references_require_at_most_one_selected_target() {
-        let targets = [AbilityTargetDef::up_to(OBJECT_TARGET.predicate, 2)];
-        assert_eq!(
-            validate_ability_targets(
-                &targets,
-                EffectDef::Tap {
-                    object: EffectRecipientDef::object(ObjectRefDef::Target(TargetIndex::PRIMARY,)),
-                },
-            ),
-            Err(
-                GrantedAbilityValidationError::TargetReferenceRequiresSingular {
-                    target: TargetIndex::PRIMARY,
-                    maximum: 2,
-                },
-            ),
-        );
-    }
-
-    #[test]
-    fn derived_controller_accepts_mixed_targets_but_owner_requires_an_object() {
-        validate_ability_targets(
-            &[ANY_TARGET],
-            EffectDef::GainLife {
-                recipient: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
-                    ObjectRefDef::Target(TargetIndex::PRIMARY),
-                )),
-                amount: ValueDef::Constant(1),
-            },
-        )
-        .expect("a player is its own controller, so either half is meaningful");
-
-        validate_ability_targets(
-            &[OBJECT_TARGET],
-            EffectDef::GainLife {
-                recipient: EffectRecipientDef::player(PlayerRefDef::OwnerOf(ObjectRefDef::Target(
-                    TargetIndex::PRIMARY,
-                ))),
-                amount: ValueDef::Constant(1),
-            },
-        )
-        .expect("an object target always has an owner");
-
-        for target in [ANY_TARGET, PLAYER_TARGET] {
-            assert_eq!(
-                validate_ability_targets(
-                    &[target],
-                    EffectDef::GainLife {
-                        recipient: EffectRecipientDef::player(PlayerRefDef::OwnerOf(
-                            ObjectRefDef::Target(TargetIndex::PRIMARY),
-                        )),
-                        amount: ValueDef::Constant(1),
-                    },
-                ),
-                Err(GrantedAbilityValidationError::TargetReferenceKindMismatch {
-                    target: TargetIndex::PRIMARY,
-                    predicate: target.predicate,
-                    expected: EffectSubjectKind::Object,
-                }),
-            );
-        }
-    }
-
-    #[test]
-    fn static_player_rules_reject_event_only_selectors() {
-        let recipient = EffectRecipientDef::player(PlayerRefDef::EventPlayer);
-        assert_eq!(
-            validate_ability_targets(
-                &[],
-                EffectDef::StaticApply {
-                    recipient,
-                    effect: cannot_play(),
-                },
-            ),
-            Err(GrantedAbilityValidationError::UnsupportedStaticPlayerRecipient { recipient: Box::new(recipient) },),
-        );
-    }
-}
+#[path = "effect_shape_recipient_tests.rs"]
+mod recipient_shape_tests;

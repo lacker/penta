@@ -70,6 +70,11 @@ impl Game {
             ZoneKind::Command => CharacteristicContext::Command,
             ZoneKind::Battlefield | ZoneKind::Stack => return false,
         };
+        let context = self
+            .part_copy(object)
+            .map_or(context, |part| CharacteristicContext::Stack {
+                form: crate::card::SpellForm::Part(part),
+            });
         self.definition_has_ability(card.definition, &context, predicate)
     }
 
@@ -495,6 +500,9 @@ impl Game {
             | BattlefieldEntryChoiceDestinationDef::BasicLandType
             | BattlefieldEntryChoiceDestinationDef::Color
             | BattlefieldEntryChoiceDestinationDef::CardName => false,
+            BattlefieldEntryChoiceDestinationDef::CardType => chooser
+                .and_then(|permanent| permanent.chosen_card_type)
+                .is_some_and(|kind| object.types.contains(kind)),
             BattlefieldEntryChoiceDestinationDef::CreatureType => chooser
                 .and_then(|permanent| permanent.chosen_creature_type.as_deref())
                 .is_some_and(|chosen| {
@@ -676,6 +684,7 @@ impl Game {
                     TriggerContext::empty(),
                 )
             }),
+            ObjectPredicateDef::UnblockedAttacker => object.attacking && !self.combat_blocked_attackers.contains(&object.id),
             ObjectPredicateDef::Attacking
             | ObjectPredicateDef::AttackedThisTurn
             | ObjectPredicateDef::AttackedDuringControllersLastTurn
@@ -727,7 +736,8 @@ impl Game {
             // hold the card's own definition and answer it there, and the
             // catalog boundary keeps the predicate out of trigger and static
             // contexts.
-            ObjectPredicateDef::GenericManaCostAtMost(_)
+            ObjectPredicateDef::HasAlternateSpell(_)
+        | ObjectPredicateDef::GenericManaCostAtMost(_)
             | ObjectPredicateDef::Special(_)
             // Exile facing also belongs to live card-zone state, not this snapshot.
             | ObjectPredicateDef::FaceUpInExile => false,

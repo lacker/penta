@@ -111,6 +111,7 @@ impl Game {
             EffectDef::ChooseGroup(definition) => {
                 Self::effect_applies_to_source(*definition.then, expected)
             }
+            EffectDef::SearchZones { then, .. } => Self::effect_applies_to_source(*then, expected),
             EffectDef::BindObjects(definition) => {
                 Self::effect_applies_to_source(*definition.then, expected)
             }
@@ -165,6 +166,7 @@ impl Game {
                 | crate::card::GameActionDef::Choice(_)
                 | crate::card::GameActionDef::Named { .. }
                 | crate::card::GameActionDef::DiscardCards { .. }
+                | crate::card::GameActionDef::ModifyCounters { .. }
                 | crate::card::GameActionDef::Exile { .. }
                 | crate::card::GameActionDef::Sacrifice { .. }
                 | crate::card::GameActionDef::SacrificeYours { .. }
@@ -181,11 +183,14 @@ impl Game {
             | EffectDef::RemoveFromCombat { .. }
             | EffectDef::SkipNextUntapSteps { .. }
             | EffectDef::DoubleCounters { .. }
+            | EffectDef::AddCountersFrom { .. }
+            | EffectDef::SetDesignation { .. }
             | EffectDef::RemoveAllCounters { .. }
             | EffectDef::Untap { .. }
             | EffectDef::Saddle { .. }
             | EffectDef::Attach { .. }
             | EffectDef::AttachToSource { .. }
+            | EffectDef::AttachObjects { .. }
             | EffectDef::Reconfigure { .. }
             | EffectDef::Unattach { .. }
             | EffectDef::PairWithSource { .. }
@@ -227,15 +232,18 @@ impl Game {
             | EffectDef::ChangeText { .. }
             | EffectDef::ChooseColor { .. }
             | EffectDef::BecomeCopyOf { .. }
+            | EffectDef::OncePerTurn { .. }
             | EffectDef::May { .. }
             | EffectDef::CannotBeForcedToSacrifice
             | EffectDef::CannotBeForcedToDiscard
             | EffectDef::GainClassLevel { .. }
+            | EffectDef::RecordMechanic(_)
             | EffectDef::SetLifeTotal { .. }
             | EffectDef::SubstituteBasicLandTypeUntilEndOfTurn { .. }
             | EffectDef::CreateEmblem { .. }
             | EffectDef::CreateOngoingEffect(_)
             | EffectDef::PutOntoBattlefieldThen { .. }
+            | EffectDef::ChooseCreatureType { .. }
             | EffectDef::ChooseCardName { .. }
             | EffectDef::Transform { .. }
             | EffectDef::ScheduleTurnPhases(_)
@@ -246,6 +254,7 @@ impl Game {
             | EffectDef::DamageCannotBePreventedThisTurn
             | EffectDef::ExileLinkedToSource { .. }
             | EffectDef::MayPlayWithoutPaying { .. }
+            | EffectDef::GrantPlayPermission(_)
             | EffectDef::ExileGrantingOwnerPlay { .. }
             | EffectDef::ExileGrantingControllerPlayThisTurn { .. }
             | EffectDef::ReturnLinkedExiles { .. }

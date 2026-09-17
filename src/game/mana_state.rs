@@ -28,6 +28,7 @@ pub(super) enum ManaPaymentPurpose {
         /// Frozen before the card leaves its source zone: the proposed spell
         /// is local to the payment continuation until all costs are paid.
         commander_owner: Option<PlayerId>,
+        source_zone: Option<crate::card::ZoneKind>,
         form: SpellForm,
         alternative: Option<crate::card::AlternativeCastKindDef>,
         x: u16,
@@ -36,6 +37,7 @@ pub(super) enum ManaPaymentPurpose {
         reserved_life_payment: u16,
     },
     Ability {
+        waterbend: u16,
         source: GameObjectId,
         /// Whether the ability taps its source to pay for itself. When it
         /// does, that source cannot also be tapped for mana, so it is barred
@@ -168,11 +170,12 @@ pub(super) enum ManaContributionKind {
     Convoke,
     Delve,
     Improvise,
+    Waterbend,
 }
 
 impl ManaContributionKind {
     pub(super) const fn taps_source(self) -> bool {
-        matches!(self, Self::Convoke | Self::Improvise)
+        matches!(self, Self::Convoke | Self::Improvise | Self::Waterbend)
     }
 
     pub(super) const fn exiles_source(self) -> bool {

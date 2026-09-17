@@ -221,6 +221,12 @@ impl Game {
                 .chain(&mut player.command)
                 .chain(&mut player.outside_game)
             {
+                if matches!(
+                    card.characteristics,
+                    super::CharacteristicSource::PartCopy { .. }
+                ) {
+                    continue;
+                }
                 assign(
                     &mut self.physical_cards,
                     card.definition,

@@ -164,6 +164,9 @@ pub enum ObjectPredicateDef {
     /// holds the card's own definition can answer it, so the catalog
     /// boundary keeps it out of static and stack contexts.
     GenericManaCostAtMost(u8),
+    /// A card has this alternate spell frame independently of its ordinary
+    /// outside-stack characteristics. Read only for cards in card zones.
+    HasAlternateSpell(super::AlternateSpellKind),
     /// Power at least this much, for "power N or greater". Target legality
     /// reads real current power, so a creature a Crusade has pumped qualifies.
     /// Trigger and static matching still read power without continuous
@@ -263,6 +266,7 @@ pub enum ObjectPredicateDef {
     HasNonManaActivatedAbility,
     /// A creature currently declared as an attacker in combat.
     Attacking,
+    UnblockedAttacker,
     /// A Mount whose saddle ability has been paid this turn (CR 702.166a).
     /// Its own printed clause is what reads it, which is why this is a
     /// characteristic rather than a counter.
@@ -683,6 +687,8 @@ fn cast_target_count_value(value: ValueDef, x: u16, payments: &[u16]) -> Option<
 /// choice attached to the source permanent by an entry `BindOutput`.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum SubtypeDef {
+    /// The type chosen while casting the source spell, including a copied spell.
+    CastChosenCreatureType,
     Fixed(crate::card::Subtype),
     Binding(crate::Binding),
 }

@@ -1,5 +1,13 @@
 //! Final Fantasy card inventory.
 
+use crate::card::CardComposition;
+use crate::card::ConditionValueDef;
+use crate::card::DeclarativeAbilityDef;
+use crate::card::MechanicId;
+use crate::card::ModalSpellDef;
+use crate::card::PlayerRuleDef;
+use crate::card::SpellAbilityDef;
+use crate::card::SpellCastQueryDef;
 use crate::card::ZonePositionDef;
 
 use super::CardRecord;
@@ -123,7 +131,7 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
-pub const TIERED: crate::card::MechanicId = crate::card::MechanicId::from_name("mtg:tiered");
+pub const TIERED: MechanicId = MechanicId::from_name("mtg:tiered");
 /// Choose exactly one mode and pay its additional cost.
 #[must_use]
 pub const fn tiered(
@@ -132,9 +140,9 @@ pub const fn tiered(
 ) -> AbilityDef {
     AbilityDef::defined(
         text,
-        crate::card::DeclarativeAbilityDef::Spell(crate::card::SpellAbilityDef::Modal(
-            crate::card::ModalSpellDef::with_costed_modes(modes, 1, 1, false),
-        )),
+        DeclarativeAbilityDef::Spell(SpellAbilityDef::Modal(ModalSpellDef::with_costed_modes(
+            modes, 1, 1, false,
+        ))),
         EffectDef::None,
     )
     .labeled(TIERED)
@@ -143,7 +151,7 @@ fn adventure_land(
     record: &CardRecord,
     name: &'static str,
     alternate: &CardRules,
-) -> crate::card::CardComposition {
+) -> CardComposition {
     use crate::card::{
         AlternateSpellKind, CardComposition, CardEffectStatus, CardPart, CardStructure,
         PlayOptionDef, SpellForm,
@@ -204,8 +212,8 @@ const HERO_TOKEN_2: TokenCharacteristics = TokenCharacteristics::creature(&["Her
 const WIZARD_TOKEN: TokenCharacteristics =
     TokenCharacteristics::creature(&["Wizard"], &[ManaColor::Black], 0, 1)
         .with_abilities(&[AbilityDef::triggered(
-            "Whenever you cast a noncreature spell, this token deals 1 \
-             damage to each opponent.",
+            "Whenever you cast a noncreature spell, this token deals 1 damage to \
+                each opponent.",
             TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
                 ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
                 ObjectPredicateDef::ControlledBy(PlayerRelation::You),
@@ -1858,14 +1866,69 @@ pub(in crate::card::sets) static YOU_RE_NOT_ALONE: CardRecord = CardRecord::new(
 );
 
 // FIN 45 — Zack Fair
-// Audit: unsupported — Needs transfer of the sacrificed source's complete counter inventory and
-// an Equipment chosen from its last-known attachments; current counter effects name a fixed
-// counter kind and attachment queries read the current battlefield.
 pub(in crate::card::sets) static ZACK_FAIR: CardRecord = CardRecord::new(
     "Zack Fair",
     "f21f9161-5945-40da-8da0-446f6a4a1c23",
     "Yoshio Sugiura",
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{W}"), &["Human", "Soldier"], 0, 1)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::as_enters(
+                "Zack Fair enters with a +1/+1 counter on it.",
+                ReplacementEffectDef::ModifyBattlefieldEntry(
+                    BattlefieldEntryModificationDef::AddCounters {
+                        kind: CounterKind::PlusOnePlusOne,
+                        amount: 1,
+                    },
+                ),
+            ),
+            AbilityDef::activated_with_targets(
+                "{1}, Sacrifice Zack Fair: Target creature you control gains \
+                    indestructible until end of turn. Put Zack Fair's counters on that \
+                    creature and attach an Equipment that was attached to Zack Fair to \
+                    that creature.",
+                &[CostDef::Mana(mana_cost!("{1}")), CostDef::SacrificeSource],
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ]),
+                )],
+                EffectDef::Sequence(&[
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        effect: AppliedEffectDef::add_ability(&abilities::indestructible()),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                    EffectDef::AddCountersFrom {
+                        from: ObjectRefDef::Source,
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    },
+                    EffectDef::Choose(ChooseDef {
+                        binding: ObjectChoiceBindingDef::Object(crate::Binding!("equipment")),
+                        unchosen: None,
+                        chooser: PlayerRefDef::EffectController,
+                        candidates: ObjectSetDef::Matching {
+                            objects: &ObjectSetDef::AttachmentsOf(ObjectRefDef::Source),
+                            object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::Subtype(
+                                SubtypeDef::from_name("Equipment"),
+                            )),
+                        },
+                        exclude: None,
+                        minimum: 1,
+                        maximum: 1,
+                        visibility: ChoiceVisibilityDef::Public,
+                        then: &EffectDef::AttachObjects {
+                            objects: ObjectSetDef::One(ObjectRefDef::Binding(crate::Binding!(
+                                "equipment"
+                            ))),
+                            host: ObjectRefDef::Target(TargetIndex::PRIMARY),
+                            then: None,
+                        },
+                    }),
+                ]),
+            ),
+        ]),
 );
 
 // FIN 46 — Astrologian's Planisphere (alternate printing)
@@ -4829,14 +4892,43 @@ pub(in crate::card::sets) static RANDOM_ENCOUNTER: CardRecord = CardRecord::new(
 );
 
 // FIN 151 — Raubahn, Bull of Ala Mhigo
-// Audit: unsupported — Needs attachment between an independently targeted Equipment and
-// attacking creature; current Attach and AttachToSource operations require one side of the
-// attachment to be the ability source.
 pub(in crate::card::sets) static RAUBAHN_BULL_OF_ALA_MHIGO: CardRecord = CardRecord::new(
     "Raubahn, Bull of Ala Mhigo",
     "7035d11b-525f-4120-8dcb-610095196681",
     "Julia Vasilyeva",
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Human", "Warrior"], 2, 2)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::ward(
+                &[CostDef::Life(ValueDef::SourcePower)],
+                "Ward—Pay life equal to Raubahn's power.",
+            ),
+            AbilityDef::triggered_with_targets(
+                "Whenever Raubahn attacks, attach up to one target Equipment you \
+                control to target attacking creature.",
+                TriggerEventDef::attacks(ObjectPredicateDef::Source),
+                &[
+                    AbilityTargetDef::up_to(
+                        AbilityTargetPredicate::Object {
+                            object: ObjectPredicateDef::Subtype(SubtypeDef::from_name("Equipment")),
+                            zones: &[ZoneKind::Battlefield],
+                            controller: Some(PlayerRelation::You),
+                            owner: None,
+                        },
+                        1,
+                    ),
+                    AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Attacking,
+                    ])),
+                ],
+                EffectDef::AttachObjects {
+                    objects: ObjectSetDef::LegalTargets(TargetIndex::PRIMARY),
+                    host: ObjectRefDef::Target(TargetIndex(1)),
+                    then: None,
+                },
+            ),
+        ]),
 );
 
 // FIN 152 — Red Mage's Rapier
@@ -5890,14 +5982,103 @@ pub(in crate::card::sets) static THE_EARTH_CRYSTAL: CardRecord = CardRecord::new
 );
 
 // FIN 185 — Esper Origins // Summon: Esper Maduin
-// Audit: unsupported — Needs an instruction that exiles the currently resolving sorcery and
-// returns that spell card transformed before resolution ends; linked exile handles battlefield
-// and nonstack card recipients, and cannot move the resolving spell.
-pub(in crate::card::sets) static ESPER_ORIGINS: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static ESPER_ORIGINS: CardRecord = CardRecord::new_dfc(
     "Esper Origins // Summon: Esper Maduin",
     "0f503360-216a-4629-89b2-d32072850aef",
     "Solan & Danciao",
-    CardRules::unsupported(),
+    &[
+        (
+            "Esper Origins",
+            CardRules::new_sorcery(mana_cost!("{1}{G}")).with_abilities(&[
+                AbilityDef::spell(
+                    "Surveil 2. You gain 2 life. If this spell was cast from a graveyard, \
+        exile it, then put it onto the battlefield transformed under its \
+        owner's control with a finality counter on it. (If a creature with a \
+        finality counter on it would die, exile it instead.)",
+                    EffectDef::Sequence(&[
+                        abilities::surveil(ValueDef::Constant(2)),
+                        EffectDef::GainLife {
+                            recipient: EffectRecipientDef::Controller,
+                            amount: ValueDef::Constant(2),
+                        },
+                    ]),
+                )
+                .with_resolution_destination(
+                    SpellResolutionDestinationDef::IfCastFrom {
+                        zone: ZoneKind::Graveyard,
+                        then: &SpellResolutionDestinationDef::ExileThenReturnTransformed {
+                            counters: Some((CounterKind::Finality, 1)),
+                        },
+                    },
+                ),
+                abilities::flashback(&[CostDef::Mana(mana_cost!("{3}{G}"))]),
+            ]),
+        ),
+        (
+            "Summon: Esper Maduin",
+            CardRules::new_creature_without_mana_cost(&["Saga", "Elemental"], 4, 4)
+                .with_type(CardType::Enchantment)
+                .with_abilities(&[
+                    abilities::saga_chapter(
+                        1,
+                        "I — Reveal the top card of your library. If it's a permanent card, put \
+        it into your hand.",
+                        EffectDef::RevealAndClassifyCards(RevealAndClassifyCardsDef {
+                            source: ObjectCollectionSourceDef::TopCards {
+                                player: PlayerRefDef::EffectController,
+                                count: ValueDef::Constant(1),
+                            },
+
+                            object: ObjectPredicateDef::AnyOf(&[
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                ObjectPredicateDef::HasType(CardType::Artifact),
+                                ObjectPredicateDef::HasType(CardType::Enchantment),
+                                ObjectPredicateDef::HasType(CardType::Land),
+                                ObjectPredicateDef::HasType(CardType::Planeswalker),
+                            ]),
+                            matching: crate::Binding!("permanent"),
+                            remainder: crate::Binding!("other"),
+
+                            then: &EffectDef::move_to_zone(
+                                EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                    crate::Binding!("permanent"),
+                                )),
+                                ZoneKind::Hand,
+                                ZonePlacement::Top,
+                            ),
+                        }),
+                    ),
+                    abilities::saga_chapter(
+                        2,
+                        "II — Add {G}{G}.",
+                        EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Green).with_amount(2)),
+                    ),
+                    abilities::saga_chapter(
+                        3,
+                        "III — Other creatures you control get +2/+2 and gain trample until end of \
+        turn.",
+                        EffectDef::Apply {
+                            recipient: EffectRecipientDef::matching_objects(
+                                ObjectPredicateDef::All(&[
+                                    ObjectPredicateDef::HasType(CardType::Creature),
+                                    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                                ]),
+                                &[ZoneKind::Battlefield],
+                                PlayerRelation::You,
+                            ),
+                            effect: AppliedEffectDef::Composite(&[
+                                AppliedEffectDef::modify_power_toughness(
+                                    ValueDef::Constant(2),
+                                    ValueDef::Constant(2),
+                                ),
+                                AppliedEffectDef::add_ability(&abilities::trample()),
+                            ]),
+                            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                        },
+                    ),
+                ]),
+        ),
+    ],
 );
 
 // FIN 186 — Galuf's Final Act
@@ -6281,9 +6462,8 @@ pub(in crate::card::sets) static SAZH_KATZROY: CardRecord = CardRecord::new(
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
             abilities::enters_trigger(
-                "When Sazh Katzroy enters, you may search your library for a \
-                 Bird or basic land card, reveal it, put it into your hand, \
-                 then shuffle.",
+                "When Sazh Katzroy enters, you may search your library for a Bird or \
+                    basic land card, reveal it, put it into your hand, then shuffle.",
                 EffectDef::May {
                     player: EffectRecipientDef::Controller,
                     effect: &EffectDef::SearchZone {
@@ -6310,9 +6490,8 @@ pub(in crate::card::sets) static SAZH_KATZROY: CardRecord = CardRecord::new(
                 },
             ),
             AbilityDef::triggered_with_targets(
-                "Whenever Sazh Katzroy attacks, put a +1/+1 counter on target \
-                 creature, then double the number of +1/+1 counters on that \
-                 creature.",
+                "Whenever Sazh Katzroy attacks, put a +1/+1 counter on target creature, \
+                    then double the number of +1/+1 counters on that creature.",
                 TriggerEventDef::attacks(ObjectPredicateDef::Source),
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Creature),
@@ -6325,7 +6504,7 @@ pub(in crate::card::sets) static SAZH_KATZROY: CardRecord = CardRecord::new(
                     },
                     EffectDef::DoubleCounters {
                         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        kind: CounterKind::PlusOnePlusOne,
+                        kind: Some(CounterKind::PlusOnePlusOne),
                     },
                 ]),
             ),
@@ -7530,14 +7709,39 @@ const KUJA_GENOME_SORCERER_ALTERNATE_1: PrintingRecord = PrintingRecord::alterna
 );
 
 // FIN 233 — Lightning, Army of One
-// Audit: unsupported — Needs a temporary prospective damage multiplier covering a particular
-// damaged player and that player's permanents; current damage rules do not represent
-// multiplication replacements.
 pub(in crate::card::sets) static LIGHTNING_ARMY_OF_ONE: CardRecord = CardRecord::new(
     "Lightning, Army of One",
     "1103da9c-300c-406b-997d-9e5bb7cd02d6",
     "Shiyu",
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{R}{W}"), &["Human", "Soldier"], 3, 2)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::first_strike(),
+            abilities::trample(),
+            abilities::lifelink(),
+            AbilityDef::triggered(
+                "Stagger — Whenever Lightning deals combat damage to a player, until \
+                    your next turn, if a source would deal damage to that player or a \
+                    permanent that player controls, it deals double that damage instead.",
+                TriggerEventDef::DamageDealt(DamageEventMatcherDef {
+                    source: DamageSourceMatcherDef::Object(ObjectRefDef::Source),
+                    recipient: DamageRecipientMatcherDef::Recipients(
+                        EffectRecipientDef::EachPlayer,
+                    ),
+                    kind: DamageKindDef::Combat,
+                }),
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::player(PlayerRefDef::EventPlayer),
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::PlayerRule(
+                        PlayerRuleDef::DamageMultiplier {
+                            factor: 2,
+                            controlled_permanents: true,
+                        },
+                    )),
+                    duration: ResolvedEffectDurationDef::UntilYourNextTurn,
+                },
+            ),
+        ]),
 );
 
 // FIN 234 — Locke Cole
@@ -7748,14 +7952,90 @@ pub(in crate::card::sets) static RYDIA_SUMMONER_OF_MIST: CardRecord = CardRecord
 );
 
 // FIN 240 — Serah Farron // Crystallized Serah
-// Audit: unsupported — Needs spell-cost evaluation to recognize the first legendary creature
-// spell of the turn from persistent player cast history; a source-local use limit would be
-// wrong after Serah enters or transforms.
-pub(in crate::card::sets) static SERAH_FARRON: CardRecord = CardRecord::new(
+const SERAH_LEGENDARY_CREATURE: ObjectPredicateDef = ObjectPredicateDef::All(&[
+    ObjectPredicateDef::HasType(CardType::Creature),
+    ObjectPredicateDef::Supertype(CardSupertype::Legendary),
+]);
+const SERAH_DISCOUNT: AbilityDef = abilities::spell_cost_reduction(
+    "The first legendary creature spell you cast each turn costs {2} less to cast.",
+    SERAH_LEGENDARY_CREATURE,
+    PlayerRelation::You,
+    ValueDef::IfCondition(&ConditionValueDef {
+        condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+            left: ValueDef::CountSpellsCastThisTurn(&SpellCastQueryDef {
+                player: PlayerRelation::You,
+                spell: SERAH_LEGENDARY_CREATURE,
+            }),
+            comparison: ComparisonDef::Equal,
+            right: ValueDef::Constant(0),
+        }),
+        then: ValueDef::Constant(2),
+        otherwise: ValueDef::Constant(0),
+    }),
+);
+pub(in crate::card::sets) static SERAH_FARRON: CardRecord = CardRecord::new_dfc(
     "Serah Farron // Crystallized Serah",
     "62fa74c0-43ae-445c-8039-ca9d00e9709a",
     "Carissa Susilo",
-    CardRules::unsupported(),
+    &[
+        (
+            "Serah Farron",
+            CardRules::new_creature(mana_cost!("{1}{G}{W}"), &["Human", "Citizen"], 2, 2)
+                .with_supertype(CardSupertype::Legendary)
+                .with_abilities(&[
+                    SERAH_DISCOUNT,
+                    AbilityDef::triggered_if(
+                        "At the beginning of combat on your turn, if you control two or more \
+                        other legendary creatures, you may transform Serah Farron.",
+                        TriggerEventDef::StepBegins {
+                            step: TurnStepDef::BeginningOfCombat,
+                            player: PlayerRelation::You,
+                        },
+                        &TriggerConditionDef::ObjectCount {
+                            query: ObjectQueryDef::matching(
+                                ObjectPredicateDef::All(&[
+                                    SERAH_LEGENDARY_CREATURE,
+                                    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                                ]),
+                                &[ZoneKind::Battlefield],
+                                PlayerRelation::You,
+                            ),
+                            comparison: ComparisonDef::GreaterOrEqual,
+                            amount: 2,
+                        },
+                        EffectDef::May {
+                            player: EffectRecipientDef::Controller,
+                            effect: &EffectDef::Transform {
+                                object: EffectRecipientDef::Source,
+                            },
+                        },
+                    ),
+                ]),
+        ),
+        (
+            "Crystallized Serah",
+            CardRules::new_artifact_without_mana_cost(&[])
+                .with_supertype(CardSupertype::Legendary)
+                .printed_colors(&[ManaColor::Green, ManaColor::White])
+                .with_abilities(&[
+                    SERAH_DISCOUNT,
+                    AbilityDef::static_ability(
+                        "Legendary creatures you control get +2/+2.",
+                        EffectDef::StaticApply {
+                            recipient: EffectRecipientDef::matching_objects(
+                                SERAH_LEGENDARY_CREATURE,
+                                &[ZoneKind::Battlefield],
+                                PlayerRelation::You,
+                            ),
+                            effect: AppliedEffectDef::modify_power_toughness(
+                                ValueDef::Constant(2),
+                                ValueDef::Constant(2),
+                            ),
+                        },
+                    ),
+                ]),
+        ),
+    ],
 );
 
 // FIN 241 — Shantotto, Tactician Magician

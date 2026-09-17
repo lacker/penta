@@ -80,3 +80,22 @@ impl PlayPermissionDef {
         self
     }
 }
+
+/// A resolving permission over exact card objects. Movement is composed separately,
+/// so bindings preserve the particular successor rather than granting access to a zone.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub struct ZonePlayGrantDef {
+    pub objects: ObjectSetDef,
+    pub player: PlayerRefDef,
+    /// An alternative mana cost; `None` retains the printed cost.
+    pub mana_cost: Option<ManaCost>,
+    pub duration: ExilePlayDurationDef,
+    pub cast_only: bool,
+}
+
+/// Which mana types a player may treat their mana as while paying a spell.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum ManaSpendAsDef {
+    AnyColor,
+    AnyType,
+}

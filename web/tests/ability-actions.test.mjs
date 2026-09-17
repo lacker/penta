@@ -170,3 +170,18 @@ test("face-down origin keys include the current source and grant provenance", ()
   );
   assert.ok(!abilityOriginKey(granted, 61).includes("undefined"));
 });
+
+test("alternative activation costs form distinct menus while retaining target variants", () => {
+  const printed = action(0, 2);
+  const alternativeAbilityCost = {
+    sourceId: 88,
+    ability: { kind: "printed", definition: "kili", partId: 0, abilityId: 1 },
+  };
+  const free = action(1, 2, { alternativeAbilityCost });
+  const targeted = action(2, 2, { alternativeAbilityCost, targetCount: 1, targetCardId: 99 });
+  const groups = buildAbilityActionGroups([printed, free, targeted]);
+  assert.equal(groups.length, 2);
+  assert.deepEqual(groups[0].actions, [printed]);
+  assert.deepEqual(groups[1].targetless, [free]);
+  assert.deepEqual(groups[1].targeted, [targeted]);
+});

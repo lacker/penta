@@ -20,6 +20,7 @@ include!("cost_configurations/object_combinations.rs");
 include!("cost_configurations/additional_cost_payments.rs");
 include!("cost_configurations/mana_presence.rs");
 include!("cost_configurations/harmonize.rs");
+include!("cost_configurations/behold.rs");
 include!("cost_configurations/object_predicates.rs");
 include!("cost_configurations/permissions.rs");
 
@@ -72,6 +73,7 @@ pub(in crate::game) struct SpellAdditionalCostPayment {
     pub(in crate::game) life: u16,
     /// A selected cost reduction locks announced X into the total, even at zero.
     pub(in crate::game) generic_reduction: Option<u16>,
+    pub(in crate::game) chosen_creature_type: Option<crate::card::Subtype>,
 }
 
 impl SpellAdditionalCostPayment {
@@ -82,6 +84,7 @@ impl SpellAdditionalCostPayment {
             includes_mana_payment: false,
             life: 0,
             generic_reduction: None,
+            chosen_creature_type: None,
         }
     }
 
@@ -105,10 +108,17 @@ impl SpellAdditionalCostPayment {
         }) {
             return None;
         }
+        if self.chosen_creature_type.is_some()
+            && other.chosen_creature_type.is_some()
+            && self.chosen_creature_type != other.chosen_creature_type
+        {
+            return None;
+        }
         let mut objects = self.objects.clone();
         objects.extend(other.objects.iter().copied());
         Some(Self {
             objects,
+            chosen_creature_type: self.chosen_creature_type.or(other.chosen_creature_type),
             mana: add_mana_cost(self.mana, other.mana),
             includes_mana_payment: self.includes_mana_payment || other.includes_mana_payment,
             life: self.life.saturating_add(other.life),
@@ -374,9 +384,12 @@ impl Game {
         request: SpellAdditionalCostRequest<'_>,
         objects: &[GameObjectId],
     ) -> Option<SpellAdditionalCostPayment> {
+        let chosen_type = request.costs.chosen_creature_type();
         self.spell_additional_cost_payments(request)
             .into_iter()
-            .find(|payment| payment.object_ids() == objects)
+            .find(|payment| {
+                payment.object_ids() == objects && payment.chosen_creature_type == chosen_type
+            })
     }
 
     fn spell_object_additional_cost_payments(
@@ -402,6 +415,7 @@ impl Game {
                     includes_mana_payment: false,
                     life: 0,
                     generic_reduction: None,
+                    chosen_creature_type: None,
                 })
                 .collect();
         }
@@ -477,7 +491,7 @@ impl Game {
                 Some(
                     AlternativeCastKindDef::Overload
                         | AlternativeCastKindDef::Kicked
-                        | AlternativeCastKindDef::AlternativeCost
+                        | AlternativeCastKindDef::Sneak | AlternativeCastKindDef::AlternativeCost
                         | AlternativeCastKindDef::Impending
                         // Dash is an ordinary cast from hand for a different
                         // price, exactly as impending is.
@@ -664,6 +678,12 @@ impl Game {
             context,
         } = request;
         for cost in &option.alternative_costs {
+            if self
+                .exile_play_permission(card, player)
+                .is_some_and(|p| matches!(p.cost, ExilePlayCost::AlternativeMana(_)))
+            {
+                continue;
+            }
             let (origin, kind) = match Self::alternative_cast_clause(definition, option, cost.id) {
                 Some((origin, _ability, kind)) => (Some(origin), Some(kind)),
                 None => (None, None),
@@ -709,6 +729,7 @@ impl Game {
                 None => false,
             };
             if !gated
+                && (kind != Some(AlternativeCastKindDef::Sneak) || self.sneak_window(player))
                 && Self::alternative_is_castable_from(context, kind, origin, from_graveyard)
                 && Self::visit_additional_cost_configurations(
                     option,
@@ -735,6 +756,12 @@ impl Game {
         selected_additional: &mut Vec<AdditionalCostId>,
         visitor: &mut impl FnMut(CostConfiguration) -> ControlFlow<()>,
     ) -> ControlFlow<()> {
+        if self
+            .exile_play_permission(card, player)
+            .is_some_and(|permission| matches!(permission.cost, ExilePlayCost::AlternativeMana(_)))
+        {
+            return ControlFlow::Continue(());
+        }
         let Some(spell) = self.proposed_spell_view(player, card, &option.form, None, 0) else {
             return ControlFlow::Continue(());
         };
@@ -840,27 +867,17 @@ impl Game {
             })?;
         // Both free casts and life alternatives fix X at zero and retain additional costs.
         if cost_replaced {
-            cost = ManaCost::default();
+            cost = match self
+                .exile_play_permission(card, player)
+                .map(|permission| permission.cost)
+            {
+                Some(ExilePlayCost::AlternativeMana(cost)) => cost,
+                _ => ManaCost::default(),
+            };
         } else if self.permission_replaces_mana_with_life(card, option, configuration) {
             cost = self
                 .permission_additional_alternative_mana(card, option, configuration)
                 .unwrap_or_default();
-        }
-        // "You may spend mana as though it were mana of any color to cast
-        // that spell": what the payer owes stops being a colour and becomes
-        // an amount.
-        if self.card_mana_is_any_color(card) {
-            cost = ManaCost {
-                generic: cost
-                    .generic
-                    .saturating_add(cost.white + cost.blue + cost.black + cost.red + cost.green),
-                white: 0,
-                blue: 0,
-                black: 0,
-                red: 0,
-                green: 0,
-                ..cost
-            };
         }
         for selected in configuration.additional() {
             let (_, held) = self.card_in_nonbattlefield_zone(card)?;
@@ -893,14 +910,6 @@ impl Game {
             })
     }
 
-    /// Whether a permission over this card lets its mana be spent as any
-    /// colour.
-    pub(in crate::game) fn card_mana_is_any_color(&self, card: GameObjectId) -> bool {
-        self.exile_play_permissions
-            .iter()
-            .any(|permission| permission.card == card && permission.spend_any_color)
-    }
-
     /// Whether whoever is playing this card pays something other than its
     /// mana cost -- nothing at all, or energy. Read off the exile
     /// permissions, which is the only source today.
@@ -909,7 +918,9 @@ impl Game {
             .is_some_and(|permission| {
                 matches!(
                     permission.cost,
-                    ExilePlayCost::Free | ExilePlayCost::EnergyEqualToManaValue
+                    ExilePlayCost::Free
+                        | ExilePlayCost::EnergyEqualToManaValue
+                        | ExilePlayCost::AlternativeMana(_)
                 )
             })
     }

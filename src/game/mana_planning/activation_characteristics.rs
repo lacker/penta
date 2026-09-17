@@ -23,7 +23,10 @@ impl Game {
                 Self::effect_animates_source(Some(*on_success))
                     || Self::effect_animates_source(Some(*on_failure))
             }
-            Some(EffectDef::RollDie(roll)) => roll.outcomes().iter().any(|(_, effect)| Self::effect_animates_source(Some(*effect))),
+            Some(EffectDef::RollDie(roll)) => roll
+                .outcomes()
+                .iter()
+                .any(|(_, effect)| Self::effect_animates_source(Some(*effect))),
             Some(EffectDef::FlipCoin { on_win, on_loss }) => {
                 Self::effect_animates_source(Some(*on_win))
                     || Self::effect_animates_source(Some(*on_loss))
@@ -57,8 +60,13 @@ impl Game {
         let mut cost = ManaCost::default();
         let mut has_mana_cost = false;
         for ability_cost in definition.costs {
-            if let CostDef::Mana(mana) = ability_cost {
-                cost = add_mana_cost(cost, *mana);
+            let mana = match ability_cost {
+                CostDef::Mana(mana) => Some(*mana),
+                CostDef::Waterbend(amount) => Some(ManaCost::new(*amount, 0)),
+                _ => None,
+            };
+            if let Some(mana) = mana {
+                cost = add_mana_cost(cost, mana);
                 has_mana_cost = true;
             }
         }
@@ -81,6 +89,10 @@ impl Game {
             match ability_cost {
                 CostDef::Mana(mana) => {
                     cost = add_mana_cost(cost, *mana);
+                    has_mana_cost = true;
+                }
+                CostDef::Waterbend(amount) => {
+                    cost = add_mana_cost(cost, ManaCost::new(*amount, 0));
                     has_mana_cost = true;
                 }
                 CostDef::ManaCostOf(ObjectRefDef::Binding(binding)) => {

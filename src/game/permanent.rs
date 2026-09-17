@@ -27,6 +27,10 @@ struct Permanent {
     /// The logical part currently supplying this permanent's baseline
     /// characteristics. Transforming changes this without changing object ID.
     presented: CardPartId,
+    /// Self-transforming abilities remember this serial when put on the stack
+    /// (or installed as delayed triggers), as required by CR 701.27f.
+    transform_count: u32,
+    designations: Vec<crate::card::PermanentDesignationDef>,
     controller: PlayerId,
     tapped: bool,
     entered_controller_turn: u32,
@@ -101,6 +105,7 @@ struct Permanent {
     blocking_this_combat: bool,
     chosen_player: Option<PlayerId>,
     chosen_creature_type: Option<String>,
+    chosen_card_type: Option<crate::card::CardType>,
     chosen_creature_type_binding: Option<String>,
     /// The basic land type this permanent was told to be as it entered.
     pub(super) chosen_basic_land_type: Option<crate::card::BasicLandType>,
@@ -312,6 +317,8 @@ impl Permanent {
             token_characteristics: None,
             double_faced_token_copy: None,
             presented,
+            transform_count: 0,
+            designations: Vec::new(),
             controller,
             tapped: false,
             entered_controller_turn,
@@ -337,6 +344,7 @@ impl Permanent {
             blocking_this_combat: false,
             chosen_player: None,
             chosen_creature_type: None,
+            chosen_card_type: None,
             chosen_creature_type_binding: None,
             chosen_basic_land_type: None,
             chosen_basic_land_type_substitution: None,

@@ -157,6 +157,8 @@ impl Game {
             ManaRestrictionDef::Payment(expected) => {
                 matches!(purpose, ManaPaymentPurpose::Payment { label: Some(actual), .. } if actual == expected)
             }
+            ManaRestrictionDef::CastFrom(zone) => matches!(purpose,
+                ManaPaymentPurpose::Spell { source_zone: Some(actual), .. } if actual == zone),
             ManaRestrictionDef::CastYourCommander => match purpose {
                 ManaPaymentPurpose::Spell {
                     commander_owner,

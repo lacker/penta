@@ -595,6 +595,10 @@ fn a_checkpoint_missing_any_required_field_is_rejected_by_name() {
     // taken before they existed means: no damage recorded this turn.
     const ADDITIVE: &[&str] = &[
         "cardsDiscardedThisTurn",
+        "permanentsSacrificedThisTurn",
+        "enduringStory",
+        "effectUsesThisTurn",
+        "modesChosenThisTurn",
         "startingPlayer",
         "restartCount",
         "matchState",

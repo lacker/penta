@@ -660,6 +660,7 @@ pub(super) enum DecisionContinuation {
     /// A card name chosen while an effect resolves, with the remaining
     /// sequence waiting on the answer.
     CardNameChoice {
+        creature_type: bool,
         choices: Vec<String>,
         binding: RuntimeBinding,
         resume: Box<PendingProcedure>,

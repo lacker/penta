@@ -54,13 +54,17 @@ pub(super) enum BattlefieldExitReplacementAction {
         once: bool,
     },
     RegenerationShield,
+    ShieldCounter,
     Commander,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(super) enum BattlefieldExitCause {
     Other,
-    Destroy { regeneration_prohibited: bool },
+    Destroy {
+        regeneration_prohibited: bool,
+        by_effect: bool,
+    },
 }
 
 /// Event-local state accumulated while replacement effects change one

@@ -1,9 +1,16 @@
-fn validate_color_choice_binding(binding: crate::Binding) -> Result<(), GrantedAbilityValidationError> {
+fn validate_color_choice_binding(
+    binding: crate::Binding,
+) -> Result<(), GrantedAbilityValidationError> {
     if binding == crate::ParentBinding {
-        Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
-            context: "color binding", operation: "requires a durable labeled binding",
-        })
-    } else { Ok(()) }
+        Err(
+            GrantedAbilityValidationError::UnsupportedEffectProgramContext {
+                context: "color binding",
+                operation: "requires a durable labeled binding",
+            },
+        )
+    } else {
+        Ok(())
+    }
 }
 
 fn validate_choice_labels(
@@ -38,7 +45,9 @@ fn validate_replacement_binding_target_shape(
         );
     }
     if let ReplacementEffectDef::Choose(ReplacementChoiceDef::Colors(count)) = *effect {
-        return if (1..=5).contains(&count) { Ok(()) } else {
+        return if (1..=5).contains(&count) {
+            Ok(())
+        } else {
             Err(GrantedAbilityValidationError::InvalidScalarChoice {
                 list: ScalarChoiceListDef::Colors,
                 destination: BattlefieldEntryChoiceDestinationDef::Color,
@@ -132,6 +141,9 @@ fn validate_replacement_effect_target_shapes(
                     ScalarChoiceListDef::Players,
                     BattlefieldEntryChoiceDestinationDef::Player
                 ) | (
+                    ScalarChoiceListDef::CardTypes(_),
+                    BattlefieldEntryChoiceDestinationDef::CardType
+                ) | (
                     ScalarChoiceListDef::CreatureTypes,
                     BattlefieldEntryChoiceDestinationDef::CreatureType
                 ) | (
@@ -151,11 +163,12 @@ fn validate_replacement_effect_target_shapes(
                 })
             }
         }
-        ReplacementEffectDef::Choose(ReplacementChoiceDef::Colors(_)) => {
-            Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
-                context: "color choice", operation: "requires a durable BindOutput",
-            })
-        }
+        ReplacementEffectDef::Choose(ReplacementChoiceDef::Colors(_)) => Err(
+            GrantedAbilityValidationError::UnsupportedEffectProgramContext {
+                context: "color choice",
+                operation: "requires a durable BindOutput",
+            },
+        ),
         ReplacementEffectDef::ReplaceEventWithNothing
         | ReplacementEffectDef::MoveToZone(_)
         | ReplacementEffectDef::RegenerateDestroyedObject

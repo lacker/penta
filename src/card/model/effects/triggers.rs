@@ -119,6 +119,8 @@ impl SimultaneousTriggerDef {
 /// The committed event observed by a triggered ability.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum TriggerEventDef {
+    /// One occurrence for every listed lore threshold crossed by a placement.
+    SagaChapters(&'static [u8]),
     /// Apply a count requirement and occurrence policy to simultaneous members.
     /// This is the outer event shape; `While` and `AnyOf` filters belong inside it.
     Simultaneous(SimultaneousTriggerDef),
@@ -292,6 +294,8 @@ pub enum TriggerEventDef {
     /// A matching player drew a card. One trigger per card, so a spell that
     /// draws three fires this three times.
     DrewCard(DrawEventMatcherDef),
+    /// The named player searches a library, even when they find no card.
+    SearchedLibrary(PlayerRelation),
     /// A matching player became the monarch (CR 720). The crown passing
     /// from one player to another raises this once, for whoever received it.
     BecomesMonarch(PlayerRelation),

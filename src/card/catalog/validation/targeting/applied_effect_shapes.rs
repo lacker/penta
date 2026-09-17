@@ -31,9 +31,17 @@ fn validate_applied_effect_shapes(
         AppliedEffectDef::Rule(AppliedRuleDef::MayPlay(permission)) => {
             validate_recipient_shape(recipient, targets, RecipientExpectation::Player)?;
             validate_query_shape(permission.cards, targets)?;
-            validate_play_permission_shapes(recipient, permission.restriction, permission.benefit, targets, static_effect)
+            validate_play_permission_shapes(
+                recipient,
+                permission.restriction,
+                permission.benefit,
+                targets,
+                static_effect,
+            )
         }
-        AppliedEffectDef::Rule(AppliedRuleDef::KnownCards(query) | AppliedRuleDef::MayPlot { cards: query, .. }) => {
+        AppliedEffectDef::Rule(
+            AppliedRuleDef::KnownCards(query) | AppliedRuleDef::MayPlot { cards: query, .. },
+        ) => {
             validate_recipient_shape(recipient, targets, RecipientExpectation::Player)?;
             validate_query_shape(query, targets)
         }
@@ -61,7 +69,8 @@ fn validate_applied_effect_shapes(
         }
         // Each names a player and carries nothing else.
         AppliedEffectDef::Rule(
-            AppliedRuleDef::Ascend
+            AppliedRuleDef::Storied
+            | AppliedRuleDef::Ascend
             | AppliedRuleDef::MaySpendManaAsAnyColorForCreatureAbilities
             | AppliedRuleDef::MayPlayAdditionalLands(_)
             | AppliedRuleDef::MayPlayAnyNumberOfLands

@@ -11,12 +11,13 @@ impl Game {
         if !option.additional_costs.iter().any(|cost| cost.repeatable) {
             return 0;
         }
-        let Some((_, held)) = self.card_in_nonbattlefield_zone(card) else {
+        let Some((zone, held)) = self.card_in_nonbattlefield_zone(card) else {
             return 0;
         };
         let purpose = ManaPaymentPurpose::Spell {
             object: card,
             commander_owner: self.commander_owner(card),
+            source_zone: Some(zone),
             definition: definition.id,
             controller: player,
             form: option.form.clone(),

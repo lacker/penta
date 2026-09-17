@@ -126,6 +126,9 @@ impl ObjectCounterValueDef {
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum ObjectValueDef {
     ManaValue,
+    /// Symbols of a mana type in the object's mana cost. Hybrid and
+    /// Phyrexian symbols count independently of how the spell was paid for.
+    ManaSymbols(ManaColor),
     Power,
     Toughness,
     Counters(CounterKind),
@@ -487,6 +490,9 @@ pub enum ValueDef {
     CardsDrawnThisTurn(PlayerRelation),
     /// Cards discarded this turn, including discards paid to cycle cards.
     CardsDiscardedThisTurn(PlayerRelation),
+    /// Sacrifice actions performed by the named player, including tokens
+    /// and sacrifices whose graveyard destination was replaced.
+    PermanentsSacrificedThisTurn(PlayerRelation),
     /// "The amount of life you gained this turn." A running total rather
     /// than a net change: losing it again afterwards does not take it back,
     /// and it resets when the turn does.
@@ -496,6 +502,10 @@ pub enum ValueDef {
     /// counts. A copy of a spell was never cast, so nothing was spent on it
     /// and this reads zero however the original was paid for.
     ColorsOfManaSpent,
+    /// Actual units of mana paid for this cast, retained after resolution.
+    /// Cost reductions, increases, alternative costs, and nonmana payments
+    /// have already been applied. A spell copy has no payment of its own.
+    ManaSpentToCast(ObjectRefDef),
     PaidAmount,
     /// How many creatures have died this turn, for "for each creature that
     /// died this turn". Counted as they die rather than read off a zone,

@@ -1,5 +1,7 @@
 //! Teenage Mutant Ninja Turtles card inventory.
 
+use crate::card::CostQuantityDef;
+use crate::card::MechanicId;
 use crate::card::PlayPermissionDef;
 use crate::card::ZonePositionDef;
 
@@ -114,8 +116,8 @@ const MUTANT_TOKEN: TokenCharacteristics =
     ));
 const MUTAGEN_TOKEN: TokenCharacteristics = TokenCharacteristics::artifact(&["Mutagen"], &[])
     .with_abilities(&[AbilityDef::activated_with_targets(
-        "{1}, {T}, Sacrifice this artifact: Put a +1/+1 counter on \
-         target creature. Activate only as a sorcery.",
+        "{1}, {T}, Sacrifice this artifact: Put a +1/+1 counter on target \
+            creature. Activate only as a sorcery.",
         &[
             CostDef::Mana(mana_cost!("{1}")),
             CostDef::TapSource,
@@ -140,6 +142,18 @@ const ROBOT_TOKEN: TokenCharacteristics =
         "08497fc5-1c0e-4c3c-a356-bf4b34bd4c45",
         "Dominik Mayer",
     ));
+
+/// Sneak keeps its complete return cost in the ordinary cast-payment grammar.
+#[must_use]
+pub const fn sneak(text: &'static str, costs: &'static [CostDef]) -> AbilityDef {
+    AbilityDef::alternative_cast(
+        costs,
+        AlternativeCastKindDef::Sneak,
+        Some(text),
+        EffectDef::None,
+    )
+    .labeled(MechanicId::from_name("mtg:sneak"))
+}
 
 // TMT 1 — Action News Crew
 pub(in crate::card::sets) static ACTION_NEWS_CREW: CardRecord = CardRecord::new(
@@ -484,15 +498,51 @@ pub(in crate::card::sets) static KOYA_DEATH_FROM_ABOVE: CardRecord = CardRecord:
 );
 
 // TMT 12 — The Last Ronin's Technique
-// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including
-// returning an unblocked attacker as a cast cost, retaining its defender, and making the
-// resulting creature enter tapped and attacking. The existing return-attacker cost is limited
-// to hand activations for ninjutsu.
 pub(in crate::card::sets) static THE_LAST_RONIN_S_TECHNIQUE: CardRecord = CardRecord::new(
     "The Last Ronin's Technique",
     "dfb18239-d373-4795-8598-c82abae2cb62",
     "Adam Volker",
-    CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{3}{W}")).with_abilities(&[
+        sneak(
+            "Sneak {1}{W} (You may cast this spell for {1}{W} if you also return an \
+                unblocked attacker you control to hand during the declare blockers \
+                step.)",
+            &[
+                CostDef::Mana(mana_cost!("{1}{W}")),
+                CostDef::ReturnToHand {
+                    object: ObjectPredicateDef::UnblockedAttacker,
+                    quantity: CostQuantityDef::Fixed(1),
+                },
+            ],
+        ),
+        AbilityDef::spell(
+            "Create three 1/1 white Ninja Turtle Spirit creature tokens. If this \
+                spell's sneak cost was paid, they enter tapped and attacking.",
+            EffectDef::IfElseCondition {
+                condition: &TriggerConditionDef::SourceCastWith(AlternativeCastKindDef::Sneak),
+                then: &EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(TokenCharacteristics::creature(
+                        &["Ninja", "Turtle", "Spirit"],
+                        &[ManaColor::White],
+                        1,
+                        1,
+                    )))
+                    .with_count(ValueDef::Constant(3))
+                    .entering_tapped()
+                    .entering_attacking(),
+                ),
+                otherwise: &EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(TokenCharacteristics::creature(
+                        &["Ninja", "Turtle", "Spirit"],
+                        &[ManaColor::White],
+                        1,
+                        1,
+                    )))
+                    .with_count(ValueDef::Constant(3)),
+                ),
+            },
+        ),
+    ]),
 );
 
 // TMT 13 — Leader's Talent
@@ -3453,15 +3503,91 @@ pub(in crate::card::sets) static MICHELANGELO_WEIRDNESS_TO_11: CardRecord = Card
 );
 
 // TMT 122 — Michelangelo's Technique
-// Audit: unsupported — Needs sneak as an alternative cast during declare blockers, including
-// returning an unblocked attacker as a cast cost, retaining its defender, and making the
-// resulting creature enter tapped and attacking. The existing return-attacker cost is limited
-// to hand activations for ninjutsu.
 pub(in crate::card::sets) static MICHELANGELO_S_TECHNIQUE: CardRecord = CardRecord::new(
     "Michelangelo's Technique",
     "3a63c06a-7c59-4b72-b916-e5b6ad78c684",
     "Dominik Mayer",
-    CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{4}{G}")).with_abilities(&[
+        sneak(
+            "Sneak {3}{G} (You may cast this spell for {3}{G} if you also return an \
+                unblocked attacker you control to hand during the declare blockers \
+                step.)",
+            &[
+                CostDef::Mana(mana_cost!("{3}{G}")),
+                CostDef::ReturnToHand {
+                    object: ObjectPredicateDef::UnblockedAttacker,
+                    quantity: CostQuantityDef::Fixed(1),
+                },
+            ],
+        ),
+        AbilityDef::spell(
+            "Look at the top eight cards of your library. Put up to two creature \
+                cards with total mana value 6 or less from among them onto the \
+                battlefield and the rest on the bottom of your library in a random \
+                order.",
+            EffectDef::ChooseCardsFromCollection(ChooseCardsFromCollectionDef {
+                source: ObjectCollectionSourceDef::TopCards {
+                    player: PlayerRefDef::EffectController,
+                    count: ValueDef::Constant(8),
+                },
+                actor: PlayerRefDef::EffectController,
+                inspection: CollectionInspectionDef::Look,
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::ManaValueAtMost(6),
+                ]),
+                minimum: 0,
+                maximum: 1,
+                chosen: crate::Binding!("first"),
+                remainder: crate::Binding!("remaining"),
+                then: &EffectDef::ChooseCardsFromCollection(ChooseCardsFromCollectionDef {
+                    source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(
+                        crate::Binding!("remaining"),
+                    )),
+                    actor: PlayerRefDef::EffectController,
+                    inspection: CollectionInspectionDef::Look,
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::ManaValueAtMostValue(ValueDef::Sum(&SumValueDef {
+                            left: ValueDef::Constant(6),
+                            right: ValueDef::Negate(&ValueDef::AggregateObjectValues(
+                                &ObjectValueAggregateDef {
+                                    objects: ObjectSetDef::Binding(crate::Binding!("first")),
+                                    select: ObjectValueDef::ManaValue,
+                                    operation: AggregateOperationDef::Sum,
+                                },
+                            )),
+                        })),
+                    ]),
+                    minimum: 0,
+                    maximum: 1,
+                    chosen: crate::Binding!("second"),
+                    remainder: crate::Binding!("rest"),
+                    then: &EffectDef::Sequence(&[
+                        EffectDef::move_to_zone(
+                            EffectRecipientDef::objects(ObjectSetDef::Union(&[
+                                ObjectSetDef::Binding(crate::Binding!("first")),
+                                ObjectSetDef::Binding(crate::Binding!("second")),
+                            ])),
+                            ZoneKind::Battlefield,
+                            ZonePlacement::Top,
+                        ),
+                        EffectDef::RandomizeObjectOrder(RandomizeObjectOrderDef {
+                            input: ObjectSetDef::Binding(crate::Binding!("rest")),
+                            randomized: crate::Binding!("bottom"),
+                            then: &EffectDef::move_to_zone(
+                                EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                    crate::Binding!("bottom"),
+                                )),
+                                ZoneKind::Library,
+                                ZonePlacement::Bottom,
+                            ),
+                        }),
+                    ]),
+                }),
+            }),
+        ),
+    ]),
 );
 
 // TMT 123 — Mona Lisa, Science Geek

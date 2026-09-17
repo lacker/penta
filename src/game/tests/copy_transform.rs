@@ -199,7 +199,7 @@ fn token_copy_of_back_face_up_transforming_card_keeps_both_faces() {
 }
 
 #[test]
-fn modal_and_instant_back_faces_do_not_transform() {
+fn modal_faces_can_transform_but_instant_back_faces_cannot() {
     let mut game = ready_game();
     game.battlefield.clear();
     let modal = synthetic_double_faced_token(
@@ -219,11 +219,10 @@ fn modal_and_instant_back_faces_do_not_transform() {
         game.transform_permanent(id);
     }
 
-    assert!(
-        game.battlefield
-            .iter()
-            .all(|permanent| permanent.presented == CardPartId::PRIMARY),
-    );
+    // CR 701.27 and 712.9 permit modal double-faced permanents to
+    // transform; CR 701.27d still forbids an instant or sorcery back face.
+    assert_ne!(game.battlefield[0].presented, CardPartId::PRIMARY);
+    assert_eq!(game.battlefield[1].presented, CardPartId::PRIMARY);
 }
 
 #[test]

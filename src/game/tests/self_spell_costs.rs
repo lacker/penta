@@ -159,3 +159,82 @@ fn only_the_announced_parts_supply_self_discounts_and_taxes() {
         assert_eq!(game.players[0].mana_pool, ManaPool::default());
     }
 }
+
+#[test]
+fn sunderflock_prices_the_greatest_current_elemental_and_bounces_only_after_casting() {
+    for prepared in [false, true] {
+        let mut game = ready_game();
+        game.set_prepared_engine_enabled(prepared);
+        let source = GameObjectId(120_000);
+        game.players[0]
+            .hand
+            .push(card(source.0, cards::SUNDERFLOCK, PlayerId::One));
+        game.battlefield.extend([
+            creature(120_001, cards::EDDYMURK_CRAB, PlayerId::One),
+            creature(120_002, cards::GRIZZLY_BEARS, PlayerId::Two),
+            creature(120_003, cards::CHOMPING_CHANGELING, PlayerId::One),
+        ]);
+        game.players[0].mana_pool.blue = 1;
+        assert!(cast(&game, source, PlayOptionId::DEFAULT).is_none());
+        game.players[0].mana_pool.blue = 2;
+        let action = cast(&game, source, PlayOptionId::DEFAULT).unwrap();
+        game.apply(PlayerId::One, action).unwrap();
+        assert_eq!(game.players[0].mana_pool, ManaPool::default());
+        drain_pending(&mut game);
+        assert_eq!(game.battlefield.len(), 3);
+        assert!(
+            game.players[1]
+                .hand
+                .iter()
+                .any(|c| c.definition == cards::GRIZZLY_BEARS)
+        );
+        assert!(
+            game.battlefield
+                .iter()
+                .any(|p| p.card.definition == cards::CHOMPING_CHANGELING)
+        );
+    }
+}
+
+#[test]
+fn momo_discount_reads_prior_matching_casts_even_before_the_source_entered() {
+    for prepared in [false, true] {
+        for earlier in [false, true] {
+            let mut game = ready_game();
+            game.set_prepared_engine_enabled(prepared);
+            if earlier {
+                game.players[0]
+                    .hand
+                    .push(card(130_000, cards::STORM_CROW, PlayerId::One));
+                game.players[0].mana_pool.blue = 1;
+                game.players[0].mana_pool.colorless = 1;
+                let action = cast(&game, GameObjectId(130_000), PlayOptionId::DEFAULT).unwrap();
+                game.apply(PlayerId::One, action).unwrap();
+                drain_pending(&mut game);
+            }
+            game.battlefield
+                .push(creature(130_001, cards::MOMO_FRIENDLY_FLIER, PlayerId::One));
+            game.players[0]
+                .hand
+                .push(card(130_002, cards::STORM_CROW, PlayerId::One));
+            game.players[0].mana_pool.blue = 1;
+            assert_eq!(
+                cast(&game, GameObjectId(130_002), PlayOptionId::DEFAULT).is_some(),
+                !earlier
+            );
+            if earlier {
+                game.players[0].mana_pool.colorless = 1;
+            }
+            let action = cast(&game, GameObjectId(130_002), PlayOptionId::DEFAULT).unwrap();
+            game.apply(PlayerId::One, action).unwrap();
+            assert_eq!(game.players[0].mana_pool, ManaPool::default());
+            drain_pending(&mut game);
+            let momo = game
+                .battlefield
+                .iter()
+                .find(|p| p.card.definition == cards::MOMO_FRIENDLY_FLIER)
+                .unwrap();
+            assert_eq!(game.power(momo), Some(2));
+        }
+    }
+}

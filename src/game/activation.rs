@@ -9,6 +9,7 @@ use super::{
 
 use crate::ManaPaymentChoice;
 
+mod alternative_costs;
 mod nonbattlefield;
 
 /// The payment facts announced for one activation.
@@ -129,12 +130,14 @@ impl Game {
         source_card: &CardInstance,
     ) {
         let ActivationChoices {
+            alternative_cost,
             targets,
             cost_objects,
             x,
             modes,
             mana_payment,
         } = choices;
+        debug_assert!(alternative_cost.is_none());
         let Some(effective) = self.find_printed_card_ability(
             source_card,
             &CharacteristicContext::Graveyard,
@@ -168,6 +171,7 @@ impl Game {
             sacrificed_mana_value: 0,
         };
         let payment_purpose = ManaPaymentPurpose::Ability {
+            waterbend: crate::card::costs::waterbend(definition.costs),
             source,
             taps_source: false,
             leaves_source: true,
@@ -276,6 +280,7 @@ impl Game {
             return false;
         };
         let purpose = ManaPaymentPurpose::Ability {
+            waterbend: crate::card::costs::waterbend(definition.costs),
             source,
             taps_source: false,
             leaves_source: false,
@@ -316,6 +321,7 @@ impl Game {
         choices: ActivationChoices<'_>,
     ) {
         let ActivationChoices {
+            alternative_cost,
             targets,
             cost_objects,
             x,
@@ -364,6 +370,7 @@ impl Game {
                 sacrificed_mana_value: 0,
             };
             let payment_purpose = ManaPaymentPurpose::Ability {
+                waterbend: crate::card::costs::waterbend(definition.costs),
                 source,
                 taps_source: false,
                 leaves_source: false,
@@ -526,6 +533,7 @@ impl Game {
             .cloned()
         {
             let choices = ActivationChoices {
+                alternative_cost,
                 targets,
                 cost_objects,
                 x,
@@ -559,6 +567,7 @@ impl Game {
         }
         if targets.len() < frozen_ability.target_defs.len() {
             self.begin_deferred_activation_targeting(PendingActivationTargeting {
+                alternative_cost,
                 controller: player,
                 source,
                 ability,
@@ -578,7 +587,14 @@ impl Game {
         let frozen_targets = targets;
         let selected_ability = self
             .find_effective_ability(source_permanent, |effective| effective.origin == ability)
-            .map(|effective| effective.ability);
+            .and_then(|effective| {
+                self.activation_with_alternative_cost(
+                    player,
+                    source,
+                    effective.ability,
+                    alternative_cost,
+                )
+            });
         let declarative = selected_ability.filter(|ability| {
             matches!(
                 ability.definition,
@@ -633,6 +649,7 @@ impl Game {
             if let Some(cost) = payable_mana_cost {
                 let cost = self.announced_activation_cost(player, cost, mana_payment);
                 let payment_purpose = ManaPaymentPurpose::Ability {
+                    waterbend: crate::card::costs::waterbend(definition.costs),
                     source,
                     taps_source,
                     leaves_source,
@@ -650,7 +667,7 @@ impl Game {
                         return;
                     }
                 }
-                self.activate_mana_for_cost_with_options_for(
+                let (cost, mana_x) = self.activate_mana_for_cost_with_options_for(
                     player,
                     cost,
                     x,
@@ -660,7 +677,7 @@ impl Game {
                     },
                     &payment_purpose,
                 );
-                let _ = self.pay_player_cost_for(player, cost, x, &payment_purpose);
+                let _ = self.pay_player_cost_for(player, cost, mana_x, &payment_purpose);
             }
             if definition.costs.iter().any(|cost| {
                 matches!(
@@ -702,7 +719,7 @@ impl Game {
                     }
                     // The open-ended removal never reaches payment: mana
                     // enumeration replaced it with a sized one.
-                    CostDef::Mana(_) | CostDef::ManaCostOf(_) | CostDef::ManaValueOfTarget { .. }
+                    CostDef::Mana(_) | CostDef::Waterbend(_) | CostDef::ManaCostOf(_) | CostDef::ManaValueOfTarget { .. }
                     | CostDef::ReturnUnblockedAttackerToHand
                     | CostDef::TapPermanents { .. }
                     // Paid by decision after everything else, the way a
@@ -816,6 +833,13 @@ impl Game {
                     }
                     _ => unreachable!("cost is not supported for an activated ability"),
                 }
+            }
+            if definition
+                .costs
+                .iter()
+                .any(|cost| matches!(cost, CostDef::Waterbend(_)))
+            {
+                self.capture_mechanic(crate::card::MechanicId::from_name("mtg:waterbend"), player);
             }
             let mut remaining_sacrifices = Vec::new();
             if has_generic_sacrifice {

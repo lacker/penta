@@ -156,7 +156,9 @@ impl Game {
                 | ObjectSetDef::CardsDrawnThisTurnInHand(_)
                 | ObjectSetDef::PermanentsControlledBy(_)
                 | ObjectSetDef::TokensCreatedBy(_)
+                | ObjectSetDef::AttachmentsOf(_)
                 | ObjectSetDef::BottomOfGraveyard(_)
+                | ObjectSetDef::SharingCreatureType { .. }
                 | ObjectSetDef::ExceptObject { .. }
                 | ObjectSetDef::TopOfGraveyardMatching { .. },
             )

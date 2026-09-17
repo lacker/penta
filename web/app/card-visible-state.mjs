@@ -10,15 +10,20 @@
  * @param {Card} card
  */
 export function cardChoiceStateKey(card) {
-  return `${card.chosenCardName ?? ""}\u0000${card.chosenCreatureType ?? ""}\u0000${card.chosenColor ?? ""}`;
+  return `${card.chosenCardName ?? ""}\u0000${card.chosenCreatureType ?? ""}\u0000${card.chosenColor ?? ""}\u0000${card.chosenCardType ?? ""}\u0000${(card.designations ?? []).join(",")}`;
 }
 
 /** @param {Card} card */
 export function cardChoiceLabel(card) {
-  if (card.chosenCardName) return `Named card: ${card.chosenCardName}`;
-  if (card.chosenCreatureType) return `Chosen type: ${card.chosenCreatureType}`;
-  if (card.chosenColor) return `Chosen color: ${card.chosenColor}`;
-  return null;
+  const labels = [];
+  if (card.chosenCardName) labels.push(`Named card: ${card.chosenCardName}`);
+  else if (card.chosenCreatureType) labels.push(`Chosen type: ${card.chosenCreatureType}`);
+  else if (card.chosenCardType) labels.push(`Chosen card type: ${card.chosenCardType}`);
+  else if (card.chosenColor) labels.push(`Chosen color: ${card.chosenColor}`);
+  for (const designation of card.designations ?? []) {
+    labels.push(designation.charAt(0).toUpperCase() + designation.slice(1));
+  }
+  return labels.length ? labels.join(" · ") : null;
 }
 
 /**

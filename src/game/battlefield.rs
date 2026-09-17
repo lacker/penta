@@ -32,6 +32,20 @@ impl Game {
         {
             return None;
         }
+        if let Some(part) = self.part_copy(id) {
+            let card = self
+                .card_in_nonbattlefield_zone(id)
+                .map(|(_, card)| card)
+                .or_else(|| match self.retired_objects.get(&id) {
+                    Some(RetiredObject::Card(card)) => Some(&card.card),
+                    _ => None,
+                })?;
+            return self
+                .catalog
+                .get(card.definition)?
+                .part(part)
+                .map(|part| Cow::Borrowed(part.name.as_str()));
+        }
         self.permanent_card_name(id)
             .or_else(|| {
                 self.card_in_nonbattlefield_zone(id)
@@ -201,6 +215,7 @@ impl Game {
                 id,
                 BattlefieldExitCause::Destroy {
                     regeneration_prohibited,
+                    by_effect: true,
                 },
             ));
         }
@@ -309,6 +324,8 @@ impl Game {
             .map(|permanent| (self.trigger_event_object(permanent), permanent.controller))
             .collect::<Vec<_>>();
         for (object, player) in sacrificed {
+            let count = &mut self.permanents_sacrificed_this_turn[player.index()];
+            *count = count.saturating_add(1);
             self.capture_battlefield_triggers(&CommittedTriggerEvent::Sacrificed {
                 object,
                 player,

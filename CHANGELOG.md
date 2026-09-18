@@ -41,7 +41,7 @@ the bot-wire epoch.
   single-color mana continuations, and color-specific hexproof keywords. Regenerate
   format 20 checkpoints and advertise `reconstruction.checkpoint.v21` when using
   reconstruction. The ordinary bot protocol and replay versions are unchanged.
-- Implement the 59 remaining identities used by the 16 WOE–HOB Standard
+- Implement the 56 remaining identities used by the 16 WOE–HOB Standard
   event lists, including their sideboards. The deck inventory now checks all
   222 distinct card identities for support. These event lists still have no
   registered format profile and are not added to playable format menus.

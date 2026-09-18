@@ -25,17 +25,6 @@ mod tapping;
 mod tokens;
 
 impl Game {
-    fn roll_die(&mut self, player: super::PlayerId, sides: u16) -> u16 {
-        let result = u16::try_from(self.rng.index_below(usize::from(sides)) + 1)
-            .expect("die result fits its declared size");
-        self.events.push(super::GameEvent::DieRolled {
-            player,
-            sides,
-            result,
-        });
-        result
-    }
-
     #[allow(clippy::too_many_lines)]
     pub(super) fn resolve_effect_def(
         &mut self,
@@ -1001,47 +990,5 @@ impl Game {
             }
         }
         self.grant_enduring_stories();
-    }
-
-    pub(super) fn resolve_for_each_in_binding(
-        &mut self,
-        objects: super::RuntimeBinding,
-        binding: super::RuntimeBinding,
-        mut next: usize,
-        effect: ScopedEffect,
-        object: &StackObject,
-        context: EffectResolutionContext,
-    ) {
-        let members = context.runtime_object_group(&objects);
-        let mut later_procedures = std::mem::take(&mut self.pending_procedures);
-        while let Some(member) = members.get(next).copied() {
-            let consumed = next;
-            next += 1;
-            let mut iteration = context.clone();
-            if let Some(live) = self.live_group_before(&members, consumed) {
-                iteration.bind_runtime_object_group(&objects, live);
-            }
-            iteration.bind_runtime_single_object(&binding, Some(member));
-            self.resolve_effect_def(effect, object, iteration);
-            if !self.pending_decisions.is_empty()
-                || !self.pending_events.is_empty()
-                || !self.pending_procedures.is_empty()
-            {
-                if next < members.len() {
-                    self.pending_procedures
-                        .push_back(super::PendingProcedure::ForEachInBinding {
-                            objects,
-                            binding,
-                            next,
-                            effect,
-                            object: Box::new(object.clone()),
-                            context,
-                        });
-                }
-                self.pending_procedures.append(&mut later_procedures);
-                return;
-            }
-        }
-        self.pending_procedures.append(&mut later_procedures);
     }
 }

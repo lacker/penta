@@ -19,7 +19,7 @@ impl Game {
         let aggregate = self.players[player.index()].mana_pool;
         let mut eligible = PaymentPool {
             any_color: self.may_spend_any_color(player, purpose),
-            any_type: self.may_spend_any_type(purpose),
+            any_type: Self::may_spend_any_type(purpose),
             ..PaymentPool::default()
         };
         let mut tracked = ManaPool::default();

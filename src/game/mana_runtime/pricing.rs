@@ -36,7 +36,7 @@ impl Game {
             .map_or((cost, x), |color| fold_restricted_x(cost, x, color))
     }
 
-    pub(in crate::game) fn may_spend_any_type(&self, purpose: &ManaPaymentPurpose) -> bool {
+    pub(in crate::game) fn may_spend_any_type(purpose: &ManaPaymentPurpose) -> bool {
         matches!(
             purpose,
             ManaPaymentPurpose::Spell {

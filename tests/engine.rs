@@ -811,9 +811,13 @@ fn aura_sequence_attaches_to_its_indexed_semantic_target() {
         TargetIndex, ZoneKind,
     };
 
-    static ATTACH_SEQUENCE: [EffectDef; 1] = [EffectDef::Attach {
-        object: EffectRecipientDef::Target(TargetIndex(1)),
-    }];
+    // Keep the Attach nested so this fixture exercises sequence traversal.
+    static ATTACH_SEQUENCE: [EffectDef; 2] = [
+        EffectDef::None,
+        EffectDef::Attach {
+            object: EffectRecipientDef::Target(TargetIndex(1)),
+        },
+    ];
     static FLYING: AbilityDef = penta::card::abilities::flying();
     static AURA_ABILITIES: [AbilityDef; 2] = [
         AbilityDef::spell_with_targets(

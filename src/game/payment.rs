@@ -102,7 +102,7 @@ impl Game {
             selected.add_unit(*mana, self.mana_requires_nongeneric(*mana, purpose, *cost));
         }
         selected.any_color = self.may_spend_any_color(player, purpose);
-        selected.any_type = self.may_spend_any_type(purpose);
+        selected.any_type = Self::may_spend_any_type(purpose);
         super::mana_planning::exact_mana_payment(selected, *cost, *x)
     }
 

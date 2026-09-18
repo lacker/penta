@@ -285,7 +285,6 @@ impl Game {
             life_mana_enabled,
             request.options.avoid,
         );
-        search.waterbend_limit = contributions.waterbend;
         let found = if contributions.any() {
             search.assign_contributions(
                 0,
@@ -721,7 +720,6 @@ fn life_mana_needed_for_payment(
 }
 
 struct PaymentAssignmentSearch<'a> {
-    waterbend_limit: u16,
     sources: &'a [FlexibleManaSource],
     cost: ManaCost,
     x: u16,
@@ -746,7 +744,6 @@ impl<'a> PaymentAssignmentSearch<'a> {
             x,
             life_mana_enabled,
             avoid,
-            waterbend_limit: 0,
             assignment: Vec::new(),
             best_assignment: None,
             best_rank: None,
@@ -829,14 +826,7 @@ impl<'a> PaymentAssignmentSearch<'a> {
         for output_index in 0..output_count {
             let output = self.sources[index].outputs[output_index].clone();
             let payment = planned_payment(&self.sources[index], output.clone());
-            if (output.kind.contribution() == Some(ManaContributionKind::Waterbend)
-                && self
-                    .assignment
-                    .iter()
-                    .filter(|p| p.kind.contribution() == Some(ManaContributionKind::Waterbend))
-                    .count()
-                    >= usize::from(self.waterbend_limit))
-                || output.life_payment > life_available
+            if output.life_payment > life_available
                 || self
                     .assignment
                     .iter()

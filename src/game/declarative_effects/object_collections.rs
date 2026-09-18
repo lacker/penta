@@ -513,3 +513,48 @@ impl Game {
         self.resolve_effect_def(scoped.with_effect(*definition.then), object, context);
     }
 }
+
+impl Game {
+    pub(in crate::game) fn resolve_for_each_in_binding(
+        &mut self,
+        objects: crate::game::RuntimeBinding,
+        binding: crate::game::RuntimeBinding,
+        mut next: usize,
+        effect: ScopedEffect,
+        object: &StackObject,
+        context: EffectResolutionContext,
+    ) {
+        let members = context.runtime_object_group(&objects);
+        let mut later_procedures = std::mem::take(&mut self.pending_procedures);
+        while let Some(member) = members.get(next).copied() {
+            let consumed = next;
+            next += 1;
+            let mut iteration = context.clone();
+            if let Some(live) = self.live_group_before(&members, consumed) {
+                iteration.bind_runtime_object_group(&objects, live);
+            }
+            iteration.bind_runtime_single_object(&binding, Some(member));
+            self.resolve_effect_def(effect, object, iteration);
+            if !self.pending_decisions.is_empty()
+                || !self.pending_events.is_empty()
+                || !self.pending_procedures.is_empty()
+            {
+                if next < members.len() {
+                    self.pending_procedures.push_back(
+                        crate::game::PendingProcedure::ForEachInBinding {
+                            objects,
+                            binding,
+                            next,
+                            effect,
+                            object: Box::new(object.clone()),
+                            context,
+                        },
+                    );
+                }
+                self.pending_procedures.append(&mut later_procedures);
+                return;
+            }
+        }
+        self.pending_procedures.append(&mut later_procedures);
+    }
+}

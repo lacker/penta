@@ -273,6 +273,7 @@ impl Game {
             rng: ReplayRng::new(rollout_seed),
             catalog,
             prepared_engine,
+            inline_rules: super::rules_cache::InlineRulesCache::default(),
             physical_cards: Vec::new(),
             commanders: Vec::new(),
             commander_move_answer: None,

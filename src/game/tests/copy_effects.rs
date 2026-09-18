@@ -404,10 +404,10 @@ fn copy_artifact_copies_an_artifact_creature() {
     );
     assert_eq!(copied.presented, CardPartId::PRIMARY);
     assert_eq!(
-        game.effective_rules(copied),
+        game.effective_rules(copied).as_deref(),
         game.catalog
             .get(cards::TETRAVUS)
-            .map(|definition| definition.rules),
+            .map(|definition| &definition.rules),
     );
     let copied_types = game.permanent_types(copied).unwrap();
     assert!(copied_types.contains(CardType::Artifact));

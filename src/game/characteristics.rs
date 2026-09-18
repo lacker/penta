@@ -81,8 +81,26 @@ impl Game {
     /// Resolves the printed rules currently supplying baseline permanent
     /// characteristics. A copy's copiable rules take precedence over the
     /// physical card's presented part.
-    pub(super) fn effective_rules(&self, permanent: &Permanent) -> Option<CardRules> {
-        self.with_effective_rules(permanent, |rules| *rules)
+    pub(super) fn effective_rules(
+        &self,
+        permanent: &Permanent,
+    ) -> Option<super::rules_cache::RulesView<'_>> {
+        use super::rules_cache::RulesView;
+
+        if let Some(rules) = self.remembered_inline_rules(permanent) {
+            return Some(RulesView::Inline(rules));
+        }
+        let source = Self::effective_rules_source(permanent);
+        if let ObjectCharacteristics::Card { definition, part } = source {
+            self.catalog
+                .get(definition)?
+                .part(part)
+                .map(|part| RulesView::Printed(&part.rules))
+        } else {
+            let rules = self.inline_rules.get(source)?;
+            self.remember_inline_rules(permanent, &rules);
+            Some(RulesView::Inline(rules))
+        }
     }
 
     /// Visits the printed rules currently supplying baseline permanent
@@ -92,24 +110,7 @@ impl Game {
         permanent: &Permanent,
         visitor: impl FnOnce(&CardRules) -> R,
     ) -> Option<R> {
-        match Self::effective_rules_source(permanent) {
-            ObjectCharacteristics::Card { definition, part } => self
-                .catalog
-                .get(definition)?
-                .part(part)
-                .map(|part| visitor(&part.rules)),
-            ObjectCharacteristics::Token { token, part } => {
-                token.part(part).map(|part| visitor(&part.rules))
-            }
-            ObjectCharacteristics::Emblem { emblem } => {
-                let rules = emblem.rules_view();
-                Some(visitor(&rules))
-            }
-            ObjectCharacteristics::FaceDown { face_down } => {
-                let rules = face_down.rules();
-                Some(visitor(&rules))
-            }
-        }
+        self.effective_rules(permanent).map(|rules| visitor(&rules))
     }
 
     pub(super) fn effective_rules_source(permanent: &Permanent) -> ObjectCharacteristics {

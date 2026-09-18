@@ -48,6 +48,10 @@ impl Drop for ConditionMemoGuard {
 }
 
 impl Game {
+    pub(in crate::game) fn object_count_condition_read_active() -> bool {
+        CONDITION_MEMO.with(|memo| memo.borrow().is_some())
+    }
+
     pub(super) fn source_object_set_count_condition_holds(
         &self,
         condition: crate::card::ObjectSetCountConditionDef,

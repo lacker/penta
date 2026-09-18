@@ -33,7 +33,7 @@ impl DefinedStats {
 thread_local! {
     /// Guards the live layer-7 walk when a static recipient predicate asks for
     /// power or toughness while that same walk is being assembled.
-    static STATIC_POWER_TOUGHNESS_LAYER_PASS: Cell<bool> = const { Cell::new(false) };
+    pub(super) static STATIC_POWER_TOUGHNESS_LAYER_PASS: Cell<bool> = const { Cell::new(false) };
 }
 
 struct StaticPowerToughnessLayerGuard;

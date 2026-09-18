@@ -71,6 +71,7 @@ mod combat;
 mod combat_state;
 mod commander;
 mod companion;
+mod rules_cache;
 pub use companion::CompanionState;
 mod continuous_effects;
 mod continuous_state;
@@ -603,6 +604,9 @@ pub struct Game {
     /// Derived execution programs and catalog summaries. This is process-local
     /// configuration, not deterministic game state, and is rebuilt on restore.
     prepared_engine: PreparedEngine,
+    /// Immutable inline rules shared by reads and speculative game clones.
+    /// Complete characteristic keys make this independent of board mutations.
+    inline_rules: rules_cache::InlineRulesCache,
     #[allow(dead_code)] // Reserved for backing validation and future meld actions.
     physical_cards: Vec<PhysicalCard>,
     commanders: Vec<commander::CommanderState>,

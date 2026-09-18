@@ -10,9 +10,7 @@ pub(in crate::game::state_checkpoint) fn emblem_characteristics_locator(
     catalog: &CardCatalog,
     expected: EmblemCharacteristics,
 ) -> Option<EmblemCharacteristicsLocator> {
-    authored_emblems(catalog)
-        .into_iter()
-        .find_map(|(emblem, locator)| (emblem == expected).then_some(locator))
+    authored_emblems(catalog).find_map(|(emblem, locator)| (emblem == expected).then_some(locator))
 }
 
 pub(in crate::game::state_checkpoint) fn catalog_emblem_characteristics(
@@ -32,6 +30,7 @@ pub(in crate::game::state_checkpoint) fn catalog_emblem_characteristics(
 
 pub(super) fn authored_emblems(
     catalog: &CardCatalog,
-) -> Vec<(EmblemCharacteristics, EmblemCharacteristicsLocator)> {
-    authored_virtual_objects(catalog).emblems
+) -> impl Iterator<Item = (EmblemCharacteristics, EmblemCharacteristicsLocator)> {
+    let objects = authored_virtual_objects(catalog);
+    (0..objects.emblems.len()).map(move |index| objects.emblems[index].clone())
 }

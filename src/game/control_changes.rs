@@ -33,6 +33,8 @@ impl Game {
     }
 
     fn attached_static_control_claims(&self) -> Vec<StaticControlClaim> {
+        let _land_types = self.hold_land_type_query_memo();
+        let _board = self.hold_board_read_memo();
         let mut claims = Vec::new();
         for source in &self.battlefield {
             let Some(target) = source.attached_to else {

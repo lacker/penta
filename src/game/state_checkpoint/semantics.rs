@@ -69,39 +69,35 @@ pub(super) fn ability_locator_for_origin(
             source_part: part,
             source_ability: ability,
             ..
-        } => authored_tokens(catalog)
-            .into_iter()
-            .find_map(|(token, token_locator)| {
-                token.part(part)?.rules().ability(ability)?;
-                locate_beneath_root(
-                    catalog,
-                    AbilityLocator::Token {
-                        token: token_locator,
-                        part_id: part.0,
-                        ability_id: ability.0,
-                        nested: Vec::new(),
-                    },
-                    &mut matches,
-                )
-            }),
+        } => authored_tokens(catalog).find_map(|(token, token_locator)| {
+            token.part(part)?.rules().ability(ability)?;
+            locate_beneath_root(
+                catalog,
+                AbilityLocator::Token {
+                    token: token_locator,
+                    part_id: part.0,
+                    ability_id: ability.0,
+                    nested: Vec::new(),
+                },
+                &mut matches,
+            )
+        }),
         AbilityOrigin::Emblem { ability }
         | AbilityOrigin::EmblemGranted {
             source_ability: ability,
             ..
-        } => authored_emblems(catalog)
-            .into_iter()
-            .find_map(|(emblem, emblem_locator)| {
-                emblem.ability(ability)?;
-                locate_beneath_root(
-                    catalog,
-                    AbilityLocator::Emblem {
-                        emblem: emblem_locator,
-                        ability_id: ability.0,
-                        nested: Vec::new(),
-                    },
-                    &mut matches,
-                )
-            }),
+        } => authored_emblems(catalog).find_map(|(emblem, emblem_locator)| {
+            emblem.ability(ability)?;
+            locate_beneath_root(
+                catalog,
+                AbilityLocator::Emblem {
+                    emblem: emblem_locator,
+                    ability_id: ability.0,
+                    nested: Vec::new(),
+                },
+                &mut matches,
+            )
+        }),
         AbilityOrigin::FaceDown { .. }
         | AbilityOrigin::FaceDownGranted { .. }
         | AbilityOrigin::IntrinsicBasicLand(_)

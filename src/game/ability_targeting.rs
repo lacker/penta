@@ -147,6 +147,10 @@ impl Game {
         source_is_spell: bool,
         additional_cost_payments: Option<&[u16]>,
     ) -> Vec<Target> {
+        // Resolution-time target validation is another independent board read,
+        // not necessarily nested inside an observation or action enumeration.
+        let _land_types = self.hold_land_type_query_memo();
+        let _board = self.hold_board_read_memo();
         if let AbilityTargetPredicate::IfAdditionalCostPaid {
             cost,
             if_paid,

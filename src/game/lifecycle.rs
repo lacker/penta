@@ -231,6 +231,7 @@ impl Game {
             rng,
             catalog,
             prepared_engine,
+            inline_rules: super::rules_cache::InlineRulesCache::default(),
             physical_cards,
             commanders,
             commander_move_answer: None,

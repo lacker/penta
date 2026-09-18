@@ -3,6 +3,54 @@
 use super::*;
 
 #[test]
+fn rules_cache_follows_face_changes_and_keeps_cloned_games_independent() {
+    let mut game = ready_game();
+    game.battlefield.clear();
+    let mut angel = creature(10_000, cards::SERRA_ANGEL, PlayerId::One);
+    angel.face_down = Some(FaceDownCharacteristics::land(
+        "Face-down Forest",
+        &["Forest"],
+    ));
+    game.battlefield.push(angel);
+    assert_eq!(
+        game.permanent_types(&game.battlefield[0]),
+        Some(CardTypeSet::single(CardType::Land))
+    );
+    let fork = game.clone();
+
+    game.battlefield[0].face_down = Some(crate::card::face_down::disguise());
+    assert_eq!(
+        game.permanent_types(&game.battlefield[0]),
+        Some(CardTypeSet::single(CardType::Creature))
+    );
+    assert!(
+        game.effective_rules(&game.battlefield[0])
+            .unwrap()
+            .rules_text()
+            .contains("Ward {2}")
+    );
+    assert_eq!(
+        fork.permanent_types(&fork.battlefield[0]),
+        Some(CardTypeSet::single(CardType::Land))
+    );
+    assert_eq!(
+        fork.mana_ability_activations(&fork.battlefield[0])[0].ability,
+        AbilityOrigin::IntrinsicBasicLand(BasicLandType::Forest)
+    );
+
+    game.battlefield[0].face_down = None;
+    let rules = game.effective_rules(&game.battlefield[0]).unwrap();
+    assert_eq!(
+        rules.creature_stats(),
+        Some(crate::CreatureStats {
+            power: 4,
+            toughness: 4
+        })
+    );
+    assert!(rules.rules_text().contains("Flying"));
+}
+
+#[test]
 fn mechanisms_supply_their_own_face_down_characteristics() {
     let ordinary = crate::card::face_down::ordinary();
     assert_eq!(crate::card::face_down::morph(), ordinary);

@@ -436,6 +436,10 @@ impl Game {
         &self,
         request: ManaPlanningRequest<'_>,
     ) -> Option<Vec<PlannedManaActivation>> {
+        // Payment execution also calls this outside legal-action enumeration.
+        // Planning is read-only; its cache ends before any mana source is tapped.
+        let _land_types = self.hold_land_type_query_memo();
+        let _board = self.hold_board_read_memo();
         order_mana_activations_before_consumption(
             self.assigned_mana_activations(request)?,
             request.cost,

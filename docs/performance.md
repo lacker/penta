@@ -21,6 +21,48 @@ Use the workflow below to establish whether a lowering improves whole-game
 throughput; preparation is not justified merely by moving work into a second
 implementation.
 
+## Shared immutable query inputs
+
+Baseline rules reads borrow printed `CardRules` from the catalog. Tokens,
+emblems, and face-down characteristics use a bounded shared materialization
+cache owned by the game and shared with its clones. Keys include the complete
+inline characteristics and selected part, including runtime creation stats,
+colors, and word maps. These are immutable inputs to layer evaluation, not
+effective abilities or other mutable board conclusions. No object-ID or
+board-revision invalidation is needed for this cache. At most 128 distinct
+rules values are retained; eviction changes only recomputation cost, never
+which characteristics are supported. Restoring a
+checkpoint starts with an empty cache.
+
+Checkpoint token/emblem locator discovery retains its ordered candidate index
+per immutable catalog identity, using the catalog's weak process-local lifetime
+key. It preserves duplicate candidates and recursive creator paths. The index
+survives individual games while the catalog remains live; subsequent cache
+insertion removes expired catalog entries. Neither cache is serialized or
+changes an observation, action, checkpoint, or replay schema.
+
+Board and land-type read memos also cover payment-announcement projections.
+A nested read of a different game installs its own memo and restores the outer
+one on return or unwind; same-game nested reads reuse the active memo. The
+guards retain an immutable game borrow, so cached board answers cannot survive
+a mutation. These scoped caches remain separate from immutable rule sharing;
+they do not retain layered answers across independent state transitions.
+
+Within a board-read scope, live permanent addresses identify reusable inline
+rules, base abilities, and ordered ability-layer operations. Only actual
+battlefield and emblem members are eligible: a temporary prospective or
+last-known view can share an object ID but have different characteristics.
+Ability keys also distinguish all three recursive layer-pass contexts and the
+prospective X. Recursive object-count conditions retain their original path
+because their own scratch memo can affect the lower-layer answers they see.
+No cached value survives the immutable borrow that makes its inputs stable.
+The same read scopes cover trigger-listener collection, static control claims,
+legend-rule grouping, and the lethal/illegal-Aura state-based-action sweep.
+Mana planning and ability-target enumeration own read scopes too, including
+when payment execution or resolution invokes them outside legal-action queries.
+Mutating phases still run between scopes; each subsequent sweep recomputes
+against the resulting board.
+
 ## Benchmark elapsed time
 
 Use [Hyperfine](https://github.com/sharkdp/hyperfine) on the normal release

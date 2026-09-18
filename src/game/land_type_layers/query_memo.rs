@@ -10,9 +10,9 @@
 // most of a turn's CPU goes.
 //
 // A query holds `&self`, so the board cannot move underneath it and an answer
-// stays good until it returns. The memo is installed by the two long `&self`
-// reads, `legal_actions` and `observe`, and dropped when they return. Nothing
-// installs one around a mutation, so an answer never outlives the board it
+// stays good until it returns. Long immutable reads, including nested payment
+// announcements, install a memo and drop it when they return. Nothing installs
+// one around a mutation, so an answer never outlives the board it
 // describes; where no memo is installed every question is asked as before.
 //
 // Thread-local rather than a field, because `Game` stays `Send + Sync` for the
@@ -44,15 +44,18 @@ thread_local! {
         const { std::cell::RefCell::new(None) };
 }
 
-/// Drops the memo when the query that installed it returns, panic included.
-pub(in crate::game) struct LandTypeQueryMemoGuard {
+/// Restores the enclosing query's memo when a nested game read returns, panic
+/// included. The borrow prevents mutation of the game whose answers are cached.
+pub(in crate::game) struct LandTypeQueryMemoGuard<'a> {
     installed: bool,
+    previous: Option<LandTypeQueryMemo>,
+    borrow: std::marker::PhantomData<&'a Game>,
 }
 
-impl Drop for LandTypeQueryMemoGuard {
+impl Drop for LandTypeQueryMemoGuard<'_> {
     fn drop(&mut self) {
         if self.installed {
-            LAND_TYPE_QUERY_MEMO.with(|memo| *memo.borrow_mut() = None);
+            LAND_TYPE_QUERY_MEMO.with(|memo| *memo.borrow_mut() = self.previous.take());
         }
     }
 }
@@ -60,21 +63,25 @@ impl Drop for LandTypeQueryMemoGuard {
 impl Game {
     /// Lets one `&self` read reuse land-type answers across the permanents it
     /// asks about. Held by the caller; answers are discarded when it drops.
-    pub(in crate::game) fn hold_land_type_query_memo(&self) -> LandTypeQueryMemoGuard {
+    pub(in crate::game) fn hold_land_type_query_memo(&self) -> LandTypeQueryMemoGuard<'_> {
         let game = std::ptr::from_ref(self) as usize;
-        let installed = LAND_TYPE_QUERY_MEMO.with(|memo| {
+        let (installed, previous) = LAND_TYPE_QUERY_MEMO.with(|memo| {
             let mut memo = memo.borrow_mut();
-            if memo.is_none() {
-                *memo = Some(LandTypeQueryMemo {
+            if memo.as_ref().is_none_or(|memo| memo.game != game) {
+                let previous = memo.replace(LandTypeQueryMemo {
                     game,
                     ..LandTypeQueryMemo::default()
                 });
-                true
+                (true, previous)
             } else {
-                false
+                (false, None)
             }
         });
-        LandTypeQueryMemoGuard { installed }
+        LandTypeQueryMemoGuard {
+            installed,
+            previous,
+            borrow: std::marker::PhantomData,
+        }
     }
 
     pub(super) fn prepared_land_type_sources(

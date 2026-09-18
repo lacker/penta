@@ -20,6 +20,16 @@ the bot-wire epoch.
 
 ## Unreleased
 
+- Reuse immutable rules across board queries: borrow printed rules and share
+  bounded materializations of inline token, emblem, and face-down rules across
+  game clones. Cache authored token/emblem locator discovery per catalog instead
+  of rescanning it for each checkpoint object. Nested payment-announcement
+  projections now receive independent board-read caches and restore the outer
+  read scope afterward. Immutable board reads also reuse base abilities and
+  ordered ability-layer operations, keeping recursive layer contexts distinct
+  and excluding prospective and last-known views. Rules behavior and protocol,
+  checkpoint, and replay encodings are unchanged.
+
 - Complete the 24 previously unsupported card identities in the included Legacy
   decks. Shared rules additions cover repeated resolution, frozen numeric bindings,
   immediate exile durations, selected-spell mana-value bounds, entry characteristics,

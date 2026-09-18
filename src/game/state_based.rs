@@ -52,6 +52,7 @@ impl Game {
             // by hand before the first mutation, because an answer must not
             // outlive the board it was given for.
             let land_types = self.hold_land_type_query_memo();
+            let board = self.hold_board_read_memo();
             for permanent in &self.battlefield {
                 // 704.5m: an Aura attached to nothing, or to something that is
                 // no longer a legal host, is put into its owner's graveyard.
@@ -97,6 +98,7 @@ impl Game {
                     },
                 ));
             }
+            drop(board);
             drop(land_types);
             self.move_permanents_to_zone_with_causes_then(
                 &exits,
@@ -434,6 +436,8 @@ impl Game {
     /// than one of them. The first group found is enough: answering it runs
     /// state-based actions again, which finds the next.
     fn legend_rule_group(&self) -> Option<(PlayerId, Vec<GameObjectId>)> {
+        let _land_types = self.hold_land_type_query_memo();
+        let _board = self.hold_board_read_memo();
         for permanent in &self.battlefield {
             if self.legend_rule_does_not_apply_to(permanent)
                 || !self

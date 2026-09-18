@@ -1,5 +1,113 @@
 use super::*;
 
+/// Exercise the same lower-layer contexts that recursive characteristic
+/// readers install, restoring them even if a differential assertion fails.
+struct QueryLayerPasses([bool; 3]);
+
+impl QueryLayerPasses {
+    fn enter(bits: u8) -> Self {
+        Self([
+            crate::game::ability_layers::STATIC_ABILITY_LAYER_PASS
+                .with(|pass| pass.replace(bits & 1 != 0)),
+            crate::game::continuous_effects::STATIC_SET_CHARACTERISTIC_LAYER_PASS
+                .with(|pass| pass.replace(bits & 2 != 0)),
+            crate::game::creature_characteristics::STATIC_POWER_TOUGHNESS_LAYER_PASS
+                .with(|pass| pass.replace(bits & 4 != 0)),
+        ])
+    }
+}
+
+impl Drop for QueryLayerPasses {
+    fn drop(&mut self) {
+        crate::game::ability_layers::STATIC_ABILITY_LAYER_PASS.with(|pass| pass.set(self.0[0]));
+        crate::game::continuous_effects::STATIC_SET_CHARACTERISTIC_LAYER_PASS
+            .with(|pass| pass.set(self.0[1]));
+        crate::game::creature_characteristics::STATIC_POWER_TOUGHNESS_LAYER_PASS
+            .with(|pass| pass.set(self.0[2]));
+    }
+}
+
+#[test]
+fn ability_read_memo_matches_uncached_layers_and_excludes_same_id_snapshots() {
+    let mut game = query_board();
+    game.battlefield.extend([
+        creature(98_450, cards::BLOOD_MOON, PlayerId::Two),
+        creature(98_451, cards::HUMILITY, PlayerId::Two),
+    ]);
+    for stage in 0..3 {
+        if stage == 1 {
+            game.battlefield
+                .retain(|p| p.card.definition != cards::HUMILITY);
+        } else if stage == 2 {
+            game.battlefield[1].face_down = Some(crate::card::face_down::disguise());
+            game.battlefield[2].copy_effect =
+                Some(Game::copiable_characteristics(&game.battlefield[1]));
+        }
+        let mut snapshot = game.battlefield[1].clone();
+        snapshot.face_down = Some(crate::card::face_down::ordinary());
+        let collect = |bits, x| {
+            let _passes = QueryLayerPasses::enter(bits);
+            game.prospective_x.set(x);
+            game.battlefield
+                .iter()
+                .map(|permanent| game.collect_effective_abilities(permanent, None))
+                .chain([
+                    game.collect_effective_abilities(&snapshot, None),
+                    game.collect_effective_abilities(&game.battlefield[1], Some(&snapshot)),
+                ])
+                .collect::<Vec<_>>()
+        };
+        let contexts = (0..8)
+            .flat_map(|bits| [None, Some(0), Some(3)].map(|x| (bits, x)))
+            .collect::<Vec<_>>();
+        let expected = contexts
+            .iter()
+            .map(|&(bits, x)| collect(bits, x))
+            .collect::<Vec<_>>();
+        let read = game.hold_board_read_memo();
+        assert!(game.ability_read_key(&snapshot, None).is_none());
+        for index in (0..contexts.len()).chain((0..contexts.len()).rev()) {
+            let (bits, x) = contexts[index];
+            assert_eq!(
+                collect(bits, x),
+                expected[index],
+                "stage {stage}, passes {bits}, X {x:?}"
+            );
+        }
+        drop(read);
+        game.prospective_x.set(None);
+    }
+}
+
+#[test]
+fn inline_read_memo_excludes_temporary_views_and_expires_before_mutation() {
+    let mut game = query_board();
+    game.battlefield[1].face_down = Some(crate::card::face_down::disguise());
+    let expected = *game.effective_rules(&game.battlefield[1]).unwrap();
+    let read = game.hold_board_read_memo();
+    assert_eq!(
+        *game.effective_rules(&game.battlefield[1]).unwrap(),
+        expected
+    );
+    let mut snapshot = game.battlefield[1].clone();
+    snapshot.face_down = Some(crate::card::face_down::ordinary());
+    assert_ne!(*game.effective_rules(&snapshot).unwrap(), expected);
+    snapshot.face_down = Some(crate::card::face_down::disguise());
+    assert_eq!(*game.effective_rules(&snapshot).unwrap(), expected);
+    drop(read);
+    game.battlefield[1].face_down = None;
+    let _read = game.hold_board_read_memo();
+    assert_eq!(
+        game.effective_rules(&game.battlefield[1])
+            .unwrap()
+            .creature_stats(),
+        Some(crate::CreatureStats {
+            power: 4,
+            toughness: 4
+        })
+    );
+}
+
 fn query_board() -> Game {
     let mut game = ready_game();
     game.battlefield.clear();
@@ -12,7 +120,7 @@ fn query_board() -> Game {
 }
 
 #[test]
-fn prepared_source_index_preserves_prospective_order_and_read_lifetime() {
+fn prepared_read_memo_preserves_prospective_order_and_nested_game_lifetime() {
     let mut game = query_board();
     let moon = creature(98_403, cards::BLOOD_MOON, PlayerId::Two);
     let source_ids = |game: &Game, prospective: Option<&Permanent>| {
@@ -23,6 +131,7 @@ fn prepared_source_index_preserves_prospective_order_and_read_lifetime() {
     };
     let outer = game.hold_land_type_query_memo();
     assert!(source_ids(&game, None).is_empty());
+    assert!(game.prepared_land_type_sources().is_some());
     let prospective = source_ids(&game, Some(&moon));
     assert_eq!(prospective.len(), 1);
     assert_eq!(prospective[0].0, moon.card.id);
@@ -31,8 +140,20 @@ fn prepared_source_index_preserves_prospective_order_and_read_lifetime() {
     let mut other = game.clone();
     other.battlefield.push(moon.clone());
     let inner = other.hold_land_type_query_memo();
+    assert!(other.prepared_land_type_sources().is_some());
+    assert!(game.prepared_land_type_sources().is_none());
     assert_eq!(source_ids(&other, None)[0].0, moon.card.id);
     drop(inner);
+    assert!(game.prepared_land_type_sources().is_some());
+    assert!(source_ids(&game, None).is_empty());
+    let failed = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        let _inner = other.hold_land_type_query_memo();
+        assert_eq!(source_ids(&other, None)[0].0, moon.card.id);
+        panic!("exercise nested land-type read unwinding");
+    }));
+    assert!(failed.is_err());
+    assert!(source_ids(&game, None).is_empty());
+    assert!(game.prepared_land_type_sources().is_some());
     drop(outer);
     game.battlefield.push(moon.clone());
     let expected = source_ids(&game, None);

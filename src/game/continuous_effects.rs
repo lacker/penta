@@ -26,7 +26,7 @@ use crate::prepared_engine::PreparedStaticLane;
 thread_local! {
     /// Guards the live set-characteristic walk when a static recipient query
     /// asks for the same characteristics being assembled.
-    static STATIC_SET_CHARACTERISTIC_LAYER_PASS: Cell<bool> = const { Cell::new(false) };
+    pub(super) static STATIC_SET_CHARACTERISTIC_LAYER_PASS: Cell<bool> = const { Cell::new(false) };
 }
 
 pub(super) struct StaticSetCharacteristicLayerGuard;

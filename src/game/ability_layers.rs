@@ -17,7 +17,7 @@ thread_local! {
     /// point an action can observe a game, nothing that changes a game reads
     /// it, and keeping it per-thread rather than per-`Game` means two threads
     /// sharing one game still each get the same answer they would get alone.
-    static STATIC_ABILITY_LAYER_PASS: Cell<bool> = const { Cell::new(false) };
+    pub(super) static STATIC_ABILITY_LAYER_PASS: Cell<bool> = const { Cell::new(false) };
 }
 
 /// Owns the layer-6 gathering pass for as long as it lives, and releases it
@@ -297,6 +297,20 @@ impl Game {
         permanent: &Permanent,
         prospective: Option<&Permanent>,
     ) -> Vec<EffectiveAbility> {
+        let key = self.ability_read_key(permanent, prospective);
+        if let Some(abilities) = self.remembered_base_abilities(key) {
+            return abilities;
+        }
+        let abilities = self.collect_base_effective_abilities_uncached(permanent, prospective);
+        self.remember_base_abilities(key, &abilities);
+        abilities
+    }
+
+    fn collect_base_effective_abilities_uncached(
+        &self,
+        permanent: &Permanent,
+        prospective: Option<&Permanent>,
+    ) -> Vec<EffectiveAbility> {
         let characteristics = prospective.unwrap_or(permanent);
         let rules_text_removed = prospective.map_or_else(
             || self.rules_text_abilities_removed(permanent),
@@ -412,6 +426,20 @@ impl Game {
     /// layer below, which is right whenever no two static ability grants depend
     /// on each other, and is what CR 613.8 dependency ordering generalizes.
     fn collect_ability_layer_operations(
+        &self,
+        permanent: &Permanent,
+        prospective: Option<&Permanent>,
+    ) -> Vec<AbilityLayerOperation> {
+        let key = self.ability_read_key(permanent, prospective);
+        if let Some(operations) = self.remembered_ability_operations(key) {
+            return operations;
+        }
+        let operations = self.collect_ability_layer_operations_uncached(permanent, prospective);
+        self.remember_ability_operations(key, &operations);
+        operations
+    }
+
+    fn collect_ability_layer_operations_uncached(
         &self,
         permanent: &Permanent,
         prospective: Option<&Permanent>,

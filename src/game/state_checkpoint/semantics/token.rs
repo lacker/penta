@@ -42,34 +42,31 @@ pub(in crate::game::state_checkpoint) fn token_characteristics_locator(
     expected: TokenCharacteristics,
 ) -> Option<TokenCharacteristicsLocator> {
     let expected = expected.semantic_identity();
-    authored_tokens(catalog)
-        .into_iter()
-        .find_map(|(token, mut locator)| {
-            let colors = expected.rules().color_set();
-            let basic_land_type_words = expected.basic_land_type_word_map();
-            let color_words = expected.color_word_map();
-            if token
-                .with_color_set(colors)
-                .with_word_maps(basic_land_type_words, color_words)
-                .semantic_identity()
-                != expected
-            {
-                return None;
-            }
-            let override_colors =
-                (token.rules().color_set() != colors).then_some(colors.to_flags());
-            let override_basic_land_type_words = (token.basic_land_type_word_map()
-                != basic_land_type_words)
-                .then_some(basic_land_type_words.map(super::super::basic_land_type_snapshot));
-            let override_color_words = (token.color_word_map() != color_words)
-                .then_some(color_words.map(super::super::mana_color_snapshot));
-            locator.set_word_overrides(
-                override_colors,
-                override_basic_land_type_words,
-                override_color_words,
-            );
-            Some(locator)
-        })
+    let colors = expected.rules().color_set();
+    let basic_land_type_words = expected.basic_land_type_word_map();
+    let color_words = expected.color_word_map();
+    authored_tokens(catalog).find_map(|(token, mut locator)| {
+        if token
+            .with_color_set(colors)
+            .with_word_maps(basic_land_type_words, color_words)
+            .semantic_identity()
+            != expected
+        {
+            return None;
+        }
+        let override_colors = (token.rules().color_set() != colors).then_some(colors.to_flags());
+        let override_basic_land_type_words = (token.basic_land_type_word_map()
+            != basic_land_type_words)
+            .then_some(basic_land_type_words.map(super::super::basic_land_type_snapshot));
+        let override_color_words = (token.color_word_map() != color_words)
+            .then_some(color_words.map(super::super::mana_color_snapshot));
+        locator.set_word_overrides(
+            override_colors,
+            override_basic_land_type_words,
+            override_color_words,
+        );
+        Some(locator)
+    })
 }
 
 pub(in crate::game::state_checkpoint) fn catalog_token_characteristics(
@@ -192,8 +189,9 @@ pub(in crate::game::state_checkpoint) fn object_characteristics_from_snapshot(
 
 pub(super) fn authored_tokens(
     catalog: &CardCatalog,
-) -> Vec<(TokenCharacteristics, TokenCharacteristicsLocator)> {
-    authored_virtual_objects(catalog).tokens
+) -> impl Iterator<Item = (TokenCharacteristics, TokenCharacteristicsLocator)> {
+    let objects = authored_virtual_objects(catalog);
+    (0..objects.tokens.len()).map(move |index| objects.tokens[index].clone())
 }
 
 #[cfg(test)]

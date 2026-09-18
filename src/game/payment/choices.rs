@@ -94,6 +94,11 @@ impl Game {
         player: PlayerId,
         resume: Option<&PendingDecision>,
     ) -> Vec<Action> {
+        // This is an immutable query over a separate payment projection. Its
+        // board reads need their own memo even while an outer game is being
+        // observed; the guards restore the enclosing game's answers on return.
+        let _land_types = self.hold_land_type_query_memo();
+        let _board = self.hold_board_read_memo();
         let mut actions = Vec::new();
         if let Some(offer) = resume.and_then(|pending| pending.continuation.cast_offer()) {
             self.add_offered_cast_actions(offer, &mut actions);

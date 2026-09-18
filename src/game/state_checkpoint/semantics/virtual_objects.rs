@@ -4,7 +4,8 @@
 //! virtual object it discovers. This makes every locator ultimately rooted in
 //! the card catalog without serializing rules or behavior pointers.
 
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
+use std::sync::{Arc, LazyLock, Mutex, Weak};
 
 use super::{child_abilities, child_effects, replacement_child_effects};
 use crate::card::{
@@ -22,7 +23,43 @@ pub(super) struct AuthoredVirtualObjects {
     pub(super) emblems: Vec<(EmblemCharacteristics, EmblemCharacteristicsLocator)>,
 }
 
-pub(super) fn authored_virtual_objects(catalog: &CardCatalog) -> AuthoredVirtualObjects {
+struct CachedVirtualObjects {
+    source: Weak<u8>,
+    objects: Arc<AuthoredVirtualObjects>,
+}
+
+static CATALOG_OBJECTS: LazyLock<Mutex<HashMap<usize, CachedVirtualObjects>>> =
+    LazyLock::new(|| Mutex::new(HashMap::new()));
+
+/// Locator discovery depends only on the immutable catalog. Keep the complete
+/// ordered discovery, including duplicate candidates, so first-match semantics
+/// and nested creator paths are identical to the uncached walk.
+pub(super) fn authored_virtual_objects(catalog: &CardCatalog) -> Arc<AuthoredVirtualObjects> {
+    let (identity, source) = catalog.process_cache_identity();
+    {
+        let cache = CATALOG_OBJECTS
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        if let Some(entry) = cache.get(&identity)
+            && entry.source.ptr_eq(&source)
+        {
+            return Arc::clone(&entry.objects);
+        }
+    }
+    // Do the recursive catalog walk outside the lock. Concurrent callers may
+    // both build, but all retain the same installed value below.
+    let objects = Arc::new(collect_authored_virtual_objects(catalog));
+    let mut cache = CATALOG_OBJECTS
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner);
+    cache.retain(|_, entry| entry.source.strong_count() > 0);
+    let entry = cache
+        .entry(identity)
+        .or_insert_with(|| CachedVirtualObjects { source, objects });
+    Arc::clone(&entry.objects)
+}
+
+fn collect_authored_virtual_objects(catalog: &CardCatalog) -> AuthoredVirtualObjects {
     let mut found = AuthoredVirtualObjects {
         tokens: Vec::new(),
         emblems: Vec::new(),
@@ -81,6 +118,32 @@ pub(super) fn authored_virtual_objects(catalog: &CardCatalog) -> AuthoredVirtual
         }
     }
     found
+}
+
+#[cfg(test)]
+mod cache_tests {
+    use super::*;
+
+    #[test]
+    fn rules_cache_catalog_discovery_preserves_order_and_lives_with_catalog() {
+        let catalog = crate::card::catalog().unwrap();
+        let expected = collect_authored_virtual_objects(&catalog);
+        let first = authored_virtual_objects(&catalog);
+        assert_eq!(first.tokens, expected.tokens);
+        assert_eq!(first.emblems, expected.emblems);
+        let retained = Arc::downgrade(&first);
+        drop(first);
+        let second = authored_virtual_objects(&catalog.clone());
+        assert!(Arc::ptr_eq(&retained.upgrade().unwrap(), &second));
+
+        // A distinct catalog's absence of creators must not inherit a prior
+        // catalog's token/emblem locators, even on the same thread.
+        let empty = CardCatalog::new([]).unwrap();
+        let other = authored_virtual_objects(&empty);
+        assert!(other.tokens.is_empty());
+        assert!(other.emblems.is_empty());
+        assert!(!Arc::ptr_eq(&second, &other));
+    }
 }
 
 fn collect_from_ability(

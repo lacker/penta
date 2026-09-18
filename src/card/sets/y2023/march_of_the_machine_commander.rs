@@ -43,31 +43,37 @@ pub(in crate::card::sets) static DEATH_GREETER_S_CHAMPION: CardRecord = CardReco
     "Jason Rainville",
     // Three mana for four damage a turn on its own, and a dash cost for the
     // turns when the double strike is better spent on something already out.
-    CardRules::new_creature(mana_cost!("{2}{R}"), &["Human", "Warrior"], 2, 1).with_abilities(&[
-        abilities::dash(
-            &[crate::CostDef::Mana(mana_cost!("{3}{R}"))],
-            "Dash {3}{R} (You may cast this spell for its dash cost. If \
-             you do, it gains haste, and it's returned from the \
-             battlefield to its owner's hand at the beginning of the \
-             next end step.)",
-        ),
-        abilities::dashed_haste(),
-        abilities::dashed_return(),
-        abilities::backup(
-            "Backup 1 (When this creature enters, put a +1/+1 counter on \
-             target creature. If that's another creature, it gains the \
-             following ability until end of turn.)",
-            &abilities::backup_steps(
-                1,
-                &EffectDef::Apply {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    effect: AppliedEffectDef::add_ability(&CHAMPION_DOUBLE_STRIKE),
-                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                },
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Human", "Warrior"], 2, 1).with_abilities(
+        &crate::ability_list![
+            abilities::dash(
+                &[crate::CostDef::Mana(mana_cost!("{3}{R}"))],
+                "Dash {3}{R} (You may cast this spell for its dash cost. If \
+                 you do, it gains haste, and it's returned from the \
+                 battlefield to its owner's hand at the beginning of the \
+                 next end step.)",
             ),
-        ),
-        CHAMPION_DOUBLE_STRIKE,
-    ]),
+            [
+                abilities::backup(
+                    "Backup 1 (When this creature enters, put a +1/+1 counter on \
+                     target creature. If that's another creature, it gains the \
+                     following ability until end of turn.)",
+                    &const {
+                        abilities::backup_steps(
+                            1,
+                            &const {
+                                EffectDef::Apply {
+                                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                    effect: AppliedEffectDef::add_ability(&CHAMPION_DOUBLE_STRIKE),
+                                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                                }
+                            },
+                        )
+                    },
+                ),
+                CHAMPION_DOUBLE_STRIKE,
+            ],
+        ],
+    ),
 );
 
 // MOC 34 — Path of the Pyromancer

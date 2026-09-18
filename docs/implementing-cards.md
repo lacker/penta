@@ -189,6 +189,10 @@ The constructor also accepts the colored-card exile costs. Use
 `abilities::evoke_with_text(costs, text)` for other nonmana wording or a printed
 text override. Both constructors always return the complete mechanic.
 
+Declare Dash once with `abilities::dash(costs, text)` inside `ability_list!`.
+It expands into the alternative cost, conditional haste, and delayed-return
+setup together, preserving their order within the printed ability list.
+
 Declare Warp once with `abilities::warp(costs, text)`. Its alternative-cost
 clause installs the ordinary delayed exile trigger as the permanent spell
 resolves. Do not add an enters trigger for Warp. The owner receives a cast-only

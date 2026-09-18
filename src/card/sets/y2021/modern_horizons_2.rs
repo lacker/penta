@@ -1158,8 +1158,8 @@ pub(in crate::card::sets) static RAGAVAN_NIMBLE_PILFERER: CardRecord = CardRecor
     // killed.
     CardRules::new_creature(mana_cost!("{R}"), &["Monkey", "Pirate"], 2, 1)
         .with_supertype(CardSupertype::Legendary)
-        .with_abilities(&[
-            AbilityDef::triggered(
+        .with_abilities(&crate::ability_list![
+            [AbilityDef::triggered(
                 "Whenever this creature deals combat damage to a player, \
                  create a Treasure token and exile the top card of that \
                  player's library. Until end of turn, you may cast that card.",
@@ -1179,7 +1179,7 @@ pub(in crate::card::sets) static RAGAVAN_NIMBLE_PILFERER: CardRecord = CardRecor
                         cast_only: true,
                     },
                 ]),
-            ),
+            )],
             abilities::dash(
                 &[CostDef::Mana(mana_cost!("{1}{R}"))],
                 "Dash {1}{R} (You may cast this spell for its dash cost. If \
@@ -1187,8 +1187,6 @@ pub(in crate::card::sets) static RAGAVAN_NIMBLE_PILFERER: CardRecord = CardRecor
                  battlefield to its owner's hand at the beginning of the \
                  next end step.)",
             ),
-            abilities::dashed_haste(),
-            abilities::dashed_return(),
         ]),
 );
 

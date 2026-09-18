@@ -4,7 +4,7 @@ use super::*;
 fn naming_choices_deliver_a_waiting_notice_then_the_public_answer() {
     for (definition, answer) in [
         (penta::card::cards::CAVERN_OF_SOULS, "Angel"),
-        (penta::card::cards::PITHING_NEEDLE, "Black Lotus"),
+        (penta::card::cards::PITHING_NEEDLE, "Gavony Township"),
     ] {
         let mut game = WebGame::new(
             "Braun-Duin Naya Midrange",

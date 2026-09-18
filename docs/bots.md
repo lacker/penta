@@ -1883,8 +1883,8 @@ neither the registry nor a room's own deck configuration exists there.
 
 ## Hosted games over WebSocket
 
-For either-seat control, human versus Astra, compact observations, and MCP tools,
-see [bot sessions and MCP](bot-sessions.md). That opt-in mode advances only
+For either-seat control, human versus Astra, compact observations, and agent CLI commands,
+see [bot sessions and agent play](bot-sessions.md). That opt-in mode advances only
 unique continuations, retains seat-visible events and inspection information,
 and has no move clock. It shares the hosted engine and match journal.
 

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { initializeWasm, WebGame } from "./wasm-test-support.mjs";
-import { SessionClient } from "../../tools/penta-mcp/client.mjs";
+import { SessionClient } from "../../tools/penta-agent/client.mjs";
 import * as support from "./game-room-support.mjs";
 
 const rows = value => Array.isArray(value) ? value : value.rows.map(row => ({ ...value.shared, ...row }));

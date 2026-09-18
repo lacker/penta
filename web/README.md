@@ -122,7 +122,7 @@ remote bots, bindings and headless runner. Handcrafted uses the generic decision
 policy; external bots may submit explicit option IDs. Replays cover the whole
 match, including every sideboard selection and starting-player choice. Local
 page reloads still start a new session; hosted rooms reconstruct saved commands
-and reattach using tab session credentials. [Bot sessions and MCP](../docs/bot-sessions.md)
+and reattach using tab session credentials. [Bot sessions and agent play](../docs/bot-sessions.md)
 describe human invitation links and externally controlled games that stop at
 every player decision.
 

@@ -1,9 +1,5 @@
 import assert from "node:assert/strict";
-import { createServer as httpServer } from "node:http";
-import { fileURLToPath } from "node:url";
 import test from "node:test";
-import { Client } from "@modelcontextprotocol/client";
-import { StdioClientTransport } from "@modelcontextprotocol/client/stdio";
 import { SessionClient } from "./client.mjs";
 import { changes, page, playingObservation, present } from "./views.mjs";
 
@@ -145,72 +141,5 @@ test("human invitation maps either engine seat and contains only the human crede
     const url = new URL(opened.humanUrl);
     assert.equal(new URLSearchParams(url.hash.slice(1)).get("seatToken"), "human-secret");
     assert.equal(opened.humanUrl.includes("bot-secret"), false);
-  }
-});
-
-test("stdio MCP handshake exposes usable schemas and a single compact tool result", async () => {
-  // Engine custom keys need not carry RFC UUID version or variant bits.
-  const definition = "00000000-0000-0000-0000-000000000001";
-  const posts = [];
-  const host = httpServer(async (request, response) => {
-    const routes = {
-      "/_engine/options": { apiVersion: 1, formats: [{ id: "old-school-93-94", decks: ["Sligh"] }] },
-      "/_game/room/session": ready,
-      "/_game/room/catalog": { cards: [{ definition, name: "Mountain" }] },
-    };
-    if (request.url.startsWith("/_game/room/play?")) {
-      let body = ""; for await (const chunk of request) body += chunk;
-      posts.push(JSON.parse(body));
-      routes[request.url] = { ...ready, revision: "b", receipt: { accepted: 1, requestId: posts.at(-1).requestId } };
-    }
-    assert.ok(routes[request.url]);
-    response.setHeader("content-type", "application/json");
-    response.end(JSON.stringify(routes[request.url]));
-  });
-  await new Promise(resolve => host.listen(0, "127.0.0.1", resolve));
-  const transport = new StdioClientTransport({
-    command: process.execPath, args: [fileURLToPath(new URL("server.mjs", import.meta.url))],
-    env: { PENTA_DEV_PORT: String(host.address().port) }, cwd: "/tmp", stderr: "pipe",
-  });
-  const client = new Client({ name: "penta-test", version: "1" });
-  try {
-    await client.connect(transport);
-    const listed = await client.listTools();
-    assert.deepEqual(listed.tools.map(tool => tool.name).sort(), ["attach", "choose", "inspect", "inspect_ref", "next", "options", "play", "retry", "start_match"]);
-    const result = await client.callTool({ name: "options", arguments: {} });
-    assert.equal(result.isError, undefined);
-    assert.equal(result.content.length, 1);
-    assert.equal(result.structuredContent, undefined, "do not duplicate a large observation in two result fields");
-    assert.equal(JSON.parse(result.content[0].text).formats[0].decks[0], "Sligh");
-    const bad = await client.callTool({ name: "next", arguments: { connection: "missing", waitMs: 0 } });
-    assert.equal(bad.isError, true);
-    assert.match(bad.content[0].text, /unknown connection/);
-    const attached = await client.callTool({ name: "attach", arguments: { room: "room", token: "own-seat" } });
-    const connection = JSON.parse(attached.content[0].text).connection;
-    const inspected = await client.callTool({ name: "inspect", arguments: { connection, section: "catalog", definitions: [definition] } });
-    assert.equal(inspected.isError, undefined);
-    assert.equal(JSON.parse(inspected.content[0].text).cards[0].definition, definition);
-    const numeric = await client.callTool({ name: "inspect", arguments: { connection, section: "catalog", definitions: [1] } });
-    assert.equal(numeric.isError, true, "protocol 32 definitions are UUIDs, not numeric IDs");
-    const decision = await client.callTool({ name: "attach", arguments: { room: "room", token: "own-seat", presentation: "decision-v1" } });
-    const packet = JSON.parse(decision.content[0].text);
-    assert.equal(packet.presentation, "decision-v1");
-    const details = await client.callTool({ name: "inspect_ref", arguments: { reference: packet.provenance.reference } });
-    assert.deepEqual(JSON.parse(details.content[0].text).items[0].checkpoint, observation.checkpoint);
-    const ticket = packet.choices[0].ticket;
-    const played = await client.callTool({ name: "choose", arguments: { ticket, waitMs: 0 } });
-    assert.equal(played.isError, undefined);
-    assert.equal(JSON.parse(played.content[0].text).receipt.accepted, 1);
-    assert.deepEqual(posts[0].choices, [{ index: 0 }]);
-    await client.callTool({ name: "choose", arguments: { ticket, waitMs: 0 } });
-    assert.deepEqual(posts[0], posts[1]);
-    const next = JSON.parse(played.content[0].text);
-    const batch = await client.callTool({ name: "play", arguments: { connection: packet.connection,
-      revision: next.revision, choices: next.choices.map(choice => ({ ticket: choice.ticket })), waitMs: 0 } });
-    assert.equal(batch.isError, undefined);
-    assert.deepEqual(posts[2].choices, observation.legalActions.map(({ index: _index, ...action }) => ({ action })));
-  } finally {
-    await client.close();
-    await new Promise(resolve => host.close(resolve));
   }
 });

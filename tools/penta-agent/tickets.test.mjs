@@ -61,7 +61,7 @@ test("definite stale failures need fresh tickets; waiting and raw inspection do 
   f.fail = "stale";
   await assert.rejects(f.client.choose({ ticket: land.ticket, waitMs: 0 }), /stale revision/);
   await assert.rejects(f.client.choose({ ticket: pass.ticket }), /stale ticket/);
-  await assert.rejects(f.client.retry({ connection: first.connection }), /no uncertain/);
+  await assert.rejects(f.client.retry({ connection: first.connection }), /no retained/);
   f.fail = null;
   f.view = { apiVersion: 1, status: "waiting", role: "human" };
   assert.deepEqual(await f.client.next({ connection: first.connection, waitMs: 0 }), f.view);
@@ -95,7 +95,10 @@ test("optional catalog failure after a committed ticket does not create an uncer
   const first = await f.attach(); f.view = ready("b");
   const result = await f.client.choose({ ticket: unpack(first.choices)[0].ticket, waitMs: 0 });
   assert.equal(result.receipt.accepted, 1);
-  await assert.rejects(f.client.retry({ connection: first.connection }), /no uncertain/);
+  assert.equal((await f.client.retry({ connection: first.connection })).receipt.accepted, 1);
+  assert.equal(f.commits, 1);
+  await f.client.choose({ ticket: unpack(result.choices)[1].ticket, waitMs: 0 });
+  assert.equal(f.commits, 2);
 });
 
 test("decision tickets send selected IDs in model order and reject changed retries", async () => {

@@ -151,8 +151,8 @@ make lint-web
   `make check-bindings-*` target. Run both only for shared binding behavior. An
   engine field that makes `Game` lose `Send + Sync` is already guarded by the
   native `src/game/tests/thread_safety.rs` test.
-- `tools/penta-mcp/**` uses `make test-penta-mcp` after installing its pinned
-  dependencies with `pnpm --dir tools/penta-mcp install --frozen-lockfile`.
+- `tools/penta-agent/**` uses `make test-penta-agent` (or `PATTERN=...` for a
+  focused test). The client needs only Node; no package installation is required.
   Shared hosted-session changes also use `make test-bot-sessions` and, when the
   WASM contract changes, `make test-web-wasm-contract PATTERN='session API'`.
 - Agent guidance and skill entrypoints use `make test-agent-guidance`.

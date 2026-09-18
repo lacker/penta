@@ -168,12 +168,8 @@ jobs:
         run: pnpm install --frozen-lockfile
         working-directory: web
 
-      - name: Install MCP dependencies
-        run: pnpm install --frozen-lockfile
-        working-directory: tools/penta-mcp
-
-      - name: Test MCP adapter
-        run: make test-penta-mcp
+      - name: Test agent CLI
+        run: make test-penta-agent
 
       - name: Check web
         # The slow WASM sweeps are CPU-bound. Three test processes match

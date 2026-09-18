@@ -1,17 +1,17 @@
-# Bot sessions and MCP
+# Bot sessions and agent play
 
 Penta's hosted room owns one authoritative engine and match journal. A browser,
-an ordinary HTTP bot, and the stdio MCP adapter all connect to that room. Either
+an ordinary HTTP bot, and the agent CLI all connect to that room. Either
 engine seat can be driven by a bot; one can also be the existing human browser.
-The MCP adapter supplies transport and presentation, with no model calls,
+The agent client supplies transport and presentation, with no model calls,
 gameplay policy or action ranking. The engine advances unique continuations
 without asking a client to acknowledge them.
 
 ```mermaid
 flowchart LR
   Human[Human browser] -->|WebSocket commands| Room[Hosted GameRoom]
-  Astra[Astra in Codex] -->|stdio tools| MCP[Penta MCP adapter]
-  MCP -->|HTTP session API| Room
+  Agent[Coding agent + play-penta skill] -->|CLI commands| Client[Penta session client]
+  Client -->|HTTP session API| Room
   Bot[Other bot client] -->|HTTP session API| Room
   Room --> Engine[Shared Rust engine and match lifecycle]
 ```
@@ -28,110 +28,69 @@ vocabulary and legality remain unchanged.
 
 ## Run locally
 
-The checked-in [Codex project configuration](../.codex/config.toml) launches
-this worktree's stdio adapter. Codex must trust the project before loading its
-configuration. No plugin installation or `codex mcp add` is needed for local
-worktree play. See [Codex project configuration](https://developers.openai.com/codex/config-advanced/)
-and [MCP configuration](https://developers.openai.com/codex/mcp/) for host setup.
-
-From the repository root, check the runtime and install the adapter's pinned
-dependencies. The adapter requires Node 22.13 or newer; its package-manager
-version is recorded in `tools/penta-mcp/package.json`.
+From the repository root, run:
 
 ```sh
-node --version
-codex --version
-pnpm --dir tools/penta-mcp install --frozen-lockfile
-codex mcp get penta --json
+node tools/penta-agent/cli.mjs up
+node tools/penta-agent/cli.mjs options
 ```
 
-Start the current worktree's game server using the [web setup](../web/README.md).
-For a new local setup, run these from the repository root:
+`up` starts or reuses this worktree's game server, installing locked web
+packages when missing and running the existing development/WASM build entry
+point. Node 22.13+, pnpm, Rust's WASM target and the matching `wasm-bindgen`
+remain prerequisites; see [web setup](../web/README.md). No separate agent
+package install, MCP registration, client restart or OpenAI API key is needed.
+
+Calls wait at most 25 seconds. If `up` returns `starting`, inspect the returned
+log as needed and call `up` again; the same installation/build continues. A
+failed startup reports the log path. Fix the reported prerequisite, then run `up` again.
+
+The CLI resolves its own worktree's assigned port independently of the caller's
+working directory, including `PENTA_DEV_PORT`. `PENTA_SERVER_URL=https://host`
+selects an existing deployment and disables local game-server startup. The
+backend readiness check verifies session API 1 and format discovery; it does
+not prove that a separately started server has the current checkout's engine.
+
+Each command takes one JSON object, a `@file` path, or `-` for JSON on stdin:
 
 ```sh
-pnpm --dir web install --frozen-lockfile
-pnpm --dir web run dev:url
-pnpm --dir web run dev
+node tools/penta-agent/cli.mjs attach @seat.json
+node tools/penta-agent/cli.mjs next '{"connection":"...","waitMs":25000}'
+node tools/penta-agent/cli.mjs choose '{"ticket":"..."}'
+node tools/penta-agent/cli.mjs --help
 ```
 
-Reuse a healthy server already running from this worktree at its assigned URL;
-keep its managed terminal/session handle for later diagnosis. Hosted routes
-must be enabled (`HOSTED_GAMES=enabled`, already configured for local
-development). The adapter finds its own worktree's assigned port. A
-`PENTA_DEV_PORT` override must agree in the game-server and adapter environments;
-exporting it in one shell does not update an already-running Codex process.
+Only JSON results appear on stdout; errors use stderr and a nonzero exit code.
+`attach` defaults to `decision-v1`. A private loopback session process starts
+on first use and retains tickets and references between commands. Its control
+endpoint requires a random bearer token stored in owner-only metadata. The
+ignored `.penta-agent/` directory holds that metadata, seat credentials, saved
+match creations, retry bodies and logs. Treat its contents as private.
+`PENTA_AGENT_DIR` selects an isolated session directory. A deterministic
+control port prevents racing CLI calls from starting duplicate session owners;
+`PENTA_AGENT_PORT` can override it if another application occupies the port.
 
-For an explicitly assigned remote deployment, configure `PENTA_SERVER_URL` in
-the MCP launch environment and verify the effective configuration. Do not start
-a local substitute for an unavailable remote match. Check for inherited values
-or older global Penta entries pointing to another worktree when the endpoint
-is unexpected.
+`status` lists saved connection handles. `stop` ends only the session process;
+the game server stays running. The next command starts the session process and
+restores connections and retained requests. Frozen tickets/references expire
+on restart: resolve an uncertain move with `retry`, then use `next(full: true)`.
+Do not stop or replace a game server merely to reconnect a player.
 
-Codex owns the stdio process and connection. `make penta-mcp` is a manual stdio
-entry point for other MCP clients, not a background daemon to start beside
-Codex. The adapter does not start the game server.
-
-With the web server running, verify stdio discovery and backend reachability:
-
-```sh
-node tools/penta-mcp/probe.mjs
-```
-
-The probe opens its own MCP connection. Verify that the actual pilot task has
-callable `attach`, `play`, `choose`, `next`, `inspect_ref`, and `retry` tools, then
-use `options` to verify its backend connection before attaching. Probe success
-alone does not expose tools inside an already-running task. The repository's
-[play-penta skill](../.agents/skills/play-penta/SKILL.md) covers the protocol
-without gameplay advice or mandatory per-move narration.
-
-## Startup and recovery
-
-Diagnose the failing layer before repairing it. Dependency installation,
-starting the assigned local server, and reconnecting an adapter are ordinary
-setup steps; missing tools do not imply that a plugin must be installed.
-
-| Symptom | Check and repair |
-| --- | --- |
-| Penta is absent from effective configuration | Run `git rev-parse --show-toplevel` and `codex mcp get penta --json` in the intended worktree. Confirm `.codex/config.toml` is checked out and project trust permits loading it. Do not add a global registration for each worktree. |
-| Adapter cannot initialize | Read the host's MCP startup error. Check the Node executable available to Codex, its version, the launch directory, and the pinned dependency installation. Repair the specific failure, then reconnect. |
-| Probe works but this task has no Penta tools | Inspect the host's active MCP list (`/mcp` in Codex). Use its supported restart/reconnect control; in the desktop MCP settings, select Restart. If discovery remains stale, reopen the Codex session in the same worktree. Shell-launching another adapter does not attach it to this task. |
-| Tools exist but `options` or `attach` reports a network/HTTP error | Check the effective server URL, assigned port, game-server process/logs, and hosted-route setting. Start or restart only the affected local server through its retained process handle when needed; preserve its storage. Report remote endpoint failures without switching matches. |
-| Updated skill is absent or behavior still appears old | A `git fetch` only downloads refs. Check `git status --short` and `git rev-parse HEAD` to confirm the intended revision is checked out. Read `.agents/skills/play-penta/SKILL.md` directly if discovery is stale; restart Codex if its skill catalog does not refresh. |
-| Adapter files or dependencies changed after startup | The Node adapter does not hot-reload. Resolve pending submissions first, then reconnect MCP and reattach. Update/restart the game server separately if its executable inputs changed. |
-
-For version diagnosis, record `codex --version`, `node --version`, the current
-Git revision and relevant local changes, and the effective MCP launch settings.
-The adapter's advertised package version is not a source-revision check; the
-same version can span code changes. Verify the required tool names/schemas and
-backend response rather than assuming version-string equality proves freshness.
-Consult [compatibility boundaries](interfaces.md#compatibility-boundaries) for
-actual protocol mismatches. Do not fetch or change branches just to diagnose
-an existing match.
-
-If the agent cannot operate a host reconnect control, finish the available
-checks and report the exact host action still needed, with the specific error.
-Do not stop immediately at the first MCP failure or replace the integration
-with a per-move shell/Python relay. Do not assume automatic crash restart.
-
-Before reconnecting, retain the assigned room and seat token privately. When
-the adapter is still alive, use `retry` to settle an uncertain move before
-restarting it. An adapter restart loses local connection handles, tickets,
-references, and pending retry requests. Reattach with the same room/token and
-inspect the current state; never replay an uncertain old move as a new request.
-Reconnecting the adapter does not require creating a new match or restarting a
-healthy game server.
+The [play-penta skill](../.agents/skills/play-penta/SKILL.md) wraps this setup
+and gameplay workflow without choosing strategy or requiring per-move narration.
+Use `make penta-agent ARGS=up` as an equivalent command entry point.
 
 ## Start and play
 
 1. Call `options` to discover registered formats and deck names.
-2. Call `start_match` with `format`, `p1Deck`, and `p2Deck`. `matchMode` defaults
+2. Call `start_match` with a unique `requestId`, `format`, `p1Deck`, and `p2Deck`. `matchMode` defaults
    to `first-to-two-wins`; `one-conclusion` is also supported. The room rolls a
    private seed. No client receives it during play.
 3. Give each player only its own `{room, token}` from `seats.p1` or `seats.p2`.
    Each calls `attach` and retains its returned `connection` handle.
 4. At `status: "ready"`, submit `play` with that view's `revision` and an exact
    choice. `play` applies the request and waits for the same seat's next choice.
-   If it returns `waiting`, call `next`. Both tools wait up to 25 seconds per
+   If it returns `waiting`, call `next`. Both commands wait up to 25 seconds per
    call; `waitMs: 0` returns immediately.
 5. Stop at `complete`. Use `inspect(section: "record")` for the complete replay.
 
@@ -147,7 +106,7 @@ engine player numbers. `humanFirst` at room creation maps the `human` role to
 `p1` when true and `p2` when false. The canonical observation's `seat` identifies
 the actual player; choosing play or draw does not exchange player identities.
 
-Example tool arguments after attaching:
+Example command arguments after attaching:
 
 ```json
 {"connection":"...","revision":"...","choices":[{"index":3}]}
@@ -174,7 +133,7 @@ journal's commands and simulation fingerprint.
 ## Compact observations
 
 The HTTP API returns canonical seat observations, including their reconstruction
-checkpoint and match state. The MCP playing view separates the checkpoint into
+checkpoint and match state. The agent playing view separates the checkpoint into
 `inspect(section: "checkpoint")` and returns one compact JSON text block.
 For subsequent observations it chooses whichever is shorter: a full playing
 view or exact JSON changes against `baseRevision`. Property paths are literal
@@ -225,7 +184,7 @@ classification without opting into hosted automatic advancement.
 Transport savings do not imply a particular reduction in model reasoning cost.
 Compare total tool input/output, follow-up inspections, reasoning usage, and
 wall time on the same match workload before claiming overall token savings.
-`tools/penta-mcp/measure-trace.mjs` measures presentation characters on supplied
+`tools/penta-agent/measure-trace.mjs` measures presentation characters on supplied
 observation traces without invoking a model or changing any game decisions.
 
 ## Current decision views and tickets
@@ -306,11 +265,10 @@ Repeat an identical retained ticket and option array to recover its receipt,
 including after a lost response. Different commands are blocked while an
 outcome is uncertain; `retry({connection})` also resolves it. The adapter retains
 only the latest submitted ticket per connection, plus the current view. Changed
-selections and stale tickets fail explicitly. Reattach after process loss;
-cross-process uncertain-request recovery still requires the saved exact body
-and request ID described below.
+selections and stale tickets fail explicitly. After session-process loss, retry
+an outstanding move and refresh the saved connection as described below.
 
-The default `exact` presentation, explicit `play` batches, and raw `inspect`
+The optional `exact` presentation, explicit `play` batches, and raw `inspect`
 remain available. `inspect(section: "observation")` always supplies the exact
 playing observation. `decision-v1` checks session API 1 and bot protocol 33;
 it does not change HTTP, checkpoint, or replay schemas. See the
@@ -341,13 +299,16 @@ new request, is rejected with HTTP 409. Observe again after a stale refusal.
 Older receipts are not retained after a later request by that seat; clients
 must resolve an uncertain play before issuing the next one.
 
-The MCP `retry` tool retains and resends the exact pending request after network
-or server failure. New moves are refused until that uncertainty is resolved.
-The handle and pending-request cache last for the adapter process. A new
-process can reattach using the saved room and seat token; HTTP clients needing
-recovery across their own crash should persist the pending body before sending.
-Room creation is separate from play retries: if the initial `start_match`
-response is lost, its credentials cannot be recovered through the adapter.
+The CLI `retry` command retains and resends the exact last request after network,
+server, or CLI-output failure. It also recovers a successful play whose response
+was lost between the session process and caller. New moves are refused until that uncertainty is resolved.
+The client saves connection handles and the exact pending body before sending,
+so a restarted session process can retry without minting another request ID.
+Ordinary CLI invocations preserve the current presentation in the live process.
+Room creation uses a separate caller-supplied `requestId`: repeating identical
+`start_match` arguments retrieves the locally saved invitation. If the backend
+created a room but its credentials never reached the session process, the
+outcome remains explicitly uncertain and the CLI refuses an automatic redeal.
 
 Browser commands and exact session requests share the same revision check and
 journal. The room retains its last safe human projection during private bot
@@ -365,14 +326,15 @@ Both-role exact control requires a newly created `sessionApi` room.
 ## Validation
 
 ```sh
-make test-penta-mcp
+make test-penta-agent
 make test-bot-sessions
 make test-wasm-rust FILTER=session_api
 make test-web-wasm-contract PATTERN='session API'
 ```
 
 Tests cover native observation parity, explicit priority windows, menu paging,
-exact delta reconstruction, stdio MCP negotiation, request and storage retries,
+exact delta reconstruction, independent CLI calls, session-process crash recovery,
+request and storage retries,
 concurrent commands, credential separation, browser refresh, sideboarding, and
 reconstructing a completed shared match. These tests make explicit test choices;
 no playing policy is included in the adapter.

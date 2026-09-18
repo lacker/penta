@@ -1,8 +1,8 @@
 # Model-facing bot interface
 
-Status: implemented as opt-in MCP presentation `decision-v1`. The existing
-exact presentation remains the default pending controlled model evaluation.
-See [bot sessions and MCP](../bot-sessions.md) for setup, tools, and recovery.
+Status: implemented as agent presentation `decision-v1`, the CLI default.
+The library retains its `exact` default and both presentations remain available.
+See [bot sessions and agent play](../bot-sessions.md) for setup, tools, and recovery.
 
 ## Problem and boundary
 
@@ -15,7 +15,7 @@ objects and exact choices, and accepts a short ticket for the chosen action.
 ```mermaid
 flowchart LR
   Engine[Shared engine] -->|Seat observation and events| Session[Hosted session API]
-  Session -->|Canonical JSON| Adapter[MCP formatter and ticket store]
+  Session -->|Canonical JSON| Adapter[Session formatter and ticket store]
   Adapter -->|Current position and choices| Model[Astra or another model]
   Model -->|Selected ticket and option IDs| Adapter
   Adapter -->|Exact revision-checked action| Session
@@ -34,7 +34,7 @@ omniscient event stream to improve its labels or card references.
 
 ## Versioned position mapping
 
-[`decision-view.mjs`](../../tools/penta-mcp/decision-view.mjs) implements the
+[`decision-view.mjs`](../../tools/penta-agent/decision-view.mjs) implements the
 following mapping for session API 1 and bot protocol 33. A future incompatible
 mapping needs a new presentation version; the canonical protocol, checkpoint,
 and replay schemas are unchanged by this layer.
@@ -58,7 +58,7 @@ overwritten by an old disclosure. Current characteristics, counters, targets,
 chosen values, physical faces, and exact ability origins stay intact. Printed
 rules are explicitly reference material, not computed effective rules.
 
-[`decision-format.mjs`](../../tools/penta-mcp/decision-format.mjs) factors
+[`decision-format.mjs`](../../tools/penta-agent/decision-format.mjs) factors
 fields only when they are present and exactly equal in every row and the result
 is shorter. A `{shared, rows}` table is self-contained: shared fields apply to
 every row, with no prior view required. Missing, null, false, zero, empty arrays,
@@ -107,7 +107,7 @@ references must match the connection's current view and supplied revision.
 An uncertain batch is recovered by `retry` with its resolved body and ID.
 Read the returned ready view directly; no extra observation call is required.
 
-[`client.mjs`](../../tools/penta-mcp/client.mjs) records the exact body and a
+[`client.mjs`](../../tools/penta-agent/client.mjs) records the exact body and a
 request ID before I/O. It serializes state-changing/read-and-refresh calls per
 connection. An uncertain result blocks other plays. An identical retained
 ticket reuses its request ID, including after success; it cannot apply twice.
@@ -118,33 +118,28 @@ Storage is bounded to the current frozen view, catalog/seen-rule cache, and
 latest submitted ticket per connection. Submitting a newer command evicts the
 older receipt ticket. Expired tickets or changed selections fail explicitly;
 there is no automatic repair or index reinterpretation. Restart loses local
-tickets. Cross-process uncertain-request recovery keeps the existing requirement
-to save the exact request body and ID. Explicit `play` and its exact batches
+tickets. The CLI persists seat connections and exact pending request bodies before I/O,
+so a restarted session process can recover uncertain moves. Explicit `play` and its exact batches
 remain available.
 
 ## Direct pilot integration
 
-The stdio entry point resolves its own worktree's development server URL, even
-when launched from another directory. `PENTA_SERVER_URL` overrides it for other
-deployments. The [stdio probe](../../tools/penta-mcp/probe.mjs) verifies tool
-schemas/discovery and backend reachability without creating a match.
+The [agent CLI](../../tools/penta-agent/cli.mjs) resolves its own worktree's
+server URL, even from another directory. `up` starts the local server and waits
+for session API readiness; `PENTA_SERVER_URL` selects an existing deployment.
+A private local session process retains presentation state between commands.
 
-The [play-penta skill](../../.agents/skills/play-penta/SKILL.md) describes only
-attachment, current views, choice IDs, references, waiting and recovery. The
-normal move can be a direct tool call without mandatory narration. No model,
-reasoning-effort, strategy or token-budget setting changes.
-
-A pilot must separately discover the tools in its actual host. A successful
-stdio client handshake is not evidence that an already-running task has native
-Penta tools. Record a host-discovery limitation rather than counting a shell
-relay as direct-MCP model validation.
+The [play-penta skill](../../.agents/skills/play-penta/SKILL.md) supplies setup,
+attachment, exact choices, references, waiting and recovery. No native tool
+registration is required. All gameplay decisions remain with the caller; no
+model, reasoning-effort, strategy or token-budget setting changes.
 
 ## Validation and remaining measurement
 
 The adapter tests cover exact choice preservation, unknown/default field
 semantics, ordered selections, historical information, catalog provenance,
 paging, expiration, multiple connections, stale revisions, uncertain writes,
-concurrent calls, and real stdio tool invocation. The real WASM hosted-match test
+concurrent calls, and real CLI invocation and process-crash recovery. The real WASM hosted-match test
 combines tickets with human browser commands, sideboarding, room eviction,
 idempotent receipts and deterministic replay.
 
@@ -156,14 +151,14 @@ inference time. The separate 1,039-to-424 forced-action replay is an interaction
 count reduction, not a measured speedup of this presentation.
 
 Controlled Astra Medium evaluation remains open. Compare identical captured
-positions on the same direct MCP route, randomized in order, with equivalent
+positions on the same CLI route, randomized in order, with equivalent
 history access. Measure delivered input/output tokens, decision latency, extra
 inspection calls, rejected selections and factual state-reading errors. Full
 matches should hold decks, seed, engine fingerprint, model/effort, forced
 advancement, host and route fixed, with repeated trials to report variability.
 Measure setup separately and avoid double-counting opponent long polls.
 
-Use `tools/penta-mcp/measure-trace.mjs` for offline JSON payload comparisons.
+Use `tools/penta-agent/measure-trace.mjs` for offline JSON payload comparisons.
 Character counts exclude tool schemas, inspections and reasoning; they are not
 token or wall-clock measurements. A current-position packet can be larger than
 an exact delta while requiring less reconstruction by the model. Neither a
@@ -171,6 +166,6 @@ payload reduction nor reduced inference time is assumed.
 
 OpenAI's [latency guidance](https://developers.openai.com/api/docs/guides/latency-optimization)
 supports testing shorter generated commands and fewer round trips. It does not
-establish an Astra-specific gain for this format. Keep the presentation opt-in
-until controlled measurements establish a benefit without lost information or
-additional errors.
+establish an Astra-specific gain for this format. The CLI default is a workflow choice, not evidence of a measured performance
+benefit. Controlled evaluation still needs to establish any benefit without
+lost information or additional errors.

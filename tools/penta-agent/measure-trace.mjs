@@ -5,7 +5,7 @@ import { present } from "./views.mjs";
 import { DecisionView } from "./decision-view.mjs";
 
 const path = process.argv[2];
-if (!path) throw new Error("usage: node tools/penta-mcp/measure-trace.mjs trace.jsonl[.gz] [--decision] [--catalog catalog.json]");
+if (!path) throw new Error("usage: node tools/penta-agent/measure-trace.mjs trace.jsonl[.gz] [--decision] [--catalog catalog.json]");
 const decisions = process.argv.includes("--decision");
 const catalogIndex = process.argv.indexOf("--catalog");
 const catalog = catalogIndex < 0 ? undefined : JSON.parse(await readFile(process.argv[catalogIndex + 1], "utf8"));

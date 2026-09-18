@@ -10,3 +10,6 @@
 # rewrote itself into every commit that ran them.
 __pycache__/
 *.pyc
+
+# Local agent process metadata, seat credentials, and request recovery.
+/.penta-agent/

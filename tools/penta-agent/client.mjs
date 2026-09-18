@@ -10,12 +10,24 @@ export class SessionClient {
   #base;
   #fetch;
   #connections = new Map();
+  #save;
 
-  constructor(base, fetcher = fetch) {
+  constructor(base, fetcher = fetch, { sessions = [], save = () => {} } = {}) {
     const url = new URL(base);
     if (!["http:", "https:"].includes(url.protocol) || url.username || url.password) throw new Error("invalid Penta server URL");
     this.#base = url.origin;
     this.#fetch = fetcher;
+    this.#save = save;
+    for (const [connection, session] of sessions) {
+      this.#connections.set(connection, { ...session, seenRules: new Set() });
+    }
+  }
+
+  #persist() {
+    this.#save([...this.#connections].map(([connection, session]) => [connection, {
+      room: session.room, token: session.token, presentation: session.presentation,
+      pending: session.pending, lastPlay: session.lastPlay, submission: session.submission,
+    }]));
   }
 
   async #request(room, route, token, body, signal) {
@@ -66,6 +78,7 @@ export class SessionClient {
     const view = await this.#request(room, "session", token);
     const connection = randomUUID().slice(0, 8);
     this.#connections.set(connection, { room, token, view, presentation, seenRules: new Set() });
+    this.#persist();
     return { connection, ...await this.#display(connection, view, true) };
   }
 
@@ -145,6 +158,8 @@ export class SessionClient {
       if (submission) session.submission = submission;
       else if (JSON.stringify(session.submission?.body) !== JSON.stringify(body)) session.submission = undefined;
       session.pending = body;
+      session.lastPlay = body;
+      this.#persist();
       if (session.decisionView) session.decisionView.active = false;
       let view;
       try {
@@ -152,10 +167,15 @@ export class SessionClient {
       } catch (error) {
         // Validation/authorization refusals have a definite outcome. Transport
         // and server failures can occur after commit and must retain the receipt.
-        if (error instanceof HttpError && error.status >= 400 && error.status < 500) session.pending = undefined;
+        if (error instanceof HttpError && error.status >= 400 && error.status < 500) {
+          session.pending = undefined;
+          session.lastPlay = undefined;
+          this.#persist();
+        }
         throw error;
       }
       session.pending = undefined;
+      this.#persist();
       return this.#display(connection, view, false);
     });
   }
@@ -185,8 +205,9 @@ export class SessionClient {
 
   async retry({ connection, waitMs = 25_000 }, signal) {
     const session = this.#get(connection);
-    if (!session.pending) throw new Error("no uncertain play is pending");
-    return this.play({ connection, ...session.pending, waitMs }, signal);
+    const body = session.pending ?? session.lastPlay;
+    if (!body) throw new Error("no retained play to retry");
+    return this.play({ connection, ...body, waitMs }, signal);
   }
 
   async inspect({ connection, section, definitions, query, actionType, offset = 0, limit = 100 }) {

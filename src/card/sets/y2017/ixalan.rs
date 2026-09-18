@@ -313,12 +313,12 @@ pub(in crate::card::sets) static KITESAIL_FREEBOOTER: CardRecord = CardRecord::n
                     ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
                     ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
                 ]),
-                &EffectDef::Sequence(&[EffectDef::ExileLinkedToSource {
+                &EffectDef::ExileLinkedToSource {
                     until_source_leaves: true,
                     object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
                     face_down: false,
                     then: None,
-                }]),
+                },
             )),
         ),
     ]),

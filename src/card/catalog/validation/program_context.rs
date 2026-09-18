@@ -97,9 +97,6 @@ fn validate_static_effect(
     match effect {
         EffectDef::None if position == StaticPosition::Root => Ok(()),
         EffectDef::Sequence(effects) => {
-            if effects.is_empty() {
-                return Err("empty Sequence");
-            }
             for effect in effects {
                 validate_static_effect(*effect, source_zones, StaticPosition::Traversed)?;
             }
@@ -733,7 +730,6 @@ fn validate_resolving_effect(
     source_zones: &[ZoneKind],
 ) -> Result<(), &'static str> {
     match effect {
-        EffectDef::Sequence([]) => Err("empty Sequence"),
         EffectDef::WithRule {
             rule: AppliedRuleDef::CannotRegenerate,
             effect,

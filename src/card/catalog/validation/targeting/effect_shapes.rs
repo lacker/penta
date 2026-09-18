@@ -77,6 +77,14 @@ fn validate_effect_target_shapes(
             Ok(())
         }
         EffectDef::Sequence(effects) => {
+            if effects.len() < 2 {
+                return Err(
+                    GrantedAbilityValidationError::UnsupportedEffectProgramContext {
+                        context: "sequence",
+                        operation: "requires at least two effects; use None or the single effect directly",
+                    },
+                );
+            }
             for effect in effects {
                 validate_effect_target_shapes(*effect, targets, triggering_object_zone)?;
             }

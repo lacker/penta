@@ -219,12 +219,12 @@ pub(in crate::card::sets) static TOUCH_THE_SPIRIT_REALM: CardRecord = CardRecord
                 },
                 1,
             )],
-            EffectDef::Sequence(&[EffectDef::ExileLinkedToSource {
+            EffectDef::ExileLinkedToSource {
                 until_source_leaves: true,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 face_down: false,
                 then: None,
-            }]),
+            },
         ),
         AbilityDef::activated_with_targets(
             "Channel — {1}{W}, Discard this card: Exile target artifact or \

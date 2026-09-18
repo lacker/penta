@@ -14,7 +14,7 @@ fn catalog_rejects_effect_operations_in_the_wrong_execution_context() {
             ValueDef::Constant(1),
         ),
     };
-    static RESOLVING_STATIC: [EffectDef; 1] = [STATIC_PUMP];
+    static RESOLVING_STATIC: [EffectDef; 2] = [EffectDef::None, STATIC_PUMP];
     static ATTACK_QUERY: ObjectQueryDef =
         ObjectQueryDef::new(ObjectPredicateDef::Any, &[ZoneKind::Battlefield]);
 
@@ -932,6 +932,7 @@ fn face_up_in_exile_rejects_trigger_and_static_contexts() {
 }
 
 include!("abilities_grants/static_power_toughness.rs");
+include!("abilities_grants/sequences.rs");
 
 #[test]
 fn matching_spell_grants_reject_static_use_and_non_stack_payloads() {

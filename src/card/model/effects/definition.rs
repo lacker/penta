@@ -934,6 +934,8 @@ pub enum EffectDef {
     },
     /// Resolve authored sibling instructions in order. A [`Self::BindOutput`]
     /// step explicitly publishes its labeled result to later siblings.
+    /// Catalog validation requires at least two effects; use [`Self::None`]
+    /// or the single effect directly for shorter programs.
     Sequence(&'static [EffectDef]),
     /// Randomizes each recipient player's library. Effects that shuffle
     /// cards from other zones into a library first express those zone moves

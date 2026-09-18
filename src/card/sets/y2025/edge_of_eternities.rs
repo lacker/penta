@@ -4793,8 +4793,8 @@ pub(in crate::card::sets) static KAVARON_HARRIER: CardRecord = CardRecord::new(
                         .entering_attacking()
                         .with_created_tokens(CreatedTokensDef {
                             binding: crate::Binding!("created"),
-                            then: &EffectDef::Sequence(&[EffectDef::InstallTrigger(
-                                InstalledTriggerDef::once(&AbilityDef::triggered(
+                            then: &EffectDef::InstallTrigger(InstalledTriggerDef::once(
+                                &AbilityDef::triggered(
                                     "Sacrifice those tokens.",
                                     TriggerEventDef::StepBegins {
                                         step: TurnStepDef::EndOfCombat,
@@ -4803,8 +4803,8 @@ pub(in crate::card::sets) static KAVARON_HARRIER: CardRecord = CardRecord::new(
                                     EffectDef::sacrifice(EffectRecipientDef::objects(
                                         ObjectSetDef::Binding(crate::Binding!("created")),
                                     )),
-                                )),
-                            )]),
+                                ),
+                            )),
                         }),
                 ),
             )),

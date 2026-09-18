@@ -2,20 +2,26 @@ use super::*;
 
 #[test]
 fn a_scripted_game_runs_to_a_result_through_json_alone() {
-    let game = BotGame::new("Sligh", "The Deck", Opponent::Handcrafted, PlayerId::Two, 7)
+    // An aggressive scripted opponent finishes this protocol smoke test
+    // promptly while the JSON-only client passes. A control opponent turns
+    // the same API assertion into a long game simulation.
+    let game = BotGame::new("The Deck", "Sligh", Opponent::Handcrafted, PlayerId::Two, 7)
         .expect("game starts");
     let result = finish(game, |_, observation| pass_bot(observation));
-    assert!(matches!(
+    assert_eq!(
         result,
-        GameResult::Winner { .. } | GameResult::Draw
-    ));
+        GameResult::Winner {
+            winner: PlayerId::Two,
+            reason: crate::WinReason::OpponentLostAllLife,
+        }
+    );
 }
 
 #[test]
 fn an_external_game_lets_one_loop_drive_both_seats() {
     let game = BotGame::new("Goblins", "Sligh", Opponent::External, PlayerId::Two, 11)
         .expect("game starts");
-    let result = finish(game, |_, observation| pass_bot(observation));
+    let result = finish(game, |_, observation| advancing_action(observation));
     assert!(matches!(
         result,
         GameResult::Winner { .. } | GameResult::Draw

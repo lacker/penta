@@ -178,12 +178,13 @@ fn session_api_skips_forced_actions_preserving_native_choices_and_replay() {
     let mut forced = 0;
     let mut mana_choices = 0;
     for _ in 0..160 {
+        let expected = [PlayerId::One, PlayerId::Two]
+            .map(|seat| serde_json::from_str::<Value>(&native.observe_json(seat)).unwrap());
         for (role, seat) in [("human", PlayerId::One), ("bot", PlayerId::Two)] {
             let mut observed: Value =
                 serde_json::from_str(&web.session_observe_json(role).unwrap()).unwrap();
             observed.as_object_mut().unwrap().remove("updates");
-            let expected: Value = serde_json::from_str(&native.observe_json(seat)).unwrap();
-            assert_eq!(observed, expected);
+            assert_eq!(observed, expected[seat.index()]);
         }
         let Some(seat) = native.decision_seat() else {
             break;
@@ -194,15 +195,26 @@ fn session_api_skips_forced_actions_preserving_native_choices_and_replay() {
             "bot"
         };
         assert_eq!(web.session_decision_role().as_deref(), Some(role));
-        let observation: Value = serde_json::from_str(&native.observe_json(seat)).unwrap();
+        let observation = &expected[seat.index()];
         let actions = observation["legalActions"].as_array().unwrap();
+        // Attack before accepting the empty attacker selection. Exercise
+        // combat instead of building an idle battlefield for the entire
+        // command budget.
         let action = actions
             .iter()
-            .find(|action| {
-                !matches!(
-                    action["type"].as_str(),
-                    Some("PassPriority" | "ActivateManaAbility" | "TakeMulligan" | "BeginPayment")
-                )
+            .find(|action| action["type"] == "DeclareAttacker")
+            .or_else(|| {
+                actions.iter().find(|action| {
+                    !matches!(
+                        action["type"].as_str(),
+                        Some(
+                            "PassPriority"
+                                | "ActivateManaAbility"
+                                | "TakeMulligan"
+                                | "BeginPayment"
+                        )
+                    )
+                })
             })
             .unwrap_or(&actions[0]);
         assert!(observation["forcedAction"].is_null());

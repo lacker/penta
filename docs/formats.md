@@ -41,6 +41,19 @@ The selected format is stored on each game. Format-specific construction and
 mana rules live in one profile rather than as global switches, so adding a
 format does not change existing games.
 
+### Card-name choices
+
+As an intentional performance concession, catalog-defined name sets such as
+`AllCardNames`, nonland names, and land names are limited to the game's format
+pool, excluding banned cards. Legal reprints qualify the whole card identity,
+including its independently nameable parts; cube formats use their fixed lists
+plus basic lands. Restricted cards remain nameable. These choices depend on
+the public format pool, not either player's deck or hidden cards.
+
+This differs from official rules, which allow naming cards outside the format.
+Names derived from actual objects remain unrestricted. Commander profiles use
+the catalog minus their recorded bans while their card-pool legality is deferred.
+
 ## Cube formats
 
 Cube legality is a fixed card list rather than a set window. The shared format

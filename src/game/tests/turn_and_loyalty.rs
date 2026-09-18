@@ -42,6 +42,7 @@ fn the_top_of_a_library_is_the_same_card_however_it_is_reached() {
 #[allow(clippy::too_many_lines)]
 fn pithing_needle_locks_the_named_card_but_not_its_mana() {
     let mut game = ready_game();
+    game.format = Format::Legacy;
     game.battlefield.clear();
     // Mishra's Factory both animates and taps for mana, so one card shows
     // which half a Needle stops.
@@ -121,6 +122,7 @@ fn pithing_needle_locks_the_named_card_but_not_its_mana() {
     );
 
     let mut transformed = ready_game();
+    transformed.format = Format::Legacy;
     transformed.battlefield.clear();
     let garruk = transformed
         .put_onto_battlefield(PlayerId::One, cards::GARRUK_RELENTLESS)

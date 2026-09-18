@@ -93,9 +93,13 @@ impl Game {
         };
         Some(
             self.catalog
-                .definitions()
-                .into_iter()
+                .ordered_definitions()
                 .filter(|definition| definition.debut_set != CardSet::TOKEN)
+                // Deliberate performance concession: public naming vocabularies
+                // use the game's format pool instead of every Oracle card name.
+                .filter(|definition| {
+                    self.format.allows_card(definition) && !self.format.is_banned(&definition.name)
+                })
                 .flat_map(|definition| definition.parts.iter())
                 .filter(|part| matches(&part.rules))
                 .map(|part| part.name.clone())

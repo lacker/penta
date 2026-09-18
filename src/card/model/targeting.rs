@@ -35,6 +35,10 @@ pub enum CardNameDef {
 /// Object collections are projected to names explicitly. Multiplicity is
 /// normally discarded, except when a rule asks which names occur a minimum
 /// number of times.
+///
+/// Catalog-defined sets use only the game's format pool, excluding banned
+/// identities. This intentionally bounds name-choice menus for performance;
+/// object-derived names are not restricted by format.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum CardNameSetDef {
     /// Every independently nameable nontoken card part in the catalog.

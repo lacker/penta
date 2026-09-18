@@ -3,6 +3,8 @@
 
 use super::*;
 
+mod format_names;
+
 fn pending_choice(game: &Game, player: PlayerId) -> DecisionObservation {
     game.observe(player)
         .decision
@@ -227,6 +229,7 @@ fn flute_and_peacekeeper_apply_their_distinct_named_cost_rules() {
 #[test]
 fn named_activation_rules_reach_sources_in_hand() {
     let mut needle_game = ready_game();
+    needle_game.format = Format::Legacy;
     let decree = card(10_022, cards::DECREE_OF_JUSTICE, PlayerId::Two);
     let decree_id = decree.id;
     needle_game.players[PlayerId::Two.index()].hand.push(decree);
@@ -248,6 +251,7 @@ fn named_activation_rules_reach_sources_in_hand() {
 
     let mut peacekeeper_game = ready_game();
     let decree = card(10_023, cards::DECREE_OF_JUSTICE, PlayerId::Two);
+    peacekeeper_game.format = Format::Legacy;
     let decree_id = decree.id;
     peacekeeper_game.players[PlayerId::Two.index()]
         .hand

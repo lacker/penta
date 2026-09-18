@@ -200,10 +200,11 @@ deck-report: ## Validate built-in deck inventories and list unsupported cards fr
 # slow. The deferred sweeps are excluded too -- they are the nightly lane's
 # job, and folding them in here is what made this budget meaningless.
 #
-# This number tracks the suite, and the suite grows. At about 5,750 tests the
-# tier measures roughly 35s on the public four-core runner and half that on a
-# developer machine, so 30s had started failing every push with nothing
-# actually wrong. 60s is that measurement with room to spare.
+# Recalibrated at 7,610 passing tests in September 2026. Per-test timings found
+# idle game simulations in protocol smoke fixtures; making their drivers
+# advance play reduced the CI tier from 71s to 62s. The previous 60s budget
+# was calibrated at about 5,750 tests. Allow 90s for the larger suite and
+# hosted-runner variation while still bounding accidental slowdowns.
 #
 # Room to spare is not a licence. A change that adds seconds here is still
 # worth looking at, and one accidentally slow test still shows up against this
@@ -213,7 +214,7 @@ deck-report: ## Validate built-in deck inventories and list unsupported cards fr
 # which of those two happened. Per-test times name the culprit --
 #   cargo nextest run --cargo-profile quick-test --workspace --all-targets
 # -- and twice now that has found a real quadratic rather than honest growth.
-RUST_TEST_BUDGET_SECONDS ?= 60
+RUST_TEST_BUDGET_SECONDS ?= 90
 
 test-rust-budget: ## Fail when the normal Rust tier runs longer than its budget.
 	cargo test --locked --profile quick-test $(RUST_NORMAL_TARGETS) --no-run

@@ -74,6 +74,29 @@ jobs:
       - name: Test Rust
         run: make check-rust-tests
 
+  check-engine-profile:
+    name: rust instrumentation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      CARGO_INCREMENTAL: "0"
+      SCCACHE_GHA_ENABLED: "true"
+      RUSTC_WRAPPER: sccache
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install the pinned Rust toolchain
+        run: rustup show active-toolchain || rustup toolchain install
+
+      - name: Install the pinned Rust compiler cache
+        uses: Mozilla-Actions/sccache-action@fc920bf0ec8de6ee65d409111f7ec508035751ba # v0.0.11
+        with:
+          version: "v0.17.0"
+
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+
+      # This feature builds a second engine test harness. Keep its compilation
+      # parallel to the default-feature suite rather than adding it to that job.
       - name: Test optional engine instrumentation
         run: make test-engine-profile FILTER=engine_profile
 

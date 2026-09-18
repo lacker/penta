@@ -72,6 +72,9 @@ the release-optimized `simulation-test` profile through `make test-rust-slow`.
 The normal Rust lane builds library and integration-test targets; zero-test
 binary and example harnesses stay covered by the separate all-targets Clippy
 job without adding link work to the test job.
+Optional engine instrumentation runs in a separate parallel job because enabling
+its feature builds a second engine test harness. The default-feature suite and
+the instrumentation tests both remain per-push gates.
 
 ## Validation workflow
 

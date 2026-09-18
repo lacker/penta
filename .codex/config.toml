@@ -1,0 +1,6 @@
+# Launch this worktree's adapter; the game server is started separately.
+[mcp_servers.penta]
+# Resolve from the task's working directory, including nested directories.
+# MCP cwd is not resolved relative to this config by all Codex versions.
+command = "sh"
+args = ["-c", 'penta_root=$(git rev-parse --show-toplevel) && exec node "$penta_root/tools/penta-mcp/server.mjs"']

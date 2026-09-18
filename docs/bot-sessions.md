@@ -28,28 +28,48 @@ vocabulary and legality remain unchanged.
 
 ## Run locally
 
-Start the current worktree's web server using the [web setup](../web/README.md).
-Hosted routes must be enabled on the server (`HOSTED_GAMES=enabled`, already
-configured for local development). Install the separate adapter's dependencies
-from the repository root:
+The checked-in [Codex project configuration](../.codex/config.toml) launches
+this worktree's stdio adapter. Codex must trust the project before loading its
+configuration. No plugin installation or `codex mcp add` is needed for local
+worktree play. See [Codex project configuration](https://developers.openai.com/codex/config-advanced/)
+and [MCP configuration](https://developers.openai.com/codex/mcp/) for host setup.
+
+From the repository root, check the runtime and install the adapter's pinned
+dependencies. The adapter requires Node 22.13 or newer; its package-manager
+version is recorded in `tools/penta-mcp/package.json`.
 
 ```sh
+node --version
+codex --version
 pnpm --dir tools/penta-mcp install --frozen-lockfile
+codex mcp get penta --json
 ```
 
-Register the stdio server with Codex from the repository root:
+Start the current worktree's game server using the [web setup](../web/README.md).
+For a new local setup, run these from the repository root:
 
 ```sh
-codex mcp add penta -- node "$(pwd)/tools/penta-mcp/server.mjs"
+pnpm --dir web install --frozen-lockfile
+pnpm --dir web run dev:url
+pnpm --dir web run dev
 ```
 
-Use an absolute script path. The adapter finds that worktree's assigned server
-port, including `PENTA_DEV_PORT` overrides, independently of the caller's working
-directory. For another deployment, add `--env PENTA_SERVER_URL=https://your-host`
-before `--` when registering. The adapter requires Node 22.13 or newer.
-It speaks MCP on stdout; it does not launch the web server or install
-itself into Codex. See [Codex MCP configuration](https://developers.openai.com/codex/mcp/)
-for client setup. `make penta-mcp` is an equivalent local stdio entry point.
+Reuse a healthy server already running from this worktree at its assigned URL;
+keep its managed terminal/session handle for later diagnosis. Hosted routes
+must be enabled (`HOSTED_GAMES=enabled`, already configured for local
+development). The adapter finds its own worktree's assigned port. A
+`PENTA_DEV_PORT` override must agree in the game-server and adapter environments;
+exporting it in one shell does not update an already-running Codex process.
+
+For an explicitly assigned remote deployment, configure `PENTA_SERVER_URL` in
+the MCP launch environment and verify the effective configuration. Do not start
+a local substitute for an unavailable remote match. Check for inherited values
+or older global Penta entries pointing to another worktree when the endpoint
+is unexpected.
+
+Codex owns the stdio process and connection. `make penta-mcp` is a manual stdio
+entry point for other MCP clients, not a background daemon to start beside
+Codex. The adapter does not start the game server.
 
 With the web server running, verify stdio discovery and backend reachability:
 
@@ -57,13 +77,49 @@ With the web server running, verify stdio discovery and backend reachability:
 node tools/penta-mcp/probe.mjs
 ```
 
-Restart/reconnect the MCP integration if the client has not discovered it.
-Verify the actual pilot has callable `attach`, `choose`, `next`, `inspect_ref`,
-and `retry` tools before starting a timed game. The probe verifies transport;
-it does not expose tools inside an already-running pilot task. Invoke tools
-directly during play. The repository's
+The probe opens its own MCP connection. Verify that the actual pilot task has
+callable `attach`, `play`, `choose`, `next`, `inspect_ref`, and `retry` tools, then
+use `options` to verify its backend connection before attaching. Probe success
+alone does not expose tools inside an already-running task. The repository's
 [play-penta skill](../.agents/skills/play-penta/SKILL.md) covers the protocol
 without gameplay advice or mandatory per-move narration.
+
+## Startup and recovery
+
+Diagnose the failing layer before repairing it. Dependency installation,
+starting the assigned local server, and reconnecting an adapter are ordinary
+setup steps; missing tools do not imply that a plugin must be installed.
+
+| Symptom | Check and repair |
+| --- | --- |
+| Penta is absent from effective configuration | Run `git rev-parse --show-toplevel` and `codex mcp get penta --json` in the intended worktree. Confirm `.codex/config.toml` is checked out and project trust permits loading it. Do not add a global registration for each worktree. |
+| Adapter cannot initialize | Read the host's MCP startup error. Check the Node executable available to Codex, its version, the launch directory, and the pinned dependency installation. Repair the specific failure, then reconnect. |
+| Probe works but this task has no Penta tools | Inspect the host's active MCP list (`/mcp` in Codex). Use its supported restart/reconnect control; in the desktop MCP settings, select Restart. If discovery remains stale, reopen the Codex session in the same worktree. Shell-launching another adapter does not attach it to this task. |
+| Tools exist but `options` or `attach` reports a network/HTTP error | Check the effective server URL, assigned port, game-server process/logs, and hosted-route setting. Start or restart only the affected local server through its retained process handle when needed; preserve its storage. Report remote endpoint failures without switching matches. |
+| Updated skill is absent or behavior still appears old | A `git fetch` only downloads refs. Check `git status --short` and `git rev-parse HEAD` to confirm the intended revision is checked out. Read `.agents/skills/play-penta/SKILL.md` directly if discovery is stale; restart Codex if its skill catalog does not refresh. |
+| Adapter files or dependencies changed after startup | The Node adapter does not hot-reload. Resolve pending submissions first, then reconnect MCP and reattach. Update/restart the game server separately if its executable inputs changed. |
+
+For version diagnosis, record `codex --version`, `node --version`, the current
+Git revision and relevant local changes, and the effective MCP launch settings.
+The adapter's advertised package version is not a source-revision check; the
+same version can span code changes. Verify the required tool names/schemas and
+backend response rather than assuming version-string equality proves freshness.
+Consult [compatibility boundaries](interfaces.md#compatibility-boundaries) for
+actual protocol mismatches. Do not fetch or change branches just to diagnose
+an existing match.
+
+If the agent cannot operate a host reconnect control, finish the available
+checks and report the exact host action still needed, with the specific error.
+Do not stop immediately at the first MCP failure or replace the integration
+with a per-move shell/Python relay. Do not assume automatic crash restart.
+
+Before reconnecting, retain the assigned room and seat token privately. When
+the adapter is still alive, use `retry` to settle an uncertain move before
+restarting it. An adapter restart loses local connection handles, tickets,
+references, and pending retry requests. Reattach with the same room/token and
+inspect the current state; never replay an uncertain old move as a new request.
+Reconnecting the adapter does not require creating a new match or restarting a
+healthy game server.
 
 ## Start and play
 

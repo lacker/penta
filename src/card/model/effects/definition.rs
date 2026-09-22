@@ -16,6 +16,9 @@ pub enum EffectDef {
         /// Execute the first iteration before offering the repeat choice.
         mandatory_first: bool,
         player: EffectRecipientDef,
+        /// Rechecked before each optional iteration; false ends the procedure
+        /// without a decision. The mandatory first iteration is unaffected.
+        while_condition: Option<&'static TriggerConditionDef>,
         effect: &'static EffectDef,
     },
     /// Evaluate a number once and retain it through the nested program, including decisions.

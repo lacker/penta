@@ -235,10 +235,11 @@ fn ad_nauseam_empty_library_is_not_a_failed_draw() {
     game.players[0].library.clear();
     game.add_unrestricted_mana(PlayerId::One, ManaColor::Black, 5);
     cast(&mut game, cards::AD_NAUSEAM, None);
-    stop_at_decision(&mut game);
-    choose_label(&mut game, "Yes");
-    choose_label(&mut game, "No");
-    drain_pending(&mut game);
+    game.apply(game.priority, Action::PassPriority).unwrap();
+    game.apply(game.priority, Action::PassPriority).unwrap();
+    assert!(game.pending_decisions.is_empty());
+    assert!(game.stack.is_empty());
+    assert!(game.players[0].hand.is_empty());
     assert_eq!(game.players[0].life, 20);
     assert!(!game.players[0].tried_to_draw_from_empty_library);
     assert!(game.result.is_none());

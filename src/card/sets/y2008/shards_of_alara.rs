@@ -14,6 +14,7 @@ use crate::card::CardRules;
 use crate::card::CardSupertype;
 use crate::card::CardType;
 use crate::card::ChoiceVisibilityDef;
+use crate::card::ComparisonDef;
 use crate::card::CostDef;
 use crate::card::CostModificationDef;
 use crate::card::CostQuantityDef;
@@ -32,11 +33,13 @@ use crate::card::ObjectValueAggregateDef;
 use crate::card::ObjectValueDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
+use crate::card::PlayerSetDef;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::RevealObjectsDef;
 use crate::card::SubtypeDef;
 use crate::card::TokenCharacteristics;
 use crate::card::TokenDef;
+use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
@@ -261,6 +264,15 @@ pub(in crate::card::sets) static AD_NAUSEAM: CardRecord = CardRecord::new(
         EffectDef::Repeat {
             mandatory_first: true,
             player: EffectRecipientDef::Controller,
+            while_condition: Some(&TriggerConditionDef::ObjectCount {
+                query: ObjectQueryDef::owned_by(
+                    ObjectPredicateDef::Any,
+                    &[ZoneKind::Library],
+                    PlayerSetDef::One(PlayerRefDef::EffectController),
+                ),
+                comparison: ComparisonDef::GreaterOrEqual,
+                amount: 1,
+            }),
             // Freeze the revealed mana value before moving the card.
             effect: &EffectDef::BindObjects(BindObjectsDef {
                 source: ObjectCollectionSourceDef::TopCards {

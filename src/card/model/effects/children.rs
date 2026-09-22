@@ -73,12 +73,14 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         EffectDef::Repeat {
             mandatory_first: true,
             player,
+            while_condition,
             effect,
         } => vec![
             *effect,
             EffectDef::Repeat {
                 mandatory_first: false,
                 player,
+                while_condition,
                 effect,
             },
         ],

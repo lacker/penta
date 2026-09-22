@@ -467,8 +467,14 @@ fn validate_effect_target_shapes(
             }
             Ok(())
         }
-        EffectDef::Repeat { player, effect, .. }
-        | EffectDef::May { player, effect }
+        EffectDef::Repeat { player, effect, while_condition, .. } => {
+            if let Some(condition) = while_condition {
+                validate_trigger_condition_shape(*condition, targets)?;
+            }
+            validate_recipient_shape(player, targets, RecipientExpectation::Player)?;
+            validate_effect_target_shapes(*effect, targets, triggering_object_zone)
+        }
+        EffectDef::May { player, effect }
         | EffectDef::ReplaceNextDrawThisTurn { player, effect } => {
             validate_recipient_shape(player, targets, RecipientExpectation::Player)?;
             validate_effect_target_shapes(*effect, targets, triggering_object_zone)

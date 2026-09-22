@@ -818,7 +818,14 @@ fn validate_effect_references(
             validate_recipient_target_references(player, target_count, scope)
         }
         EffectDef::OncePerTurn { effect } => validate_effect_references(*effect, target_count, scope),
-        EffectDef::Repeat { player, effect, .. } | EffectDef::May { player, effect }
+        EffectDef::Repeat { player, effect, while_condition, .. } => {
+            if let Some(condition) = while_condition {
+                validate_trigger_condition(*condition, target_count, scope)?;
+            }
+            validate_recipient_target_references(player, target_count, scope)?;
+            validate_effect_references(*effect, target_count, scope)
+        }
+        EffectDef::May { player, effect }
         | EffectDef::ReplaceNextDrawThisTurn { player, effect } => {
             validate_recipient_target_references(player, target_count, scope)?;
             validate_effect_references(*effect, target_count, scope)

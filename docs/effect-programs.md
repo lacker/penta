@@ -80,6 +80,16 @@ Activation programs and a universal editable payment UI remain follow-ups.
 
 ## Readability and local exceptions
 
+Use `RevealTopCardsDef` for a counted top-library reveal. It retains the requested
+count and binds the cards actually revealed for its continuation. Mandatory
+resolution reveals as many as possible and still runs later instructions; an
+optional choice requires the full count to be available. `May` and `Repeat`
+share this eligibility check. A repeat with no available public action ends
+without another offer. This is not a rule that a failed instruction aborts its
+sequence. `RevealObjectsDef` continues to mean revealing every member of an
+existing collection, which may be empty; drawing from an empty library also
+remains an available choice under its separate rules.
+
 Inline declarations by default. Extract a coherent procedure when it genuinely
 makes complicated behavior easier to understand, not to name every subexpression.
 Keep it adjacent to the card; set-shared helpers belong in the set preamble.

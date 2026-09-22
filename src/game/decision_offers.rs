@@ -864,6 +864,14 @@ impl Game {
         effect: ScopedEffect,
     ) {
         let (available, visibility) = self.optional_effect_availability(object, &context, effect);
+        // An impossible public repeat ends the procedure. Keep private decline
+        // choices so skipping an offer cannot disclose hidden eligibility.
+        if !available
+            && visibility == DecisionVisibility::Public
+            && matches!(effect.effect, EffectDef::Repeat { .. })
+        {
+            return;
+        }
         self.queue_decision(
             player,
             object.ability_text().unwrap_or("Use this optional effect?"),

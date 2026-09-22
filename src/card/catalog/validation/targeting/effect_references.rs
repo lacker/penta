@@ -293,6 +293,11 @@ fn validate_effect_references(
             validate_object_set_continuation(binding, *then, target_count, scope,
                 "SearchZones must expose a result binding consumed by its continuation")
         }
+        EffectDef::RevealTopCards(definition) => {
+            validate_object_collection_references(definition.source(), target_count, scope)?;
+            let nested = scope.with_object_set(definition.revealed)?;
+            validate_effect_references(*definition.then, target_count, nested)
+        }
         EffectDef::BindObjects(definition) => {
             validate_object_collection_references(definition.source, target_count, scope)?;
             validate_object_set_continuation(
@@ -818,14 +823,7 @@ fn validate_effect_references(
             validate_recipient_target_references(player, target_count, scope)
         }
         EffectDef::OncePerTurn { effect } => validate_effect_references(*effect, target_count, scope),
-        EffectDef::Repeat { player, effect, while_condition, .. } => {
-            if let Some(condition) = while_condition {
-                validate_trigger_condition(*condition, target_count, scope)?;
-            }
-            validate_recipient_target_references(player, target_count, scope)?;
-            validate_effect_references(*effect, target_count, scope)
-        }
-        EffectDef::May { player, effect }
+        EffectDef::Repeat { player, effect, .. } | EffectDef::May { player, effect }
         | EffectDef::ReplaceNextDrawThisTurn { player, effect } => {
             validate_recipient_target_references(player, target_count, scope)?;
             validate_effect_references(*effect, target_count, scope)

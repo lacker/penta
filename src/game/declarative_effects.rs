@@ -130,6 +130,7 @@ impl Game {
             | EffectDef::BindObjects(_)
             | EffectDef::IfNoObjects(_)
             | EffectDef::ClassifyObjects(_)
+            | EffectDef::RevealTopCards(_)
             | EffectDef::RevealAndClassifyCards(_)
             | EffectDef::CombineObjects(_)
             | EffectDef::RandomizeObjectOrder(_)

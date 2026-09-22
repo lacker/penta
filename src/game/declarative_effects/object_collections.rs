@@ -268,6 +268,15 @@ impl Game {
                 context.bind_object_group(binding, cards);
                 self.resolve_effect_def(scoped.with_effect(*then), object, context);
             }
+            EffectDef::RevealTopCards(definition) => {
+                let cards = self
+                    .effect_object_collection(definition.source(), object, &context, scoped)
+                    .unwrap_or_default();
+                self.reveal_effect_collection(&cards);
+                let mut context = context;
+                context.bind_object_group(definition.revealed, cards);
+                self.resolve_effect_def(scoped.with_effect(*definition.then), object, context);
+            }
             EffectDef::BindObjects(definition) => {
                 let Some(cards) =
                     self.effect_object_collection(definition.source, object, &context, scoped)

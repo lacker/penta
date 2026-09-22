@@ -45,6 +45,7 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         EffectDef::LookAtObjects(definition) => vec![*definition.then],
         EffectDef::ChooseObjectOrder(definition) => vec![*definition.then],
         EffectDef::ClassifyObjects(definition) => vec![*definition.then],
+        EffectDef::RevealTopCards(definition) => vec![*definition.then],
         EffectDef::RevealAndClassifyCards(definition) => vec![*definition.then],
         EffectDef::CombineObjects(definition) => vec![*definition.then],
         EffectDef::ChooseOneOfEach(definition) => vec![*definition.then],
@@ -73,14 +74,12 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         EffectDef::Repeat {
             mandatory_first: true,
             player,
-            while_condition,
             effect,
         } => vec![
             *effect,
             EffectDef::Repeat {
                 mandatory_first: false,
                 player,
-                while_condition,
                 effect,
             },
         ],

@@ -16,9 +16,6 @@ pub enum EffectDef {
         /// Execute the first iteration before offering the repeat choice.
         mandatory_first: bool,
         player: EffectRecipientDef,
-        /// Rechecked before each optional iteration; false ends the procedure
-        /// without a decision. The mandatory first iteration is unaffected.
-        while_condition: Option<&'static TriggerConditionDef>,
         effect: &'static EffectDef,
     },
     /// Evaluate a number once and retain it through the nested program, including decisions.
@@ -238,9 +235,9 @@ pub enum EffectDef {
     },
     /// Classify a frozen collection by a predicate without asking a player.
     ClassifyObjects(super::ClassifyObjectsDef),
-    /// Reveal a materialized collection and classify all of it in one
-    /// mandatory instruction.
+    /// Reveal a collection and classify all of it in one mandatory instruction.
     RevealAndClassifyCards(super::RevealAndClassifyCardsDef),
+    RevealTopCards(super::RevealTopCardsDef),
     /// Concatenate previously bound collections in authored order.
     CombineObjects(super::CombineObjectsDef),
     /// Declare one string-labeled object-set binding and resolve an effect

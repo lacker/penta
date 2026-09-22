@@ -256,6 +256,10 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
                 && zones.iter().all(|z| matches!(z, ZoneKind::Hand | ZoneKind::Graveyard | ZoneKind::Library | ZoneKind::Exile))
                 && shared_object_collection_continuation(*then, true)
         }
+        EffectDef::RevealTopCards(definition) => {
+            shared_object_collection(definition.source())
+                && shared_object_collection_continuation(*definition.then, deferred_decision_allowed)
+        }
         EffectDef::BindObjects(definition) => {
             shared_object_collection(definition.source)
                 && shared_object_collection_continuation(*definition.then, deferred_decision_allowed)

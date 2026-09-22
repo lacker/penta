@@ -572,6 +572,7 @@ impl Game {
                 | EffectDef::LookAtObjects(_)
                 | EffectDef::ChooseObjectOrder(_)
                 | EffectDef::ClassifyObjects(_)
+                | EffectDef::RevealTopCards(_)
                 | EffectDef::RevealAndClassifyCards(_)
                 | EffectDef::CombineObjects(_)
                 | EffectDef::ChooseOneOfEach(_)

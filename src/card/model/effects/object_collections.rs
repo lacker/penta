@@ -75,6 +75,27 @@ pub struct RevealAndClassifyCardsDef {
     pub then: &'static EffectDef,
 }
 
+/// Reveal the top `count` cards and bind the cards actually revealed.
+/// Mandatory resolution reveals as many as possible and continues; choosing
+/// this action optionally requires the full count to be available.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub struct RevealTopCardsDef {
+    pub player: PlayerRefDef,
+    pub count: ValueDef,
+    pub revealed: Binding,
+    pub then: &'static EffectDef,
+}
+
+impl RevealTopCardsDef {
+    #[must_use]
+    pub const fn source(self) -> ObjectCollectionSourceDef {
+        ObjectCollectionSourceDef::TopCards {
+            player: self.player,
+            count: self.count,
+        }
+    }
+}
+
 /// Materialize a collection source, freeze its exact identities in a binding,
 /// and continue. Information and zone changes are separate later stages.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]

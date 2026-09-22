@@ -77,6 +77,10 @@ fn durable_object_set_outputs(effect: EffectDef, outputs: &mut Vec<Binding>) {
             push(choice.remainder);
             durable_object_set_outputs(*choice.then, outputs);
         }
+        EffectDef::RevealTopCards(definition) => {
+            push(definition.revealed);
+            durable_object_set_outputs(*definition.then, outputs);
+        }
         EffectDef::BindObjects(definition) => {
             push(definition.binding);
             durable_object_set_outputs(*definition.then, outputs);

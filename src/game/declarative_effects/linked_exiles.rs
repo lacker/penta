@@ -2,12 +2,12 @@
 //!
 //! Split out of the parent module for the source-size budget. Linked exile
 //! remembers which source moved a card; play permissions instead attach to
-//! the new card created by the zone change. Both must happen during the move,
-//! before an ordinary continuation loses the old object's identity.
+//! the new card created by the zone change. Both consume the shared movement
+//! results after replacements and all members of the exit batch finish.
 
 use super::super::{EffectResolutionContext, Game, ScopedEffect, StackObject, Target};
-use crate::card::{EffectDef, EffectRecipientDef};
-use crate::game::GameObjectId;
+use crate::card::{EffectDef, EffectRecipientDef, ZoneKind, ZonePlacement};
+use crate::game::{BattlefieldExitCause, BattlefieldExitCompletion, GameObjectId, ZoneMoveCause};
 
 impl Game {
     /// Return a paired exile as the duration ends, before any player receives
@@ -60,77 +60,153 @@ impl Game {
             .collect()
     }
 
-    /// Turns a linked exile face down. That is a fact about the exile rather
-    /// than about who may play the card: what it buys the owner is a look at
-    /// their own pile, and everybody else a count of it.
-    fn hide_linked_exile(&mut self, exiled: GameObjectId, face_down: bool) {
-        if !face_down {
-            return;
-        }
-        if let Some((_, instance)) = self.card_in_nonbattlefield_zone(exiled) {
-            let owner = instance.owner;
-            // Nobody may look at a card exiled face down unless something
-            // says so (CR 713.2), and a linked exile says nothing: the
-            // hands Memory Jar puts away are hidden from both players until
-            // the end step hands them back.
-            self.hide_from_everyone_while_exiled(exiled, owner);
-        }
-    }
-
-    /// One linked exile, kept apart from the match above only for its size.
-    #[allow(clippy::too_many_arguments)]
-    fn resolve_exile_linked_to_source(
+    /// The declaration owns links and permissions; the ordinary movement machinery
+    /// owns replacements, simultaneous battlefield exits, and new object identities.
+    fn resolve_exile_effect(
         &mut self,
         recipient: EffectRecipientDef,
-        face_down: bool,
-        until_source_leaves: bool,
-        then: Option<&'static EffectDef>,
         object: &StackObject,
         context: &EffectResolutionContext,
         scoped: ScopedEffect,
     ) {
         let source = object.source.unwrap_or(object.id);
-        // "Exile it until this permanent leaves the battlefield" does
-        // nothing once that permanent has already gone: there is no
-        // later moment for what it took to come back (CR 610.3b). An
-        // ordinary linked exile is not conditional that way -- what a
-        // Parallax Wave takes on its way out stays taken.
-        if until_source_leaves
-            && !self
-                .battlefield
-                .iter()
-                .any(|permanent| permanent.card.id == source)
+        if matches!(
+            scoped.effect,
+            EffectDef::ExileLinkedToSource {
+                until_source_leaves: true,
+                ..
+            }
+        ) && !self
+            .battlefield
+            .iter()
+            .any(|permanent| permanent.card.id == source)
         {
             return;
         }
-        let origins = if until_source_leaves {
-            self.effect_recipients(recipient, object, context, scoped)
-                .into_iter()
-                .filter_map(|target| match target {
-                    Target::Permanent(id) => Some((id, crate::card::ZoneKind::Battlefield)),
-                    Target::Card(id) => self
-                        .card_in_nonbattlefield_zone(id)
-                        .filter(|(zone, _)| *zone == crate::card::ZoneKind::Hand)
-                        .map(|(zone, _)| (id, zone)),
-                    _ => None,
-                })
-                .collect::<Vec<_>>()
-        } else {
-            Vec::new()
-        };
-        for exiled in self.exile_effect_objects(recipient, face_down, object, context, scoped) {
-            self.linked_exiles.push((source, exiled));
-            if let Some((_, origin)) = origins
-                .iter()
-                .find(|(original, _)| self.successors.get(original) == Some(&exiled))
-            {
-                self.exile_returns.push((source, exiled, *origin));
+        let face_down = matches!(
+            scoped.effect,
+            EffectDef::ExileLinkedToSource {
+                face_down: true,
+                ..
+            }
+        );
+        let mut origins = Vec::new();
+        for origin in self
+            .effect_recipients(recipient, object, context, scoped)
+            .into_iter()
+            .filter_map(|target| match target {
+                Target::Permanent(id) => Some((id, ZoneKind::Battlefield)),
+                Target::Card(id) => self
+                    .card_in_nonbattlefield_zone(id)
+                    .filter(|(zone, _)| *zone != ZoneKind::Exile)
+                    .map(|(zone, _)| (id, zone)),
+                _ => None,
+            })
+        {
+            if !origins.contains(&origin) {
+                origins.push(origin);
             }
         }
-        // Exiling the duration's own source can end it during this instruction.
-        self.return_exiles_whose_duration_ended();
-        if let Some(then) = then {
-            self.resolve_effect_def(scoped.with_effect(*then), object, context.clone());
+        let cards = origins
+            .iter()
+            .filter(|(_, zone)| *zone != ZoneKind::Battlefield)
+            .map(|(card, _)| *card)
+            .collect::<Vec<_>>();
+        let pending_before = self.pending_decisions.len();
+        self.exile_cards_returning_cards(
+            &cards,
+            face_down,
+            ZoneMoveCause::Effect {
+                controller: object.controller,
+            },
+        );
+        let permanents = origins
+            .iter()
+            .filter(|(_, zone)| *zone == ZoneKind::Battlefield)
+            .map(|(card, _)| (*card, BattlefieldExitCause::Other))
+            .collect::<Vec<_>>();
+        let completion = BattlefieldExitCompletion::ExileEffect {
+            origins,
+            object: Box::new(object.clone()),
+            context: context.clone(),
+            effect: scoped,
+        };
+        // A nonbattlefield replacement can redirect a commander to a hidden
+        // zone and suspend its move. Preserve the effect's follow-up there too.
+        if permanents.is_empty()
+            && self.pending_decisions.len() > pending_before
+            && self.defer_after_battlefield_exit(pending_before, completion.clone())
+        {
+            return;
+        }
+        self.move_permanents_to_zone_with_visibility_then(
+            &permanents,
+            ZoneKind::Exile,
+            ZonePlacement::Top,
+            face_down,
+            Some(completion),
+        );
+    }
+
+    pub(in crate::game) fn finish_exile_effect(
+        &mut self,
+        origins: &[(GameObjectId, ZoneKind)],
+        object: &StackObject,
+        context: EffectResolutionContext,
+        scoped: ScopedEffect,
+    ) {
+        // Only the immediate successor in exile belongs to this instruction.
+        // Canceled moves, redirected destinations, and departed exile objects
+        // never receive a link or a play permission.
+        let exiled = origins
+            .iter()
+            .filter_map(|(original, from)| {
+                let successor = *self.successors.get(original)?;
+                self.card_in_nonbattlefield_zone(successor)
+                    .filter(|(zone, _)| *zone == ZoneKind::Exile)
+                    .map(|(_, card)| (successor, card.owner, *from))
+            })
+            .collect::<Vec<_>>();
+        match scoped.effect {
+            EffectDef::ExileLinkedToSource {
+                until_source_leaves,
+                then,
+                ..
+            } => {
+                let source = object.source.unwrap_or(object.id);
+                for (card, _, from) in exiled {
+                    if !self.linked_exiles.contains(&(source, card)) {
+                        self.linked_exiles.push((source, card));
+                        if until_source_leaves
+                            && matches!(from, ZoneKind::Battlefield | ZoneKind::Hand)
+                        {
+                            self.exile_returns.push((source, card, from));
+                        }
+                    }
+                }
+                self.return_exiles_whose_duration_ended();
+                if let Some(then) = then {
+                    self.resolve_effect_def(scoped.with_effect(*then), object, context);
+                }
+            }
+            EffectDef::ExileGrantingOwnerPlay {
+                surcharge,
+                later_turn,
+                cast_only,
+                ..
+            } => {
+                for (card, owner, _) in exiled {
+                    self.permit_owner_play_while_exiled(
+                        card, owner, surcharge, later_turn, cast_only,
+                    );
+                }
+            }
+            EffectDef::ExileGrantingControllerPlayThisTurn { .. } => {
+                for (card, _, _) in exiled {
+                    self.permit_cast_this_turn(card, object.controller);
+                }
+            }
+            _ => unreachable!("only exile declarations install this completion"),
         }
     }
 
@@ -143,20 +219,13 @@ impl Game {
     ) {
         match scoped.effect {
             EffectDef::ExileLinkedToSource {
-                object: recipient,
-                face_down,
-                until_source_leaves,
-                then,
-            } => {
-                self.resolve_exile_linked_to_source(
-                    recipient,
-                    face_down,
-                    until_source_leaves,
-                    then,
-                    object,
-                    context,
-                    scoped,
-                );
+                object: recipient, ..
+            }
+            | EffectDef::ExileGrantingOwnerPlay {
+                object: recipient, ..
+            }
+            | EffectDef::ExileGrantingControllerPlayThisTurn { object: recipient } => {
+                self.resolve_exile_effect(recipient, object, context, scoped);
             }
             EffectDef::PermitLookAtExiled {
                 object: recipient,
@@ -185,28 +254,6 @@ impl Game {
                     }
                 }
                 self.resolve_effect_def(scoped.with_effect(*then), object, context.clone());
-            }
-            EffectDef::ExileGrantingOwnerPlay {
-                object: recipient,
-                surcharge,
-                later_turn,
-                cast_only,
-            } => {
-                for exiled in self.exile_effect_objects(recipient, false, object, context, scoped) {
-                    // Its owner, not the exiler: what the clause hands back
-                    // is the card's own player's ability to play it.
-                    if let Some((_, instance)) = self.card_in_nonbattlefield_zone(exiled) {
-                        let owner = instance.owner;
-                        self.permit_owner_play_while_exiled(
-                            exiled, owner, surcharge, later_turn, cast_only,
-                        );
-                    }
-                }
-            }
-            EffectDef::ExileGrantingControllerPlayThisTurn { object: recipient } => {
-                for exiled in self.exile_effect_objects(recipient, false, object, context, scoped) {
-                    self.permit_cast_this_turn(exiled, object.controller);
-                }
             }
             EffectDef::MayPlayWithoutPaying(permission) => {
                 self.permit_playing_without_paying(permission, object, context, scoped);
@@ -268,34 +315,6 @@ impl Game {
             }
             _ => {}
         }
-    }
-
-    fn exile_effect_objects(
-        &mut self,
-        recipient: EffectRecipientDef,
-        face_down: bool,
-        object: &StackObject,
-        context: &EffectResolutionContext,
-        scoped: ScopedEffect,
-    ) -> Vec<GameObjectId> {
-        let targets = self.effect_recipients(recipient, object, context, scoped);
-        let cards = targets
-            .iter()
-            .filter_map(|target| match target {
-                Target::Card(id) => Some(*id),
-                _ => None,
-            })
-            .collect::<Vec<_>>();
-        let mut exiled = self.exile_cards_returning_cards(&cards, face_down);
-        for target in targets {
-            if let Target::Permanent(id) = target
-                && let Some(card) = self.exile_permanent_returning_card(id)
-            {
-                self.hide_linked_exile(card, face_down);
-                exiled.push(card);
-            }
-        }
-        exiled
     }
 
     /// "You may play those cards without paying their mana costs." The

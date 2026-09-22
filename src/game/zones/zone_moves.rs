@@ -126,6 +126,22 @@ impl Game {
         arrival: Option<BattlefieldArrival>,
         events: &mut Vec<CommittedTriggerEvent>,
     ) -> Option<(CardInstance, ZoneKind)> {
+        self.move_card_with_exile_visibility_collecting(
+            id, expected_from, requested_to, cause, arrival, false, events,
+        )
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    pub(super) fn move_card_with_exile_visibility_collecting(
+        &mut self,
+        id: GameObjectId,
+        expected_from: ZoneKind,
+        requested_to: ZoneKind,
+        cause: ZoneMoveCause,
+        arrival: Option<BattlefieldArrival>,
+        exile_face_down: bool,
+        events: &mut Vec<CommittedTriggerEvent>,
+    ) -> Option<(CardInstance, ZoneKind)> {
         let (from, card) = self
             .card_in_nonbattlefield_zone(id)
             .map(|(zone, card)| (zone, card.clone()))?;
@@ -180,7 +196,12 @@ impl Game {
                 ZoneKind::Library => self.players[owner.index()].library.push(card.clone()),
                 ZoneKind::Hand => self.players[owner.index()].hand.push(card.clone()),
                 ZoneKind::Graveyard => self.put_card_into_graveyard(owner, card.clone()),
-                ZoneKind::Exile => self.players[owner.index()].exile.push(card.clone()),
+                ZoneKind::Exile => {
+                    self.players[owner.index()].exile.push(card.clone());
+                    if exile_face_down {
+                        self.hide_from_everyone_while_exiled(card.id, owner);
+                    }
+                }
                 ZoneKind::Command => self.players[owner.index()].command.push(card.clone()),
                 ZoneKind::Battlefield | ZoneKind::Stack => {
                     unreachable!("unsupported destinations returned before removing the card")

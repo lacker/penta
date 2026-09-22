@@ -108,6 +108,8 @@ pub(super) struct FrozenZoneMoveReplacement {
 pub(super) struct PendingBattlefieldExitBatch {
     pub(super) moves: Vec<PendingBattlefieldExitMove>,
     pub(super) replacements: Vec<FrozenZoneMoveReplacement>,
+    /// Exile characteristics must be installed before arrival events are captured.
+    pub(super) exile_face_down: bool,
     /// Work belonging to the same atomic rules procedure. A replacement-order
     /// choice can suspend the prospective move, so callers install their next
     /// operation here instead of running it before the move commits.
@@ -121,6 +123,12 @@ pub(super) struct PendingBattlefieldExitBatch {
 /// the optional box.
 #[derive(Clone, Debug)]
 pub(super) enum BattlefieldExitCompletion {
+    ExileEffect {
+        origins: Vec<(GameObjectId, ZoneKind)>,
+        object: Box<StackObject>,
+        context: EffectResolutionContext,
+        effect: ScopedEffect,
+    },
     ExileUntilSourceLeaves {
         source: GameObjectId,
     },

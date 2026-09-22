@@ -213,6 +213,7 @@ mod evoke;
 mod evolve;
 mod evolve_scavenge_cards;
 mod exalted;
+mod exile_movement;
 mod exile_source_costs;
 mod extra_turns;
 mod face_down;

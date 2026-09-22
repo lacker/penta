@@ -946,7 +946,7 @@ fn face_down_linked_exile_masks_characteristics_before_capturing_arrival_trigger
         .iter()
         .map(|card| card.id)
         .collect::<Vec<_>>();
-    let exiled = game.exile_cards_returning_cards(&ids, true);
+    let exiled = game.exile_cards_returning_cards(&ids, true, ZoneMoveCause::Rules);
     assert_eq!(exiled.len(), 2);
     assert_eq!(game.pending_triggers.len(), 2);
     assert!(

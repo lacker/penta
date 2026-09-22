@@ -543,6 +543,7 @@ impl Game {
     fn install_battlefield_exit_destinations(
         &mut self,
         removed: &[RemovedBattlefieldObject],
+        exile_face_down: bool,
     ) -> Vec<Option<TriggerEventObject>> {
         let mut after = Vec::with_capacity(removed.len());
         let mut library_arrivals = Vec::new();
@@ -579,6 +580,9 @@ impl Game {
             // on after the identity change rather than before it.
             if let Some((kind, amount)) = to.counters {
                 card.add_counters(kind, amount);
+            }
+            if to.zone == ZoneKind::Exile && exile_face_down {
+                self.hide_from_everyone_while_exiled(card.id, owner);
             }
             let context = match to.zone {
                 ZoneKind::Library => CharacteristicContext::Library,
@@ -682,7 +686,7 @@ impl Game {
         // triggers. Each event can then name both the permanent that left and
         // the exact new card that arrived, while the listener snapshot above
         // still preserves every battlefield ability that existed beforehand.
-        let after = self.install_battlefield_exit_destinations(&removed);
+        let after = self.install_battlefield_exit_destinations(&removed, batch.exile_face_down);
 
         let events = Self::battlefield_exit_events(&removed, &after);
         for (((_, _, _, destination), after), event) in removed.iter().zip(&after).zip(&events) {
@@ -708,12 +712,27 @@ impl Game {
         }
     }
 
+    #[allow(clippy::too_many_lines)]
     pub(in crate::game) fn resume_battlefield_exit_completion(
         &mut self,
         completion: BattlefieldExitCompletion,
         moved: &[(GameObjectId, ZoneKind)],
     ) {
         match completion {
+            BattlefieldExitCompletion::ExileEffect {
+                mut origins,
+                object,
+                context,
+                effect,
+            } => {
+                // A replacement's side effects may also move objects. Only
+                // departures committed by this batch belong to its result.
+                origins.retain(|(original, from)| {
+                    *from != ZoneKind::Battlefield
+                        || moved.contains(&(*original, ZoneKind::Exile))
+                });
+                self.finish_exile_effect(&origins, &object, context, effect);
+            }
             BattlefieldExitCompletion::ExileUntilSourceLeaves { source } => {
                 self.duration_exiles.extend(
                     moved

@@ -420,6 +420,23 @@ impl Game {
         placement: ZonePlacement,
         completion: Option<BattlefieldExitCompletion>,
     ) {
+        self.move_permanents_to_zone_with_visibility_then(
+            ids,
+            destination,
+            placement,
+            false,
+            completion,
+        );
+    }
+
+    pub(super) fn move_permanents_to_zone_with_visibility_then(
+        &mut self,
+        ids: &[(GameObjectId, BattlefieldExitCause)],
+        destination: ZoneKind,
+        placement: ZonePlacement,
+        exile_face_down: bool,
+        completion: Option<BattlefieldExitCompletion>,
+    ) {
         let mut seen = Vec::new();
         let mut moves = ids
             .iter()
@@ -491,6 +508,7 @@ impl Game {
         self.continue_battlefield_exit_replacements(PendingBattlefieldExitBatch {
             moves,
             replacements,
+            exile_face_down,
             completion: completion.map(Box::new),
         });
     }
@@ -559,6 +577,7 @@ impl Game {
 
     /// Exiles a permanent and reports the object it became in exile, so the
     /// clause that promised to return it can remember which card that is.
+    #[cfg(test)]
     pub(super) fn exile_permanent_returning_card(
         &mut self,
         id: GameObjectId,
@@ -582,58 +601,34 @@ impl Game {
         &mut self,
         ids: &[GameObjectId],
         face_down: bool,
+        cause: super::ZoneMoveCause,
     ) -> Vec<GameObjectId> {
-        let mut moved = Vec::new();
+        let mut events = Vec::new();
         let mut exiled = Vec::new();
         for &id in ids {
-            let Some((zone, owner)) = self
-                .card_in_nonbattlefield_zone(id)
-                .map(|(zone, card)| (zone, card.owner))
-            else {
+            let Some((from, _)) = self.card_in_nonbattlefield_zone(id) else {
                 continue;
             };
-            if zone == ZoneKind::Exile {
+            if from == ZoneKind::Exile {
                 continue;
             }
-            let Some(card) = self.take_card_from_zone(owner, zone, id) else {
-                continue;
-            };
-            let (card, _zone_change) = self.zone_change_card(card);
-            self.players[owner.index()].exile.push(card.clone());
-            if face_down {
-                self.hide_from_everyone_while_exiled(card.id, owner);
-            }
-            exiled.push(card.id);
-            moved.push((card, zone));
-        }
-        self.capture_cards_exiled_from_zones(moved.iter().map(|(card, from)| (card, *from)));
-        for owner in [PlayerId::One, PlayerId::Two] {
-            if moved
-                .iter()
-                .any(|(card, zone)| card.owner == owner && *zone == ZoneKind::Graveyard)
+            if let Some((card, _)) = self.move_card_with_exile_visibility_collecting(
+                id,
+                from,
+                ZoneKind::Exile,
+                cause,
+                None,
+                face_down,
+                &mut events,
+            ) && self
+                .card_in_nonbattlefield_zone(card.id)
+                .is_some_and(|(zone, _)| zone == ZoneKind::Exile)
             {
-                self.note_card_left_graveyard(owner);
+                exiled.push(card.id);
             }
         }
+        self.capture_zone_move_events(&events);
         exiled
-    }
-
-    /// Removes a card from one of a player's non-battlefield zones.
-    pub(super) fn take_card_from_zone(
-        &mut self,
-        owner: PlayerId,
-        zone: ZoneKind,
-        id: GameObjectId,
-    ) -> Option<CardInstance> {
-        let state = &mut self.players[owner.index()];
-        let cards = match zone {
-            ZoneKind::Library => &mut state.library,
-            ZoneKind::Hand => &mut state.hand,
-            ZoneKind::Graveyard => &mut state.graveyard,
-            ZoneKind::Exile => &mut state.exile,
-            ZoneKind::Battlefield | ZoneKind::Stack | ZoneKind::Command => return None,
-        };
-        remove_card(cards, id)
     }
 
     /// Brings a linked exile back. A card that is no longer in exile has

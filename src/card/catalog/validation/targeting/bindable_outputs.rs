@@ -36,12 +36,14 @@ fn has_bindable_output(effect: EffectDef) -> Result<bool, GrantedAbilityValidati
     }
 }
 
+fn push_durable_binding(binding: Binding, outputs: &mut Vec<Binding>) {
+    if binding != crate::ParentBinding && !outputs.contains(&binding) {
+        outputs.push(binding);
+    }
+}
+
 fn durable_object_set_outputs(effect: EffectDef, outputs: &mut Vec<Binding>) {
-    let mut push = |binding: Binding| {
-        if binding != crate::ParentBinding && !outputs.contains(&binding) {
-            outputs.push(binding);
-        }
-    };
+    let mut push = |binding| push_durable_binding(binding, outputs);
     match effect {
         EffectDef::BindOutput {
             effect: &(EffectDef::ChooseCardName { .. } | EffectDef::ChooseCreatureType { .. }),
@@ -144,11 +146,7 @@ fn durable_object_set_outputs(effect: EffectDef, outputs: &mut Vec<Binding>) {
 }
 
 fn durable_card_name_outputs(effect: EffectDef, outputs: &mut Vec<Binding>) {
-    let mut push = |binding: Binding| {
-        if binding != crate::ParentBinding && !outputs.contains(&binding) {
-            outputs.push(binding);
-        }
-    };
+    let mut push = |binding| push_durable_binding(binding, outputs);
     match effect {
         EffectDef::BindOutput {
             binding,
@@ -164,11 +162,7 @@ fn durable_card_name_outputs(effect: EffectDef, outputs: &mut Vec<Binding>) {
 }
 
 fn durable_creature_type_outputs(effect: EffectDef, outputs: &mut Vec<Binding>) {
-    let mut push = |binding: Binding| {
-        if binding != crate::ParentBinding && !outputs.contains(&binding) {
-            outputs.push(binding);
-        }
-    };
+    let mut push = |binding| push_durable_binding(binding, outputs);
     match effect {
         EffectDef::BindOutput {
             binding,

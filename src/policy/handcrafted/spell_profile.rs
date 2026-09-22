@@ -394,9 +394,6 @@ impl HandcraftedPolicy {
             EffectDef::ClassifyObjects(definition) => {
                 Self::collect_spell_effect_profile(*definition.then, x, targets, profile);
             }
-            EffectDef::RevealTopCards(definition) => {
-                Self::collect_spell_effect_profile(*definition.then, x, targets, profile);
-            }
             EffectDef::RevealAndClassifyCards(definition) => {
                 Self::collect_spell_effect_profile(*definition.then, x, targets, profile);
             }

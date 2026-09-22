@@ -3999,7 +3999,10 @@ pub(in crate::card::sets) static DOMRI_RADE: CardRecord = CardRecord::new(
                                 visibility: ChoiceVisibilityDef::Private,
                                 then: &EffectDef::Sequence(&[
                                     EffectDef::RevealObjects(RevealObjectsDef {
-                                        input: ObjectSetDef::Binding(ParentBinding),
+                                        source: ObjectCollectionSourceDef::ObjectSet(
+                                            ObjectSetDef::Binding(ParentBinding),
+                                        ),
+                                        revealed: None,
                                         then: &EffectDef::None,
                                     }),
                                     EffectDef::MoveObjects(MoveObjectsDef {

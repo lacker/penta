@@ -22,6 +22,7 @@ use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::KeywordAbility;
 use crate::card::ManaColor;
+use crate::card::ObjectCollectionSourceDef;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
 use crate::card::ObjectRefDef;
@@ -31,7 +32,7 @@ use crate::card::ObjectValueDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
 use crate::card::ResolvedEffectDurationDef;
-use crate::card::RevealTopCardsDef;
+use crate::card::RevealObjectsDef;
 use crate::card::SubtypeDef;
 use crate::card::TokenCharacteristics;
 use crate::card::TokenDef;
@@ -259,10 +260,12 @@ pub(in crate::card::sets) static AD_NAUSEAM: CardRecord = CardRecord::new(
         EffectDef::Repeat {
             mandatory_first: true,
             player: EffectRecipientDef::Controller,
-            effect: &EffectDef::RevealTopCards(RevealTopCardsDef {
-                player: PlayerRefDef::EffectController,
-                count: ValueDef::Constant(1),
-                revealed: crate::Binding!("revealed-card"),
+            effect: &EffectDef::RevealObjects(RevealObjectsDef {
+                source: ObjectCollectionSourceDef::TopCards {
+                    player: PlayerRefDef::EffectController,
+                    count: ValueDef::Constant(1),
+                },
+                revealed: Some(crate::Binding!("revealed-card")),
                 // Freeze the revealed mana value before moving the card.
                 then: &EffectDef::BindValue {
                     binding: crate::Binding!("revealed-mana-value"),

@@ -202,10 +202,6 @@ fn validate_effect_target_shapes(
             }
             validate_effect_target_shapes(*then, targets, triggering_object_zone)
         }
-        EffectDef::RevealTopCards(definition) => {
-            validate_object_collection_shape(definition.source(), targets)?;
-            validate_effect_target_shapes(*definition.then, targets, triggering_object_zone)
-        }
         EffectDef::BindObjects(definition) => {
             validate_object_collection_shape(definition.source, targets)?;
             if matches!(definition.source,
@@ -248,7 +244,7 @@ fn validate_effect_target_shapes(
             validate_effect_target_shapes(*definition.then, targets, triggering_object_zone)
         }
         EffectDef::RevealObjects(definition) => {
-            validate_object_set_shape(definition.input, targets)?;
+            validate_object_collection_shape(definition.source, targets)?;
             validate_effect_target_shapes(*definition.then, targets, triggering_object_zone)
         }
         EffectDef::MoveObjects(definition) => {

@@ -28,6 +28,7 @@ use crate::card::ManaColor;
 use crate::card::ManaTypeDef;
 use crate::card::MoveObjectsDef;
 use crate::card::ObjectChoiceBindingDef;
+use crate::card::ObjectCollectionSourceDef;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
 use crate::card::ObjectRefDef;
@@ -161,7 +162,10 @@ pub(in crate::card::sets) static INFERNAL_TUTOR: CardRecord = CardRecord::new(
                 visibility: ChoiceVisibilityDef::Private,
                 then: &EffectDef::Sequence(&[
                     EffectDef::RevealObjects(RevealObjectsDef {
-                        input: ObjectSetDef::One(ObjectRefDef::Binding(ParentBinding)),
+                        source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::One(
+                            ObjectRefDef::Binding(ParentBinding),
+                        )),
+                        revealed: None,
                         then: &EffectDef::None,
                     }),
                     EffectDef::SearchZone {
@@ -314,7 +318,10 @@ pub(in crate::card::sets) static COILING_ORACLE: CardRecord = CardRecord::new(
                 ValueDef::Constant(1),
                 &EffectDef::Sequence(&[
                     EffectDef::RevealObjects(RevealObjectsDef {
-                        input: ObjectSetDef::Binding(ParentBinding),
+                        source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(
+                            ParentBinding,
+                        )),
+                        revealed: None,
                         then: &EffectDef::None,
                     }),
                     // One card split into two bindings, exactly one of

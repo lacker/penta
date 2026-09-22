@@ -64,6 +64,7 @@ use crate::card::ManaColor;
 use crate::card::ManaTypeDef;
 use crate::card::MoveObjectsDef;
 use crate::card::ObjectChoiceBindingDef;
+use crate::card::ObjectCollectionSourceDef;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
 use crate::card::ObjectRefDef;
@@ -2566,7 +2567,10 @@ pub(in crate::card::sets) static TRUTH_OR_TALE: CardRecord = CardRecord::new(
             ValueDef::Constant(5),
             &EffectDef::Sequence(&[
                 EffectDef::RevealObjects(RevealObjectsDef {
-                    input: ObjectSetDef::Binding(ParentBinding),
+                    source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(
+                        ParentBinding,
+                    )),
+                    revealed: None,
                     then: &EffectDef::None,
                 }),
                 EffectDef::PartitionGroup(PartitionGroupDef {
@@ -7236,7 +7240,10 @@ pub(in crate::card::sets) static CANDLES_OF_LENG: CardRecord = CardRecord::new(
             ValueDef::Constant(1),
             &EffectDef::Sequence(&[
                 EffectDef::RevealObjects(RevealObjectsDef {
-                    input: ObjectSetDef::Binding(ParentBinding),
+                    source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(
+                        ParentBinding,
+                    )),
+                    revealed: None,
                     then: &EffectDef::None,
                 }),
                 EffectDef::IfElseCondition {

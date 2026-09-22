@@ -4306,7 +4306,10 @@ pub(in crate::card::sets) static ARMORED_KINCALLER: CardRecord = CardRecord::new
                     },
                     otherwise: &EffectDef::Sequence(&[
                         EffectDef::RevealObjects(RevealObjectsDef {
-                            input: ObjectSetDef::Binding(crate::Binding!("revealed")),
+                            source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(
+                                crate::Binding!("revealed"),
+                            )),
+                            revealed: None,
                             then: &EffectDef::None,
                         }),
                         EffectDef::GainLife {

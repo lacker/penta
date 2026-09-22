@@ -293,11 +293,6 @@ fn validate_effect_references(
             validate_object_set_continuation(binding, *then, target_count, scope,
                 "SearchZones must expose a result binding consumed by its continuation")
         }
-        EffectDef::RevealTopCards(definition) => {
-            validate_object_collection_references(definition.source(), target_count, scope)?;
-            let nested = scope.with_object_set(definition.revealed)?;
-            validate_effect_references(*definition.then, target_count, nested)
-        }
         EffectDef::BindObjects(definition) => {
             validate_object_collection_references(definition.source, target_count, scope)?;
             validate_object_set_continuation(
@@ -368,18 +363,20 @@ fn validate_effect_references(
             )
         }
         EffectDef::RevealObjects(definition) => {
-            validate_recipient_target_references(
-                EffectRecipientDef::objects(definition.input),
-                target_count,
-                scope,
-            )?;
-            if matches!(*definition.then, EffectDef::None) {
-                Ok(())
-            } else {
-                Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
+            validate_object_collection_references(definition.source, target_count, scope)?;
+            match definition.revealed {
+                Some(binding) => validate_object_set_continuation(
+                    binding,
+                    *definition.then,
+                    target_count,
+                    scope,
+                    "RevealObjects continuations must consume their revealed-object binding",
+                ),
+                None if matches!(*definition.then, EffectDef::None) => Ok(()),
+                None => Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
                     context: "then continuation",
-                    operation: "RevealObjects has no output dependency; use Sequence",
-                })
+                    operation: "RevealObjects without a result binding must use Sequence",
+                }),
             }
         }
         EffectDef::MoveObjects(definition) => {

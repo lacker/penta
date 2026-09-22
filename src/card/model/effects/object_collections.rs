@@ -75,27 +75,6 @@ pub struct RevealAndClassifyCardsDef {
     pub then: &'static EffectDef,
 }
 
-/// Reveal the top `count` cards and bind the cards actually revealed.
-/// Mandatory resolution reveals as many as possible and continues; choosing
-/// this action optionally requires the full count to be available.
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub struct RevealTopCardsDef {
-    pub player: PlayerRefDef,
-    pub count: ValueDef,
-    pub revealed: Binding,
-    pub then: &'static EffectDef,
-}
-
-impl RevealTopCardsDef {
-    #[must_use]
-    pub const fn source(self) -> ObjectCollectionSourceDef {
-        ObjectCollectionSourceDef::TopCards {
-            player: self.player,
-            count: self.count,
-        }
-    }
-}
-
 /// Materialize a collection source, freeze its exact identities in a binding,
 /// and continue. Information and zone changes are separate later stages.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
@@ -158,11 +137,15 @@ pub struct RandomizeObjectOrderDef {
     pub then: &'static EffectDef,
 }
 
-/// Reveal every card in a collection, then continue. Revelation is information;
-/// moving or otherwise acting on the cards remains a separate stage.
+/// Reveal cards from a source and optionally bind the cards actually revealed.
+/// Counted sources retain their requested quantity: optional revelation requires
+/// the full count, while mandatory resolution reveals as many as possible and
+/// continues. Object-set sources reveal every member, including an empty set.
+/// Moving or otherwise acting on the cards remains a separate stage.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct RevealObjectsDef {
-    pub input: ObjectSetDef,
+    pub source: ObjectCollectionSourceDef,
+    pub revealed: Option<Binding>,
     pub then: &'static EffectDef,
 }
 

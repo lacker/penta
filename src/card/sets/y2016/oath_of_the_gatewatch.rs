@@ -125,11 +125,14 @@ pub(in crate::card::sets) static THOUGHT_KNOT_SEER: CardRecord = CardRecord::new
             )],
             EffectDef::Sequence(&[
                 EffectDef::RevealObjects(RevealObjectsDef {
-                    input: ObjectSetDef::Query(ObjectQueryDef::owned_by(
-                        ObjectPredicateDef::Any,
-                        &[ZoneKind::Hand],
-                        PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                    source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Query(
+                        ObjectQueryDef::owned_by(
+                            ObjectPredicateDef::Any,
+                            &[ZoneKind::Hand],
+                            PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                        ),
                     )),
+                    revealed: None,
                     then: &EffectDef::None,
                 }),
                 EffectDef::Choose(ChooseDef {

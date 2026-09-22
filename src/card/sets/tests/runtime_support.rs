@@ -568,7 +568,6 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::LookAtObjects(_)
                     | EffectDef::ChooseObjectOrder(_)
                     | EffectDef::ClassifyObjects(_)
-                    | EffectDef::RevealTopCards(_)
                     | EffectDef::RevealAndClassifyCards(_)
                     | EffectDef::CombineObjects(_)
                     | EffectDef::ChooseOneOfEach(_)

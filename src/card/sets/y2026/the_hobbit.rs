@@ -4571,7 +4571,10 @@ pub(in crate::card::sets) static BOUGHSIDE_WANDERERS: CardRecord = CardRecord::n
                 remainder: crate::Binding!("rest"),
                 then: &EffectDef::Sequence(&[
                     EffectDef::RevealObjects(RevealObjectsDef {
-                        input: ObjectSetDef::Binding(crate::Binding!("chosen")),
+                        source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(
+                            crate::Binding!("chosen"),
+                        )),
+                        revealed: None,
                         then: &EffectDef::None,
                     }),
                     EffectDef::move_to_zone(
@@ -5812,7 +5815,10 @@ pub(in crate::card::sets) static DAIN_S_COMPANY: CardRecord = CardRecord::new(
                 remainder: crate::Binding!("rest"),
                 then: &EffectDef::Sequence(&[
                     EffectDef::RevealObjects(RevealObjectsDef {
-                        input: ObjectSetDef::Binding(crate::Binding!("chosen")),
+                        source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(
+                            crate::Binding!("chosen"),
+                        )),
+                        revealed: None,
                         then: &EffectDef::None,
                     }),
                     EffectDef::move_to_zone(

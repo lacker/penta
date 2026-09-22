@@ -322,3 +322,39 @@ fn search_maximum_consumes_an_existing_output_binding() {
     super::validate_ability_targets(&[], bound)
         .expect("a search maximum may consume the outer move receipt");
 }
+
+#[test]
+fn reveal_collection_outputs_are_scoped_and_available_to_later_sequence_steps() {
+    use crate::card::{ObjectCollectionSourceDef, RevealObjectsDef};
+
+    let binding = Binding!("revealed_cards");
+    let consume = EffectDef::GainLife {
+        recipient: EffectRecipientDef::Controller,
+        amount: ValueDef::BoundObjectCount(binding),
+    };
+    let source = ObjectCollectionSourceDef::TopCards {
+        player: PlayerRefDef::EffectController,
+        count: ValueDef::Constant(1),
+    };
+    let reveal = EffectDef::RevealObjects(RevealObjectsDef {
+        source,
+        revealed: Some(binding),
+        then: &EffectDef::None,
+    });
+    let effects = Box::leak(Box::new([reveal, consume]));
+    super::validate_ability_targets(&[], EffectDef::Sequence(effects))
+        .expect("a reveal result can be consumed by a later sequence sibling");
+    let reversed = Box::leak(Box::new([consume, reveal]));
+    assert!(super::validate_ability_targets(&[], EffectDef::Sequence(reversed)).is_err());
+    let consume = Box::leak(Box::new(consume));
+    super::validate_ability_targets(&[], EffectDef::RevealObjects(RevealObjectsDef {
+        source,
+        revealed: Some(binding),
+        then: consume,
+    })).expect("the reveal continuation can consume its result");
+    assert!(super::validate_ability_targets(&[], EffectDef::RevealObjects(RevealObjectsDef {
+        source,
+        revealed: None,
+        then: consume,
+    })).is_err());
+}

@@ -47,7 +47,6 @@ pub(crate) const fn effect_kind(value: crate::EffectDef) -> &'static str {
         crate::EffectDef::PutSpellIntoOwnersLibrary { .. } => "PutSpellIntoOwnersLibrary",
         crate::EffectDef::Counter { .. } => "Counter",
         crate::EffectDef::ClassifyObjects(..) => "ClassifyObjects",
-        crate::EffectDef::RevealTopCards(..) => "RevealTopCards",
         crate::EffectDef::RevealAndClassifyCards(..) => "RevealAndClassifyCards",
         crate::EffectDef::CombineObjects(..) => "CombineObjects",
         crate::EffectDef::Repeat { .. } => "Repeat",

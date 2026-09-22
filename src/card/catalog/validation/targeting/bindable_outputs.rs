@@ -79,10 +79,6 @@ fn durable_object_set_outputs(effect: EffectDef, outputs: &mut Vec<Binding>) {
             push(choice.remainder);
             durable_object_set_outputs(*choice.then, outputs);
         }
-        EffectDef::RevealTopCards(definition) => {
-            push(definition.revealed);
-            durable_object_set_outputs(*definition.then, outputs);
-        }
         EffectDef::BindObjects(definition) => {
             push(definition.binding);
             durable_object_set_outputs(*definition.then, outputs);
@@ -105,17 +101,15 @@ fn durable_object_set_outputs(effect: EffectDef, outputs: &mut Vec<Binding>) {
             push(definition.randomized);
             durable_object_set_outputs(*definition.then, outputs);
         }
-        EffectDef::MoveObjects(definition) => {
-            if let Some(binding) = definition.moved {
+        EffectDef::RevealObjects(crate::card::RevealObjectsDef { revealed: binding, then, .. })
+        | EffectDef::MoveObjects(crate::card::MoveObjectsDef { moved: binding, then, .. })
+        | EffectDef::PutObjectsOntoBattlefieldFaceDown(
+            crate::card::PutObjectsOntoBattlefieldFaceDownDef { moved: binding, then, .. },
+        ) => {
+            if let Some(binding) = binding {
                 push(binding);
             }
-            durable_object_set_outputs(*definition.then, outputs);
-        }
-        EffectDef::PutObjectsOntoBattlefieldFaceDown(definition) => {
-            if let Some(binding) = definition.moved {
-                push(binding);
-            }
-            durable_object_set_outputs(*definition.then, outputs);
+            durable_object_set_outputs(*then, outputs);
         }
         EffectDef::ChooseObjectOrder(definition) => {
             push(definition.ordered);

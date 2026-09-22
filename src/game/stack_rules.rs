@@ -101,9 +101,6 @@ impl Game {
             EffectDef::ClassifyObjects(definition) => {
                 Self::effect_applies_to_source(*definition.then, expected)
             }
-            EffectDef::RevealTopCards(definition) => {
-                Self::effect_applies_to_source(*definition.then, expected)
-            }
             EffectDef::RevealAndClassifyCards(definition) => {
                 Self::effect_applies_to_source(*definition.then, expected)
             }

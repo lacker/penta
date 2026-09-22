@@ -2289,7 +2289,10 @@ pub(in crate::card::sets) static PORTENT_OF_CALAMITY: CardRecord = CardRecord::n
             binding: crate::Binding!("top"),
             then: &EffectDef::Sequence(&[
                 EffectDef::RevealObjects(RevealObjectsDef {
-                    input: ObjectSetDef::Binding(crate::Binding!("top")),
+                    source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(
+                        crate::Binding!("top"),
+                    )),
+                    revealed: None,
                     then: &EffectDef::None,
                 }),
                 EffectDef::ChooseOneOfEach(ChooseOneOfEachDef {
@@ -3134,7 +3137,10 @@ pub(in crate::card::sets) static DARKSTAR_AUGUR: CardRecord = CardRecord::new(
                 &const {
                     EffectDef::Sequence(&[
                         EffectDef::RevealObjects(RevealObjectsDef {
-                            input: ObjectSetDef::Binding(crate::ParentBinding),
+                            source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(
+                                crate::ParentBinding,
+                            )),
+                            revealed: None,
                             then: &EffectDef::None,
                         }),
                         EffectDef::MoveObjects(MoveObjectsDef {

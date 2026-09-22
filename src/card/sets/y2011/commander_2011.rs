@@ -100,7 +100,10 @@ pub(in crate::card::sets) static CHAOS_WARP: CardRecord = CardRecord::new(
                 binding: Binding!("warp_revealed"),
                 then: &EffectDef::Sequence(&[
                     EffectDef::RevealObjects(RevealObjectsDef {
-                        input: ObjectSetDef::Binding(Binding!("warp_revealed")),
+                        source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(
+                            Binding!("warp_revealed"),
+                        )),
+                        revealed: None,
                         then: &EffectDef::None,
                     }),
                     EffectDef::ForEachInBinding {

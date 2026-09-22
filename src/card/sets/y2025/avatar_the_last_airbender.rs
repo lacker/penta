@@ -1115,7 +1115,10 @@ pub(in crate::card::sets) static MASTER_PIANDAO: CardRecord = CardRecord::new(
                     remainder: crate::Binding!("rest"),
                     then: &EffectDef::Sequence(&[
                         EffectDef::RevealObjects(RevealObjectsDef {
-                            input: ObjectSetDef::Binding(crate::Binding!("chosen")),
+                            source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(
+                                crate::Binding!("chosen"),
+                            )),
+                            revealed: None,
                             then: &EffectDef::None,
                         }),
                         EffectDef::move_to_zone(
@@ -5723,7 +5726,10 @@ pub(in crate::card::sets) static SEISMIC_SENSE: CardRecord = CardRecord::new(
                 remainder: crate::Binding!("rest"),
                 then: &EffectDef::Sequence(&[
                     EffectDef::RevealObjects(RevealObjectsDef {
-                        input: ObjectSetDef::Binding(crate::Binding!("chosen")),
+                        source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(
+                            crate::Binding!("chosen"),
+                        )),
+                        revealed: None,
                         then: &EffectDef::None,
                     }),
                     EffectDef::move_to_zone(
@@ -6628,7 +6634,10 @@ pub(in crate::card::sets) static GURU_PATHIK: CardRecord = CardRecord::new(
                 remainder: crate::Binding!("rest"),
                 then: &EffectDef::Sequence(&[
                     EffectDef::RevealObjects(RevealObjectsDef {
-                        input: ObjectSetDef::Binding(crate::Binding!("chosen")),
+                        source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(
+                            crate::Binding!("chosen"),
+                        )),
+                        revealed: None,
                         then: &EffectDef::None,
                     }),
                     EffectDef::move_to_zone(

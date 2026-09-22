@@ -237,7 +237,6 @@ pub enum EffectDef {
     ClassifyObjects(super::ClassifyObjectsDef),
     /// Reveal a collection and classify all of it in one mandatory instruction.
     RevealAndClassifyCards(super::RevealAndClassifyCardsDef),
-    RevealTopCards(super::RevealTopCardsDef),
     /// Concatenate previously bound collections in authored order.
     CombineObjects(super::CombineObjectsDef),
     /// Declare one string-labeled object-set binding and resolve an effect

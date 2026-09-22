@@ -4839,7 +4839,10 @@ pub(in crate::card::sets) static CELESTIAL_REUNION: CardRecord = CardRecord::new
                     remainder: crate::Binding!("rest"),
                     then: &EffectDef::Sequence(&[
                         EffectDef::RevealObjects(RevealObjectsDef {
-                            input: ObjectSetDef::Binding(crate::Binding!("found")),
+                            source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(
+                                crate::Binding!("found"),
+                            )),
+                            revealed: None,
                             then: &EffectDef::None,
                         }),
                         EffectDef::IfElseCondition {
@@ -6401,7 +6404,10 @@ pub(in crate::card::sets) static ECLIPSED_BOGGART: CardRecord = CardRecord::new(
                 remainder: crate::Binding!("rest"),
                 then: &EffectDef::Sequence(&[
                     EffectDef::RevealObjects(RevealObjectsDef {
-                        input: ObjectSetDef::Binding(crate::Binding!("chosen")),
+                        source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(
+                            crate::Binding!("chosen"),
+                        )),
+                        revealed: None,
                         then: &EffectDef::None,
                     }),
                     EffectDef::move_to_zone(
@@ -6456,7 +6462,10 @@ pub(in crate::card::sets) static ECLIPSED_ELF: CardRecord = CardRecord::new(
                 remainder: crate::Binding!("rest"),
                 then: &EffectDef::Sequence(&[
                     EffectDef::RevealObjects(RevealObjectsDef {
-                        input: ObjectSetDef::Binding(crate::Binding!("chosen")),
+                        source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(
+                            crate::Binding!("chosen"),
+                        )),
+                        revealed: None,
                         then: &EffectDef::None,
                     }),
                     EffectDef::move_to_zone(
@@ -6512,7 +6521,10 @@ pub(in crate::card::sets) static ECLIPSED_FLAMEKIN: CardRecord = CardRecord::new
                 remainder: crate::Binding!("rest"),
                 then: &EffectDef::Sequence(&[
                     EffectDef::RevealObjects(RevealObjectsDef {
-                        input: ObjectSetDef::Binding(crate::Binding!("chosen")),
+                        source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(
+                            crate::Binding!("chosen"),
+                        )),
+                        revealed: None,
                         then: &EffectDef::None,
                     }),
                     EffectDef::move_to_zone(
@@ -6567,7 +6579,10 @@ pub(in crate::card::sets) static ECLIPSED_KITHKIN: CardRecord = CardRecord::new(
                 remainder: crate::Binding!("rest"),
                 then: &EffectDef::Sequence(&[
                     EffectDef::RevealObjects(RevealObjectsDef {
-                        input: ObjectSetDef::Binding(crate::Binding!("chosen")),
+                        source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(
+                            crate::Binding!("chosen"),
+                        )),
+                        revealed: None,
                         then: &EffectDef::None,
                     }),
                     EffectDef::move_to_zone(
@@ -6623,7 +6638,10 @@ pub(in crate::card::sets) static ECLIPSED_MERROW: CardRecord = CardRecord::new(
                 remainder: crate::Binding!("rest"),
                 then: &EffectDef::Sequence(&[
                     EffectDef::RevealObjects(RevealObjectsDef {
-                        input: ObjectSetDef::Binding(crate::Binding!("chosen")),
+                        source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(
+                            crate::Binding!("chosen"),
+                        )),
+                        revealed: None,
                         then: &EffectDef::None,
                     }),
                     EffectDef::move_to_zone(
@@ -7721,7 +7739,10 @@ pub(in crate::card::sets) static GATHERING_STONE: CardRecord = CardRecord::new(
                             visibility: ChoiceVisibilityDef::Private,
                             then: &EffectDef::Sequence(&[
                                 EffectDef::RevealObjects(RevealObjectsDef {
-                                    input: ObjectSetDef::Binding(crate::Binding!("chosen")),
+                                    source: ObjectCollectionSourceDef::ObjectSet(
+                                        ObjectSetDef::Binding(crate::Binding!("chosen")),
+                                    ),
+                                    revealed: None,
                                     then: &EffectDef::None,
                                 }),
                                 EffectDef::move_to_zone(

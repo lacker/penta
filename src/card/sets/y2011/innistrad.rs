@@ -50,6 +50,7 @@ use crate::card::ManaColor;
 use crate::card::MillUntilDef;
 use crate::card::MoveObjectsDef;
 use crate::card::ObjectChoiceBindingDef;
+use crate::card::ObjectCollectionSourceDef;
 use crate::card::ObjectCounterValueDef;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
@@ -1513,7 +1514,10 @@ pub(in crate::card::sets) static DELVER_OF_SECRETS: CardRecord = CardRecord::new
                                             input: ObjectSetDef::Binding(DELVER_MATCHING),
                                             if_empty: &EffectDef::Sequence(&[
                                                 EffectDef::RevealObjects(RevealObjectsDef {
-                                                    input: ObjectSetDef::Binding(ParentBinding),
+                                                    source: ObjectCollectionSourceDef::ObjectSet(
+                                                        ObjectSetDef::Binding(ParentBinding),
+                                                    ),
+                                                    revealed: None,
                                                     then: &EffectDef::None,
                                                 }),
                                                 EffectDef::MoveObjects(MoveObjectsDef {
@@ -1527,7 +1531,10 @@ pub(in crate::card::sets) static DELVER_OF_SECRETS: CardRecord = CardRecord::new
                                             ]),
                                             otherwise: &EffectDef::Sequence(&[
                                                 EffectDef::RevealObjects(RevealObjectsDef {
-                                                    input: ObjectSetDef::Binding(ParentBinding),
+                                                    source: ObjectCollectionSourceDef::ObjectSet(
+                                                        ObjectSetDef::Binding(ParentBinding),
+                                                    ),
+                                                    revealed: None,
                                                     then: &EffectDef::None,
                                                 }),
                                                 EffectDef::MoveObjects(MoveObjectsDef {

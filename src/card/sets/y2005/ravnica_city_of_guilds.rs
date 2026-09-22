@@ -464,7 +464,10 @@ pub(in crate::card::sets) static DARK_CONFIDANT: CardRecord = CardRecord::new(
                 ValueDef::Constant(1),
                 &EffectDef::Sequence(&[
                     EffectDef::RevealObjects(RevealObjectsDef {
-                        input: ObjectSetDef::Binding(ParentBinding),
+                        source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(
+                            ParentBinding,
+                        )),
+                        revealed: None,
                         then: &EffectDef::None,
                     }),
                     EffectDef::MoveObjects(MoveObjectsDef {
@@ -1003,7 +1006,10 @@ pub(in crate::card::sets) static CONGREGATION_AT_DAWN: CardRecord = CardRecord::
             visibility: ChoiceVisibilityDef::Private,
             then: &EffectDef::Sequence(&[
                 EffectDef::RevealObjects(RevealObjectsDef {
-                    input: ObjectSetDef::Binding(Binding!("dawn_found")),
+                    source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(Binding!(
+                        "dawn_found"
+                    ))),
+                    revealed: None,
                     then: &EffectDef::None,
                 }),
                 EffectDef::ShuffleLibrary {

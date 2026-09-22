@@ -33,7 +33,6 @@ const fn effect_operation_name(effect: EffectDef) -> &'static str {
         EffectDef::LookAtObjects(_) => "LookAtObjects",
         EffectDef::ChooseObjectOrder(_) => "ChooseObjectOrder",
         EffectDef::ClassifyObjects(_) => "ClassifyObjects",
-        EffectDef::RevealTopCards(_) => "RevealTopCards",
         EffectDef::RevealAndClassifyCards(_) => "RevealAndClassifyCards",
         EffectDef::CombineObjects(_) => "CombineObjects",
         EffectDef::ChooseOneOfEach(_) => "ChooseOneOfEach",

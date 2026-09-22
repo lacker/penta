@@ -39,6 +39,7 @@ use crate::card::ManaColor;
 use crate::card::MillUntilDef;
 use crate::card::MoveObjectsDef;
 use crate::card::ObjectChoiceBindingDef;
+use crate::card::ObjectCollectionSourceDef;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
 use crate::card::ObjectRefDef;
@@ -2266,7 +2267,10 @@ pub(in crate::card::sets) static PAROXYSM: CardRecord = CardRecord::new(
                             input: ObjectSetDef::Binding(Binding!("paroxysm_land")),
                             if_empty: &EffectDef::Sequence(&[
                                 EffectDef::RevealObjects(RevealObjectsDef {
-                                    input: ObjectSetDef::Binding(ParentBinding),
+                                    source: ObjectCollectionSourceDef::ObjectSet(
+                                        ObjectSetDef::Binding(ParentBinding),
+                                    ),
+                                    revealed: None,
                                     then: &EffectDef::None,
                                 }),
                                 EffectDef::Apply {
@@ -2280,7 +2284,10 @@ pub(in crate::card::sets) static PAROXYSM: CardRecord = CardRecord::new(
                             ]),
                             otherwise: &EffectDef::Sequence(&[
                                 EffectDef::RevealObjects(RevealObjectsDef {
-                                    input: ObjectSetDef::Binding(ParentBinding),
+                                    source: ObjectCollectionSourceDef::ObjectSet(
+                                        ObjectSetDef::Binding(ParentBinding),
+                                    ),
+                                    revealed: None,
                                     then: &EffectDef::None,
                                 }),
                                 EffectDef::Destroy {

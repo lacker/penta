@@ -24,6 +24,7 @@ use crate::card::DrawEventMatcherDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::ManaColor;
+use crate::card::ObjectCollectionSourceDef;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
 use crate::card::ObjectRefDef;
@@ -768,7 +769,10 @@ pub(in crate::card::sets) static INVERT_INVENT: CardRecord = CardRecord::new_spl
                         visibility: ChoiceVisibilityDef::Private,
                         then: &EffectDef::Sequence(&[
                             EffectDef::RevealObjects(RevealObjectsDef {
-                                input: ObjectSetDef::Binding(Binding!("invent_found")),
+                                source: ObjectCollectionSourceDef::ObjectSet(
+                                    ObjectSetDef::Binding(Binding!("invent_found")),
+                                ),
+                                revealed: None,
                                 then: &EffectDef::None,
                             }),
                             EffectDef::move_to_zone(

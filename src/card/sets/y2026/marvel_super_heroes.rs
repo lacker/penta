@@ -1771,7 +1771,10 @@ pub(in crate::card::sets) static IRON_LAD_DIVERGING_DESTINY: CardRecord = CardRe
                     binding: crate::Binding!("top"),
                     then: &EffectDef::Sequence(&[
                         EffectDef::RevealObjects(RevealObjectsDef {
-                            input: ObjectSetDef::Binding(crate::Binding!("top")),
+                            source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(
+                                crate::Binding!("top"),
+                            )),
+                            revealed: None,
                             then: &EffectDef::None,
                         }),
                         EffectDef::IfCondition {

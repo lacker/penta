@@ -38,9 +38,11 @@ impl Game {
     /// 702.195). Each permanent is counted once in the three-way union.
     pub(super) fn grant_enduring_stories(&mut self) {
         for player in [PlayerId::One, PlayerId::Two] {
-            if self.enduring_story[player.index()]
-                || !self.player_rule_applies(player, AppliedRuleDef::Storied)
-            {
+            if self.enduring_story[player.index()] {
+                continue;
+            }
+            let board = self.hold_board_read_memo();
+            if !self.player_rule_applies(player, AppliedRuleDef::Storied) {
                 continue;
             }
             let count = self
@@ -58,6 +60,7 @@ impl Game {
                 })
                 .take(3)
                 .count();
+            drop(board);
             if count == 3 {
                 self.enduring_story[player.index()] = true;
             }

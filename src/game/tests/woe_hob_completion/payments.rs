@@ -424,6 +424,8 @@ fn woe_hob_waterbend_uses_summoning_sick_creatures_but_cannot_pay_unrelated_taxe
 fn woe_hob_kili_replaces_nonmana_equip_costs_but_keeps_taxes_and_turn_history() {
     for prepared in [false, true] {
         let mut game = setup(prepared);
+        // Peacekeeper's name choices must include the cross-set Equipment fixture.
+        game.format = Format::Legacy;
         game.players[0].library = game
             .build_zone(PlayerId::One, &[cards::FOREST; 10])
             .unwrap();

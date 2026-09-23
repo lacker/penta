@@ -13,6 +13,7 @@ pub fn parse_format_slug(slug: &str) -> Result<Format, String> {
         "vintage" => Ok(Format::Vintage),
         "isd-m14-standard" | "isd_m14_standard" => Ok(Format::IsdM14Standard),
         "som-m13-standard" | "som_m13_standard" => Ok(Format::SomM13Standard),
+        "woe-hob-standard" | "woe_hob_standard" => Ok(Format::WoeHobStandard),
         "vintage-cube" | "vintage_cube" => Ok(Format::VintageCube),
         "pauper-cube" | "pauper_cube" => Ok(Format::PauperCube),
         "cedh" => Ok(Format::Cedh),

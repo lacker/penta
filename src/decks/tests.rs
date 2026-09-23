@@ -68,7 +68,7 @@ fn all_yaml_decks_resolve_and_validate_for_their_formats() {
 }
 
 #[test]
-fn woe_hob_event_lists_preserve_published_sizes_and_stay_out_of_playable_menus() {
+fn woe_hob_event_lists_are_playable_with_published_sizes() {
     let catalog = card::catalog().unwrap();
     let lists: Vec<_> = BUILTIN_DECKS
         .iter()
@@ -76,7 +76,7 @@ fn woe_hob_event_lists_preserve_published_sizes_and_stay_out_of_playable_menus()
         .collect();
     assert!(!lists.is_empty());
     for source in lists {
-        assert_eq!(source.format, None);
+        assert_eq!(source.format, Some(Format::WoeHobStandard));
         let deck = source.resolve(&catalog);
         let expected_main = match source.id {
             "izzet_spellementals_fazparte" | "izzet_spellementals_darth_vaner" => 61,
@@ -86,7 +86,17 @@ fn woe_hob_event_lists_preserve_published_sizes_and_stay_out_of_playable_menus()
         assert_eq!(deck.sideboard.len(), 15, "{}", source.source);
         deck.validate_supported_cards(&catalog)
             .unwrap_or_else(|error| panic!("{}: {error}", source.source));
+        deck.clone()
+            .validate_for_format(&catalog, Format::WoeHobStandard)
+            .unwrap_or_else(|error| panic!("{}: {error}", source.source));
+        assert_eq!(
+            crate::protocol::deck_by_name_for_format(Format::WoeHobStandard, source.id),
+            Some(deck)
+        );
         for &format in Format::ALL {
+            if format == Format::WoeHobStandard {
+                continue;
+            }
             assert!(!crate::protocol::deck_names_for_format(format).contains(&source.name));
             for name in [source.name, source.id] {
                 assert_eq!(crate::protocol::deck_by_name_for_format(format, name), None);

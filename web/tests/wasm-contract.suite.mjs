@@ -577,6 +577,29 @@ test("every deck the picker offers is one the engine can build", async () => {
   );
 });
 
+test("WOE-HOB Standard exposes and deals every event deck", async () => {
+  await initializeWasm();
+  const format = "woe-hob-standard";
+  const notes = JSON.parse(await readFile(new URL("../app/woe-hob-standard-decks.json", import.meta.url), "utf8"));
+  const options = JSON.parse(WebGame.sessionOptionsJson());
+  const names = Object.keys(notes).sort();
+  assert.equal(names.length, 16);
+  assert.deepEqual(options.formats.find(entry => entry.id === format).decks.sort(), names);
+  for (const name of names) {
+    const game = new WebGame(name, name, "Handcrafted", true, 1, format);
+    try {
+      const state = JSON.parse(game.state_json());
+      assert.equal(state.format, format);
+      assert.equal(state.human.hand.length, 7, name);
+      assert.equal(state.opponent.handSize, 7, name);
+    } finally { game.free(); }
+  }
+  assert.throws(
+    () => new WebGame("Goblins", "Goblins", "Handcrafted", true, 1, format),
+    /unknown deck for format/,
+  );
+});
+
 test("Legacy and Vintage expose and build every imported event deck", async () => {
   await initializeWasm();
   const options = JSON.parse(WebGame.sessionOptionsJson());

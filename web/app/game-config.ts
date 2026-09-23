@@ -1,9 +1,10 @@
+import woeHobDeckNotes from "./woe-hob-standard-decks.json";
 import vintageDeckNotes from "./vintage-decks.json";
 import legacyDeckNotes from "./legacy-decks.json";
 import duelCommanderDeckNotes from "./duel-commander-decks.json";
 import cedhDeckNotes from "./cedh-decks.json";
 
-export type FormatId = "old-school-93-94" | "isd-m14-standard" | "premodern" | "legacy" | "vintage" | "cedh" | "duel-commander";
+export type FormatId = "woe-hob-standard" | "old-school-93-94" | "isd-m14-standard" | "premodern" | "legacy" | "vintage" | "cedh" | "duel-commander";
 
 type FormatConfig = {
   name: string;
@@ -54,6 +55,13 @@ export const formatConfigs: Record<FormatId, FormatConfig> = {
       "Anderson Omnidoor Thragfire": "Todd Anderson · Five-color ramp-combo",
       "Braun-Duin Naya Midrange": "Brian Braun-Duin · Naya midrange",
     },
+  },
+  "woe-hob-standard": {
+    name: "Standard: WOE-HOB",
+    shortName: "STANDARD · WOE-HOB · 2026",
+    cardBackMark: "26",
+    description: "Wilds of Eldraine through The Hobbit · September 2026 tournament decks",
+    deckNotes: woeHobDeckNotes,
   },
   premodern: {
     name: "Premodern",
@@ -106,6 +114,7 @@ export const formatConfigs: Record<FormatId, FormatConfig> = {
 export const formatIds: FormatId[] = [
   "old-school-93-94",
   "isd-m14-standard",
+  "woe-hob-standard",
   "premodern",
   "cedh",
   "duel-commander",

@@ -36,6 +36,7 @@ fn format_variant(directory: &str) -> Option<&'static str> {
         "vintage" => "Vintage",
         "isd_m14_standard" => "IsdM14Standard",
         "som_m13_standard" => "SomM13Standard",
+        "woe_hob_standard" => "WoeHobStandard",
         "vintage_cube" => "VintageCube",
         "pauper_cube" => "PauperCube",
         "cedh" => "Cedh",

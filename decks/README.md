@@ -6,9 +6,10 @@ no Rust registration or runtime filesystem access is needed. Native callers,
 bindings, and the browser use the same registry.
 
 Directories matching registered format slugs, such as `old_school_93_94`,
-`premodern`, `legacy`, `vintage`, and `isd_m14_standard`, supply that format's deck collection.
-Other directories, such as `woe_hob_standard`, retain inventories before their
-format profile is registered; `make deck-report` reports that separately.
+`premodern`, `legacy`, `vintage`, `isd_m14_standard`, and `woe_hob_standard`,
+supply that format's deck collection. Other directories retain inventories
+before their format profile is registered; `make deck-report` reports that
+separately.
 
 ```yaml
 name: Example Deck

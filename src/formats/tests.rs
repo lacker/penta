@@ -314,3 +314,61 @@ fn eternal_formats_share_cataloged_sets_but_have_distinct_ban_policies() {
     assert!(!Format::Legacy.is_banned("Urza's Saga"));
     assert!(!Format::Legacy.is_banned("Lodestone Golem"));
 }
+
+#[test]
+fn woe_hob_standard_enforces_paper_snapshot_legality() {
+    use crate::{Deck, DeckError, card};
+
+    let catalog = card::catalog().unwrap();
+    let format = Format::WoeHobStandard;
+    assert_eq!(format.rules(), &super::CONSTRUCTED_RULES);
+    for slug in [format.slug(), " WOE_HOB_STANDARD "] {
+        assert_eq!(crate::protocol::parse_format_slug(slug), Ok(format));
+    }
+    for set in [
+        sets::wilds_of_eldraine::SET,
+        sets::the_big_score::SET,
+        sets::magic_foundations::SET,
+        sets::the_hobbit::SET,
+    ] {
+        assert!(format.allows_set(set));
+    }
+    for set in [
+        sets::innistrad::SET,
+        sets::wilds_of_eldraine_commander::SET,
+        sets::final_fantasy_commander::SET,
+        sets::the_hobbit_eternal::SET,
+    ] {
+        assert!(!format.allows_set(set));
+    }
+    let deck_with = |name: &str, sideboard: bool| {
+        let id = catalog.find_by_name(name).unwrap();
+        let mut deck = Deck {
+            commanders: vec![],
+            main: vec![card::cards::ISLAND; 60],
+            sideboard: vec![],
+        };
+        if sideboard {
+            deck.sideboard.push(id);
+        } else {
+            deck.main[0] = id;
+        }
+        deck.validate_for_format(&catalog, format)
+    };
+    // Legal reprints qualify the whole identity, including older debut printings.
+    for name in ["Llanowar Elves", "Opt", "Leyline of Resonance"] {
+        assert!(deck_with(name, false).is_ok(), "{name}");
+    }
+    for name in super::standards::woe_hob::BANNED_CARDS {
+        for sideboard in [false, true] {
+            assert!(
+                matches!(deck_with(name, sideboard), Err(DeckError::BannedCard(_))),
+                "{name}"
+            );
+        }
+    }
+    assert!(matches!(
+        deck_with("Counterspell", false),
+        Err(DeckError::CardNotAllowed { .. })
+    ));
+}

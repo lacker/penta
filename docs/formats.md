@@ -7,7 +7,7 @@ authoritative machine-readable account of card legality and coverage.
 
 ## Supported formats
 
-Penta currently ships ten explicit format profiles in six presentation
+Penta currently ships eleven explicit format profiles in six presentation
 categories:
 
 - **Old School 93/94**: the original card pool, EC banned and
@@ -26,6 +26,8 @@ categories:
   2013.
 - **Standard: SOM-M13**: Scars of Mirrodin, Mirrodin Besieged, New Phyrexia,
   Magic 2012, Innistrad, Dark Ascension, Avacyn Restored, and Magic 2013.
+- **Standard: WOE-HOB**: the fixed Wilds of Eldraine through The Hobbit pool,
+  with the August 10, 2026 paper Standard bans and sixteen September event decks.
 - **Cube: Vintage**: the dated 534-card MTGO Vintage Cube snapshot.
 - **Cube: The Pauper Cube**: the dated 450-card Cube Cobra list exported on
   2026-08-22 from the source maintained as The Pauper Cube.
@@ -211,21 +213,27 @@ Chaos Orb interaction: Guardian Beast can prevent the Orb's final destruction,
 but destroying the Beast with a successful flip removes that protection before
 the Orb's next instruction.
 
-### WOE–HOB Standard deck inventory
+### Standard: WOE–HOB decks
 
 WOE–HOB names the fixed Standard card pool from Wilds of Eldraine through
 The Hobbit. `decks/woe_hob_standard/` contains all sixteen published lists, including
 sideboards, from the [September 8, 2026 MTGO Challenge 32][standard-challenge-90673].
-The YAML files use the shared deck generator. `make deck-report` derives each
-list's unsupported-card diagnostics from the current catalog and reports the
-missing format profile separately. The first two Izzet
+The YAML files use the shared deck generator and are available in native game
+setup and the browser picker. `make deck-report` derives each list's current
+implementation coverage from the catalog. The first two Izzet
 Spellementals lists retain their published 61-card main decks; the remaining
 lists have 60 cards, and all sideboards have 15. Multifaced card names are
-expanded where needed to resolve the catalog's whole-card unsupported entries.
+expanded where needed to resolve the catalog's complete card identities.
 
-These lists are implementation inputs. The WOE–HOB Standard set inventory is
-cataloged, with missing rules explicitly unsupported; a WOE–HOB Standard
-format profile and playable-deck registration remain follow-up work.
+Every card in these sixteen decks, including sideboards, is implemented. The
+wider nineteen-set inventory remains cataloged with missing rules explicitly
+unsupported. The fixed `woe-hob-standard` profile follows the set list in the
+[Hobbit release notes](https://magic.wizards.com/en/news/feature/the-hobbit-release-notes),
+including Foundations and The Big Score, and the paper Standard
+[ban list](https://magic.wizards.com/en/banned-restricted-list) through the
+[August 10, 2026 update](https://magic.wizards.com/en/news/announcements/banned-and-restricted-august-10-2026).
+Commander products and bonus sheets do not expand the pool. Arena's best-of-one
+Leyline of Resonance ban does not apply, including in single-game mode.
 
 ### Standard: ISD–M14 decks
 

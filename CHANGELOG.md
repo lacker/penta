@@ -20,6 +20,13 @@ the bot-wire epoch.
 
 ## Unreleased
 
+- Add playable Standard: WOE-HOB with the nineteen-set paper card pool through
+  The Hobbit, the August 2026 bans, and all sixteen September 8 MTGO event
+  decks. Native/binding setup accepts `woe-hob-standard`; the browser picker
+  includes every list with its published main deck and sideboard. All included
+  deck cards are implemented; wider-pool coverage remains explicit. Existing
+  format meanings and protocol, replay, and checkpoint versions are unchanged.
+
 - Reuse immutable rules across board queries: borrow printed rules and share
   bounded materializations of inline token, emblem, and face-down rules across
   game clones. Cache authored token/emblem locator discovery per catalog instead

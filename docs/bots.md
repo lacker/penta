@@ -1,8 +1,8 @@
 # Writing an AI bot for Penta
 
 penta is a deterministic engine for two-player Magic across set-based formats
-and fixed-list cubes. Its profiles include Old School 93/94, Premodern, two
-historical Standard windows, and two cubes. This guide is for writing a program
+and fixed-list cubes. Its profiles include Old School 93/94, Premodern, three
+fixed Standard windows, and two cubes. This guide is for writing a program
 that plays it: from Python, C, C++, or Rust, against the included bots or
 against itself.
 
@@ -18,7 +18,12 @@ capabilities, and require one only when your implementation consumes it. Query
 the selected binding. Pin the simulation fingerprint, rather than the package
 version or wire epoch, alongside trained weights. Old School remains the default
 for compatibility; new integrations should record and pass an explicit format
-slug with each game.
+slug with each game. The additive `woe-hob-standard` profile selects the fixed
+WOE–HOB paper Standard window and its sixteen event lists. Format slugs are
+explicit setup selections: clients should offer only profiles they support and
+reject unknown slugs rather than substitute another format. Existing slugs,
+defaults, and encodings retain their meanings; this addition does not change
+the protocol, replay, or checkpoint versions.
 
 A bot is a function from an **observation** (your seat's view of the game,
 as JSON) to an **action index** (a position in that observation's
@@ -512,7 +517,7 @@ world it can search.
 | `protocolCapabilities` | optional named facilities emitted by this engine; includes `reconstruction.checkpoint.v21`, `match.first-to-two-wins.v1` and `rules.restart-game.v1`; ignore unknown entries |
 | `simulationFingerprint` | a conservative identity of simulation source and build requirements; pin it for training and require it for reconstruction |
 | `engineVersion` | package-release provenance; it is not an exact simulation identity |
-| `format` | the rules/deck profile slug: `"old-school-93-94"`, `"premodern"`, `"isd-m14-standard"`, `"som-m13-standard"`, `"vintage-cube"`, or `"pauper-cube"` |
+| `format` | the rules/deck profile slug: `"old-school-93-94"`, `"premodern"`, `"isd-m14-standard"`, `"som-m13-standard"`, `"woe-hob-standard"`, `"vintage-cube"`, or `"pauper-cube"` |
 | `seat` | whose view this is: `"p1"` or `"p2"` |
 | `pregame` | true while mulligans are being settled |
 | `turn`, `activeTurn`, `activeSeat`, `prioritySeat`, `step` | where the game is; `activeTurn` counts turns started by the active player, including extra turns, and `step` is one of `Upkeep`, `Draw`, `PrecombatMain`, `BeginningOfCombat`, `DeclareAttackers`, `DeclareBlockers`, `CombatDamage`, `EndOfCombat`, `PostcombatMain`, `End`, `Cleanup` |

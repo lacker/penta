@@ -1271,7 +1271,10 @@ pub(in crate::card::sets) static UNITED_BATTLEFRONT: CardRecord = CardRecord::ne
             remainder: crate::Binding!("rest"),
             then: &EffectDef::Sequence(&[
                 EffectDef::RevealObjects(RevealObjectsDef {
-                    input: ObjectSetDef::Binding(crate::Binding!("chosen")),
+                    source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(
+                        crate::Binding!("chosen"),
+                    )),
+                    revealed: None,
                     then: &EffectDef::None,
                 }),
                 EffectDef::move_to_zone(
@@ -1700,7 +1703,10 @@ pub(in crate::card::sets) static DRAGONOLOGIST: CardRecord = CardRecord::new(
                 remainder: crate::Binding!("rest"),
                 then: &EffectDef::Sequence(&[
                     EffectDef::RevealObjects(RevealObjectsDef {
-                        input: ObjectSetDef::Binding(crate::Binding!("chosen")),
+                        source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(
+                            crate::Binding!("chosen"),
+                        )),
+                        revealed: None,
                         then: &EffectDef::None,
                     }),
                     EffectDef::move_to_zone(
@@ -4040,7 +4046,10 @@ pub(in crate::card::sets) static SARKHAN_DRAGON_ASCENDANT: CardRecord = CardReco
                         }),
                         then: &EffectDef::Sequence(&[
                             EffectDef::RevealObjects(RevealObjectsDef {
-                                input: ObjectSetDef::Binding(crate::Binding!("chosen")),
+                                source: ObjectCollectionSourceDef::ObjectSet(
+                                    ObjectSetDef::Binding(crate::Binding!("chosen")),
+                                ),
+                                revealed: None,
                                 then: &EffectDef::None,
                             }),
                             EffectDef::CreateToken(
@@ -5885,7 +5894,10 @@ pub(in crate::card::sets) static TRAVELING_BOTANIST: CardRecord = CardRecord::ne
                                 visibility: ChoiceVisibilityDef::Private,
                                 then: &EffectDef::Sequence(&[
                                     EffectDef::RevealObjects(RevealObjectsDef {
-                                        input: ObjectSetDef::Binding(crate::Binding!("chosen")),
+                                        source: ObjectCollectionSourceDef::ObjectSet(
+                                            ObjectSetDef::Binding(crate::Binding!("chosen")),
+                                        ),
+                                        revealed: None,
                                         then: &EffectDef::None,
                                     }),
                                     EffectDef::move_to_zone(

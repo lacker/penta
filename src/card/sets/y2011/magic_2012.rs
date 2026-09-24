@@ -39,6 +39,7 @@ use crate::card::InstalledTriggerDef;
 use crate::card::KeywordAbility;
 use crate::card::ManaColor;
 use crate::card::MoveObjectsDef;
+use crate::card::ObjectCollectionSourceDef;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
 use crate::card::ObjectRefDef;
@@ -1124,7 +1125,10 @@ pub(in crate::card::sets) static SPHINX_OF_UTHUUN: CardRecord = CardRecord::new(
                 ValueDef::Constant(5),
                 &EffectDef::Sequence(&[
                     EffectDef::RevealObjects(RevealObjectsDef {
-                        input: ObjectSetDef::Binding(ParentBinding),
+                        source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(
+                            ParentBinding,
+                        )),
+                        revealed: None,
                         then: &EffectDef::None,
                     }),
                     EffectDef::PartitionGroup(PartitionGroupDef {

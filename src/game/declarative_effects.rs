@@ -21,6 +21,7 @@ mod permanent_state;
 mod play_grants;
 mod player_state;
 mod prevention;
+mod repetition;
 mod tapping;
 mod tokens;
 
@@ -58,36 +59,7 @@ impl Game {
             EffectDef::ExileUntilSourceLeaves { object: recipient } => {
                 self.resolve_duration_exile(recipient, object, &context, scoped);
             }
-            EffectDef::Repeat {
-                mandatory_first: true,
-                player,
-                effect,
-            } => {
-                self.resolve_effects_in_order(
-                    vec![
-                        scoped.with_effect(*effect),
-                        scoped.with_effect(EffectDef::Repeat {
-                            mandatory_first: false,
-                            player,
-                            effect,
-                        }),
-                    ],
-                    object,
-                    context,
-                );
-            }
-            EffectDef::Repeat { player, .. } => {
-                for target in self.effect_recipients(player, object, &context, scoped) {
-                    if let Target::Player(player) = target {
-                        self.queue_optional_effect(
-                            player,
-                            object,
-                            context.fork_resolution(),
-                            scoped,
-                        );
-                    }
-                }
-            }
+            EffectDef::Repeat { .. } => self.resolve_repeated_effect(scoped, object, context),
             EffectDef::BindValue {
                 binding,
                 value,

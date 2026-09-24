@@ -29,6 +29,23 @@ impl Game {
                     self.optional_effect_availability(object, context, scoped.with_effect(*effect))
                 }
             }
+            EffectDef::Repeat { effect, .. } | EffectDef::BindOutput { effect, .. } =>
+                self.optional_effect_availability(object, context, scoped.with_effect(*effect)),
+            EffectDef::RevealObjects(crate::card::RevealObjectsDef {
+                source: crate::card::ObjectCollectionSourceDef::TopCards { player, count }, ..
+            }) => {
+                let count = usize::try_from(self.effect_value(count, object, context, scoped).max(0))
+                    .unwrap_or(usize::MAX);
+                let available = self.effect_player_reference(player, object, context, scoped)
+                    .is_some_and(|player| self.players[player.index()].library.len() >= count);
+                (available, DecisionVisibility::Public)
+            }
+            EffectDef::BindValue { binding, value, effect } => {
+                let value = self.effect_value(value, object, context, scoped);
+                let mut context = context.fork_resolution();
+                context.bind_value(binding, value);
+                self.optional_effect_availability(object, &context, scoped.with_effect(*effect))
+            }
             EffectDef::Choose(choice) => {
                 self.optional_object_choice_availability(choice, object, context, scoped)
             }
@@ -92,9 +109,6 @@ impl Game {
                 .map_or((true, DecisionVisibility::Public), |effect| {
                     self.optional_effect_availability(object, context, scoped.with_effect(*effect))
                 }),
-            EffectDef::BindOutput { effect, .. } => {
-                self.optional_effect_availability(object, context, scoped.with_effect(*effect))
-            }
             EffectDef::WithCosts { costs, effect } => self.optional_effect_availability(
                 object,
                 context,

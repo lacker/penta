@@ -137,11 +137,15 @@ pub struct RandomizeObjectOrderDef {
     pub then: &'static EffectDef,
 }
 
-/// Reveal every card in a collection, then continue. Revelation is information;
-/// moving or otherwise acting on the cards remains a separate stage.
+/// Reveal cards from a source and optionally bind the cards actually revealed.
+/// Counted sources retain their requested quantity: optional revelation requires
+/// the full count, while mandatory resolution reveals as many as possible and
+/// continues. Object-set sources reveal every member, including an empty set.
+/// Moving or otherwise acting on the cards remains a separate stage.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct RevealObjectsDef {
-    pub input: ObjectSetDef,
+    pub source: ObjectCollectionSourceDef,
+    pub revealed: Option<Binding>,
     pub then: &'static EffectDef,
 }
 

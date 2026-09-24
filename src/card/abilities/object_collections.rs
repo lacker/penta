@@ -86,7 +86,8 @@ static PUT_CHOSEN_IN_HAND_THEN_RANDOM_BOTTOM: EffectDef = EffectDef::Sequence(&[
 static REVEAL_CHOSEN_THEN_PUT_IN_HAND_AND_PRIVATE_BOTTOM: EffectDef =
     EffectDef::Sequence(&[
         EffectDef::RevealObjects(RevealObjectsDef {
-            input: ObjectSetDef::Binding(TOP_CARD_CHOSEN),
+            source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(TOP_CARD_CHOSEN)),
+            revealed: None,
             then: &EffectDef::None,
         }),
         PUT_CHOSEN_IN_HAND_THEN_PRIVATE_BOTTOM,
@@ -94,7 +95,8 @@ static REVEAL_CHOSEN_THEN_PUT_IN_HAND_AND_PRIVATE_BOTTOM: EffectDef =
 static REVEAL_CHOSEN_THEN_PUT_IN_HAND_AND_RANDOM_BOTTOM: EffectDef =
     EffectDef::Sequence(&[
         EffectDef::RevealObjects(RevealObjectsDef {
-            input: ObjectSetDef::Binding(TOP_CARD_CHOSEN),
+            source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(TOP_CARD_CHOSEN)),
+            revealed: None,
             then: &EffectDef::None,
         }),
         PUT_CHOSEN_IN_HAND_THEN_RANDOM_BOTTOM,

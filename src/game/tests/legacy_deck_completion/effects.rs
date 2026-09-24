@@ -1,6 +1,64 @@
 use super::*;
 
 #[test]
+fn ad_nauseam_stops_after_the_last_card_including_after_checkpoint_restore() {
+    for library in [
+        vec![cards::GRIZZLY_BEARS],
+        vec![cards::FOREST, cards::GRIZZLY_BEARS, cards::SERRA_ANGEL],
+    ] {
+        for starting_life in [7, 20] {
+            let mut game = ready_game();
+            game.players[0].life = starting_life;
+            game.players[0].library = game.build_zone(PlayerId::One, &library).unwrap();
+            game.add_unrestricted_mana(PlayerId::One, ManaColor::Black, 5);
+            cast(&mut game, cards::AD_NAUSEAM, None);
+            game.apply(game.priority, Action::PassPriority).unwrap();
+            game.apply(game.priority, Action::PassPriority).unwrap();
+            for remaining in (1..library.len()).rev() {
+                assert_eq!(game.players[0].library.len(), remaining);
+                assert!(
+                    game.result.is_none(),
+                    "life loss waits for resolution to end"
+                );
+                let (wire, hidden) = checkpoint_fixture(&game, PlayerId::One);
+                game = Game::from_observation_checkpoint(
+                    game.catalog.clone(),
+                    game.format,
+                    &wire,
+                    &hidden,
+                    2,
+                )
+                .unwrap();
+                choose_label(&mut game, "Yes");
+            }
+            assert!(game.players[0].library.is_empty());
+            assert_eq!(game.players[0].hand.len(), library.len());
+            assert_eq!(
+                game.players[0].life,
+                starting_life - if library.len() == 1 { 2 } else { 7 }
+            );
+            assert!(
+                game.pending_decisions.is_empty(),
+                "no empty-library repeat offer"
+            );
+            assert!(game.stack.is_empty());
+            assert!(!game.players[0].tried_to_draw_from_empty_library);
+            if game.players[0].life == 0 {
+                assert!(matches!(
+                    game.result,
+                    Some(GameResult::Winner {
+                        winner: PlayerId::Two,
+                        ..
+                    })
+                ));
+            } else {
+                assert!(game.result.is_none());
+            }
+        }
+    }
+}
+
+#[test]
 fn ad_nauseam_repeats_after_each_card_and_stops_without_an_extra_reveal() {
     let mut game = ready_game();
     game.players[0].library = game

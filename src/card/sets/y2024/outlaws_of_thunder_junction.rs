@@ -697,7 +697,10 @@ pub(in crate::card::sets) static FRONTIER_SEEKER: CardRecord = CardRecord::new(
                 remainder: crate::Binding!("rest"),
                 then: &EffectDef::Sequence(&[
                     EffectDef::RevealObjects(RevealObjectsDef {
-                        input: ObjectSetDef::Binding(crate::Binding!("chosen")),
+                        source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(
+                            crate::Binding!("chosen"),
+                        )),
+                        revealed: None,
                         then: &EffectDef::None,
                     }),
                     EffectDef::move_to_zone(
@@ -2801,7 +2804,10 @@ pub(in crate::card::sets) static CAUSTIC_BRONCO: CardRecord = CardRecord::new(
                     ValueDef::Constant(1),
                     &EffectDef::Sequence(&[
                         EffectDef::RevealObjects(RevealObjectsDef {
-                            input: ObjectSetDef::Binding(ParentBinding),
+                            source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(
+                                ParentBinding,
+                            )),
+                            revealed: None,
                             then: &EffectDef::None,
                         }),
                         EffectDef::MoveObjects(MoveObjectsDef {
@@ -5313,7 +5319,10 @@ pub(in crate::card::sets) static FREESTRIDER_LOOKOUT: CardRecord = CardRecord::n
                 remainder: crate::Binding!("rest"),
                 then: &EffectDef::Sequence(&[
                     EffectDef::RevealObjects(RevealObjectsDef {
-                        input: ObjectSetDef::Binding(crate::Binding!("chosen")),
+                        source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(
+                            crate::Binding!("chosen"),
+                        )),
+                        revealed: None,
                         then: &EffectDef::None,
                     }),
                     EffectDef::WithBattlefieldArrival {
@@ -8541,7 +8550,10 @@ pub(in crate::card::sets) static BUCOLIC_RANCH: CardRecord = CardRecord::new(
                 remainder: crate::Binding!("rest"),
                 then: &EffectDef::Sequence(&[
                     EffectDef::RevealObjects(RevealObjectsDef {
-                        input: ObjectSetDef::Binding(crate::Binding!("chosen")),
+                        source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(
+                            crate::Binding!("chosen"),
+                        )),
+                        revealed: None,
                         then: &EffectDef::None,
                     }),
                     EffectDef::move_to_zone(

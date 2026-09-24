@@ -181,3 +181,5 @@ fn may_effects_allow_a_zero_card_selection() {
     assert!(game.pending_decisions.is_empty());
     assert!(game.players[0].graveyard.is_empty());
 }
+
+mod reveals;

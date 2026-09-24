@@ -545,7 +545,10 @@ pub(in crate::card::sets) static ASHE_PRINCESS_OF_DALMASCA: CardRecord = CardRec
                 remainder: crate::Binding!("rest"),
                 then: &EffectDef::Sequence(&[
                     EffectDef::RevealObjects(RevealObjectsDef {
-                        input: ObjectSetDef::Binding(crate::Binding!("chosen")),
+                        source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(
+                            crate::Binding!("chosen"),
+                        )),
+                        revealed: None,
                         then: &EffectDef::None,
                     }),
                     EffectDef::move_to_zone(
@@ -840,7 +843,10 @@ pub(in crate::card::sets) static DELIVERY_MOOGLE: CardRecord = CardRecord::new(
                                 visibility: ChoiceVisibilityDef::Private,
                                 then: &EffectDef::Sequence(&[
                                     EffectDef::RevealObjects(RevealObjectsDef {
-                                        input: ObjectSetDef::Binding(Binding!("moogle_found")),
+                                        source: ObjectCollectionSourceDef::ObjectSet(
+                                            ObjectSetDef::Binding(Binding!("moogle_found")),
+                                        ),
+                                        revealed: None,
                                         then: &EffectDef::None,
                                     }),
                                     EffectDef::move_to_zone(
@@ -1480,7 +1486,10 @@ pub(in crate::card::sets) static SIDEQUEST_CATCH_A_FISH: CardRecord = CardRecord
                         remainder: crate::Binding!("rest"),
                         then: &EffectDef::Sequence(&[
                             EffectDef::RevealObjects(RevealObjectsDef {
-                                input: ObjectSetDef::Binding(crate::Binding!("chosen")),
+                                source: ObjectCollectionSourceDef::ObjectSet(
+                                    ObjectSetDef::Binding(crate::Binding!("chosen")),
+                                ),
+                                revealed: None,
                                 then: &EffectDef::None,
                             }),
                             EffectDef::WithZoneMoveResult {
@@ -5949,7 +5958,10 @@ pub(in crate::card::sets) static COMMUNE_WITH_BEAVERS: CardRecord = CardRecord::
             remainder: crate::Binding!("rest"),
             then: &EffectDef::Sequence(&[
                 EffectDef::RevealObjects(RevealObjectsDef {
-                    input: ObjectSetDef::Binding(crate::Binding!("chosen")),
+                    source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(
+                        crate::Binding!("chosen"),
+                    )),
+                    revealed: None,
                     then: &EffectDef::None,
                 }),
                 EffectDef::move_to_zone(

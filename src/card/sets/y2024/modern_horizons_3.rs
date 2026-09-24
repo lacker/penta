@@ -4418,7 +4418,10 @@ pub(in crate::card::sets) static NADU_WINGED_WISDOM: CardRecord = CardRecord::ne
                                 ValueDef::Constant(1),
                                 &EffectDef::Sequence(&[
                                     EffectDef::RevealObjects(RevealObjectsDef {
-                                        input: ObjectSetDef::Binding(ParentBinding),
+                                        source: ObjectCollectionSourceDef::ObjectSet(
+                                            ObjectSetDef::Binding(ParentBinding),
+                                        ),
+                                        revealed: None,
                                         then: &EffectDef::None,
                                     }),
                                     EffectDef::ClassifyObjects(ClassifyObjectsDef {

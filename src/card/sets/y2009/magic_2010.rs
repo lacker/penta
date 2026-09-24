@@ -992,7 +992,10 @@ pub(in crate::card::sets) static LURKING_PREDATORS: CardRecord = CardRecord::new
             binding: Binding!("predators_top"),
             then: &EffectDef::Sequence(&[
                 EffectDef::RevealObjects(RevealObjectsDef {
-                    input: ObjectSetDef::Binding(Binding!("predators_top")),
+                    source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(Binding!(
+                        "predators_top"
+                    ))),
+                    revealed: None,
                     then: &EffectDef::None,
                 }),
                 EffectDef::ForEachInBinding {

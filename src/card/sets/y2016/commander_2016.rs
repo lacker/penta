@@ -214,7 +214,10 @@ pub(in crate::card::sets) static THRASIOS_TRITON_HERO: CardRecord = CardRecord::
                         binding: Binding!("thrasios_top"),
                         then: &EffectDef::Sequence(&[
                             EffectDef::RevealObjects(RevealObjectsDef {
-                                input: ObjectSetDef::Binding(Binding!("thrasios_top")),
+                                source: ObjectCollectionSourceDef::ObjectSet(
+                                    ObjectSetDef::Binding(Binding!("thrasios_top")),
+                                ),
+                                revealed: None,
                                 then: &EffectDef::None,
                             }),
                             EffectDef::ForEachInBinding {

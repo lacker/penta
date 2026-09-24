@@ -271,9 +271,12 @@ pub(in crate::card::sets) static HERALD_S_HORN: CardRecord = CardRecord::new(
                                 player: EffectRecipientDef::Controller,
                                 effect: &EffectDef::Sequence(&[
                                     EffectDef::RevealObjects(RevealObjectsDef {
-                                        input: ObjectSetDef::One(ObjectRefDef::Binding(Binding!(
-                                            "horn_card"
-                                        ))),
+                                        source: ObjectCollectionSourceDef::ObjectSet(
+                                            ObjectSetDef::One(ObjectRefDef::Binding(Binding!(
+                                                "horn_card"
+                                            ))),
+                                        ),
+                                        revealed: None,
                                         then: &EffectDef::None,
                                     }),
                                     EffectDef::move_to_zone(

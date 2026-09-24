@@ -205,7 +205,10 @@ pub(in crate::card::sets) static COUNTERBALANCE: CardRecord = CardRecord::new(
                 binding: Binding!("revealed_top"),
                 then: &EffectDef::Sequence(&[
                     EffectDef::RevealObjects(RevealObjectsDef {
-                        input: ObjectSetDef::Binding(Binding!("revealed_top")),
+                        source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(
+                            Binding!("revealed_top"),
+                        )),
+                        revealed: None,
                         then: &EffectDef::None,
                     }),
                     EffectDef::ForEachInBinding {

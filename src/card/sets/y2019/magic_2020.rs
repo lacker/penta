@@ -1,5 +1,6 @@
 //! Core Set 2020 cards cataloged for the Vintage Cube.
 
+use crate::card::ObjectCollectionSourceDef;
 use crate::card::PlayPermissionDef;
 use crate::card::ZonePositionDef;
 
@@ -373,11 +374,14 @@ pub(in crate::card::sets) static LEGION_S_END: CardRecord = CardRecord::new(
             ),
             EffectDef::Sequence(&[
                 EffectDef::RevealObjects(RevealObjectsDef {
-                    input: ObjectSetDef::Query(ObjectQueryDef::matching(
-                        ObjectPredicateDef::Any,
-                        &[ZoneKind::Hand],
-                        PlayerRelation::Opponent,
+                    source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Query(
+                        ObjectQueryDef::matching(
+                            ObjectPredicateDef::Any,
+                            &[ZoneKind::Hand],
+                            PlayerRelation::Opponent,
+                        ),
                     )),
+                    revealed: None,
                     then: &EffectDef::None,
                 }),
                 EffectDef::move_to_zone(

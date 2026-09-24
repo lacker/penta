@@ -41,6 +41,7 @@ use crate::card::InstalledTriggerDef;
 use crate::card::ManaColor;
 use crate::card::MillUntilDef;
 use crate::card::ObjectChoiceBindingDef;
+use crate::card::ObjectCollectionSourceDef;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
 use crate::card::ObjectRefDef;
@@ -357,7 +358,10 @@ pub(in crate::card::sets) static JASMINE_SEER: CardRecord = CardRecord::new(
                 visibility: ChoiceVisibilityDef::Private,
                 then: &EffectDef::Sequence(&[
                     EffectDef::RevealObjects(RevealObjectsDef {
-                        input: ObjectSetDef::Binding(ParentBinding),
+                        source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(
+                            ParentBinding,
+                        )),
+                        revealed: None,
                         then: &EffectDef::None,
                     }),
                     EffectDef::GainLife {
@@ -564,7 +568,10 @@ pub(in crate::card::sets) static SCENT_OF_JASMINE: CardRecord = CardRecord::new(
             visibility: ChoiceVisibilityDef::Private,
             then: &EffectDef::Sequence(&[
                 EffectDef::RevealObjects(RevealObjectsDef {
-                    input: ObjectSetDef::Binding(ParentBinding),
+                    source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(
+                        ParentBinding,
+                    )),
+                    revealed: None,
                     then: &EffectDef::None,
                 }),
                 EffectDef::GainLife {
@@ -797,7 +804,10 @@ pub(in crate::card::sets) static BRINE_SEER: CardRecord = CardRecord::new(
                 visibility: ChoiceVisibilityDef::Private,
                 then: &EffectDef::Sequence(&[
                     EffectDef::RevealObjects(RevealObjectsDef {
-                        input: ObjectSetDef::Binding(ParentBinding),
+                        source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(
+                            ParentBinding,
+                        )),
+                        revealed: None,
                         then: &EffectDef::None,
                     }),
                     EffectDef::PayOr(
@@ -1247,7 +1257,10 @@ pub(in crate::card::sets) static SCENT_OF_BRINE: CardRecord = CardRecord::new(
             visibility: ChoiceVisibilityDef::Private,
             then: &EffectDef::Sequence(&[
                 EffectDef::RevealObjects(RevealObjectsDef {
-                    input: ObjectSetDef::Binding(ParentBinding),
+                    source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(
+                        ParentBinding,
+                    )),
+                    revealed: None,
                     then: &EffectDef::None,
                 }),
                 EffectDef::PayOr(
@@ -1801,7 +1814,10 @@ pub(in crate::card::sets) static NIGHTSHADE_SEER: CardRecord = CardRecord::new(
                 visibility: ChoiceVisibilityDef::Private,
                 then: &EffectDef::Sequence(&[
                     EffectDef::RevealObjects(RevealObjectsDef {
-                        input: ObjectSetDef::Binding(ParentBinding),
+                        source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(
+                            ParentBinding,
+                        )),
+                        revealed: None,
                         then: &EffectDef::None,
                     }),
                     EffectDef::Apply {
@@ -1937,7 +1953,10 @@ pub(in crate::card::sets) static SCENT_OF_NIGHTSHADE: CardRecord = CardRecord::n
             visibility: ChoiceVisibilityDef::Private,
             then: &EffectDef::Sequence(&[
                 EffectDef::RevealObjects(RevealObjectsDef {
-                    input: ObjectSetDef::Binding(ParentBinding),
+                    source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(
+                        ParentBinding,
+                    )),
+                    revealed: None,
                     then: &EffectDef::None,
                 }),
                 EffectDef::Apply {
@@ -2118,7 +2137,10 @@ pub(in crate::card::sets) static CINDER_SEER: CardRecord = CardRecord::new(
                 visibility: ChoiceVisibilityDef::Private,
                 then: &EffectDef::Sequence(&[
                     EffectDef::RevealObjects(RevealObjectsDef {
-                        input: ObjectSetDef::Binding(ParentBinding),
+                        source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(
+                            ParentBinding,
+                        )),
+                        revealed: None,
                         then: &EffectDef::None,
                     }),
                     EffectDef::damage(
@@ -2562,7 +2584,10 @@ pub(in crate::card::sets) static SCENT_OF_CINDER: CardRecord = CardRecord::new(
             visibility: ChoiceVisibilityDef::Private,
             then: &EffectDef::Sequence(&[
                 EffectDef::RevealObjects(RevealObjectsDef {
-                    input: ObjectSetDef::Binding(ParentBinding),
+                    source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(
+                        ParentBinding,
+                    )),
+                    revealed: None,
                     then: &EffectDef::None,
                 }),
                 EffectDef::damage(
@@ -2899,7 +2924,10 @@ pub(in crate::card::sets) static IVY_SEER: CardRecord = CardRecord::new(
                 visibility: ChoiceVisibilityDef::Private,
                 then: &EffectDef::Sequence(&[
                     EffectDef::RevealObjects(RevealObjectsDef {
-                        input: ObjectSetDef::Binding(ParentBinding),
+                        source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(
+                            ParentBinding,
+                        )),
+                        revealed: None,
                         then: &EffectDef::None,
                     }),
                     EffectDef::Apply {
@@ -3160,7 +3188,10 @@ pub(in crate::card::sets) static ROFELLOS_S_GIFT: CardRecord = CardRecord::new(
             visibility: ChoiceVisibilityDef::Private,
             then: &EffectDef::Sequence(&[
                 EffectDef::RevealObjects(RevealObjectsDef {
-                    input: ObjectSetDef::Binding(ParentBinding),
+                    source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(
+                        ParentBinding,
+                    )),
+                    revealed: None,
                     then: &EffectDef::None,
                 }),
                 EffectDef::ChooseExact(ChooseExactDef {
@@ -3212,7 +3243,10 @@ pub(in crate::card::sets) static SCENT_OF_IVY: CardRecord = CardRecord::new(
             visibility: ChoiceVisibilityDef::Private,
             then: &EffectDef::Sequence(&[
                 EffectDef::RevealObjects(RevealObjectsDef {
-                    input: ObjectSetDef::Binding(ParentBinding),
+                    source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(
+                        ParentBinding,
+                    )),
+                    revealed: None,
                     then: &EffectDef::None,
                 }),
                 EffectDef::Apply {

@@ -3208,7 +3208,10 @@ pub(in crate::card::sets) static STRONGHOLD_GAMBIT: CardRecord = CardRecord::new
             unchosen: Binding!("unchosen_cards"),
             then: &EffectDef::Sequence(&[
                 EffectDef::RevealObjects(RevealObjectsDef {
-                    input: ObjectSetDef::Binding(ParentBinding),
+                    source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(
+                        ParentBinding,
+                    )),
+                    revealed: None,
                     then: &EffectDef::None,
                 }),
                 EffectDef::move_to_zone(

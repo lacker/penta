@@ -297,7 +297,7 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
                 && shared_object_collection_continuation(*definition.then, deferred_decision_allowed)
         }
         EffectDef::RevealObjects(definition) => {
-            shared_effect_recipient(EffectRecipientDef::objects(definition.input))
+            shared_object_collection(definition.source)
                 && shared_object_collection_continuation(*definition.then, deferred_decision_allowed)
         }
         EffectDef::MoveObjects(definition) => {

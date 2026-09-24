@@ -345,8 +345,14 @@ impl Game {
                 self.resolve_effect_def(scoped.with_effect(*definition.then), object, context);
             }
             EffectDef::RevealObjects(definition) => {
-                let targets = self.effect_objects(definition.input, object, &context, scoped);
-                self.reveal_effect_collection(&targets);
+                let cards = self
+                    .effect_object_collection(definition.source, object, &context, scoped)
+                    .unwrap_or_default();
+                self.reveal_effect_collection(&cards);
+                let mut context = context;
+                if let Some(binding) = definition.revealed {
+                    context.bind_object_group(binding, cards);
+                }
                 self.resolve_effect_def(scoped.with_effect(*definition.then), object, context);
             }
             EffectDef::MoveObjects(definition) => {

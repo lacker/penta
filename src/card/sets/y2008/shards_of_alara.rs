@@ -9,7 +9,6 @@ use crate::card::AbilityTargetPredicate;
 use crate::card::AddManaEffectDef;
 use crate::card::AggregateOperationDef;
 use crate::card::AppliedEffectDef;
-use crate::card::BindObjectsDef;
 use crate::card::CardRules;
 use crate::card::CardSupertype;
 use crate::card::CardType;
@@ -261,42 +260,34 @@ pub(in crate::card::sets) static AD_NAUSEAM: CardRecord = CardRecord::new(
         EffectDef::Repeat {
             mandatory_first: true,
             player: EffectRecipientDef::Controller,
-            // Freeze the revealed mana value before moving the card.
-            effect: &EffectDef::BindObjects(BindObjectsDef {
+            effect: &EffectDef::RevealObjects(RevealObjectsDef {
                 source: ObjectCollectionSourceDef::TopCards {
                     player: PlayerRefDef::EffectController,
                     count: ValueDef::Constant(1),
                 },
-                binding: crate::Binding!("revealed-card"),
-                then: &EffectDef::Sequence(&[
-                    EffectDef::RevealObjects(RevealObjectsDef {
-                        input: ObjectSetDef::Binding(crate::Binding!("revealed-card")),
-                        then: &EffectDef::None,
+                revealed: Some(crate::Binding!("revealed-card")),
+                // Freeze the revealed mana value before moving the card.
+                then: &EffectDef::BindValue {
+                    binding: crate::Binding!("revealed-mana-value"),
+                    value: ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
+                        objects: ObjectSetDef::Binding(crate::Binding!("revealed-card")),
+                        select: ObjectValueDef::ManaValue,
+                        operation: AggregateOperationDef::Sum,
                     }),
-                    EffectDef::BindValue {
-                        binding: crate::Binding!("revealed-mana-value"),
-                        value: ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
-                            objects: ObjectSetDef::Binding(crate::Binding!("revealed-card")),
-                            select: ObjectValueDef::ManaValue,
-                            operation: AggregateOperationDef::Sum,
-                        }),
-                        effect: &EffectDef::Sequence(&[
-                            EffectDef::move_to_zone(
-                                EffectRecipientDef::objects(ObjectSetDef::Binding(
-                                    crate::Binding!("revealed-card"),
-                                )),
-                                ZoneKind::Hand,
-                                ZonePlacement::Top,
-                            ),
-                            EffectDef::LoseLife {
-                                recipient: EffectRecipientDef::Controller,
-                                amount: ValueDef::BoundValue(crate::Binding!(
-                                    "revealed-mana-value"
-                                )),
-                            },
-                        ]),
-                    },
-                ]),
+                    effect: &EffectDef::Sequence(&[
+                        EffectDef::move_to_zone(
+                            EffectRecipientDef::objects(ObjectSetDef::Binding(crate::Binding!(
+                                "revealed-card"
+                            ))),
+                            ZoneKind::Hand,
+                            ZonePlacement::Top,
+                        ),
+                        EffectDef::LoseLife {
+                            recipient: EffectRecipientDef::Controller,
+                            amount: ValueDef::BoundValue(crate::Binding!("revealed-mana-value")),
+                        },
+                    ]),
+                },
             }),
         },
     )),

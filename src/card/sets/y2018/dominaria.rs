@@ -107,7 +107,10 @@ pub(in crate::card::sets) static KARN_SCION_OF_URZA: CardRecord = CardRecord::ne
                     ValueDef::Constant(2),
                     &EffectDef::Sequence(&[
                         EffectDef::RevealObjects(RevealObjectsDef {
-                            input: ObjectSetDef::Binding(ParentBinding),
+                            source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(
+                                ParentBinding,
+                            )),
+                            revealed: None,
                             then: &EffectDef::None,
                         }),
                         EffectDef::Choose(ChooseDef {
@@ -598,7 +601,10 @@ pub(in crate::card::sets) static ADVENTUROUS_IMPULSE: CardRecord = CardRecord::n
             then: &EffectDef::Sequence(&[
                 EffectDef::Sequence(&[
                     EffectDef::RevealObjects(RevealObjectsDef {
-                        input: ObjectSetDef::Binding(crate::Binding!("chosen")),
+                        source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(
+                            crate::Binding!("chosen"),
+                        )),
+                        revealed: None,
                         then: &EffectDef::None,
                     }),
                     EffectDef::move_to_zone(

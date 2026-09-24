@@ -80,6 +80,17 @@ Activation programs and a universal editable payment UI remain follow-ups.
 
 ## Readability and local exceptions
 
+`RevealObjectsDef` reveals an `ObjectCollectionSourceDef` and can bind the cards
+actually revealed for its continuation. A `TopCards` source retains its requested
+count: mandatory resolution reveals as many as possible and still runs later
+instructions, while an optional choice requires the full count. `May` and
+`Repeat` share this eligibility check. A repeat with no available public action
+ends without another offer. This is not a rule that a failed instruction aborts
+its sequence. An `ObjectSet` source reveals every member of the existing set,
+which may be empty; drawing from an empty library also remains an available
+choice under its separate rules. Without a result binding, subsequent effects
+belong in `Sequence`.
+
 Inline declarations by default. Extract a coherent procedure when it genuinely
 makes complicated behavior easier to understand, not to name every subexpression.
 Keep it adjacent to the card; set-shared helpers belong in the set preamble.

@@ -235,8 +235,7 @@ pub enum EffectDef {
     },
     /// Classify a frozen collection by a predicate without asking a player.
     ClassifyObjects(super::ClassifyObjectsDef),
-    /// Reveal a materialized collection and classify all of it in one
-    /// mandatory instruction.
+    /// Reveal a collection and classify all of it in one mandatory instruction.
     RevealAndClassifyCards(super::RevealAndClassifyCardsDef),
     /// Concatenate previously bound collections in authored order.
     CombineObjects(super::CombineObjectsDef),

@@ -16,6 +16,22 @@ impl Game {
         });
         forced_action(&self.legal_actions(seat), decision).map(|action| (seat, action))
     }
+    /// Recognize forced continuations without searching possible spells.
+    #[must_use]
+    pub fn forced_action_without_search(&self) -> Option<(PlayerId, Action)> {
+        let seat = self.decision_player()?;
+        // Proving that passing is the only action requires searching all casts.
+        // A direct-action caller can pass explicitly instead.
+        if self.has_action_priority(seat)
+            || self
+                .pending_decisions
+                .iter()
+                .any(|pending| pending.continuation.cast_offer().is_some())
+        {
+            return None;
+        }
+        self.forced_action()
+    }
 }
 
 impl PlayerObservation {

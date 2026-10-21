@@ -1,7 +1,18 @@
 // Seat observation assembly shares api.rs imports.
 impl Game {
-    #[allow(clippy::too_many_lines)]
     pub fn observe(&self, viewer: PlayerId) -> PlayerObservation {
+        let _land_types = self.hold_land_type_query_memo();
+        let _listeners = self.hold_board_read_memo();
+        let mut observation = self.observe_state(viewer);
+        observation.legal_actions = self.legal_actions(viewer);
+        observation.checkpoint = self.checkpoint_json(viewer);
+        observation
+    }
+
+    /// Observe visible state without enumerating possible actions.
+    #[must_use]
+    #[allow(clippy::too_many_lines)]
+    pub fn observe_state(&self, viewer: PlayerId) -> PlayerObservation {
         let _land_types = self.hold_land_type_query_memo();
         let _listeners = self.hold_board_read_memo();
         let player = &self.players[viewer.index()];
@@ -136,8 +147,8 @@ impl Game {
                         .and_then(|decision| decision.observation.for_viewer(viewer))
                 }),
             result: self.result(),
-            legal_actions: self.legal_actions(viewer),
-            checkpoint: self.checkpoint_json(viewer),
+            legal_actions: Vec::new(),
+            checkpoint: serde_json::Value::Null,
         }
     }
 }

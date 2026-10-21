@@ -121,7 +121,7 @@ impl Host {
     /// Launch output belongs to the organizer; seat credentials are retrieved later.
     #[must_use]
     pub fn launch_info(&self, server: &str) -> Value {
-        json!({"apiVersion":1,"server":server,"organizerSecret":self.organizer,"status":"ready"})
+        json!({"apiVersion":2,"server":server,"organizerSecret":self.organizer,"status":"ready"})
     }
 
     /// Whether the organizer has explicitly closed the host.
@@ -189,6 +189,15 @@ impl Host {
                 number(args, "waitMs", 0, 25_000)?;
                 Ok(self.view(seat))
             }
+            "discover" => {
+                keys(args, &[])?;
+                let mut view = self.view(seat);
+                view["apiVersion"] = json!(1); // Explicit legacy discovery retains its menu envelope.
+                if view.get("observation").is_some() {
+                    view["observation"] = self.session.discover(seat);
+                }
+                Ok(view)
+            }
             "choose" | "play" | "concede" | "interact" => self.play(seat, method, args),
             "yield" | "cancelYield" => self.yield_request(seat, method, args),
             "receipt" => {
@@ -253,13 +262,13 @@ impl Host {
 
     fn base_view(&self, seat: PlayerId) -> Value {
         if self.failure.is_some() {
-            return json!({"apiVersion":1,"status":"paused",
+            return json!({"apiVersion":2,"status":"paused",
                 "message":"Match paused after an engine failure; the organizer can export diagnostics."});
         }
         if !self.session.is_finished() && self.session.decision_seat() != Some(seat) {
-            return json!({"apiVersion":1,"status":"waiting"});
+            return json!({"apiVersion":2,"status":"waiting"});
         }
-        json!({"apiVersion":1,
+        json!({"apiVersion":2,
             "status":if self.session.is_finished() { "complete" } else { "ready" },
             "revision":self.revision,"observation":self.observations[seat.index()]})
     }
@@ -294,7 +303,7 @@ impl Host {
 
     fn export(&self) -> Value {
         json!({
-            "nativeReplayVersion":2,
+            "nativeReplayVersion":3,
             "simulationFingerprint":protocol::SIMULATION_FINGERPRINT,
             "protocolVersion":protocol::PROTOCOL_VERSION,
             "engineVersion":protocol::ENGINE_VERSION,
@@ -365,5 +374,7 @@ fn request_id(args: &Value) -> Result<&str> {
         .ok_or_else(|| HostError::new(400, "requestId must contain 1 to 128 bytes"))
 }
 
+#[cfg(test)]
+mod proposal_tests;
 #[cfg(test)]
 mod tests;

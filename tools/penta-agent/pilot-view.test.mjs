@@ -80,14 +80,14 @@ test("pilot statuses have a discriminant and retain host receipts and yield stat
   }
   const complete = new PilotView({ ...envelope(observation), status: "complete" }).packet;
   assert.ok(complete.position);
-  assert.throws(() => new PilotView({ apiVersion: 1, status: "ready" }), /union/);
-  assert.throws(() => new PilotView({ ...envelope(observation), status: "waiting" }), /union/);
+  assert.throws(() => new PilotView({ apiVersion: 1, status: "ready" }), /PilotPacket\.revision: expected string/);
+  assert.throws(() => new PilotView({ ...envelope(observation), status: "waiting" }), /PilotPacket\.position: expected null/);
 });
 
 test("runtime contract rejects malformed known fields and inconsistent totals", () => {
-  assert.throws(() => view({ life: [20] }), /union/);
-  assert.throws(() => view({ seat: "p3" }), /union/);
-  assert.throws(() => view({ step: "Invented" }), /union/);
+  assert.throws(() => view({ life: [20] }), /players\.life: invalid item count/);
+  assert.throws(() => view({ seat: "p3" }), /seat: expected one of/);
+  assert.throws(() => view({ step: "Invented" }), /step: expected one of/);
   const packet = view({}).packet;
   packet.position.choices.total = 1;
   assert.throws(() => validatePilot(packet), /total/);
@@ -102,7 +102,7 @@ test("schema is available without credentials and declarations derive from it", 
   assert.match(declarations(), /"manaPools"\?: \[ManaPool, ManaPool\]/);
   validateContract({ requestId: "a", accepted: true, yield: null }, "Receipt");
   validateContract({ requestId: "b", accepted: 2, updates: [], stopped: "waiting" }, "Receipt");
-  assert.throws(() => validateContract({ requestId: "a", accepted: -1 }, "Receipt"), /union/);
+  assert.throws(() => validateContract({ requestId: "a", accepted: -1 }, "Receipt"), /Receipt\.accepted: number out of bounds/);
   assert.throws(() => validateContract({ requestId: "x".repeat(129) }, "CancelYieldRequest"), /too long/);
 });
 
@@ -122,7 +122,7 @@ test("native yield and cancellation validate before I/O and retain exact retries
   assert.equal(calls[2].method, "cancelYield");
   await assert.rejects(nativeCommand("cancelYield", credentials, fetcher), /requestId/);
   await assert.rejects(nativeCommand("cancelYield", { ...credentials, requestId: "é".repeat(65) }, fetcher), /128 UTF-8 bytes/);
-  await assert.rejects(nativeCommand("yield", { ...request, until: [{ type: "nextStep", step: "Invalid" }] }, fetcher), /union/);
+  await assert.rejects(nativeCommand("yield", { ...request, until: [{ type: "nextStep", step: "Invalid" }] }, fetcher), /until\[0\]\.step: expected one of/);
   assert.equal(calls.length, 3);
 });
 

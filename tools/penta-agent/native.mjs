@@ -16,19 +16,19 @@ Input gaps measure response-ready to next input, not model time.
 Stats exclude their own call count and measure bytes before their response.
 Session rules print once per unchanged summary; printedPreviouslySent marks reuse.
 Send {method:"observe",full:true} after context loss to reprint rules.
-Native play choices require {action:{...}}, {decision,options}, or one {index}.
+Native play choices accept {proposal:{action:{...},payment?}}, {action:{...}}, {decision,options}, or one {index}.
 Use choose for tickets; native play does not accept ticket batches or bare actions.
-Seat methods: observe, wait, choose, play, interact, concede, yield, cancelYield, receipt, transcript, note, catalog.
+Seat methods: observe, discover, wait, choose, play, interact, concede, yield, cancelYield, receipt, transcript, note, catalog.
 Session next waits for ready/complete/paused; interact submits once then waits internally.
 Both accept local maxWaitMs (default/max 60000); timeout returns waiting with sessionWait.
-interact accepts requestId, revision, choices (explicit actions/decisions), optional yield, waitMs.
+interact accepts requestId, revision, choices (typed proposals/actions/decisions), optional yield, waitMs.
 Empty interact choices require yield. Session interact defaults waitMs to 25000.
 Organizer methods: seats, status, export, close.
 Adapter method: inspect_ref {reference, offset?, limit?}.
 choose/play/interact/concede/yield/cancelYield require a caller-retained requestId. Retry the identical
 method and arguments after uncertain outcomes. No credentials or requests are saved.
-Views default to pilot-v2; presentation: "pilot-v1", "decision-v1" or "exact" remains available.
-schema prints the pilot-v2 JSON Schema without credentials; presentation: "pilot-v1" selects v1.
+Views default to pilot-v3; pilot-v2/pilot-v1/decision-v1 menus require explicit discover. exact remains available.
+schema prints the pilot-v3 JSON Schema without credentials; presentation: "pilot-v1" selects v1.
 See docs/native-matches.md for startup, reconnect and lifecycle limits.`;
 
 try {

@@ -41,7 +41,8 @@ pub mod session;
 
 pub use action::{
     AbilityOrigin, Action, ActionError, AlternativeAbilityCost, AttackDefender,
-    CombatDamageAssignment, ManaColor, Target,
+    CombatDamageAssignment, ContributionKind, ContributionSymbol, ExplicitContribution,
+    ExplicitFundingStep, ExplicitPayment, ManaColor, Target,
 };
 pub use card::{
     AbilityDef, AbilityEffectDef, AbilityOperationDef, AbilityPredicateDef, AbilityProcedureDef,

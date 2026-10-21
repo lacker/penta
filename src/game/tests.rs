@@ -71,6 +71,7 @@ mod bannerhide_krushok;
 mod becomes_blocked_pump;
 mod blaze_of_glory;
 mod blessing_and_flame;
+mod direct_actions;
 mod explicit_payment;
 mod harmonize;
 mod legacy_deck_completion;

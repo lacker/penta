@@ -18,6 +18,14 @@ fn default_mode() -> String {
 
 impl Config {
     pub(crate) fn session(&self, seed: u64) -> Result<ExactSession, String> {
+        self.session_version(seed, true)
+    }
+
+    pub(crate) fn session_version(
+        &self,
+        seed: u64,
+        proposals: bool,
+    ) -> Result<ExactSession, String> {
         let format = Format::ALL
             .iter()
             .find(|format| format.slug() == self.format)
@@ -30,6 +38,9 @@ impl Config {
             seed,
             MatchMode::parse(&self.match_mode)?,
         )?;
+        if proposals {
+            session = session.with_action_proposals();
+        }
         session.advance_forced()?;
         Ok(session)
     }

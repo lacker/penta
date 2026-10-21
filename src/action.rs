@@ -350,3 +350,43 @@ impl Action {
         }
     }
 }
+
+/// A complete explicit payment, evaluated atomically against the current state.
+/// Unit indices refer to the normalized pool after the ordered funding steps.
+#[derive(Clone, Debug, Default, Eq, PartialEq)]
+pub struct ExplicitPayment {
+    pub funding: Vec<ExplicitFundingStep>,
+    pub announcements: Vec<Vec<u32>>,
+    /// None allocates from the funded pool only; it never selects sources.
+    pub mana_units: Option<Vec<usize>>,
+    pub contributions: Vec<ExplicitContribution>,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct ExplicitFundingStep {
+    pub action: Action,
+    pub mana_units: Option<Vec<usize>>,
+    pub answers: Vec<Vec<u32>>,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum ContributionKind {
+    Convoke,
+    Delve,
+    Improvise,
+    Waterbend,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum ContributionSymbol {
+    Generic,
+    Color(ManaColor),
+    Flexible(crate::card::FlexibleManaSymbol),
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct ExplicitContribution {
+    pub source: GameObjectId,
+    pub kind: ContributionKind,
+    pub symbol: ContributionSymbol,
+}

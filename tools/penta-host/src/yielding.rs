@@ -83,6 +83,9 @@ impl YieldPolicy {
 }
 
 pub(crate) fn ordinary_priority(observation: &Value) -> bool {
+    if observation["actionInterface"] == "proposal-v1" {
+        return observation["actionContext"]["ordinaryPriority"] == true;
+    }
     observation["decision"].is_null()
         && observation["pregame"] == false
         && observation["legalActions"]
@@ -206,9 +209,11 @@ impl Host {
     // Retained updates include forced StepChanged events even when the final
     // observation is beyond the requested step. Stops latch across handoffs.
     pub(crate) fn evaluate_yields(&mut self) {
+        let mut observations = self.observations.clone();
+        discover_requested(&self.session, &self.yields, &mut observations);
         evaluate(
             &mut self.yields,
-            &self.observations,
+            &observations,
             self.session.decision_seat(),
             self.session.is_finished(),
         );
@@ -261,7 +266,8 @@ pub(crate) fn advance(
         return session.advance_forced_until(|_| false);
     }
     session.advance_forced_until(|session| {
-        let observations = [PlayerId::One, PlayerId::Two].map(|seat| session.observe(seat));
+        let mut observations = [PlayerId::One, PlayerId::Two].map(|seat| session.observe(seat));
+        discover_requested(session, policies, &mut observations);
         evaluate(
             policies,
             &observations,
@@ -272,6 +278,32 @@ pub(crate) fn advance(
             .decision_seat()
             .is_some_and(|seat| guarded[seat.index()] && needs_input(&observations[seat.index()]))
     })
+}
+
+// This condition explicitly requests an existence search. Ordinary phase/event
+// yields do not discover actions or plan payments.
+fn discover_requested(
+    session: &penta::session::ExactSession,
+    policies: &[Option<YieldPolicy>; 2],
+    observations: &mut [Value; 2],
+) {
+    for seat in [PlayerId::One, PlayerId::Two] {
+        if ordinary_priority(&observations[seat.index()])
+            && policies[seat.index()].as_ref().is_some_and(|policy| {
+                policy.reason.is_none() && policy.until.iter().any(Condition::needs_discovery)
+            })
+        {
+            let discovered = session.discover(seat);
+            observations[seat.index()]["nonManaActionAvailable"] = json!(
+                policies[seat.index()]
+                    .as_ref()
+                    .expect("active policy")
+                    .until
+                    .iter()
+                    .any(|condition| condition.matches_menu(&discovered))
+            );
+        }
+    }
 }
 
 fn evaluate(

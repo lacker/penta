@@ -35,6 +35,8 @@ mod decks;
 mod event_json;
 mod json_common;
 mod observation_json;
+mod proposal;
+mod proposal_abilities;
 
 pub use action_json::{action_json, protocol_actions};
 pub use catalog_json::{catalog_json, catalog_json_for_format};
@@ -42,7 +44,10 @@ pub use decks::{
     deck_by_name, deck_by_name_for_format, deck_names, deck_names_for_format, parse_format_slug,
 };
 pub use event_json::event_json;
+pub use json_common::ability_origin_json;
 pub use observation_json::{decision_json, observation_json, observation_json_for_format};
+pub use proposal::{ActionProposal, ProposalError};
+pub use proposal_abilities::proposal_ability_json;
 
 #[cfg(test)]
 use observation_json::stack_object_json;

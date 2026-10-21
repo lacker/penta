@@ -44,6 +44,14 @@ export function visibleDefinitions(observation) {
     }
   }
   visit(observation);
+  // Match lists contain definition IDs directly, without the usual card object
+  // wrapper. The engine exposes only this seat's main deck and sideboard.
+  for (const zone of ["main", "sideboard"]) {
+    const definitions = observation.match?.[zone];
+    if (Array.isArray(definitions)) {
+      for (const definition of definitions) if (typeof definition === "string") ids.add(definition);
+    }
+  }
   return [...ids];
 }
 

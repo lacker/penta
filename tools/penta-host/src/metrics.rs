@@ -18,7 +18,7 @@ impl Host {
         let method = match method {
             "seats" | "status" | "export" | "close" | "observe" | "wait" | "choose" | "play"
             | "interact" | "concede" | "yield" | "cancelYield" | "receipt" | "transcript"
-            | "note" | "catalog" => method,
+            | "note" | "catalog" | "discover" => method,
             _ => "unknown",
         };
         let metric = self.command_metrics.entry(method.to_owned()).or_default();

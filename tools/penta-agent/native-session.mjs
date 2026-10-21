@@ -57,7 +57,7 @@ export async function runNativeSession(input, output, command = createNativeClie
   const seatViewMethods = new Set(["observe", "wait", "choose", "play", "interact", "next", "concede", "yield", "cancelYield", "receipt"]);
 
   const printedRules = new SessionRules();
-  const countedMethods = new Set(["seats", "status", "export", "close", "observe", "wait", "choose", "play", "interact", "next", "concede", "yield", "cancelYield", "receipt", "transcript", "note", "catalog", "inspect_ref", "schema"]);
+  const countedMethods = new Set(["seats", "status", "export", "close", "observe", "wait", "choose", "play", "interact", "next", "concede", "yield", "cancelYield", "receipt", "transcript", "note", "catalog", "discover", "inspect_ref", "schema"]);
   const reply = value => new Promise((resolve, reject) => {
     const line = `${JSON.stringify(redact(value, secret))}\n`;
     output.write(line, error => {
@@ -103,7 +103,7 @@ export async function runNativeSession(input, output, command = createNativeClie
         inputGapMs.max = Math.max(inputGapMs.max, gap);
         readyAt = undefined;
       }
-      const delivery = (args.presentation ?? connection.presentation ?? "pilot-v2") === "pilot-v2" && seatViewMethods.has(method);
+      const delivery = ["pilot-v2", "pilot-v3"].includes(args.presentation ?? connection.presentation ?? "pilot-v3") && seatViewMethods.has(method);
       if (delivery) args.afterEvent = eventCursor;
       const dispatchAt = performance.now();
       let result;

@@ -77,7 +77,11 @@ aggregate or card-by-card coverage reports from them on demand.
 - Runtime rules objects use zone-scoped identities while private physical-card
   lineage follows the underlying cards.
 - Player observations do not expose an opponent's hidden information.
-- Legal actions are enumerated and checked by the engine.
+- The engine owns action legality. Consumers may discover legal actions or
+  propose typed actions directly; both routes share checked execution. Action
+  discovery is optional for proposal consumers. Focused enumeration can remain
+  a contained validation fallback while direct checks grow; never present it as
+  a proof that all validation is search-free.
 - Payment legality and execution are independent of automatic payment search.
   Players, agents, and bots must be able to choose a legal payment explicitly,
   including when automatic planning finds no solution or selects a different

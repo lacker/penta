@@ -96,7 +96,7 @@ test("v2 schema resolves locally and declarations are generated from that docume
   assert.equal(readFileSync(new URL("./pilot-v2.d.ts", import.meta.url), "utf8"), pilotV2Declarations());
   const packet = render({ battlefield: [{ objectId: 1, tapped: true }] }).packet;
   packet.position.zones.battlefield.items[0].tapped = "yes";
-  assert.throws(() => validatePilotV2(packet), /union/);
+  assert.throws(() => validatePilotV2(packet), /battlefield\.items\[0\]\.tapped: expected boolean/);
 });
 
 test("v2 printed rules avoid single-part compatibility duplicates and retain multiple parts", () => {
@@ -156,14 +156,14 @@ test("v2 schema permits explicit previously-delivered printed summaries", () => 
   validatePilotV2(view.packet);
   assert.equal(view.inspect(rule.reference).items[0].rulesText, "Draw a card.");
   rule.printedPreviouslySent = "yes";
-  assert.throws(() => validatePilotV2(view.packet), /union/);
+  assert.throws(() => validatePilotV2(view.packet), /printedPreviouslySent: expected boolean/);
 });
 
 
 test("v2 native play choices follow strict host wrapper shapes", () => {
   const check = value => validateContract(value, "NativePlayChoice", pilotV2Schema);
   for (const value of [{ index: 0 }, { action: { type: "PassPriority", index: 1, future: null } }, { decision: 1, options: [0, 2] }]) assert.deepEqual(check(value), value);
-  for (const value of [{ index: -1 }, { ticket: "x" }, { index: 0, action: { type: "PassPriority" } }, { action: {} }, { action: { type: 1 } }, { decision: 1, options: [-1] }, { decision: 1, options: Array(4097).fill(0) }, { decision: 1, options: [], future: false }]) assert.throws(() => check(value), /union/);
+  for (const value of [{ index: -1 }, { ticket: "x" }, { index: 0, action: { type: "PassPriority" } }, { action: {} }, { action: { type: 1 } }, { decision: 1, options: [-1] }, { decision: 1, options: Array(4097).fill(0) }, { decision: 1, options: [], future: false }]) assert.throws(() => check(value), /NativePlayChoice\./);
 });
 
 test("v2 interaction schema requires explicit choices or a bounded yield", () => {
@@ -177,7 +177,7 @@ test("v2 interaction schema requires explicit choices or a bounded yield", () =>
     { choices: [] }, { choices: [{ index: 0 }] },
     { yield: { until: [] } }, { yield: { ...policy, maxPasses: 257 } },
     { yield: { until: [{ type: "guessWhatIWant" }] } }, { maxWaitMs: 60000 },
-  ]) assert.throws(() => check({ ...base, ...change }), /union/);
+  ]) assert.throws(() => check({ ...base, ...change }), /NativeInteractionRequest\./);
 });
 
 test("v2 concrete decision labels identify selected option IDs without changing actions", () => {

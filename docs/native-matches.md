@@ -3,6 +3,10 @@
 `penta-host` owns one match in one native process. It calls the shared Rust
 engine directly; it does not start Vite, a browser, WASM, or the hosted-room
 daemon. The existing [hosted session workflow](bot-sessions.md) remains available.
+Native API 2 changes the default observation to `proposal-v1` state and the
+default client presentation to `pilot-v3`. Native API 1 consumers must migrate
+to proposals or explicitly call `discover`, which returns the API 1 menu envelope.
+The canonical bot wire and hosted web sessions keep their existing contracts.
 The native host, one-shot client, and optional persistent CLI session make no model calls. Pilots choose
 exact actions or explicitly authorize conditional priority passes.
 
@@ -20,7 +24,7 @@ containing spaces. `one-conclusion` is also supported. Port zero asks the OS for
 an available port. Keep the process running; its startup stdout is JSON:
 
 ```json
-{"apiVersion":1,"server":"http://127.0.0.1:PORT","organizerSecret":"SECRET","status":"ready"}
+{"apiVersion":2,"server":"http://127.0.0.1:PORT","organizerSecret":"SECRET","status":"ready"}
 ```
 
 The organizer calls `seats` with its secret. Every native client invocation
@@ -39,6 +43,28 @@ launch output or the other seat's secret. For Codex subagents, use
 The client never writes credentials, connection handles, retry bodies or
 observations to disk. Stdin avoids putting credentials in command arguments;
 tool transcripts may still contain submitted inputs.
+
+## First-to-two matches and sideboarding
+
+The native host defaults to `first-to-two-wins`. Keep the host and seat secrets
+for the entire match. `position.situation.match` reports `wins`, `draws`, `game`,
+and `stage`; an individual game ending does not make the packet `complete`.
+
+At `sideboarding`, follow the seat's private decision prompt. When asked for the
+next main deck, expand option `defaults`, then select **all its option IDs**, including
+retained cards. `Library` marks the current main deck and `OutsideGame` the
+current sideboard. Each copy has its own option ID. Submit the selection with
+the normal `{decision: ID, options: [IDs]}` choice; the engine validates deck
+size and the registered card pool. The pilot packet includes printed rules for
+the seat's entire main deck and sideboard, including cards not yet drawn.
+
+After both submissions, `play-draw` asks the previous game's loser to choose
+“Play first” or “Draw first.” After a draw, the prior chooser keeps that choice.
+The host starts the next game with the submitted
+decks and the same seat identities. Yields stop at game boundaries and never
+answer sideboarding or play/draw choices. Continue until packet `status` and
+match `stage` are `complete`, when a seat has two wins. `one-conclusion` skips
+this match lifecycle.
 
 ## Persistent local client
 
@@ -99,20 +125,30 @@ programmatic callers import `nativeCommand` from `native-client.mjs`.
 ### One pilot turn per interaction
 
 Prefer `{"method":"next"}` for the initial decision and `interact` thereafter.
-Each interaction contains exact choices already decided by the pilot, optionally
+Each interaction contains typed proposals decided by the pilot, optionally
 followed by an explicit yield policy:
 
 ```json
-{"method":"interact","requestId":"move-1","revision":"CURRENT_REVISION","choices":[{"action":{"type":"PlayLand","card":12}}],"yield":{"until":[{"type":"nextStep","step":"BeginningOfCombat"},{"type":"opponentActs"}]}}
+{"method":"interact","requestId":"move-1","revision":"CURRENT_REVISION","choices":[{"proposal":{"action":{"type":"PlayLand","card":12,"playOptionId":0}}}],"yield":{"until":[{"type":"nextStep","step":"BeginningOfCombat"},{"type":"opponentActs"}]}}
 ```
 
-Copy the complete displayed action rather than reconstructing it from this
-example. A displayed `ChooseDecision` action already containing `decision` and
-`options` can be copied the same way; the client converts it to the explicit
-decision wrapper. `choices: []` with a yield installs only that pass instruction.
-Targets, explicit payment choices, and newly arising decisions remain the
-pilot's. Choosing an automatic-payment action delegates mana-source selection
-to the engine; explicitly activate mana sources first when their use matters.
+Construct the proposal from the visible state, printed rules, and action context.
+Answer a pending decision with `{decision: ID, options: [IDs]}`; preserve option
+order. `choices: []` with a yield installs only that pass instruction. New
+information or unresolved decisions require another pilot choice.
+
+A proposal contains `action` and optional `payment`. Omit payment to allow the
+engine's planner to pay for that chosen action. To select mana sources yourself,
+provide `payment: {funding: [...]}`. Each ordered funding entry contains an
+`ActivateManaAbility` action, optional exact `manaUnits`, and optional `answers`
+(arrays of option IDs for funding decisions). `payment.announcements` similarly
+answers payment announcement decisions. `payment.manaUnits` selects the exact
+final pool units. `payment.contributions` identifies non-mana contributions by
+`source`, `kind` (`convoke`, `delve`, `improvise`, or `waterbend`), and `symbol`.
+An explicit payment uses only the funded pool and selected contributions; an
+empty funding list spends the current pool without choosing more sources.
+For mana in any combination, supply `combination: {blue: 1, green: 1}`; it
+determines the internal representative color, so `color` can be omitted.
 
 The host validates the whole request shape and yield before mutation, executes
 the accepted action prefix, then installs the yield only if the entire intended
@@ -129,6 +165,10 @@ read failure returns `sessionWait` and preserves the committed receipt. Use
 `next` to continue waiting. A failed initial mutation may be uncertain: recover
 its receipt or retry identical arguments before choosing again.
 These are session operations; one-shot `interact` accepts only host `waitMs`.
+The initial read/submission uses the ordinary transport timeout rather than the
+local wait deadline, so a long-poll response at the budget boundary can still
+deliver its committed receipt. The local deadline bounds subsequent read-only
+waits; it can therefore be exceeded by the initial request's transport overhead.
 The session caches the public catalog after its first successful retrieval.
 
 `{"method":"sessionStats"}` returns local `callsByMethod`, `errors`, `outputBytes`,
@@ -146,8 +186,15 @@ proxies, not tokenizer or billing measurements.
 
 The session prints each new or changed card's printed summary, then marks
 identical repeats using only `definition`, `reference`, `printed: null`, and
-`printedPreviouslySent: true`. Current state and choices remain available
-through inline data and references.
+`printedPreviouslySent: true`. Unchanged action ability metadata uses
+`{source, abilitiesPreviouslySent: true}` after successful delivery. Every
+visible source remains listed; changed, new, or reappearing sources include
+full records. Current zones and pending decision options remain complete inline.
+Decision option collections include typed `defaults` for repeated empty metadata.
+Interpret each option as `{...defaults, ...row}`; IDs, labels, order, nonempty
+values, and unknown fields are preserved. The position reference retains the
+exact canonical observation. This avoids repeating null card/trigger metadata
+hundreds of times for choices such as creature types.
 After context loss, send
 `{"method":"observe","full":true}` to reprint rules and event history. `full` is a local boolean
 option, stripped before the host request; it also works on `wait` and mutations.
@@ -155,7 +202,7 @@ A fresh client session starts with no remembered rules. One-shot commands always
 remain self-contained. Only successfully written inline rules count as delivered;
 paged or unavailable rules do not.
 
-Native v2 sessions also retain an explicit event delivery cursor. The host's
+Native v2 and v3 sessions also retain an explicit event delivery cursor. The host's
 optional `afterEvent` argument returns the seat's ordered stream as
 `events:{after,next,items}`. It is independent of manual action resets and request
 idempotency; identical events remain distinct. Invalid cursors fail before a
@@ -178,7 +225,8 @@ and `secret`; the examples below show the additional fields.
 
 | Method | Additional fields | Purpose |
 | --- | --- | --- |
-| `observe` | none | Current seat view |
+| `observe` | none | Current seat-visible proposal state |
+| `discover` | none; use `presentation: "pilot-v2"` for tickets | Explicit optional legal-action menu |
 | `wait` | `waitMs` up to 25000 | Bounded wait for a seat view |
 | `choose` | `ticket`, `requestId`, optional `options` | Submit one displayed choice |
 | `play` | `revision`, `choices`, `requestId` | Submit an explicitly decided batch |
@@ -193,38 +241,62 @@ and `secret`; the examples below show the additional fields.
 | `inspect_ref` | `reference`, optional `offset`, `limit` up to 100 | Inspect a current compact-view reference |
 
 Responses distinguish `ready`, `waiting`, `complete`, and `paused`. At `ready`,
-the default `pilot-v2` presentation supplies choices and revision-bound
-tickets such as `REVISION:a7`. Submit that ticket unchanged:
-
-```json
-{"server":"http://127.0.0.1:PORT","secret":"SEAT_SECRET","ticket":"REVISION:a7","requestId":"p1-move-17"}
-```
-
-A decision ticket requires the explicitly selected option IDs in `options`,
-including `[]` when choosing an empty selection. Order matters. A single `play`
-accepts `{index}`, `{decision, options}`, or `{action}`. Multi-choice batches
-require exact action values or explicit decisions because indices can change.
-Copy a displayed action into `{action: ...}` unchanged: the native client removes
-only its observation `index` metadata before submission. All other action fields
-remain exact; retries do not mutate the caller's request.
-Native `play` does not accept tickets or bare actions. For example:
+the default `pilot-v3` supplies complete seat-visible state without exhaustive
+legal-action menus. Submit `{proposal: {action: ...}}` through `interact` or
+`play`. For example, after deciding both attacks:
 
 ```json
 {
   "revision": "CURRENT_REVISION",
   "requestId": "attack-1",
   "choices": [
-    {"action": {"type": "DeclareAttacker", "attacker": 12}},
-    {"action": {"type": "DeclareAttacker", "attacker": 18}}
+    {"proposal": {"action": {"type": "DeclareAttacker", "attacker": 12, "defender": {"type": "player", "seat": "p2"}}}},
+    {"proposal": {"action": {"type": "DeclareAttacker", "attacker": 18, "defender": {"type": "player", "seat": "p2"}}}}
   ]
 }
 ```
 
-Copy the complete displayed action, including any fields beyond this example.
-Use `choose` for one ticket. The exported schema's `NativePlayChoice` describes
-the supported wrapper shapes; malformed entries fail locally before submission.
-An accepted prefix remains committed and is reported in the receipt; ticket
-resolution for batches is not provided by this stateless adapter.
+Cast proposals use `{type: "CastSpell", card, choices: {playOptionId, ...}}`.
+Omitted or null `choices` supplies the same empty defaults; it never selects
+required targets or modes on the pilot's behalf.
+Choose modes with `choices.modeIds`, X with `choices.x`, and targets with
+`choices.targetSelections: [{slotId, targets, amounts?}]`. Targets are
+`{type: "player", seat}` or `{type: "permanent" | "card" | "spell", objectId}`.
+Do not duplicate these selections as flattened `targets`, `modeIds`, or `x`
+fields on the cast. Omitted modes, targets, cost objects, and additional costs
+are empty; omitted X and play-option ID are zero and omitted alternative cost
+is none. Optional fields also accept null with these defaults. Ability
+proposals use `source` and the supplied `ability` identity, with optional
+`targetSelections`, `costObjects`, `modeIds`, and `x`.
+Cast `costObjects` also names objects spent on costs: sacrifices, discards,
+exiled evidence, and similar payments. It is separate from spell targets.
+Each visible object's `actionAbilities` entry includes `grantedCastCosts` with
+the current `playOptionId`, `alternativeCostId`, symbolic mana cost, and grant
+description. These identities include temporary flashback and battlefield
+alternatives that do not appear in the printed catalog. They are metadata;
+the engine still validates timing, permission, targets, and payment.
+The entry's `playPermission` separately describes an applicable exile/graveyard
+permission, its base cost, surcharges, and restrictions. For example, airbend
+reports `cost: {kind: "alternativeMana", manaCost: "{2}"}` and uses the default
+null `alternativeCostId`, rather than a granted-cost ID. These are permission
+terms, not a final cost quote or proof of legal timing; cost modifiers still apply.
+
+Pending decisions retain their explicit IDs, option IDs, ordering and selection
+bounds. Submit `{decision: ID, options: [IDs]}` including `[]` for an empty
+selection. The exported `NativePlayChoice` schema describes the wrappers.
+Malformed proposals fail locally or return a structured
+`host.receipt.rejection: {code, path, message}` from the host. An accepted batch
+prefix remains committed; a rejected proposal does not partially fund or cast.
+Local schema failures retain the offending field path and allowed action tags.
+Combat declarations can automatically finish once no further declaration choice
+remains. A redundant finish in a batch is rejected after the accepted attacks or
+blocks, and its yield is not installed; consult `actionContext` before continuing.
+
+Optional discovery is explicit: call `discover` with
+`presentation: "pilot-v2"`, then `choose` with the returned ticket and a new
+`requestId`. Legacy `{action}`, single `{index}`, and decision wrappers remain
+available. Copy discovered exact actions unchanged; the client removes only
+observation index metadata. Native batches do not accept tickets or bare actions.
 `host.receipt.updates` in the typed view preserves this seat's new events and automatic inspections
 across the entire accepted prefix, including when the next view is `waiting`.
 Read these alongside the current observation; retries return the same receipt.
@@ -255,59 +327,43 @@ presentation warning, preserving the receipt.
 
 ## Typed pilot presentation
 
-The native client defaults to `pilot-v2`. Read its complete, self-contained
-JSON Schema without a running match or credentials:
+The native client defaults to `pilot-v3`. Read its JSON Schema without credentials:
 
 ```sh
 node tools/penta-agent/native.mjs schema
 ```
 
-The [v2 schema definitions](../tools/penta-agent/pilot-v2.schema.json) compose with
-[shared definitions](../tools/penta-agent/pilot.schema.json); the CLI resolves
-them into one schema. [Generated TypeScript](../tools/penta-agent/pilot-v2.d.ts)
-comes from the same composed contract. Regenerate it with
-`node tools/penta-agent/generate-pilot-v2-types.mjs`.
+The [composed schema](../tools/penta-agent/pilot-v3-contract.mjs) includes the
+[typed proposal union](../tools/penta-agent/proposal-schema.mjs).
+[Generated TypeScript](../tools/penta-agent/pilot-v3.d.ts) is refreshed with
+`node tools/penta-agent/generate-pilot-v3-types.mjs`.
 
-Every position response has `presentation`, `status`, `revision`, `host`, and
-`position`. Waiting or paused views have no playable position. Ready positions
-contain named `situation`, `players`, `zones`, `updates`, `choices`, `decision`,
-`facts`, `provenance`, and `rules` fields. Collections consistently use
-`{items, total, reference}`: `items` is always an array, and `reference` identifies
-additional detail. An absent canonical zone is explicitly null.
+`position.actionInterface` is `proposal-v1`. Collections use
+`{items,total,reference}`; visible zones, updates, rules, and pending decision
+options are complete inline. Zone objects retain canonical IDs, definitions,
+characteristics, costs, stack details, and all other seat-visible fields.
+`position.actionContext` identifies the current decision and casting offers.
+`position.actionAbilities` maps visible object IDs to effective ability origins,
+rule clauses, target slots, and modes. For selected modes, concatenate their
+target slots in selection order after the base ability slots, assigning sequential
+slot IDs; a mode-local slot ID is not the final combined slot ID.
+`position.facts` retains other observed state. Printed rules retain catalog
+rules fields, including card parts and play options; artwork and printing lists
+remain available through the rule reference. No `choices` collection is produced. Hidden information stays
+redacted by the engine. `position.reference` retrieves this seat's proposal
+observation; provenance references retain protocol and fingerprint information.
 
-Zone entries summarize current visible objects with typed IDs, names,
-controllers, tapped state, combat availability, power/toughness, damage, and
-counters when applicable. Nondefault and unknown fields remain in `current`.
-Each entry's `reference` retrieves its unchanged canonical object; the position's
-`reference` retrieves the complete seat observation. Printed rules remain usable
-inline, with full catalog records inspectable. These references reveal only
-information already available to the authenticated seat. References are opaque,
-47-character identifiers bound to the current revision; copy them unchanged.
+`host.currentYield` is the current policy; `host.receipt.yieldAtAcceptance` is
+its immutable acceptance snapshot. Read receipt updates as well as current
+position updates, including while waiting. Sessions can omit already delivered
+printed rules and per-source ability metadata with explicit cached markers;
+`full:true` restores them. One-shot views always include full metadata.
 
-Each choice retains a revision-bound `ticket`, concise `label`, and exact
-`action`. All actions, payment variants, and decision options remain available;
-large menus retain an inline prefix and a reference to the entire ordered menu.
-Continue inspection at `choices.items.length`. `choiceGroups` lists each action
-family's example label, first index, and count, allowing a targeted inspection
-at that index. Group summaries never substitute for exact choices or remove
-payment and target variants. Labels identify targets, including self-targets,
-and distinguish abilities without embedding their full descriptors. Exact fields
-remain authoritative. Selection decisions retain bounds, option IDs, and order.
-Ability labels use stable intrinsic IDs and short origin fingerprints, so changing
-the available menu does not renumber an ability.
-
-`host.currentYield` is the current active or stopped policy.
-`host.receipt.yieldAtAcceptance` is the immutable snapshot when a yield request
-was accepted, so its pass count may be older. `host.receipt.updates` preserves
-accepted batch events, while `position.updates` contains the current snapshot
-history or the explicit event delivery interval when a cursor was requested.
-Waiting exposes neither an opponent revision nor their choice count.
-
-`presentation: "pilot-v1"` retains the earlier full typed view and its original
-yield field names. `presentation: "decision-v1"` retains the previous compact
-view, and `presentation: "exact"` bypasses presentation. The hosted adapter keeps
-its existing default. To retrieve the older schema, use
-`node tools/penta-agent/native.mjs schema '{"presentation":"pilot-v1"}'`.
+Explicit `pilot-v2`, `pilot-v1`, and `decision-v1` presentations still render
+menu observations returned by `discover`. Ordinary state-only responses fall
+back to exact output for those presentations; they never trigger implicit
+menu discovery. `presentation: "exact"` returns the host envelope unchanged.
+The browser and hosted adapters retain their existing contracts.
 
 ## Conditional priority yields
 
@@ -349,7 +405,8 @@ The current occurrence does not count: requesting `End` during an end step
 targets a later end step. A skipped step does not count as an entry.
 
 Add `{"type":"nonManaAction"}` to the example when the pilot also wants to
-reconsider as soon as another legal action is available. Explicit payment
+reconsider as soon as another legal action is available. This condition requests
+legal-action discovery and can be expensive; phase/event conditions avoid it. Explicit payment
 entry counts as a non-mana action; the host does not guess whether a payment
 will enable a useful play. If this condition already matches, yielding stops
 without passing. `opponentActs` includes mana, so pilots wanting a narrower
@@ -389,8 +446,8 @@ An unexpected engine failure restores the last committed position and pauses
 play. The organizer can still export the accepted command prefix, last good
 observations, failing command, and bounded diagnostics. Completed matches also
 stay available until explicit close. Transcripts retain seat-visible positions,
-choices, receipts and notes; their historical positions omit the large derived
-reconstruction checkpoint, which remains available in current exact observations.
+choices, receipts and notes. Proposal observations omit the large derived
+reconstruction checkpoint; explicit legacy discovery still provides it.
 
 Check that a saved bundle reproduces its committed position with:
 
@@ -410,3 +467,6 @@ other's tool transcripts may bypass intended secrecy. For enforced isolation,
 restrict pilots to seat-bound tools and prevent access to organizer credentials,
 other pilots' inputs, and host memory. Separate model prompts alone provide an
 honor-system boundary.
+
+See the [manual proposal evaluation](native-proposal-evaluation.md) for measured
+engine latency, model-game results, and remaining discovery paths.

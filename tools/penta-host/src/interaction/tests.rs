@@ -121,6 +121,7 @@ fn interaction_installation_respects_decision_interruptions_and_other_seats() {
     let mut host = ready_host();
     let seat = host.session.decision_seat().unwrap();
     host.observations[seat.index()]["decision"] = json!({"id":1});
+    host.observations[seat.index()]["actionContext"]["ordinaryPriority"] = json!(false);
     let receipt = host.interaction_yield(
         seat,
         "own",
@@ -153,6 +154,7 @@ fn command_metrics_accumulate_without_evicting_diagnostics_or_leaking_to_seats()
         host.record_command_duration("interact", 10);
     }
     host.record_command_duration("interact", 30);
+    host.record_command_duration("discover", 7);
     host.record_command_duration("private arbitrary method", 5);
     assert_eq!(host.diagnostics, diagnostics);
     let exported = host.export();
@@ -161,6 +163,7 @@ fn command_metrics_accumulate_without_evicting_diagnostics_or_leaking_to_seats()
         json!({"count":201,"totalMicros":2030,"maxMicros":30})
     );
     assert_eq!(exported["commandMetrics"]["unknown"]["count"], 1);
+    assert_eq!(exported["commandMetrics"]["discover"]["count"], 1);
     assert!(
         !exported["commandMetrics"]
             .to_string()

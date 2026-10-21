@@ -13,7 +13,41 @@ use super::super::{
     PlayOptionDef, PlayRestriction, PlayerId, Target, TargetPredicate, TargetSlotDef, TargetSlotId,
     TriggerContext, ZoneKind, add_mana_cost,
 };
+use crate::card::DividedTotal;
+use crate::casting::TargetSelection;
 use crate::game::casting_actions::{CastScale, SpellAdditionalCostRequest};
+
+fn target_allocation_is_valid(
+    selection: &TargetSelection,
+    divided: Option<DividedTotal>,
+    x: u16,
+) -> bool {
+    let targets = selection.targets();
+    if targets
+        .iter()
+        .enumerate()
+        .any(|(index, target)| targets[..index].contains(target))
+    {
+        return false;
+    }
+    match divided {
+        None => selection.amounts().is_empty(),
+        Some(total) => {
+            let total = match total {
+                DividedTotal::Fixed(n) => u32::from(n),
+                DividedTotal::ChosenX => u32::from(x),
+            };
+            selection.amounts().len() == targets.len()
+                && selection.amounts().iter().all(|amount| *amount > 0)
+                && selection
+                    .amounts()
+                    .iter()
+                    .map(|amount| u32::from(*amount))
+                    .sum::<u32>()
+                    == total
+        }
+    }
+}
 
 impl Game {
     pub(in crate::game) fn mode_selection_is_valid(
@@ -81,15 +115,45 @@ impl Game {
                     .find(|selection| Some(selection.slot()) == expected_slot);
                 let (minimum, maximum) = slot.count_bounds(choices.x(), &additional_cost_payments);
                 let Some(selection) = selection else {
-                    return minimum == 0;
+                    // Enumeration omits empty zero-total divisions. An absent
+                    // slot is valid only when there is no amount left to assign.
+                    return minimum == 0
+                        && match slot.divided_total {
+                            None | Some(DividedTotal::Fixed(0)) => true,
+                            Some(DividedTotal::ChosenX) => choices.x() == 0,
+                            Some(DividedTotal::Fixed(_)) => false,
+                        };
                 };
+                if slot.divided_total.is_some() && minimum > 0 && selection.targets().is_empty() {
+                    return false;
+                }
                 let count = selection.targets().len();
+                if !target_allocation_is_valid(selection, slot.divided_total, choices.x())
+                    || (slot.another
+                        && choices
+                            .targets()
+                            .iter()
+                            .filter(|earlier| earlier.slot() < selection.slot())
+                            .any(|earlier| {
+                                earlier
+                                    .targets()
+                                    .iter()
+                                    .any(|target| selection.targets().contains(target))
+                            }))
+                {
+                    return false;
+                }
                 let legal = Self::without_excluded_source(
                     slot,
                     card_id,
                     self.ability_targets_matching_with_selections_at(
                         slot.predicate,
-                        choices.targets(),
+                        &choices
+                            .targets()
+                            .iter()
+                            .filter(|earlier| earlier.slot() < selection.slot())
+                            .cloned()
+                            .collect::<Vec<_>>(),
                         player,
                         card_id,
                         TriggerContext::empty(),
@@ -101,8 +165,8 @@ impl Game {
                 // a slot counted by X is checked against the X this cast
                 // actually chose rather than against the sentinel.
                 expected_slot == Some(selection.slot())
-                    && count >= usize::from(minimum)
-                    && count <= usize::from(maximum)
+                    && (slot.divided_total.is_some()
+                        || (count >= usize::from(minimum) && count <= usize::from(maximum)))
                     && selection
                         .targets()
                         .iter()
@@ -127,8 +191,11 @@ impl Game {
             .all(|(slot, selection)| {
                 let count = selection.targets().len();
                 slot.id == selection.slot()
-                    && count >= usize::from(slot.minimum)
-                    && count <= usize::from(slot.maximum)
+                    && !(slot.divided_total.is_some() && slot.minimum > 0 && count == 0)
+                    && target_allocation_is_valid(selection, slot.divided_total, choices.x())
+                    && (slot.divided_total.is_some()
+                        || (count >= usize::from(slot.minimum)
+                            && count <= usize::from(slot.maximum)))
                     && selection
                         .targets()
                         .iter()
@@ -146,6 +213,17 @@ impl Game {
         choices: &CastChoices,
         sacrifices: &[GameObjectId],
     ) -> Option<(CastSignature, ManaCost, CastSourceZone)> {
+        if self
+            .exile_energy_cost(card_id, player)
+            .is_some_and(|energy| {
+                energy
+                    > self.players[player.index()]
+                        .counters
+                        .count(crate::card::CounterKind::named("energy"))
+            })
+        {
+            return None;
+        }
         let state = &self.players[player.index()];
         let (card, source_zone) = state
             .hand
@@ -264,6 +342,13 @@ impl Game {
         {
             return None;
         }
+        if choices.x() < Self::configured_alternative_minimum_x(definition, option, choices.costs())
+            || (source_zone == CastSourceZone::Graveyard
+                && self.graveyard_play_is_permitted(card, player, option)
+                && !self.graveyard_cast_permits_x(card, player, option, choices.x()))
+        {
+            return None;
+        }
         let alternative_kind = self.selected_alternative_kind_for_offer(
             definition,
             option,
@@ -300,6 +385,14 @@ impl Game {
             return None;
         }
         cost = add_mana_cost(cost, self.total_splice_cost(choices.spliced()));
+        if choices
+            .spliced()
+            .iter()
+            .enumerate()
+            .any(|(index, id)| *id == card_id || choices.spliced()[..index].contains(id))
+        {
+            return None;
+        }
         // X comes from the mana cost or any selected semantic additional
         // cost. A spell with none is cast for zero.
         let additional_x = self.maximum_x_for_spell_additional_costs(SpellAdditionalCostRequest {
@@ -461,5 +554,42 @@ impl Game {
         target: Target,
     ) -> bool {
         self.targets_matching(predicate).contains(&target)
+    }
+}
+
+#[cfg(test)]
+mod direct_target_tests {
+    use super::*;
+
+    #[test]
+    fn direct_actions_divisions_require_unique_positive_exact_allocations() {
+        let targets = vec![Target::Player(PlayerId::One), Target::Player(PlayerId::Two)];
+        let valid = TargetSelection::divided(TargetSlotId(0), targets.clone(), vec![1, 2]);
+        assert!(target_allocation_is_valid(
+            &valid,
+            Some(DividedTotal::Fixed(3)),
+            0
+        ));
+        assert!(target_allocation_is_valid(
+            &valid,
+            Some(DividedTotal::ChosenX),
+            3
+        ));
+        for amounts in [vec![0, 3], vec![1, 1], vec![2, 2]] {
+            let invalid = TargetSelection::divided(TargetSlotId(0), targets.clone(), amounts);
+            assert!(!target_allocation_is_valid(
+                &invalid,
+                Some(DividedTotal::Fixed(3)),
+                0
+            ));
+        }
+        let duplicate =
+            TargetSelection::divided(TargetSlotId(0), vec![targets[0], targets[0]], vec![1, 2]);
+        assert!(!target_allocation_is_valid(
+            &duplicate,
+            Some(DividedTotal::Fixed(3)),
+            0
+        ));
+        assert!(!target_allocation_is_valid(&valid, None, 0));
     }
 }

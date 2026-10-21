@@ -44,7 +44,7 @@ fn loopback_waits_allow_other_requests_and_close_releases_pending_clients() {
     let organizer = host.organizer.clone();
     let seats = host.seats.clone();
     let revision = host.revision.clone();
-    let index = host.observations[0]["legalActions"]
+    let index = host.session.discover(penta::PlayerId::One)["legalActions"]
         .as_array()
         .unwrap()
         .iter()

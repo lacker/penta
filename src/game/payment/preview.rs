@@ -65,11 +65,22 @@ impl Game {
         Some((view, frame?))
     }
 
+    #[cfg(test)]
     pub(in crate::game) fn prepare_payment(
         &self,
         player: PlayerId,
         action: &Action,
         answers: &[Vec<u32>],
+    ) -> Option<(Self, Option<PaymentFrame>)> {
+        self.prepare_payment_for(player, action, answers, None)
+    }
+
+    fn prepare_payment_for(
+        &self,
+        player: PlayerId,
+        action: &Action,
+        answers: &[Vec<u32>],
+        answering_player: Option<PlayerId>,
     ) -> Option<(Self, Option<PaymentFrame>)> {
         let mut preview = self.clone();
         preview
@@ -79,7 +90,7 @@ impl Game {
         preview.payment_query = super::query::PaymentQuery::announcement();
         preview.payment_probe = Some(PaymentProbe::Requested);
         preview.start_payment_operation(player, action)?;
-        preview.answer_payment_announcements(answers)?;
+        preview.answer_payment_announcements_for(answers, answering_player)?;
         let frame = match preview.payment_probe.take()? {
             PaymentProbe::Ready(frame) => Some(*frame),
             PaymentProbe::Requested if !preview.pending_decisions.is_empty() => None,
@@ -93,21 +104,45 @@ impl Game {
         &self,
         draft: &super::funding::PaymentDraft,
     ) -> Option<(Self, Option<PaymentFrame>)> {
+        self.prepare_payment_draft_for(draft, None)
+    }
+
+    pub(in crate::game) fn prepare_payment_draft_for(
+        &self,
+        draft: &super::funding::PaymentDraft,
+        answering_player: Option<PlayerId>,
+    ) -> Option<(Self, Option<PaymentFrame>)> {
         let mut base = self.clone();
         base.pending_decisions.clear();
         if let Some(pending) = &draft.resume {
             base.pending_decisions.push(*pending.clone());
         }
-        base.prepare_payment(draft.player, &draft.action, &draft.announcements)
+        base.prepare_payment_for(
+            draft.player,
+            &draft.action,
+            &draft.announcements,
+            answering_player,
+        )
     }
 
     pub(in crate::game) fn answer_payment_announcements(
         &mut self,
         answers: &[Vec<u32>],
     ) -> Option<()> {
+        self.answer_payment_announcements_for(answers, None)
+    }
+
+    fn answer_payment_announcements_for(
+        &mut self,
+        answers: &[Vec<u32>],
+        answering_player: Option<PlayerId>,
+    ) -> Option<()> {
         for options in answers {
             let observation = &self.pending_decisions.first()?.observation;
             let player = observation.player;
+            if answering_player.is_some_and(|answering| answering != player) {
+                return None;
+            }
             let decision = observation.id;
             if !self.is_legal_action(
                 player,

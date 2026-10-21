@@ -642,83 +642,6 @@ impl Game {
         });
     }
 
-    /// Validates an action against the current state without mutating the game.
-    ///
-    /// Unlike [`legal_actions`], this also validates the option IDs supplied to
-    /// a bounded [`Action::ChooseDecision`] selection without expanding every
-    /// possible combination into a vector.
-    #[must_use]
-    pub fn is_legal_action(&self, player: PlayerId, action: &Action) -> bool {
-        if self.between_games() {
-            return self.match_action_is_legal(player, action);
-        }
-        if let Action::ChooseDecision { decision, options } = action {
-            let Some(pending) = self.pending_decisions.first() else {
-                return false;
-            };
-            let observation = &pending.observation;
-            if observation.player != player || observation.id != *decision {
-                return false;
-            }
-            if pending.continuation.cast_offer_is_mandatory()
-                && pending.continuation.cast_offer().is_some_and(|offer| {
-                    let mut castable = Vec::new();
-                    self.add_offered_cast_actions(offer, &mut castable);
-                    !castable.is_empty()
-                })
-            {
-                return false;
-            }
-            if let super::DecisionContinuation::Payment(
-                super::payment::state::PaymentDecision::Mana {
-                    target,
-                    obligation,
-                    selected,
-                },
-            ) = &pending.continuation
-            {
-                if options.len() != 1 {
-                    return false;
-                }
-                let Some(view) = self.exact_payment_view(target) else {
-                    return false;
-                };
-                let legal = match options[0] {
-                    0 => view.validate_mana_payment(
-                        obligation,
-                        &super::payment::BoundManaPayment {
-                            units: selected.clone(),
-                        },
-                    ),
-                    u32::MAX => !selected.is_empty(),
-                    option => {
-                        let mut next = selected.clone();
-                        next.push(option as usize - 1);
-                        view.mana_selection_can_complete(obligation, &next)
-                    }
-                };
-                if !legal {
-                    return false;
-                }
-            }
-            let available = observation
-                .options
-                .iter()
-                .map(|option| option.id)
-                .collect::<std::collections::HashSet<_>>();
-            let unique = options
-                .iter()
-                .copied()
-                .collect::<std::collections::HashSet<_>>();
-            options.len() == unique.len()
-                && options.len() >= observation.minimum
-                && options.len() <= observation.maximum
-                && options.iter().all(|option| available.contains(option))
-        } else {
-            self.legal_actions(player).contains(action)
-        }
-    }
-
     #[must_use]
     /// The command-zone emblems as a client sees them: who owns each one, what
     /// to call it, and the text of every clause it grants.
@@ -997,3 +920,5 @@ impl Game {
 include!("api_observation.rs");
 
 mod card_knowledge;
+
+include!("api_action_validation.rs");

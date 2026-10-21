@@ -43,6 +43,9 @@ pub(super) enum Step {
 }
 
 impl Condition {
+    pub(super) const fn needs_discovery(&self) -> bool {
+        matches!(self, Self::NonManaAction {})
+    }
     pub(super) fn matches_event(&self, seat: PlayerId, event: &Value) -> bool {
         match self {
             Self::NextStep { step, active_seat } => {
@@ -77,15 +80,16 @@ impl Condition {
 
     pub(super) fn matches_menu(&self, observation: &Value) -> bool {
         matches!(self, Self::NonManaAction {})
-            && observation["legalActions"]
-                .as_array()
-                .is_some_and(|actions| {
-                    actions.iter().any(|action| {
-                        !matches!(
-                            action["type"].as_str(),
-                            Some("PassPriority" | "ActivateManaAbility")
-                        )
-                    })
-                })
+            && (observation["nonManaActionAvailable"] == true
+                || observation["legalActions"]
+                    .as_array()
+                    .is_some_and(|actions| {
+                        actions.iter().any(|action| {
+                            !matches!(
+                                action["type"].as_str(),
+                                Some("PassPriority" | "ActivateManaAbility")
+                            )
+                        })
+                    }))
     }
 }

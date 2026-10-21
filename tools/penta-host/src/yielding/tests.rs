@@ -27,6 +27,32 @@ fn ready_host() -> Host {
     host
 }
 
+// Proposal sessions preserve ordinary priority windows. Test opponents pass
+// explicitly; the yielding seat's policy still owns only its own passes.
+fn pass_until(host: &mut Host, step: &str, active: Option<PlayerId>) {
+    for index in 0..100 {
+        let seat = host.session.decision_seat().unwrap();
+        let observation = &host.observations[seat.index()];
+        if observation["step"] == step
+            && active.is_none_or(|player| observation["activeSeat"] == crate::seat_name(player))
+        {
+            return;
+        }
+        assert!(
+            ordinary_priority(observation),
+            "setup encountered a player choice"
+        );
+        let args = json!({"revision":host.revision,
+            "requestId":format!("setup-pass-{}-{index}",host.journal.len()),
+            "choices":[{"proposal":{"action":{"type":"PassPriority"}}}]});
+        assert_eq!(
+            host.play(seat, "play", &args).unwrap()["receipt"]["accepted"],
+            1
+        );
+    }
+    panic!("explicit passes did not reach {step}");
+}
+
 fn start(host: &mut Host, seat: PlayerId, id: &str, until: Value, max: usize) -> Value {
     let mut args = json!({"requestId":id,"revision":host.revision,"maxPasses":max});
     args["until"] = until;
@@ -79,6 +105,7 @@ fn policies_compose_latch_across_handoffs_and_expire() {
         json!([{"type":"nextStep","step":"End"},{"type":"opponentActs"}]),
         64,
     );
+    pass_until(&mut host, "End", None);
     let policy = host.yields[first.index()].as_ref().unwrap();
     assert_eq!(policy.reason, Some("condition"));
     assert_eq!(policy.condition, Some(0));
@@ -195,7 +222,7 @@ fn public_events_and_non_mana_menu_conditions_are_conservative() {
 }
 
 #[test]
-fn latched_stop_survives_opponent_priority_and_blocks_a_forced_pass() {
+fn latched_stop_survives_opponent_priority_without_automatically_passing() {
     let mut host = ready_host();
     let seat = host.session.decision_seat().unwrap();
     start(
@@ -205,11 +232,9 @@ fn latched_stop_survives_opponent_priority_and_blocks_a_forced_pass() {
         json!([{"type":"nextStep","step":"End"}]),
         64,
     );
+    pass_until(&mut host, "End", None);
     assert_eq!(host.observations[seat.index()]["step"], "End");
-    assert_eq!(
-        host.observations[seat.index()]["forcedAction"]["type"],
-        "PassPriority"
-    );
+    assert!(host.observations[seat.index()]["forcedAction"].is_null());
     let mut policies = host.yields.clone();
     let policy = policies[seat.index()].as_mut().unwrap();
     policy.reason = None;
@@ -244,13 +269,14 @@ fn own_required_decision_always_stops_even_without_a_matching_condition() {
         json!([{"type":"nextStep","step":"End"}]),
         64,
     );
+    pass_until(&mut host, "End", None);
     let policy = host.yields[seat.index()].as_mut().unwrap();
     policy.reason = None;
     policy.awaiting_stop = true;
     policy.until = serde_json::from_value(json!([{"type":"opponentActs"}])).unwrap();
     host.observations[seat.index()]["decision"] = json!({"id":1});
     host.observations[seat.index()]["forcedAction"] = Value::Null;
-    host.observations[seat.index()]["legalActions"] = json!([{"type":"ChooseDecision"}]);
+    host.observations[seat.index()]["actionContext"]["ordinaryPriority"] = json!(false);
     host.evaluate_yields();
     assert_eq!(
         host.yields[seat.index()].as_ref().unwrap().reason,
@@ -285,6 +311,7 @@ fn two_active_policies_consume_independent_bounded_pass_budgets() {
         json!([{"type":"nextStep","step":"End"}]),
         64,
     );
+    pass_until(&mut host, "End", None);
     let template = host.yields[seat.index()].as_ref().unwrap().clone();
     for player in [PlayerId::One, PlayerId::Two] {
         let mut policy = template.clone();
@@ -328,9 +355,10 @@ fn opponent_land_play_latches_until_the_yielded_seat_can_respond() {
         json!([{"type":"opponentActs"}]),
         64,
     );
+    pass_until(&mut host, "PrecombatMain", Some(seat.opponent()));
     let opponent = host.session.decision_seat().unwrap();
     assert_eq!(opponent, seat.opponent());
-    let land = host.observations[opponent.index()]["legalActions"]
+    let land = host.session.discover(opponent)["legalActions"]
         .as_array()
         .unwrap()
         .iter()
@@ -366,8 +394,18 @@ fn legacy_replay_without_yields_remains_readable() {
     let host = ready_host();
     let mut legacy = host.export();
     legacy["nativeReplayVersion"] = json!(1);
+    let mut session = host.config.session_version(1, false).unwrap();
     for command in legacy["commands"].as_array_mut().unwrap() {
         command.as_object_mut().unwrap().remove("forced");
+        let seat = match command["seat"].as_str().unwrap() {
+            "p1" => PlayerId::One,
+            "p2" => PlayerId::Two,
+            _ => unreachable!(),
+        };
+        session.apply_choice(seat, &command["choice"]).unwrap();
+        session.advance_forced().unwrap();
     }
+    legacy["observations"] =
+        json!({"p1":session.observe(PlayerId::One),"p2":session.observe(PlayerId::Two)});
     replay_bundle(&legacy).unwrap();
 }

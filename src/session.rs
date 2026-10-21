@@ -22,6 +22,7 @@ pub struct ExactSession {
     game: Game,
     catalog: CardCatalog,
     updates: SessionUpdates,
+    action_proposals: bool,
 }
 
 impl ExactSession {
@@ -54,13 +55,35 @@ impl ExactSession {
             game,
             catalog,
             updates: SessionUpdates::default(),
+            action_proposals: false,
         })
     }
 
     /// Returns canonical seat-safe protocol data and retained session updates.
     #[must_use]
     pub fn observe(&self, seat: PlayerId) -> Value {
-        let observation = self.game.observe(seat);
+        self.observation(seat, self.action_proposals)
+    }
+
+    /// Uses state observations and conservative forced continuation queries.
+    #[must_use]
+    pub fn with_action_proposals(mut self) -> Self {
+        self.action_proposals = true;
+        self
+    }
+
+    /// Explicit, potentially expensive legacy legal-action discovery.
+    #[must_use]
+    pub fn discover(&self, seat: PlayerId) -> Value {
+        self.observation(seat, false)
+    }
+
+    fn observation(&self, seat: PlayerId, direct: bool) -> Value {
+        let observation = if direct {
+            self.game.observe_state(seat)
+        } else {
+            self.game.observe(seat)
+        };
         let actions = protocol::protocol_actions(&observation);
         let mut value = protocol::observation_json_for_format(
             &self.catalog,
@@ -71,6 +94,40 @@ impl ExactSession {
         );
         value["match"] = self.game.match_json(seat);
         value["updates"] = self.updates.json(&self.catalog, seat);
+        if direct {
+            let object = value.as_object_mut().expect("observation object");
+            object.remove("legalActions");
+            object.remove("checkpoint");
+            value["actionInterface"] = Value::from("proposal-v1");
+            value["actionContext"] = self.game.action_context(seat);
+            if let Some(offers) = value["actionContext"]
+                .get_mut("castOffers")
+                .and_then(Value::as_array_mut)
+            {
+                for offer in offers {
+                    if let Some(card) = offer["card"].as_u64().and_then(|id| u32::try_from(id).ok())
+                        && let Some(origin) = self
+                            .game
+                            .cast_offer_ability_origin(seat, crate::GameObjectId(card))
+                    {
+                        offer["cost"]["ability"] = protocol::ability_origin_json(origin);
+                    }
+                }
+            }
+            value["forcedAction"] = self
+                .game
+                .forced_action_without_search()
+                .filter(|(player, _)| *player == seat)
+                .map_or(Value::Null, |(_, action)| protocol::action_json(&action));
+            value["actionAbilities"] = observation.battlefield.iter().map(|p|p.id)
+                .chain(observation.emblems.iter().map(|p|p.id))
+                .chain(observation.hand.iter().map(|(id,_)|*id))
+                .chain(observation.graveyards.iter().flatten().map(|(id,_)|*id))
+                .chain(observation.exiles.iter().flatten().map(|(id,_)|*id))
+                .chain(observation.command_zones.iter().flatten().map(|(id,_)|*id))
+                .map(|source| serde_json::json!({"source":source.0,"playPermission":self.game.action_play_permission(seat,source),"grantedCastCosts":self.game.action_cast_costs(seat,source),"abilities":self.game.action_abilities(source).into_iter().map(|(origin,ability)|protocol::proposal_ability_json(origin,ability)).collect::<Vec<_>>()}))
+                .collect();
+        }
         value
     }
 
@@ -87,10 +144,42 @@ impl ExactSession {
     /// Rejects malformed choices, stale decisions, out-of-turn submissions,
     /// and choices not legal in the current observation.
     pub fn apply_choice(&mut self, seat: PlayerId, choice: &Value) -> Result<(), String> {
+        if let Some(proposal) = choice.get("proposal") {
+            if choice.as_object().is_none_or(|object| object.len() != 1) {
+                return Err("proposal choices contain only proposal".into());
+            }
+            return self
+                .apply_proposal(seat, proposal)
+                .map_err(|error| error.to_string());
+        }
         if self.decision_seat() != Some(seat) {
             return Err("the seat does not hold a decision".into());
         }
         let choice = choice.as_object().ok_or("invalid choice")?;
+        if choice.len() == 2 && choice.contains_key("decision") && choice.contains_key("options") {
+            let decision = uint(&choice["decision"])?;
+            if self
+                .game
+                .observe_state(seat)
+                .decision
+                .as_ref()
+                .map(|value| value.id)
+                != Some(decision)
+            {
+                return Err("stale decision".into());
+            }
+            let options = choice["options"].as_array().ok_or("invalid options")?;
+            if options.len() > 4096 {
+                return Err("too many decision options".into());
+            }
+            return self.apply_manual(
+                seat,
+                Action::ChooseDecision {
+                    decision,
+                    options: options.iter().map(uint).collect::<Result<_, _>>()?,
+                },
+            );
+        }
         let observation = self.game.observe(seat);
         let actions = protocol::protocol_actions(&observation);
         let action = if choice.len() == 1 && choice.contains_key("index") {
@@ -99,22 +188,6 @@ impl ExactSession {
                 .get(usize::try_from(index).map_err(|_| "illegal action index")?)
                 .cloned()
                 .ok_or("illegal action index")?
-        } else if choice.len() == 2
-            && choice.contains_key("decision")
-            && choice.contains_key("options")
-        {
-            let decision = uint(&choice["decision"])?;
-            if observation.decision.as_ref().map(|value| value.id) != Some(decision) {
-                return Err("stale decision".into());
-            }
-            let options = choice["options"].as_array().ok_or("invalid options")?;
-            if options.len() > 4096 {
-                return Err("too many decision options".into());
-            }
-            Action::ChooseDecision {
-                decision,
-                options: options.iter().map(uint).collect::<Result<_, _>>()?,
-            }
         } else if choice.len() == 1 && choice.contains_key("action") {
             let wanted = &choice["action"];
             let object = wanted.as_object().ok_or("invalid exact action")?;
@@ -155,17 +228,30 @@ impl ExactSession {
         Ok(())
     }
 
+    /// Validates a complete typed proposal without discovering other plays.
+    ///
+    /// # Errors
+    /// Returns a seat-safe typed refusal; the game remains unchanged.
+    pub fn apply_proposal(
+        &mut self,
+        seat: PlayerId,
+        proposal: &Value,
+    ) -> Result<(), protocol::ProposalError> {
+        let proposal = protocol::ActionProposal::parse(proposal)?;
+        let cursor = self.game.event_cursor();
+        proposal.apply(&mut self.game, seat)?;
+        self.updates.clear(seat);
+        self.updates.record(&self.game, cursor, None);
+        Ok(())
+    }
+
     /// Applies a legal ordinary priority pass without acknowledging retained updates.
     /// Hosts use this only for an explicitly authorized, bounded yield policy.
     ///
     /// # Errors
     /// Rejects a pass outside this seat's ordinary priority window.
     pub fn pass_priority_retaining_updates(&mut self, seat: PlayerId) -> Result<(), String> {
-        let observation = self.game.observe(seat);
-        if self.decision_seat() != Some(seat)
-            || observation.decision.is_some()
-            || !protocol::protocol_actions(&observation).contains(&Action::PassPriority)
-        {
+        if !self.game.has_action_priority(seat) {
             return Err("the seat does not hold ordinary priority".into());
         }
         let cursor = self.game.event_cursor();
@@ -220,10 +306,15 @@ impl ExactSession {
     }
 
     fn advance_one_forced(&mut self) -> Result<bool, String> {
-        let Some((seat, action)) = self.game.forced_action() else {
+        let forced = if self.action_proposals {
+            self.game.forced_action_without_search()
+        } else {
+            self.game.forced_action()
+        };
+        let Some((seat, action)) = forced else {
             return Ok(false);
         };
-        let observation = self.game.observe(seat);
+        let observation = self.game.observe_state(seat);
         let cursor = self.game.event_cursor();
         self.game
             .apply(seat, action.clone())

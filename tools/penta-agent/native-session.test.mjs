@@ -150,6 +150,24 @@ test("interact submits once, retains original receipt across waits, and strips l
   assert.deepEqual(result.replies[1].host.receipt, receipt);
 });
 
+test("initial mutation receipt survives expiry of the local wait budget", async () => {
+  const { setTimeout: delay } = await import("node:timers/promises");
+  const receipt = { requestId: "committed", accepted: 1 };
+  const calls = [];
+  const result = await session([initialization,
+    '{"method":"interact","requestId":"committed","maxWaitMs":1}\n'],
+  async (method, args, { signal } = {}) => {
+    calls.push({ method, args });
+    await delay(15, undefined, { signal });
+    return { status: "waiting", host: { receipt } };
+  });
+  assert.deepEqual(calls.map(call => call.method), ["interact"]);
+  assert.equal(calls[0].args.waitMs, 1);
+  assert.deepEqual(result.replies[1].host.receipt, receipt);
+  assert.equal(result.replies[1].sessionWait.reason, "timeout");
+  assert.equal(result.replies[1].error, undefined);
+});
+
 test("bounded waits return explicit timeout and read failure preserves committed receipt", async () => {
   const receipt = { requestId: "m", accepted: 1 };
   const timed = await session([initialization, '{"method":"next","maxWaitMs":0}\n'], async () => ({ status: "waiting" }));

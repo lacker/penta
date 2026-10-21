@@ -23,8 +23,9 @@ fn capabilities(host: &mut Host) -> (String, [String; 2]) {
     )
 }
 
-fn observe(host: &mut Host, secret: &str) -> Value {
-    host.request(secret, "observe", &json!({})).unwrap()
+fn discover(host: &mut Host, secret: &str) -> Value {
+    // These legacy ticket tests explicitly opt into action discovery.
+    host.request(secret, "discover", &json!({})).unwrap()
 }
 
 fn choose_args(view: &Value, kind: &str, id: &str) -> Value {
@@ -96,7 +97,7 @@ fn capabilities_isolate_organizer_seats_and_private_transcripts() {
         );
         for secret in [&organizer, &seats[0], &seats[1]] {
             assert!(!own.to_string().contains(secret));
-            assert!(!observe(&mut host, seat).to_string().contains(secret));
+            assert!(!discover(&mut host, seat).to_string().contains(secret));
         }
     }
     let waiting = host
@@ -115,11 +116,11 @@ fn capabilities_isolate_organizer_seats_and_private_transcripts() {
 fn reconnect_and_old_request_receipts_do_not_apply_a_move_twice() {
     let mut host = host("one-conclusion");
     let (_, seats) = capabilities(&mut host);
-    let first = observe(&mut host, &seats[0]);
+    let first = discover(&mut host, &seats[0]);
     let args = choose_args(&first, "KeepHand", "first-keep");
     let accepted = host.request(&seats[0], "choose", &args).unwrap();
     assert_eq!(accepted["receipt"]["accepted"], 1);
-    let second = observe(&mut host, &seats[1]);
+    let second = discover(&mut host, &seats[1]);
     let second_args = choose_args(&second, "KeepHand", "second-keep");
     host.request(&seats[1], "choose", &second_args).unwrap();
     let commands = host.journal.len();
@@ -158,7 +159,7 @@ fn reconnect_and_old_request_receipts_do_not_apply_a_move_twice() {
 fn exact_batch_reports_and_retains_only_the_accepted_prefix() {
     let mut host = host("one-conclusion");
     let (_, seats) = capabilities(&mut host);
-    let initial = observe(&mut host, &seats[0]);
+    let initial = discover(&mut host, &seats[0]);
     let index_batch = json!({"revision":initial["revision"],"requestId":"indices",
         "choices":[{"index":0},{"index":0}]});
     assert!(host.request(&seats[0], "play", &index_batch).is_err());
@@ -170,7 +171,7 @@ fn exact_batch_reports_and_retains_only_the_accepted_prefix() {
         "choices":[{"action":{"type":"KeepHand"}},{"action":{"type":"TakeMulligan"}}]});
     let accepted = host.request(&seats[0], "play", &batch).unwrap();
     assert_eq!(accepted["receipt"]["accepted"], 1);
-    assert_eq!(observe(&mut host, &seats[1])["status"], "ready");
+    assert_eq!(discover(&mut host, &seats[1])["status"], "ready");
     assert_eq!(host.journal.len(), 1);
     let retry = host.request(&seats[0], "play", &batch).unwrap();
     assert_eq!(retry["receipt"], accepted["receipt"]);
@@ -181,7 +182,7 @@ fn exact_batch_reports_and_retains_only_the_accepted_prefix() {
 fn explicit_decision_tickets_require_options_and_caller_request_ids() {
     let mut host = host("first-to-two-wins");
     let (_, seats) = capabilities(&mut host);
-    let view = observe(&mut host, &seats[0]);
+    let view = discover(&mut host, &seats[0]);
     let mut args = choose_args(&view, "ChooseDecision", "play-first");
     assert!(host.request(&seats[0], "choose", &args).is_err());
     args["options"] = json!([0]);
@@ -192,7 +193,7 @@ fn explicit_decision_tickets_require_options_and_caller_request_ids() {
     let accepted = host.request(&seats[0], "choose", &args).unwrap();
     assert_eq!(accepted["receipt"]["accepted"], 1);
     assert_eq!(
-        observe(&mut host, &seats[0])["observation"]["match"]["mode"],
+        discover(&mut host, &seats[0])["observation"]["match"]["mode"],
         "first-to-two-wins"
     );
     host.request(
@@ -203,7 +204,7 @@ fn explicit_decision_tickets_require_options_and_caller_request_ids() {
     .unwrap();
     assert!(!host.session.is_finished());
     let seat = host.session.decision_seat().unwrap().index();
-    let sideboarding = observe(&mut host, &seats[seat]);
+    let sideboarding = discover(&mut host, &seats[seat]);
     assert_eq!(
         sideboarding["observation"]["match"]["stage"],
         "sideboarding"
@@ -229,7 +230,7 @@ fn explicit_decision_tickets_require_options_and_caller_request_ids() {
 fn completed_match_remains_readable_and_export_replays_until_explicit_close() {
     let mut host = host("one-conclusion");
     let (organizer, seats) = capabilities(&mut host);
-    let initial = observe(&mut host, &seats[0]);
+    let initial = discover(&mut host, &seats[0]);
     let keep = choose_args(&initial, "KeepHand", "keep");
     host.request(&seats[0], "choose", &keep).unwrap();
     host.request(&seats[0], "note", &json!({"text":"remember this position"}))
@@ -237,13 +238,13 @@ fn completed_match_remains_readable_and_export_replays_until_explicit_close() {
     host.request(&seats[0], "concede", &json!({"requestId":"concede"}))
         .unwrap();
     for seat in &seats {
-        assert_eq!(observe(&mut host, seat)["status"], "complete");
+        assert_eq!(discover(&mut host, seat)["status"], "complete");
         assert!(host.request(seat, "transcript", &json!({})).is_ok());
     }
     assert!(!host.is_closed());
     let bundle = host.request(&organizer, "export", &json!({})).unwrap();
     assert_eq!(bundle["seed"], u64::MAX.to_string());
-    assert_eq!(bundle["nativeReplayVersion"], 2);
+    assert_eq!(bundle["nativeReplayVersion"], 3);
     for field in [
         "config",
         "commands",
@@ -281,11 +282,23 @@ fn batch_receipt_retains_all_accepted_updates_across_retry_and_handover() {
     let mut host = host("one-conclusion");
     let (_, seats) = capabilities(&mut host);
     for secret in &seats {
-        let view = observe(&mut host, secret);
+        let view = discover(&mut host, secret);
         let args = choose_args(&view, "KeepHand", "keep");
         host.request(secret, "choose", &args).unwrap();
     }
-    let view = observe(&mut host, &seats[0]);
+    for index in 0..20 {
+        let seat = host.session.decision_seat().unwrap();
+        if host.observations[seat.index()]["step"] == "PrecombatMain" {
+            break;
+        }
+        let args = json!({"revision":host.revision,"requestId":format!("setup-pass-{index}"),
+            "choices":[{"proposal":{"action":{"type":"PassPriority"}}}]});
+        assert_eq!(
+            host.request(&seats[seat.index()], "play", &args).unwrap()["receipt"]["accepted"],
+            1
+        );
+    }
+    let view = discover(&mut host, &seats[0]);
     let mut land = view["observation"]["legalActions"]
         .as_array()
         .unwrap()

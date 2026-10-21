@@ -8,9 +8,18 @@ and action vocabulary.
 ## Core `Game` API
 
 `Game` owns authoritative state. Consumers do not mutate zones, life, mana,
-priority, or the stack directly. They ask for `legal_actions(player)` and
-submit one of those values to `apply(player, action)`. `apply` checks legality
-again so a stale decision fails without changing state.
+priority, or the stack directly. They can ask for `legal_actions(player)` and
+select an offered action, or construct a typed action from `observe_state(player)`
+and submit it to `apply(player, action)`. Both routes use engine legality checks;
+a rejected action leaves state unchanged. `apply_with_payment` accepts an
+explicit funding and contribution plan for the chosen action. The additive
+`protocol::ActionProposal` parser exposes this route as `proposal-v1`; it does
+not change the canonical indexed-action bot protocol.
+
+Direct proposals avoid building the full legal-action menu for observation or
+submission. Activated-ability validation still uses focused ability enumeration. Explicit
+`BeginPayment`, `discover`, and `nonManaAction` yield conditions can also search;
+ordinary phase/event yields do not.
 
 For a generic `DecisionObservation`, `legal_actions` returns a compact
 `ChooseDecision` marker. Callers select option IDs from the observation and use
@@ -78,9 +87,10 @@ where copiable values came from, not the current physical status. A face-up
 copy can retain those values; consumers use the permanent's separate
 `faceDown` boolean to decide whether the physical object is face down.
 
-The engine enumerates legal actions rather than asking consumers to construct
-partially legal commands. Complex multi-selection decisions expose bounded
-options and are submitted through the same checked state-machine boundary.
+The engine supports both legal-action discovery and checked typed proposals.
+Native proposal observations omit the exhaustive menu while retaining visible
+state, action context, and pending decision options. Complex multi-selection
+decisions retain their bounded options and checked submission boundary.
 
 ## Consumer layers
 
@@ -123,33 +133,34 @@ not one exact-version comparison:
   and `sessionAct` journal command require browser/host replay version 4. Agent
   presentation deltas and menu references are adapter output, not bot-wire changes.
 - The [native single-match host](native-matches.md) has a separate HTTP API with
-  observation envelope `apiVersion: 1` and debug bundle `nativeReplayVersion: 2`.
+  observation envelope `apiVersion: 2` and debug bundle `nativeReplayVersion: 3`.
   Its organizer and seat capabilities, request receipts, and volatile transcripts
-  belong to that host contract. Native debug replay requires the same simulation
-  fingerprint and compares the reconstructed final seat observations. Version 2
-  records conditional yield passes and the actual forced continuation prefix;
-  version 1 bundles remain readable under their matching fingerprint. Replay
-  does not restore a running host. The additive `yield` and `cancelYield`
-  operations use typed OR conditions and ordinary validated priority passes.
-  The native client defaults to `pilot-v2`, with typed concise object summaries,
-  full-detail references, and explicit current versus acceptance-time yield state.
-  Its composed JSON Schema and generated TypeScript types version presentation
-  separately; `pilot-v1`, `decision-v1`, and exact views remain available. The
-  optional JSON-lines CLI session retains local connection, measurement, and
-  delivered printed-rule state. An explicit `full:true` refresh restores printed
-  context; current state and choices remain complete. It makes no game choices
-  or automatic mutation retries. Additive `interact` submits explicit actions
-  and an optional yield under one idempotent receipt. Session `next`/`interact`
-  renew read-only waits within a bounded budget and cache the public catalog.
-  A loopback, seat-authenticated session transport also supports finite CLI
-  requests without losing local context. Optional seat-local `afterEvent`
-  delivery cursors preserve ordered events independently of action resets;
-  v2 sessions acknowledge written output and `full:true` replays that history.
-  Canonical observation references and exact replay remain unchanged.
-  Large v2 menus retain an inline prefix with typed action-family summaries;
-  repeated delivered rules use explicit minimal cached rows.
-  These versions are independent of the hosted
-  journal, canonical bot protocol, and reconstruction checkpoint versions.
+  belong to that host contract. Version 3 records typed proposals and reconstructs
+  proposal observations; versions 1 and 2 retain their original observation and
+  forced-continuation semantics under a matching simulation fingerprint. Replay
+  checks final seat observations and does not restore a running host.
+  The native client defaults to `pilot-v3`, with `actionInterface: "proposal-v1"`,
+  complete visible state and printed rules, and explicit pending decision options.
+  It submits `{proposal: {action, payment?}}` through `play` or `interact` with
+  revision checks and idempotent request receipts. Structured rejections identify
+  a code, field path, and seat-safe explanation. Explicit payment selects ordered
+  funding and optional exact units/contributions; omitted payment permits the
+  planner to pay for that chosen action. The `discover` operation explicitly
+  requests the legacy legal-action menu. `pilot-v2`, `pilot-v1`, and `decision-v1`
+  remain opt-in menu presentations; exact output returns the host envelope.
+  JSON Schema and generated TypeScript declarations version presentation separately.
+  Conditional `yield` and `cancelYield` use ordinary validated priority passes;
+  they never answer another non-forced decision. Session `next`/`interact` renew
+  read-only waits within a bounded budget and cache the public catalog. Local
+  JSON-lines and loopback sessions retain delivered printed rules, unchanged
+  per-source ability metadata, and event cursors;
+  `full:true` restores that context. Current state and pending options remain
+  complete; option rows overlay typed shared empty-field `defaults`. Per-source
+  `playPermission` describes currently applicable exile/graveyard cost terms
+  separately from granted alternative-cost IDs. Retries never silently choose
+  another action. These versions are
+  independent of the hosted journal, canonical bot protocol, binding contracts,
+  browser observations, and reconstruction checkpoint versions.
 
 Query `protocol_version()`, `simulation_fingerprint()`, and `engine_version()`
 through the relevant binding. Release history and migration notes live in the

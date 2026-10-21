@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { createNativeClient, nativeCommand } from "./native-client.mjs";
 
-const credentials = { server: "http://127.0.0.1:41234", secret: "seat-only" };
+const credentials = { server: "http://127.0.0.1:41234", secret: "seat-only", presentation: "pilot-v2" };
 const observation = { protocolVersion: 33, seat: "p1", hand: [], battlefield: [], legalActions: [{ index: 7, type: "PassPriority" }], checkpoint: { marker: "private seat checkpoint" } };
 const ready = { apiVersion: 1, status: "ready", revision: "revision-one", observation };
 function mock(handler) {
@@ -92,7 +92,7 @@ test("organizer status and exports remain raw without presentation warnings", as
 test("stale references never inspect a new revision", async () => {
   const transport = mock(() => ({ ...ready, revision: "revision-two" }));
   await assert.rejects(nativeCommand("inspect_ref", { ...credentials, reference: "revision-one:r0" }, transport.fetch), /stale reference/);
-  assert.deepEqual(transport.calls.map(call => call.method), ["observe"]);
+  assert.deepEqual(transport.calls.map(call => call.method), ["discover"]);
 });
 
 test("request IDs, bounded waits and origin-only servers are validated before sending", async () => {

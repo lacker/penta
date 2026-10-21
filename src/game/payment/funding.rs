@@ -27,16 +27,39 @@ impl Game {
         player: PlayerId,
         step: &FundingStep,
     ) -> Option<()> {
+        self.apply_funding_step_for(player, step, None)
+    }
+
+    fn apply_funding_step_for(
+        &mut self,
+        player: PlayerId,
+        step: &FundingStep,
+        answering_player: Option<PlayerId>,
+    ) -> Option<()> {
         let activation = self.mana_activation_for_action(player, &step.action)?;
         if activation.only_as_instant {
             return None;
         }
-        if let Some(mana) = &step.mana {
-            let obligation = self.explicit_payment_obligation(player, &step.action)?;
-            if !self.validate_mana_payment(&obligation, mana) {
+        let mana = if let Some(obligation) = self.explicit_payment_obligation(player, &step.action)
+        {
+            let mana = match &step.mana {
+                Some(mana) => mana.clone(),
+                None => self.allocate_funded_pool(&obligation)?,
+            };
+            if !self.validate_mana_payment(&obligation, &mana) {
                 return None;
             }
-        }
+            Some(mana)
+        } else {
+            if step
+                .mana
+                .as_ref()
+                .is_some_and(|mana| !mana.units.is_empty())
+            {
+                return None;
+            }
+            None
+        };
         let Action::ActivateManaAbility {
             source,
             ability,
@@ -49,7 +72,7 @@ impl Game {
         else {
             return None;
         };
-        self.explicit_mana_payment.clone_from(&step.mana);
+        self.explicit_mana_payment = mana;
         self.activate_mana_source(
             player,
             *source,
@@ -68,6 +91,9 @@ impl Game {
         for answer in &step.answers {
             let pending = self.pending_decisions.first()?;
             let chooser = pending.observation.player;
+            if answering_player.is_some_and(|answering| answering != chooser) {
+                return None;
+            }
             let decision = pending.observation.id;
             if !self.is_legal_action(
                 chooser,
@@ -87,7 +113,15 @@ impl Game {
         &self,
         draft: &PaymentDraft,
     ) -> Option<(Self, PaymentFrame)> {
-        let (mut preview, frame) = self.prepare_payment_draft(draft)?;
+        self.preview_funding_for(draft, None)
+    }
+
+    pub(in crate::game) fn preview_funding_for(
+        &self,
+        draft: &PaymentDraft,
+        answering_player: Option<PlayerId>,
+    ) -> Option<(Self, PaymentFrame)> {
+        let (mut preview, frame) = self.prepare_payment_draft_for(draft, answering_player)?;
         let mut frame = frame?;
         if !frame.allows_mana_abilities && !draft.funding.is_empty() {
             return None;
@@ -109,7 +143,7 @@ impl Game {
             {
                 return None;
             }
-            preview.apply_funding_step(draft.player, step)?;
+            preview.apply_funding_step_for(draft.player, step, answering_player)?;
             if !preview.pending_decisions.is_empty() && index + 1 != draft.funding.len() {
                 return None;
             }

@@ -7,11 +7,13 @@ pub(super) mod allocation;
 use allocation::PaymentPool;
 mod choices;
 pub(super) mod contributions;
+mod direct;
 mod effects;
 pub(super) mod funding;
 mod funding_choices;
 mod presentation;
 pub(super) mod preview;
+mod proposal_errors;
 pub(super) mod query;
 pub(super) mod resources;
 pub(super) mod state;
@@ -181,7 +183,7 @@ impl Game {
     ) -> Option<super::ManaAbilityActivation> {
         self.battlefield
             .iter()
-            .find(|permanent| permanent.card.id == source)
+            .find(|permanent| permanent.card.id == source && permanent.controller == player)
             .and_then(|permanent| self.mana_ability_activation(permanent, ability, color, choices))
             .or_else(|| {
                 self.hand_mana_ability_activations(player)
@@ -194,6 +196,7 @@ impl Game {
                             && activation.counters_removed == choices.counters_removed
                             && activation.cost_object == choices.cost_object
                             && activation.combination == choices.combination
+                            && activation.triggered_mana == choices.triggered_mana
                     })
             })
     }

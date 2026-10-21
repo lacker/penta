@@ -25,7 +25,7 @@ reject unknown slugs rather than substitute another format. Existing slugs,
 defaults, and encodings retain their meanings; this addition does not change
 the protocol, replay, or checkpoint versions.
 
-A bot is a function from an **observation** (your seat's view of the game,
+In the canonical indexed-action API, a bot is a function from an **observation** (your seat's view of the game,
 as JSON) to an **action index** (a position in that observation's
 `legalActions` array). The engine validates every index against the legal
 list, so an illegal move cannot even be expressed. Everything else —
@@ -1924,17 +1924,35 @@ neither the registry nor a room's own deck configuration exists there.
 For two externally controlled seats without web or WASM startup, use the
 [native single-match host](native-matches.md). One process owns the authoritative
 match; a stateless CLI authenticates each call with that pilot's seat secret.
-It uses the same canonical observations and exact-session forced advancement,
-with revision-bound tickets, caller-supplied request IDs, seat-visible transcripts,
-and private notes. Reconnect to the existing host with the same credential;
-retry an uncertain mutation with its identical method and arguments.
+Its default `pilot-v3` presentation uses a separate `proposal-v1` action interface:
+complete seat-visible state, printed rules, action context, and explicit pending
+decision options, without an exhaustive `legalActions` array. Submit a typed
+`{proposal: {action, payment?}}` through `interact` or `play` with the current
+revision and a retained request ID. The engine checks the proposed modes, targets,
+costs, and payment. An explicit payment selects funding sources and optional
+exact mana units/contributions; omitting it allows the planner to pay for that
+chosen action. Pending decisions still use their offered option IDs.
+
+The additive core APIs `Game::observe_state`, `Game::apply_with_payment`, and
+`protocol::ActionProposal` support this route. Full menu discovery is optional:
+call `discover` explicitly, selecting a legacy presentation when tickets are
+wanted. Activated-ability validation still uses focused enumeration. Canonical bot JSON,
+bindings, browser menus, and hosted sessions retain their existing contracts.
+
+Native sessions retain forced advancement, revision checks, idempotent receipts,
+seat-visible transcripts, and private notes. Reconnect with the same credential;
+retry an uncertain mutation with its identical method and arguments. Rejections
+report a seat-safe code, field path, and explanation. A batch can commit an
+accepted prefix, but a rejected proposal does not partially spend resources.
 
 The organizer has a separate capability for distributing seats, inspecting
 status, exporting a private debug bundle, and explicitly closing the host.
 Active and completed matches remain in memory until close or process exit.
 A host crash loses unexported state; same-user unrestricted shell access is
-not a hardened isolation boundary. Native API 1 and native replay 1 are separate
-from bot-wire versioning and the hosted room journal.
+not a hardened isolation boundary. Native API 2 and native replay 3 are separate
+from bot-wire versioning and the hosted room journal. Replay 3 records proposals
+and verifies reconstructed proposal observations; older replay versions retain
+their original semantics under a matching simulation fingerprint.
 
 ## Hosted games over WebSocket
 
@@ -2000,6 +2018,13 @@ unrecognized events. A die roll is public and consumes the engine's seeded
 random stream when its effect resolves; choosing a mana payment never rolls it.
 
 ## Determinism and versioning
+
+Native `proposal-v1` and `pilot-v3` are additive adapter/core interfaces, not a
+canonical bot-wire epoch change. Native replay 3 distinguishes proposal commands
+and state-only final observations from older native bundles. Exact replay still
+requires the matching simulation fingerprint; it does not infer compatibility
+from matching presentation names or restore a live host. Existing indexed-action
+bindings, browser checkpoints, and hosted journal versions do not change.
 
 The optional checkpoint `readyEntryBatch` array retains entrants whose
 replacement choices have finished while another simultaneous entrant still

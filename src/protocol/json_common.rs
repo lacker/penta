@@ -408,7 +408,8 @@ pub(super) const fn mana_color_name(color: ManaColor) -> &'static str {
     }
 }
 
-pub(super) fn ability_origin_json(origin: AbilityOrigin) -> Value {
+#[must_use]
+pub fn ability_origin_json(origin: AbilityOrigin) -> Value {
     match origin {
         AbilityOrigin::Printed {
             definition,

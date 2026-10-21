@@ -8,6 +8,7 @@ use crate::{Host, HostError, Receipt, Result, keys, number, request_id, seat_nam
 
 pub(crate) enum Failure {
     Invalid(String),
+    Proposal(penta::protocol::ProposalError),
     Engine(String),
 }
 
@@ -58,11 +59,14 @@ impl Host {
             ));
         }
         let start = Instant::now();
-        let (accepted, updates, stopped) = self.apply_choices(seat, method, &choices);
-        if accepted == 0 && self.failure.is_none() && method != "interact" {
+        let (accepted, updates, stopped, rejection) = self.apply_choices(seat, method, &choices);
+        if accepted == 0 && self.failure.is_none() && method != "interact" && rejection.is_none() {
             return Err(HostError::new(409, stopped.unwrap_or("no choice accepted")));
         }
         let mut receipt = json!({"requestId":id,"accepted":accepted,"updates":updates});
+        if let Some(rejection) = rejection {
+            receipt["rejection"] = rejection;
+        }
         if method == "interact" {
             receipt["yieldInstallation"] =
                 self.interaction_yield(seat, &id, policy, accepted == choices.len());
@@ -70,7 +74,9 @@ impl Host {
                 .as_ref()
                 .map_or(Value::Null, crate::yielding::YieldPolicy::json);
         }
-        self.drive_yields();
+        if accepted > 0 || choices.is_empty() {
+            self.drive_yields();
+        }
         if let Some(reason) = stopped {
             receipt["stopped"] = json!(reason);
         }
@@ -97,16 +103,24 @@ impl Host {
         seat: PlayerId,
         method: &str,
         choices: &[Value],
-    ) -> (usize, Vec<Value>, Option<&'static str>) {
+    ) -> (usize, Vec<Value>, Option<&'static str>, Option<Value>) {
         let mut accepted = 0;
         let mut updates = Vec::new();
         let mut stopped = None;
+        let mut rejection = None;
         for choice in choices {
             if method != "concede" && self.session.decision_seat() != Some(seat) {
                 stopped = Some("the seat no longer holds a decision");
                 break;
             }
             let applied = self.commit(seat, choice, |session| {
+                if choice.as_object().is_some_and(|object| object.len() == 1)
+                    && let Some(proposal) = choice.get("proposal")
+                {
+                    return session
+                        .apply_proposal(seat, proposal)
+                        .map_err(Failure::Proposal);
+                }
                 if method == "concede" {
                     session.concede(seat)
                 } else {
@@ -131,13 +145,19 @@ impl Host {
                     stopped = Some("choice is not legal in the current position");
                     break;
                 }
+                Err(Failure::Proposal(error)) => {
+                    rejection =
+                        Some(serde_json::to_value(error).expect("proposal error serializes"));
+                    stopped = Some("proposal rejected; see rejection for the field and reason");
+                    break;
+                }
                 Err(Failure::Engine(_)) => {
                     stopped = Some("engine failure; match paused for organizer inspection");
                     break;
                 }
             }
         }
-        (accepted, updates, stopped)
+        (accepted, updates, stopped, rejection)
     }
 
     // Rendering observations is part of the commit: a failure there also restores
@@ -237,7 +257,7 @@ impl Host {
         let index = index
             .parse::<usize>()
             .map_err(|_| HostError::new(400, "invalid ticket index"))?;
-        let observation = &self.observations[seat.index()];
+        let observation = self.session.discover(seat);
         let action = observation["legalActions"]
             .as_array()
             .and_then(|actions| actions.get(index))

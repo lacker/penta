@@ -9,7 +9,8 @@ use crate::Config;
 /// # Errors
 /// Rejects incompatible provenance, malformed commands, and observation divergence.
 pub fn replay_bundle(bundle: &Value) -> Result<Value, String> {
-    if !matches!(bundle["nativeReplayVersion"].as_u64(), Some(1 | 2))
+    let version = bundle["nativeReplayVersion"].as_u64().unwrap_or(0);
+    if !(1..=3).contains(&version)
         || bundle["simulationFingerprint"].as_str() != Some(protocol::SIMULATION_FINGERPRINT)
     {
         return Err("incompatible native replay version or simulation fingerprint".into());
@@ -21,7 +22,7 @@ pub fn replay_bundle(bundle: &Value) -> Result<Value, String> {
         .ok_or("missing private seed")?
         .parse()
         .map_err(|_| "invalid private seed")?;
-    let mut session = config.session(seed)?;
+    let mut session = config.session_version(seed, version >= 3)?;
     let commands = bundle["commands"].as_array().ok_or("missing commands")?;
     for (index, command) in commands.iter().enumerate() {
         let seat = match command["seat"].as_str() {
@@ -29,14 +30,14 @@ pub fn replay_bundle(bundle: &Value) -> Result<Value, String> {
             Some("p2") => PlayerId::Two,
             _ => return Err(format!("invalid seat at command {index}")),
         };
-        if bundle["nativeReplayVersion"] == 2 && command["choice"] == json!({"autoPass":true}) {
+        if version >= 2 && command["choice"] == json!({"autoPass":true}) {
             session.pass_priority_retaining_updates(seat)?;
         } else if command["choice"] == json!({"concede":true}) {
             session.concede(seat)?;
         } else {
             session.apply_choice(seat, &command["choice"])?;
         }
-        if bundle["nativeReplayVersion"] == 2 {
+        if version >= 2 {
             let count = command["forced"]
                 .as_u64()
                 .and_then(|count| usize::try_from(count).ok())

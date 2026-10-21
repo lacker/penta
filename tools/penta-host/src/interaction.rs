@@ -16,13 +16,14 @@ pub(crate) fn validate(args: &Value) -> Result<Option<YieldOptions>> {
         })?;
     for choice in choices {
         let valid = choice.as_object().is_some_and(|object| {
-            (object.len() == 1
-                && object.get("action").is_some_and(|action| {
-                    action.as_object().is_some_and(|action| {
-                        action.get("type").is_some_and(Value::is_string)
-                            && !action.contains_key("index")
-                    })
-                }))
+            (object.len() == 1 && object.contains_key("proposal"))
+                || (object.len() == 1
+                    && object.get("action").is_some_and(|action| {
+                        action.as_object().is_some_and(|action| {
+                            action.get("type").is_some_and(Value::is_string)
+                                && !action.contains_key("index")
+                        })
+                    }))
                 || (object.len() == 2
                     && object.get("decision").is_some_and(Value::is_u64)
                     && object

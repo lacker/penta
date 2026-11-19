@@ -1,0 +1,30 @@
+# Magic World Championship 32, Atlanta — November 14, 2026 — 3-4 place
+# Source: https://mtgtop8.com/event?e=93781&d=912161&f=ST
+name: "Selesnya Landfall — James Drake"
+description: "Selesnya Landfall piloted by James Drake at Worlds 32."
+main:
+  "Erode": 2
+  "Esper Origins": 3
+  "Earthbender Ascension": 4
+  "Carnivorous Cultivator // Enroot": 2
+  "Doorkeeper Thrull": 3
+  "Mightform Harmonizer": 3
+  "Sazh's Chocobo": 4
+  "Mossborn Hydra": 4
+  "Llanowar Elves": 4
+  "Icetill Explorer": 4
+  "Elven Passage": 2
+  "Escape Tunnel": 2
+  "Plains": 2
+  "Ba Sing Se": 3
+  "Fabled Passage": 4
+  "Temple Garden": 4
+  "Forest": 10
+sideboard:
+  "Seam Rip": 1
+  "Sheltered by Ghosts": 2
+  "Surrak, Elusive Hunter": 3
+  "Sapling Nursery": 3
+  "Clarion Conqueror": 4
+  "Erode": 1
+  "Doorkeeper Thrull": 1

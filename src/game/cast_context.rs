@@ -188,6 +188,13 @@ impl Game {
             .linked_exiles
             .iter()
             .filter_map(|(linked_source, exiled)| (*linked_source == source).then_some(*exiled))
+            .chain(
+                self.duration_exiles
+                    .iter()
+                    .filter_map(|(linked_source, exiled, _)| {
+                        (*linked_source == source).then_some(*exiled)
+                    }),
+            )
         {
             if !linked.contains(&exiled) {
                 linked.push(exiled);

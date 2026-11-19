@@ -19,7 +19,9 @@ the selected binding. Pin the simulation fingerprint, rather than the package
 version or wire epoch, alongside trained weights. Old School remains the default
 for compatibility; new integrations should record and pass an explicit format
 slug with each game. The additive `woe-hob-standard` profile selects the fixed
-WOE–HOB paper Standard window and its sixteen event lists. Format slugs are
+WOE–HOB paper Standard window and its sixteen event lists. The additive
+`woe-trk-standard` profile selects the later 21-set window and Worlds 32 Top 8;
+[coverage remains explicit](../decks/woe_trk_standard/README.md). Format slugs are
 explicit setup selections: clients should offer only profiles they support and
 reject unknown slugs rather than substitute another format. Existing slugs,
 defaults, and encodings retain their meanings; this addition does not change
@@ -517,7 +519,7 @@ world it can search.
 | `protocolCapabilities` | optional named facilities emitted by this engine; includes `reconstruction.checkpoint.v21`, `match.first-to-two-wins.v1` and `rules.restart-game.v1`; ignore unknown entries |
 | `simulationFingerprint` | a conservative identity of simulation source and build requirements; pin it for training and require it for reconstruction |
 | `engineVersion` | package-release provenance; it is not an exact simulation identity |
-| `format` | the rules/deck profile slug: `"old-school-93-94"`, `"premodern"`, `"isd-m14-standard"`, `"som-m13-standard"`, `"woe-hob-standard"`, `"vintage-cube"`, or `"pauper-cube"` |
+| `format` | the rules/deck profile slug: `"old-school-93-94"`, `"premodern"`, `"isd-m14-standard"`, `"som-m13-standard"`, `"woe-hob-standard"`, `"woe-trk-standard"`, `"vintage-cube"`, or `"pauper-cube"` |
 | `seat` | whose view this is: `"p1"` or `"p2"` |
 | `pregame` | true while mulligans are being settled |
 | `turn`, `activeTurn`, `activeSeat`, `prioritySeat`, `step` | where the game is; `activeTurn` counts turns started by the active player, including extra turns, and `step` is one of `Upkeep`, `Draw`, `PrecombatMain`, `BeginningOfCombat`, `DeclareAttackers`, `DeclareBlockers`, `CombatDamage`, `EndOfCombat`, `PostcombatMain`, `End`, `Cleanup` |

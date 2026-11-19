@@ -1,0 +1,33 @@
+# Magic World Championship 32, Atlanta — November 14, 2026 — 3-4 place
+# Source: https://mtgtop8.com/event?e=93781&d=912126&f=ST
+name: "Boros Pixie — Kellen Pastore"
+description: "Boros Pixie piloted by Kellen Pastore at Worlds 32."
+main:
+  "Erode": 1
+  "Springleaf Drum": 2
+  "Practiced Offense": 2
+  "Torch the Tower": 4
+  "The Naked Time": 4
+  "Guiding Hydra": 1
+  "Captain James T. Kirk": 3
+  "Starfield Shepherd": 4
+  "Nurturing Pixie": 4
+  "Nova Hellkite": 4
+  "Sage of the Skies": 4
+  "Momo, Friendly Flier": 4
+  "Abandoned Air Temple": 1
+  "Multiversal Passage": 2
+  "Starting Town": 2
+  "Mountain": 3
+  "Inspiring Vantage": 3
+  "Plains": 4
+  "Sacred Foundry": 4
+  "Sunbillow Verge": 4
+sideboard:
+  "Sheltered by Ghosts": 2
+  "Seam Rip": 2
+  "Rest in Peace": 2
+  "Clarion Conqueror": 3
+  "Sunspine Lynx": 3
+  "Authority of the Consuls": 2
+  "Erode": 1

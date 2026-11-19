@@ -249,3 +249,39 @@ fn eternal_restrictions_count_main_and_sideboard_together() {
         })
     ));
 }
+
+#[test]
+fn current_standard_worlds_top_eight_preserves_lists_and_reports_coverage() {
+    let catalog = card::catalog().unwrap();
+    let lists: Vec<_> = BUILTIN_DECKS
+        .iter()
+        .filter(|source| source.format == Some(Format::WoeTrkStandard))
+        .collect();
+    assert_eq!(lists.len(), 8);
+    let mut complete = 0;
+    let mut identities = std::collections::HashSet::new();
+    for source in lists {
+        let deck = source.resolve(&catalog);
+        identities.extend(deck.main.iter().chain(&deck.sideboard).copied());
+        assert_eq!(deck.main.len(), 60, "{}", source.name);
+        assert_eq!(deck.sideboard.len(), 15, "{}", source.name);
+        deck.clone()
+            .validate_for_format(&catalog, Format::WoeTrkStandard)
+            .unwrap();
+        match deck.validate_supported_cards(&catalog) {
+            Ok(()) => {
+                complete += 1;
+                println!("{}: complete", source.name);
+            }
+            Err(crate::DeckError::UnsupportedCards(cards)) => {
+                println!("{}: {:?}", source.name, cards)
+            }
+            Err(error) => panic!("{}: {error}", source.name),
+        }
+    }
+    assert_eq!(identities.len(), 141);
+    assert!(
+        complete >= 3,
+        "Mission, Momo, and Prowess have full coverage"
+    );
+}

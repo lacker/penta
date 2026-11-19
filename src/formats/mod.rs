@@ -40,6 +40,7 @@ pub enum Format {
     IsdM14Standard,
     SomM13Standard,
     WoeHobStandard,
+    WoeTrkStandard,
     VintageCube,
     PauperCube,
     Cedh,
@@ -89,6 +90,7 @@ impl FormatCategory {
                 Format::IsdM14Standard,
                 Format::SomM13Standard,
                 Format::WoeHobStandard,
+                Format::WoeTrkStandard,
             ],
             Self::Cube => &[Format::VintageCube, Format::PauperCube],
             Self::Commander => &[Format::Cedh, Format::DuelCommander],
@@ -188,6 +190,7 @@ impl Format {
         Self::IsdM14Standard,
         Self::SomM13Standard,
         Self::WoeHobStandard,
+        Self::WoeTrkStandard,
         Self::VintageCube,
         Self::PauperCube,
         Self::Cedh,
@@ -200,9 +203,10 @@ impl Format {
             Self::OldSchool9394 => FormatCategory::OldSchool,
             Self::Premodern => FormatCategory::Premodern,
             Self::Legacy | Self::Vintage => FormatCategory::Eternal,
-            Self::IsdM14Standard | Self::SomM13Standard | Self::WoeHobStandard => {
-                FormatCategory::Standard
-            }
+            Self::IsdM14Standard
+            | Self::SomM13Standard
+            | Self::WoeHobStandard
+            | Self::WoeTrkStandard => FormatCategory::Standard,
             Self::VintageCube | Self::PauperCube => FormatCategory::Cube,
             Self::Cedh | Self::DuelCommander => FormatCategory::Commander,
         }
@@ -218,6 +222,7 @@ impl Format {
             Self::IsdM14Standard => FormatDefinition::Sets(&standards::isd_m14::DEFINITION),
             Self::SomM13Standard => FormatDefinition::Sets(&standards::som_m13::DEFINITION),
             Self::WoeHobStandard => FormatDefinition::Sets(&standards::woe_hob::DEFINITION),
+            Self::WoeTrkStandard => FormatDefinition::Sets(&standards::woe_trk::DEFINITION),
             Self::VintageCube => FormatDefinition::Cube(&cubes::vintage::DEFINITION),
             Self::PauperCube => FormatDefinition::Cube(&cubes::pauper::DEFINITION),
             Self::Cedh => FormatDefinition::Commander(&commander::DEFINITION),
@@ -274,6 +279,7 @@ impl Format {
             Self::IsdM14Standard => "isd-m14-standard",
             Self::SomM13Standard => "som-m13-standard",
             Self::WoeHobStandard => "woe-hob-standard",
+            Self::WoeTrkStandard => "woe-trk-standard",
             Self::VintageCube => "vintage-cube",
             Self::PauperCube => "pauper-cube",
             Self::Cedh => "cedh",
@@ -291,6 +297,7 @@ impl Format {
             Self::IsdM14Standard => "Standard: ISD-M14",
             Self::SomM13Standard => "Standard: SOM-M13",
             Self::WoeHobStandard => "Standard: WOE-HOB",
+            Self::WoeTrkStandard => "Standard: WOE-TRK",
             Self::VintageCube => "Cube: Vintage",
             Self::PauperCube => "Cube: The Pauper Cube",
             Self::Cedh => "cEDH",

@@ -1,0 +1,37 @@
+# Magic World Championship 32, Atlanta — November 14, 2026 — 5-8 place
+# Source: https://mtgtop8.com/event?e=93781&d=912128&f=ST
+name: "Jund Sacrifice — Abe Schnake"
+description: "Jund Sacrifice piloted by Abe Schnake at Worlds 32."
+main:
+  "Biotech Specialist": 4
+  "Gene Pollinator": 4
+  "Greedy Freebooter": 4
+  "The Sackville-Bagginses": 4
+  "Umbral Collar Zealot": 4
+  "Q, Stacking the Deck": 1
+  "Smaug the Magnificent": 1
+  "The Ooze": 1
+  "Torch the Tower": 4
+  "Witherbloom Charm": 2
+  "Lively Dirge": 4
+  "Obsessive Pursuit": 4
+  "Blood Crypt": 4
+  "Blooming Marsh": 4
+  "Starting Town": 4
+  "Stomping Ground": 4
+  "Blazemire Verge": 2
+  "Forest": 1
+  "Mountain": 1
+  "Swamp": 1
+  "Thornspire Verge": 1
+  "Wastewood Verge": 1
+sideboard:
+  "The Ooze": 1
+  "Duress": 3
+  "Bitter Triumph": 2
+  "Chandra, Spark Hunter": 2
+  "Engineered Explosives": 2
+  "Fire Magic": 2
+  "Guerrilla Gorilla": 1
+  "Test of Courage": 1
+  "Wolverine, Fierce Fighter": 1

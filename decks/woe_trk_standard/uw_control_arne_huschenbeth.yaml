@@ -1,0 +1,39 @@
+# Magic World Championship 32, Atlanta — November 14, 2026 — 5-8 place
+# Source: https://mtgtop8.com/event?e=93781&d=912122&f=ST
+name: "UW Control — Arne Huschenbeth"
+description: "UW Control piloted by Arne Huschenbeth at Worlds 32."
+main:
+  "Captain Marvel, Earth's Protector": 1
+  "Pinnacle Starcage": 2
+  "Consult the Star Charts": 4
+  "Countersculpt": 4
+  "Get Lost": 4
+  "Jace's Machinations": 3
+  "No More Lies": 3
+  "Spell Snare": 2
+  "Day of Judgment": 3
+  "Seam Rip": 4
+  "The Theorist, Jace Beleren": 4
+  "Deserted Beach": 4
+  "Floodfarm Verge": 4
+  "Hallowed Fountain": 4
+  "Island": 3
+  "Petrified Hamlet": 3
+  "Meticulous Archive": 2
+  "Plains": 2
+  "Theorist's Sanctum": 2
+  "Multiversal Passage": 1
+  "Restless Anchorage": 1
+sideboard:
+  "Captain Marvel, Earth's Protector": 1
+  "Spell Snare": 2
+  "Doorkeeper Thrull": 2
+  "Rest in Peace": 2
+  "Annul": 1
+  "Cavern of Souls": 1
+  "Emeritus of Ideation // Ancestral Recall": 1
+  "Erode": 1
+  "Flashfreeze": 1
+  "Sphinx of False Conclusions": 1
+  "Voice of Victory": 1
+  "Wan Shi Tong, Librarian": 1

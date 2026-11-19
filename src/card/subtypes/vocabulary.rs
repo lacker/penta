@@ -224,6 +224,7 @@ subtype_vocabulary! {
     Eldrazi => ["Eldrazi"], [Creature];
     Elemental => ["Elemental"], [Creature];
     Elephant => ["Elephant"], [Creature];
+    ElAurian => ["El-Aurian"], [Creature];
     Elf => ["Elf"], [Creature];
     Elk => ["Elk"], [Creature];
     Employee => ["Employee"], [Creature];
@@ -446,6 +447,7 @@ subtype_vocabulary! {
     Vedalken => ["Vedalken"], [Creature];
     Villain => ["Villain"], [Creature];
     Volver => ["Volver"], [Creature];
+    Vulcan => ["Vulcan"], [Creature];
     Wall => ["Wall"], [Creature];
     Walrus => ["Walrus"], [Creature];
     Warlock => ["Warlock"], [Creature];

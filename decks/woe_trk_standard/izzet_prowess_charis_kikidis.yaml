@@ -1,0 +1,33 @@
+# Magic World Championship 32, Atlanta — November 14, 2026 — 5-8 place
+# Source: https://mtgtop8.com/event?e=93781&d=912123&f=ST
+name: "Izzet Prowess — Charis Kikidis"
+description: "Izzet Prowess piloted by Charis Kikidis at Worlds 32."
+main:
+  "Pompous Battlemage // Improvised Act": 4
+  "Slickshot Show-Off": 4
+  "Elusive Otter // Grove's Bounty": 4
+  "Mountain": 1
+  "Great Hall of the Biblioplex": 2
+  "Island": 3
+  "Starting Town": 3
+  "Riverpyre Verge": 4
+  "Spirebluff Canal": 4
+  "Steam Vents": 4
+  "Ravenous Cosmozoan": 2
+  "Sleight of Hand": 4
+  "Flow State": 4
+  "Vibrant Outburst": 4
+  "Opt": 4
+  "Burst Lightning": 4
+  "Secret Identity": 2
+  "Wild Ride": 2
+  "Impractical Joke": 1
+sideboard:
+  "Karn, Argent Defender": 1
+  "Spell Pierce": 2
+  "Ral, Crackling Wit": 2
+  "Into the Flood Maw": 2
+  "Ghost Vacuum": 2
+  "Fire Magic": 2
+  "Anthropological Mission": 3
+  "Spell Snare": 1

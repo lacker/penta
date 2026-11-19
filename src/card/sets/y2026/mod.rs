@@ -16,3 +16,6 @@ pub mod the_hobbit_eternal;
 pub mod lorwyn_eclipsed_commander;
 
 pub mod star_trek_commander;
+
+pub mod reality_fracture;
+pub mod star_trek;

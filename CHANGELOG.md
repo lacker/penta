@@ -20,6 +20,16 @@ the bot-wire epoch.
 
 ## Unreleased
 
+- Add the fixed paper Standard: WOE–TRK profile, Reality Fracture and Star Trek
+  inventories, and the eight Worlds 32 Top 8 decks with their published sideboards.
+  Native/binding setup accepts `woe-trk-standard`, and the browser picker exposes
+  all eight lists. Three lists have complete coverage; ten distinct cards across
+  the other five remain explicitly unsupported. Implement 53 card identities,
+  reuse prepare composition, retain departing-object counters for effects, and
+  expose duration-exiled cards through linked-exile queries. Existing format
+  meanings and protocol, replay, and checkpoint versions are unchanged.
+  See the [event corpus and remaining mechanics](decks/woe_trk_standard/README.md).
+
 - Add a native single-match host and typed proposal interface. The default
   `pilot-v3` client receives complete seat-visible state, printed rules, action
   context, and pending decision options without an exhaustive action menu.

@@ -589,14 +589,12 @@ impl Game {
             }),
             ValueDef::CountersOnObject(counted) => self
                 .object_reference_target(counted.object, object, context, scoped)
-                .and_then(|target| match target {
-                    Target::Permanent(id) => self
-                        .battlefield
-                        .iter()
-                        .find(|permanent| permanent.card.id == id),
-                    Target::Card(_) | Target::Player(_) | Target::Spell(_) => None,
-                })
-                .map_or(0, |permanent| i32::from(permanent.counters(counted.kind))),
+                .map_or(0, |target| match target {
+                    Target::Permanent(id) | Target::Card(id) => {
+                        i32::from(self.current_or_last_known_counters(id, counted.kind))
+                    }
+                    Target::Player(_) | Target::Spell(_) => 0,
+                }),
             ValueDef::DamageTakenThisTurn { player, source } => {
                 let player = [PlayerId::One, PlayerId::Two]
                     .into_iter()

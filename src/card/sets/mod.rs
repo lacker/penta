@@ -292,6 +292,8 @@ const SET_MODULES: &[SetDefinition] = &[
     y2016::commander_2016::DEFINITION,
     y2023::march_of_the_machine_the_aftermath::DEFINITION,
     y2026::the_hobbit::DEFINITION,
+    y2026::reality_fracture::DEFINITION,
+    y2026::star_trek::DEFINITION,
     y2023::secret_lair_drop::DEFINITION,
     y2024::outlaws_of_thunder_junction_commander::DEFINITION,
     y2026::teenage_mutant_ninja_turtles_eternal::DEFINITION,

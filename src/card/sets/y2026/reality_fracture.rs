@@ -1295,7 +1295,7 @@ pub(in crate::card::sets) static POMPOUS_BATTLEMAGE_IMPROVISED_ACT: CardRecord =
     crate::card::sets::secrets_of_strixhaven::prepare(
         &POMPOUS_BATTLEMAGE_IMPROVISED_ACT,
         "Improvised Act",
-        CardRules::new_sorcery(mana_cost!("{R}")).with_ability(AbilityDef::spell(
+        &CardRules::new_sorcery(mana_cost!("{R}")).with_ability(AbilityDef::spell(
             "You may discard a card. If you do, draw a card.",
             EffectDef::PayOr(PayOrDef::optional(
                 &[CostDef::DiscardCards(1)],
@@ -1448,7 +1448,7 @@ pub(in crate::card::sets) static CARNIVOROUS_CULTIVATOR_ENROOT: CardRecord = Car
     crate::card::sets::secrets_of_strixhaven::prepare(
         &CARNIVOROUS_CULTIVATOR_ENROOT,
         "Enroot",
-        CardRules::new_sorcery(mana_cost!("{G}")).with_ability(AbilityDef::spell(
+        &CardRules::new_sorcery(mana_cost!("{G}")).with_ability(AbilityDef::spell(
             "Search your library for a land card, put it into your graveyard, \
              then shuffle.",
             EffectDef::SearchZone {

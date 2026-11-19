@@ -152,7 +152,7 @@ const PEST_TOKEN: TokenCharacteristics =
 pub(in crate::card::sets) fn prepare(
     record: &CardRecord,
     name: &'static str,
-    spell: CardRules,
+    spell: &CardRules,
 ) -> crate::card::CardComposition {
     use crate::card::{
         AlternateSpellKind, CardComposition, CardEffectStatus, CardPart, CardStructure,
@@ -167,7 +167,7 @@ pub(in crate::card::sets) fn prepare(
     CardComposition {
         parts: vec![
             CardPart::new(CardPartId::PRIMARY, main, record.rules),
-            CardPart::new(CardPartId(1), name, spell),
+            CardPart::new(CardPartId(1), name, *spell),
         ],
         structure: CardStructure::AlternateSpell {
             main: CardPartId::PRIMARY,
@@ -1310,7 +1310,7 @@ pub(in crate::card::sets) static EMERITUS_OF_IDEATION: CardRecord = CardRecord::
     prepare(
         &EMERITUS_OF_IDEATION,
         "Ancestral Recall",
-        catalog_lea::ANCESTRAL_RECALL.rules,
+        &catalog_lea::ANCESTRAL_RECALL.rules,
     )
 });
 

@@ -501,14 +501,14 @@ fn validate_declaration(
         .get(initializer_index + 1)
         .and_then(|line| line.trim().strip_suffix(','))
         .and_then(|literal| syn::parse_str::<syn::LitStr>(literal).ok())
-        .map(|literal| literal.value())
         .unwrap_or_else(|| {
             panic!(
                 "{}:{}: expected a one-line canonical card name",
                 path.display(),
                 initializer_index + 2
             )
-        });
+        })
+        .value();
     let scryfall_id = lines
         .get(initializer_index + 2)
         .and_then(|line| line.trim().strip_prefix('"'))

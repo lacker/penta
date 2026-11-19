@@ -274,7 +274,7 @@ fn current_standard_worlds_top_eight_preserves_lists_and_reports_coverage() {
                 println!("{}: complete", source.name);
             }
             Err(crate::DeckError::UnsupportedCards(cards)) => {
-                println!("{}: {:?}", source.name, cards)
+                println!("{}: {:?}", source.name, cards);
             }
             Err(error) => panic!("{}: {error}", source.name),
         }

@@ -147,6 +147,53 @@ const PEST_TOKEN: TokenCharacteristics =
             "Oriana Menendez",
         ));
 
+/// Build the two printed frames of a prepare card. The alternate is a castable copy,
+/// while the physical card remains represented by its main permanent frame.
+pub(in crate::card::sets) fn prepare(
+    record: &CardRecord,
+    name: &'static str,
+    spell: &CardRules,
+) -> crate::card::CardComposition {
+    use crate::card::{
+        AlternateSpellKind, CardComposition, CardEffectStatus, CardPart, CardStructure,
+        PlayOptionDef, SpellForm,
+    };
+    use crate::{CardPartId, PlayOptionId};
+    let main = record
+        .name
+        .split(" // ")
+        .next()
+        .expect("prepare main frame");
+    CardComposition {
+        parts: vec![
+            CardPart::new(CardPartId::PRIMARY, main, record.rules),
+            CardPart::new(CardPartId(1), name, *spell),
+        ],
+        structure: CardStructure::AlternateSpell {
+            main: CardPartId::PRIMARY,
+            alternate: CardPartId(1),
+            kind: AlternateSpellKind::Prepare,
+        },
+        play_options: vec![
+            PlayOptionDef::cast(
+                PlayOptionId::DEFAULT,
+                main,
+                SpellForm::Part(CardPartId::PRIMARY),
+                record.rules.mana_cost().expect("prepare permanent cost"),
+                CardEffectStatus::Implemented,
+            ),
+            PlayOptionDef::cast(
+                PlayOptionId(1),
+                name,
+                SpellForm::Part(CardPartId(1)),
+                spell.mana_cost().expect("prepare spell cost"),
+                CardEffectStatus::Implemented,
+            ),
+        ],
+    }
+    .with_derived_spell_targets()
+}
+
 // SOS 1 — The Dawning Archaic
 pub(in crate::card::sets) static THE_DAWNING_ARCHAIC: CardRecord = CardRecord::new(
     "The Dawning Archaic",
@@ -1260,47 +1307,11 @@ pub(in crate::card::sets) static EMERITUS_OF_IDEATION: CardRecord = CardRecord::
     ]),
 )
 .with_composition(|| {
-    use crate::card::{
-        AlternateSpellKind, CardComposition, CardEffectStatus, CardPart, CardStructure,
-        PlayOptionDef, SpellForm,
-    };
-    use crate::{CardPartId, PlayOptionId};
-    CardComposition {
-        parts: vec![
-            CardPart::new(
-                CardPartId::PRIMARY,
-                "Emeritus of Ideation",
-                EMERITUS_OF_IDEATION.rules,
-            ),
-            CardPart::new(
-                CardPartId(1),
-                "Ancestral Recall",
-                catalog_lea::ANCESTRAL_RECALL.rules,
-            ),
-        ],
-        structure: CardStructure::AlternateSpell {
-            main: CardPartId::PRIMARY,
-            alternate: CardPartId(1),
-            kind: AlternateSpellKind::Prepare,
-        },
-        play_options: vec![
-            PlayOptionDef::cast(
-                PlayOptionId::DEFAULT,
-                "Emeritus of Ideation",
-                SpellForm::Part(CardPartId::PRIMARY),
-                mana_cost!("{3}{U}{U}"),
-                CardEffectStatus::Implemented,
-            ),
-            PlayOptionDef::cast(
-                PlayOptionId(1),
-                "Ancestral Recall",
-                SpellForm::Part(CardPartId(1)),
-                mana_cost!("{U}"),
-                CardEffectStatus::Implemented,
-            ),
-        ],
-    }
-    .with_derived_spell_targets()
+    prepare(
+        &EMERITUS_OF_IDEATION,
+        "Ancestral Recall",
+        &catalog_lea::ANCESTRAL_RECALL.rules,
+    )
 });
 
 // SOS 46 — Encouraging Aviator // Jump

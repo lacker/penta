@@ -1,8 +1,16 @@
 //! Teenage Mutant Ninja Turtles card inventory.
 
 use crate::card::CostQuantityDef;
+use crate::card::CounterKindDef;
+use crate::card::CounterOperationDef;
+use crate::card::DamageEventMatcherDef;
+use crate::card::DamageKindDef;
+use crate::card::DamageRecipientMatcherDef;
+use crate::card::DamageSourceMatcherDef;
 use crate::card::MechanicId;
+use crate::card::ObjectCounterValueDef;
 use crate::card::PlayPermissionDef;
+use crate::card::ReplacementEffectDef;
 use crate::card::ZonePositionDef;
 
 use crate::card::PlayActionMatcherDef;
@@ -3414,13 +3422,71 @@ pub(in crate::card::sets) static GUAC_MARSHMALLOW_PIZZA: CardRecord = CardRecord
 );
 
 // TMT 117 — Leatherhead, Swamp Stalker
-// Audit: unsupported — Needs an optional resolving removal of a chosen counter kind and a
-// source-independent reflexive destruction trigger with targets chosen after that payment.
 pub(in crate::card::sets) static LEATHERHEAD_SWAMP_STALKER: CardRecord = CardRecord::new(
     "Leatherhead, Swamp Stalker",
     "b1f6b5b5-12ca-468d-bc53-dd0cde60e7b6",
     "Lie Setiawan",
-    CardRules::unsupported(),
+    CardRules::new_creature(
+        mana_cost!("{2}{G}{G}"),
+        &["Crocodile", "Mutant", "Rogue"],
+        5,
+        4,
+    )
+    .with_supertype(CardSupertype::Legendary)
+    .with_abilities(&[
+        abilities::trample(),
+        AbilityDef::as_enters(
+            "Leatherhead enters with a hexproof counter on her.",
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCounters {
+                    kind: CounterKind::Hexproof,
+                    amount: 1,
+                },
+            ),
+        ),
+        AbilityDef::triggered(
+            "Whenever Leatherhead deals combat damage to a player, you may \
+             remove a counter from her.",
+            TriggerEventDef::DamageDealt(DamageEventMatcherDef {
+                kind: DamageKindDef::Combat,
+                source: DamageSourceMatcherDef::Object(ObjectRefDef::Source),
+                recipient: DamageRecipientMatcherDef::Recipients(EffectRecipientDef::players(
+                    PlayerSetDef::All,
+                )),
+            }),
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::ChooseCounterKind {
+                    object: EffectRecipientDef::Source,
+                    then: &EffectDef::Sequence(&[
+                        EffectDef::ModifyCounters {
+                            object: EffectRecipientDef::Source,
+                            kind: CounterKindDef::Chosen,
+                            operation: CounterOperationDef::Remove,
+                            amount: ValueDef::Constant(1),
+                        },
+                        EffectDef::ReflexiveTrigger(&AbilityDef::triggered_with_targets(
+                            "When you do, destroy target artifact or enchantment \
+                             that player controls.",
+                            TriggerEventDef::Reflexive,
+                            &[AbilityTargetDef::exactly_one(
+                                AbilityTargetPredicate::Object {
+                                    object: ObjectPredicateDef::AnyOf(&[
+                                        ObjectPredicateDef::HasType(CardType::Artifact),
+                                        ObjectPredicateDef::HasType(CardType::Enchantment),
+                                    ]),
+                                    zones: &[ZoneKind::Battlefield],
+                                    controller: Some(PlayerRelation::EventPlayer),
+                                    owner: None,
+                                },
+                            )],
+                            EffectDef::destroy_target(TargetIndex::PRIMARY),
+                        )),
+                    ]),
+                },
+            },
+        ),
+    ]),
 );
 
 // TMT 118 — Michelangelo, Game Master
@@ -5158,14 +5224,60 @@ pub(in crate::card::sets) static OMNI_CHEESE_PIZZA: CardRecord = CardRecord::new
 );
 
 // TMT 177 — The Ooze
-// Audit: unsupported — Needs the triggering departing creature's last-known +1/+1-counter
-// count; CountersOnObject only reads live battlefield objects and returns zero after that
-// creature leaves.
 pub(in crate::card::sets) static THE_OOZE: CardRecord = CardRecord::new(
     "The Ooze",
     "1f9bd4da-4626-40ba-95f4-14e3de36f989",
     "Gabriel Tanko",
-    CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{2}"))
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::triggered(
+                "Whenever a creature you control with a +1/+1 counter on it leaves \
+                 the battlefield, create a Mutagen token for each +1/+1 counter \
+                 on it. (A Mutagen token is an artifact with \"{1}, {T}, \
+                 Sacrifice this token: Put a +1/+1 counter on \
+                 target creature. \
+                 Activate only as a sorcery.\")",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                        ObjectPredicateDef::HasCounter(CounterKind::PlusOnePlusOne),
+                    ]),
+                    Some(ZoneKind::Battlefield),
+                    None,
+                ),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(MUTAGEN_TOKEN)).with_count(
+                        ValueDef::CountersOnObject(&ObjectCounterValueDef {
+                            object: ObjectRefDef::TriggeringObject,
+                            kind: CounterKind::PlusOnePlusOne,
+                        }),
+                    ),
+                ),
+            ),
+            AbilityDef::activated_with_targets(
+                "{T}: Exile target card from a graveyard. Create a \
+                 Mutagen token.",
+                &[CostDef::TapSource],
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::Any,
+                        zones: &[ZoneKind::Graveyard],
+                        controller: None,
+                        owner: None,
+                    },
+                )],
+                EffectDef::Sequence(&[
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ZoneKind::Exile,
+                        ZonePlacement::Top,
+                    ),
+                    EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(MUTAGEN_TOKEN))),
+                ]),
+            ),
+        ]),
 );
 
 // TMT 178 — Skateboard

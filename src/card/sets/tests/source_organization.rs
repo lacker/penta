@@ -453,7 +453,8 @@ fn source_entry_for_header(
     let audit = audit.map(|(status, gap)| SourceAudit {
         set: set_source.set,
         name: declaration
-            .map_or(header.name, |(_, name)| name)
+            .as_ref()
+            .map_or(header.name, |(_, name)| name.as_str())
             .to_string(),
         status,
         gap: gap.to_string(),
@@ -480,13 +481,13 @@ fn printing_declaration_symbol(line: &str) -> Option<&str> {
         .map(|(symbol, _)| symbol)
 }
 
-fn validate_declaration<'a>(
-    lines: &[&'a str],
+fn validate_declaration(
+    lines: &[&str],
     index: usize,
     _symbol: &str,
     header_name: &str,
     path: &Path,
-) -> &'a str {
+) -> String {
     let initializer_index = (index..lines.len().min(index + 3))
         .find(|candidate| lines[*candidate].trim().ends_with('('))
         .unwrap_or_else(|| {
@@ -498,15 +499,16 @@ fn validate_declaration<'a>(
         });
     let name = lines
         .get(initializer_index + 1)
-        .and_then(|line| line.trim().strip_prefix('"'))
-        .and_then(|line| line.strip_suffix("\","))
+        .and_then(|line| line.trim().strip_suffix(','))
+        .and_then(|literal| syn::parse_str::<syn::LitStr>(literal).ok())
         .unwrap_or_else(|| {
             panic!(
                 "{}:{}: expected a one-line canonical card name",
                 path.display(),
                 initializer_index + 2
             )
-        });
+        })
+        .value();
     let scryfall_id = lines
         .get(initializer_index + 2)
         .and_then(|line| line.trim().strip_prefix('"'))
@@ -534,7 +536,7 @@ fn validate_declaration<'a>(
     assert!(
         header_name == name
             || header_name
-                .strip_prefix(name)
+                .strip_prefix(name.as_str())
                 .and_then(|suffix| suffix.strip_prefix(" // "))
                 .is_some_and(|back_name| !back_name.is_empty()),
         "{}:{}: header name must match the CardRecord name, optionally followed by a double-faced back name",

@@ -1122,14 +1122,54 @@ pub(in crate::card::sets) static LUXKNIGHT_BREACHER: CardRecord = CardRecord::ne
 );
 
 // EOE 27 — Pinnacle Starcage
-// Audit: unsupported — Needs exile-until-source-leaves with immediate return and a linked group
-// of exiled objects retained for the second ability; a leaves trigger is not the printed
-// duration.
 pub(in crate::card::sets) static PINNACLE_STARCAGE: CardRecord = CardRecord::new(
     "Pinnacle Starcage",
     "b1f40c4c-a955-4d9c-8225-251fa4159124",
     "Leon Tukker",
-    CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{1}{W}{W}")).with_abilities(&[
+        abilities::enters_trigger(
+            "When this artifact enters, exile all artifacts and creatures with mana value 2 \
+             or less until this artifact leaves the battlefield.",
+            abilities::exile_until_source_leaves(EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                    ]),
+                    ObjectPredicateDef::ManaValueAtMost(2),
+                ]),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
+            )),
+        ),
+        AbilityDef::activated(
+            "{6}{W}{W}: Put each card exiled with this artifact into its owner's graveyard, \
+             then create a 2/2 colorless Robot artifact creature token for each card put into a \
+             graveyard this way. Sacrifice this artifact.",
+            &[CostDef::Mana(mana_cost!("{6}{W}{W}"))],
+            EffectDef::WithZoneMoveResult {
+                effect: &EffectDef::move_to_zone(
+                    EffectRecipientDef::objects(ObjectSetDef::LinkedExiles),
+                    ZoneKind::Graveyard,
+                    ZonePlacement::Top,
+                ),
+                binding: crate::Binding!("moved"),
+                then: &EffectDef::Sequence(&[
+                    EffectDef::CreateToken(
+                        CreateTokenDef::new(TokenDef::Literal(ROBOT_TOKEN)).with_count(
+                            ValueDef::CountObjects(&ObjectSetDef::InZone {
+                                objects: &ObjectSetDef::ZoneChangeSuccessorsOfBinding(
+                                    crate::Binding!("moved"),
+                                ),
+                                zone: ZoneKind::Graveyard,
+                            }),
+                        ),
+                    ),
+                    EffectDef::sacrifice(EffectRecipientDef::Source),
+                ]),
+            },
+        ),
+    ]),
 );
 
 // EOE 28 — Pulsar Squadron Ace

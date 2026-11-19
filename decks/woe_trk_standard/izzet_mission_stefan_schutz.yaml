@@ -1,0 +1,40 @@
+# Magic World Championship 32, Atlanta — November 14, 2026 — 1 place
+# Source: https://mtgtop8.com/event?e=93781&d=912141&f=ST
+name: "Izzet Mission — Stefan Schütz"
+description: "Izzet Mission piloted by Stefan Schütz at Worlds 32."
+main:
+  "Burst Lightning": 1
+  "Fire Magic": 1
+  "Sear": 1
+  "Traumatic Critique": 1
+  "Impractical Joke": 1
+  "Engineered Explosives": 1
+  "Spell Snare": 2
+  "Torch the Tower": 2
+  "Long River's Pull": 2
+  "Consult the Star Charts": 2
+  "Spell Pierce": 2
+  "Into the Flood Maw": 3
+  "Ral, Crackling Wit": 3
+  "Opt": 4
+  "Flashback": 4
+  "Anthropological Mission": 4
+  "Sleight of Hand": 4
+  "Stormcarved Coast": 1
+  "Multiversal Passage": 1
+  "Great Hall of the Biblioplex": 2
+  "Steam Vents": 4
+  "Spirebluff Canal": 4
+  "Riverpyre Verge": 4
+  "Island": 6
+sideboard:
+  "Petrified Hamlet": 1
+  "Bothersome Noisemaker": 3
+  "Annul": 2
+  "Essence Burn": 2
+  "Stock Up": 2
+  "Flashfreeze": 1
+  "Ghost Vacuum": 1
+  "Fire Magic": 1
+  "Impractical Joke": 1
+  "Spell Snare": 1

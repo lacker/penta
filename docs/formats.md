@@ -213,6 +213,19 @@ Chaos Orb interaction: Guardian Beast can prevent the Orb's final destruction,
 but destroying the Beast with a successful flip removes that protection before
 the Orb's next instruction.
 
+### Standard: WOE–TRK decks
+
+The fixed `woe-trk-standard` profile adds Reality Fracture and Star Trek to the
+WOE–HOB pool, matching [paper Standard](https://magic.wizards.com/en/formats/standard)
+as checked on November 19, 2026. It retains the thirteen paper bans after the
+[October 12 announcement](https://magic.wizards.com/en/news/announcements/banned-and-restricted-october-12-2026).
+The eight Worlds 32 Top 8 lists are available in native setup and the browser.
+Each has 60 main-deck cards and a 15-card sideboard. Izzet Mission, Azorius Momo,
+and Izzet Prowess have complete rules coverage; ten identities across the other
+five lists remain unsupported. See the [event corpus](../decks/woe_trk_standard/README.md)
+for deck links, coverage, and remaining mechanics. WOE–HOB retains its historical
+meaning and lists.
+
 ### Standard: WOE–HOB decks
 
 WOE–HOB names the fixed Standard card pool from Wilds of Eldraine through
